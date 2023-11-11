@@ -171,6 +171,10 @@ public:
             }
         }
     }
+
+    void visit_ArrayBroadcast(const ASR::ArrayBroadcast_t& x) {
+        visit_expr(*x.m_array);
+    }
 };
 
 
@@ -218,6 +222,13 @@ public:
 
     void replace_Array(ASR::Array_t* /*x*/) {
         return ;
+    }
+
+    void replace_ArrayBroadcast(ASR::ArrayBroadcast_t* x) {
+        ASR::expr_t** current_expr_copy_161 = current_expr;
+        current_expr = &(x->m_array);
+        replace_expr(x->m_array);
+        current_expr = current_expr_copy_161;
     }
 };
 
@@ -437,6 +448,16 @@ class ReplaceNestedVisitor: public ASR::CallReplacerOnExpressionsVisitor<Replace
         return ;
     }
 
+    void visit_ArrayBroadcast(const ASR::ArrayBroadcast_t& x) {
+        ASR::expr_t** current_expr_copy_269 = current_expr;
+        current_expr = const_cast<ASR::expr_t**>(&(x.m_array));
+        call_replacer();
+        current_expr = current_expr_copy_269;
+        if( x.m_array ) {
+            visit_expr(*x.m_array);
+        }
+    }
+
 };
 
 class AssignNestedVars: public PassUtils::PassVisitor<AssignNestedVars> {
@@ -613,6 +634,10 @@ public:
 
     void visit_Array(const ASR::Array_t& /*x*/) {
         return ;
+    }
+
+    void visit_ArrayBroadcast(const ASR::ArrayBroadcast_t& x) {
+        visit_expr(*x.m_array);
     }
 };
 

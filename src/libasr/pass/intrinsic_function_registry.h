@@ -47,6 +47,8 @@ enum class IntrinsicScalarFunctions : int64_t {
     Expm1,
     FMA,
     FlipSign,
+    Mod,
+    Trailz,
     FloorDiv,
     ListIndex,
     Partition,
@@ -63,6 +65,8 @@ enum class IntrinsicScalarFunctions : int64_t {
     Sign,
     SignFromValue,
     Aint,
+    Sqrt,
+    Sngl,
     SymbolicSymbol,
     SymbolicAdd,
     SymbolicSub,
@@ -117,6 +121,8 @@ inline std::string get_intrinsic_name(int x) {
         INTRINSIC_NAME_CASE(FMA)
         INTRINSIC_NAME_CASE(FlipSign)
         INTRINSIC_NAME_CASE(FloorDiv)
+        INTRINSIC_NAME_CASE(Mod)
+        INTRINSIC_NAME_CASE(Trailz)
         INTRINSIC_NAME_CASE(ListIndex)
         INTRINSIC_NAME_CASE(Partition)
         INTRINSIC_NAME_CASE(ListReverse)
@@ -131,6 +137,8 @@ inline std::string get_intrinsic_name(int x) {
         INTRINSIC_NAME_CASE(Sign)
         INTRINSIC_NAME_CASE(SignFromValue)
         INTRINSIC_NAME_CASE(Aint)
+        INTRINSIC_NAME_CASE(Sqrt)
+        INTRINSIC_NAME_CASE(Sngl)
         INTRINSIC_NAME_CASE(SymbolicSymbol)
         INTRINSIC_NAME_CASE(SymbolicAdd)
         INTRINSIC_NAME_CASE(SymbolicSub)
@@ -326,27 +334,45 @@ class ASRBuilder {
 
     // Binop -------------------------------------------------------------------
     #define iAdd(left, right) EXPR(ASR::make_IntegerBinOp_t(al, loc, left,      \
-        ASR::binopType::Add, right, int32, nullptr))
+            ASR::binopType::Add, right, int32, nullptr))
+
     #define iMul(left, right) EXPR(ASR::make_IntegerBinOp_t(al, loc, left,      \
-        ASR::binopType::Mul, right, int32, nullptr))
+            ASR::binopType::Mul, right, int32, nullptr))
     #define iSub(left, right) EXPR(ASR::make_IntegerBinOp_t(al, loc, left,      \
-        ASR::binopType::Sub, right, int32, nullptr))
-    #define iDiv(left, right) r2i32(EXPR(ASR::make_RealBinOp_t(al, loc,         \
-        i2r32(left), ASR::binopType::Div, i2r32(right), real32, nullptr)))
+            ASR::binopType::Sub, right, int32, nullptr))
+    #define iDiv(left, right) r2i32(EXPR(ASR::make_RealBinOp_t(al, loc, \
+                i2r32(left), ASR::binopType::Div, i2r32(right), real32, nullptr)))
     #define i64Sub(left, right) EXPR(ASR::make_IntegerBinOp_t(al, loc, left,      \
         ASR::binopType::Sub, right, int64, nullptr))
+    #define iAdd64(left, right) EXPR(ASR::make_IntegerBinOp_t(al, loc, left,      \
+            ASR::binopType::Add, right, int64, nullptr))
+    #define iDiv64(left, right) r2i64(EXPR(ASR::make_RealBinOp_t(al, loc, \
+                i2r32(left), ASR::binopType::Div, i2r32(right), real32, nullptr)))
+    #define r32Div(left, right) EXPR(ASR::make_RealBinOp_t(al, loc, \
+                left, ASR::binopType::Div, right, real32, nullptr))
     #define r64Div(left, right) EXPR(ASR::make_RealBinOp_t(al, loc, \
                 left, ASR::binopType::Div, right, real64, nullptr))
-    #define rDiv(left, right) EXPR(ASR::make_RealBinOp_t(al, loc, left,         \
-        ASR::binopType::Div, right, real32, nullptr))
+
+    #define r32Sub(left, right) EXPR(ASR::make_RealBinOp_t(al, loc, left,      \
+            ASR::binopType::Sub, right, real32, nullptr))
+    #define r64Sub(left, right) EXPR(ASR::make_RealBinOp_t(al, loc, left,      \
+            ASR::binopType::Sub, right, real64, nullptr))
+    #define r32Mul(left, right) EXPR(ASR::make_RealBinOp_t(al, loc, left,      \
+            ASR::binopType::Mul, right, real32, nullptr))
+    #define r64Mul(left, right) EXPR(ASR::make_RealBinOp_t(al, loc, left,      \
+            ASR::binopType::Mul, right, real64, nullptr))
+    #define rDiv(left, right) ASRUtils::make_ArrayBroadcast_t_util(al, loc, left, right); \
+        EXPR(ASR::make_RealBinOp_t(al, loc, left, \
+            ASR::binopType::Div, right, real32, nullptr)) \
 
     #define And(x, y) EXPR(ASR::make_LogicalBinOp_t(al, loc, x,                 \
-        ASR::logicalbinopType::And, y, logical, nullptr))
+            ASR::logicalbinopType::And, y, logical, nullptr))
     #define Not(x)    EXPR(ASR::make_LogicalNot_t(al, loc, x, logical, nullptr))
 
     ASR::expr_t *Add(ASR::expr_t *left, ASR::expr_t *right) {
         LCOMPILERS_ASSERT(check_equal_type(expr_type(left), expr_type(right)));
         ASR::ttype_t *type = expr_type(left);
+        ASRUtils::make_ArrayBroadcast_t_util(al, loc, left, right);
         switch (type->type) {
             case ASR::ttypeType::Integer : {
                 return EXPR(ASR::make_IntegerBinOp_t(al, loc, left,
@@ -368,6 +394,7 @@ class ASRBuilder {
     ASR::expr_t *Mul(ASR::expr_t *left, ASR::expr_t *right) {
         LCOMPILERS_ASSERT(check_equal_type(expr_type(left), expr_type(right)));
         ASR::ttype_t *type = expr_type(left);
+        ASRUtils::make_ArrayBroadcast_t_util(al, loc, left, right);
         switch (type->type) {
             case ASR::ttypeType::Integer : {
                 return EXPR(ASR::make_IntegerBinOp_t(al, loc, left,
@@ -838,7 +865,7 @@ class ASRBuilder {
         // Used for debugging
         Vec<ASR::expr_t *> x_exprs;
         x_exprs.from_pointer_n_copy(al, &items[0], items.size());
-        return STMT(ASR::make_Print_t(al, loc, nullptr, x_exprs.p, x_exprs.n,
+        return STMT(ASR::make_Print_t(al, loc, x_exprs.p, x_exprs.n,
             nullptr, nullptr));
     }
 
@@ -1738,6 +1765,136 @@ namespace Aint {
 
 }  // namespace Aint
 
+namespace Sqrt {
+
+    static inline void verify_args(const ASR::IntrinsicScalarFunction_t& x,
+            diag::Diagnostics& diagnostics) {
+        ASRUtils::require_impl(x.n_args == 1,
+            "ASR Verify: Call `sqrt` must have exactly one argument",
+            x.base.base.loc, diagnostics);
+        ASR::ttype_t *type = ASRUtils::expr_type(x.m_args[0]);
+        ASRUtils::require_impl(ASRUtils::is_real(*type) || ASRUtils::is_complex(*type),
+            "ASR Verify: Arguments to `sqrt` must be of real or complex type",
+            x.base.base.loc, diagnostics);
+    }
+
+    static ASR::expr_t *eval_Sqrt(Allocator &al, const Location &loc,
+            ASR::ttype_t* arg_type, Vec<ASR::expr_t*> &args) {
+        if (is_real(*arg_type)) {
+            double val = ASR::down_cast<ASR::RealConstant_t>(expr_value(args[0]))->m_r;
+            return f(std::sqrt(val), arg_type);
+        } else {
+            std::complex<double> crv;
+            if( ASRUtils::extract_value(args[0], crv) ) {
+                std::complex<double> val = std::sqrt(crv);
+                return ASRUtils::EXPR(ASR::make_ComplexConstant_t(
+                    al, loc, val.real(), val.imag(), arg_type));
+            } else {
+                return nullptr;
+            }
+        }
+    }
+
+    static inline ASR::asr_t* create_Sqrt(Allocator& al, const Location& loc,
+            Vec<ASR::expr_t*>& args,
+            const std::function<void (const std::string &, const Location &)> err) {
+        ASR::ttype_t* return_type = expr_type(args[0]);
+        if ( args.n != 1 ) {
+            err("Intrinsic `sqrt` accepts exactly one argument", loc);
+        } else if ( !(is_real(*return_type) || is_complex(*return_type)) ) {
+            err("Argument of the `sqrt` must be Real or Complex", loc);
+        }
+        ASR::expr_t *m_value = nullptr;
+        if (all_args_evaluated(args)) {
+            m_value = eval_Sqrt(al, loc, return_type, args);
+        }
+        return ASR::make_IntrinsicScalarFunction_t(al, loc,
+            static_cast<int64_t>(IntrinsicScalarFunctions::Sqrt),
+            args.p, args.n, 0, return_type, m_value);
+    }
+
+    static inline ASR::expr_t* instantiate_Sqrt(Allocator &al, const Location &loc,
+            SymbolTable *scope, Vec<ASR::ttype_t*>& arg_types, ASR::ttype_t *return_type,
+            Vec<ASR::call_arg_t>& new_args, int64_t overload_id) {
+        ASR::ttype_t* arg_type = arg_types[0];
+        if (is_real(*arg_type)) {
+            return EXPR(ASR::make_IntrinsicFunctionSqrt_t(al, loc,
+                new_args[0].m_value, return_type, nullptr));
+        } else {
+            return UnaryIntrinsicFunction::instantiate_functions(al, loc, scope,
+                "sqrt", arg_type, return_type, new_args, overload_id);
+        }
+    }
+
+}  // namespace Sqrt
+
+namespace Sngl {
+
+    static inline void verify_args(const ASR::IntrinsicScalarFunction_t& x,
+            diag::Diagnostics& diagnostics) {
+        ASRUtils::require_impl(x.n_args == 1,
+            "ASR Verify: Call `sngl` must have exactly one argument",
+            x.base.base.loc, diagnostics);
+        ASR::ttype_t *type = ASRUtils::expr_type(x.m_args[0]);
+        ASRUtils::require_impl(ASRUtils::is_real(*type),
+            "ASR Verify: Arguments to `sngl` must be of real type",
+            x.base.base.loc, diagnostics);
+    }
+
+    static ASR::expr_t *eval_Sngl(Allocator &al, const Location &loc,
+            ASR::ttype_t* arg_type, Vec<ASR::expr_t*> &args) {
+        double val = ASR::down_cast<ASR::RealConstant_t>(expr_value(args[0]))->m_r;
+        return f(val, arg_type);
+    }
+
+    static inline ASR::asr_t* create_Sngl(
+            Allocator& al, const Location& loc, Vec<ASR::expr_t*>& args,
+            const std::function<void (const std::string &, const Location &)> err) {
+        ASR::ttype_t* return_type = real32;
+        if ( args.n != 1 ) {
+            err("Intrinsic `sngl` accepts exactly one argument", loc);
+        } else if ( !is_real(*expr_type(args[0])) ) {
+            err("Argument of the `sngl` must be Real", loc);
+        }
+        Vec<ASR::expr_t *> m_args; m_args.reserve(al, 1);
+        m_args.push_back(al, args[0]);
+        ASR::expr_t *m_value = nullptr;
+        if (all_args_evaluated(m_args)) {
+            m_value = eval_Sngl(al, loc, return_type, m_args);
+        }
+        return ASR::make_IntrinsicScalarFunction_t(al, loc,
+            static_cast<int64_t>(IntrinsicScalarFunctions::Sngl),
+            m_args.p, m_args.n, 0, return_type, m_value);
+    }
+
+    static inline ASR::expr_t* instantiate_Sngl(Allocator &al, const Location &loc,
+            SymbolTable *scope, Vec<ASR::ttype_t*>& arg_types, ASR::ttype_t *return_type,
+            Vec<ASR::call_arg_t>& new_args, int64_t /*overload_id*/) {
+        std::string func_name = "_lcompilers_sngl_" + type_to_str_python(arg_types[0]);
+        std::string fn_name = scope->get_unique_name(func_name);
+        SymbolTable *fn_symtab = al.make_new<SymbolTable>(scope);
+        Vec<ASR::expr_t*> args;
+        args.reserve(al, new_args.size());
+        ASRBuilder b(al, loc);
+        Vec<ASR::stmt_t*> body; body.reserve(al, 1);
+        SetChar dep; dep.reserve(al, 1);
+        if (scope->get_symbol(fn_name)) {
+            ASR::symbol_t *s = scope->get_symbol(fn_name);
+            ASR::Function_t *f = ASR::down_cast<ASR::Function_t>(s);
+            return b.Call(s, new_args, expr_type(f->m_return_var), nullptr);
+        }
+        fill_func_arg("a", arg_types[0]);
+        auto result = declare(fn_name, return_type, ReturnVar);
+        body.push_back(al, b.Assignment(result, r2r32(args[0])));
+
+        ASR::symbol_t *f_sym = make_ASR_Function_t(fn_name, fn_symtab, dep, args,
+            body, result, ASR::abiType::Source, ASR::deftypeType::Implementation, nullptr);
+        scope->add_symbol(fn_name, f_sym);
+        return b.Call(f_sym, new_args, return_type, nullptr);
+    }
+
+}  // namespace Sngl
+
 namespace FMA {
 
      static inline void verify_args(const ASR::IntrinsicScalarFunction_t& x, diag::Diagnostics& diagnostics) {
@@ -1988,6 +2145,7 @@ namespace FlipSign {
 
 namespace FloorDiv {
 
+
      static inline void verify_args(const ASR::IntrinsicScalarFunction_t& x, diag::Diagnostics& diagnostics) {
         ASRUtils::require_impl(x.n_args == 2,
             "ASR Verify: Call to FloorDiv must have exactly 2 arguments",
@@ -2004,6 +2162,7 @@ namespace FloorDiv {
             x.base.base.loc, diagnostics);
     }
 
+
     static ASR::expr_t *eval_FloorDiv(Allocator &al, const Location &loc,
             ASR::ttype_t* t1, Vec<ASR::expr_t*> &args) {
         ASR::ttype_t *type1 = ASRUtils::expr_type(args[0]);
@@ -2018,6 +2177,7 @@ namespace FloorDiv {
         bool is_unsigned_int2 = is_unsigned_integer(*type2);
         bool is_logical1 = is_logical(*type1);
         bool is_logical2 = is_logical(*type2);
+
 
         if (is_int1 && is_int2) {
             int64_t a = ASR::down_cast<ASR::IntegerConstant_t>(args[0])->m_n;
@@ -2043,6 +2203,8 @@ namespace FloorDiv {
         }
         return nullptr;
     }
+
+
 
     static inline ASR::asr_t* create_FloorDiv(Allocator& al, const Location& loc,
             Vec<ASR::expr_t*>& args,
@@ -2102,6 +2264,7 @@ namespace FloorDiv {
             return result
         */
 
+
         ASR::expr_t *op1 = r64Div(CastingUtil::perform_casting(args[0], arg_types[0], real64, al, loc),
             CastingUtil::perform_casting(args[1], arg_types[1], real64, al, loc));
         body.push_back(al, b.Assignment(r, op1));
@@ -2117,6 +2280,208 @@ namespace FloorDiv {
     }
 
 } // namespace FloorDiv
+
+namespace Mod {
+
+     static inline void verify_args(const ASR::IntrinsicScalarFunction_t& x, diag::Diagnostics& diagnostics) {
+        ASRUtils::require_impl(x.n_args == 2,
+            "ASR Verify: Call to Mod must have exactly 2 arguments",
+            x.base.base.loc, diagnostics);
+        ASR::ttype_t *type1 = ASRUtils::expr_type(x.m_args[0]);
+        ASR::ttype_t *type2 = ASRUtils::expr_type(x.m_args[1]);
+        ASRUtils::require_impl((is_integer(*type1) && is_integer(*type2)) ||
+                                (is_real(*type1) && is_real(*type2)),
+            "ASR Verify: Arguments to Mod must be of real or integer type",
+            x.base.base.loc, diagnostics);
+    }
+
+    static ASR::expr_t *eval_Mod(Allocator &al, const Location &loc,
+            ASR::ttype_t* t1, Vec<ASR::expr_t*> &args) {
+        bool is_real1 = is_real(*ASRUtils::expr_type(args[0]));
+        bool is_real2 = is_real(*ASRUtils::expr_type(args[1]));
+        bool is_int1 = is_integer(*ASRUtils::expr_type(args[0]));
+        bool is_int2 = is_integer(*ASRUtils::expr_type(args[1]));
+
+        if (is_int1 && is_int2) {
+            int64_t a = ASR::down_cast<ASR::IntegerConstant_t>(args[0])->m_n;
+            int64_t b = ASR::down_cast<ASR::IntegerConstant_t>(args[1])->m_n;
+            return make_ConstantWithType(make_IntegerConstant_t, a % b, t1, loc);
+        } else if (is_real1 && is_real2) {
+            double a = ASR::down_cast<ASR::RealConstant_t>(args[0])->m_r;
+            double b = ASR::down_cast<ASR::RealConstant_t>(args[1])->m_r;
+            return make_ConstantWithType(make_RealConstant_t, std::fmod(a, b), t1, loc);
+        }
+        return nullptr;
+    }
+
+    static inline ASR::asr_t* create_Mod(Allocator& al, const Location& loc,
+            Vec<ASR::expr_t*>& args,
+            const std::function<void (const std::string &, const Location &)> err) {
+        if (args.size() != 2) {
+            err("Intrinsic Mod function accepts exactly 2 arguments", loc);
+        }
+        ASR::ttype_t *type1 = ASRUtils::expr_type(args[0]);
+        ASR::ttype_t *type2 = ASRUtils::expr_type(args[1]);
+        if (!((ASRUtils::is_integer(*type1) && ASRUtils::is_integer(*type2)) ||
+            (ASRUtils::is_real(*type1) && ASRUtils::is_real(*type2)))) {
+            err("Argument of the Mod function must be either Real or Integer",
+                args[0]->base.loc);
+        }
+        ASR::expr_t *m_value = nullptr;
+        if (all_args_evaluated(args)) {
+            Vec<ASR::expr_t*> arg_values; arg_values.reserve(al, 2);
+            arg_values.push_back(al, expr_value(args[0]));
+            arg_values.push_back(al, expr_value(args[1]));
+            m_value = eval_Mod(al, loc, expr_type(args[1]), arg_values);
+        }
+        return ASR::make_IntrinsicScalarFunction_t(al, loc,
+            static_cast<int64_t>(IntrinsicScalarFunctions::Mod),
+            args.p, args.n, 0, ASRUtils::expr_type(args[0]), m_value);
+    }
+
+    static inline ASR::expr_t* instantiate_Mod(Allocator &al, const Location &loc,
+            SymbolTable *scope, Vec<ASR::ttype_t*>& arg_types, ASR::ttype_t *return_type,
+            Vec<ASR::call_arg_t>& new_args, int64_t /*overload_id*/) {
+        declare_basic_variables("_lcompilers_optimization_mod_" + type_to_str_python(arg_types[1]));
+        fill_func_arg("a", arg_types[0]);
+        fill_func_arg("p", arg_types[1]);
+        auto result = declare(fn_name, return_type, ReturnVar);
+        /*
+        function modi32i32(a, p) result(d)
+            integer(int32), intent(in) :: a, p
+            integer(int32) :: q
+            q = a/p
+            d = a - p*q
+        end function
+        */
+
+        ASR::expr_t *q = nullptr, *op1 = nullptr, *op2 = nullptr;
+        if (is_real(*arg_types[1])) {
+            int kind = ASRUtils::extract_kind_from_ttype_t(arg_types[1]);
+            if (kind == 4) {
+                q = r2i32(r32Div(args[0], args[1]));
+                op1 = r32Mul(args[1], i2r32(q));
+                op2 = r32Sub(args[0], op1);
+            } else {
+                q = r2i64(r64Div(args[0], args[1]));
+                op1 = r64Mul(args[1], i2r64(q));
+                op2 = r64Sub(args[0], op1);
+            }
+        } else {
+            q = iDiv(args[0], args[1]);
+            op1 = iMul(args[1], q);
+            op2 = iSub(args[0], op1);
+        }
+        body.push_back(al, b.Assignment(result, op2));
+
+        ASR::symbol_t *f_sym = make_ASR_Function_t(fn_name, fn_symtab, dep, args,
+            body, result, ASR::abiType::Source, ASR::deftypeType::Implementation, nullptr);
+        scope->add_symbol(fn_name, f_sym);
+        return b.Call(f_sym, new_args, return_type, nullptr);
+    }
+
+} // namespace Mod
+
+namespace Trailz {
+
+     static inline void verify_args(const ASR::IntrinsicScalarFunction_t& x, diag::Diagnostics& diagnostics) {
+        ASRUtils::require_impl(x.n_args == 1,
+            "ASR Verify: Call to Trailz must have exactly 1 argument",
+            x.base.base.loc, diagnostics);
+        ASR::ttype_t *type1 = ASRUtils::expr_type(x.m_args[0]);
+        ASRUtils::require_impl(is_integer(*type1),
+            "ASR Verify: Arguments to Trailz must be of integer type",
+            x.base.base.loc, diagnostics);
+    }
+
+    static ASR::expr_t *eval_Trailz(Allocator &al, const Location &loc,
+            ASR::ttype_t* t1, Vec<ASR::expr_t*> &args) {
+        int64_t a = ASR::down_cast<ASR::IntegerConstant_t>(args[0])->m_n;
+        int64_t trailing_zeros = ASRUtils::compute_trailing_zeros(a);
+        return make_ConstantWithType(make_IntegerConstant_t, trailing_zeros, t1, loc);
+    }
+
+    static inline ASR::asr_t* create_Trailz(Allocator& al, const Location& loc,
+            Vec<ASR::expr_t*>& args,
+            const std::function<void (const std::string &, const Location &)> err) {
+        if (args.size() != 1) {
+            err("Intrinsic Trailz function accepts exactly 1 arguments", loc);
+        }
+        ASR::ttype_t *type1 = ASRUtils::expr_type(args[0]);
+        if (!(ASRUtils::is_integer(*type1))) {
+            err("Argument of the Trailz function must be Integer",
+                args[0]->base.loc);
+        }
+        ASR::expr_t *m_value = nullptr;
+        if (all_args_evaluated(args)) {
+            Vec<ASR::expr_t*> arg_values; arg_values.reserve(al, 1);
+            arg_values.push_back(al, expr_value(args[0]));
+            m_value = eval_Trailz(al, loc, expr_type(args[0]), arg_values);
+        }
+        return ASR::make_IntrinsicScalarFunction_t(al, loc,
+            static_cast<int64_t>(IntrinsicScalarFunctions::Trailz),
+            args.p, args.n, 0, ASRUtils::expr_type(args[0]), m_value);
+    }
+
+    static inline ASR::expr_t* instantiate_Trailz(Allocator &al, const Location &loc,
+            SymbolTable *scope, Vec<ASR::ttype_t*>& arg_types, ASR::ttype_t *return_type,
+            Vec<ASR::call_arg_t>& new_args, int64_t /*overload_id*/) {
+        declare_basic_variables("_lcompilers_optimization_trailz_" + type_to_str_python(arg_types[0]));
+        fill_func_arg("n", arg_types[0]);
+        auto result = declare(fn_name, arg_types[0], ReturnVar);
+        // This is not the most efficient way to do this, but it works for now.
+        /*
+        function trailz(n) result(result)
+            integer :: n
+            integer :: result
+            result = 0
+            if (n == 0) then
+                result = 32
+            else
+                do while (mod(n,2) == 0)
+                    n = n/2
+                    result = result + 1
+                end do
+            end if
+        end function
+        */
+
+        body.push_back(al, b.Assignment(result, i(0, arg_types[0])));
+        ASR::expr_t *two = i(2, arg_types[0]);
+        int arg_0_kind = ASRUtils::extract_kind_from_ttype_t(arg_types[0]);
+
+        Vec<ASR::ttype_t*> arg_types_mod; arg_types_mod.reserve(al, 2);
+        arg_types_mod.push_back(al, arg_types[0]); arg_types_mod.push_back(al, ASRUtils::expr_type(two));
+
+        Vec<ASR::call_arg_t> new_args_mod; new_args_mod.reserve(al, 2);
+        ASR::call_arg_t arg1; arg1.loc = loc; arg1.m_value = args[0];
+        ASR::call_arg_t arg2; arg2.loc = loc; arg2.m_value = two;
+        new_args_mod.push_back(al, arg1); new_args_mod.push_back(al, arg2);
+
+        ASR::expr_t* func_call_mod = Mod::instantiate_Mod(al, loc, scope, arg_types_mod, return_type, new_args_mod, 0);
+        ASR::expr_t *cond = iEq(func_call_mod, i(0, arg_types[0]));
+
+        std::vector<ASR::stmt_t*> while_loop_body;
+        if (arg_0_kind == 4) {
+            while_loop_body.push_back(b.Assignment(args[0], iDiv(args[0], two)));
+            while_loop_body.push_back(b.Assignment(result, iAdd(result, i(1, arg_types[0]))));
+        } else {
+            while_loop_body.push_back(b.Assignment(args[0], iDiv64(args[0], two)));
+            while_loop_body.push_back(b.Assignment(result, iAdd64(result, i(1, arg_types[0]))));
+        }
+
+        ASR::expr_t* check_zero = iEq(args[0], i(0, arg_types[0]));
+        std::vector<ASR::stmt_t*> if_body; if_body.push_back(b.Assignment(result, i(32, arg_types[0])));
+        std::vector<ASR::stmt_t*> else_body; else_body.push_back(b.While(cond, while_loop_body));
+        body.push_back(al, b.If(check_zero, if_body, else_body));
+
+        ASR::symbol_t *f_sym = make_ASR_Function_t(fn_name, fn_symtab, dep, args,
+            body, result, ASR::abiType::Source, ASR::deftypeType::Implementation, nullptr);
+        scope->add_symbol(fn_name, f_sym);
+        return b.Call(f_sym, new_args, return_type, nullptr);
+    }
+
+} // namespace Trailz
 
 #define create_exp_macro(X, stdeval)                                                      \
 namespace X {                                                                             \
@@ -3209,7 +3574,6 @@ create_symbolic_query_macro(SymbolicPowQ)
 create_symbolic_query_macro(SymbolicLogQ)
 create_symbolic_query_macro(SymbolicSinQ)
 
-
 #define create_symbolic_unary_macro(X)                                                    \
 namespace X {                                                                             \
     static inline void verify_args(const ASR::IntrinsicScalarFunction_t& x,               \
@@ -3299,6 +3663,10 @@ namespace IntrinsicScalarFunctionRegistry {
             {&FlipSign::instantiate_FlipSign, &FlipSign::verify_args}},
         {static_cast<int64_t>(IntrinsicScalarFunctions::FloorDiv),
             {&FloorDiv::instantiate_FloorDiv, &FloorDiv::verify_args}},
+        {static_cast<int64_t>(IntrinsicScalarFunctions::Mod),
+            {&Mod::instantiate_Mod, &Mod::verify_args}},
+        {static_cast<int64_t>(IntrinsicScalarFunctions::Trailz),
+            {&Trailz::instantiate_Trailz, &Trailz::verify_args}},
         {static_cast<int64_t>(IntrinsicScalarFunctions::Abs),
             {&Abs::instantiate_Abs, &Abs::verify_args}},
         {static_cast<int64_t>(IntrinsicScalarFunctions::Partition),
@@ -3329,6 +3697,10 @@ namespace IntrinsicScalarFunctionRegistry {
             {nullptr, &Radix::verify_args}},
         {static_cast<int64_t>(IntrinsicScalarFunctions::Aint),
             {&Aint::instantiate_Aint, &Aint::verify_args}},
+        {static_cast<int64_t>(IntrinsicScalarFunctions::Sqrt),
+            {&Sqrt::instantiate_Sqrt, &Sqrt::verify_args}},
+        {static_cast<int64_t>(IntrinsicScalarFunctions::Sngl),
+            {&Sngl::instantiate_Sngl, &Sngl::verify_args}},
         {static_cast<int64_t>(IntrinsicScalarFunctions::SignFromValue),
             {&SignFromValue::instantiate_SignFromValue, &SignFromValue::verify_args}},
         {static_cast<int64_t>(IntrinsicScalarFunctions::SymbolicSymbol),
@@ -3419,6 +3791,10 @@ namespace IntrinsicScalarFunctionRegistry {
             "flipsign"},
         {static_cast<int64_t>(IntrinsicScalarFunctions::FloorDiv),
             "floordiv"},
+        {static_cast<int64_t>(IntrinsicScalarFunctions::Mod),
+            "mod"},
+        {static_cast<int64_t>(IntrinsicScalarFunctions::Trailz),
+            "trailz"},
         {static_cast<int64_t>(IntrinsicScalarFunctions::Expm1),
             "expm1"},
         {static_cast<int64_t>(IntrinsicScalarFunctions::ListIndex),
@@ -3447,6 +3823,10 @@ namespace IntrinsicScalarFunctionRegistry {
             "sign"},
         {static_cast<int64_t>(IntrinsicScalarFunctions::Aint),
             "aint"},
+        {static_cast<int64_t>(IntrinsicScalarFunctions::Sqrt),
+            "sqrt"},
+        {static_cast<int64_t>(IntrinsicScalarFunctions::Sngl),
+            "sngl"},
         {static_cast<int64_t>(IntrinsicScalarFunctions::SignFromValue),
             "signfromvalue"},
         {static_cast<int64_t>(IntrinsicScalarFunctions::SymbolicSymbol),
@@ -3520,6 +3900,8 @@ namespace IntrinsicScalarFunctionRegistry {
                 {"expm1", {&Expm1::create_Expm1, &Expm1::eval_Expm1}},
                 {"fma", {&FMA::create_FMA, &FMA::eval_FMA}},
                 {"floordiv", {&FloorDiv::create_FloorDiv, &FloorDiv::eval_FloorDiv}},
+                {"mod", {&Mod::create_Mod, &Mod::eval_Mod}},
+                {"trailz", {&Trailz::create_Trailz, &Trailz::eval_Trailz}},
                 {"list.index", {&ListIndex::create_ListIndex, &ListIndex::eval_list_index}},
                 {"list.reverse", {&ListReverse::create_ListReverse, &ListReverse::eval_list_reverse}},
                 {"list.pop", {&ListPop::create_ListPop, &ListPop::eval_list_pop}},
@@ -3534,6 +3916,8 @@ namespace IntrinsicScalarFunctionRegistry {
                 {"radix", {&Radix::create_Radix, nullptr}},
                 {"sign", {&Sign::create_Sign, &Sign::eval_Sign}},
                 {"aint", {&Aint::create_Aint, &Aint::eval_Aint}},
+                {"sqrt", {&Sqrt::create_Sqrt, &Sqrt::eval_Sqrt}},
+                {"sngl", {&Sngl::create_Sngl, &Sngl::eval_Sngl}},
                 {"Symbol", {&SymbolicSymbol::create_SymbolicSymbol, &SymbolicSymbol::eval_SymbolicSymbol}},
                 {"SymbolicAdd", {&SymbolicAdd::create_SymbolicAdd, &SymbolicAdd::eval_SymbolicAdd}},
                 {"SymbolicSub", {&SymbolicSub::create_SymbolicSub, &SymbolicSub::eval_SymbolicSub}},
@@ -3579,6 +3963,9 @@ namespace IntrinsicScalarFunctionRegistry {
                  id_ == IntrinsicScalarFunctions::Exp ||
                  id_ == IntrinsicScalarFunctions::Exp2 ||
                  id_ == IntrinsicScalarFunctions::Expm1 ||
+                 id_ == IntrinsicScalarFunctions::Min ||
+                 id_ == IntrinsicScalarFunctions::Max ||
+                 id_ == IntrinsicScalarFunctions::Sqrt ||
                  id_ == IntrinsicScalarFunctions::SymbolicSymbol);
     }
 

@@ -21,14 +21,47 @@ std::string pf2s(Platform);
 Platform get_platform();
 
 std::string get_unique_ID();
+int visualize_json(std::string &astr_data_json, LCompilers::Platform os);
+std::string generate_visualize_html(std::string &astr_data_json);
 
-struct CompilerOptions {
+struct PassOptions {
     std::filesystem::path mod_files_dir;
     std::vector<std::filesystem::path> include_dirs;
+
+    std::string run_fun; // for global_stmts pass
+    // TODO: Convert to std::filesystem::path (also change find_and_load_module())
+    std::string runtime_library_dir;
+    bool always_run = false; // for unused_functions pass
+    bool inline_external_symbol_calls = true; // for inline_function_calls pass
+    int64_t unroll_factor = 32; // for loop_unroll pass
+    bool fast = false; // is fast flag enabled.
+    bool verbose = false; // For developer debugging
+    bool dump_all_passes = false; // For developer debugging
+    bool dump_fortran = false; // For developer debugging
+    bool pass_cumulative = false; // Apply passes cumulatively
+    bool disable_main = false;
+    bool use_loop_variable_after_loop = false;
+    bool realloc_lhs = false;
+    std::vector<int64_t> skip_optimization_func_instantiation;
+    bool module_name_mangling = false;
+    bool global_symbols_mangling = false;
+    bool intrinsic_symbols_mangling = false;
+    bool all_symbols_mangling = false;
+    bool bindc_mangling = false;
+    bool fortran_mangling = false;
+    bool mangle_underscore = false;
+    bool json = false;
+    bool no_loc = false;
+    bool visualize = false;
+    bool tree = false;
+    bool with_intrinsic_mods = false;
+};
+
+struct CompilerOptions {
     std::vector<std::string> runtime_linker_paths;
 
     // TODO: Convert to std::filesystem::path (also change find_and_load_module())
-    std::string runtime_library_dir;
+    PassOptions po;
 
     bool fixed_form = false;
     bool interactive = false;
@@ -61,20 +94,13 @@ struct CompilerOptions {
     std::string arg_o = "";
     bool emit_debug_info = false;
     bool emit_debug_line_column = false;
-    bool verbose = false;
-    bool dump_all_passes = false;
-    bool pass_cumulative = false;
     bool enable_cpython = false;
     bool enable_symengine = false;
     bool link_numpy = false;
-    bool realloc_lhs = false;
-    bool module_name_mangling = false;
-    bool global_symbols_mangling = false;
-    bool intrinsic_symbols_mangling = false;
-    bool all_symbols_mangling = false;
-    bool bindc_mangling = false;
-    bool mangle_underscore = false;
     bool run = false;
+    bool legacy_array_sections = false;
+    bool ignore_pragma = false;
+    bool stack_arrays = false;
     std::vector<std::string> import_paths;
     Platform platform;
 
@@ -87,35 +113,5 @@ bool present(char** const v, size_t n, const std::string name);
 int initialize();
 
 } // namespace LCompilers
-
-namespace LCompilers {
-
-    struct PassOptions {
-        std::filesystem::path mod_files_dir;
-        std::vector<std::filesystem::path> include_dirs;
-
-        std::string run_fun; // for global_stmts pass
-        // TODO: Convert to std::filesystem::path (also change find_and_load_module())
-        std::string runtime_library_dir;
-        bool always_run = false; // for unused_functions pass
-        bool inline_external_symbol_calls = true; // for inline_function_calls pass
-        int64_t unroll_factor = 32; // for loop_unroll pass
-        bool fast = false; // is fast flag enabled.
-        bool verbose = false; // For developer debugging
-        bool dump_all_passes = false; // For developer debugging
-        bool pass_cumulative = false; // Apply passes cumulatively
-        bool disable_main = false;
-        bool use_loop_variable_after_loop = false;
-        bool realloc_lhs = false;
-        std::vector<int64_t> skip_optimization_func_instantiation;
-        bool module_name_mangling = false;
-        bool global_symbols_mangling = false;
-        bool intrinsic_symbols_mangling = false;
-        bool all_symbols_mangling = false;
-        bool bindc_mangling = false;
-        bool mangle_underscore = false;
-    };
-
-}
 
 #endif // LIBASR_UTILS_H

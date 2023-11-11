@@ -212,10 +212,17 @@ class ReplaceFunctionCallReturningArray: public ASR::BaseExprReplacer<ReplaceFun
             Vec<ASR::alloc_arg_t> alloc_args;
             alloc_args.reserve(al, 1);
             alloc_args.push_back(al, alloc_arg);
+            Vec<ASR::expr_t*> to_be_deallocated;
+            to_be_deallocated.reserve(al, alloc_args.size());
+            for( size_t i = 0; i < alloc_args.size(); i++ ) {
+                to_be_deallocated.push_back(al, alloc_args.p[i].m_a);
+            }
             ASR::stmt_t* allocate_stmt = ASRUtils::STMT(ASR::make_Allocate_t(
                 al, loc_, alloc_args.p, alloc_args.size(), nullptr, nullptr, nullptr));
             Vec<ASR::stmt_t*> if_body;
-            if_body.reserve(al, 1);
+            if_body.reserve(al, 2);
+            if_body.push_back(al, ASRUtils::STMT(ASR::make_ExplicitDeallocate_t(
+                al, loc, to_be_deallocated.p, to_be_deallocated.size())));
             if_body.push_back(al, allocate_stmt);
             ASR::stmt_t* if_ = ASRUtils::STMT(ASR::make_If_t(al, loc_, test_expr,
                                 if_body.p, if_body.size(), else_, else_n));
@@ -345,6 +352,7 @@ class ReplaceFunctionCallReturningArrayVisitor : public ASR::CallReplacerOnExpre
                     parent_body->push_back(al, pass_result[j]);
                 }
             }
+
             for (size_t i=0; i<n_body; i++) {
                 pass_result.n = 0;
                 pass_result.reserve(al, 1);

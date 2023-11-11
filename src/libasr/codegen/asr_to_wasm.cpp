@@ -3044,12 +3044,6 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
     }
 
     void visit_Print(const ASR::Print_t &x) {
-        if (x.m_fmt != nullptr) {
-            diag.codegen_warning_label(
-                "format string in `print` is not implemented yet and it is "
-                "currently treated as '*'",
-                {x.m_fmt->base.loc}, "treated as '*'");
-        }
         handle_print(x);
     }
 
@@ -3061,12 +3055,6 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
     }
 
     void visit_FileWrite(const ASR::FileWrite_t &x) {
-        if (x.m_fmt != nullptr) {
-            diag.codegen_warning_label(
-                "format string in `print` is not implemented yet and it is "
-                "currently treated as '*'",
-                {x.m_fmt->base.loc}, "treated as '*'");
-        }
         if (x.m_unit != nullptr) {
             diag.codegen_error_label("unit in write() is not implemented yet",
                                      {x.m_unit->base.loc}, "not implemented");
@@ -3216,15 +3204,12 @@ Result<Vec<uint8_t>> asr_to_wasm_bytes_stream(ASR::TranslationUnit_t &asr,
                                               CompilerOptions &co) {
     ASRToWASMVisitor v(al, diagnostics);
 
-    LCompilers::PassOptions pass_options;
-    pass_options.always_run = true;
-    pass_options.verbose = co.verbose;
-    pass_options.dump_all_passes = co.dump_all_passes;
+    co.po.always_run = true;
     std::vector<std::string> passes = {"pass_array_by_data", "array_op",
                 "implied_do_loops", "print_arr", "do_loops", "select_case",
                 "nested_vars", "unused_functions", "intrinsic_function"};
     LCompilers::PassManager pass_manager;
-    pass_manager.apply_passes(al, &asr, passes, pass_options, diagnostics);
+    pass_manager.apply_passes(al, &asr, passes, co.po, diagnostics);
 
 
 #ifdef SHOW_ASR

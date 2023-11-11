@@ -1398,7 +1398,7 @@ public:
 
         for (size_t i=0; i<x.n_args; i++) {
             ASR::expr_t* val = x.m_args[i].m_value;
-            if (ASR::is_a<ASR::IntrinsicScalarFunction_t>(*val) && ASR::is_a<ASR::SymbolicExpression_t>(*ASRUtils::expr_type(val))) {
+            if (val && ASR::is_a<ASR::IntrinsicScalarFunction_t>(*val) && ASR::is_a<ASR::SymbolicExpression_t>(*ASRUtils::expr_type(val))) {
                 ASR::IntrinsicScalarFunction_t* intrinsic_func = ASR::down_cast<ASR::IntrinsicScalarFunction_t>(val);
                 ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_SymbolicExpression_t(al, x.base.base.loc));
                 std::string symengine_var = symengine_stack.push();
@@ -1421,7 +1421,7 @@ public:
                 call_arg.loc = x.base.base.loc;
                 call_arg.m_value = target;
                 call_args.push_back(al, call_arg);
-            } else if (ASR::is_a<ASR::Cast_t>(*val)) {
+            } else if (val && ASR::is_a<ASR::Cast_t>(*val)) {
                 ASR::Cast_t* cast_t = ASR::down_cast<ASR::Cast_t>(val);
                 if(cast_t->m_kind != ASR::cast_kindType::IntegerToSymbolicExpression) return;
                 this->visit_Cast(*cast_t);
@@ -1437,7 +1437,7 @@ public:
             }
         }
         ASR::stmt_t* stmt = ASRUtils::STMT(ASR::make_SubroutineCall_t(al, x.base.base.loc, x.m_name,
-            x.m_name, call_args.p, call_args.n, nullptr));
+            x.m_name, call_args.p, call_args.n, x.m_dt));
         pass_result.push_back(al, stmt);
     }
 
@@ -1576,7 +1576,7 @@ public:
                 tmp_vec.push_back(al, e);
             }
             ASR::stmt_t *print_stmt = ASRUtils::STMT(
-                ASR::make_Print_t(al, x.base.base.loc, nullptr, tmp_vec.p, tmp_vec.size(),
+                ASR::make_Print_t(al, x.base.base.loc, tmp_vec.p, tmp_vec.size(),
                             x.m_separator, x.m_end));
             print_tmp.clear();
             pass_result.push_back(al, print_stmt);

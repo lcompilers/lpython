@@ -26,6 +26,12 @@
 #include "llvm/IR/LLVMContext.h"
 #include <memory>
 
+#if LLVM_VERSION_MAJOR >= 16
+#    define RM_OPTIONAL_TYPE std::optional
+#else
+#    define RM_OPTIONAL_TYPE llvm::Optional
+#endif
+
 namespace llvm {
 namespace orc {
 
@@ -71,7 +77,7 @@ public:
     auto CPU = "generic";
     auto Features = "";
     TargetOptions opt;
-    auto RM = Optional<Reloc::Model>();
+    auto RM = RM_OPTIONAL_TYPE<Reloc::Model>();
     TM = Target->createTargetMachine(TargetTriple, CPU, Features, opt, RM);
   }
 

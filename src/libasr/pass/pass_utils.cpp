@@ -112,7 +112,8 @@ namespace LCompilers {
                                         arr_expr->base.loc, arr_expr,
                                         args.p, args.size(),
                                         ASRUtils::type_get_past_array(
-                                            ASRUtils::type_get_past_allocatable(array_ref_type)),
+                                            ASRUtils::type_get_past_pointer(
+                                                ASRUtils::type_get_past_allocatable(array_ref_type))),
                                         ASR::arraystorageType::RowMajor, nullptr));
             if( perform_cast ) {
                 LCOMPILERS_ASSERT(casted_type != nullptr);
@@ -143,7 +144,8 @@ namespace LCompilers {
                                         arr_expr->base.loc, arr_expr,
                                         args.p, args.size(),
                                         ASRUtils::type_get_past_array(
-                                            ASRUtils::type_get_past_allocatable(array_ref_type)),
+                                            ASRUtils::type_get_past_pointer(
+                                                ASRUtils::type_get_past_allocatable(array_ref_type))),
                                         ASR::arraystorageType::RowMajor, nullptr));
             if( perform_cast ) {
                 LCOMPILERS_ASSERT(casted_type != nullptr);
@@ -219,9 +221,6 @@ namespace LCompilers {
 
         ASR::ttype_t* get_matching_type(ASR::expr_t* sibling, Allocator& al) {
             ASR::ttype_t* sibling_type = ASRUtils::expr_type(sibling);
-            if( sibling->type != ASR::exprType::Var ) {
-                return sibling_type;
-            }
             ASR::dimension_t* m_dims;
             int ndims;
             PassUtils::get_dim_rank(sibling_type, m_dims, ndims);
@@ -252,6 +251,16 @@ namespace LCompilers {
 
     ASR::expr_t* create_var(int counter, std::string suffix, const Location& loc,
                             ASR::ttype_t* var_type, Allocator& al, SymbolTable*& current_scope) {
+        ASR::dimension_t* m_dims = nullptr;
+        int ndims = 0;
+        PassUtils::get_dim_rank(var_type, m_dims, ndims);
+        if( !ASRUtils::is_fixed_size_array(m_dims, ndims) &&
+            !ASRUtils::is_dimension_dependent_only_on_arguments(m_dims, ndims) &&
+            !(ASR::is_a<ASR::Allocatable_t>(*var_type) || ASR::is_a<ASR::Pointer_t>(*var_type)) ) {
+            var_type = ASRUtils::TYPE(ASR::make_Allocatable_t(al, var_type->base.loc,
+                ASRUtils::type_get_past_allocatable(
+                    ASRUtils::duplicate_type_with_empty_dims(al, var_type))));
+        }
         ASR::expr_t* idx_var = nullptr;
         std::string str_name = "__libasr__created__var__" + std::to_string(counter) + "_" + suffix;
         char* idx_var_name = s2c(al, str_name);
@@ -546,6 +555,7 @@ namespace LCompilers {
         ASR::expr_t* create_binop_helper(Allocator &al, const Location &loc, ASR::expr_t* left, ASR::expr_t* right,
                                                 ASR::binopType op) {
             ASR::ttype_t* type = ASRUtils::expr_type(left);
+            ASRUtils::make_ArrayBroadcast_t_util(al, loc, left, right);
             // TODO: compute `value`:
             if (ASRUtils::is_integer(*type)) {
                 return ASRUtils::EXPR(ASR::make_IntegerBinOp_t(al, loc, left, op, right, type, nullptr));
@@ -860,8 +870,8 @@ namespace LCompilers {
             ASR::expr_t *c=loop.m_head.m_increment;
             ASR::expr_t *cond = nullptr;
             ASR::stmt_t *inc_stmt = nullptr;
-            ASR::stmt_t *stmt1 = nullptr;
-            ASR::stmt_t *stmt_add_c = nullptr;
+            ASR::stmt_t *loop_init_stmt = nullptr;
+            ASR::stmt_t *stmt_add_c_after_loop = nullptr;
             if( !a && !b && !c ) {
                 int a_kind = 4;
                 if( loop.m_head.m_v ) {
@@ -952,12 +962,12 @@ namespace LCompilers {
                 int a_kind = ASRUtils::extract_kind_from_ttype_t(ASRUtils::expr_type(target));
                 ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc, a_kind));
 
-                stmt1 = ASRUtils::STMT(ASR::make_Assignment_t(al, loc, target,
+                loop_init_stmt = ASRUtils::STMT(ASR::make_Assignment_t(al, loc, target,
                     ASRUtils::EXPR(ASR::make_IntegerBinOp_t(al, loc, a,
                             ASR::binopType::Sub, c, type, nullptr)), nullptr));
                 if (use_loop_variable_after_loop) {
-                    stmt_add_c = ASRUtils::STMT(ASR::make_Assignment_t(al, loc, target,
-                        ASRUtils::EXPR(ASR::make_IntegerBinOp_t(al, loc, a,
+                    stmt_add_c_after_loop = ASRUtils::STMT(ASR::make_Assignment_t(al, loc, target,
+                        ASRUtils::EXPR(ASR::make_IntegerBinOp_t(al, loc, target,
                                 ASR::binopType::Add, c, type, nullptr)), nullptr));
                 }
 
@@ -979,16 +989,16 @@ namespace LCompilers {
             for (size_t i=0; i<loop.n_body; i++) {
                 body.push_back(al, loop.m_body[i]);
             }
-            ASR::stmt_t *stmt2 = ASRUtils::STMT(ASR::make_WhileLoop_t(al, loc,
+            ASR::stmt_t *while_loop_stmt = ASRUtils::STMT(ASR::make_WhileLoop_t(al, loc,
                 loop.m_name, cond, body.p, body.size()));
             Vec<ASR::stmt_t*> result;
             result.reserve(al, 2);
-            if( stmt1 ) {
-                result.push_back(al, stmt1);
+            if( loop_init_stmt ) {
+                result.push_back(al, loop_init_stmt);
             }
-            result.push_back(al, stmt2);
-            if (stmt_add_c && use_loop_variable_after_loop) {
-                result.push_back(al, stmt_add_c);
+            result.push_back(al, while_loop_stmt);
+            if (stmt_add_c_after_loop && use_loop_variable_after_loop) {
+                result.push_back(al, stmt_add_c_after_loop);
             }
 
             return result;

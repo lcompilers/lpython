@@ -454,7 +454,6 @@ public:
             require(dep_sym != nullptr,
                             "Dependency " + found_dep +  " is inside symbol table " + std::string(x.m_name));
         }
-
         // Check if there are unnecessary dependencies
         // present in the dependency list of the function
         for( size_t i = 0; i < x.n_dependencies; i++ ) {
