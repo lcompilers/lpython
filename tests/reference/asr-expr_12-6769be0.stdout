@@ -380,7 +380,6 @@
                                         ()
                                     )
                                     (Print
-                                        ()
                                         [(ArrayItem
                                             (Var 3 x)
                                             [(()

@@ -142,7 +142,6 @@
                                     []
                                     [(Var 4 pa)]
                                     [(Print
-                                        ()
                                         [(StructInstanceMember
                                             (Var 4 pa)
                                             3 x
@@ -153,7 +152,6 @@
                                         ()
                                     )
                                     (Print
-                                        ()
                                         [(StructInstanceMember
                                             (Var 4 pa)
                                             3 y
