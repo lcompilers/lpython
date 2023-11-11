@@ -1200,7 +1200,7 @@ public:
                 Vec<ASR::call_arg_t> args_new;
                 args_new.reserve(al, func->n_args);
                 visit_expr_list_with_cast(func->m_args, func->n_args, args_new, args);
-                
+
                 if (ASRUtils::symbol_parent_symtab(stemp)->get_counter() != current_scope->get_counter()) {
                     ADD_ASR_DEPENDENCIES(current_scope, stemp, dependencies);
                 }
@@ -1457,12 +1457,12 @@ public:
             + std::to_string(new_function_num);
         generic_func_subs[new_func_name] = subs;
         SymbolTable *target_scope = ASRUtils::symbol_parent_symtab(sym);
-        t = pass_instantiate_symbol(al, context_map, subs, rt_subs,
+        t = instantiate_symbol(al, context_map, subs, rt_subs,
                 target_scope, target_scope, new_func_name, sym);
         if (ASR::is_a<ASR::Function_t>(*sym)) {
             ASR::Function_t *f = ASR::down_cast<ASR::Function_t>(sym);
             ASR::Function_t *new_f = ASR::down_cast<ASR::Function_t>(t);
-            t = pass_instantiate_function_body(al, context_map, subs, rt_subs,
+            t = instantiate_function_body(al, context_map, subs, rt_subs,
                 target_scope, target_scope, new_f, f);
         }
         dependencies.erase(s2c(al, func_name));
@@ -7491,7 +7491,6 @@ we will have to use something else.
             if (call_name == "print") {
                 args.reserve(al, x.n_args);
                 visit_expr_list(x.m_args, x.n_args, args);
-                ASR::expr_t *fmt = nullptr;
                 Vec<ASR::expr_t*> args_expr = ASRUtils::call_arg2expr(al, args);
                 ASR::expr_t *separator = nullptr;
                 ASR::expr_t *end = nullptr;
@@ -7533,7 +7532,7 @@ we will have to use something else.
                         }
                     }
                 }
-                tmp = ASR::make_Print_t(al, x.base.base.loc, fmt,
+                tmp = ASR::make_Print_t(al, x.base.base.loc,
                     args_expr.p, args_expr.size(), separator, end);
                 return;
             } else if (call_name == "quit") {
