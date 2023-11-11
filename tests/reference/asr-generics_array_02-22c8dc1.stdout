@@ -230,7 +230,6 @@
                                         )]
                                     )
                                     (Print
-                                        ()
                                         [(ArrayItem
                                             (Var 215 r)
                                             [(()
@@ -454,7 +453,6 @@
                                         )]
                                     )
                                     (Print
-                                        ()
                                         [(ArrayItem
                                             (Var 216 r)
                                             [(()
@@ -1008,7 +1006,6 @@
                                         )]
                                     )
                                     (Print
-                                        ()
                                         [(ArrayItem
                                             (Var 212 r)
                                             [(()

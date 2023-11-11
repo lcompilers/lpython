@@ -1014,7 +1014,6 @@
                                         ()
                                     )
                                     (Print
-                                        ()
                                         [(StructInstanceMember
                                             (Var 210 s0)
                                             209 x
@@ -1230,7 +1229,6 @@
                                         ()
                                     )
                                     (Print
-                                        ()
                                         [(StructInstanceMember
                                             (Var 210 s1)
                                             209 x

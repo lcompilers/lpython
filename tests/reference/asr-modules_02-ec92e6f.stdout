@@ -198,7 +198,6 @@
                                         ()
                                     )
                                     (Print
-                                        ()
                                         [(StringConstant
                                             "f()"
                                             (Character 1 3 ())
@@ -258,7 +257,6 @@
                                     []
                                     []
                                     [(Print
-                                        ()
                                         [(StringConstant
                                             "g()"
                                             (Character 1 3 ())
