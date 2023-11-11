@@ -80,29 +80,6 @@ std::string get_kokkos_dir()
     throw LCompilers::LCompilersException("LFORTRAN_KOKKOS_DIR is not defined");
 }
 
-int visualize_json(std::string &astr_data_json, LCompilers::Platform os) {
-    using namespace LCompilers;
-    std::string file_loc = LCompilers::LPython::generate_visualize_html(astr_data_json);
-    std::string open_cmd = "";
-    switch (os) {
-        case Linux: open_cmd = "xdg-open"; break;
-        case Windows: open_cmd = "start"; break;
-        case macOS_Intel:
-        case macOS_ARM: open_cmd = "open"; break;
-        default:
-            std::cerr << "Unsupported Platform " << pf2s(os) <<std::endl;
-            std::cerr << "Please open file " << file_loc << " manually" <<std::endl;
-            return 11;
-    }
-    std::string cmd = open_cmd + " " + file_loc;
-    int err = system(cmd.data());
-    if (err) {
-        std::cout << "The command '" + cmd + "' failed." << std::endl;
-        return 11;
-    }
-    return 0;
-}
-
 #ifdef HAVE_LFORTRAN_LLVM
 
 #endif
@@ -171,10 +148,10 @@ int emit_ast(const std::string &infile,
     }
     LCompilers::LPython::AST::ast_t* ast = r.result;
 
-    if (compiler_options.tree) {
+    if (compiler_options.po.tree) {
         std::cout << LCompilers::LPython::pickle_tree_python(*ast,
             compiler_options.use_colors) << std::endl;
-    } else if (compiler_options.json) {
+    } else if (compiler_options.po.json) {
         LCompilers::LocationManager lm;
         {
             LCompilers::LocationManager::FileLocations fl;
@@ -185,7 +162,7 @@ int emit_ast(const std::string &infile,
             lm.file_ends.push_back(input.size());
         }
          std::cout << LCompilers::LPython::pickle_json(*ast, lm) << std::endl;
-    } else if (compiler_options.visualize) {
+    } else if (compiler_options.po.visualize) {
         LCompilers::LocationManager lm;
         {
             LCompilers::LocationManager::FileLocations fl;
@@ -238,18 +215,10 @@ int emit_asr(const std::string &infile,
         return 2;
     }
     LCompilers::ASR::TranslationUnit_t* asr = r.result;
-    LCompilers::PassOptions pass_options;
-    pass_options.run_fun = "f";
-    pass_options.always_run = true;
-    pass_options.verbose = compiler_options.verbose;
-    pass_options.pass_cumulative = compiler_options.pass_cumulative;
-    pass_options.all_symbols_mangling = compiler_options.all_symbols_mangling;
-    pass_options.module_name_mangling = compiler_options.module_name_mangling;
-    pass_options.global_symbols_mangling = compiler_options.global_symbols_mangling;
-    pass_options.intrinsic_symbols_mangling = compiler_options.intrinsic_symbols_mangling;
+    compiler_options.po.always_run = true;
+    compiler_options.po.run_fun = "f";
 
-
-    pass_manager.apply_passes(al, asr, pass_options, diagnostics);
+    pass_manager.apply_passes(al, asr, compiler_options.po, diagnostics);
 
     if (compiler_options.tree) {
         std::cout << LCompilers::LPython::pickle_tree(*asr,
@@ -345,17 +314,11 @@ int emit_c(const std::string &infile,
     LCompilers::ASR::TranslationUnit_t* asr = r1.result;
 
     // Apply ASR passes
-    LCompilers::PassOptions pass_options;
     pass_manager.use_default_passes(true);
-    pass_options.run_fun = "f";
-    pass_options.always_run = true;
-    pass_options.verbose = compiler_options.verbose;
-    pass_options.all_symbols_mangling = compiler_options.all_symbols_mangling;
-    pass_options.module_name_mangling = compiler_options.module_name_mangling;
-    pass_options.global_symbols_mangling = compiler_options.global_symbols_mangling;
-    pass_options.intrinsic_symbols_mangling = compiler_options.intrinsic_symbols_mangling;
+    compiler_options.po.always_run = true;
+    compiler_options.po.run_fun = "f";
 
-    pass_manager.apply_passes(al, asr, pass_options, diagnostics);
+    pass_manager.apply_passes(al, asr, compiler_options.po, diagnostics);
 
     diagnostics.diagnostics.clear();
     auto res = LCompilers::asr_to_c(al, *asr, diagnostics, compiler_options, 0);
@@ -406,11 +369,11 @@ int emit_c_to_file(const std::string &infile, const std::string &outfile,
     pass_manager.use_default_passes(true);
     pass_options.run_fun = "f";
     pass_options.always_run = true;
-    pass_options.verbose = compiler_options.verbose;
-    pass_options.all_symbols_mangling = compiler_options.all_symbols_mangling;
-    pass_options.module_name_mangling = compiler_options.module_name_mangling;
-    pass_options.global_symbols_mangling = compiler_options.global_symbols_mangling;
-    pass_options.intrinsic_symbols_mangling = compiler_options.intrinsic_symbols_mangling;
+    pass_options.verbose = compiler_options.po.verbose;
+    pass_options.all_symbols_mangling = compiler_options.po.all_symbols_mangling;
+    pass_options.module_name_mangling = compiler_options.po.module_name_mangling;
+    pass_options.global_symbols_mangling = compiler_options.po.global_symbols_mangling;
+    pass_options.intrinsic_symbols_mangling = compiler_options.po.intrinsic_symbols_mangling;
 
     pass_manager.apply_passes(al, asr, pass_options, diagnostics);
 
@@ -1585,16 +1548,16 @@ int main(int argc, char *argv[])
         app.add_flag("--print-targets", print_targets, "Print the registered targets");
         app.add_flag("--get-rtl-header-dir", print_rtl_header_dir, "Print the path to the runtime library header file");
         app.add_flag("--get-rtl-dir", print_rtl_dir, "Print the path to the runtime library file");
-        app.add_flag("--verbose", compiler_options.verbose, "Print debugging statements");
-        app.add_flag("--cumulative", compiler_options.pass_cumulative, "Apply all the passes cumulatively till the given pass");
+        app.add_flag("--verbose", compiler_options.po.verbose, "Print debugging statements");
+        app.add_flag("--cumulative", compiler_options.po.pass_cumulative, "Apply all the passes cumulatively till the given pass");
         app.add_flag("--enable-cpython", compiler_options.enable_cpython, "Enable CPython runtime");
         app.add_flag("--enable-symengine", compiler_options.enable_symengine, "Enable Symengine runtime");
         app.add_flag("--link-numpy", compiler_options.link_numpy, "Enable NumPy runtime (implies --enable-cpython)");
         app.add_flag("--separate-compilation", separate_compilation, "Generates unique names for all the symbols");
-        app.add_flag("--module-mangling", compiler_options.module_name_mangling, "Mangles the module name");
-        app.add_flag("--global-mangling", compiler_options.global_symbols_mangling, "Mangles all the global symbols");
-        app.add_flag("--intrinsic-mangling", compiler_options.intrinsic_symbols_mangling, "Mangles all the intrinsic symbols");
-        app.add_flag("--all-mangling", compiler_options.all_symbols_mangling, "Mangles all possible symbols");
+        app.add_flag("--module-mangling", compiler_options.po.module_name_mangling, "Mangles the module name");
+        app.add_flag("--global-mangling", compiler_options.po.global_symbols_mangling, "Mangles all the global symbols");
+        app.add_flag("--intrinsic-mangling", compiler_options.po.intrinsic_symbols_mangling, "Mangles all the intrinsic symbols");
+        app.add_flag("--all-mangling", compiler_options.po.all_symbols_mangling, "Mangles all possible symbols");
 
         // LSP specific options
         app.add_flag("--show-errors", show_errors, "Show errors when LSP is running in the background");

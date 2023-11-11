@@ -299,6 +299,8 @@ namespace LCompilers {
                 }
 
                 void visit_Module(const ASR::Module_t& x) {
+                    SymbolTable *parent_symtab = current_scope;
+                    current_scope = x.m_symtab;
                     ASR::Module_t& xx = const_cast<ASR::Module_t&>(x);
                     module_dependencies.n = 0;
                     module_dependencies.reserve(al, 1);
@@ -311,6 +313,7 @@ namespace LCompilers {
                     xx.n_dependencies = module_dependencies.size();
                     xx.m_dependencies = module_dependencies.p;
                     fill_module_dependencies = fill_module_dependencies_copy;
+                    current_scope = parent_symtab;
                 }
 
                 void visit_Variable(const ASR::Variable_t& x) {
@@ -352,7 +355,6 @@ namespace LCompilers {
                             }    
                         }
                     }
-
                     if( ASR::is_a<ASR::ExternalSymbol_t>(*x.m_name) &&
                         fill_module_dependencies ) {
                         ASR::ExternalSymbol_t* x_m_name = ASR::down_cast<ASR::ExternalSymbol_t>(x.m_name);
@@ -371,7 +373,7 @@ namespace LCompilers {
                         }
 
                         SymbolTable* temp_scope = current_scope;
-
+                        
                         if (asr_owner_sym && temp_scope->get_counter() != ASRUtils::symbol_parent_symtab(x.m_name)->get_counter() &&
                             !ASR::is_a<ASR::ExternalSymbol_t>(*x.m_name) && !ASR::is_a<ASR::Variable_t>(*x.m_name)) {
                             if (ASR::is_a<ASR::AssociateBlock_t>(*asr_owner_sym) || ASR::is_a<ASR::Block_t>(*asr_owner_sym)) {
@@ -427,7 +429,7 @@ namespace LCompilers {
                         visit_stmt(*x.m_body[i]);
                     }
                     current_scope = parent_symtab;
-                }                
+                }
         };
 
     namespace ReplacerUtils {
@@ -567,7 +569,8 @@ namespace LCompilers {
                 array_ref_type = ASRUtils::duplicate_type(al, array_ref_type, &empty_dims);
                 ASR::expr_t* array_ref = ASRUtils::EXPR(ASRUtils::make_ArrayItem_t_util(al, arr_var->base.loc,
                                             arr_var, args.p, args.size(),
-                                            ASRUtils::type_get_past_allocatable(array_ref_type),
+                                            ASRUtils::type_get_past_pointer(
+                                                ASRUtils::type_get_past_allocatable(array_ref_type)),
                                             ASR::arraystorageType::RowMajor, nullptr));
                 if( ASR::is_a<ASR::ImpliedDoLoop_t>(*idoloop->m_values[i]) ) {
                     create_do_loop(al, ASR::down_cast<ASR::ImpliedDoLoop_t>(idoloop->m_values[i]),
@@ -749,7 +752,8 @@ namespace LCompilers {
                                                         target_section->base.base.loc,
                                                         target_section->m_v,
                                                         args.p, args.size(),
-                                                        ASRUtils::type_get_past_allocatable(array_ref_type),
+                                                        ASRUtils::type_get_past_pointer(
+                                                            ASRUtils::type_get_past_allocatable(array_ref_type)),
                                                         ASR::arraystorageType::RowMajor, nullptr));
                         ASR::expr_t* x_m_args_k = x->m_args[k];
                         if( perform_cast ) {

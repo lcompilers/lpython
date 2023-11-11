@@ -56,7 +56,6 @@
                                         )
                                     )
                                     (Print
-                                        ()
                                         [(Var 2 queries)
                                         (Var 2 x)]
                                         ()
@@ -231,7 +230,6 @@
                                         ()
                                     )
                                     (Print
-                                        ()
                                         [(GetPointer
                                             (Var 209 y)
                                             (Pointer
@@ -249,7 +247,6 @@
                                         ()
                                     )
                                     (Print
-                                        ()
                                         [(ArrayItem
                                             (Var 209 yptr1)
                                             [(()
@@ -342,7 +339,6 @@
                                         )
                                     )
                                     (Print
-                                        ()
                                         [(Var 209 yq)
                                         (Var 209 yptr1)]
                                         ()

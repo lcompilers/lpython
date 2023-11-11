@@ -1111,18 +1111,17 @@ namespace LCompilers {
         ASR::abiType m_abi, bool is_pointer) {
         llvm::Type* llvm_type = nullptr;
 
-        #define handle_llvm_pointers1() if (n_dims == 0 && ASR::is_a<ASR::Character_t>(*t2)) { \
-                llvm_type = character_type; \
-            } else { \
-                bool is_pointer_ = (ASR::is_a<ASR::Class_t>(*t2) || \
-                    (ASR::is_a<ASR::Character_t>(*t2) && m_abi != ASR::abiType::BindC) ); \
-                llvm_type = get_type_from_ttype_t(t2, nullptr, m_storage, is_array_type, \
-                                        is_malloc_array_type, is_list, m_dims, \
-                                        n_dims, a_kind, module, m_abi, is_pointer_); \
-                if( !is_pointer_ ) { \
-                    llvm_type = llvm_type->getPointerTo(); \
-                } \
-            } \
+        #define handle_llvm_pointers1()                                         \
+            if (n_dims == 0 && ASR::is_a<ASR::Character_t>(*t2)) {              \
+                llvm_type = character_type;                                     \
+            } else {                                                            \
+                llvm_type = get_type_from_ttype_t(t2, nullptr, m_storage,       \
+                    is_array_type, is_malloc_array_type, is_list, m_dims,       \
+                    n_dims, a_kind, module, m_abi, is_pointer_);                \
+                if( !is_pointer_ ) {                                            \
+                    llvm_type = llvm_type->getPointerTo();                      \
+                }                                                               \
+            }
 
         switch (asr_type->type) {
             case ASR::ttypeType::Array: {
@@ -1206,11 +1205,16 @@ namespace LCompilers {
             }
             case (ASR::ttypeType::Pointer) : {
                 ASR::ttype_t *t2 = ASR::down_cast<ASR::Pointer_t>(asr_type)->m_type;
+                bool is_pointer_ = ( ASR::is_a<ASR::Class_t>(*t2) ||
+                    (ASR::is_a<ASR::Character_t>(*t2) && m_abi != ASR::abiType::BindC) );
+                is_malloc_array_type = ASRUtils::is_array(t2);
                 handle_llvm_pointers1()
                 break;
             }
             case (ASR::ttypeType::Allocatable) : {
                 ASR::ttype_t *t2 = ASR::down_cast<ASR::Allocatable_t>(asr_type)->m_type;
+                bool is_pointer_ = (ASR::is_a<ASR::Character_t>(*t2)
+                    && m_abi != ASR::abiType::BindC);
                 is_malloc_array_type = ASRUtils::is_array(t2);
                 handle_llvm_pointers1()
                 break;
@@ -1377,7 +1381,11 @@ namespace LCompilers {
             // to our new block
             builder->CreateBr(bb);
         }
+#if LLVM_VERSION_MAJOR >= 16
+        fn->insert(fn->end(), bb);
+#else
         fn->getBasicBlockList().push_back(bb);
+#endif
         builder->SetInsertPoint(bb);
     }
 

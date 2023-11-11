@@ -76,7 +76,7 @@ Result<std::unique_ptr<LLVMModule>> PythonCompiler::get_llvm3(
         return res.error;
     }
 
-    if (compiler_options.fast) {
+    if (compiler_options.po.fast) {
         e->opt(*m->m_m);
     }
 

@@ -56,19 +56,34 @@ class ReplaceArrayConstant: public ASR::BaseExprReplacer<ReplaceArrayConstant> {
                 make_ConstantWithKind(make_IntegerConstant_t, make_Integer_t, 1, 4, loc), loc);
         }
         int const_elements = 0;
+        ASR::expr_t* implied_doloop_size_ = nullptr;
         for( size_t i = 0; i < implied_doloop->n_values; i++ ) {
             if( ASR::is_a<ASR::ImpliedDoLoop_t>(*implied_doloop->m_values[i]) ) {
-                ASR::expr_t* implied_doloop_size_ = get_ImpliedDoLoop_size(
-                    ASR::down_cast<ASR::ImpliedDoLoop_t>(implied_doloop->m_values[i]));
-                implied_doloop_size = builder.ElementalMul(implied_doloop_size_, implied_doloop_size, loc);
+                if( implied_doloop_size_ == nullptr ) {
+                    implied_doloop_size_ = get_ImpliedDoLoop_size(
+                        ASR::down_cast<ASR::ImpliedDoLoop_t>(implied_doloop->m_values[i]));
+                } else {
+                    implied_doloop_size_ = builder.ElementalAdd(get_ImpliedDoLoop_size(
+                        ASR::down_cast<ASR::ImpliedDoLoop_t>(implied_doloop->m_values[i])),
+                        implied_doloop_size_, loc);
+                }
             } else {
                 const_elements += 1;
             }
         }
-        if(  const_elements > 0 ) {
-            implied_doloop_size = builder.ElementalAdd(
-                make_ConstantWithKind(make_IntegerConstant_t, make_Integer_t, const_elements, 4, loc),
-                implied_doloop_size, loc);
+        if( const_elements > 1 ) {
+            if( implied_doloop_size_ == nullptr ) {
+                implied_doloop_size_ = make_ConstantWithKind(make_IntegerConstant_t,
+                    make_Integer_t, const_elements, 4, loc);
+            } else {
+                implied_doloop_size_ = builder.ElementalAdd(
+                    make_ConstantWithKind(make_IntegerConstant_t,
+                        make_Integer_t, const_elements, 4, loc),
+                    implied_doloop_size_, loc);
+            }
+        }
+        if( implied_doloop_size_ ) {
+            implied_doloop_size = builder.ElementalMul(implied_doloop_size_, implied_doloop_size, loc);
         }
         return implied_doloop_size;
     }
@@ -165,7 +180,7 @@ class ReplaceArrayConstant: public ASR::BaseExprReplacer<ReplaceArrayConstant> {
             }
         }
         ASR::expr_t* constant_size_asr = nullptr;
-        if (constant_size == 0) {
+        if (constant_size == 0 && array_size == nullptr) {
             constant_size = ASRUtils::get_fixed_size_of_array(x->m_type);
         }
         if( constant_size > 0 ) {
@@ -238,6 +253,13 @@ class ReplaceArrayConstant: public ASR::BaseExprReplacer<ReplaceArrayConstant> {
             arg.loc = result_var->base.loc;
             arg.m_a = result_var;
             alloc_args.push_back(al, arg);
+            Vec<ASR::expr_t*> to_be_deallocated;
+            to_be_deallocated.reserve(al, alloc_args.size());
+            for( size_t i = 0; i < alloc_args.size(); i++ ) {
+                to_be_deallocated.push_back(al, alloc_args.p[i].m_a);
+            }
+            pass_result.push_back(al, ASRUtils::STMT(ASR::make_ExplicitDeallocate_t(
+                al, loc, to_be_deallocated.p, to_be_deallocated.size())));
             ASR::stmt_t* allocate_stmt = ASRUtils::STMT(ASR::make_Allocate_t(
                 al, loc, alloc_args.p, alloc_args.size(), nullptr, nullptr, nullptr));
             pass_result.push_back(al, allocate_stmt);
@@ -247,6 +269,13 @@ class ReplaceArrayConstant: public ASR::BaseExprReplacer<ReplaceArrayConstant> {
             arg.loc = result_var_copy->base.loc;
             arg.m_a = result_var_copy;
             alloc_args.push_back(al, arg);
+            Vec<ASR::expr_t*> to_be_deallocated;
+            to_be_deallocated.reserve(al, alloc_args.size());
+            for( size_t i = 0; i < alloc_args.size(); i++ ) {
+                to_be_deallocated.push_back(al, alloc_args.p[i].m_a);
+            }
+            pass_result.push_back(al, ASRUtils::STMT(ASR::make_ExplicitDeallocate_t(
+                al, loc, to_be_deallocated.p, to_be_deallocated.size())));
             ASR::stmt_t* allocate_stmt = ASRUtils::STMT(ASR::make_Allocate_t(
                 al, loc, alloc_args.p, alloc_args.size(), nullptr, nullptr, nullptr));
             pass_result.push_back(al, allocate_stmt);
@@ -272,6 +301,13 @@ class ReplaceArrayConstant: public ASR::BaseExprReplacer<ReplaceArrayConstant> {
         } else {
             x->m_old = ASRUtils::extract_physical_type(ASRUtils::expr_type(x->m_arg));
         }
+    }
+
+    void replace_ArrayBroadcast(ASR::ArrayBroadcast_t* x) {
+        ASR::expr_t** current_expr_copy_161 = current_expr;
+        current_expr = &(x->m_array);
+        replace_expr(x->m_array);
+        current_expr = current_expr_copy_161;
     }
 
 };
@@ -369,6 +405,148 @@ class ArrayConstantVisitor : public ASR::CallReplacerOnExpressionsVisitor<ArrayC
             }
         }
 
+        template <typename T>
+        ASR::asr_t* create_array_constant(const T& x, ASR::expr_t* value) {
+            // wrap the implied do loop in an array constant
+            Vec<ASR::expr_t*> args;
+            args.reserve(al, 1);
+            args.push_back(al, value);
+
+            Vec<ASR::dimension_t> dim;
+            dim.reserve(al, 1);
+
+            ASR::dimension_t d;
+            d.loc = value->base.loc;
+
+            ASR::ttype_t *int32_type = ASRUtils::TYPE(ASR::make_Integer_t(al, x.base.base.loc, 4));
+            ASR::expr_t* one = ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, x.base.base.loc, 1, int32_type));
+
+            d.m_start = one;
+            d.m_length = one;
+
+            dim.push_back(al, d);
+
+            ASR::ttype_t* array_type = ASRUtils::TYPE(ASR::make_Array_t(al, value->base.loc, ASRUtils::expr_type(value), dim.p, dim.size(), ASR::array_physical_typeType::FixedSizeArray));
+            ASR::asr_t* array_constant = ASR::make_ArrayConstant_t(al, value->base.loc,
+                                        args.p, args.n, array_type, ASR::arraystorageType::ColMajor);
+            return array_constant;
+        }
+
+        void visit_Print(const ASR::Print_t &x) {
+            /*
+                integer :: i
+                print *, (i, i=1, 10)
+
+                TO
+
+                integer :: i
+                print *, [(i, i=1, 10)]
+            */
+            ASR::Print_t* print_stmt = const_cast<ASR::Print_t*>(&x);
+            for(size_t i = 0; i < x.n_values; i++) {
+                ASR::expr_t* value = x.m_values[i];
+                if (ASR::is_a<ASR::ImpliedDoLoop_t>(*value)) {
+                    ASR::asr_t* array_constant = create_array_constant(x, value);
+                    print_stmt->m_values[i] = ASRUtils::EXPR(array_constant);
+
+                    replacer.result_var = value;
+                    resultvar2value[replacer.result_var] = ASRUtils::EXPR(array_constant);
+                    ASR::expr_t** current_expr_copy_9 = current_expr;
+                    current_expr = const_cast<ASR::expr_t**>(&(print_stmt->m_values[i]));
+                    this->call_replacer();
+                    current_expr = current_expr_copy_9;
+                    if( !remove_original_statement ) {
+                        this->visit_expr(*print_stmt->m_values[i]);
+                    }
+                } else {
+                    ASR::expr_t** current_expr_copy_9 = current_expr;
+                    current_expr = const_cast<ASR::expr_t**>(&(print_stmt->m_values[i]));
+                    this->call_replacer();
+                    current_expr = current_expr_copy_9;
+                    if( !remove_original_statement ) {
+                        this->visit_expr(*print_stmt->m_values[i]);
+                    }
+                }
+            }
+        }
+
+        void visit_StringFormat(const ASR::StringFormat_t &x) {
+            /*
+                integer :: i
+                write(*, '(i)') (i, i=1, 10)
+
+                TO
+
+                integer :: i
+                write(*, '(i)') [(i, i=1, 10)]
+            */
+            ASR::StringFormat_t* string_format_stmt = const_cast<ASR::StringFormat_t*>(&x);
+            for(size_t i = 0; i < x.n_args; i++) {
+                ASR::expr_t* value = x.m_args[i];
+                if (ASR::is_a<ASR::ImpliedDoLoop_t>(*value)) {
+                    ASR::asr_t* array_constant = create_array_constant(x, value);
+                    string_format_stmt->m_args[i] = ASRUtils::EXPR(array_constant);
+
+                    replacer.result_var = value;
+                    resultvar2value[replacer.result_var] = ASRUtils::EXPR(array_constant);
+                    ASR::expr_t** current_expr_copy_9 = current_expr;
+                    current_expr = const_cast<ASR::expr_t**>(&(string_format_stmt->m_args[i]));
+                    this->call_replacer();
+                    current_expr = current_expr_copy_9;
+                    if( !remove_original_statement ) {
+                        this->visit_expr(*string_format_stmt->m_args[i]);
+                    }
+                } else {
+                    ASR::expr_t** current_expr_copy_9 = current_expr;
+                    current_expr = const_cast<ASR::expr_t**>(&(string_format_stmt->m_args[i]));
+                    this->call_replacer();
+                    current_expr = current_expr_copy_9;
+                    if( !remove_original_statement ) {
+                        this->visit_expr(*string_format_stmt->m_args[i]);
+                    }
+                }
+            }
+        }
+
+        void visit_FileWrite(const ASR::FileWrite_t &x) {
+            /*
+                integer :: i
+                write(*,*) (i, i=1, 10)
+
+                TO
+
+                integer :: i
+                write(*,*) [(i, i=1, 10)]
+            */
+            ASR::FileWrite_t* write_stmt = const_cast<ASR::FileWrite_t*>(&x);
+            for(size_t i = 0; i < x.n_values; i++) {
+                ASR::expr_t* value = x.m_values[i];
+                if (ASR::is_a<ASR::ImpliedDoLoop_t>(*value)) {
+                    ASR::asr_t* array_constant = create_array_constant(x, value);
+
+                    write_stmt->m_values[i] = ASRUtils::EXPR(array_constant);
+
+                    replacer.result_var = value;
+                    resultvar2value[replacer.result_var] = ASRUtils::EXPR(array_constant);
+                    ASR::expr_t** current_expr_copy_9 = current_expr;
+                    current_expr = const_cast<ASR::expr_t**>(&(write_stmt->m_values[i]));
+                    this->call_replacer();
+                    current_expr = current_expr_copy_9;
+                    if( !remove_original_statement ) {
+                        this->visit_expr(*write_stmt->m_values[i]);
+                    }
+                } else {
+                    ASR::expr_t** current_expr_copy_9 = current_expr;
+                    current_expr = const_cast<ASR::expr_t**>(&(write_stmt->m_values[i]));
+                    this->call_replacer();
+                    current_expr = current_expr_copy_9;
+                    if( !remove_original_statement ) {
+                        this->visit_expr(*write_stmt->m_values[i]);
+                    }
+                }
+            }
+        }
+
         void visit_CPtrToPointer(const ASR::CPtrToPointer_t& x) {
             if (x.m_shape) {
                 ASR::expr_t** current_expr_copy = current_expr;
@@ -377,6 +555,16 @@ class ArrayConstantVisitor : public ASR::CallReplacerOnExpressionsVisitor<ArrayC
                 current_expr = current_expr_copy;
                 if( x.m_shape )
                 this->visit_expr(*x.m_shape);
+            }
+        }
+
+        void visit_ArrayBroadcast(const ASR::ArrayBroadcast_t& x) {
+            ASR::expr_t** current_expr_copy_269 = current_expr;
+            current_expr = const_cast<ASR::expr_t**>(&(x.m_array));
+            call_replacer();
+            current_expr = current_expr_copy_269;
+            if( x.m_array ) {
+                visit_expr(*x.m_array);
             }
         }
 

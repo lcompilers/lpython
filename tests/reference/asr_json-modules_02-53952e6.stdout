@@ -734,7 +734,6 @@
                                             {
                                                 "node": "Print",
                                                 "fields": {
-                                                    "fmt": [],
                                                     "values": [
                                                         {
                                                             "node": "StringConstant",
@@ -892,7 +891,6 @@
                                             {
                                                 "node": "Print",
                                                 "fields": {
-                                                    "fmt": [],
                                                     "values": [
                                                         {
                                                             "node": "StringConstant",

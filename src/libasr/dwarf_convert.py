@@ -64,15 +64,21 @@ class Parser:
 
     def parse_debug_line(self):
         self.line = self.file.readline()
+        include_dirs_found = True
         while not self.line.startswith("include_directories"):
-            self.line = self.file.readline()
+            if self.line.startswith("file_names"):
+                include_dirs_found = False
+                break
+            else:
+                self.line = self.file.readline()
 
         include_directories = []
-        while self.line.startswith("include_directories"):
-            n, path = re.compile(r"include_directories\[[ ]*(\d+)\] = \"([^\"]+)\"").findall(self.line)[0]
-            n = int(n)
-            include_directories.append(IncludeDirectory(n, path))
-            self.line = self.file.readline()
+        if include_dirs_found:
+            while self.line.startswith("include_directories"):
+                n, path = re.compile(r"include_directories\[[ ]*(\d+)\] = \"([^\"]+)\"").findall(self.line)[0]
+                n = int(n)
+                include_directories.append(IncludeDirectory(n, path))
+                self.line = self.file.readline()
 
         file_names = []
         while self.line.startswith("file_names"):

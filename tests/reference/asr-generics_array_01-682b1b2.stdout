@@ -389,7 +389,6 @@
                                         ()
                                     )
                                     (Print
-                                        ()
                                         [(FunctionCall
                                             2 __asr_generic_f_0
                                             ()

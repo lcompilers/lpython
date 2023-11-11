@@ -229,7 +229,6 @@
                                         ()
                                     )
                                     (Print
-                                        ()
                                         [(StringChr
                                             (Var 5 p)
                                             (Character 1 1 ())
@@ -239,7 +238,6 @@
                                         ()
                                     )
                                     (Print
-                                        ()
                                         [(StringChr
                                             (Var 5 q)
                                             (Character 1 1 ())
@@ -249,7 +247,6 @@
                                         ()
                                     )
                                     (Print
-                                        ()
                                         [(StringChr
                                             (Var 5 r)
                                             (Character 1 1 ())
@@ -259,7 +256,6 @@
                                         ()
                                     )
                                     (Print
-                                        ()
                                         [(StringChr
                                             (Var 5 s)
                                             (Character 1 1 ())
@@ -301,7 +297,6 @@
                                         ()
                                     )
                                     (Print
-                                        ()
                                         [(StringOrd
                                             (Var 5 a)
                                             (Integer 4)
@@ -311,7 +306,6 @@
                                         ()
                                     )
                                     (Print
-                                        ()
                                         [(StringOrd
                                             (Var 5 b)
                                             (Integer 4)
@@ -321,7 +315,6 @@
                                         ()
                                     )
                                     (Print
-                                        ()
                                         [(StringOrd
                                             (Var 5 c)
                                             (Integer 4)
@@ -331,7 +324,6 @@
                                         ()
                                     )
                                     (Print
-                                        ()
                                         [(StringOrd
                                             (Var 5 d)
                                             (Integer 4)

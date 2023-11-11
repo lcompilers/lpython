@@ -339,7 +339,6 @@
                                     (Var 6 c)
                                     (Var 6 d)]
                                     [(Print
-                                        ()
                                         [(StringConstant
                                             "OK"
                                             (Character 1 2 ())
