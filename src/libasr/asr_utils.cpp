@@ -190,7 +190,7 @@ void update_call_args(Allocator &al, SymbolTable *current_scope, bool implicit_i
             }
             return sym;
         }
-        
+
         void handle_Var(ASR::expr_t* arg_expr, ASR::expr_t** expr_to_replace) {
             if (ASR::is_a<ASR::Var_t>(*arg_expr)) {
                 ASR::Var_t* arg_var = ASR::down_cast<ASR::Var_t>(arg_expr);

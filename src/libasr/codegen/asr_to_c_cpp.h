@@ -1049,13 +1049,14 @@ PyMODINIT_FUNC PyInit_lpython_module_)" + fn_name + R"((void) {
     }
 
     void visit_ArrayPhysicalCast(const ASR::ArrayPhysicalCast_t& x) {
-         src = "";
-         this->visit_expr(*x.m_arg);
-         if (x.m_old == ASR::array_physical_typeType::FixedSizeArray &&
+        src = "";
+        this->visit_expr(*x.m_arg);
+        if (x.m_old == ASR::array_physical_typeType::FixedSizeArray &&
                 x.m_new == ASR::array_physical_typeType::SIMDArray) {
             std::string arr_element_type = CUtils::get_c_type_from_ttype_t(ASRUtils::expr_type(x.m_arg));
             int64_t size = ASRUtils::get_fixed_size_of_array(ASRUtils::expr_type(x.m_arg));
-            std::string cast = arr_element_type + " __attribute__ (( vector_size(sizeof(" + arr_element_type + ") * " + std::to_string(size) + ") ))";
+            std::string cast = arr_element_type + " __attribute__ (( vector_size(sizeof("
+                + arr_element_type + ") * " + std::to_string(size) + ") ))";
             src = "(" + cast + ") " + src;
         }
      }
