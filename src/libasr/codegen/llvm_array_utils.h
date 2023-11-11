@@ -74,7 +74,9 @@ namespace LCompilers {
                     llvm::LLVMContext& context,
                     llvm::IRBuilder<>* builder,
                     LLVMUtils* llvm_utils,
-                    DESCR_TYPE descr_type);
+                    DESCR_TYPE descr_type,
+                    CompilerOptions& co_,
+                    std::vector<llvm::Value*>& heap_arrays_);
 
                 /*
                 * Checks whether the given ASR::ttype_t* is an
@@ -134,7 +136,7 @@ namespace LCompilers {
                 void fill_array_details(
                     llvm::Value* arr, llvm::Type* llvm_data_type, int n_dims,
                     std::vector<std::pair<llvm::Value*, llvm::Value*>>& llvm_dims,
-                    bool reserve_data_memory=true) = 0;
+                    llvm::Module* module, bool reserve_data_memory=true) = 0;
 
                 virtual
                 void fill_array_details(
@@ -308,6 +310,9 @@ namespace LCompilers {
 
                 std::map<std::string, std::pair<llvm::StructType*, llvm::Type*>> tkr2array;
 
+                CompilerOptions& co;
+                std::vector<llvm::Value*>& heap_arrays;
+
                 llvm::Value* cmo_convertor_single_element(
                     llvm::Value* arr, std::vector<llvm::Value*>& m_args,
                     int n_args, bool check_for_bounds);
@@ -320,7 +325,8 @@ namespace LCompilers {
 
                 SimpleCMODescriptor(llvm::LLVMContext& _context,
                     llvm::IRBuilder<>* _builder,
-                    LLVMUtils* _llvm_utils);
+                    LLVMUtils* _llvm_utils, CompilerOptions& co_,
+                    std::vector<llvm::Value*>& heap_arrays);
 
                 virtual
                 bool is_array(ASR::ttype_t* asr_type);
@@ -351,7 +357,7 @@ namespace LCompilers {
                 void fill_array_details(
                     llvm::Value* arr, llvm::Type* llvm_data_type, int n_dims,
                     std::vector<std::pair<llvm::Value*, llvm::Value*>>& llvm_dims,
-                    bool reserve_data_memory=true);
+                    llvm::Module* module, bool reserve_data_memory=true);
 
                 virtual
                 void fill_array_details(

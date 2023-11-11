@@ -35,65 +35,23 @@ to:
     c = a + 5
 
 */
-class InlineFunctionCallVisitor : public PassUtils::PassVisitor<InlineFunctionCallVisitor>
+class FixSymbolsVisitor: public ASR::BaseWalkVisitor<FixSymbolsVisitor>
 {
 private:
 
-    std::string rl_path;
+    SymbolTable*& current_routine_scope;
+    SymbolTable*& current_scope;
 
-    ASR::expr_t* function_result_var;
+    bool& fixed_duplicated_expr_stmt;
 
-    bool from_inline_function_call, inlining_function;
-    bool fixed_duplicated_expr_stmt;
-    bool is_fast;
-
-    // Stores the local variables or/and Block symbol corresponding to the ones
-    // present in function symbol table.
-    std::map<std::string, ASR::symbol_t*> arg2value;
-
-    std::string current_routine;
-
-    bool inline_external_symbol_calls;
-
-
-    ASRUtils::ExprStmtDuplicator node_duplicator;
-
-    SymbolTable* current_routine_scope;
-    ASRUtils::LabelGenerator* label_generator;
-    ASR::symbol_t* empty_block;
-    ASRUtils::ReplaceReturnWithGotoVisitor return_replacer;
+    std::map<std::string, ASR::symbol_t*>& arg2value;
 
 public:
 
-    bool function_inlined;
-
-    InlineFunctionCallVisitor(Allocator &al_, const std::string& rl_path_,
-                              bool inline_external_symbol_calls_, bool is_fast_)
-    : PassVisitor(al_, nullptr),
-    rl_path(rl_path_), function_result_var(nullptr),
-    from_inline_function_call(false), inlining_function(false), fixed_duplicated_expr_stmt(false),
-    is_fast(is_fast_),
-    current_routine(""), inline_external_symbol_calls(inline_external_symbol_calls_),
-    node_duplicator(al_), current_routine_scope(nullptr),
-    label_generator(ASRUtils::LabelGenerator::get_instance()),
-    empty_block(nullptr), return_replacer(al_, 0),
-    function_inlined(false)
-    {
-        pass_result.reserve(al, 1);
-    }
-
-    void configure_node_duplicator(bool allow_procedure_calls_) {
-        node_duplicator.allow_procedure_calls = allow_procedure_calls_;
-    }
-
-    void visit_Function(const ASR::Function_t &x) {
-        // FIXME: this is a hack, we need to pass in a non-const `x`,
-        // which requires to generate a TransformVisitor.
-        ASR::Function_t &xx = const_cast<ASR::Function_t&>(x);
-        current_routine = std::string(xx.m_name);
-        PassUtils::PassVisitor<InlineFunctionCallVisitor>::visit_Function(x);
-        current_routine.clear();
-    }
+    FixSymbolsVisitor(SymbolTable*& current_routine_scope_, SymbolTable*& current_scope_,
+        bool& fixed_duplicated_expr_stmt, std::map<std::string, ASR::symbol_t*>& arg2value_):
+        current_routine_scope(current_routine_scope_), current_scope(current_scope_),
+        fixed_duplicated_expr_stmt(fixed_duplicated_expr_stmt), arg2value(arg2value_) {}
 
     // If anything is not local to a function being inlined
     // then do not inline the function by setting
@@ -116,7 +74,7 @@ public:
 
     void visit_Var(const ASR::Var_t& x) {
         ASR::Var_t& xx = const_cast<ASR::Var_t&>(x);
-        ASR::symbol_t *sym = ASRUtils::symbol_get_past_external(x.m_v);
+        ASR::symbol_t *sym = ASRUtils::symbol_get_past_external(xx.m_v);
         if (ASR::is_a<ASR::Variable_t>(*sym)) {
             replace_symbol(sym, ASR::Variable_t, xx.m_v);
         } else {
@@ -124,9 +82,62 @@ public:
         }
     }
 
-    void visit_BlockCall(const ASR::BlockCall_t &x) {
+    void visit_BlockCall(const ASR::BlockCall_t& x) {
         ASR::BlockCall_t& xx = const_cast<ASR::BlockCall_t&>(x);
-        replace_symbol(x.m_m, ASR::Block_t, xx.m_m);
+        replace_symbol(xx.m_m, ASR::Block_t, xx.m_m);
+    }
+
+};
+
+class InlineFunctionCall : public ASR::BaseExprReplacer<InlineFunctionCall>
+{
+private:
+
+    Allocator& al;
+    std::string rl_path;
+
+    ASR::expr_t* function_result_var;
+
+    bool& from_inline_function_call, inlining_function;
+    bool fixed_duplicated_expr_stmt;
+    bool is_fast;
+
+    // Stores the local variables or/and Block symbol corresponding to the ones
+    // present in function symbol table.
+    std::map<std::string, ASR::symbol_t*> arg2value;
+
+    std::string& current_routine;
+
+    bool inline_external_symbol_calls;
+
+
+    ASRUtils::ExprStmtDuplicator node_duplicator;
+
+    SymbolTable* current_routine_scope;
+    ASRUtils::LabelGenerator* label_generator;
+    ASR::symbol_t* empty_block;
+    ASRUtils::ReplaceReturnWithGotoVisitor return_replacer;
+    Vec<ASR::stmt_t*>& pass_result;
+
+public:
+
+    SymbolTable* current_scope;
+    FixSymbolsVisitor fix_symbols_visitor;
+    bool function_inlined;
+
+    InlineFunctionCall(Allocator &al_, const std::string& rl_path_,
+        bool inline_external_symbol_calls_, bool is_fast_,
+        Vec<ASR::stmt_t*>& pass_result_, bool& from_inline_function_call_,
+        std::string& current_routine_): al(al_), rl_path(rl_path_), function_result_var(nullptr),
+        from_inline_function_call(from_inline_function_call_), inlining_function(false), fixed_duplicated_expr_stmt(false),
+        is_fast(is_fast_), current_routine(current_routine_), inline_external_symbol_calls(inline_external_symbol_calls_),
+        node_duplicator(al_), current_routine_scope(nullptr), label_generator(ASRUtils::LabelGenerator::get_instance()),
+        empty_block(nullptr), return_replacer(al_, 0), pass_result(pass_result_), current_scope(nullptr),
+        fix_symbols_visitor(current_routine_scope, current_scope, fixed_duplicated_expr_stmt, arg2value),
+        function_inlined(false) {}
+
+    void configure_node_duplicator(bool allow_procedure_calls_) {
+        node_duplicator.allow_procedure_calls = allow_procedure_calls_;
     }
 
     void set_empty_block(SymbolTable* scope, const Location& loc) {
@@ -147,7 +158,7 @@ public:
         scope->erase_symbol("~empty_block");
     }
 
-    void visit_FunctionCall(const ASR::FunctionCall_t& x) {
+    void replace_FunctionCall(ASR::FunctionCall_t* x) {
         // If this node is visited by any other visitor
         // or it is being visited while inlining another function call
         // then return. To ensure that only one function call is inlined
@@ -157,8 +168,8 @@ public:
                 return ;
             }
             // TODO: Handle type later
-            if( ASR::is_a<ASR::ExternalSymbol_t>(*x.m_name) ) {
-                ASR::ExternalSymbol_t* called_sym_ext = ASR::down_cast<ASR::ExternalSymbol_t>(x.m_name);
+            if( ASR::is_a<ASR::ExternalSymbol_t>(*x->m_name) ) {
+                ASR::ExternalSymbol_t* called_sym_ext = ASR::down_cast<ASR::ExternalSymbol_t>(x->m_name);
                 ASR::symbol_t* f_sym = ASRUtils::symbol_get_past_external(called_sym_ext->m_external);
                 ASR::Function_t* f = ASR::down_cast<ASR::Function_t>(f_sym);
 
@@ -167,12 +178,11 @@ public:
                     return ;
                 }
 
-                ASR::symbol_t* called_sym = x.m_name;
+                ASR::symbol_t* called_sym = x->m_name;
 
                 // TODO: Handle later
                 // ASR::symbol_t* called_sym_original = x.m_original_name;
 
-                ASR::FunctionCall_t& xx = const_cast<ASR::FunctionCall_t&>(x);
                 std::string called_sym_name = std::string(called_sym_ext->m_name);
                 std::string new_sym_name_str = current_scope->get_unique_name(called_sym_name, false);
                 char* new_sym_name = s2c(al, new_sym_name_str);
@@ -185,13 +195,23 @@ public:
                                                 f->m_name, ASR::accessType::Private));
                     current_scope->add_symbol(new_sym_name_str, new_sym);
                 }
-                xx.m_name = current_scope->get_symbol(new_sym_name_str);
+                x->m_name = current_scope->get_symbol(new_sym_name_str);
             }
 
-            for( size_t i = 0; i < x.n_args; i++ ) {
-                visit_expr(*x.m_args[i].m_value);
+            for( size_t i = 0; i < x->n_args; i++ ) {
+                fix_symbols_visitor.visit_expr(*x->m_args[i].m_value);
             }
             return ;
+        }
+
+        // Avoid inlining if function call accepts a callback argument
+        for( size_t i = 0; i < x->n_args; i++ ) {
+            if( x->m_args[i].m_value &&
+                ASR::is_a<ASR::FunctionType_t>(
+                    *ASRUtils::type_get_past_pointer(
+                        ASRUtils::expr_type(x->m_args[i].m_value))) ) {
+                return ;
+            }
         }
 
         // Clear up any local variables present in arg2value map
@@ -205,11 +225,11 @@ public:
         pass_result_local.reserve(al, 1);
 
         // Avoid external symbols for now.
-        ASR::symbol_t* routine = x.m_name;
+        ASR::symbol_t* routine = x->m_name;
         if( !ASR::is_a<ASR::Function_t>(*routine) ) {
             if( ASR::is_a<ASR::ExternalSymbol_t>(*routine) &&
                 inline_external_symbol_calls) {
-                routine = ASRUtils::symbol_get_past_external(x.m_name);
+                routine = ASRUtils::symbol_get_past_external(x->m_name);
                 if( !ASR::is_a<ASR::Function_t>(*routine) ) {
                     return ;
                 }
@@ -242,7 +262,7 @@ public:
             ASR::expr_t *func_margs_i = nullptr, *x_m_args_i = nullptr;
             if( i < func->n_args ) {
                 func_margs_i = func->m_args[i];
-                x_m_args_i = x.m_args[i].m_value;
+                x_m_args_i = x->m_args[i].m_value;
             } else {
                 func_margs_i = func->m_return_var;
                 x_m_args_i = nullptr;
@@ -253,7 +273,9 @@ public:
             }
             ASR::Var_t* arg_var = ASR::down_cast<ASR::Var_t>(func_margs_i);
             // TODO: Expand to other symbol types, Function, Subroutine, ExternalSymbol
-            if( !ASR::is_a<ASR::Variable_t>(*(arg_var->m_v)) ) {
+            if( !ASR::is_a<ASR::Variable_t>(*(arg_var->m_v)) ||
+                 ASRUtils::is_character(*ASRUtils::symbol_type(arg_var->m_v)) ||
+                 ASRUtils::is_array(ASRUtils::symbol_type(arg_var->m_v)) ) {
                 arg2value.clear();
                 return ;
             }
@@ -288,7 +310,11 @@ public:
                 set_empty_block(current_scope, func->base.base.loc);
                 continue;
             }
-            if( !ASR::is_a<ASR::Variable_t>(*itr.second) ) {
+            if( !ASR::is_a<ASR::Variable_t>(*itr.second) ||
+                 ASRUtils::is_character(*ASRUtils::symbol_type(itr.second)) ||
+                 ASRUtils::is_array(ASRUtils::symbol_type(itr.second)) ||
+                 ASR::is_a<ASR::Struct_t>(*ASRUtils::symbol_type(itr.second)) ||
+                 ASR::is_a<ASR::Class_t>(*ASRUtils::symbol_type(itr.second)) ) {
                 arg2value.clear();
                 return ;
             }
@@ -337,7 +363,7 @@ public:
         for( size_t i = 0; i < exprs_to_be_visited.size() && success; i++ ) {
             ASR::expr_t* value = exprs_to_be_visited[i].first;
             fixed_duplicated_expr_stmt = true;
-            visit_expr(*value);
+            fix_symbols_visitor.visit_expr(*value);
             if( !fixed_duplicated_expr_stmt ) {
                 success = false;
                 break;
@@ -367,15 +393,15 @@ public:
             inlining_function = true;
             for( size_t i = 0; i < func->n_body && success; i++ ) {
                 fixed_duplicated_expr_stmt = true;
-                visit_stmt(*func_copy[i]);
+                fix_symbols_visitor.visit_stmt(*func_copy[i]);
                 success = success && fixed_duplicated_expr_stmt;
             }
 
             if( success ) {
                 set_empty_block(current_scope, func->base.base.loc);
                 uint64_t block_call_label = label_generator->get_unique_label();
-                ASR::stmt_t* block_call = ASRUtils::STMT(ASR::make_BlockCall_t(al, x.base.base.loc,
-                                                        block_call_label, empty_block));
+                ASR::stmt_t* block_call = ASRUtils::STMT(ASR::make_BlockCall_t(
+                    al, x->base.base.loc, block_call_label, empty_block));
                 label_generator->add_node_with_unique_label((ASR::asr_t*) block_call,
                                                             block_call_label);
                 return_replacer.set_goto_label(block_call_label);
@@ -417,63 +443,94 @@ public:
         }
         // At least one function is inlined
         function_inlined = success;
+        if( function_inlined ) {
+            *current_expr = function_result_var;
+        }
         success = false;
         // Clear up the arg2value to avoid corruption
         // of any kind.
         arg2value.clear();
     }
 
-    void visit_IntegerBinOp(const ASR::IntegerBinOp_t& x) {
-        handle_BinOp(x);
+};
+
+class InlineFunctionCallVisitor : public ASR::CallReplacerOnExpressionsVisitor<InlineFunctionCallVisitor>
+{
+private:
+
+    Allocator& al;
+
+    bool from_inline_function_call;
+    std::string current_routine;
+    Vec<ASR::stmt_t*>* parent_body;
+    Vec<ASR::stmt_t*> pass_result;
+
+    InlineFunctionCall replacer;
+
+public:
+
+    bool function_inlined;
+
+    InlineFunctionCallVisitor(Allocator &al_, const std::string& rl_path_,
+        bool inline_external_symbol_calls_, bool is_fast_):
+        al(al_), current_routine(""), parent_body(nullptr),
+        replacer(al_, rl_path_, inline_external_symbol_calls_, is_fast_,
+                 pass_result, from_inline_function_call, current_routine) {
+        pass_result.reserve(al, 1);
     }
 
-    void visit_UnsignedIntegerBinOp(const ASR::UnsignedIntegerBinOp_t& x) {
-        handle_BinOp(x);
+    void configure_node_duplicator(bool allow_procedure_calls_) {
+        replacer.configure_node_duplicator(allow_procedure_calls_);
     }
 
-    void visit_RealBinOp(const ASR::RealBinOp_t& x) {
-        handle_BinOp(x);
+    void call_replacer() {
+        replacer.current_expr = current_expr;
+        replacer.current_scope = current_scope;
+        replacer.replace_expr(*current_expr);
     }
 
-    void visit_ComplexBinOp(const ASR::ComplexBinOp_t& x) {
-        handle_BinOp(x);
-    }
-
-    void visit_LogicalBinOp(const ASR::LogicalBinOp_t& x) {
-        handle_BinOp(x);
-    }
-
-    template <typename T>
-    void handle_BinOp(const T& x) {
-        T& xx = const_cast<T&>(x);
-        from_inline_function_call = true;
-        function_result_var = nullptr;
-        visit_expr(*x.m_left);
-        if( function_result_var ) {
-            xx.m_left = function_result_var;
-        }
-        function_result_var = nullptr;
-        visit_expr(*x.m_right);
-        if( function_result_var ) {
-            xx.m_right = function_result_var;
-        }
-        function_result_var = nullptr;
-        from_inline_function_call = false;
+    void visit_Function(const ASR::Function_t &x) {
+        // FIXME: this is a hack, we need to pass in a non-const `x`,
+        // which requires to generate a TransformVisitor.
+        ASR::Function_t &xx = const_cast<ASR::Function_t&>(x);
+        current_routine = std::string(xx.m_name);
+        ASR::CallReplacerOnExpressionsVisitor<InlineFunctionCallVisitor>::visit_Function(x);
+        current_routine.clear();
     }
 
     void visit_Assignment(const ASR::Assignment_t& x) {
         from_inline_function_call = true;
-        retain_original_stmt = true;
-        ASR::Assignment_t& xx = const_cast<ASR::Assignment_t&>(x);
-        function_result_var = nullptr;
-        visit_expr(*x.m_target);
-        function_result_var = nullptr;
-        visit_expr(*x.m_value);
-        if( function_result_var ) {
-            xx.m_value = function_result_var;
-        }
-        function_result_var = nullptr;
+        ASR::CallReplacerOnExpressionsVisitor<InlineFunctionCallVisitor>::visit_Assignment(x);
         from_inline_function_call = false;
+    }
+
+    void transform_stmts(ASR::stmt_t **&m_body, size_t &n_body) {
+        Vec<ASR::stmt_t*> body;
+        body.reserve(al, n_body);
+        if( parent_body ) {
+            for (size_t j=0; j < pass_result.size(); j++) {
+                parent_body->push_back(al, pass_result[j]);
+            }
+        }
+        for (size_t i=0; i<n_body; i++) {
+            pass_result.n = 0;
+            pass_result.reserve(al, 1);
+            Vec<ASR::stmt_t*>* parent_body_copy = parent_body;
+            parent_body = &body;
+            visit_stmt(*m_body[i]);
+            parent_body = parent_body_copy;
+            for (size_t j=0; j < pass_result.size(); j++) {
+                body.push_back(al, pass_result[j]);
+            }
+            body.push_back(al, m_body[i]);
+        }
+        m_body = body.p;
+        n_body = body.size();
+        pass_result.n = 0;
+    }
+
+    void visit_Character(const ASR::Character_t& /*x*/) {
+
     }
 
 };

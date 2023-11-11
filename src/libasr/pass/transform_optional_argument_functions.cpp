@@ -333,7 +333,7 @@ bool fill_new_args(Vec<ASR::call_arg_t>& new_args, Allocator& al,
                     size_t k;
                     bool k_found = false;
                     for( k = 0; k < owning_function->n_args; k++ ) {
-                        if( ASR::down_cast<ASR::Var_t>(owning_function->m_args[k])->m_v ==
+                        if( ASR::is_a<ASR::Var_t>(*x.m_args[i].m_value) && ASR::down_cast<ASR::Var_t>(owning_function->m_args[k])->m_v ==
                             ASR::down_cast<ASR::Var_t>(x.m_args[i].m_value)->m_v ) {
                             k_found = true;
                             break ;

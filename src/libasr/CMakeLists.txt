@@ -18,6 +18,7 @@ set(SRC
     codegen/asr_to_cpp.cpp
     codegen/asr_to_c.cpp
     codegen/asr_to_julia.cpp
+    codegen/asr_to_fortran.cpp
     codegen/asr_to_py.cpp
     codegen/x86_assembler.cpp
     codegen/asr_to_x86.cpp
@@ -62,6 +63,7 @@ set(SRC
     pass/pass_list_expr.cpp
     pass/pass_compare.cpp
     pass/unique_symbols.cpp
+    pass/insert_deallocate.cpp
 
     asr_verify.cpp
     asr_utils.cpp

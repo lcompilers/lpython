@@ -214,7 +214,6 @@ public:
             }
             dec_indent(); s.append("\n" + indtd);
             s.append("}");
-            s.append(",\n" + indtd);
             append_location(s, x.base.base.loc.first, x.base.base.loc.last);
             dec_indent(); s.append("\n" + indtd);
             s.append("}");
@@ -224,15 +223,16 @@ public:
     }
 };
 
-std::string pickle_json(ASR::asr_t &asr, LocationManager &lm, bool show_intrinsic_modules) {
+std::string pickle_json(ASR::asr_t &asr, LocationManager &lm, bool no_loc, bool show_intrinsic_modules) {
     ASRJsonVisitor v(lm);
     v.show_intrinsic_modules = show_intrinsic_modules;
+    v.no_loc = no_loc;
     v.visit_asr(asr);
     return v.get_str();
 }
 
-std::string pickle_json(ASR::TranslationUnit_t &asr, LocationManager &lm, bool show_intrinsic_modules) {
-    return pickle_json((ASR::asr_t &)asr, lm, show_intrinsic_modules);
+std::string pickle_json(ASR::TranslationUnit_t &asr, LocationManager &lm, bool no_loc, bool show_intrinsic_modules) {
+    return pickle_json((ASR::asr_t &)asr, lm, no_loc, show_intrinsic_modules);
 }
 
 } // namespace LCompilers

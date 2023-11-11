@@ -86,7 +86,7 @@ symbol
         bool loaded_from_mod, bool intrinsic)
     | Function(symbol_table symtab, identifier name, ttype function_signature,
         identifier* dependencies, expr* args, stmt* body, expr? return_var,
-        access access, bool deterministic, bool side_effect_free,  string? module_file)
+        access access, bool deterministic, bool side_effect_free, string? module_file)
     | GenericProcedure(symbol_table parent_symtab, identifier name,
         symbol* procs, access access)
     | CustomOperator(symbol_table parent_symtab, identifier name,
@@ -198,7 +198,7 @@ stmt
     | GoToTarget(int id, identifier name)
     | If(expr test, stmt* body, stmt* orelse)
     | IfArithmetic(expr test, int lt_label, int eq_label, int gt_label)
-    | Print(expr? fmt, expr* values, expr? separator, expr? end)
+    | Print(expr* values, expr? separator, expr? end)
     | FileOpen(int label, expr? newunit, expr? filename, expr? status, expr? form)
     | FileClose(int label, expr? unit, expr? iostat, expr? iomsg, expr? err, expr? status)
     | FileRead(int label, expr? unit, expr? fmt, expr? iomsg, expr? iostat, expr? id, expr* values)
@@ -212,7 +212,7 @@ stmt
               expr? read, expr? write, expr? readwrite, expr? delim,
               expr? pad, expr? flen, expr? blocksize, expr? convert,
               expr? carriagecontrol, expr? iolength)
-    | FileWrite(int label, expr? unit, expr? fmt, expr? iomsg, expr? iostat, expr? id, expr* values, expr? separator, expr? end)
+    | FileWrite(int label, expr? unit, expr? iomsg, expr? iostat, expr? id, expr* values, expr? separator, expr? end)
     | Return()
     | Select(expr test, case_stmt* body, stmt* default)
     | Stop(expr? code)
@@ -323,6 +323,7 @@ expr
     | ArrayPack(expr array, expr mask, expr? vector, ttype type, expr? value)
     | ArrayReshape(expr array, expr shape, ttype type, expr? value)
     | ArrayAll(expr mask, expr? dim, ttype type, expr? value)
+    | ArrayBroadcast(expr array, expr shape, ttype type, expr? value)
 
     | BitCast(expr source, expr mold, expr? size, ttype type, expr? value)
     | StructInstanceMember(expr v, symbol m, ttype type, expr? value)
@@ -428,6 +429,7 @@ array_physical_type
     | FixedSizeArray
     | NumPyArray
     | ISODescriptorArray
+    | SIMDArray
 
 binop = Add | Sub | Mul | Div | Pow | BitAnd | BitOr | BitXor | BitLShift | BitRShift
 

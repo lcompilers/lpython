@@ -112,6 +112,9 @@ public:
         *current_expr = new_expr;
     }
 
+    void replace_Array(ASR::Array_t */*x*/) {
+        // pass
+    }
 };
 
 class VarVisitor : public ASR::CallReplacerOnExpressionsVisitor<VarVisitor>
@@ -172,6 +175,11 @@ public:
         ASR::expr_t* value = *replacer.current_expr;
         current_expr = current_expr_copy;
         this->visit_expr(*x.m_value);
+        if( !ASRUtils::is_array(ASRUtils::expr_type(target)) ) {
+            if( ASR::is_a<ASR::ArrayBroadcast_t>(*value) ) {
+                value = ASR::down_cast<ASR::ArrayBroadcast_t>(value)->m_array;
+            }
+        }
         ASR::stmt_t* tmp_stmt = ASRUtils::STMT(ASR::make_Assignment_t(al, x.base.base.loc, target, value, nullptr));
         pass_result.push_back(al, tmp_stmt);
     }

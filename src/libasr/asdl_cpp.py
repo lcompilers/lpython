@@ -1718,6 +1718,7 @@ class JsonVisitorVisitor(ASDLVisitor):
         self.emit(  "Struct& self() { return static_cast<Struct&>(*this); }", 1)
         self.emit("public:")
         self.emit(  "std::string s, indtd = \"\";", 1)
+        self.emit(  "bool no_loc = false;", 1)
         self.emit(  "int indent_level = 0, indent_spaces = 4;", 1)
         # Storing a reference to LocationManager like this isn't ideal.
         # One must make sure JsonBaseVisitor isn't reused in a case where AST/ASR has changed
@@ -1739,7 +1740,9 @@ class JsonVisitorVisitor(ASDLVisitor):
         self.emit(      "indtd = std::string(indent_level*indent_spaces, ' ');",2)
         self.emit(  "}",1)
         self.emit(  "void append_location(std::string &s, uint32_t first, uint32_t last) {", 1)
-        self.emit(      's.append("\\"loc\\": {");', 2);
+        self.emit(      'if (no_loc) return;', 2)
+        self.emit(      's.append(",\\n" + indtd);', 2)
+        self.emit(      's.append("\\"loc\\": {");', 2)
         self.emit(      'inc_indent();', 2)
         self.emit(      's.append("\\n" + indtd);', 2)
         self.emit(      's.append("\\"first\\": " + std::to_string(first));', 2)
@@ -1809,7 +1812,6 @@ class JsonVisitorVisitor(ASDLVisitor):
                     self.emit('s.append(",\\n" + indtd);', 2)
             self.emit('dec_indent(); s.append("\\n" + indtd);', 2)
         self.emit(    's.append("}");', 2)
-        self.emit(    's.append(",\\n" + indtd);', 2)
         if name in products:
             self.emit(    'append_location(s, x.loc.first, x.loc.last);', 2)
         else:

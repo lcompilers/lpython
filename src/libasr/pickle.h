@@ -17,8 +17,8 @@ namespace LCompilers {
     std::string pickle_tree(ASR::TranslationUnit_t &asr, bool colors, bool show_intrinsic_modules=false);
 
     // Print Json structure
-    std::string pickle_json(ASR::asr_t &asr, LocationManager &lm, bool show_intrinsic_modules=false);
-    std::string pickle_json(ASR::TranslationUnit_t &asr, LocationManager &lm, bool show_intrinsic_modules=false);
+    std::string pickle_json(ASR::asr_t &asr, LocationManager &lm, bool no_loc, bool show_intrinsic_modules);
+    std::string pickle_json(ASR::TranslationUnit_t &asr, LocationManager &lm, bool no_loc, bool show_intrinsic_modules);
 
 } // namespace LCompilers
 

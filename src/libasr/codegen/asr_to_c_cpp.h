@@ -29,7 +29,7 @@
 #include <tuple>
 
 #define CHECK_FAST_C_CPP(compiler_options, x)                   \
-        if (compiler_options.fast && x.m_value != nullptr) {    \
+        if (compiler_options.po.fast && x.m_value != nullptr) { \
             self().visit_expr(*x.m_value);                      \
             return;                                             \
         }                                                       \
@@ -1051,6 +1051,13 @@ PyMODINIT_FUNC PyInit_lpython_module_)" + fn_name + R"((void) {
     void visit_ArrayPhysicalCast(const ASR::ArrayPhysicalCast_t& x) {
          src = "";
          this->visit_expr(*x.m_arg);
+         if (x.m_old == ASR::array_physical_typeType::FixedSizeArray &&
+                x.m_new == ASR::array_physical_typeType::SIMDArray) {
+            std::string arr_element_type = CUtils::get_c_type_from_ttype_t(ASRUtils::expr_type(x.m_arg));
+            int64_t size = ASRUtils::get_fixed_size_of_array(ASRUtils::expr_type(x.m_arg));
+            std::string cast = arr_element_type + " __attribute__ (( vector_size(sizeof(" + arr_element_type + ") * " + std::to_string(size) + ") ))";
+            src = "(" + cast + ") " + src;
+        }
      }
 
     std::string construct_call_args(ASR::Function_t* f, size_t n_args, ASR::call_arg_t* m_args) {
@@ -1353,7 +1360,7 @@ PyMODINIT_FUNC PyInit_lpython_module_)" + fn_name + R"((void) {
                     bool is_target_data_only_array = ASRUtils::is_fixed_size_array(m_target_dims, n_target_dims) &&
                                                      ASR::is_a<ASR::StructType_t>(*ASRUtils::get_asr_owner(x.m_target));
                     bool is_value_data_only_array = ASRUtils::is_fixed_size_array(m_value_dims, n_value_dims) &&
-                                                    ASR::is_a<ASR::StructType_t>(*ASRUtils::get_asr_owner(x.m_value));
+                                                    ASRUtils::get_asr_owner(x.m_value) && ASR::is_a<ASR::StructType_t>(*ASRUtils::get_asr_owner(x.m_value));
                     if( is_target_data_only_array || is_value_data_only_array ) {
                         int64_t target_size = -1, value_size = -1;
                         if( !is_target_data_only_array ) {
@@ -1388,6 +1395,37 @@ PyMODINIT_FUNC PyInit_lpython_module_)" + fn_name + R"((void) {
             }
         }
         from_std_vector_helper.clear();
+    }
+
+    void visit_Associate(const ASR::Associate_t &x) {
+        if (ASR::is_a<ASR::ArraySection_t>(*x.m_value)) {
+            self().visit_expr(*x.m_target);
+            std::string target = std::move(src);
+            // ArraySection(expr v, array_index* args, ttype type, expr? value)
+            ASR::ArraySection_t *as = ASR::down_cast<ASR::ArraySection_t>(x.m_value);
+            self().visit_expr(*as->m_v);
+            std::string value = std::move(src);
+            std::string c = "";
+            for( size_t i = 0; i < as->n_args; i++ ) {
+                std::string left, right, step;
+                if (as->m_args[i].m_left) {
+                    self().visit_expr(*as->m_args[i].m_left);
+                    left = std::move(src);
+                }
+                if (as->m_args[i].m_right) {
+                    self().visit_expr(*as->m_args[i].m_right);
+                    right = std::move(src);
+                }
+                if (as->m_args[i].m_step) {
+                    self().visit_expr(*as->m_args[i].m_step);
+                    step = std::move(src);
+                }
+                c += left + ":" + right + ":" + step + ",";
+            }
+            src = target + "= " + value + "; // TODO: " + value + "(" + c + ")\n";
+        } else {
+            throw CodeGenError("Associate only implemented for ArraySection so far");
+        }
     }
 
     void visit_IntegerConstant(const ASR::IntegerConstant_t &x) {
@@ -2359,7 +2397,8 @@ PyMODINIT_FUNC PyInit_lpython_module_)" + fn_name + R"((void) {
         }
     }
 
-    void visit_Allocate(const ASR::Allocate_t &x) {
+    template <typename T>
+    void handle_alloc_realloc(const T &x) {
         std::string indent(indentation_level*indentation_spaces, ' ');
         std::string out = "";
         for (size_t i=0; i<x.n_args; i++) {
@@ -2415,6 +2454,15 @@ PyMODINIT_FUNC PyInit_lpython_module_)" + fn_name + R"((void) {
         }
         src = out;
     }
+
+    void visit_Allocate(const ASR::Allocate_t &x) {
+        handle_alloc_realloc(x);
+    }
+
+    void visit_ReAlloc(const ASR::ReAlloc_t &x) {
+        handle_alloc_realloc(x);
+    }
+
 
     void visit_Assert(const ASR::Assert_t &x) {
         std::string indent(indentation_level*indentation_spaces, ' ');
