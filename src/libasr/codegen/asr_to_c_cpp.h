@@ -1398,6 +1398,7 @@ PyMODINIT_FUNC PyInit_lpython_module_)" + fn_name + R"((void) {
     }
 
     void visit_Associate(const ASR::Associate_t &x) {
+        std::string indent(indentation_level*indentation_spaces, ' ');
         if (ASR::is_a<ASR::ArraySection_t>(*x.m_value)) {
             self().visit_expr(*x.m_target);
             std::string target = std::move(src);
@@ -1422,7 +1423,7 @@ PyMODINIT_FUNC PyInit_lpython_module_)" + fn_name + R"((void) {
                 }
                 c += left + ":" + right + ":" + step + ",";
             }
-            src = target + "= " + value + "; // TODO: " + value + "(" + c + ")\n";
+            src = indent + target + "= " + value + "; // TODO: " + value + "(" + c + ")\n";
         } else {
             throw CodeGenError("Associate only implemented for ArraySection so far");
         }
