@@ -134,7 +134,7 @@ public:
         std::vector<ASR::expr_t*> print_body;
         ASR::stmt_t* empty_print_endl;
         ASR::stmt_t* print_stmt;
-        if (x.m_values[0] != nullptr && ASR::is_a<ASR::StringFormat_t>(*x.m_values[0])) {
+        if (x.n_values > 0 && ASR::is_a<ASR::StringFormat_t>(*x.m_values[0])) {
             empty_print_endl = ASRUtils::STMT(ASR::make_Print_t(al, x.base.base.loc,
                                                 nullptr, 0, nullptr, nullptr));
             ASR::StringFormat_t* format = ASR::down_cast<ASR::StringFormat_t>(x.m_values[0]);
