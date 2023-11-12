@@ -365,18 +365,11 @@ int emit_c_to_file(const std::string &infile, const std::string &outfile,
     }
     LCompilers::ASR::TranslationUnit_t* asr = r1.result;
 
-     // Apply ASR passes
-    LCompilers::PassOptions pass_options;
-    pass_manager.use_default_passes(true);
-    pass_options.run_fun = "f";
-    pass_options.always_run = true;
-    pass_options.verbose = compiler_options.po.verbose;
-    pass_options.all_symbols_mangling = compiler_options.po.all_symbols_mangling;
-    pass_options.module_name_mangling = compiler_options.po.module_name_mangling;
-    pass_options.global_symbols_mangling = compiler_options.po.global_symbols_mangling;
-    pass_options.intrinsic_symbols_mangling = compiler_options.po.intrinsic_symbols_mangling;
+    compiler_options.po.run_fun = "f";
+    compiler_options.po.always_run = true;
 
-    pass_manager.apply_passes(al, asr, pass_options, diagnostics);
+    pass_manager.use_default_passes(true);
+    pass_manager.apply_passes(al, asr, compiler_options.po, diagnostics);
 
     diagnostics.diagnostics.clear();
     auto res = LCompilers::asr_to_c(al, *asr, diagnostics, compiler_options, 0);
