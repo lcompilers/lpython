@@ -123,7 +123,7 @@ public:
 
             ASR::ttype_t *type1 = ASRUtils::TYPE(ASR::make_CPtr_t(al, xx.base.base.loc));
             xx.m_type = type1;
-            if (var_name != "_lpython_return_variable") {
+            if (var_name != "_lpython_return_variable" && xx.m_intent != ASR::intentType::Out) {
                 symbolic_vars_to_free.insert(ASR::down_cast<ASR::symbol_t>((ASR::asr_t*)&xx));
             }
             if(xx.m_intent == ASR::intentType::In){
