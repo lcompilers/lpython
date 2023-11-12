@@ -68,15 +68,10 @@ struct CompilerOptions {
     bool c_preprocessor = false;
     std::vector<std::string> c_preprocessor_defines;
     bool prescan = true;
-    bool disable_main = false;
     bool symtab_only = false;
     bool show_stacktrace = false;
     bool use_colors = true;
     bool indent = true;
-    bool json = false;
-    bool tree = false;
-    bool visualize = false;
-    bool fast = false;
     bool openmp = false;
     bool generate_object_code = false;
     bool no_warnings = false;

@@ -139,7 +139,7 @@ ASR::TranslationUnit_t* compile_module_till_asr(
 
     // Convert the module from AST to ASR
     CompilerOptions compiler_options;
-    compiler_options.disable_main = true;
+    compiler_options.po.disable_main = true;
     compiler_options.symtab_only = false;
     Result<ASR::TranslationUnit_t*> r2 = python_ast_to_asr(al, lm, symtab, *ast,
         diagnostics, compiler_options, false, module_name, infile, allow_implicit_casting);
@@ -8054,7 +8054,7 @@ Result<ASR::TranslationUnit_t*> python_ast_to_asr(Allocator &al, LocationManager
 #endif
     }
 
-    if (main_module && !compiler_options.disable_main) {
+    if (main_module && !compiler_options.po.disable_main) {
         // If it is a main module, turn it into a program
         // Note: we can modify this behavior for interactive mode later
 
