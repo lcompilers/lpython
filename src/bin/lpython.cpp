@@ -6,8 +6,9 @@
 #define CLI11_HAS_FILESYSTEM 0
 #include <bin/CLI11.hpp>
 
-#include <libasr/stacktrace.h>
 #include <lpython/pickle.h>
+#include <libasr/pickle.h>
+#include <libasr/stacktrace.h>
 #include <lpython/semantics/python_ast_to_asr.h>
 #include <libasr/codegen/asr_to_llvm.h>
 #include <libasr/codegen/asr_to_cpp.h>
@@ -221,15 +222,15 @@ int emit_asr(const std::string &infile,
     pass_manager.apply_passes(al, asr, compiler_options.po, diagnostics);
 
     if (compiler_options.po.tree) {
-        std::cout << LCompilers::LPython::pickle_tree(*asr,
+        std::cout << LCompilers::pickle_tree(*asr,
             compiler_options.use_colors, with_intrinsic_modules) << std::endl;
     } else if (compiler_options.po.json) {
-         std::cout << LCompilers::LPython::pickle_json(*asr, lm, with_intrinsic_modules) << std::endl;
+         std::cout << LCompilers::pickle_json(*asr, lm, false, with_intrinsic_modules) << std::endl;
     } else if (compiler_options.po.visualize) {
-        std::string astr_data_json = LCompilers::LPython::pickle_json(*asr, lm, with_intrinsic_modules);
+        std::string astr_data_json = LCompilers::pickle_json(*asr, lm, false, with_intrinsic_modules);
         return visualize_json(astr_data_json, compiler_options.platform);
     } else {
-        std::cout << LCompilers::LPython::pickle(*asr, compiler_options.use_colors,
+        std::cout << LCompilers::pickle(*asr, compiler_options.use_colors,
             compiler_options.indent, with_intrinsic_modules) << std::endl;
     }
     return 0;
@@ -1361,7 +1362,7 @@ EMSCRIPTEN_KEEPALIVE char* emit_asr_from_source(char *input) {
         asr = LCompilers::LPython::python_ast_to_asr(al, lm, nullptr, *casted_ast, diagnostics, compiler_options, true, "__main__", "input");
         out = diagnostics.render(lm, compiler_options);
         if (asr.ok) {
-            out += LCompilers::LPython::pickle(*asr.result, compiler_options.use_colors, compiler_options.indent,
+            out += LCompilers::pickle(*asr.result, compiler_options.use_colors, compiler_options.indent,
                 false /* with_intrinsic_modules */);
         }
     }
