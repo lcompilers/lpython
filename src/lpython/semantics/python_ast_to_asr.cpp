@@ -23,6 +23,8 @@
 #include <libasr/pass/intrinsic_array_function_registry.h>
 #include <libasr/modfile.h>
 #include <libasr/casting_utils.h>
+#include <libasr/codegen/asr_to_fortran.h>
+#include <libasr/pickle.h>
 
 #include <lpython/python_ast.h>
 #include <lpython/semantics/python_ast_to_asr.h>
@@ -137,7 +139,7 @@ ASR::TranslationUnit_t* compile_module_till_asr(
 
     // Convert the module from AST to ASR
     CompilerOptions compiler_options;
-    compiler_options.disable_main = true;
+    compiler_options.po.disable_main = true;
     compiler_options.symtab_only = false;
     Result<ASR::TranslationUnit_t*> r2 = python_ast_to_asr(al, lm, symtab, *ast,
         diagnostics, compiler_options, false, module_name, infile, allow_implicit_casting);
@@ -7940,6 +7942,21 @@ Result<ASR::TranslationUnit_t*> python_ast_to_asr(Allocator &al, LocationManager
         return res.error;
     }
     ASR::TranslationUnit_t *tu = ASR::down_cast2<ASR::TranslationUnit_t>(unit);
+    if (compiler_options.po.dump_all_passes) {
+        std::ofstream outfile ("pass_00_initial_asr_01.clj");
+        outfile << ";; ASR after SymbolTable Visitor\n" << pickle(*tu, false, true, compiler_options.po.with_intrinsic_mods) << "\n";
+        outfile.close();
+    }
+    if (compiler_options.po.dump_fortran) {
+        LCompilers::Result<std::string> fortran_code = LCompilers::asr_to_fortran(*tu, diagnostics, false, 4);
+        if (!fortran_code.ok) {
+            LCOMPILERS_ASSERT(diagnostics.has_error());
+            throw LCompilersException("Fortran code could not be generated after symbol_table_visitor");
+        }
+        std::ofstream outfile ("pass_fortran_00_initial_code_01.f90");
+        outfile << "! Fortran code after SymbolTable Visitor\n" << fortran_code.result << "\n";
+        outfile.close();
+    }
 #if defined(WITH_LFORTRAN_ASSERT)
         if (!asr_verify(*tu, true, diagnostics)) {
             std::cerr << diagnostics.render2();
@@ -7955,6 +7972,21 @@ Result<ASR::TranslationUnit_t*> python_ast_to_asr(Allocator &al, LocationManager
         } else {
             return res2.error;
         }
+        if (compiler_options.po.dump_all_passes) {
+            std::ofstream outfile ("pass_00_initial_asr_02.clj");
+            outfile << ";; Initial ASR after Body Visitor\n" << pickle(*tu, false, true, compiler_options.po.with_intrinsic_mods) << "\n";
+            outfile.close();
+        }
+        if (compiler_options.po.dump_fortran) {
+            LCompilers::Result<std::string> fortran_code = LCompilers::asr_to_fortran(*tu, diagnostics, false, 4);
+            if (!fortran_code.ok) {
+                LCOMPILERS_ASSERT(diagnostics.has_error());
+                throw LCompilersException("Fortran code could not be generated after body_visitor");
+            }
+            std::ofstream outfile ("pass_fortran_00_initial_code_02.f90");
+            outfile << "! Fortran code after Body Visitor\n" << fortran_code.result << "\n";
+            outfile.close();
+        }
 #if defined(WITH_LFORTRAN_ASSERT)
         diag::Diagnostics diagnostics;
         if (!asr_verify(*tu, true, diagnostics)) {
@@ -7964,7 +7996,7 @@ Result<ASR::TranslationUnit_t*> python_ast_to_asr(Allocator &al, LocationManager
 #endif
     }
 
-    if (main_module && !compiler_options.disable_main) {
+    if (main_module && !compiler_options.po.disable_main) {
         // If it is a main module, turn it into a program
         // Note: we can modify this behavior for interactive mode later
 

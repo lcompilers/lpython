@@ -220,12 +220,12 @@ int emit_asr(const std::string &infile,
 
     pass_manager.apply_passes(al, asr, compiler_options.po, diagnostics);
 
-    if (compiler_options.tree) {
+    if (compiler_options.po.tree) {
         std::cout << LCompilers::LPython::pickle_tree(*asr,
             compiler_options.use_colors, with_intrinsic_modules) << std::endl;
-    } else if (compiler_options.json) {
+    } else if (compiler_options.po.json) {
          std::cout << LCompilers::LPython::pickle_json(*asr, lm, with_intrinsic_modules) << std::endl;
-    } else if (compiler_options.visualize) {
+    } else if (compiler_options.po.visualize) {
         std::string astr_data_json = LCompilers::LPython::pickle_json(*asr, lm, with_intrinsic_modules);
         return visualize_json(astr_data_json, compiler_options.platform);
     } else {
@@ -440,6 +440,45 @@ int emit_wat(const std::string &infile,
         return 4;
     }
     std::cout << res.result;
+    return 0;
+}
+
+int dump_all_passes(const std::string &infile,
+    const std::string &runtime_library_dir,
+    CompilerOptions &compiler_options) {
+    std::string input = LCompilers::read_file(infile);
+
+    Allocator al(4*1024);
+    LCompilers::LocationManager lm;
+    LCompilers::diag::Diagnostics diagnostics;
+    {
+        LCompilers::LocationManager::FileLocations fl;
+        fl.in_filename = infile;
+        lm.files.push_back(fl);
+        lm.file_ends.push_back(input.size());
+    }
+
+    LCompilers::Result<LCompilers::LPython::AST::ast_t*> r = parse_python_file(
+        al, runtime_library_dir, infile, diagnostics, 0, compiler_options.new_parser);
+    std::cerr << diagnostics.render(lm, compiler_options);
+    if (!r.ok) {
+        return 1;
+    }
+    LCompilers::LPython::AST::ast_t* ast = r.result;
+    diagnostics.diagnostics.clear();
+    LCompilers::Result<LCompilers::ASR::TranslationUnit_t*>
+        r1 = LCompilers::LPython::python_ast_to_asr(al, lm, nullptr, *ast, diagnostics, compiler_options, true, "__main__", infile);
+    std::cerr << diagnostics.render(lm, compiler_options);
+    if (r1.ok) {
+        LCompilers::PassManager pass_manager;
+        compiler_options.po.always_run = true;
+        compiler_options.po.run_fun = "f";
+        pass_manager.dump_all_passes(al, r1.result, compiler_options.po, diagnostics, lm);
+        std::cerr << diagnostics.render(lm, compiler_options);
+    } else {
+        LCOMPILERS_ASSERT(diagnostics.has_error())
+        return 1;
+    }
     return 0;
 }
 
@@ -751,7 +790,7 @@ int compile_python_to_object_file(
     auto ast_to_asr_start = std::chrono::high_resolution_clock::now();
     LCompilers::Result<LCompilers::ASR::TranslationUnit_t*>
         r1 = LCompilers::LPython::python_ast_to_asr(al, lm, nullptr, *ast, diagnostics, compiler_options,
-            !(arg_c && compiler_options.disable_main), "__main__", infile);
+            !(arg_c && compiler_options.po.disable_main), "__main__", infile);
 
     auto ast_to_asr_end = std::chrono::high_resolution_clock::now();
     times.push_back(std::make_pair("AST to ASR", std::chrono::duration<double, std::milli>(ast_to_asr_end - ast_to_asr_start).count()));
@@ -762,7 +801,7 @@ int compile_python_to_object_file(
         return 2;
     }
     LCompilers::ASR::TranslationUnit_t* asr = r1.result;
-    if( compiler_options.disable_main ) {
+    if( compiler_options.po.disable_main ) {
         int err = LCompilers::LPython::save_pyc_files(*asr, infile);
         if( err ) {
             return err;
@@ -870,7 +909,7 @@ int compile_to_binary_wasm(
         return 2;
     }
     LCompilers::ASR::TranslationUnit_t* asr = r1.result;
-    if( compiler_options.disable_main ) {
+    if( compiler_options.po.disable_main ) {
         int err = LCompilers::LPython::save_pyc_files(*asr, infile);
         if( err ) {
             return err;
@@ -943,7 +982,7 @@ int compile_to_binary_x86(
         return 2;
     }
     LCompilers::ASR::TranslationUnit_t* asr = r1.result;
-    if( compiler_options.disable_main ) {
+    if( compiler_options.po.disable_main ) {
         int err = LCompilers::LPython::save_pyc_files(*asr, infile);
         if( err ) {
             return err;
@@ -1017,7 +1056,7 @@ int compile_to_binary_wasm_to_x86(
         return 2;
     }
     LCompilers::ASR::TranslationUnit_t* asr = r1.result;
-    if( compiler_options.disable_main ) {
+    if( compiler_options.po.disable_main ) {
         int err = LCompilers::LPython::save_pyc_files(*asr, infile);
         if( err ) {
             return err;
@@ -1529,12 +1568,12 @@ int main(int argc, char *argv[])
         app.add_flag("--with-intrinsic-mods", with_intrinsic_modules, "Show intrinsic modules in ASR");
         app.add_flag("--no-color", arg_no_color, "Turn off colored AST/ASR");
         app.add_flag("--no-indent", arg_no_indent, "Turn off Indented print ASR/AST");
-        app.add_flag("--tree", compiler_options.tree, "Tree structure print ASR/AST");
-        app.add_flag("--json", compiler_options.json, "Print ASR/AST Json format");
-        app.add_flag("--visualize", compiler_options.visualize, "Print ASR/AST Visualization");
+        app.add_flag("--tree", compiler_options.po.tree, "Tree structure print ASR/AST");
+        app.add_flag("--json", compiler_options.po.json, "Print ASR/AST Json format");
+        app.add_flag("--visualize", compiler_options.po.visualize, "Print ASR/AST Visualization");
         app.add_option("--pass", arg_pass, "Apply the ASR pass and show ASR (implies --show-asr)");
         app.add_option("--skip-pass", skip_pass, "Skip an ASR pass in default pipeline");
-        app.add_flag("--disable-main", compiler_options.disable_main, "Do not generate any code for the `main` function");
+        app.add_flag("--disable-main", compiler_options.po.disable_main, "Do not generate any code for the `main` function");
         app.add_flag("--symtab-only", compiler_options.symtab_only, "Only create symbol tables in ASR (skip executable stmt)");
         app.add_flag("--time-report", time_report, "Show compilation time report");
         app.add_flag("--static", static_link, "Create a static executable");
@@ -1543,12 +1582,14 @@ int main(int argc, char *argv[])
         app.add_option("--backend", arg_backend, "Select a backend (llvm, cpp, x86, wasm, wasm_x86, wasm_x64)")->capture_default_str();
         app.add_flag("--enable-bounds-checking", compiler_options.enable_bounds_checking, "Turn on index bounds checking");
         app.add_flag("--openmp", compiler_options.openmp, "Enable openmp");
-        app.add_flag("--fast", compiler_options.fast, "Best performance (disable strict standard compliance)");
+        app.add_flag("--fast", compiler_options.po.fast, "Best performance (disable strict standard compliance)");
         app.add_option("--target", compiler_options.target, "Generate code for the given target")->capture_default_str();
         app.add_flag("--print-targets", print_targets, "Print the registered targets");
         app.add_flag("--get-rtl-header-dir", print_rtl_header_dir, "Print the path to the runtime library header file");
         app.add_flag("--get-rtl-dir", print_rtl_dir, "Print the path to the runtime library file");
         app.add_flag("--verbose", compiler_options.po.verbose, "Print debugging statements");
+        app.add_flag("--dump-all-passes", compiler_options.po.dump_all_passes, "Apply all the passes and dump the ASR into a file");
+        app.add_flag("--dump-all-passes-fortran", compiler_options.po.dump_fortran, "Apply all passes and dump the ASR after each pass into fortran file");
         app.add_flag("--cumulative", compiler_options.po.pass_cumulative, "Apply all the passes cumulatively till the given pass");
         app.add_flag("--enable-cpython", compiler_options.enable_cpython, "Enable CPython runtime");
         app.add_flag("--enable-symengine", compiler_options.enable_symengine, "Enable Symengine runtime");
@@ -1598,9 +1639,9 @@ int main(int argc, char *argv[])
         lcompilers_unique_ID = separate_compilation ? LCompilers::get_unique_ID(): "";
 
 
-        if( compiler_options.fast && compiler_options.enable_bounds_checking ) {
+        if( compiler_options.po.fast && compiler_options.enable_bounds_checking ) {
         // ReleaseSafe Mode
-        } else if ( compiler_options.fast ) {
+        } else if ( compiler_options.po.fast ) {
         // Release Mode
             lpython_pass_manager.use_optimization_passes();
         } else {
@@ -1724,6 +1765,10 @@ int main(int argc, char *argv[])
             outfile = basename + ".wat";
         } else {
             outfile = basename + ".out";
+        }
+
+        if (compiler_options.po.dump_fortran || compiler_options.po.dump_all_passes) {
+            dump_all_passes(arg_file, runtime_library_dir, compiler_options);
         }
 
         // if (arg_E) {
