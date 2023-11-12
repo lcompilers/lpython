@@ -14,9 +14,6 @@ bool path_exists(std::string path);
 
 // Decodes the exit status code of the process (in Unix)
 int32_t get_exit_status(int32_t err);
-
-std::string generate_visualize_html(std::string &astr_data_json);
-
 } // LFortran
 
 #endif // LFORTRAN_UTILS_H
