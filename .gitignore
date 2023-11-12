@@ -73,6 +73,10 @@ integration_tests/b5/*
 integration_tests/b6/*
 integration_tests/_lpython-tmp-test-*
 inst/bin/*
+*.clj
+pass_fortran_*.f90
+pass_json_*.json
+pass_tree_*.txt
 *.tmp
 *.tlog
 *.filters
