@@ -52,13 +52,13 @@ public:
     }
     void visit_Module(const ASR::Module_t &x) {
         if (!show_intrinsic_modules &&
-                    startswith(x.m_name, "lfortran_intrinsic_")) {
+            (x.m_intrinsic || startswith(x.m_name, "lfortran_intrinsic_") || startswith(x.m_name, "numpy"))) {
             s.append("(");
             if (use_colors) {
                 s.append(color(style::bold));
                 s.append(color(fg::magenta));
             }
-            s.append("IntrinsicModule");
+            s.append(x.m_intrinsic ? "IntrinsicModule" : "Module");
             if (use_colors) {
                 s.append(color(fg::reset));
                 s.append(color(style::reset));
