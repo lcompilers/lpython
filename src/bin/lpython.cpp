@@ -225,9 +225,9 @@ int emit_asr(const std::string &infile,
         std::cout << LCompilers::pickle_tree(*asr,
             compiler_options.use_colors, with_intrinsic_modules) << std::endl;
     } else if (compiler_options.po.json) {
-         std::cout << LCompilers::pickle_json(*asr, lm, false, with_intrinsic_modules) << std::endl;
+         std::cout << LCompilers::pickle_json(*asr, lm, compiler_options.po.no_loc, with_intrinsic_modules) << std::endl;
     } else if (compiler_options.po.visualize) {
-        std::string astr_data_json = LCompilers::pickle_json(*asr, lm, false, with_intrinsic_modules);
+        std::string astr_data_json = LCompilers::pickle_json(*asr, lm, compiler_options.po.no_loc, with_intrinsic_modules);
         return visualize_json(astr_data_json, compiler_options.platform);
     } else {
         std::cout << LCompilers::pickle(*asr, compiler_options.use_colors,
@@ -365,18 +365,11 @@ int emit_c_to_file(const std::string &infile, const std::string &outfile,
     }
     LCompilers::ASR::TranslationUnit_t* asr = r1.result;
 
-     // Apply ASR passes
-    LCompilers::PassOptions pass_options;
-    pass_manager.use_default_passes(true);
-    pass_options.run_fun = "f";
-    pass_options.always_run = true;
-    pass_options.verbose = compiler_options.po.verbose;
-    pass_options.all_symbols_mangling = compiler_options.po.all_symbols_mangling;
-    pass_options.module_name_mangling = compiler_options.po.module_name_mangling;
-    pass_options.global_symbols_mangling = compiler_options.po.global_symbols_mangling;
-    pass_options.intrinsic_symbols_mangling = compiler_options.po.intrinsic_symbols_mangling;
+    compiler_options.po.run_fun = "f";
+    compiler_options.po.always_run = true;
 
-    pass_manager.apply_passes(al, asr, pass_options, diagnostics);
+    pass_manager.use_default_passes(true);
+    pass_manager.apply_passes(al, asr, compiler_options.po, diagnostics);
 
     diagnostics.diagnostics.clear();
     auto res = LCompilers::asr_to_c(al, *asr, diagnostics, compiler_options, 0);
@@ -1571,6 +1564,7 @@ int main(int argc, char *argv[])
         app.add_flag("--no-indent", arg_no_indent, "Turn off Indented print ASR/AST");
         app.add_flag("--tree", compiler_options.po.tree, "Tree structure print ASR/AST");
         app.add_flag("--json", compiler_options.po.json, "Print ASR/AST Json format");
+        app.add_flag("--no-loc", compiler_options.po.no_loc, "Skip location information in ASR/AST Json format");
         app.add_flag("--visualize", compiler_options.po.visualize, "Print ASR/AST Visualization");
         app.add_option("--pass", arg_pass, "Apply the ASR pass and show ASR (implies --show-asr)");
         app.add_option("--skip-pass", skip_pass, "Skip an ASR pass in default pipeline");
