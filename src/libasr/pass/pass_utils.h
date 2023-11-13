@@ -116,7 +116,8 @@ namespace LCompilers {
 
         static inline bool is_aggregate_or_array_type(ASR::expr_t* var) {
             return (ASR::is_a<ASR::Struct_t>(*ASRUtils::expr_type(var)) ||
-                    ASRUtils::is_array(ASRUtils::expr_type(var)));
+                    ASRUtils::is_array(ASRUtils::expr_type(var)) ||
+                    ASR::is_a<ASR::SymbolicExpression_t>(*ASRUtils::expr_type(var)));
         }
 
         template <class Struct>
@@ -775,7 +776,7 @@ namespace LCompilers {
     }
 
     static inline void handle_fn_return_var(Allocator &al, ASR::Function_t *x,
-            bool (*is_array_or_struct)(ASR::expr_t*)) {
+            bool (*is_array_or_struct_or_symbolic)(ASR::expr_t*)) {
         if (ASRUtils::get_FunctionType(x)->m_abi == ASR::abiType::BindPython) {
             return;
         }
@@ -787,7 +788,7 @@ namespace LCompilers {
             * in avoiding deep copies and the destination memory directly gets
             * filled inside the function.
             */
-            if( is_array_or_struct(x->m_return_var)) {
+            if( is_array_or_struct_or_symbolic(x->m_return_var)) {
                 for( auto& s_item: x->m_symtab->get_scope() ) {
                     ASR::symbol_t* curr_sym = s_item.second;
                     if( curr_sym->type == ASR::symbolType::Variable ) {
@@ -834,7 +835,7 @@ namespace LCompilers {
         for (auto &item : x->m_symtab->get_scope()) {
             if (ASR::is_a<ASR::Function_t>(*item.second)) {
                 handle_fn_return_var(al, ASR::down_cast<ASR::Function_t>(
-                    item.second), is_array_or_struct);
+                    item.second), is_array_or_struct_or_symbolic);
             }
         }
     }
