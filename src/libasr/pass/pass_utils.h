@@ -822,6 +822,14 @@ namespace LCompilers {
                 s_func_type->m_arg_types = arg_types.p;
                 s_func_type->n_arg_types = arg_types.n;
                 s_func_type->m_return_var_type = nullptr;
+
+                Vec<ASR::stmt_t*> func_body;
+                func_body.reserve(al, x->n_body - 1);
+                for (size_t i=0; i< x->n_body - 1; i++) {
+                    func_body.push_back(al, x->m_body[i]);
+                }
+                x->m_body = func_body.p;
+                x->n_body = func_body.n;
             }
         }
         for (auto &item : x->m_symtab->get_scope()) {
