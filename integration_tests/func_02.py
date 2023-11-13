@@ -1,5 +1,5 @@
 from lpython import S
-from sympy import pi, Symbol
+from sympy import pi
 
 def func(r: Out[S]) -> None:
     r = pi
