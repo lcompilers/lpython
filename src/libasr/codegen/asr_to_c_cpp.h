@@ -927,6 +927,8 @@ R"(#include <stdio.h>
         s_array_)" + arg_name + R"(->n_dims = 1;
         s_array_)" + arg_name + R"(->dims[0].lower_bound = 0;
         s_array_)" + arg_name + R"(->dims[0].length = dims[0];
+        s_array_)" + arg_name + R"(->dims[0].stride = 1;
+        s_array_)" + arg_name + R"(->offset = 0;
         s_array_)" + arg_name + R"(->is_allocated = false;
     }
 )";
