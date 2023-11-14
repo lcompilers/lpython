@@ -59,10 +59,35 @@ public:
 
         ASR::ttype_t* f_signature= xx.m_function_signature;
         ASR::FunctionType_t *f_type = ASR::down_cast<ASR::FunctionType_t>(f_signature);
-        ASR::ttype_t *type1 = ASRUtils::TYPE(ASR::make_CPtr_t(al, xx.base.base.loc));
+        ASR::ttype_t *CPtr_type = ASRUtils::TYPE(ASR::make_CPtr_t(al, xx.base.base.loc));
         for (size_t i = 0; i < f_type->n_arg_types; ++i) {
             if (f_type->m_arg_types[i]->type == ASR::ttypeType::SymbolicExpression) {
-                f_type->m_arg_types[i] = type1;
+                f_type->m_arg_types[i] = CPtr_type;
+            } else if (f_type->m_arg_types[i]->type == ASR::ttypeType::Tuple) {
+                Vec<ASR::ttype_t*> tuple_type_vec;
+                ASR::Tuple_t* tuple = ASR::down_cast<ASR::Tuple_t>(f_type->m_arg_types[i]);
+                tuple_type_vec.reserve(al, tuple->n_type);
+                for( size_t i = 0; i < tuple->n_type; i++ ) {
+                    if (tuple->m_type[i]->type == ASR::ttypeType::SymbolicExpression) {
+                        tuple_type_vec.push_back(al, CPtr_type);
+                    } else if (tuple->m_type[i]->type == ASR::ttypeType::Dict) {
+                        ASR::Dict_t *dict = ASR::down_cast<ASR::Dict_t>(tuple->m_type[i]);
+                        ASR::ttype_t *key_type = dict->m_key_type;
+                        ASR::ttype_t *value_type = dict->m_value_type;
+                        if (key_type->type == ASR::ttypeType::SymbolicExpression) {
+                            key_type = CPtr_type;
+                        }
+                        if (value_type->type == ASR::ttypeType::SymbolicExpression) {
+                            value_type = CPtr_type;
+                        }
+                        ASR::ttype_t* dict_type = ASRUtils::TYPE(ASR::make_Dict_t(al, xx.base.base.loc, key_type, value_type));
+                        tuple_type_vec.push_back(al, dict_type);
+                    } else {
+                        tuple_type_vec.push_back(al, tuple->m_type[i]);
+                    }
+                }
+                ASR::ttype_t* tuple_type = ASRUtils::TYPE(ASR::make_Tuple_t(al, xx.base.base.loc, tuple_type_vec.p, tuple_type_vec.n));
+                f_type->m_arg_types[i] = tuple_type;
             }
         }
 
@@ -256,6 +281,45 @@ public:
                 ASR::ttype_t* list_type = ASRUtils::TYPE(ASR::make_List_t(al, xx.base.base.loc, CPtr_type));
                 xx.m_type = list_type;
             }
+        } else if (xx.m_type->type == ASR::ttypeType::Tuple) {
+            Vec<ASR::ttype_t*> tuple_type_vec;
+            ASR::Tuple_t* tuple = ASR::down_cast<ASR::Tuple_t>(xx.m_type);
+            tuple_type_vec.reserve(al, tuple->n_type);
+            ASR::ttype_t *CPtr_type = ASRUtils::TYPE(ASR::make_CPtr_t(al, xx.base.base.loc));
+            for( size_t i = 0; i < tuple->n_type; i++ ) {
+                if (tuple->m_type[i]->type == ASR::ttypeType::SymbolicExpression) {
+                    tuple_type_vec.push_back(al, CPtr_type);
+                } else if (tuple->m_type[i]->type == ASR::ttypeType::Dict) {
+                    ASR::Dict_t *dict = ASR::down_cast<ASR::Dict_t>(tuple->m_type[i]);
+                    ASR::ttype_t *key_type = dict->m_key_type;
+                    ASR::ttype_t *value_type = dict->m_value_type;
+                    if (key_type->type == ASR::ttypeType::SymbolicExpression) {
+                        key_type = CPtr_type;
+                    }
+                    if (value_type->type == ASR::ttypeType::SymbolicExpression) {
+                        value_type = CPtr_type;
+                    }
+                    ASR::ttype_t* dict_type = ASRUtils::TYPE(ASR::make_Dict_t(al, xx.base.base.loc, key_type, value_type));
+                    tuple_type_vec.push_back(al, dict_type);
+                } else {
+                    tuple_type_vec.push_back(al, tuple->m_type[i]);
+                }
+            }
+            ASR::ttype_t* tuple_type = ASRUtils::TYPE(ASR::make_Tuple_t(al, xx.base.base.loc, tuple_type_vec.p, tuple_type_vec.n));
+            xx.m_type = tuple_type;
+        } else if (xx.m_type->type == ASR::ttypeType::Dict) {
+            ASR::ttype_t *CPtr_type = ASRUtils::TYPE(ASR::make_CPtr_t(al, xx.base.base.loc));
+            ASR::Dict_t *dict = ASR::down_cast<ASR::Dict_t>(xx.m_type);
+            ASR::ttype_t *key_type = dict->m_key_type;
+            ASR::ttype_t *value_type = dict->m_value_type;
+            if (key_type->type == ASR::ttypeType::SymbolicExpression) {
+                key_type = CPtr_type;
+            }
+            if (value_type->type == ASR::ttypeType::SymbolicExpression) {
+                value_type = CPtr_type;
+            }
+            ASR::ttype_t* dict_type = ASRUtils::TYPE(ASR::make_Dict_t(al, xx.base.base.loc, key_type, value_type));
+            xx.m_type = dict_type;
         }
     }
 
@@ -1374,6 +1438,57 @@ public:
                 ASR::stmt_t* stmt = ASRUtils::STMT(ASR::make_Assignment_t(al, x.base.base.loc, x.m_target, function_call, nullptr));
                 pass_result.push_back(al, stmt);
             }
+        }  else if (ASR::is_a<ASR::TupleConstant_t>(*x.m_value)) {
+            ASR::TupleConstant_t* tuple_constant = ASR::down_cast<ASR::TupleConstant_t>(x.m_value);
+            if (tuple_constant->m_type->type == ASR::ttypeType::Tuple) {
+                ASR::Tuple_t* tuple = ASR::down_cast<ASR::Tuple_t>(tuple_constant->m_type);
+                Vec<ASR::ttype_t*> tuple_type_vec;
+                tuple_type_vec.reserve(al, tuple->n_type);
+                ASR::ttype_t *CPtr_type = ASRUtils::TYPE(ASR::make_CPtr_t(al, x.base.base.loc));
+                for( size_t i = 0; i < tuple->n_type; i++ ) {
+                    if (tuple->m_type[i]->type == ASR::ttypeType::SymbolicExpression) {
+                        tuple_type_vec.push_back(al, CPtr_type);
+                    } else if (tuple->m_type[i]->type == ASR::ttypeType::Dict) {
+                        ASR::Dict_t *dict = ASR::down_cast<ASR::Dict_t>(tuple->m_type[i]);
+                        ASR::ttype_t *key_type = dict->m_key_type;
+                        ASR::ttype_t *value_type = dict->m_value_type;
+                        if (key_type->type == ASR::ttypeType::SymbolicExpression) {
+                            key_type = CPtr_type;
+                        }
+                        if (value_type->type == ASR::ttypeType::SymbolicExpression) {
+                            value_type = CPtr_type;
+                        }
+                        ASR::ttype_t* dict_type = ASRUtils::TYPE(ASR::make_Dict_t(al, x.base.base.loc, key_type, value_type));
+                        tuple_type_vec.push_back(al, dict_type);
+                    } else {
+                        tuple_type_vec.push_back(al, tuple->m_type[i]);
+                    }
+                }
+                ASR::ttype_t* tuple_type = ASRUtils::TYPE(ASR::make_Tuple_t(al, x.base.base.loc, tuple_type_vec.p, tuple_type_vec.n));
+                ASR::expr_t* temp_tuple_const = ASRUtils::EXPR(ASR::make_TupleConstant_t(al, x.base.base.loc, tuple_constant->m_elements,
+                                    tuple_constant->n_elements, tuple_type));
+                ASR::stmt_t* stmt = ASRUtils::STMT(ASR::make_Assignment_t(al, x.base.base.loc, x.m_target, temp_tuple_const, nullptr));
+                pass_result.push_back(al, stmt);
+            }
+        }  else if (ASR::is_a<ASR::DictConstant_t>(*x.m_value)) {
+            ASR::DictConstant_t* dict_constant = ASR::down_cast<ASR::DictConstant_t>(x.m_value);
+            if (dict_constant->m_type->type == ASR::ttypeType::Dict) {
+                ASR::Dict_t* dict = ASR::down_cast<ASR::Dict_t>(dict_constant->m_type);
+                ASR::ttype_t *CPtr_type = ASRUtils::TYPE(ASR::make_CPtr_t(al, x.base.base.loc));
+                ASR::ttype_t *key_type = dict->m_key_type;
+                ASR::ttype_t *value_type = dict->m_value_type;
+                if (key_type->type == ASR::ttypeType::SymbolicExpression) {
+                    key_type = CPtr_type;
+                }
+                if (value_type->type == ASR::ttypeType::SymbolicExpression) {
+                    value_type = CPtr_type;
+                }
+                ASR::ttype_t* dict_type = ASRUtils::TYPE(ASR::make_Dict_t(al, x.base.base.loc, key_type, value_type));
+                ASR::expr_t* temp_dict_const = ASRUtils::EXPR(ASR::make_DictConstant_t(al, x.base.base.loc, dict_constant->m_keys, 
+                    dict_constant->n_keys, dict_constant->m_values, dict_constant->n_values, dict_type));
+                ASR::stmt_t* stmt = ASRUtils::STMT(ASR::make_Assignment_t(al, x.base.base.loc, x.m_target, temp_dict_const, nullptr));
+                pass_result.push_back(al, stmt);
+            }
         }
     }
 
@@ -1387,6 +1502,17 @@ public:
             if (intrinsic_func->m_type->type == ASR::ttypeType::Logical) {
                 ASR::expr_t* function_call = process_attributes(al, xx.base.base.loc, xx.m_test, module_scope);
                 xx.m_test = function_call;
+            }
+        } else if (ASR::is_a<ASR::LogicalNot_t>(*xx.m_test)) {
+            ASR::LogicalNot_t* logical_not = ASR::down_cast<ASR::LogicalNot_t>(xx.m_test);
+            if (ASR::is_a<ASR::IntrinsicScalarFunction_t>(*logical_not->m_arg)) {
+                ASR::IntrinsicScalarFunction_t* intrinsic_func = ASR::down_cast<ASR::IntrinsicScalarFunction_t>(logical_not->m_arg);
+                if (intrinsic_func->m_type->type == ASR::ttypeType::Logical) {
+                    ASR::expr_t* function_call = process_attributes(al, xx.base.base.loc, logical_not->m_arg, module_scope);
+                    ASR::expr_t* new_logical_not = ASRUtils::EXPR(ASR::make_LogicalNot_t(al, xx.base.base.loc, function_call,
+                        logical_not->m_type, logical_not->m_value));
+                    xx.m_test = new_logical_not;
+                }
             }
         }
     }
