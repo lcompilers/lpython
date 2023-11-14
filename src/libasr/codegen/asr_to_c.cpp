@@ -1204,7 +1204,7 @@ R"(    // Initialise Numpy
         src = this->check_tmp_buffer() + out;
     }
 
-    void visit_ArrayBroadcast(const ASR::ArrayBroadcast_t& x) {
+    void visit_ArrayBroadcast(const ASR::ArrayBroadcast_t &x) {
         /*
             !LF$ attributes simd :: A
             real :: A(8)
@@ -1212,24 +1212,16 @@ R"(    // Initialise Numpy
             We need to generate:
             a = {1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0};
         */
-
         CHECK_FAST_C(compiler_options, x)
-        if (x.m_value) {
-            ASR::expr_t* value = x.m_value;
-            LCOMPILERS_ASSERT(ASR::is_a<ASR::ArrayConstant_t>(*value));
-            ASR::ArrayConstant_t* array_const = ASR::down_cast<ASR::ArrayConstant_t>(value);
-            std::string array_const_str = "{";
-            for( size_t i = 0; i < array_const->n_args; i++ ) {
-                ASR::expr_t* array_const_arg = array_const->m_args[i];
-                this->visit_expr(*array_const_arg);
-                array_const_str += src + ", ";
-            }
-            array_const_str.pop_back();
-            array_const_str.pop_back();
-            array_const_str += "}";
-
-            src = array_const_str;
+        size_t size = ASRUtils::get_fixed_size_of_array(x.m_type);
+        std::string array_const_str = "{";
+        for( size_t i = 0; i < size; i++ ) {
+            this->visit_expr(*x.m_array);
+            array_const_str += src;
+            if (i < size - 1) array_const_str += ", ";
         }
+        array_const_str += "}";
+        src = array_const_str;
     }
 
     void visit_ArraySize(const ASR::ArraySize_t& x) {
