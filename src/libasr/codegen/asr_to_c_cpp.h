@@ -206,7 +206,7 @@ public:
         // Include dimension_descriptor definition that is used by array types
         if (array_types_decls.size() != 0) {
             array_types_decls = "\nstruct dimension_descriptor\n"
-                "{\n    int32_t lower_bound, length;\n};\n" + array_types_decls;
+                "{\n    int32_t lower_bound, length, stride;\n};\n" + array_types_decls;
         }
 
         return to_include + head + array_types_decls + forward_decl_functions + unit_src +
