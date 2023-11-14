@@ -117,23 +117,25 @@ public:
                 }
                 sub += indent + std::string(v_m_name) + "->data = " + std::string(v_m_name) + "_data;\n";
                 sub += indent + std::string(v_m_name) + "->n_dims = " + std::to_string(n_dims) + ";\n";
-                for (int i = 0; i < n_dims; i++) {
+                sub += indent + std::string(v_m_name) + "->offset = " + std::to_string(0) + ";\n";
+                std::string stride = "1";
+                for (int i = n_dims - 1; i >= 0; i--) {
+                    std::string start = "1", length = "0";
                     if( m_dims[i].m_start ) {
                         this->visit_expr(*m_dims[i].m_start);
-                        sub += indent + std::string(v_m_name) +
-                            "->dims[" + std::to_string(i) + "].lower_bound = " + src + ";\n";
-                    } else {
-                        sub += indent + std::string(v_m_name) +
-                            "->dims[" + std::to_string(i) + "].lower_bound = 0" + ";\n";
+                        start = src;
                     }
                     if( m_dims[i].m_length ) {
                         this->visit_expr(*m_dims[i].m_length);
-                        sub += indent + std::string(v_m_name) +
-                            "->dims[" + std::to_string(i) + "].length = " + src + ";\n";
-                    } else {
-                        sub += indent + std::string(v_m_name) +
-                            "->dims[" + std::to_string(i) + "].length = 0" + ";\n";
+                        length = src;
                     }
+                    sub += indent + std::string(v_m_name) +
+                        "->dims[" + std::to_string(i) + "].lower_bound = " + start + ";\n";
+                    sub += indent + std::string(v_m_name) +
+                        "->dims[" + std::to_string(i) + "].length = " + length + ";\n";
+                    sub += indent + std::string(v_m_name) +
+                        "->dims[" + std::to_string(i) + "].stride = " + stride + ";\n";
+                    stride = "(" + stride + "*" + length + ")";
                 }
                 sub.pop_back();
                 sub.pop_back();
