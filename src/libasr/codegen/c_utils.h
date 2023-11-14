@@ -555,6 +555,7 @@ class CCPPDSUtils {
             new_array_type = struct_name + "\n{\n    " + array_data +
                                 ";\n    struct dimension_descriptor dims[32];\n" +
                                 "    int32_t n_dims;\n"
+                                "    int32_t offset;\n"
                                 "    bool is_allocated;\n};\n";
             if( make_ptr ) {
                 type_name = struct_name + "*";
