@@ -1118,21 +1118,25 @@ R"(    // Initialise Numpy
             ASR::dimension_t* m_dims = nullptr;
             int n_dims = ASRUtils::extract_dimensions_from_ttype(ASRUtils::expr_type(x.m_ptr), m_dims);
             dim_set_code = indent + dest_src + "->n_dims = " + std::to_string(n_dims) + ";\n";
-            for( int i = 0; i < n_dims; i++ ) {
+            dim_set_code = indent + dest_src + "->offset = 0;\n";
+            std::string stride = "1";
+            for (int i = n_dims - 1; i >= 0; i--) {
+                std::string start = "0", length = "0";
                 if( lower_bounds ) {
                     visit_expr(*lower_bounds->m_args[i]);
-                } else {
-                    src = "0";
+                    start = src;
                 }
-                dim_set_code += indent + dest_src + "->dims[" +
-                    std::to_string(i) + "].lower_bound = " + src + ";\n";
                 if( m_dims[i].m_length ) {
-                    visit_expr(*m_dims[i].m_length);
-                } else {
-                    src = "0";
+                    this->visit_expr(*m_dims[i].m_length);
+                    length = src;
                 }
-                dim_set_code += indent + dest_src + "->dims[" +
-                    std::to_string(i) + "].length = " + src + ";\n";
+                dim_set_code += indent + dest_src +
+                    "->dims[" + std::to_string(i) + "].lower_bound = " + start + ";\n";
+                dim_set_code += indent + dest_src +
+                    "->dims[" + std::to_string(i) + "].length = " + length + ";\n";
+                dim_set_code += indent + dest_src +
+                    "->dims[" + std::to_string(i) + "].stride = " + stride + ";\n";
+                stride = "(" + stride + "*" + length + ")";
             }
             src.clear();
             src += dim_set_code;
