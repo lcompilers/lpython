@@ -1073,9 +1073,7 @@ PyMODINIT_FUNC PyInit_lpython_module_)" + fn_name + R"((void) {
                 ASR::is_a<ASR::Variable_t>(
                     *(ASR::down_cast<ASR::Var_t>(m_args[i].m_value)->m_v))) {
                 ASR::Variable_t* param = ASRUtils::EXPR2VAR(f->m_args[i]);
-                if( (ASRUtils::is_array(type) &&
-                    ASRUtils::is_pointer(type))
-                    || (is_c && (param->m_intent == ASRUtils::intent_inout
+                if( (is_c && (param->m_intent == ASRUtils::intent_inout
                     || param->m_intent == ASRUtils::intent_out)
                     && !ASRUtils::is_aggregate_type(param->m_type))) {
                     args += "&" + src;
