@@ -2600,7 +2600,8 @@ PyMODINIT_FUNC PyInit_lpython_module_)" + fn_name + R"((void) {
             if (ASRUtils::is_array(type)) {
                 std::string size_str = "1";
                 out += indent + sym + "->n_dims = " + std::to_string(x.m_args[i].n_dims) + ";\n";
-                for (size_t j=0; j<x.m_args[i].n_dims; j++) {
+                std::string stride = "1";
+                for (int j = (int)x.m_args[i].n_dims - 1; j >= 0; j--) {
                     std::string st, l;
                     if (x.m_args[i].m_dims[j].m_start) {
                         self().visit_expr(*x.m_args[i].m_dims[j].m_start);
@@ -2619,6 +2620,9 @@ PyMODINIT_FUNC PyInit_lpython_module_)" + fn_name + R"((void) {
                     out += st + ";\n";
                     out += indent + sym + "->dims[" + std::to_string(j) + "].length = ";
                     out += l + ";\n";
+                    out += indent + sym + "->dims[" + std::to_string(j) + "].stride = ";
+                    out += stride + ";\n";
+                    stride = "(" + stride + " * " + l + ")";
                 }
                 std::string ty = CUtils::get_c_type_from_ttype_t(
                     ASRUtils::type_get_past_array(
