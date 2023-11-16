@@ -20,7 +20,7 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
 
 struct dimension_descriptor
 {
-    int32_t lower_bound, length;
+    int32_t lower_bound, length, stride;
 };
 
 struct list_r32 {
