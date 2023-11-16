@@ -190,7 +190,7 @@ void update_call_args(Allocator &al, SymbolTable *current_scope, bool implicit_i
             }
             return sym;
         }
-        
+
         void handle_Var(ASR::expr_t* arg_expr, ASR::expr_t** expr_to_replace) {
             if (ASR::is_a<ASR::Var_t>(*arg_expr)) {
                 ASR::Var_t* arg_var = ASR::down_cast<ASR::Var_t>(arg_expr);
@@ -1521,7 +1521,12 @@ void make_ArrayBroadcast_t_util(Allocator& al, const Location& loc,
     if (ret_type == nullptr) {
         // TODO: Construct appropriate return type here
         // For now simply coping the type from expr1
-        ret_type = expr1_type;
+        if (ASRUtils::is_simd_array(expr1)) {
+            // TODO: Make this more general; do not check for SIMDArray
+            ret_type = ASRUtils::duplicate_type(al, expr1_type);
+        } else {
+            ret_type = expr1_type;
+        }
     }
     expr2 = ASRUtils::EXPR(ASR::make_ArrayBroadcast_t(al, loc, expr2, dest_shape, ret_type, value));
 

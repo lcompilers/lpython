@@ -4731,6 +4731,12 @@ inline ASR::ttype_t* make_Pointer_t_util(Allocator& al, const Location& loc, ASR
 
 int64_t compute_trailing_zeros(int64_t number);
 
+static inline bool is_simd_array(ASR::expr_t *v) {
+    return (ASR::is_a<ASR::Array_t>(*expr_type(v)) &&
+        ASR::down_cast<ASR::Array_t>(expr_type(v))->m_physical_type
+            == ASR::array_physical_typeType::SIMDArray);
+}
+
 } // namespace ASRUtils
 
 } // namespace LCompilers

@@ -1049,13 +1049,14 @@ PyMODINIT_FUNC PyInit_lpython_module_)" + fn_name + R"((void) {
     }
 
     void visit_ArrayPhysicalCast(const ASR::ArrayPhysicalCast_t& x) {
-         src = "";
-         this->visit_expr(*x.m_arg);
-         if (x.m_old == ASR::array_physical_typeType::FixedSizeArray &&
+        src = "";
+        this->visit_expr(*x.m_arg);
+        if (x.m_old == ASR::array_physical_typeType::FixedSizeArray &&
                 x.m_new == ASR::array_physical_typeType::SIMDArray) {
             std::string arr_element_type = CUtils::get_c_type_from_ttype_t(ASRUtils::expr_type(x.m_arg));
             int64_t size = ASRUtils::get_fixed_size_of_array(ASRUtils::expr_type(x.m_arg));
-            std::string cast = arr_element_type + " __attribute__ (( vector_size(sizeof(" + arr_element_type + ") * " + std::to_string(size) + ") ))";
+            std::string cast = arr_element_type + " __attribute__ (( vector_size(sizeof("
+                + arr_element_type + ") * " + std::to_string(size) + ") ))";
             src = "(" + cast + ") " + src;
         }
      }
@@ -1245,7 +1246,37 @@ PyMODINIT_FUNC PyInit_lpython_module_)" + fn_name + R"((void) {
         bool is_value_dict = ASR::is_a<ASR::Dict_t>(*m_value_type);
         bool alloc_return_var = false;
         std::string indent(indentation_level*indentation_spaces, ' ');
-        if (ASR::is_a<ASR::Var_t>(*x.m_target)) {
+        if (ASRUtils::is_simd_array(x.m_target)) {
+            this->visit_expr(*x.m_target);
+            target = src;
+            if (ASR::is_a<ASR::Var_t>(*x.m_value) ||
+                    ASR::is_a<ASR::ArraySection_t>(*x.m_value)) {
+                std::string arr_element_type = CUtils::get_c_type_from_ttype_t(
+                    ASRUtils::expr_type(x.m_value));
+                std::string size = std::to_string(ASRUtils::get_fixed_size_of_array(
+                    ASRUtils::expr_type(x.m_target)));
+                std::string value;
+                if (ASR::is_a<ASR::ArraySection_t>(*x.m_value)) {
+                    ASR::ArraySection_t *arr = ASR::down_cast<ASR::ArraySection_t>(x.m_value);
+                    this->visit_expr(*arr->m_v);
+                    value = src;
+                    if(!ASR::is_a<ASR::ArrayBound_t>(*arr->m_args->m_left)) {
+                        this->visit_expr(*arr->m_args->m_left);
+                        int n_dims = ASRUtils::extract_n_dims_from_ttype(arr->m_type) - 1;
+                        value += "->data + (" + src + " - "+ value +"->dims["
+                            + std::to_string(n_dims) +"].lower_bound)";
+                    } else {
+                        value += "->data";
+                    }
+                } else if (ASR::is_a<ASR::Var_t>(*x.m_value)) {
+                    this->visit_expr(*x.m_value);
+                    value = src + "->data";
+                }
+                src = indent + "memcpy(&"+ target +", "+ value +", sizeof("
+                    + arr_element_type + ") * "+ size +");\n";
+                return;
+            }
+        } else if (ASR::is_a<ASR::Var_t>(*x.m_target)) {
             ASR::Var_t* x_m_target = ASR::down_cast<ASR::Var_t>(x.m_target);
             visit_Var(*x_m_target);
             target = src;
@@ -1398,6 +1429,7 @@ PyMODINIT_FUNC PyInit_lpython_module_)" + fn_name + R"((void) {
     }
 
     void visit_Associate(const ASR::Associate_t &x) {
+        std::string indent(indentation_level*indentation_spaces, ' ');
         if (ASR::is_a<ASR::ArraySection_t>(*x.m_value)) {
             self().visit_expr(*x.m_target);
             std::string target = std::move(src);
@@ -1422,7 +1454,7 @@ PyMODINIT_FUNC PyInit_lpython_module_)" + fn_name + R"((void) {
                 }
                 c += left + ":" + right + ":" + step + ",";
             }
-            src = target + "= " + value + "; // TODO: " + value + "(" + c + ")\n";
+            src = indent + target + "= " + value + "; // TODO: " + value + "(" + c + ")\n";
         } else {
             throw CodeGenError("Associate only implemented for ArraySection so far");
         }
