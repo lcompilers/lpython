@@ -206,7 +206,7 @@ public:
         // Include dimension_descriptor definition that is used by array types
         if (array_types_decls.size() != 0) {
             array_types_decls = "\nstruct dimension_descriptor\n"
-                "{\n    int32_t lower_bound, length;\n};\n" + array_types_decls;
+                "{\n    int32_t lower_bound, length, stride;\n};\n" + array_types_decls;
         }
 
         return to_include + head + array_types_decls + forward_decl_functions + unit_src +
@@ -927,6 +927,8 @@ R"(#include <stdio.h>
         s_array_)" + arg_name + R"(->n_dims = 1;
         s_array_)" + arg_name + R"(->dims[0].lower_bound = 0;
         s_array_)" + arg_name + R"(->dims[0].length = dims[0];
+        s_array_)" + arg_name + R"(->dims[0].stride = 1;
+        s_array_)" + arg_name + R"(->offset = 0;
         s_array_)" + arg_name + R"(->is_allocated = false;
     }
 )";
@@ -1071,9 +1073,7 @@ PyMODINIT_FUNC PyInit_lpython_module_)" + fn_name + R"((void) {
                 ASR::is_a<ASR::Variable_t>(
                     *(ASR::down_cast<ASR::Var_t>(m_args[i].m_value)->m_v))) {
                 ASR::Variable_t* param = ASRUtils::EXPR2VAR(f->m_args[i]);
-                if( (ASRUtils::is_array(type) &&
-                    ASRUtils::is_pointer(type))
-                    || (is_c && (param->m_intent == ASRUtils::intent_inout
+                if( (is_c && (param->m_intent == ASRUtils::intent_inout
                     || param->m_intent == ASRUtils::intent_out)
                     && !ASRUtils::is_aggregate_type(param->m_type))) {
                     args += "&" + src;
@@ -1428,33 +1428,183 @@ PyMODINIT_FUNC PyInit_lpython_module_)" + fn_name + R"((void) {
         from_std_vector_helper.clear();
     }
 
-    void visit_Associate(const ASR::Associate_t &x) {
-        std::string indent(indentation_level*indentation_spaces, ' ');
-        if (ASR::is_a<ASR::ArraySection_t>(*x.m_value)) {
-            self().visit_expr(*x.m_target);
-            std::string target = std::move(src);
-            // ArraySection(expr v, array_index* args, ttype type, expr? value)
-            ASR::ArraySection_t *as = ASR::down_cast<ASR::ArraySection_t>(x.m_value);
-            self().visit_expr(*as->m_v);
-            std::string value = std::move(src);
-            std::string c = "";
-            for( size_t i = 0; i < as->n_args; i++ ) {
-                std::string left, right, step;
-                if (as->m_args[i].m_left) {
-                    self().visit_expr(*as->m_args[i].m_left);
-                    left = std::move(src);
-                }
-                if (as->m_args[i].m_right) {
-                    self().visit_expr(*as->m_args[i].m_right);
-                    right = std::move(src);
-                }
-                if (as->m_args[i].m_step) {
-                    self().visit_expr(*as->m_args[i].m_step);
-                    step = std::move(src);
-                }
-                c += left + ":" + right + ":" + step + ",";
+    std::string cmo_convertor_single_element(
+        std::string arr, std::vector<std::string>& m_args,
+        int n_args, bool check_for_bounds) {
+        std::string dim_des_arr_ptr = arr + "->dims";
+        std::string idx = "0";
+        for( int r = 0; r < n_args; r++ ) {
+            std::string curr_llvm_idx = m_args[r];
+            std::string dim_des_ptr = dim_des_arr_ptr + "[" + std::to_string(r) + "]";
+            std::string lval = dim_des_ptr + ".lower_bound";
+            curr_llvm_idx = "(" + curr_llvm_idx + " - " + lval + ")";
+            if( check_for_bounds ) {
+                // check_single_element(curr_llvm_idx, arr); TODO: To be implemented
             }
-            src = indent + target + "= " + value + "; // TODO: " + value + "(" + c + ")\n";
+            std::string stride = dim_des_ptr + ".stride";
+            idx = "(" + idx + " + (" + stride + " * " + curr_llvm_idx + "))";
+        }
+        std::string offset_val = arr + "->offset";
+        return "(" + idx + " + " + offset_val + ")";
+    }
+
+    std::string cmo_convertor_single_element_data_only(
+        std::vector<std::string>& diminfo, std::vector<std::string>& m_args,
+        int n_args, bool check_for_bounds, bool is_unbounded_pointer_to_data) {
+        std::string prod = "1";
+        std::string idx = "0";
+        if (is_unbounded_pointer_to_data) {
+            for (int r = 0; r < n_args; r++) {
+                std::string curr_llvm_idx = m_args[r];
+                std::string lval = diminfo[r];
+                curr_llvm_idx = "(" + curr_llvm_idx + " - " + lval + ")";
+                if( check_for_bounds ) {
+                    // check_single_element(curr_llvm_idx, arr); TODO: To be implemented
+                }
+                idx = "(" + idx + " + " + "(" + curr_llvm_idx + ")" + ")";
+            }
+            return idx;
+        }
+        for( int r = n_args - 1, r1 = 2 * n_args - 1; r >= 0; r--, r1 -= 2) {
+            std::string curr_llvm_idx = m_args[r];
+            std::string lval = diminfo[r1 - 1];
+            curr_llvm_idx = "(" + curr_llvm_idx + " - " + lval + ")";
+            if( check_for_bounds ) {
+                // check_single_element(curr_llvm_idx, arr); TODO: To be implemented
+            }
+            idx = "(" + idx + " + " + "(" + prod + " * " + curr_llvm_idx + ")" + ")";
+            std::string dim_size = diminfo[r1];
+            prod = "(" + prod + " * " + dim_size + ")";
+        }
+        return idx;
+    }
+
+    std::string arr_get_single_element(std::string array,
+        std::vector<std::string>& m_args, int n_args, bool data_only,
+        bool is_fixed_size, std::vector<std::string>& diminfo, bool is_unbounded_pointer_to_data) {
+        std::string tmp = "";
+        // TODO: Uncomment later
+        // bool check_for_bounds = is_explicit_shape(v);
+        bool check_for_bounds = false;
+        std::string idx = "";
+        if( data_only || is_fixed_size ) {
+            LCOMPILERS_ASSERT(diminfo.size() > 0);
+            idx = cmo_convertor_single_element_data_only(diminfo, m_args, n_args, check_for_bounds, is_unbounded_pointer_to_data);
+            if( is_fixed_size ) {
+                tmp = array + "->data[" + idx + "]" ;
+            } else {
+                tmp = array + "->data[" + idx + "]";
+            }
+        } else {
+            idx = cmo_convertor_single_element(array, m_args, n_args, check_for_bounds);
+            std::string full_array = array + "->data";
+            tmp = full_array + "[" + idx + "]";
+        }
+        return tmp;
+    }
+
+    void fill_descriptor_for_array_section_data_only(std::string value_desc, std::string target_desc,
+        std::vector<std::string>& lbs, std::vector<std::string>& ubs, std::vector<std::string>& ds, std::vector<std::string>& non_sliced_indices,
+        std::vector<std::string>& diminfo, int value_rank, int target_rank) {
+        std::string indent(indentation_level * indentation_spaces, ' ');
+        std::vector<std::string> section_first_indices;
+            for( int i = 0; i < value_rank; i++ ) {
+                if( ds[i] != "" ) {
+                    LCOMPILERS_ASSERT(lbs[i] != "");
+                    section_first_indices.push_back(lbs[i]);
+                } else {
+                    LCOMPILERS_ASSERT(non_sliced_indices[i] != "");
+                    section_first_indices.push_back(non_sliced_indices[i]);
+                }
+            }
+            std::string target_offset = cmo_convertor_single_element_data_only(
+                diminfo, section_first_indices, value_rank, false, false);
+
+            value_desc = "(" + value_desc + " + " + target_offset + ")";
+            std::string update_target_desc = "";
+            update_target_desc += indent + target_desc + "->data = " + value_desc + ";\n";
+
+            update_target_desc += indent + target_desc + "->offset = 0;\n"; // offset not available yet
+
+            std::string target_dim_des_array = target_desc + "->dims";
+            int j = target_rank - 1;
+            int r = (int)diminfo.size() - 1;
+            std::string stride = "1";
+            for( int i = value_rank - 1; i >= 0; i-- ) {
+                if( ds[i] != "" ) {
+                    std::string dim_length = "(((" + ubs[i] + " - " + lbs[i] + ")" + "/" + ds[i] + ") + 1)";
+                    std::string target_dim_des = target_dim_des_array + "[" + std::to_string(j) + "]";
+                    update_target_desc += indent + target_dim_des + ".stride = " + stride + ";\n";
+                    update_target_desc += indent + target_dim_des + ".lower_bound = 1;\n";
+                    update_target_desc += indent + target_dim_des + ".length = " + dim_length + ";\n";
+                    j--;
+                }
+                stride = "(" + stride + "*" + diminfo[r] + ")";
+                r -= 2;
+            }
+            LCOMPILERS_ASSERT(j == -1);
+            update_target_desc += indent + target_desc + "->n_dims = " + std::to_string(target_rank) + ";\n";
+            src = update_target_desc;
+    }
+
+    void handle_array_section_association_to_pointer(const ASR::Associate_t& x) {
+        ASR::ArraySection_t* array_section = ASR::down_cast<ASR::ArraySection_t>(x.m_value);
+        self().visit_expr(*array_section->m_v);
+        std::string value_desc = src;
+
+        self().visit_expr(*x.m_target);
+        std::string target_desc = src;
+
+        int value_rank = array_section->n_args, target_rank = 0;
+        std::vector<std::string> lbs(value_rank);
+        std::vector<std::string> ubs(value_rank);
+        std::vector<std::string> ds(value_rank);
+        std::vector<std::string> non_sliced_indices(value_rank);
+        for( int i = 0; i < value_rank; i++ ) {
+            lbs[i] = ""; ubs[i] = ""; ds[i] = "";
+            non_sliced_indices[i] = "";
+            if( array_section->m_args[i].m_step != nullptr ) {
+                self().visit_expr(*array_section->m_args[i].m_left);
+                lbs[i] = src;
+                self().visit_expr(*array_section->m_args[i].m_right);
+                ubs[i] = src;
+                self().visit_expr(*array_section->m_args[i].m_step);
+                ds[i] = src;
+                target_rank++;
+            } else {
+                self().visit_expr(*array_section->m_args[i].m_right);
+                non_sliced_indices[i] = src;
+            }
+        }
+        LCOMPILERS_ASSERT(target_rank > 0);
+
+        ASR::ttype_t* array_type = ASRUtils::expr_type(array_section->m_v);
+        if( ASRUtils::extract_physical_type(array_type) == ASR::array_physical_typeType::PointerToDataArray ||
+            ASRUtils::extract_physical_type(array_type) == ASR::array_physical_typeType::FixedSizeArray ) {
+            value_desc = value_desc + "->data";
+            ASR::dimension_t* m_dims = nullptr;
+            // Fill in m_dims:
+            [[maybe_unused]] int array_value_rank = ASRUtils::extract_dimensions_from_ttype(array_type, m_dims);
+            LCOMPILERS_ASSERT(array_value_rank == value_rank);
+            std::vector<std::string> diminfo;
+            diminfo.reserve(value_rank * 2);
+            for( int i = 0; i < value_rank; i++ ) {
+                self().visit_expr(*m_dims[i].m_start);
+                diminfo.push_back(src);
+                self().visit_expr(*m_dims[i].m_length);
+                diminfo.push_back(src);
+            }
+            fill_descriptor_for_array_section_data_only(value_desc, target_desc,
+                lbs, ubs, ds, non_sliced_indices,
+                diminfo, value_rank, target_rank);
+        } else {
+            throw CodeGenError("Only Pointer to Data Array or Fixed Size array supported for now");
+        }
+    }
+
+    void visit_Associate(const ASR::Associate_t &x) {
+        if (ASR::is_a<ASR::ArraySection_t>(*x.m_value)) {
+            handle_array_section_association_to_pointer(x);
         } else {
             throw CodeGenError("Associate only implemented for ArraySection so far");
         }
@@ -2450,7 +2600,8 @@ PyMODINIT_FUNC PyInit_lpython_module_)" + fn_name + R"((void) {
             if (ASRUtils::is_array(type)) {
                 std::string size_str = "1";
                 out += indent + sym + "->n_dims = " + std::to_string(x.m_args[i].n_dims) + ";\n";
-                for (size_t j=0; j<x.m_args[i].n_dims; j++) {
+                std::string stride = "1";
+                for (int j = (int)x.m_args[i].n_dims - 1; j >= 0; j--) {
                     std::string st, l;
                     if (x.m_args[i].m_dims[j].m_start) {
                         self().visit_expr(*x.m_args[i].m_dims[j].m_start);
@@ -2469,6 +2620,9 @@ PyMODINIT_FUNC PyInit_lpython_module_)" + fn_name + R"((void) {
                     out += st + ";\n";
                     out += indent + sym + "->dims[" + std::to_string(j) + "].length = ";
                     out += l + ";\n";
+                    out += indent + sym + "->dims[" + std::to_string(j) + "].stride = ";
+                    out += stride + ";\n";
+                    stride = "(" + stride + " * " + l + ")";
                 }
                 std::string ty = CUtils::get_c_type_from_ttype_t(
                     ASRUtils::type_get_past_array(
