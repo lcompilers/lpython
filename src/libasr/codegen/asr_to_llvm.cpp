@@ -88,9 +88,9 @@ private:
   std::string current_der_type_name;
 
     //! Helpful for debugging while testing LLVM code
-    void print_util(llvm::Value* v, std::string fmt_chars, std::string endline="\t") {
+    void print_util(llvm::Value* v, std::string fmt_chars, std::string endline) {
         // Usage:
-        // print_util(tmp, "%d") // `tmp` to be an integer type
+        // print_util(tmp, "%d", "\n") // `tmp` is an integer type to match the format specifiers
         std::vector<llvm::Value *> args;
         std::vector<std::string> fmt;
         args.push_back(v);
@@ -2320,7 +2320,8 @@ public:
             Vec<llvm::Value*> llvm_diminfo;
             llvm_diminfo.reserve(al, 2 * x.n_args + 1);
             if( array_t->m_physical_type == ASR::array_physical_typeType::PointerToDataArray ||
-                array_t->m_physical_type == ASR::array_physical_typeType::FixedSizeArray ) {
+                array_t->m_physical_type == ASR::array_physical_typeType::FixedSizeArray ||
+                array_t->m_physical_type == ASR::array_physical_typeType::SIMDArray ) {
                 int ptr_loads_copy = ptr_loads;
                 for( size_t idim = 0; idim < x.n_args; idim++ ) {
                     ptr_loads = 2 - !LLVM::is_llvm_pointer(*ASRUtils::expr_type(m_dims[idim].m_start));
@@ -2354,7 +2355,7 @@ public:
             } else {
                 tmp = arr_descr->get_single_element(array, indices, x.n_args,
                                                     array_t->m_physical_type == ASR::array_physical_typeType::PointerToDataArray,
-                                                    array_t->m_physical_type == ASR::array_physical_typeType::FixedSizeArray,
+                                                    array_t->m_physical_type == ASR::array_physical_typeType::FixedSizeArray || array_t->m_physical_type == ASR::array_physical_typeType::SIMDArray,
                                                     llvm_diminfo.p, is_polymorphic, current_select_type_block_type);
             }
         }
@@ -4705,10 +4706,14 @@ public:
         }
         ASR::ttype_t* target_type = ASRUtils::expr_type(x.m_target);
         ASR::ttype_t* value_type = ASRUtils::expr_type(x.m_value);
+        ASR::expr_t *m_value = x.m_value;
+        if (ASRUtils::is_simd_array(x.m_target) && ASR::is_a<ASR::ArraySection_t>(*m_value)) {
+            m_value = ASR::down_cast<ASR::ArraySection_t>(m_value)->m_v;
+        }
         int ptr_loads_copy = ptr_loads;
         ptr_loads = 2 - (ASRUtils::is_character(*value_type) ||
             ASRUtils::is_array(value_type));
-        this->visit_expr_wrapper(x.m_value, true);
+        this->visit_expr_wrapper(m_value, true);
         ptr_loads = ptr_loads_copy;
         if( ASR::is_a<ASR::Var_t>(*x.m_value) &&
             ASR::is_a<ASR::Union_t>(*value_type) ) {
@@ -4752,6 +4757,7 @@ public:
             bool is_value_data_only_array = (value_ptype == ASR::array_physical_typeType::PointerToDataArray);
             bool is_target_fixed_sized_array = (target_ptype == ASR::array_physical_typeType::FixedSizeArray);
             bool is_value_fixed_sized_array = (value_ptype == ASR::array_physical_typeType::FixedSizeArray);
+            bool is_target_simd_array = (target_ptype == ASR::array_physical_typeType::SIMDArray);
             // bool is_target_descriptor_based_array = (target_ptype == ASR::array_physical_typeType::DescriptorArray);
             bool is_value_descriptor_based_array = (value_ptype == ASR::array_physical_typeType::DescriptorArray);
             if( is_value_fixed_sized_array && is_target_fixed_sized_array ) {
@@ -4844,6 +4850,27 @@ public:
                     arr_descr->copy_array_data_only(value_data, target_data, module.get(),
                                                     llvm_data_type, llvm_size);
                 }
+            } else if ( is_target_simd_array ) {
+                if (ASR::is_a<ASR::ArraySection_t>(*x.m_value)) {
+                    int idx = 1;
+                    ASR::ArraySection_t *arr = down_cast<ASR::ArraySection_t>(x.m_value);
+                    (void) ASRUtils::extract_value(arr->m_args->m_left, idx);
+                    value = llvm_utils->create_gep(value, idx-1);
+                    target = llvm_utils->create_gep(target, 0);
+                    ASR::dimension_t* asr_dims = nullptr;
+                    size_t asr_n_dims = ASRUtils::extract_dimensions_from_ttype(target_type, asr_dims);
+                    int64_t size = ASRUtils::get_fixed_size_of_array(asr_dims, asr_n_dims);
+                    llvm::Type* llvm_data_type = llvm_utils->get_type_from_ttype_t_util(ASRUtils::type_get_past_array(
+                        ASRUtils::type_get_past_allocatable(ASRUtils::type_get_past_pointer(target_type))), module.get());
+                    llvm::DataLayout data_layout(module.get());
+                    uint64_t data_size = data_layout.getTypeAllocSize(llvm_data_type);
+                    llvm::Value* llvm_size = llvm::ConstantInt::get(context, llvm::APInt(32, size));
+                    llvm_size = builder->CreateMul(llvm_size,
+                        llvm::ConstantInt::get(context, llvm::APInt(32, data_size)));
+                    builder->CreateMemCpy(target, llvm::MaybeAlign(), value, llvm::MaybeAlign(), llvm_size);
+                } else {
+                    builder->CreateStore(value, target);
+                }
             } else {
                 arr_descr->copy_array(value, target, module.get(),
                                       target_type, false, false);
@@ -4929,6 +4956,10 @@ public:
                 ASRUtils::expr_value(m_arg) == nullptr ) {
                 tmp = llvm_utils->create_gep(tmp, 0);
             }
+        } else if (
+            m_new == ASR::array_physical_typeType::SIMDArray &&
+            m_old == ASR::array_physical_typeType::FixedSizeArray) {
+            // pass
         } else if(
             m_new == ASR::array_physical_typeType::DescriptorArray &&
             m_old == ASR::array_physical_typeType::FixedSizeArray) {
@@ -5988,6 +6019,12 @@ public:
         llvm::Value *right_val = tmp;
         lookup_enum_value_for_nonints = false;
         LCOMPILERS_ASSERT(ASRUtils::is_real(*x.m_type))
+        if (ASRUtils::is_simd_array(x.m_right) && is_a<ASR::Var_t>(*x.m_right)) {
+            right_val = CreateLoad(right_val);
+        }
+        if (ASRUtils::is_simd_array(x.m_left) && is_a<ASR::Var_t>(*x.m_left)) {
+            left_val = CreateLoad(left_val);
+        }
         switch (x.m_op) {
             case ASR::binopType::Add: {
                 tmp = builder->CreateFAdd(left_val, right_val);
@@ -9149,6 +9186,15 @@ public:
                 tmp = LLVM::CreateLoad(*builder, target);
                 break;
             }
+            case ASR::array_physical_typeType::SIMDArray: {
+                if( x.m_bound == ASR::arrayboundType::LBound ) {
+                    tmp = llvm::ConstantInt::get(context, llvm::APInt(32, 1));
+                } else if( x.m_bound == ASR::arrayboundType::UBound ) {
+                    int64_t size = ASRUtils::get_fixed_size_of_array(ASRUtils::expr_type(x.m_v));
+                    tmp = llvm::ConstantInt::get(context, llvm::APInt(32, size));
+                }
+                break;
+            }
             default: {
                 LCOMPILERS_ASSERT(false);
             }
@@ -9176,6 +9222,20 @@ public:
         } else {
             throw CodeGenError("Only FormatFortran string formatting implemented so far.");
         }
+    }
+
+    void visit_ArrayBroadcast(const ASR::ArrayBroadcast_t &x) {
+        this->visit_expr_wrapper(x.m_array, true);
+        llvm::Value *value = tmp;
+        llvm::Type* ele_type = llvm_utils->get_type_from_ttype_t_util(
+            ASRUtils::type_get_past_array(x.m_type), module.get());
+        size_t n_eles = ASRUtils::get_fixed_size_of_array(x.m_type);
+        llvm::Type* vec_type = FIXED_VECTOR_TYPE::get(ele_type, n_eles);
+        llvm::AllocaInst *vec = builder->CreateAlloca(vec_type, nullptr);
+        for (size_t i=0; i < n_eles; i++) {
+            builder->CreateStore(value, llvm_utils->create_gep(vec, i));
+        }
+        tmp = CreateLoad(vec);
     }
 
 };
