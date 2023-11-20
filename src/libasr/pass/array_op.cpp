@@ -1623,10 +1623,18 @@ class ArrayOpVisitor : public ASR::CallReplacerOnExpressionsVisitor<ArrayOpVisit
 
         void visit_Assignment(const ASR::Assignment_t &x) {
             if (ASRUtils::is_simd_array(x.m_target)) {
-                if (!ASR::is_a<ASR::ArrayPhysicalCast_t>(*x.m_value)) {
-                    this->visit_expr(*x.m_value);
+                size_t n_dims = 1;
+                if (ASR::is_a<ASR::ArraySection_t>(*x.m_value)) {
+                    n_dims = ASRUtils::extract_n_dims_from_ttype(
+                        ASRUtils::expr_type(down_cast<ASR::ArraySection_t>(
+                        x.m_value)->m_v));
                 }
-                return;
+                if (n_dims == 1) {
+                    if (!ASR::is_a<ASR::ArrayPhysicalCast_t>(*x.m_value)) {
+                        this->visit_expr(*x.m_value);
+                    }
+                    return;
+                }
             }
             if( (ASR::is_a<ASR::Pointer_t>(*ASRUtils::expr_type(x.m_target)) &&
                 ASR::is_a<ASR::GetPointer_t>(*x.m_value)) ||
