@@ -2615,7 +2615,7 @@ PyMODINIT_FUNC PyInit_lpython_module_)" + fn_name + R"((void) {
                     } else {
                         l = "1";
                     }
-                    size_str += "*" + l;
+                    size_str += "*" + sym + "->dims[" + std::to_string(j) + "].length";
                     out += indent + sym + "->dims[" + std::to_string(j) + "].lower_bound = ";
                     out += st + ";\n";
                     out += indent + sym + "->dims[" + std::to_string(j) + "].length = ";
