@@ -251,11 +251,11 @@ class ASRBuilder {
         false, nullptr, 0, false, false, false));
 
     // Types -------------------------------------------------------------------
-    #define int32        TYPE(ASR::make_Integer_t(al, loc, 4))
+    #define int32        ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4))
     #define int64        TYPE(ASR::make_Integer_t(al, loc, 8))
     #define real32       TYPE(ASR::make_Real_t(al, loc, 4))
     #define real64       TYPE(ASR::make_Real_t(al, loc, 8))
-    #define logical      TYPE(ASR::make_Logical_t(al, loc, 4))
+    #define logical      ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4))
     #define character(x) TYPE(ASR::make_Character_t(al, loc, 1, x, nullptr))
     #define List(x)      TYPE(ASR::make_List_t(al, loc, x))
 
@@ -285,7 +285,7 @@ class ASRBuilder {
 
     // Expressions -------------------------------------------------------------
     #define i(x, t)   EXPR(ASR::make_IntegerConstant_t(al, loc, x, t))
-    #define i32(x)   EXPR(ASR::make_IntegerConstant_t(al, loc, x, int32))
+    #define i32(x)   ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, loc, x, int32))
     #define i32_n(x) EXPR(ASR::make_IntegerUnaryMinus_t(al, loc, i32(abs(x)),   \
         int32, i32(x)))
     #define i32_neg(x, t) EXPR(ASR::make_IntegerUnaryMinus_t(al, loc, x, t, nullptr))
@@ -414,7 +414,7 @@ class ASRBuilder {
     }
 
     // Compare -----------------------------------------------------------------
-    #define iEq(x, y) EXPR(ASR::make_IntegerCompare_t(al, loc, x,               \
+    #define iEq(x, y) ASRUtils::EXPR(ASR::make_IntegerCompare_t(al, loc, x,     \
         ASR::cmpopType::Eq, y, logical, nullptr))
     #define iNotEq(x, y) EXPR(ASR::make_IntegerCompare_t(al, loc, x,            \
         ASR::cmpopType::NotEq, y, logical, nullptr))
