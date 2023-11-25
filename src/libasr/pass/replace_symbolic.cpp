@@ -624,6 +624,60 @@ public:
         return ASRUtils::STMT(ASR::make_SubroutineCall_t(al, loc,
             basic_const_sym, basic_const_sym, call_args.p, call_args.n, nullptr));
     }
+
+    ASR::stmt_t *basic_binop(const Location &loc, const std::string &fn_name,
+            ASR::expr_t* target, ASR::expr_t* op_01, ASR::expr_t* op_02) {
+        symbolic_dependencies.push_back(fn_name);
+        ASR::symbol_t *basic_binop_sym = current_scope->resolve_symbol(fn_name);
+        if ( !basic_binop_sym ) {
+            std::string header = "symengine/cwrapper.h";
+            SymbolTable* fn_symtab = al.make_new<SymbolTable>(current_scope->parent);
+
+            Vec<ASR::expr_t*> args; args.reserve(al, 3);
+            ASR::symbol_t* arg1 = ASR::down_cast<ASR::symbol_t>(ASR::make_Variable_t(
+                al, loc, fn_symtab, s2c(al, "x"), nullptr, 0, ASR::intentType::In,
+                nullptr, nullptr, ASR::storage_typeType::Default, ASRUtils::TYPE(ASR::make_CPtr_t(al, loc)),
+                nullptr, ASR::abiType::BindC, ASR::Public, ASR::presenceType::Required, true));
+            fn_symtab->add_symbol(s2c(al, "x"), arg1);
+            args.push_back(al, ASRUtils::EXPR(ASR::make_Var_t(al, loc, arg1)));
+            ASR::symbol_t* arg2 = ASR::down_cast<ASR::symbol_t>(ASR::make_Variable_t(
+                al, loc, fn_symtab, s2c(al, "y"), nullptr, 0, ASR::intentType::In,
+                nullptr, nullptr, ASR::storage_typeType::Default, ASRUtils::TYPE(ASR::make_CPtr_t(al, loc)),
+                nullptr, ASR::abiType::BindC, ASR::Public, ASR::presenceType::Required, true));
+            fn_symtab->add_symbol(s2c(al, "y"), arg2);
+            args.push_back(al, ASRUtils::EXPR(ASR::make_Var_t(al, loc, arg2)));
+            ASR::symbol_t* arg3 = ASR::down_cast<ASR::symbol_t>(ASR::make_Variable_t(
+                al, loc, fn_symtab, s2c(al, "z"), nullptr, 0, ASR::intentType::In,
+                nullptr, nullptr, ASR::storage_typeType::Default, ASRUtils::TYPE(ASR::make_CPtr_t(al, loc)),
+                nullptr, ASR::abiType::BindC, ASR::Public, ASR::presenceType::Required, true));
+            fn_symtab->add_symbol(s2c(al, "z"), arg3);
+            args.push_back(al, ASRUtils::EXPR(ASR::make_Var_t(al, loc, arg3)));
+
+            Vec<ASR::stmt_t*> body; body.reserve(al, 1);
+            Vec<char*> dep; dep.reserve(al, 1);
+            basic_binop_sym = ASR::down_cast<ASR::symbol_t>(
+                ASRUtils::make_Function_t_util(al, loc, fn_symtab, s2c(al, fn_name),
+                dep.p, dep.n, args.p, args.n, body.p, body.n,
+                nullptr, ASR::abiType::BindC, ASR::accessType::Public,
+                ASR::deftypeType::Interface, s2c(al, fn_name), false, false, false,
+                false, false, nullptr, 0, false, false, false, s2c(al, header)));
+            current_scope->parent->add_symbol(s2c(al, fn_name), basic_binop_sym);
+        }
+
+        Vec<ASR::call_arg_t> call_args;
+        call_args.reserve(al, 3);
+        ASR::call_arg_t call_arg;
+        call_arg.loc = loc;
+        call_arg.m_value = target;
+        call_args.push_back(al, call_arg);
+        call_arg.m_value = handle_argument(al, loc, op_01);
+        call_args.push_back(al, call_arg);
+        call_arg.m_value = handle_argument(al, loc, op_02);
+        call_args.push_back(al, call_arg);
+
+        return ASRUtils::STMT(ASR::make_SubroutineCall_t(al, loc, basic_binop_sym,
+            basic_binop_sym, call_args.p, call_args.n, nullptr));
+    }
     /********************************** Utils *********************************/
 
     void visit_Function(const ASR::Function_t &x) {
@@ -747,68 +801,6 @@ public:
         }
     }
 
-    void perform_symbolic_binary_operation(Allocator &al, const Location &loc, SymbolTable* module_scope,
-        const std::string& new_name, ASR::expr_t* value1, ASR::expr_t* value2, ASR::expr_t* value3) {
-        symbolic_dependencies.push_back(new_name);
-        if (!module_scope->get_symbol(new_name)) {
-            std::string header = "symengine/cwrapper.h";
-            SymbolTable* fn_symtab = al.make_new<SymbolTable>(module_scope);
-
-            Vec<ASR::expr_t*> args;
-            args.reserve(al, 3);
-            ASR::symbol_t* arg1 = ASR::down_cast<ASR::symbol_t>(ASR::make_Variable_t(
-                al, loc, fn_symtab, s2c(al, "x"), nullptr, 0, ASR::intentType::In,
-                nullptr, nullptr, ASR::storage_typeType::Default, ASRUtils::TYPE(ASR::make_CPtr_t(al, loc)),
-                nullptr, ASR::abiType::BindC, ASR::Public, ASR::presenceType::Required, true));
-            fn_symtab->add_symbol(s2c(al, "x"), arg1);
-            args.push_back(al, ASRUtils::EXPR(ASR::make_Var_t(al, loc, arg1)));
-            ASR::symbol_t* arg2 = ASR::down_cast<ASR::symbol_t>(ASR::make_Variable_t(
-                al, loc, fn_symtab, s2c(al, "y"), nullptr, 0, ASR::intentType::In,
-                nullptr, nullptr, ASR::storage_typeType::Default, ASRUtils::TYPE(ASR::make_CPtr_t(al, loc)),
-                nullptr, ASR::abiType::BindC, ASR::Public, ASR::presenceType::Required, true));
-            fn_symtab->add_symbol(s2c(al, "y"), arg2);
-            args.push_back(al, ASRUtils::EXPR(ASR::make_Var_t(al, loc, arg2)));
-            ASR::symbol_t* arg3 = ASR::down_cast<ASR::symbol_t>(ASR::make_Variable_t(
-                al, loc, fn_symtab, s2c(al, "z"), nullptr, 0, ASR::intentType::In,
-                nullptr, nullptr, ASR::storage_typeType::Default, ASRUtils::TYPE(ASR::make_CPtr_t(al, loc)),
-                nullptr, ASR::abiType::BindC, ASR::Public, ASR::presenceType::Required, true));
-            fn_symtab->add_symbol(s2c(al, "z"), arg3);
-            args.push_back(al, ASRUtils::EXPR(ASR::make_Var_t(al, loc, arg3)));
-
-            Vec<ASR::stmt_t*> body;
-            body.reserve(al, 1);
-
-            Vec<char*> dep;
-            dep.reserve(al, 1);
-
-            ASR::asr_t* new_subrout = ASRUtils::make_Function_t_util(al, loc,
-                fn_symtab, s2c(al, new_name), dep.p, dep.n, args.p, args.n, body.p, body.n,
-                nullptr, ASR::abiType::BindC, ASR::accessType::Public,
-                ASR::deftypeType::Interface, s2c(al, new_name), false, false, false,
-                false, false, nullptr, 0, false, false, false, s2c(al, header));
-            ASR::symbol_t* new_symbol = ASR::down_cast<ASR::symbol_t>(new_subrout);
-            module_scope->add_symbol(s2c(al, new_name), new_symbol);
-        }
-
-        ASR::symbol_t* func_sym = module_scope->get_symbol(new_name);
-        Vec<ASR::call_arg_t> call_args;
-        call_args.reserve(al, 3);
-        ASR::call_arg_t call_arg1, call_arg2, call_arg3;
-        call_arg1.loc = loc;
-        call_arg1.m_value = value1;
-        call_arg2.loc = loc;
-        call_arg2.m_value = value2;
-        call_arg3.loc = loc;
-        call_arg3.m_value = value3;
-        call_args.push_back(al, call_arg1);
-        call_args.push_back(al, call_arg2);
-        call_args.push_back(al, call_arg3);
-
-        ASR::stmt_t* stmt = ASRUtils::STMT(ASR::make_SubroutineCall_t(al, loc, func_sym,
-            func_sym, call_args.p, call_args.n, nullptr));
-        pass_result.push_back(al, stmt);
-    }
-
     void perform_symbolic_unary_operation(Allocator &al, const Location &loc, SymbolTable* module_scope,
         const std::string& new_name, ASR::expr_t* value1, ASR::expr_t* value2) {
         symbolic_dependencies.push_back(new_name);
@@ -876,13 +868,6 @@ public:
         return ASRUtils::EXPR(ASR::make_Var_t(al, loc, var_sym));
     }
 
-    void process_binary_operator(Allocator &al,  const Location &loc, ASR::IntrinsicScalarFunction_t* x, SymbolTable* module_scope,
-        const std::string& new_name, ASR::expr_t* target) {
-            ASR::expr_t* value1 = handle_argument(al, loc, x->m_args[0]);
-            ASR::expr_t* value2 = handle_argument(al, loc, x->m_args[1]);
-            perform_symbolic_binary_operation(al, loc, module_scope, new_name, target, value1, value2);
-    }
-
     void process_unary_operator(Allocator &al,  const Location &loc, ASR::IntrinsicScalarFunction_t* x, SymbolTable* module_scope,
         const std::string& new_name, ASR::expr_t* target) {
             ASR::expr_t* value1 = handle_argument(al, loc, x->m_args[0]);
@@ -906,27 +891,33 @@ public:
                 break;
             }
             case LCompilers::ASRUtils::IntrinsicScalarFunctions::SymbolicAdd: {
-                process_binary_operator(al, loc, x, module_scope, "basic_add", target);
+                pass_result.push_back(al, basic_binop(loc, "basic_add", target,
+                    x->m_args[0], x->m_args[1]));
                 break;
             }
             case LCompilers::ASRUtils::IntrinsicScalarFunctions::SymbolicSub: {
-                process_binary_operator(al, loc, x, module_scope, "basic_sub", target);
+                pass_result.push_back(al, basic_binop(loc, "basic_sub", target,
+                    x->m_args[0], x->m_args[1]));
                 break;
             }
             case LCompilers::ASRUtils::IntrinsicScalarFunctions::SymbolicMul: {
-                process_binary_operator(al, loc, x, module_scope, "basic_mul", target);
+                pass_result.push_back(al, basic_binop(loc, "basic_mul", target,
+                    x->m_args[0], x->m_args[1]));
                 break;
             }
             case LCompilers::ASRUtils::IntrinsicScalarFunctions::SymbolicDiv: {
-                process_binary_operator(al, loc, x, module_scope, "basic_div", target);
+                pass_result.push_back(al, basic_binop(loc, "basic_div", target,
+                    x->m_args[0], x->m_args[1]));
                 break;
             }
             case LCompilers::ASRUtils::IntrinsicScalarFunctions::SymbolicPow: {
-                process_binary_operator(al, loc, x, module_scope, "basic_pow", target);
+                pass_result.push_back(al, basic_binop(loc, "basic_pow", target,
+                    x->m_args[0], x->m_args[1]));
                 break;
             }
             case LCompilers::ASRUtils::IntrinsicScalarFunctions::SymbolicDiff: {
-                process_binary_operator(al, loc, x, module_scope, "basic_diff", target);
+                pass_result.push_back(al, basic_binop(loc, "basic_diff", target,
+                    x->m_args[0], x->m_args[1]));
                 break;
             }
             case LCompilers::ASRUtils::IntrinsicScalarFunctions::SymbolicSin: {
