@@ -68,6 +68,12 @@ public:
                     target, x->m_args[0]));                                     \
             break; }
 
+    #define BASIC_ATTR(SYM, N)                                                  \
+        case LCompilers::ASRUtils::IntrinsicScalarFunctions::Symbolic##SYM: {   \
+            ASR::expr_t* function_call = basic_get_type(loc,                    \
+                intrinsic_func->m_args[0]);                                     \
+            return iEq(function_call, i32(N)); }
+
     ASR::stmt_t *basic_new_stack(const Location &loc, ASR::expr_t *x) {
         std::string fn_name = "basic_new_stack";
         symbolic_dependencies.push_back(fn_name);
@@ -454,7 +460,7 @@ public:
         Vec<ASR::call_arg_t> call_args; call_args.reserve(al, 1);
         ASR::call_arg_t call_arg;
         call_arg.loc = loc;
-        call_arg.m_value = value;
+        call_arg.m_value = handle_argument(al, loc, value);
         call_args.push_back(al, call_arg);
         return ASRUtils::EXPR(ASRUtils::make_FunctionCall_t_util(al, loc,
             basic_get_type_sym, basic_get_type_sym, call_args.p, call_args.n,
@@ -1011,51 +1017,13 @@ public:
                         ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4)), nullptr, nullptr));
                     break;
                 }
-                case LCompilers::ASRUtils::IntrinsicScalarFunctions::SymbolicAddQ: {
-                    ASR::expr_t* value1 = handle_argument(al, loc, intrinsic_func->m_args[0]);
-                    ASR::expr_t* function_call = basic_get_type(loc, value1);
-                    // Using 16 as the right value of the IntegerCompare node as it represents SYMENGINE_ADD through SYMENGINE_ENUM
-                    return ASRUtils::EXPR(ASR::make_IntegerCompare_t(al, loc, function_call, ASR::cmpopType::Eq,
-                        ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, loc, 16, ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4)))),
-                        ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4)), nullptr));
-                    break;
-                }
-                case LCompilers::ASRUtils::IntrinsicScalarFunctions::SymbolicMulQ: {
-                    ASR::expr_t* value1 = handle_argument(al, loc, intrinsic_func->m_args[0]);
-                    ASR::expr_t* function_call = basic_get_type(loc, value1);
-                    // Using 15 as the right value of the IntegerCompare node as it represents SYMENGINE_MUL through SYMENGINE_ENUM
-                    return ASRUtils::EXPR(ASR::make_IntegerCompare_t(al, loc, function_call, ASR::cmpopType::Eq,
-                        ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, loc, 15, ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4)))),
-                        ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4)), nullptr));
-                    break;
-                }
-                case LCompilers::ASRUtils::IntrinsicScalarFunctions::SymbolicPowQ: {
-                    ASR::expr_t* value1 = handle_argument(al, loc, intrinsic_func->m_args[0]);
-                    ASR::expr_t* function_call = basic_get_type(loc, value1);
-                    // Using 17 as the right value of the IntegerCompare node as it represents SYMENGINE_POW through SYMENGINE_ENUM
-                    return ASRUtils::EXPR(ASR::make_IntegerCompare_t(al, loc, function_call, ASR::cmpopType::Eq,
-                        ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, loc, 17, ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4)))),
-                        ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4)), nullptr));
-                    break;
-                }
-                case LCompilers::ASRUtils::IntrinsicScalarFunctions::SymbolicLogQ: {
-                    ASR::expr_t* value1 = handle_argument(al, loc, intrinsic_func->m_args[0]);
-                    ASR::expr_t* function_call = basic_get_type(loc, value1);
-                    // Using 29 as the right value of the IntegerCompare node as it represents SYMENGINE_LOG through SYMENGINE_ENUM
-                    return ASRUtils::EXPR(ASR::make_IntegerCompare_t(al, loc, function_call, ASR::cmpopType::Eq,
-                        ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, loc, 29, ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4)))),
-                        ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4)), nullptr));
-                    break;
-                }
-                case LCompilers::ASRUtils::IntrinsicScalarFunctions::SymbolicSinQ: {
-                    ASR::expr_t* value1 = handle_argument(al, loc, intrinsic_func->m_args[0]);
-                    ASR::expr_t* function_call = basic_get_type(loc, value1);
-                    // Using 35 as the right value of the IntegerCompare node as it represents SYMENGINE_SIN through SYMENGINE_ENUM
-                    return ASRUtils::EXPR(ASR::make_IntegerCompare_t(al, loc, function_call, ASR::cmpopType::Eq,
-                        ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, loc, 35, ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4)))),
-                        ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4)), nullptr));
-                    break;
-                }
+                // (sym_name, n) where n = 16, 15, ... as the right value of the
+                // IntegerCompare node as it represents SYMENGINE_ADD through SYMENGINE_ENUM
+                BASIC_ATTR(AddQ, 16)
+                BASIC_ATTR(MulQ, 15)
+                BASIC_ATTR(PowQ, 17)
+                BASIC_ATTR(LogQ, 29)
+                BASIC_ATTR(SinQ, 35)
                 default: {
                     throw LCompilersException("IntrinsicFunction: `"
                         + ASRUtils::get_intrinsic_name(intrinsic_id)
