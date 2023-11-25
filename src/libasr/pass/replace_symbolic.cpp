@@ -50,6 +50,24 @@ public:
     SymEngine_Stack symengine_stack;
 
     /********************************** Utils *********************************/
+    #define BASIC_CONST(SYM, name)                                              \
+        case LCompilers::ASRUtils::IntrinsicScalarFunctions::Symbolic##SYM: {   \
+            pass_result.push_back(al, basic_const(loc,                          \
+                "basic_const_"#name, target));                                  \
+            break; }
+
+    #define BASIC_BINOP(SYM, name)                                              \
+        case LCompilers::ASRUtils::IntrinsicScalarFunctions::Symbolic##SYM: {   \
+            pass_result.push_back(al, basic_binop(loc, "basic_"#name, target,   \
+                    x->m_args[0], x->m_args[1]));                               \
+            break; }
+
+    #define BASIC_UNARYOP(SYM, name)                                            \
+        case LCompilers::ASRUtils::IntrinsicScalarFunctions::Symbolic##SYM: {   \
+            pass_result.push_back(al, basic_unaryop(loc, "basic_"#name,         \
+                    target, x->m_args[0]));                                     \
+            break; }
+
     ASR::stmt_t *basic_new_stack(const Location &loc, ASR::expr_t *x) {
         std::string fn_name = "basic_new_stack";
         symbolic_dependencies.push_back(fn_name);
@@ -868,74 +886,20 @@ public:
                 pass_result.push_back(al, symbol_set(loc, target, x->m_args[0]));
                 break;
             }
-            case LCompilers::ASRUtils::IntrinsicScalarFunctions::SymbolicPi: {
-                pass_result.push_back(al, basic_const(loc, "basic_const_pi", target));
-                break;
-            }
-            case LCompilers::ASRUtils::IntrinsicScalarFunctions::SymbolicE: {
-                pass_result.push_back(al, basic_const(loc, "basic_const_E", target));
-                break;
-            }
-            case LCompilers::ASRUtils::IntrinsicScalarFunctions::SymbolicAdd: {
-                pass_result.push_back(al, basic_binop(loc, "basic_add", target,
-                    x->m_args[0], x->m_args[1]));
-                break;
-            }
-            case LCompilers::ASRUtils::IntrinsicScalarFunctions::SymbolicSub: {
-                pass_result.push_back(al, basic_binop(loc, "basic_sub", target,
-                    x->m_args[0], x->m_args[1]));
-                break;
-            }
-            case LCompilers::ASRUtils::IntrinsicScalarFunctions::SymbolicMul: {
-                pass_result.push_back(al, basic_binop(loc, "basic_mul", target,
-                    x->m_args[0], x->m_args[1]));
-                break;
-            }
-            case LCompilers::ASRUtils::IntrinsicScalarFunctions::SymbolicDiv: {
-                pass_result.push_back(al, basic_binop(loc, "basic_div", target,
-                    x->m_args[0], x->m_args[1]));
-                break;
-            }
-            case LCompilers::ASRUtils::IntrinsicScalarFunctions::SymbolicPow: {
-                pass_result.push_back(al, basic_binop(loc, "basic_pow", target,
-                    x->m_args[0], x->m_args[1]));
-                break;
-            }
-            case LCompilers::ASRUtils::IntrinsicScalarFunctions::SymbolicDiff: {
-                pass_result.push_back(al, basic_binop(loc, "basic_diff", target,
-                    x->m_args[0], x->m_args[1]));
-                break;
-            }
-            case LCompilers::ASRUtils::IntrinsicScalarFunctions::SymbolicSin: {
-                pass_result.push_back(al, basic_unaryop(loc, "basic_sin", target,
-                    x->m_args[0]));
-                break;
-            }
-            case LCompilers::ASRUtils::IntrinsicScalarFunctions::SymbolicCos: {
-                pass_result.push_back(al, basic_unaryop(loc, "basic_cos", target,
-                    x->m_args[0]));
-                break;
-            }
-            case LCompilers::ASRUtils::IntrinsicScalarFunctions::SymbolicLog: {
-                pass_result.push_back(al, basic_unaryop(loc, "basic_log", target,
-                    x->m_args[0]));
-                break;
-            }
-            case LCompilers::ASRUtils::IntrinsicScalarFunctions::SymbolicExp: {
-                pass_result.push_back(al, basic_unaryop(loc, "basic_exp", target,
-                    x->m_args[0]));
-                break;
-            }
-            case LCompilers::ASRUtils::IntrinsicScalarFunctions::SymbolicAbs: {
-                pass_result.push_back(al, basic_unaryop(loc, "basic_abs", target,
-                    x->m_args[0]));
-                break;
-            }
-            case LCompilers::ASRUtils::IntrinsicScalarFunctions::SymbolicExpand: {
-                pass_result.push_back(al, basic_unaryop(loc, "basic_expand", target,
-                    x->m_args[0]));
-                break;
-            }
+            BASIC_CONST(Pi, pi)
+            BASIC_CONST(E, E)
+            BASIC_BINOP(Add, add)
+            BASIC_BINOP(Sub, sub)
+            BASIC_BINOP(Mul, mul)
+            BASIC_BINOP(Div, div)
+            BASIC_BINOP(Pow, pow)
+            BASIC_BINOP(Diff, diff)
+            BASIC_UNARYOP(Sin, sin)
+            BASIC_UNARYOP(Cos, cos)
+            BASIC_UNARYOP(Log, log)
+            BASIC_UNARYOP(Exp, exp)
+            BASIC_UNARYOP(Abs, abs)
+            BASIC_UNARYOP(Expand, expand)
             case LCompilers::ASRUtils::IntrinsicScalarFunctions::SymbolicGetArgument: {
                 // Define necessary function symbols
                 ASR::expr_t* value1 = handle_argument(al, loc, x->m_args[0]);
