@@ -860,8 +860,8 @@ public:
         return ASRUtils::EXPR(ASR::make_Var_t(al, loc, var_sym));
     }
 
-    void process_intrinsic_function(Allocator &al,  const Location &loc, ASR::IntrinsicScalarFunction_t* x, SymbolTable* module_scope,
-        ASR::expr_t* target){
+    void process_intrinsic_function(const Location &loc,
+            ASR::IntrinsicScalarFunction_t* x, ASR::expr_t* target) {
         int64_t intrinsic_id = x->m_intrinsic_id;
         switch (static_cast<LCompilers::ASRUtils::IntrinsicScalarFunctions>(intrinsic_id)) {
             case LCompilers::ASRUtils::IntrinsicScalarFunctions::SymbolicSymbol: {
@@ -1113,7 +1113,7 @@ public:
         } else if (ASR::is_a<ASR::IntrinsicScalarFunction_t>(*x.m_value)) {
             ASR::IntrinsicScalarFunction_t* intrinsic_func = ASR::down_cast<ASR::IntrinsicScalarFunction_t>(x.m_value);
             if (intrinsic_func->m_type->type == ASR::ttypeType::SymbolicExpression) {
-                process_intrinsic_function(al, x.base.base.loc, intrinsic_func, module_scope, x.m_target);
+                process_intrinsic_function(x.base.base.loc, intrinsic_func, x.m_target);
             } else if (intrinsic_func->m_type->type == ASR::ttypeType::Logical) {
                 ASR::expr_t* function_call = process_attributes(al, x.base.base.loc, x.m_value, module_scope);
                 ASR::stmt_t* stmt = ASRUtils::STMT(ASR::make_Assignment_t(al, x.base.base.loc, x.m_target, function_call, nullptr));
@@ -1212,7 +1212,6 @@ public:
     }
 
     void visit_SubroutineCall(const ASR::SubroutineCall_t &x) {
-        SymbolTable* module_scope = current_scope->parent;
         Vec<ASR::call_arg_t> call_args;
         call_args.reserve(al, 1);
 
@@ -1235,7 +1234,7 @@ public:
                 }
 
                 ASR::expr_t* target = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, arg));
-                process_intrinsic_function(al, x.base.base.loc, intrinsic_func, module_scope, target);
+                process_intrinsic_function(x.base.base.loc, intrinsic_func, target);
 
                 ASR::call_arg_t call_arg;
                 call_arg.loc = x.base.base.loc;
@@ -1288,7 +1287,7 @@ public:
                     }
 
                     ASR::expr_t* target = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, arg));
-                    process_intrinsic_function(al, x.base.base.loc, intrinsic_func, module_scope, target);
+                    process_intrinsic_function(x.base.base.loc, intrinsic_func, target);
 
                     // Now create the FunctionCall node for basic_str
                     print_tmp.push_back(basic_str(x.base.base.loc, target));
@@ -1344,8 +1343,6 @@ public:
 
     void visit_IntrinsicFunction(const ASR::IntrinsicScalarFunction_t &x) {
         if(x.m_type && x.m_type->type == ASR::ttypeType::SymbolicExpression) {
-            SymbolTable* module_scope = current_scope->parent;
-
             ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_SymbolicExpression_t(al, x.base.base.loc));
             std::string symengine_var = symengine_stack.push();
             ASR::symbol_t *arg = ASR::down_cast<ASR::symbol_t>(ASR::make_Variable_t(
@@ -1362,7 +1359,7 @@ public:
 
             ASR::IntrinsicScalarFunction_t &xx = const_cast<ASR::IntrinsicScalarFunction_t&>(x);
             ASR::expr_t* target = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, arg));
-            process_intrinsic_function(al, x.base.base.loc, &xx, module_scope, target);
+            process_intrinsic_function(x.base.base.loc, &xx, target);
         }
     }
 
