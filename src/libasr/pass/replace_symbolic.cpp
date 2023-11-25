@@ -74,6 +74,19 @@ public:
                 intrinsic_func->m_args[0]);                                     \
             return iEq(function_call, i32(N)); }
 
+    ASR::stmt_t *SubroutineCall(const Location &loc, ASR::symbol_t *sym,
+            std::vector<ASR::expr_t *> args) {
+        Vec<ASR::call_arg_t> call_args; call_args.reserve(al, args.size());
+        for (auto &x: args) {
+            ASR::call_arg_t call_arg;
+            call_arg.loc = loc;
+            call_arg.m_value = x;
+            call_args.push_back(al, call_arg);
+        }
+        return ASRUtils::STMT(ASR::make_SubroutineCall_t(al, loc, sym,
+            sym, call_args.p, call_args.n, nullptr));
+    }
+
     ASR::symbol_t *create_bindc_function(const Location &loc,
             const std::string &fn_name, std::vector<ASR::ttype_t *> args_type,
             ASR::ttype_t *return_type=nullptr) {
@@ -112,41 +125,20 @@ public:
     ASR::stmt_t *basic_new_stack(const Location &loc, ASR::expr_t *x) {
         ASR::symbol_t* basic_new_stack_sym = create_bindc_function(loc, "basic_new_stack",
             {ASRUtils::TYPE(ASR::make_CPtr_t(al, loc))});
-        Vec<ASR::call_arg_t> call_args; call_args.reserve(al, 1);
-        ASR::call_arg_t call_arg;
-        call_arg.loc = loc;
-        call_arg.m_value = x;
-        call_args.push_back(al, call_arg);
-        return ASRUtils::STMT(ASR::make_SubroutineCall_t(al, loc, basic_new_stack_sym,
-                    basic_new_stack_sym, call_args.p, call_args.n, nullptr));
+        return SubroutineCall(loc, basic_new_stack_sym, {x});
     }
 
     ASR::stmt_t *basic_free_stack(const Location &loc, ASR::expr_t *x) {
         ASR::symbol_t* basic_free_stack_sym = create_bindc_function(loc, "basic_free_stack",
             {ASRUtils::TYPE(ASR::make_CPtr_t(al, loc))});
-        Vec<ASR::call_arg_t> call_args; call_args.reserve(al, 1);
-        ASR::call_arg_t call_arg;
-        call_arg.loc = loc;
-        call_arg.m_value = x;
-        call_args.push_back(al, call_arg);
-        return ASRUtils::STMT(ASR::make_SubroutineCall_t(al, loc, basic_free_stack_sym,
-            basic_free_stack_sym, call_args.p, call_args.n, nullptr));
+        return SubroutineCall(loc, basic_free_stack_sym, {x});
     }
 
     ASR::stmt_t* basic_get_args(const Location& loc, ASR::expr_t *x, ASR::expr_t *y) {
         ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_CPtr_t(al, loc));
         ASR::symbol_t* basic_get_args_sym = create_bindc_function(loc,
             "basic_get_args", {type, type});
-        Vec<ASR::call_arg_t> call_args;
-        call_args.reserve(al, 2);
-        ASR::call_arg_t call_arg;
-        call_arg.loc = loc;
-        call_arg.m_value = x;
-        call_args.push_back(al, call_arg);
-        call_arg.m_value = y;
-        call_args.push_back(al, call_arg);
-        return ASRUtils::STMT(ASR::make_SubroutineCall_t(al, loc, basic_get_args_sym,
-            basic_get_args_sym, call_args.p, call_args.n, nullptr));
+        return SubroutineCall(loc, basic_get_args_sym, {x, y});
     }
 
     ASR::expr_t *vecbasic_new(const Location& loc) {
@@ -188,18 +180,7 @@ public:
         ASR::ttype_t *cptr_type = ASRUtils::TYPE(ASR::make_CPtr_t(al, loc));
         ASR::symbol_t* vecbasic_get_sym = create_bindc_function(loc, "vecbasic_get",
             {cptr_type, ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4)), cptr_type});
-        Vec<ASR::call_arg_t> call_args;
-        call_args.reserve(al, 3);
-        ASR::call_arg_t call_arg;
-        call_arg.loc = loc;
-        call_arg.m_value = x;
-        call_args.push_back(al, call_arg);
-        call_arg.m_value = y;
-        call_args.push_back(al, call_arg);
-        call_arg.m_value = z;
-        call_args.push_back(al, call_arg);
-        return ASRUtils::STMT(ASR::make_SubroutineCall_t(al, loc, vecbasic_get_sym,
-            vecbasic_get_sym, call_args.p, call_args.n, nullptr));
+        return SubroutineCall(loc, vecbasic_get_sym, {x, y, z});
     }
 
     ASR::expr_t *vecbasic_size(const Location& loc, ASR::expr_t *x) {
@@ -222,16 +203,7 @@ public:
         ASR::ttype_t *cptr_type = ASRUtils::TYPE(ASR::make_CPtr_t(al, loc));
         ASR::symbol_t* basic_assign_sym = create_bindc_function(loc, "basic_assign",
             {cptr_type, cptr_type});
-        Vec<ASR::call_arg_t> call_args;
-        call_args.reserve(al, 2);
-        ASR::call_arg_t call_arg;
-        call_arg.loc = loc;
-        call_arg.m_value = target;
-        call_args.push_back(al, call_arg);
-        call_arg.m_value = value;
-        call_args.push_back(al, call_arg);
-        return ASRUtils::STMT(ASR::make_SubroutineCall_t(al, loc, basic_assign_sym,
-            basic_assign_sym, call_args.p, call_args.n, nullptr));
+        return SubroutineCall(loc, basic_assign_sym, {target, value});
     }
 
     ASR::expr_t* basic_str(const Location& loc, ASR::expr_t *x) {
@@ -285,48 +257,21 @@ public:
         ASR::symbol_t* integer_set_si_sym = create_bindc_function(loc,
             "integer_set_si", {ASRUtils::TYPE(ASR::make_CPtr_t(al, loc)),
             ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 8))});
-        Vec<ASR::call_arg_t> call_args;
-        call_args.reserve(al, 2);
-        ASR::call_arg_t call_arg;
-        call_arg.loc = loc;
-        call_arg.m_value = target;
-        call_args.push_back(al, call_arg);
-        call_arg.m_value = value;
-        call_args.push_back(al, call_arg);
-
-        return ASRUtils::STMT(ASR::make_SubroutineCall_t(al, loc, integer_set_si_sym,
-            integer_set_si_sym, call_args.p, call_args.n, nullptr));
+        return SubroutineCall(loc, integer_set_si_sym, {target, value});
     }
 
     ASR::stmt_t *symbol_set(const Location &loc, ASR::expr_t *target, ASR::expr_t *value) {
         ASR::symbol_t* symbol_set_sym = create_bindc_function(loc, "symbol_set",
             {ASRUtils::TYPE(ASR::make_CPtr_t(al, loc)), ASRUtils::TYPE(
             ASR::make_Character_t(al, loc, 1, -2, nullptr))});
-        Vec<ASR::call_arg_t> call_args;
-        call_args.reserve(al, 2);
-        ASR::call_arg_t call_arg;
-        call_arg.loc = loc;
-        call_arg.m_value = target;
-        call_args.push_back(al, call_arg);
-        call_arg.m_value = value;
-        call_args.push_back(al, call_arg);
-
-        return ASRUtils::STMT(ASR::make_SubroutineCall_t(al, loc, symbol_set_sym,
-            symbol_set_sym, call_args.p, call_args.n, nullptr));
+        return SubroutineCall(loc, symbol_set_sym, {target, value});
     }
 
     ASR::stmt_t *basic_const(const Location &loc,
             const std::string &fn_name, ASR::expr_t* value) {
         ASR::symbol_t* basic_const_sym = create_bindc_function(loc, fn_name,
             {ASRUtils::TYPE(ASR::make_CPtr_t(al, loc))});
-        Vec<ASR::call_arg_t> call_args;
-        call_args.reserve(al, 1);
-        ASR::call_arg_t call_arg;
-        call_arg.loc = loc;
-        call_arg.m_value = value;
-        call_args.push_back(al, call_arg);
-        return ASRUtils::STMT(ASR::make_SubroutineCall_t(al, loc,
-            basic_const_sym, basic_const_sym, call_args.p, call_args.n, nullptr));
+        return SubroutineCall(loc, basic_const_sym, {value});
     }
 
     ASR::stmt_t *basic_binop(const Location &loc, const std::string &fn_name,
@@ -334,20 +279,8 @@ public:
         ASR::ttype_t *cptr_type = ASRUtils::TYPE(ASR::make_CPtr_t(al, loc));
         ASR::symbol_t* basic_binop_sym = create_bindc_function(loc, fn_name,
             {cptr_type, cptr_type, cptr_type});
-
-        Vec<ASR::call_arg_t> call_args;
-        call_args.reserve(al, 3);
-        ASR::call_arg_t call_arg;
-        call_arg.loc = loc;
-        call_arg.m_value = target;
-        call_args.push_back(al, call_arg);
-        call_arg.m_value = handle_argument(al, loc, op_01);
-        call_args.push_back(al, call_arg);
-        call_arg.m_value = handle_argument(al, loc, op_02);
-        call_args.push_back(al, call_arg);
-
-        return ASRUtils::STMT(ASR::make_SubroutineCall_t(al, loc, basic_binop_sym,
-            basic_binop_sym, call_args.p, call_args.n, nullptr));
+        return SubroutineCall(loc, basic_binop_sym, {target,
+            handle_argument(al, loc, op_01), handle_argument(al, loc, op_02)});
     }
 
     ASR::stmt_t *basic_unaryop(const Location &loc, const std::string &fn_name,
@@ -355,17 +288,8 @@ public:
         ASR::symbol_t* basic_unaryop_sym = create_bindc_function(loc, fn_name,
             {ASRUtils::TYPE(ASR::make_CPtr_t(al, loc)), ASRUtils::TYPE(
             ASR::make_CPtr_t(al, loc))});
-        Vec<ASR::call_arg_t> call_args;
-        call_args.reserve(al, 2);
-        ASR::call_arg_t call_arg;
-        call_arg.loc = loc;
-        call_arg.m_value = target;
-        call_args.push_back(al, call_arg);
-        call_arg.m_value = handle_argument(al, loc, op_01);
-        call_args.push_back(al, call_arg);
-
-        return ASRUtils::STMT(ASR::make_SubroutineCall_t(al, loc, basic_unaryop_sym,
-            basic_unaryop_sym, call_args.p, call_args.n, nullptr));
+        return SubroutineCall(loc, basic_unaryop_sym, {target,
+            handle_argument(al, loc, op_01)});
     }
 
     ASR::expr_t *basic_has_symbol(const Location &loc, ASR::expr_t *value_01, ASR::expr_t *value_02) {
