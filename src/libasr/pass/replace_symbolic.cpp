@@ -155,20 +155,6 @@ public:
         }
         transform_stmts(xx.m_body, xx.n_body);
 
-        SetChar function_dependencies;
-        function_dependencies.n = 0;
-        function_dependencies.reserve(al, 1);
-        for( size_t i = 0; i < xx.n_dependencies; i++ ) {
-            function_dependencies.push_back(al, xx.m_dependencies[i]);
-        }
-        for( size_t i = 0; i < symbolic_dependencies.size(); i++ ) {
-            function_dependencies.push_back(al, s2c(al, symbolic_dependencies[i]));
-        }
-        symbolic_dependencies.clear();
-        xx.n_dependencies = function_dependencies.size();
-        xx.m_dependencies = function_dependencies.p;
-        this->current_scope = current_scope_copy;
-
         // freeing out variables
         if (!symbolic_vars_to_free.empty()) {
             Vec<ASR::stmt_t*> func_body;
@@ -184,6 +170,16 @@ public:
             xx.m_body = func_body.p;
             symbolic_vars_to_free.clear();
         }
+
+        SetChar function_dependencies;
+        function_dependencies.from_pointer_n_copy(al, xx.m_dependencies, xx.n_dependencies);
+        for( size_t i = 0; i < symbolic_dependencies.size(); i++ ) {
+            function_dependencies.push_back(al, s2c(al, symbolic_dependencies[i]));
+        }
+        symbolic_dependencies.clear();
+        xx.n_dependencies = function_dependencies.size();
+        xx.m_dependencies = function_dependencies.p;
+        this->current_scope = current_scope_copy;
     }
 
     void visit_Variable(const ASR::Variable_t& x) {
