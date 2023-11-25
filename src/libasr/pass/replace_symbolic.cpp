@@ -87,6 +87,19 @@ public:
             sym, call_args.p, call_args.n, nullptr));
     }
 
+    ASR::expr_t *FunctionCall(const Location &loc, ASR::symbol_t *sym,
+            std::vector<ASR::expr_t *> args, ASR::ttype_t *return_type) {
+        Vec<ASR::call_arg_t> call_args; call_args.reserve(al, args.size());
+        for (auto &x: args) {
+            ASR::call_arg_t call_arg;
+            call_arg.loc = loc;
+            call_arg.m_value = x;
+            call_args.push_back(al, call_arg);
+        }
+        return ASRUtils::EXPR(ASRUtils::make_FunctionCall_t_util(al, loc,
+            sym, sym, call_args.p, call_args.n, return_type, nullptr, nullptr));
+    }
+
     ASR::symbol_t *create_bindc_function(const Location &loc,
             const std::string &fn_name, std::vector<ASR::ttype_t *> args_type,
             ASR::ttype_t *return_type=nullptr) {
@@ -187,15 +200,8 @@ public:
         ASR::symbol_t* vecbasic_size_sym = create_bindc_function(loc,
             "vecbasic_size", {ASRUtils::TYPE(ASR::make_CPtr_t(al, loc))},
             ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4)));
-        Vec<ASR::call_arg_t> call_args;
-        call_args.reserve(al, 1);
-        ASR::call_arg_t call_arg;
-        call_arg.loc = loc;
-        call_arg.m_value = x;
-        call_args.push_back(al, call_arg);
-        return ASRUtils::EXPR(ASRUtils::make_FunctionCall_t_util(al, loc,
-            vecbasic_size_sym, vecbasic_size_sym, call_args.p, call_args.n,
-            ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4)), nullptr, nullptr));
+        return FunctionCall(loc, vecbasic_size_sym, {x},
+            ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4)));
     }
 
     ASR::stmt_t* basic_assign(const Location& loc,
@@ -210,28 +216,16 @@ public:
         ASR::symbol_t* basic_str_sym = create_bindc_function(loc,
             "basic_str", {ASRUtils::TYPE(ASR::make_CPtr_t(al, loc))},
             ASRUtils::TYPE(ASR::make_Character_t(al, loc, 1, -2, nullptr)));
-        Vec<ASR::call_arg_t> call_args; call_args.reserve(al, 1);
-        ASR::call_arg_t call_arg;
-        call_arg.loc = loc;
-        call_arg.m_value = x;
-        call_args.push_back(al, call_arg);
-        return ASRUtils::EXPR(ASRUtils::make_FunctionCall_t_util(al, loc,
-            basic_str_sym, basic_str_sym, call_args.p, call_args.n,
-            ASRUtils::TYPE(ASR::make_Character_t(al, loc, 1, -2, nullptr)), nullptr, nullptr));
+        return FunctionCall(loc, basic_str_sym, {x},
+            ASRUtils::TYPE(ASR::make_Character_t(al, loc, 1, -2, nullptr)));
     }
 
     ASR::expr_t* basic_get_type(const Location& loc, ASR::expr_t* value) {
         ASR::symbol_t* basic_get_type_sym = create_bindc_function(loc,
             "basic_get_type", {ASRUtils::TYPE(ASR::make_CPtr_t(al, loc))},
             ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4)));
-        Vec<ASR::call_arg_t> call_args; call_args.reserve(al, 1);
-        ASR::call_arg_t call_arg;
-        call_arg.loc = loc;
-        call_arg.m_value = handle_argument(al, loc, value);
-        call_args.push_back(al, call_arg);
-        return ASRUtils::EXPR(ASRUtils::make_FunctionCall_t_util(al, loc,
-            basic_get_type_sym, basic_get_type_sym, call_args.p, call_args.n,
-            ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4)), nullptr, nullptr));
+        return FunctionCall(loc, basic_get_type_sym, {handle_argument(al, loc, value)},
+            ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4)));
     }
 
     ASR::expr_t* basic_compare(const Location& loc,
@@ -239,17 +233,8 @@ public:
         ASR::symbol_t* basic_compare_sym = create_bindc_function(loc,
             fn_name, {ASRUtils::TYPE(ASR::make_CPtr_t(al, loc)), ASRUtils::TYPE(ASR::make_CPtr_t(al, loc))},
             ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4)));
-        Vec<ASR::call_arg_t> call_args;
-        call_args.reserve(al, 1);
-        ASR::call_arg_t call_arg;
-        call_arg.loc = loc;
-        call_arg.m_value = handle_argument(al, loc, left);
-        call_args.push_back(al, call_arg);
-        call_arg.m_value = handle_argument(al, loc, right);
-        call_args.push_back(al, call_arg);
-        return ASRUtils::EXPR(ASRUtils::make_FunctionCall_t_util(al, loc,
-            basic_compare_sym, basic_compare_sym, call_args.p, call_args.n,
-            ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4)), nullptr, nullptr));
+        return FunctionCall(loc, basic_compare_sym, {handle_argument(al, loc, left),
+            handle_argument(al, loc, right)}, ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4)));
     }
 
     ASR::stmt_t* integer_set_si(const Location& loc, ASR::expr_t *target,
@@ -296,18 +281,9 @@ public:
         ASR::symbol_t* basic_has_symbol_sym = create_bindc_function(loc,
             "basic_has_symbol", {ASRUtils::TYPE(ASR::make_CPtr_t(al, loc)), ASRUtils::TYPE(ASR::make_CPtr_t(al, loc))},
             ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4)));
-        Vec<ASR::call_arg_t> call_args;
-        call_args.reserve(al, 1);
-        ASR::call_arg_t call_arg1, call_arg2;
-        call_arg1.loc = loc;
-        call_arg1.m_value = handle_argument(al, loc, value_01);
-        call_args.push_back(al, call_arg1);
-        call_arg2.loc = loc;
-        call_arg2.m_value = handle_argument(al, loc, value_02);
-        call_args.push_back(al, call_arg2);
-        return ASRUtils::EXPR(ASRUtils::make_FunctionCall_t_util(al, loc,
-            basic_has_symbol_sym, basic_has_symbol_sym, call_args.p, call_args.n,
-            ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4)), nullptr, nullptr));
+        return FunctionCall(loc, basic_has_symbol_sym,
+            {handle_argument(al, loc, value_01), handle_argument(al, loc, value_02)},
+            ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4)));
     }
     /********************************** Utils *********************************/
 
