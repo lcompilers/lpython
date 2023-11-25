@@ -747,6 +747,58 @@ public:
         return ASRUtils::STMT(ASR::make_SubroutineCall_t(al, loc, basic_unaryop_sym,
             basic_unaryop_sym, call_args.p, call_args.n, nullptr));
     }
+
+    ASR::expr_t *basic_has_symbol(const Location &loc, ASR::expr_t *value_01, ASR::expr_t *value_02) {
+        std::string fn_name = "basic_has_symbol";
+        symbolic_dependencies.push_back(fn_name);
+        ASR::symbol_t *basic_has_symbol_sym = current_scope->resolve_symbol(fn_name);
+        if ( !basic_has_symbol_sym ) {
+            std::string header = "symengine/cwrapper.h";
+            SymbolTable* fn_symtab = al.make_new<SymbolTable>(current_scope->parent);
+
+            Vec<ASR::expr_t*> args; args.reserve(al, 1);
+            ASR::symbol_t* arg1 = ASR::down_cast<ASR::symbol_t>(ASR::make_Variable_t(
+                al, loc, fn_symtab, s2c(al, "_lpython_return_variable"), nullptr, 0, ASR::intentType::ReturnVar,
+                nullptr, nullptr, ASR::storage_typeType::Default, ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4)),
+                nullptr, ASR::abiType::BindC, ASR::Public, ASR::presenceType::Required, false));
+            fn_symtab->add_symbol(s2c(al, "_lpython_return_variable"), arg1);
+            ASR::symbol_t* arg2 = ASR::down_cast<ASR::symbol_t>(ASR::make_Variable_t(
+                al, loc, fn_symtab, s2c(al, "x"), nullptr, 0, ASR::intentType::In,
+                nullptr, nullptr, ASR::storage_typeType::Default, ASRUtils::TYPE(ASR::make_CPtr_t(al, loc)),
+                nullptr, ASR::abiType::BindC, ASR::Public, ASR::presenceType::Required, true));
+            fn_symtab->add_symbol(s2c(al, "x"), arg2);
+            args.push_back(al, ASRUtils::EXPR(ASR::make_Var_t(al, loc, arg2)));
+            ASR::symbol_t* arg3 = ASR::down_cast<ASR::symbol_t>(ASR::make_Variable_t(
+                al, loc, fn_symtab, s2c(al, "y"), nullptr, 0, ASR::intentType::In,
+                nullptr, nullptr, ASR::storage_typeType::Default, ASRUtils::TYPE(ASR::make_CPtr_t(al, loc)),
+                nullptr, ASR::abiType::BindC, ASR::Public, ASR::presenceType::Required, true));
+            fn_symtab->add_symbol(s2c(al, "y"), arg3);
+            args.push_back(al, ASRUtils::EXPR(ASR::make_Var_t(al, loc, arg3)));
+
+            Vec<ASR::stmt_t*> body; body.reserve(al, 1);
+            Vec<char*> dep; dep.reserve(al, 1);
+            ASR::expr_t* return_var = ASRUtils::EXPR(ASR::make_Var_t(al, loc, arg1));
+            basic_has_symbol_sym = ASR::down_cast<ASR::symbol_t>(ASRUtils::make_Function_t_util(al, loc,
+                fn_symtab, s2c(al, fn_name), dep.p, dep.n, args.p, args.n, body.p, body.n,
+                return_var, ASR::abiType::BindC, ASR::accessType::Public,
+                ASR::deftypeType::Interface, s2c(al, fn_name), false, false, false,
+                false, false, nullptr, 0, false, false, false, s2c(al, header)));
+            current_scope->parent->add_symbol(s2c(al, fn_name), basic_has_symbol_sym);
+        }
+
+        Vec<ASR::call_arg_t> call_args;
+        call_args.reserve(al, 1);
+        ASR::call_arg_t call_arg1, call_arg2;
+        call_arg1.loc = loc;
+        call_arg1.m_value = handle_argument(al, loc, value_01);
+        call_args.push_back(al, call_arg1);
+        call_arg2.loc = loc;
+        call_arg2.m_value = handle_argument(al, loc, value_02);
+        call_args.push_back(al, call_arg2);
+        return ASRUtils::EXPR(ASRUtils::make_FunctionCall_t_util(al, loc,
+            basic_has_symbol_sym, basic_has_symbol_sym, call_args.p, call_args.n,
+            ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4)), nullptr, nullptr));
+    }
     /********************************** Utils *********************************/
 
     void visit_Function(const ASR::Function_t &x) {
@@ -958,64 +1010,8 @@ public:
             int64_t intrinsic_id = intrinsic_func->m_intrinsic_id;
             switch (static_cast<LCompilers::ASRUtils::IntrinsicScalarFunctions>(intrinsic_id)) {
                 case LCompilers::ASRUtils::IntrinsicScalarFunctions::SymbolicHasSymbolQ: {
-                    std::string name = "basic_has_symbol";
-                    symbolic_dependencies.push_back(name);
-                    if (!module_scope->get_symbol(name)) {
-                        std::string header = "symengine/cwrapper.h";
-                        SymbolTable* fn_symtab = al.make_new<SymbolTable>(module_scope);
-
-                        Vec<ASR::expr_t*> args;
-                        args.reserve(al, 1);
-                        ASR::symbol_t* arg1 = ASR::down_cast<ASR::symbol_t>(ASR::make_Variable_t(
-                            al, loc, fn_symtab, s2c(al, "_lpython_return_variable"), nullptr, 0, ASR::intentType::ReturnVar,
-                            nullptr, nullptr, ASR::storage_typeType::Default, ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4)),
-                            nullptr, ASR::abiType::BindC, ASR::Public, ASR::presenceType::Required, false));
-                        fn_symtab->add_symbol(s2c(al, "_lpython_return_variable"), arg1);
-                        ASR::symbol_t* arg2 = ASR::down_cast<ASR::symbol_t>(ASR::make_Variable_t(
-                            al, loc, fn_symtab, s2c(al, "x"), nullptr, 0, ASR::intentType::In,
-                            nullptr, nullptr, ASR::storage_typeType::Default, ASRUtils::TYPE(ASR::make_CPtr_t(al, loc)),
-                            nullptr, ASR::abiType::BindC, ASR::Public, ASR::presenceType::Required, true));
-                        fn_symtab->add_symbol(s2c(al, "x"), arg2);
-                        args.push_back(al, ASRUtils::EXPR(ASR::make_Var_t(al, loc, arg2)));
-                        ASR::symbol_t* arg3 = ASR::down_cast<ASR::symbol_t>(ASR::make_Variable_t(
-                            al, loc, fn_symtab, s2c(al, "y"), nullptr, 0, ASR::intentType::In,
-                            nullptr, nullptr, ASR::storage_typeType::Default, ASRUtils::TYPE(ASR::make_CPtr_t(al, loc)),
-                            nullptr, ASR::abiType::BindC, ASR::Public, ASR::presenceType::Required, true));
-                        fn_symtab->add_symbol(s2c(al, "y"), arg3);
-                        args.push_back(al, ASRUtils::EXPR(ASR::make_Var_t(al, loc, arg3)));
-
-                        Vec<ASR::stmt_t*> body;
-                        body.reserve(al, 1);
-
-                        Vec<char*> dep;
-                        dep.reserve(al, 1);
-
-                        ASR::expr_t* return_var = ASRUtils::EXPR(ASR::make_Var_t(al, loc, fn_symtab->get_symbol("_lpython_return_variable")));
-                        ASR::asr_t* subrout = ASRUtils::make_Function_t_util(al, loc,
-                            fn_symtab, s2c(al, name), dep.p, dep.n, args.p, args.n, body.p, body.n,
-                            return_var, ASR::abiType::BindC, ASR::accessType::Public,
-                            ASR::deftypeType::Interface, s2c(al, name), false, false, false,
-                            false, false, nullptr, 0, false, false, false, s2c(al, header));
-                        ASR::symbol_t* symbol = ASR::down_cast<ASR::symbol_t>(subrout);
-                        module_scope->add_symbol(s2c(al, name), symbol);
-                    }
-
-                    ASR::symbol_t* basic_has_symbol = module_scope->get_symbol(name);
-                    ASR::expr_t* value1 = handle_argument(al, loc, intrinsic_func->m_args[0]);
-                    ASR::expr_t* value2 = handle_argument(al, loc, intrinsic_func->m_args[1]);
-                    Vec<ASR::call_arg_t> call_args;
-                    call_args.reserve(al, 1);
-                    ASR::call_arg_t call_arg1, call_arg2;
-                    call_arg1.loc = loc;
-                    call_arg1.m_value = value1;
-                    call_args.push_back(al, call_arg1);
-                    call_arg2.loc = loc;
-                    call_arg2.m_value = value2;
-                    call_args.push_back(al, call_arg2);
-                    return ASRUtils::EXPR(ASRUtils::make_FunctionCall_t_util(al, loc,
-                        basic_has_symbol, basic_has_symbol, call_args.p, call_args.n,
-                        ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4)), nullptr, nullptr));
-                    break;
+                    return basic_has_symbol(loc, intrinsic_func->m_args[0],
+                        intrinsic_func->m_args[1]);
                 }
                 // (sym_name, n) where n = 16, 15, ... as the right value of the
                 // IntegerCompare node as it represents SYMENGINE_ADD through SYMENGINE_ENUM
