@@ -264,6 +264,50 @@ public:
         return ASRUtils::STMT(ASR::make_SubroutineCall_t(al, loc, vecbasic_get_sym,
             vecbasic_get_sym, call_args.p, call_args.n, nullptr));
     }
+
+    ASR::expr_t *vecbasic_size(const Location& loc, ASR::expr_t *x) {
+        std::string fn_name = "vecbasic_size";
+        symbolic_dependencies.push_back(fn_name);
+        ASR::symbol_t *vecbasic_size_sym = current_scope->resolve_symbol(fn_name);
+        if ( !vecbasic_size_sym ) {
+            std::string header = "symengine/cwrapper.h";
+            SymbolTable* fn_symtab = al.make_new<SymbolTable>(current_scope->parent);
+
+            Vec<ASR::expr_t*> args; args.reserve(al, 1);
+            char *return_var_name = s2c(al, "_lpython_return_variable");
+            ASR::symbol_t* arg1 = ASR::down_cast<ASR::symbol_t>(ASR::make_Variable_t(
+                al, loc, fn_symtab, return_var_name, nullptr, 0, ASR::intentType::ReturnVar,
+                nullptr, nullptr, ASR::storage_typeType::Default, ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4)),
+                nullptr, ASR::abiType::BindC, ASR::Public, ASR::presenceType::Required, false));
+            fn_symtab->add_symbol(return_var_name, arg1);
+            ASR::symbol_t* arg2 = ASR::down_cast<ASR::symbol_t>(ASR::make_Variable_t(
+                al, loc, fn_symtab, s2c(al, "x"), nullptr, 0, ASR::intentType::In,
+                nullptr, nullptr, ASR::storage_typeType::Default, ASRUtils::TYPE(ASR::make_CPtr_t(al, loc)),
+                nullptr, ASR::abiType::BindC, ASR::Public, ASR::presenceType::Required, true));
+            fn_symtab->add_symbol(s2c(al, "x"), arg2);
+            args.push_back(al, ASRUtils::EXPR(ASR::make_Var_t(al, loc, arg2)));
+
+            Vec<ASR::stmt_t*> body; body.reserve(al, 1);
+            Vec<char*> dep; dep.reserve(al, 1);
+            ASR::expr_t* return_var = ASRUtils::EXPR(ASR::make_Var_t(al, loc, arg1));
+            vecbasic_size_sym = ASR::down_cast<ASR::symbol_t>(
+                ASRUtils::make_Function_t_util(al, loc, fn_symtab, s2c(al, fn_name),
+                dep.p, dep.n, args.p, args.n, body.p, body.n,
+                return_var, ASR::abiType::BindC, ASR::accessType::Public,
+                ASR::deftypeType::Interface, s2c(al, fn_name), false, false, false,
+                false, false, nullptr, 0, false, false, false, s2c(al, header)));
+            current_scope->parent->add_symbol(s2c(al, fn_name), vecbasic_size_sym);
+        }
+        Vec<ASR::call_arg_t> call_args;
+        call_args.reserve(al, 1);
+        ASR::call_arg_t call_arg;
+        call_arg.loc = loc;
+        call_arg.m_value = x;
+        call_args.push_back(al, call_arg);
+        return ASRUtils::EXPR(ASRUtils::make_FunctionCall_t_util(al, loc,
+            vecbasic_size_sym, vecbasic_size_sym, call_args.p, call_args.n,
+            ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4)), nullptr, nullptr));
+    }
     /********************************** Utils *********************************/
 
     void visit_Function(const ASR::Function_t &x) {
@@ -694,7 +738,6 @@ public:
             case LCompilers::ASRUtils::IntrinsicScalarFunctions::SymbolicGetArgument: {
                 // Define necessary function symbols
                 ASR::expr_t* value1 = handle_argument(al, loc, x->m_args[0]);
-                ASR::symbol_t* vecbasic_size_sym = declare_vecbasic_size_function(al, loc, module_scope);
 
                 // Define necessary variables
                 ASR::ttype_t* CPtr_type = ASRUtils::TYPE(ASR::make_CPtr_t(al, loc));
@@ -715,15 +758,7 @@ public:
                 pass_result.push_back(al, basic_get_args(loc, value1, args));
 
                 // Statement 3
-                Vec<ASR::call_arg_t> call_args3;
-                call_args3.reserve(al, 1);
-                ASR::call_arg_t call_arg3;
-                call_arg3.loc = loc;
-                call_arg3.m_value = args;
-                call_args3.push_back(al, call_arg3);
-                ASR::expr_t* function_call2 = ASRUtils::EXPR(ASRUtils::make_FunctionCall_t_util(al, loc,
-                    vecbasic_size_sym, vecbasic_size_sym, call_args3.p, call_args3.n,
-                    ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4)), nullptr, nullptr));
+                ASR::expr_t* function_call2 = vecbasic_size(loc, args);
                 ASR::expr_t* test = ASRUtils::EXPR(ASR::make_IntegerCompare_t(al, loc, function_call2, ASR::cmpopType::Gt,
                         x->m_args[1], ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4)), nullptr));
                 std::string error_str = "tuple index out of range";
@@ -864,45 +899,6 @@ public:
 
     ASR::symbol_t* declare_basic_get_type_function(Allocator& al, const Location& loc, SymbolTable* module_scope) {
         std::string name = "basic_get_type";
-        symbolic_dependencies.push_back(name);
-        if (!module_scope->get_symbol(name)) {
-            std::string header = "symengine/cwrapper.h";
-            SymbolTable* fn_symtab = al.make_new<SymbolTable>(module_scope);
-
-            Vec<ASR::expr_t*> args;
-            args.reserve(al, 1);
-            ASR::symbol_t* arg1 = ASR::down_cast<ASR::symbol_t>(ASR::make_Variable_t(
-                al, loc, fn_symtab, s2c(al, "_lpython_return_variable"), nullptr, 0, ASR::intentType::ReturnVar,
-                nullptr, nullptr, ASR::storage_typeType::Default, ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4)),
-                nullptr, ASR::abiType::BindC, ASR::Public, ASR::presenceType::Required, false));
-            fn_symtab->add_symbol(s2c(al, "_lpython_return_variable"), arg1);
-            ASR::symbol_t* arg2 = ASR::down_cast<ASR::symbol_t>(ASR::make_Variable_t(
-                al, loc, fn_symtab, s2c(al, "x"), nullptr, 0, ASR::intentType::In,
-                nullptr, nullptr, ASR::storage_typeType::Default, ASRUtils::TYPE(ASR::make_CPtr_t(al, loc)),
-                nullptr, ASR::abiType::BindC, ASR::Public, ASR::presenceType::Required, true));
-            fn_symtab->add_symbol(s2c(al, "x"), arg2);
-            args.push_back(al, ASRUtils::EXPR(ASR::make_Var_t(al, loc, arg2)));
-
-            Vec<ASR::stmt_t*> body;
-            body.reserve(al, 1);
-
-            Vec<char*> dep;
-            dep.reserve(al, 1);
-
-            ASR::expr_t* return_var = ASRUtils::EXPR(ASR::make_Var_t(al, loc, fn_symtab->get_symbol("_lpython_return_variable")));
-            ASR::asr_t* subrout = ASRUtils::make_Function_t_util(al, loc,
-                fn_symtab, s2c(al, name), dep.p, dep.n, args.p, args.n, body.p, body.n,
-                return_var, ASR::abiType::BindC, ASR::accessType::Public,
-                ASR::deftypeType::Interface, s2c(al, name), false, false, false,
-                false, false, nullptr, 0, false, false, false, s2c(al, header));
-            ASR::symbol_t* symbol = ASR::down_cast<ASR::symbol_t>(subrout);
-            module_scope->add_symbol(s2c(al, name), symbol);
-        }
-        return module_scope->get_symbol(name);
-    }
-
-    ASR::symbol_t* declare_vecbasic_size_function(Allocator& al, const Location& loc, SymbolTable* module_scope) {
-        std::string name = "vecbasic_size";
         symbolic_dependencies.push_back(name);
         if (!module_scope->get_symbol(name)) {
             std::string header = "symengine/cwrapper.h";
