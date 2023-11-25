@@ -110,10 +110,10 @@ public:
             std::string header = "symengine/cwrapper.h";
             SymbolTable *fn_symtab = al.make_new<SymbolTable>(current_scope->parent);
 
-            Vec<ASR::expr_t*> args; args.reserve(al, 1);
-            for (size_t i = 0; i < args_type.size(); i ++) {
-                std::string arg_name = "x_0" + std::to_string(i+1);
-                args.push_back(al, b.Variable(fn_symtab, arg_name, args_type[i],
+            Vec<ASR::expr_t*> args; args.reserve(al, 1); int i = 1;
+            for (auto &type: args_type) {
+                std::string arg_name = "x_0" + std::to_string(i); i++;
+                args.push_back(al, b.Variable(fn_symtab, arg_name, type,
                     ASR::intentType::In, ASR::abiType::BindC, true));
             }
             ASR::expr_t *return_var = nullptr;
@@ -155,38 +155,11 @@ public:
     }
 
     ASR::expr_t *vecbasic_new(const Location& loc) {
-        std::string fn_name = "vecbasic_new";
-        symbolic_dependencies.push_back(fn_name);
-        ASR::symbol_t *vecbasic_new_sym = current_scope->resolve_symbol(fn_name);
-        if ( !vecbasic_new_sym ) {
-            std::string header = "symengine/cwrapper.h";
-            SymbolTable* fn_symtab = al.make_new<SymbolTable>(current_scope->parent);
-
-            Vec<ASR::expr_t*> args;
-            args.reserve(al, 1);
-            char *arg_name = s2c(al, "_lpython_return_variable");
-            ASR::symbol_t* arg1 = ASR::down_cast<ASR::symbol_t>(
-                ASR::make_Variable_t(al, loc, fn_symtab, arg_name, nullptr, 0,
-                ASR::intentType::ReturnVar, nullptr, nullptr,
-                ASR::storage_typeType::Default, ASRUtils::TYPE((ASR::make_CPtr_t(al, loc))),
-                nullptr, ASR::abiType::BindC, ASR::Public, ASR::presenceType::Required, false));
-            fn_symtab->add_symbol(arg_name, arg1);
-
-            Vec<ASR::stmt_t*> body; body.reserve(al, 1);
-            Vec<char*> dep; dep.reserve(al, 1);
-            ASR::expr_t* return_var = ASRUtils::EXPR(ASR::make_Var_t(al, loc, arg1));
-            vecbasic_new_sym = ASR::down_cast<ASR::symbol_t>(
-                ASRUtils::make_Function_t_util(al, loc, fn_symtab, s2c(al, fn_name),
-                dep.p, dep.n, args.p, args.n, body.p, body.n, return_var,
-                ASR::abiType::BindC, ASR::accessType::Public,
-                ASR::deftypeType::Interface, s2c(al, fn_name), false, false, false,
-                false, false, nullptr, 0, false, false, false, s2c(al, header)));
-            current_scope->parent->add_symbol(s2c(al, fn_name), vecbasic_new_sym);
-        }
+        ASR::symbol_t* vecbasic_new_sym = create_bindc_function(loc,
+            "vecbasic_new", {}, ASRUtils::TYPE((ASR::make_CPtr_t(al, loc))));
         Vec<ASR::call_arg_t> call_args; call_args.reserve(al, 1);
-        return ASRUtils::EXPR(ASRUtils::make_FunctionCall_t_util(al, loc,
-            vecbasic_new_sym, vecbasic_new_sym, call_args.p, call_args.n,
-            ASRUtils::TYPE(ASR::make_CPtr_t(al, loc)), nullptr, nullptr));
+        return FunctionCall(loc, vecbasic_new_sym, {},
+            ASRUtils::TYPE(ASR::make_CPtr_t(al, loc)));
     }
 
     ASR::stmt_t* vecbasic_get(const Location& loc, ASR::expr_t *x, ASR::expr_t *y, ASR::expr_t *z) {
