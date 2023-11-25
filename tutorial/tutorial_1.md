@@ -125,3 +125,68 @@ https://github.com/lcompilers/lpython/issues.
 ```
 
 Similarly, please note that the default type of float is `f64`.
+
+### Functions
+
+Functions in LPython are also strictly typed, meaning, each function
+argument should have a type. The function also needs to have a return
+type (if it returns a value).
+
+Consider the following example of how function looks
+```
+% cat func1.py
+from lpython import i32
+
+def function_void_example():
+    print("This function has no args and return type.")
+
+def function_with_args_and_ret(a: i32) -> i32:
+    # Function having i32 as return type
+    return a + 1
+
+def function_with_args(a: i32, b: str):
+    print("Hello", b)
+    c: i32 = function_with_args_and_ret(a)
+    print("You just got", c)
+
+function_void_example()
+function_with_args(2, "lpython")
+```
+
+Running this we get
+
+```
+% lpython func1.py
+This function has no args and return type.
+Hello lpython
+You just got 3
+```
+
+### Loops
+
+LPython provide loop in the same way as in python. The only extra
+condition is that the loop variable must be a typed and declared
+beforehand. Take a look at the `for` loop example to understand it better
+
+```
+% cat loop1.py
+from lpython import i32, i64
+
+def loop_for():
+    i: i32
+    res: i64 = i64(0)
+    for i in range(0, 10000):
+        res += i64(i)
+    print("for loop result:", res)
+
+def loop_while():
+    i: i32 = 1
+    res: i64 = i64(0)
+    while i < 10000:
+        res += i64(i)
+        i += 1
+    print("while loop result:", res)
+
+loop_for()
+loop_while()
+```
