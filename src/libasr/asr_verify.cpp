@@ -1090,10 +1090,15 @@ public:
         if( ASRUtils::get_asr_owner(x.m_derived_type) ) {
             symbol_owner = ASRUtils::symbol_name(ASRUtils::get_asr_owner(x.m_derived_type));
         }
-        // Check if x.m_derived_type is imported from another module as an external symbol.
-        if( !ASR::is_a<ASR::ExternalSymbol_t>(*x.m_derived_type) ) {
+        
+        // Resolve the symbol in the current symbol table.
+        ASR::symbol_t* symbol = current_symtab->resolve_symbol(ASRUtils::symbol_name(x.m_derived_type));
+
+        // If the symbol is an ExternalSymbol, then omit the check.
+        if (ASR::is_a<ASR::ExternalSymbol_t>(*symbol)) {
             return;
         }
+
         require(symtab_in_scope(current_symtab, x.m_derived_type),
             "Struct::m_derived_type '" +
             std::string(ASRUtils::symbol_name(x.m_derived_type)) +
