@@ -703,6 +703,8 @@ RUN(NAME structs_32          LABELS cpython llvm c)
 RUN(NAME structs_33          LABELS cpython llvm c)
 RUN(NAME structs_34          LABELS cpython llvm c)
 RUN(NAME structs_35          LABELS cpython llvm)
+RUN(NAME structs_36          LABELS cpython llvm)
+RUN(NAME structs_37          LABELS cpython llvm)
 
 RUN(NAME symbolics_01        LABELS cpython_sym c_sym llvm_sym NOFAST)
 RUN(NAME symbolics_02        LABELS cpython_sym c_sym llvm_sym NOFAST)
@@ -797,9 +799,6 @@ RUN(NAME callback_02       LABELS cpython llvm c)
 RUN(NAME callback_03       LABELS cpython llvm c)
 
 RUN(NAME lambda_01         LABELS cpython llvm)
-
-RUN(NAME transaction_01    LABELS cpython llvm c)
-RUN(NAME transaction_02    LABELS cpython llvm c)
 
 # callback_04 is to test emulation. So just run with cpython
 RUN(NAME callback_04       IMPORT_PATH .. LABELS cpython)
