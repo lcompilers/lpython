@@ -138,8 +138,8 @@ Please follow the below steps for Windows:
 
   ```bash
   ctest
-  inst\bin\lpython examples\expr2.py
-  inst\bin\lpython examples\expr2.py -o a.out
+  src\bin\lpython examples\expr2.py
+  src\bin\lpython examples\expr2.py -o a.out
   a.out
   ```
 
