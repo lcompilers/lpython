@@ -7766,9 +7766,9 @@ public:
                     if (llvm_symtab.find(h) != llvm_symtab.end()) {
                         tmp = llvm_symtab[h];
                         if( !ASRUtils::is_array(arg->m_type) ) {
-
                             if (x_abi == ASR::abiType::Source && ASR::is_a<ASR::CPtr_t>(*arg->m_type)) {
-                                if (arg->m_intent == intent_local) {
+                                if ( orig_arg_intent != ASRUtils::intent_out &&
+                                        arg->m_intent == intent_local ) {
                                     // Local variable of type
                                     // CPtr is a void**, so we
                                     // have to load it
@@ -7815,9 +7815,10 @@ public:
                                             }
                                         }
                                     } else if (is_a<ASR::CPtr_t>(*arg_type)) {
-                                        if (arg->m_intent == intent_local) {
-                                            // Local variable of type
-                                            // CPtr is a void**, so we
+                                        if ( arg->m_intent == intent_local ||
+                                                arg->m_intent == ASRUtils::intent_out) {
+                                            // Local variable or Dummy out argument
+                                            // of type CPtr is a void**, so we
                                             // have to load it
                                             tmp = CreateLoad(tmp);
                                         }
