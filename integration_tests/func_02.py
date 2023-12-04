@@ -1,4 +1,4 @@
-from lpython import S
+from lpython import S, Out
 from sympy import pi
 
 def func(r: Out[S]) -> None:
