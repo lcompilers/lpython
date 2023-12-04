@@ -120,6 +120,14 @@ namespace LCompilers {
                     ASR::is_a<ASR::SymbolicExpression_t>(*ASRUtils::expr_type(var)));
         }
 
+        static inline bool is_symbolic_list_type(ASR::expr_t* var) {
+            if (ASR::is_a<ASR::List_t>(*ASRUtils::expr_type(var))) {
+                ASR::List_t *list = ASR::down_cast<ASR::List_t>(ASRUtils::expr_type(var));
+                return (list->m_type->type == ASR::ttypeType::SymbolicExpression);
+            }
+            return false;
+        }
+
         template <class Struct>
         class PassVisitor: public ASR::ASRPassBaseWalkVisitor<Struct> {
 
@@ -788,7 +796,7 @@ namespace LCompilers {
             * in avoiding deep copies and the destination memory directly gets
             * filled inside the function.
             */
-            if( is_array_or_struct_or_symbolic(x->m_return_var)) {
+            if( is_array_or_struct_or_symbolic(x->m_return_var) || is_symbolic_list_type(x->m_return_var)) {
                 for( auto& s_item: x->m_symtab->get_scope() ) {
                     ASR::symbol_t* curr_sym = s_item.second;
                     if( curr_sym->type == ASR::symbolType::Variable ) {
