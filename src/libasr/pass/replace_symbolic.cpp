@@ -269,10 +269,16 @@ public:
 
         ASR::ttype_t* f_signature= xx.m_function_signature;
         ASR::FunctionType_t *f_type = ASR::down_cast<ASR::FunctionType_t>(f_signature);
-        ASR::ttype_t *type1 = ASRUtils::TYPE(ASR::make_CPtr_t(al, xx.base.base.loc));
+        ASR::ttype_t *CPtr_type = ASRUtils::TYPE(ASR::make_CPtr_t(al, xx.base.base.loc));
         for (size_t i = 0; i < f_type->n_arg_types; ++i) {
             if (f_type->m_arg_types[i]->type == ASR::ttypeType::SymbolicExpression) {
-                f_type->m_arg_types[i] = type1;
+                f_type->m_arg_types[i] = CPtr_type;
+            } else if (f_type->m_arg_types[i]->type == ASR::ttypeType::List) {
+                ASR::List_t* list = ASR::down_cast<ASR::List_t>(f_type->m_arg_types[i]);
+                if (list->m_type->type == ASR::ttypeType::SymbolicExpression){
+                    ASR::ttype_t* list_type = ASRUtils::TYPE(ASR::make_List_t(al, xx.base.base.loc, CPtr_type));
+                    f_type->m_arg_types[i] = list_type;
+                }
             }
         }
 
@@ -591,6 +597,17 @@ public:
             if (intrinsic_func->m_type->type == ASR::ttypeType::Logical) {
                 ASR::expr_t* function_call = process_attributes(xx.base.base.loc, xx.m_test);
                 xx.m_test = function_call;
+            }
+        } else if (ASR::is_a<ASR::LogicalNot_t>(*xx.m_test)) {
+            ASR::LogicalNot_t* logical_not = ASR::down_cast<ASR::LogicalNot_t>(xx.m_test);
+            if (ASR::is_a<ASR::IntrinsicScalarFunction_t>(*logical_not->m_arg)) {
+                ASR::IntrinsicScalarFunction_t* intrinsic_func = ASR::down_cast<ASR::IntrinsicScalarFunction_t>(logical_not->m_arg);
+                if (intrinsic_func->m_type->type == ASR::ttypeType::Logical) {
+                    ASR::expr_t* function_call = process_attributes(xx.base.base.loc, logical_not->m_arg);
+                    ASR::expr_t* new_logical_not = ASRUtils::EXPR(ASR::make_LogicalNot_t(al, xx.base.base.loc, function_call,
+                        logical_not->m_type, logical_not->m_value));
+                    xx.m_test = new_logical_not;
+                }
             }
         }
     }
