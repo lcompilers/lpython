@@ -1245,8 +1245,12 @@ public:
         llvm::Value* const_list = builder->CreateAlloca(const_list_type, nullptr, "const_list");
         list_api->list_init(type_code, const_list, *module, x.n_args, x.n_args);
         int64_t ptr_loads_copy = ptr_loads;
-        ptr_loads = 1;
         for( size_t i = 0; i < x.n_args; i++ ) {
+            if (ASR::is_a<ASR::CPtr_t>(*ASRUtils::expr_type(x.m_args[i]))) {
+                ptr_loads = 0;
+            } else {
+                ptr_loads = 1;
+            }
             this->visit_expr(*x.m_args[i]);
             llvm::Value* item = tmp;
             llvm::Value* pos = llvm::ConstantInt::get(context, llvm::APInt(32, i));
