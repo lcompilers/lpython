@@ -6765,7 +6765,7 @@ public:
             /*
                 String Validation Methods i.e all "is" based functions are handled here
             */
-            std::vector<std::string> validation_methods{"lower", "upper", "decimal", "ascii", "space"};  // Database of validation methods supported
+            std::vector<std::string> validation_methods{"lower", "upper", "decimal", "ascii", "space", "alpha", "title"};  // Database of validation methods supported
             std::string method_name = attr_name.substr(2);
 
             if(std::find(validation_methods.begin(),validation_methods.end(), method_name) == validation_methods.end()) {
@@ -7033,7 +7033,7 @@ public:
                 * islower() method is limited to English Alphabets currently
                 * TODO: We can support other characters from Unicode Library
             */
-            std::vector<std::string> validation_methods{"lower", "upper", "decimal", "ascii", "space"};  // Database of validation methods supported
+            std::vector<std::string> validation_methods{"lower", "upper", "decimal", "ascii", "space","alpha","title"};  // Database of validation methods supported
             std::string method_name = attr_name.substr(2);
             if(std::find(validation_methods.begin(),validation_methods.end(), method_name) == validation_methods.end()) {
                 throw SemanticError("String method not implemented: " + attr_name, loc);
@@ -7080,6 +7080,64 @@ public:
                 }
                 is_lower = is_lower && is_cased_present;
                 tmp = ASR::make_LogicalConstant_t(al, loc, is_lower,
+                        ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4)));
+                return;
+            } else if (attr_name == "isalpha") {
+                /*
+                * Specification:
+                * Return True if all characters in the string are alphabetic (letters), and False otherwise.
+                */
+                bool is_alpha = true;
+                for (auto &i : s_var) {
+                    if (!std::isalpha(i)) {
+                        is_alpha = false;
+                        break;
+                    }
+                }
+                tmp = ASR::make_LogicalConstant_t(al, loc, is_alpha,
+                        ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4)));
+                return;
+            } else if (attr_name == "istitle") {
+                /*  
+                 * Specification:
+                 * Determine whether the given string conforms to title case rules, 
+                 * which require the initial letter of each word to be capitalized and 
+                 * the subsequent letters to be in lowercase. Return False if the string
+                 * is empty or fails to meet the title case criteria. Title case is defined 
+                 * by considering any non-alphabetic character within the ASCII code range 
+                 * of 0-255 as a separator. If the string consists only of whitespace characters, 
+                 * it will also return False, except when there is leading whitespace. In 
+                 * such cases, the istitle operation will be applied to the remaining characters 
+                 * following the leading whitespace.
+                 */
+                bool is_title = true;      // Flag to track if it's a title
+                bool word_start = true;    // Flag to track the start of a word
+                bool only_whitespace = true;  // Flag to track if the input contains only whitespace
+
+                for (auto &ch : s_var) {
+                    if ((ch == ' ' || ch == '\t' || ch == '\n' || ch == '\r') && word_start) {
+                        continue; // Skip leading whitespace
+                    } else if ((ch >= 'A' && ch <= 'Z')) {
+                        only_whitespace = false;
+                        if (word_start) {
+                            word_start = false;
+                        } else {
+                            is_title = false;  // This is not a title if an uppercase letter follows a non-uppercase one
+                        }
+                    } else if ((ch >= 'a' && ch <= 'z')) {
+                        only_whitespace = false;
+                        if (word_start) {
+                            is_title = false;  // This is not a title if a lowercase letter follows whitespace
+                        }
+                        word_start = false;
+                    } else {
+                        word_start = true;
+                    }
+                }
+
+                is_title = !only_whitespace && is_title; // It's a title if it's not only whitespace and all conditions are met
+
+                tmp = ASR::make_LogicalConstant_t(al, loc, is_title,
                         ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4)));
                 return;
             } else if(attr_name == "isdecimal") {
