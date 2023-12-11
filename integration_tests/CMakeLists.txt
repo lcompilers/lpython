@@ -717,7 +717,7 @@ RUN(NAME symbolics_10        LABELS cpython_sym c_sym llvm_sym NOFAST)
 RUN(NAME symbolics_11        LABELS cpython_sym c_sym llvm_sym NOFAST)
 RUN(NAME symbolics_12        LABELS cpython_sym c_sym llvm_sym NOFAST)
 RUN(NAME symbolics_13        LABELS cpython_sym c_sym llvm_sym NOFAST)
-RUN(NAME test_gruntz         LABELS cpython_sym llvm_sym NOFAST)
+RUN(NAME test_gruntz         LABELS cpython_sym c_sym llvm_sym NOFAST)
 
 RUN(NAME sizeof_01           LABELS llvm c
         EXTRAFILES sizeof_01b.c)

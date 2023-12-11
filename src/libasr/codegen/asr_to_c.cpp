@@ -415,11 +415,6 @@ public:
                 headers.insert("complex.h");
                 convert_variable_decl_util(v, is_array, declare_as_constant, use_ref, dummy,
                     force_declare, force_declare_name, n_dims, m_dims, v_m_type, dims, sub);
-            } else if (ASR::is_a<ASR::SymbolicExpression_t>(*v_m_type)) {
-                headers.insert("symengine/cwrapper.h");
-                std::string type_name = "basic";
-                std::string v_m_name = v.m_name;
-                sub = format_type_c("", type_name, v_m_name, use_ref, dummy);
             } else if (ASRUtils::is_logical(*v_m_type)) {
                 convert_variable_decl_util(v, is_array, declare_as_constant, use_ref, dummy,
                     force_declare, force_declare_name, n_dims, m_dims, v_m_type, dims, sub);
@@ -529,7 +524,12 @@ public:
             } else if (ASR::is_a<ASR::List_t>(*v_m_type)) {
                 ASR::List_t* t = ASR::down_cast<ASR::List_t>(v_m_type);
                 std::string list_type_c = c_ds_api->get_list_type(t);
-                sub = format_type_c("", list_type_c, v.m_name,
+                std::string name = v.m_name;
+                if (name == "_lpython_return_variable" && v.m_intent == ASRUtils::intent_out) {
+                    is_return_var_intent_out = true;
+                    name = "*" + name;
+                }
+                sub = format_type_c("", list_type_c, name,
                                     false, false);
             } else if (ASR::is_a<ASR::Tuple_t>(*v_m_type)) {
                 ASR::Tuple_t* t = ASR::down_cast<ASR::Tuple_t>(v_m_type);
