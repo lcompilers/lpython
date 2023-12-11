@@ -4051,7 +4051,7 @@ public:
     // Implement visit_Global for Symbol Table visitor.
     void visit_Global(const AST::Global_t &/*x*/) {}
 
-    void visit_AsyncFunctionDef(const AST::AsyncFunctionDef_t &x){
+    void visit_AsyncFunctionDef(const AST::AsyncFunctionDef_t &/*x*/){
         try
         {
             // to be implemented
@@ -4834,7 +4834,7 @@ public:
         tmp = nullptr;
     }
 
-    void visit_AsyncFunctionDef(const AST::AsyncFunctionDef_t &x) {
+    void visit_AsyncFunctionDef(const AST::AsyncFunctionDef_t &/*x*/) {
         try
         {
             // BodyVisitor for visit_AsyncFunctionDef to be implemented
