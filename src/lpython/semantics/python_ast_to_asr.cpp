@@ -4051,6 +4051,17 @@ public:
     // Implement visit_Global for Symbol Table visitor.
     void visit_Global(const AST::Global_t &/*x*/) {}
 
+    void visit_AsyncFunctionDef(const AST::AsyncFunctionDef_t &x){
+        try
+        {
+            // to be implemented
+        }
+        catch(const std::exception& e)
+        {
+            std::cerr << e.what() << '\n';
+        }        
+    }
+
     void visit_FunctionDef(const AST::FunctionDef_t &x) {
         dependencies.clear(al);
         SymbolTable *parent_scope = current_scope;
@@ -4822,6 +4833,19 @@ public:
         current_scope = old_scope;
         tmp = nullptr;
     }
+
+    void visit_AsyncFunctionDef(const AST::AsyncFunctionDef_t &x) {
+        try
+        {
+            // BodyVisitor for visit_AsyncFunctionDef to be implemented
+        }
+        catch(const std::exception& e)
+        {
+            std::cerr << e.what() << '\n';
+        }
+        
+    }
+
 
     void visit_Import(const AST::Import_t &x) {
         // All the modules are imported in the SymbolTable visitor
