@@ -45,15 +45,15 @@ class SymbolRenameVisitor: public ASR::BaseWalkVisitor<SymbolRenameVisitor> {
     bool intrinsic_symbols_mangling;
     bool all_symbols_mangling;
     bool bindc_mangling = false;
+    bool fortran_mangling;
     bool should_mangle = false;
     std::vector<std::string> parent_function_name;
     std::string module_name = "";
     SymbolTable* current_scope = nullptr;
 
-    SymbolRenameVisitor(
-    bool mm, bool gm, bool im, bool am, bool bcm) : module_name_mangling(mm),
-    global_symbols_mangling(gm), intrinsic_symbols_mangling(im),
-    all_symbols_mangling(am), bindc_mangling(bcm){}
+    SymbolRenameVisitor(bool mm, bool gm, bool im, bool am, bool bcm, bool fm) :
+    module_name_mangling(mm), global_symbols_mangling(gm), intrinsic_symbols_mangling(im),
+    all_symbols_mangling(am), bindc_mangling(bcm), fortran_mangling(fm) {}
 
 
     std::string update_name(std::string curr_name) {
@@ -84,12 +84,17 @@ class SymbolRenameVisitor: public ASR::BaseWalkVisitor<SymbolRenameVisitor> {
     }
 
     void visit_Program(const ASR::Program_t &x) {
+        SymbolTable *current_scope_copy = current_scope;
+        current_scope = x.m_symtab;
         for (auto &a : x.m_symtab->get_scope()) {
             visit_symbol(*a.second);
         }
+        current_scope = current_scope_copy;
     }
 
     void visit_Module(const ASR::Module_t &x) {
+        SymbolTable *current_scope_copy = current_scope;
+        current_scope = x.m_symtab;
         ASR::symbol_t *sym = ASR::down_cast<ASR::symbol_t>((ASR::asr_t*)&x);
         bool should_mangle_copy = should_mangle;
         std::string mod_name_copy = module_name;
@@ -106,6 +111,7 @@ class SymbolRenameVisitor: public ASR::BaseWalkVisitor<SymbolRenameVisitor> {
         }
         should_mangle = should_mangle_copy;
         module_name = mod_name_copy;
+        current_scope = current_scope_copy;
     }
 
     bool is_nested_function(ASR::symbol_t *sym) {
@@ -124,11 +130,23 @@ class SymbolRenameVisitor: public ASR::BaseWalkVisitor<SymbolRenameVisitor> {
     }
 
     void visit_Function(const ASR::Function_t &x) {
+        SymbolTable *current_scope_copy = current_scope;
+        current_scope = x.m_symtab;
         ASR::FunctionType_t *f_type = ASRUtils::get_FunctionType(x);
         if (bindc_mangling || f_type->m_abi != ASR::abiType::BindC) {
             ASR::symbol_t *sym = ASR::down_cast<ASR::symbol_t>((ASR::asr_t*)&x);
             if (all_symbols_mangling || should_mangle) {
                 sym_to_renamed[sym] = update_name(x.m_name);
+            }
+            if ( fortran_mangling ) {
+                if ( sym_to_renamed.find(sym) != sym_to_renamed.end()
+                        && startswith(sym_to_renamed[sym], "_") ) {
+                    sym_to_renamed[sym] = current_scope->parent->get_unique_name(
+                        "f" + sym_to_renamed[sym]);
+                } else if ( startswith(x.m_name, "_") ) {
+                    sym_to_renamed[sym] = current_scope->parent->get_unique_name(
+                        "f" + std::string(x.m_name));
+                }
             }
         }
         for (auto &a : x.m_symtab->get_scope()) {
@@ -141,13 +159,24 @@ class SymbolRenameVisitor: public ASR::BaseWalkVisitor<SymbolRenameVisitor> {
                 parent_function_name.pop_back();
             }
         }
+        current_scope = current_scope_copy;
     }
 
     template <typename T>
     void visit_symbols_1(T &x) {
+        ASR::symbol_t *sym = ASR::down_cast<ASR::symbol_t>((ASR::asr_t*)&x);
         if (all_symbols_mangling || should_mangle) {
-            ASR::symbol_t *sym = ASR::down_cast<ASR::symbol_t>((ASR::asr_t*)&x);
             sym_to_renamed[sym] = update_name(x.m_name);
+        }
+        if ( fortran_mangling ) {
+            if ( sym_to_renamed.find(sym) != sym_to_renamed.end()
+                    && startswith(sym_to_renamed[sym], "_") ) {
+                sym_to_renamed[sym] = current_scope->get_unique_name("v" +
+                    sym_to_renamed[sym]);
+            } else if ( startswith(x.m_name, "_") ) {
+                sym_to_renamed[sym] = current_scope->get_unique_name("v" +
+                    std::string(x.m_name));
+            }
         }
     }
 
@@ -472,19 +501,38 @@ class UniqueSymbolVisitor: public ASR::BaseWalkVisitor<UniqueSymbolVisitor> {
 
 void pass_unique_symbols(Allocator &al, ASR::TranslationUnit_t &unit,
     const LCompilers::PassOptions& pass_options) {
+    /*
+     * This pass is applied iff the following options are passed; otherwise, return
+     * MANGLING_OPTION="--all-mangling"
+     * MANGLING_OPTION="--module-mangling"
+     * MANGLING_OPTION="--global-mangling"
+     * MANGLING_OPTION="--intrinsic-mangling"
+     * COMPILER_SPECIFIC_OPTION="--generate-object-code" // LFortran
+     * COMPILER_SPECIFIC_OPTION="--separate-compilation" // LPython
+     * Usage:
+     *    `$MANGLING_OPTION $COMPILER_SPECIFIC_OPTION`
+     * The following are used by LFortran, Usage:
+     *    `$MANGLING_OPTIONS --mangle-underscore [$COMPILER_SPECIFIC_OPTION]`
+     *    * `--apply-fortran-mangling [$MANGLING_OPTION] [$COMPILER_SPECIFIC_OPTION]`
+     */
     bool any_present = (pass_options.module_name_mangling || pass_options.global_symbols_mangling ||
-                    pass_options.intrinsic_symbols_mangling || pass_options.all_symbols_mangling || pass_options.bindc_mangling);
+                    pass_options.intrinsic_symbols_mangling || pass_options.all_symbols_mangling ||
+                    pass_options.bindc_mangling || pass_options.fortran_mangling);
     if (pass_options.mangle_underscore) {
         lcompilers_unique_ID = "";
     }
-    if (!any_present || ( !pass_options.mangle_underscore && lcompilers_unique_ID.empty() )) {
+    if (!any_present || (!(pass_options.mangle_underscore ||
+            pass_options.fortran_mangling) && lcompilers_unique_ID.empty())) {
+        // `--mangle-underscore` doesn't require `lcompilers_unique_ID`
+        // `lcompilers_unique_ID` is not mandatory for `--apply-fortran-mangling`
         return;
     }
     SymbolRenameVisitor v(pass_options.module_name_mangling,
                 pass_options.global_symbols_mangling,
                 pass_options.intrinsic_symbols_mangling,
                 pass_options.all_symbols_mangling,
-                pass_options.bindc_mangling);
+                pass_options.bindc_mangling,
+                pass_options.fortran_mangling);
     v.visit_TranslationUnit(unit);
     UniqueSymbolVisitor u(al, v.sym_to_renamed);
     u.visit_TranslationUnit(unit);

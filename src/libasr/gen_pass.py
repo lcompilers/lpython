@@ -32,6 +32,7 @@ passes = [
         "update_array_dim_intrinsic_calls",
         "replace_where",
         "unique_symbols",
+        "insert_deallocate"
 ]
 
 

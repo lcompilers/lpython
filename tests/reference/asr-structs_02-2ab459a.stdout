@@ -241,7 +241,6 @@
                                         ()
                                     )
                                     (Print
-                                        ()
                                         [(Var 4 a2)
                                         (GetPointer
                                             (Var 4 a1)

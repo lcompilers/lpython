@@ -237,7 +237,6 @@
                                     __asr_generic_f_1]
                                     []
                                     [(Print
-                                        ()
                                         [(FunctionCall
                                             2 __asr_generic_f_0
                                             ()
@@ -251,7 +250,6 @@
                                         ()
                                     )
                                     (Print
-                                        ()
                                         [(FunctionCall
                                             2 __asr_generic_f_1
                                             ()
@@ -271,7 +269,6 @@
                                         ()
                                     )
                                     (Print
-                                        ()
                                         [(FunctionCall
                                             2 __asr_generic_f_1
                                             ()

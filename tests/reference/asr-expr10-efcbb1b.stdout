@@ -170,7 +170,7 @@
                                         []
                                         .false.
                                     )
-                                    [complex@__lpython_overloaded_13__complex]
+                                    []
                                     []
                                     [(=
                                         (Var 3 a)
@@ -440,7 +440,7 @@
             main_program:
                 (Program
                     (SymbolTable
-                        128
+                        127
                         {
                             
                         })

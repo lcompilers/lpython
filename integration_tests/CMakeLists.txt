@@ -714,6 +714,10 @@ RUN(NAME symbolics_07        LABELS cpython_sym c_sym llvm_sym NOFAST)
 RUN(NAME symbolics_08        LABELS cpython_sym c_sym llvm_sym)
 RUN(NAME symbolics_09        LABELS cpython_sym c_sym llvm_sym NOFAST)
 RUN(NAME symbolics_10        LABELS cpython_sym c_sym llvm_sym NOFAST)
+RUN(NAME symbolics_11        LABELS cpython_sym c_sym llvm_sym NOFAST)
+RUN(NAME symbolics_12        LABELS cpython_sym c_sym llvm_sym NOFAST)
+RUN(NAME symbolics_13        LABELS cpython_sym c_sym llvm_sym NOFAST)
+RUN(NAME test_gruntz         LABELS cpython_sym llvm_sym NOFAST)
 
 RUN(NAME sizeof_01           LABELS llvm c
         EXTRAFILES sizeof_01b.c)
@@ -772,6 +776,7 @@ RUN(NAME func_dep_03    LABELS cpython llvm c)
 RUN(NAME func_dep_04    LABELS cpython llvm c)
 RUN(NAME func_internal_def_01 LABELS cpython llvm NOFAST)
 RUN(NAME func_01        LABELS cpython llvm)
+RUN(NAME func_02        LABELS c_sym llvm_sym NOFAST)
 
 RUN(NAME float_01 LABELS cpython llvm c wasm wasm_x64)
 RUN(NAME recursive_01 LABELS cpython llvm c wasm wasm_x64 wasm_x86)
@@ -799,6 +804,7 @@ RUN(NAME callback_04       IMPORT_PATH .. LABELS cpython)
 
 # Intrinsic Functions
 RUN(NAME intrinsics_01     LABELS cpython llvm NOFAST) # any
+RUN(NAME intrinsics_02     LABELS cpython llvm c) # floordiv
 
 # lpython decorator
 RUN(NAME lpython_decorator_01    LABELS cpython)

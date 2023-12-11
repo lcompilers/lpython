@@ -10,7 +10,7 @@
                             __main__global_stmts:
                                 (Function
                                     (SymbolTable
-                                        128
+                                        127
                                         {
                                             
                                         })
@@ -84,10 +84,9 @@
                                         []
                                         .false.
                                     )
-                                    [pow@__lpython_overloaded_0__pow]
+                                    []
                                     []
                                     [(Print
-                                        ()
                                         [(FunctionCall
                                             3 pow@__lpython_overloaded_0__pow
                                             3 pow
@@ -104,7 +103,6 @@
                                         ()
                                     )
                                     (Print
-                                        ()
                                         [(IntegerBinOp
                                             (IntegerConstant 2 (Integer 4))
                                             Pow
@@ -132,11 +130,11 @@
             main_program:
                 (Program
                     (SymbolTable
-                        129
+                        128
                         {
                             __main__global_stmts:
                                 (ExternalSymbol
-                                    129
+                                    128
                                     __main__global_stmts
                                     2 __main__global_stmts
                                     __main__
@@ -148,7 +146,7 @@
                     main_program
                     [__main__]
                     [(SubroutineCall
-                        129 __main__global_stmts
+                        128 __main__global_stmts
                         2 __main__global_stmts
                         []
                         ()

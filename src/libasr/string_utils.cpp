@@ -37,6 +37,22 @@ char *s2c(Allocator &al, const std::string &s) {
     return x.c_str(al);
 }
 
+// Splits the string `s` using the separator `split_string`
+std::vector<std::string> string_split(const std::string &s, const std::string &split_string)
+{
+    std::vector<std::string> result;
+    size_t old_pos = 0;
+    size_t new_pos;
+    while ((new_pos = s.find(split_string, old_pos)) != std::string::npos) {
+        std::string substr = s.substr(old_pos, new_pos-old_pos);
+        if (substr.size() > 0) result.push_back(substr);
+        old_pos = new_pos+split_string.size();
+    }
+    result.push_back(s.substr(old_pos));
+    return result;
+}
+
+// Splits the string `s` using any space or newline
 std::vector<std::string> split(const std::string &s)
 {
     std::vector<std::string> result;
@@ -142,6 +158,7 @@ std::string str_escape_c(const std::string &s) {
             case '\n': o << "\\n"; break;
             case '\r': o << "\\r"; break;
             case '\t': o << "\\t"; break;
+            case '\v': o << "\\v"; break;
             default:
                 if ('\x00' <= *c && *c <= '\x1f') {
                     o << "\\u"

@@ -68,7 +68,7 @@ namespace ArrIntrinsic {
 
 static inline void verify_array_int_real_cmplx(ASR::expr_t* array, ASR::ttype_t* return_type,
     const Location& loc, diag::Diagnostics& diagnostics, ASRUtils::IntrinsicArrayFunctions intrinsic_func_id) {
-    std::string intrinsic_func_name = ASRUtils::get_intrinsic_name(static_cast<int>(intrinsic_func_id));
+    std::string intrinsic_func_name = ASRUtils::get_array_intrinsic_name(static_cast<int>(intrinsic_func_id));
     ASR::ttype_t* array_type = ASRUtils::expr_type(array);
     ASRUtils::require_impl(ASRUtils::is_integer(*array_type) ||
         ASRUtils::is_real(*array_type) ||
@@ -89,7 +89,7 @@ static inline void verify_array_int_real_cmplx(ASR::expr_t* array, ASR::ttype_t*
 
 static inline void verify_array_int_real(ASR::expr_t* array, ASR::ttype_t* return_type,
     const Location& loc, diag::Diagnostics& diagnostics, ASRUtils::IntrinsicArrayFunctions intrinsic_func_id) {
-    std::string intrinsic_func_name = ASRUtils::get_intrinsic_name(static_cast<int>(intrinsic_func_id));
+    std::string intrinsic_func_name = ASRUtils::get_array_intrinsic_name(static_cast<int>(intrinsic_func_id));
     ASR::ttype_t* array_type = ASRUtils::expr_type(array);
     ASRUtils::require_impl(ASRUtils::is_integer(*array_type) ||
         ASRUtils::is_real(*array_type),
@@ -109,7 +109,7 @@ static inline void verify_array_int_real(ASR::expr_t* array, ASR::ttype_t* retur
 
 static inline void verify_array_dim(ASR::expr_t* array, ASR::expr_t* dim,
     ASR::ttype_t* return_type, const Location& loc, diag::Diagnostics& diagnostics, ASRUtils::IntrinsicArrayFunctions intrinsic_func_id) {
-    std::string intrinsic_func_name = ASRUtils::get_intrinsic_name(static_cast<int>(intrinsic_func_id));
+    std::string intrinsic_func_name = ASRUtils::get_array_intrinsic_name(static_cast<int>(intrinsic_func_id));
     ASR::ttype_t* array_type = ASRUtils::expr_type(array);
     ASRUtils::require_impl(ASRUtils::is_integer(*array_type) ||
         ASRUtils::is_real(*array_type) ||
@@ -135,7 +135,7 @@ static inline void verify_array_dim(ASR::expr_t* array, ASR::expr_t* dim,
 
 static inline void verify_args(const ASR::IntrinsicArrayFunction_t& x, diag::Diagnostics& diagnostics,
     ASRUtils::IntrinsicArrayFunctions intrinsic_func_id, verify_array_func verify_array) {
-    std::string intrinsic_func_name = ASRUtils::get_intrinsic_name(static_cast<int>(intrinsic_func_id));
+    std::string intrinsic_func_name = ASRUtils::get_array_intrinsic_name(static_cast<int>(intrinsic_func_id));
     ASRUtils::require_impl(x.n_args >= 1, intrinsic_func_name + " intrinsic must accept at least one argument",
         x.base.base.loc, diagnostics);
     ASRUtils::require_impl(x.m_args[0] != nullptr, "Array argument to " + intrinsic_func_name + " intrinsic cannot be nullptr",
@@ -197,7 +197,7 @@ static inline ASR::asr_t* create_ArrIntrinsic(
     Allocator& al, const Location& loc, Vec<ASR::expr_t*>& args,
     const std::function<void (const std::string &, const Location &)> err,
     ASRUtils::IntrinsicArrayFunctions intrinsic_func_id) {
-    std::string intrinsic_func_name = ASRUtils::get_intrinsic_name(static_cast<int>(intrinsic_func_id));
+    std::string intrinsic_func_name = ASRUtils::get_array_intrinsic_name(static_cast<int>(intrinsic_func_id));
     int64_t id_array = 0, id_array_dim = 1, id_array_mask = 2;
     int64_t id_array_dim_mask = 3;
     int64_t overload_id = id_array;
@@ -418,7 +418,7 @@ static inline ASR::expr_t* instantiate_ArrIntrinsic(Allocator &al,
         int64_t overload_id, ASRUtils::IntrinsicArrayFunctions intrinsic_func_id,
         get_initial_value_func get_initial_value,
         elemental_operation_func elemental_operation) {
-    std::string intrinsic_func_name = ASRUtils::get_intrinsic_name(static_cast<int>(intrinsic_func_id));
+    std::string intrinsic_func_name = ASRUtils::get_array_intrinsic_name(static_cast<int>(intrinsic_func_id));
     ASRBuilder builder(al, loc);
     ASRBuilder& b = builder;
     int64_t id_array = 0, id_array_dim = 1, id_array_mask = 2;
@@ -534,7 +534,7 @@ static inline ASR::expr_t* instantiate_ArrIntrinsic(Allocator &al,
 
 static inline void verify_MaxMinLoc_args(const ASR::IntrinsicArrayFunction_t& x,
         diag::Diagnostics& diagnostics) {
-    std::string intrinsic_name = get_intrinsic_name(
+    std::string intrinsic_name = get_array_intrinsic_name(
         static_cast<int>(x.m_arr_intrinsic_id));
     require_impl(x.n_args >= 1, "`"+ intrinsic_name +"` intrinsic "
         "must accept at least one argument", x.base.base.loc, diagnostics);
@@ -579,7 +579,7 @@ static inline ASR::expr_t *eval_MaxMinLoc(Allocator &al, const Location &loc,
 static inline ASR::asr_t* create_MaxMinLoc(Allocator& al, const Location& loc,
         Vec<ASR::expr_t*>& args, int intrinsic_id,
         const std::function<void (const std::string &, const Location &)> err) {
-    std::string intrinsic_name = get_intrinsic_name(static_cast<int>(intrinsic_id));
+    std::string intrinsic_name = get_array_intrinsic_name(static_cast<int>(intrinsic_id));
     ASR::ttype_t *array_type = expr_type(args[0]);
     if ( !is_array(array_type) ) {
         err("`array` argument of `"+ intrinsic_name +"` must be an array", loc);
@@ -647,7 +647,7 @@ static inline ASR::expr_t *instantiate_MaxMinLoc(Allocator &al,
         const Location &loc, SymbolTable *scope, int intrinsic_id,
         Vec<ASR::ttype_t*>& arg_types, ASR::ttype_t *return_type,
         Vec<ASR::call_arg_t>& m_args, int64_t /*overload_id*/) {
-    std::string intrinsic_name = get_intrinsic_name(static_cast<int>(intrinsic_id));
+    std::string intrinsic_name = get_array_intrinsic_name(static_cast<int>(intrinsic_id));
     declare_basic_variables("_lcompilers_" + intrinsic_name)
     /*
      * max_index = 1; min_index
@@ -813,7 +813,8 @@ namespace Shape {
             const Location &loc, SymbolTable *scope, Vec<ASR::ttype_t*>& arg_types,
             ASR::ttype_t *return_type, Vec<ASR::call_arg_t>& new_args, int64_t) {
         declare_basic_variables("_lcompilers_shape");
-        fill_func_arg("source", arg_types[0]);
+        fill_func_arg("source", ASRUtils::duplicate_type_with_empty_dims(al,
+            arg_types[0]));
         auto result = declare(fn_name, return_type, ReturnVar);
         int iter = extract_n_dims_from_ttype(arg_types[0]) + 1;
         auto i = declare("i", int32, Local);
@@ -1377,7 +1378,7 @@ namespace Merge {
         auto mask_arg = declare("mask", mask_type, In);
         args.push_back(al, mask_arg);
         // TODO: In case of Character type, set len of ReturnVar to len(tsource) expression
-        auto result = declare("merge", tsource_type, ReturnVar);
+        auto result = declare("merge", type_get_past_allocatable(return_type), ReturnVar);
 
         {
             Vec<ASR::stmt_t *> if_body; if_body.reserve(al, 1);

@@ -10,7 +10,7 @@
                             __main__global_stmts:
                                 (Function
                                     (SymbolTable
-                                        132
+                                        131
                                         {
                                             
                                         })
@@ -199,8 +199,7 @@
                                         []
                                         .false.
                                     )
-                                    [max@__lpython_overloaded_2__max
-                                    max@__lpython_overloaded_3__max]
+                                    []
                                     []
                                     [(=
                                         (Var 4 d)
@@ -368,8 +367,7 @@
                                         []
                                         .false.
                                     )
-                                    [max@__lpython_overloaded_0__max
-                                    max@__lpython_overloaded_1__max]
+                                    []
                                     []
                                     [(=
                                         (Var 3 a)
@@ -787,11 +785,11 @@
             main_program:
                 (Program
                     (SymbolTable
-                        133
+                        132
                         {
                             __main__global_stmts:
                                 (ExternalSymbol
-                                    133
+                                    132
                                     __main__global_stmts
                                     2 __main__global_stmts
                                     __main__
@@ -803,7 +801,7 @@
                     main_program
                     [__main__]
                     [(SubroutineCall
-                        133 __main__global_stmts
+                        132 __main__global_stmts
                         2 __main__global_stmts
                         []
                         ()

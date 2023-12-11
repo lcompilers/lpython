@@ -32,6 +32,30 @@ def random() -> f64:
 def _lfortran_random() -> f64:
     pass
 
+@overload
+def seed() -> None:
+    """
+    Initializes the random number generator.
+    """
+    _lfortran_init_random_clock()
+    return
+
+@overload
+def seed(seed: i32) -> None:
+    """
+    Initializes the random number generator.
+    """
+    _lfortran_init_random_seed(seed)
+    return
+
+@ccall
+def _lfortran_init_random_clock() -> None:
+    pass
+
+@ccall
+def _lfortran_init_random_seed(seed: i32) -> None:
+    pass
+
 def randrange(lower: i32, upper: i32) -> i32:
     """
     Return a random integer N such that `lower <= N < upper`.

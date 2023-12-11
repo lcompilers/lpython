@@ -133,7 +133,6 @@
                                         ()
                                     )
                                     (Print
-                                        ()
                                         [(IntegerBinOp
                                             (IntegerUnaryMinus
                                                 (Var 3 i1)

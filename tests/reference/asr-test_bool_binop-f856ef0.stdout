@@ -10,7 +10,7 @@
                             __main__global_stmts:
                                 (Function
                                     (SymbolTable
-                                        128
+                                        4
                                         {
                                             
                                         })
@@ -48,26 +48,6 @@
                                     (SymbolTable
                                         3
                                         {
-                                            _lpython_floordiv:
-                                                (ExternalSymbol
-                                                    3
-                                                    _lpython_floordiv
-                                                    4 _lpython_floordiv
-                                                    lpython_builtin
-                                                    []
-                                                    _lpython_floordiv
-                                                    Private
-                                                ),
-                                            _lpython_floordiv@__lpython_overloaded_10___lpython_floordiv:
-                                                (ExternalSymbol
-                                                    3
-                                                    _lpython_floordiv@__lpython_overloaded_10___lpython_floordiv
-                                                    4 __lpython_overloaded_10___lpython_floordiv
-                                                    lpython_builtin
-                                                    []
-                                                    __lpython_overloaded_10___lpython_floordiv
-                                                    Public
-                                                ),
                                             b1:
                                                 (Variable
                                                     3
@@ -148,7 +128,7 @@
                                         []
                                         .false.
                                     )
-                                    [_lpython_floordiv@__lpython_overloaded_10___lpython_floordiv]
+                                    []
                                     []
                                     [(=
                                         (Var 3 i)
@@ -264,23 +244,22 @@
                                     (=
                                         (Var 3 i)
                                         (Cast
-                                            (FunctionCall
-                                                3 _lpython_floordiv@__lpython_overloaded_10___lpython_floordiv
-                                                3 _lpython_floordiv
-                                                [((LogicalConstant
+                                            (IntrinsicScalarFunction
+                                                FloorDiv
+                                                [(LogicalConstant
                                                     .true.
                                                     (Logical 4)
-                                                ))
-                                                ((LogicalConstant
+                                                )
+                                                (LogicalConstant
                                                     .true.
                                                     (Logical 4)
-                                                ))]
+                                                )]
+                                                0
                                                 (Logical 4)
                                                 (LogicalConstant
                                                     .true.
-                                                    (Logical 1)
+                                                    (Logical 4)
                                                 )
-                                                ()
                                             )
                                             LogicalToInteger
                                             (Integer 4)
@@ -301,23 +280,22 @@
                                     (=
                                         (Var 3 i)
                                         (Cast
-                                            (FunctionCall
-                                                3 _lpython_floordiv@__lpython_overloaded_10___lpython_floordiv
-                                                3 _lpython_floordiv
-                                                [((LogicalConstant
+                                            (IntrinsicScalarFunction
+                                                FloorDiv
+                                                [(LogicalConstant
                                                     .false.
                                                     (Logical 4)
-                                                ))
-                                                ((LogicalConstant
+                                                )
+                                                (LogicalConstant
                                                     .true.
                                                     (Logical 4)
-                                                ))]
+                                                )]
+                                                0
                                                 (Logical 4)
                                                 (LogicalConstant
                                                     .false.
-                                                    (Logical 1)
+                                                    (Logical 4)
                                                 )
-                                                ()
                                             )
                                             LogicalToInteger
                                             (Integer 4)
@@ -430,20 +408,18 @@
                                 )
                         })
                     __main__
-                    [lpython_builtin]
+                    []
                     .false.
                     .false.
                 ),
-            lpython_builtin:
-                (IntrinsicModule lpython_builtin),
             main_program:
                 (Program
                     (SymbolTable
-                        129
+                        5
                         {
                             __main__global_stmts:
                                 (ExternalSymbol
-                                    129
+                                    5
                                     __main__global_stmts
                                     2 __main__global_stmts
                                     __main__
@@ -455,7 +431,7 @@
                     main_program
                     [__main__]
                     [(SubroutineCall
-                        129 __main__global_stmts
+                        5 __main__global_stmts
                         2 __main__global_stmts
                         []
                         ()

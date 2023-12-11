@@ -46,7 +46,7 @@ struct AttributeHandler {
         symbolic_attribute_map = {
             {"diff", &eval_symbolic_diff},
             {"expand", &eval_symbolic_expand},
-            {"has", &eval_symbolic_has_symbol}
+            {"has", &eval_symbolic_has_symbol},
         };
     }
 
@@ -453,6 +453,90 @@ struct AttributeHandler {
         }
         ASRUtils::create_intrinsic_function create_function =
             ASRUtils::IntrinsicScalarFunctionRegistry::get_create_function("has");
+        return create_function(al, loc, args_with_list, [&](const std::string &msg, const Location &loc)
+                                { throw SemanticError(msg, loc); });
+    }
+
+    static ASR::asr_t* eval_symbolic_is_Add(ASR::expr_t *s, Allocator &al, const Location &loc,
+            Vec<ASR::expr_t*> &args, diag::Diagnostics &/*diag*/) {
+        Vec<ASR::expr_t*> args_with_list;
+        args_with_list.reserve(al, args.size() + 1);
+        args_with_list.push_back(al, s);
+        for(size_t i = 0; i < args.size(); i++) {
+            args_with_list.push_back(al, args[i]);
+        }
+        ASRUtils::create_intrinsic_function create_function =
+            ASRUtils::IntrinsicScalarFunctionRegistry::get_create_function("AddQ");
+        return create_function(al, loc, args_with_list, [&](const std::string &msg, const Location &loc)
+                                { throw SemanticError(msg, loc); });
+    }
+
+    static ASR::asr_t* eval_symbolic_is_Mul(ASR::expr_t *s, Allocator &al, const Location &loc,
+            Vec<ASR::expr_t*> &args, diag::Diagnostics &/*diag*/) {
+        Vec<ASR::expr_t*> args_with_list;
+        args_with_list.reserve(al, args.size() + 1);
+        args_with_list.push_back(al, s);
+        for(size_t i = 0; i < args.size(); i++) {
+            args_with_list.push_back(al, args[i]);
+        }
+        ASRUtils::create_intrinsic_function create_function =
+            ASRUtils::IntrinsicScalarFunctionRegistry::get_create_function("MulQ");
+        return create_function(al, loc, args_with_list, [&](const std::string &msg, const Location &loc)
+                                { throw SemanticError(msg, loc); });
+    }
+
+    static ASR::asr_t* eval_symbolic_is_Pow(ASR::expr_t *s, Allocator &al, const Location &loc,
+            Vec<ASR::expr_t*> &args, diag::Diagnostics &/*diag*/) {
+        Vec<ASR::expr_t*> args_with_list;
+        args_with_list.reserve(al, args.size() + 1);
+        args_with_list.push_back(al, s);
+        for(size_t i = 0; i < args.size(); i++) {
+            args_with_list.push_back(al, args[i]);
+        }
+        ASRUtils::create_intrinsic_function create_function =
+            ASRUtils::IntrinsicScalarFunctionRegistry::get_create_function("PowQ");
+        return create_function(al, loc, args_with_list, [&](const std::string &msg, const Location &loc)
+                                { throw SemanticError(msg, loc); });
+    }
+
+    static ASR::asr_t* eval_symbolic_is_log(ASR::expr_t *s, Allocator &al, const Location &loc,
+            Vec<ASR::expr_t*> &args, diag::Diagnostics &/*diag*/) {
+        Vec<ASR::expr_t*> args_with_list;
+        args_with_list.reserve(al, args.size() + 1);
+        args_with_list.push_back(al, s);
+        for(size_t i = 0; i < args.size(); i++) {
+            args_with_list.push_back(al, args[i]);
+        }
+        ASRUtils::create_intrinsic_function create_function =
+            ASRUtils::IntrinsicScalarFunctionRegistry::get_create_function("LogQ");
+        return create_function(al, loc, args_with_list, [&](const std::string &msg, const Location &loc)
+                                { throw SemanticError(msg, loc); });
+    }
+
+    static ASR::asr_t* eval_symbolic_is_sin(ASR::expr_t *s, Allocator &al, const Location &loc,
+            Vec<ASR::expr_t*> &args, diag::Diagnostics &/*diag*/) {
+        Vec<ASR::expr_t*> args_with_list;
+        args_with_list.reserve(al, args.size() + 1);
+        args_with_list.push_back(al, s);
+        for(size_t i = 0; i < args.size(); i++) {
+            args_with_list.push_back(al, args[i]);
+        }
+        ASRUtils::create_intrinsic_function create_function =
+            ASRUtils::IntrinsicScalarFunctionRegistry::get_create_function("SinQ");
+        return create_function(al, loc, args_with_list, [&](const std::string &msg, const Location &loc)
+                                { throw SemanticError(msg, loc); });
+    }
+
+    static ASR::asr_t* eval_symbolic_get_argument(ASR::expr_t *s, Allocator &al, const Location &loc,
+            Vec<ASR::expr_t*> &args, diag::Diagnostics &/*diag*/) {
+        Vec<ASR::expr_t*> args_with_list;
+        args_with_list.reserve(al, args.size() + 1);
+        args_with_list.push_back(al, s);
+        for(size_t i = 0; i < args.size(); i++) {
+            args_with_list.push_back(al, args[i]);
+        }
+        ASRUtils::create_intrinsic_function create_function =
+            ASRUtils::IntrinsicScalarFunctionRegistry::get_create_function("GetArgument");
         return create_function(al, loc, args_with_list, [&](const std::string &msg, const Location &loc)
                                 { throw SemanticError(msg, loc); });
     }

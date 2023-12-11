@@ -10,7 +10,7 @@
                             __main__global_stmts:
                                 (Function
                                     (SymbolTable
-                                        128
+                                        127
                                         {
                                             
                                         })
@@ -502,19 +502,7 @@
                                         []
                                         .false.
                                     )
-                                    [pow@__lpython_overloaded_0__pow
-                                    pow@__lpython_overloaded_1__pow
-                                    pow@__lpython_overloaded_2__pow
-                                    pow@__lpython_overloaded_4__pow
-                                    pow@__lpython_overloaded_5__pow
-                                    pow@__lpython_overloaded_8__pow
-                                    pow@__lpython_overloaded_3__pow
-                                    pow@__lpython_overloaded_6__pow
-                                    pow@__lpython_overloaded_7__pow
-                                    pow@__lpython_overloaded_11__pow
-                                    pow@__lpython_overloaded_10__pow
-                                    complex@__lpython_overloaded_9__complex
-                                    pow@__lpython_overloaded_9__pow]
+                                    []
                                     []
                                     [(=
                                         (Var 3 eps)
@@ -1892,11 +1880,11 @@
             main_program:
                 (Program
                     (SymbolTable
-                        129
+                        128
                         {
                             __main__global_stmts:
                                 (ExternalSymbol
-                                    129
+                                    128
                                     __main__global_stmts
                                     2 __main__global_stmts
                                     __main__
@@ -1908,7 +1896,7 @@
                     main_program
                     [__main__]
                     [(SubroutineCall
-                        129 __main__global_stmts
+                        128 __main__global_stmts
                         2 __main__global_stmts
                         []
                         ()

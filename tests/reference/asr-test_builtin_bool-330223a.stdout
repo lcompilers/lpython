@@ -10,7 +10,7 @@
                             __main__global_stmts:
                                 (Function
                                     (SymbolTable
-                                        128
+                                        127
                                         {
                                             
                                         })
@@ -254,8 +254,7 @@
                                         []
                                         .false.
                                     )
-                                    [complex@__lpython_overloaded_9__complex
-                                    complex@__lpython_overloaded_13__complex]
+                                    []
                                     []
                                     [(=
                                         (Var 3 a)
@@ -869,11 +868,11 @@
             main_program:
                 (Program
                     (SymbolTable
-                        129
+                        128
                         {
                             __main__global_stmts:
                                 (ExternalSymbol
-                                    129
+                                    128
                                     __main__global_stmts
                                     2 __main__global_stmts
                                     __main__
@@ -885,7 +884,7 @@
                     main_program
                     [__main__]
                     [(SubroutineCall
-                        129 __main__global_stmts
+                        128 __main__global_stmts
                         2 __main__global_stmts
                         []
                         ()

@@ -10,7 +10,7 @@
                             __main__global_stmts:
                                 (Function
                                     (SymbolTable
-                                        128
+                                        127
                                         {
                                             
                                         })
@@ -256,13 +256,7 @@
                                         []
                                         .false.
                                     )
-                                    [round@__lpython_overloaded_0__round
-                                    round@__lpython_overloaded_1__round
-                                    round@__lpython_overloaded_2__round
-                                    round@__lpython_overloaded_4__round
-                                    round@__lpython_overloaded_5__round
-                                    round@__lpython_overloaded_3__round
-                                    round@__lpython_overloaded_6__round]
+                                    []
                                     []
                                     [(=
                                         (Var 3 f)
@@ -892,11 +886,11 @@
             main_program:
                 (Program
                     (SymbolTable
-                        129
+                        128
                         {
                             __main__global_stmts:
                                 (ExternalSymbol
-                                    129
+                                    128
                                     __main__global_stmts
                                     2 __main__global_stmts
                                     __main__
@@ -908,7 +902,7 @@
                     main_program
                     [__main__]
                     [(SubroutineCall
-                        129 __main__global_stmts
+                        128 __main__global_stmts
                         2 __main__global_stmts
                         []
                         ()

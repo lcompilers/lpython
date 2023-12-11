@@ -14,6 +14,40 @@
 
 #include <complex>
 
+#define ADD_ASR_DEPENDENCIES(current_scope, final_sym, current_function_dependencies) ASR::symbol_t* asr_owner_sym = nullptr; \
+    if(current_scope->asr_owner && ASR::is_a<ASR::symbol_t>(*current_scope->asr_owner) ) { \
+        asr_owner_sym = ASR::down_cast<ASR::symbol_t>(current_scope->asr_owner); \
+    } \
+    SymbolTable* temp_scope = current_scope; \
+    if (asr_owner_sym && temp_scope->get_counter() != ASRUtils::symbol_parent_symtab(final_sym)->get_counter() && \
+            !ASR::is_a<ASR::ExternalSymbol_t>(*final_sym) && !ASR::is_a<ASR::Variable_t>(*final_sym)) { \
+        if (ASR::is_a<ASR::AssociateBlock_t>(*asr_owner_sym) || ASR::is_a<ASR::Block_t>(*asr_owner_sym)) { \
+            temp_scope = temp_scope->parent; \
+            if (temp_scope->get_counter() != ASRUtils::symbol_parent_symtab(final_sym)->get_counter()) { \
+                current_function_dependencies.push_back(al, ASRUtils::symbol_name(final_sym)); \
+            } \
+        } else { \
+            current_function_dependencies.push_back(al, ASRUtils::symbol_name(final_sym)); \
+        } \
+    } \
+
+#define ADD_ASR_DEPENDENCIES_WITH_NAME(current_scope, final_sym, current_function_dependencies, dep_name) ASR::symbol_t* asr_owner_sym = nullptr; \
+    if(current_scope->asr_owner && ASR::is_a<ASR::symbol_t>(*current_scope->asr_owner) ) { \
+        asr_owner_sym = ASR::down_cast<ASR::symbol_t>(current_scope->asr_owner); \
+    } \
+    SymbolTable* temp_scope = current_scope; \
+    if (asr_owner_sym && temp_scope->get_counter() != ASRUtils::symbol_parent_symtab(final_sym)->get_counter() && \
+            !ASR::is_a<ASR::ExternalSymbol_t>(*final_sym) && !ASR::is_a<ASR::Variable_t>(*final_sym)) { \
+        if (ASR::is_a<ASR::AssociateBlock_t>(*asr_owner_sym) || ASR::is_a<ASR::Block_t>(*asr_owner_sym)) { \
+            temp_scope = temp_scope->parent; \
+            if (temp_scope->get_counter() != ASRUtils::symbol_parent_symtab(final_sym)->get_counter()) { \
+                current_function_dependencies.push_back(al, dep_name); \
+            } \
+        } else { \
+            current_function_dependencies.push_back(al, dep_name); \
+        } \
+    } \
+
 namespace LCompilers  {
 
     namespace ASRUtils  {
@@ -554,6 +588,17 @@ static inline std::pair<char**, size_t> symbol_dependencies(const ASR::symbol_t 
     }
 }
 
+static inline bool is_present_in_current_scope(ASR::ExternalSymbol_t* external_symbol, SymbolTable* current_scope) {
+        SymbolTable* scope = external_symbol->m_parent_symtab;
+        while (scope != nullptr) {
+            if (scope->get_counter() == current_scope->get_counter()) {
+                return true;
+            }
+            scope = scope->parent;
+        }
+        return false;
+    }
+
 static inline SymbolTable *symbol_parent_symtab(const ASR::symbol_t *f)
 {
     switch (f->type) {
@@ -1052,6 +1097,12 @@ static inline bool all_args_evaluated(const Vec<ASR::array_index_t> &args) {
 
 static inline bool extract_value(ASR::expr_t* value_expr,
     std::complex<double>& value) {
+    if ( ASR::is_a<ASR::ComplexConstructor_t>(*value_expr) ) {
+        value_expr = ASR::down_cast<ASR::ComplexConstructor_t>(value_expr)->m_value;
+        if (!value_expr) {
+            return false;
+        }
+    }
     if( !ASR::is_a<ASR::ComplexConstant_t>(*value_expr) ) {
         return false;
     }
@@ -1667,7 +1718,20 @@ void extract_module_python(const ASR::TranslationUnit_t &m,
         std::vector<std::pair<std::string, ASR::Module_t*>>& children_modules,
         std::string module_name);
 
-void update_call_args(Allocator &al, SymbolTable *current_scope, bool implicit_interface);
+static inline bool is_external_sym_changed(ASR::symbol_t* original_sym, ASR::symbol_t* external_sym) {
+    if (!ASR::is_a<ASR::Function_t>(*original_sym) || !ASR::is_a<ASR::Function_t>(*external_sym)) {
+        return false;
+    }
+    ASR::Function_t* original_func = ASR::down_cast<ASR::Function_t>(original_sym);
+    ASR::Function_t* external_func = ASR::down_cast<ASR::Function_t>(external_sym);
+    bool same_number_of_args = original_func->n_args == external_func->n_args;
+    // TODO: Check if the arguments are the same
+    return !(same_number_of_args);
+}
+
+void update_call_args(Allocator &al, SymbolTable *current_scope, bool implicit_interface,
+        std::map<std::string, ASR::symbol_t*> changed_external_function_symbol);
+
 
 ASR::Module_t* extract_module(const ASR::TranslationUnit_t &m);
 
@@ -2022,30 +2086,64 @@ static inline ASR::asr_t* make_ArraySize_t_util(
     Allocator &al, const Location &a_loc, ASR::expr_t* a_v,
     ASR::expr_t* a_dim, ASR::ttype_t* a_type, ASR::expr_t* a_value,
     bool for_type=true) {
+    int dim = -1;
+    bool is_dimension_constant = (a_dim != nullptr) && ASRUtils::extract_value(
+        ASRUtils::expr_value(a_dim), dim);
     if( ASR::is_a<ASR::ArrayPhysicalCast_t>(*a_v) ) {
         a_v = ASR::down_cast<ASR::ArrayPhysicalCast_t>(a_v)->m_arg;
     }
 
-    ASR::dimension_t* m_dims = nullptr;
-    size_t n_dims = ASRUtils::extract_dimensions_from_ttype(ASRUtils::expr_type(a_v), m_dims);
-    bool is_dimension_dependent_only_on_arguments_ = is_dimension_dependent_only_on_arguments(m_dims, n_dims);
-    int dim = -1;
-    bool is_dimension_constant = (a_dim != nullptr) && ASRUtils::extract_value(ASRUtils::expr_value(a_dim), dim);
-
-    bool compute_size = (is_dimension_dependent_only_on_arguments_ &&
-        (is_dimension_constant || a_dim == nullptr));
-    if( compute_size && for_type ) {
-        ASR::dimension_t* m_dims = nullptr;
-        size_t n_dims = ASRUtils::extract_dimensions_from_ttype(ASRUtils::expr_type(a_v), m_dims);
+    if( ASR::is_a<ASR::ArraySection_t>(*a_v) ) {
+        ASR::ArraySection_t* array_section_t = ASR::down_cast<ASR::ArraySection_t>(a_v);
         if( a_dim == nullptr ) {
-            ASR::asr_t* size = ASR::make_IntegerConstant_t(al, a_loc, 1, a_type);
-            for( size_t i = 0; i < n_dims; i++ ) {
+            ASR::asr_t* const1 = ASR::make_IntegerConstant_t(al, a_loc, 1, a_type);
+            ASR::asr_t* size = const1;
+            for( size_t i = 0; i < array_section_t->n_args; i++ ) {
+                ASR::expr_t* start = array_section_t->m_args[i].m_left;
+                ASR::expr_t* end = array_section_t->m_args[i].m_right;
+                ASR::expr_t* d = array_section_t->m_args[i].m_step;
+                ASR::expr_t* endminusstart = ASRUtils::EXPR(ASR::make_IntegerBinOp_t(
+                    al, a_loc, end, ASR::binopType::Sub, start, a_type, nullptr));
+                ASR::expr_t* byd = ASRUtils::EXPR(ASR::make_IntegerBinOp_t(
+                    al, a_loc, endminusstart, ASR::binopType::Div, d, a_type, nullptr));
+                ASR::expr_t* plus1 = ASRUtils::EXPR(ASR::make_IntegerBinOp_t(
+                    al, a_loc, byd, ASR::binopType::Add, ASRUtils::EXPR(const1), a_type, nullptr));
                 size = ASR::make_IntegerBinOp_t(al, a_loc, ASRUtils::EXPR(size),
-                    ASR::binopType::Mul, m_dims[i].m_length, a_type, nullptr);
+                    ASR::binopType::Mul, plus1, a_type, nullptr);
             }
             return size;
         } else if( is_dimension_constant ) {
-            return (ASR::asr_t*) m_dims[dim - 1].m_length;
+            ASR::asr_t* const1 = ASR::make_IntegerConstant_t(al, a_loc, 1, a_type);
+            ASR::expr_t* start = array_section_t->m_args[dim - 1].m_left;
+            ASR::expr_t* end = array_section_t->m_args[dim - 1].m_right;
+            ASR::expr_t* d = array_section_t->m_args[dim - 1].m_step;
+            ASR::expr_t* endminusstart = ASRUtils::EXPR(ASR::make_IntegerBinOp_t(
+                al, a_loc, end, ASR::binopType::Sub, start, a_type, nullptr));
+            ASR::expr_t* byd = ASRUtils::EXPR(ASR::make_IntegerBinOp_t(
+                al, a_loc, endminusstart, ASR::binopType::Div, d, a_type, nullptr));
+            return ASR::make_IntegerBinOp_t(al, a_loc, byd, ASR::binopType::Add,
+                ASRUtils::EXPR(const1), a_type, nullptr);
+        }
+    } else {
+        ASR::dimension_t* m_dims = nullptr;
+        size_t n_dims = ASRUtils::extract_dimensions_from_ttype(ASRUtils::expr_type(a_v), m_dims);
+        bool is_dimension_dependent_only_on_arguments_ = is_dimension_dependent_only_on_arguments(m_dims, n_dims);
+
+        bool compute_size = (is_dimension_dependent_only_on_arguments_ &&
+            (is_dimension_constant || a_dim == nullptr));
+        if( compute_size && for_type ) {
+            ASR::dimension_t* m_dims = nullptr;
+            size_t n_dims = ASRUtils::extract_dimensions_from_ttype(ASRUtils::expr_type(a_v), m_dims);
+            if( a_dim == nullptr ) {
+                ASR::asr_t* size = ASR::make_IntegerConstant_t(al, a_loc, 1, a_type);
+                for( size_t i = 0; i < n_dims; i++ ) {
+                    size = ASR::make_IntegerBinOp_t(al, a_loc, ASRUtils::EXPR(size),
+                        ASR::binopType::Mul, m_dims[i].m_length, a_type, nullptr);
+                }
+                return size;
+            } else if( is_dimension_constant ) {
+                return (ASR::asr_t*) m_dims[dim - 1].m_length;
+            }
         }
     }
 
@@ -2377,6 +2475,14 @@ static inline ASR::ttype_t* duplicate_type_without_dims(Allocator& al, const ASR
         }
         default : throw LCompilersException("Not implemented " + std::to_string(t->type));
     }
+}
+
+inline std::string remove_trailing_white_spaces(std::string str) {
+    int end = str.size() - 1;
+    while (end >= 0 && str[end] == ' ') {
+        end--;
+    }
+    return str.substr(0, end + 1);
 }
 
 inline bool is_same_type_pointer(ASR::ttype_t* source, ASR::ttype_t* dest) {
@@ -3189,7 +3295,9 @@ class ReplaceArgVisitor: public ASR::BaseExprReplacer<ReplaceArgVisitor> {
             default:
                 break;
         }
-        current_function_dependencies.push_back(al, ASRUtils::symbol_name(new_es));
+        if (ASRUtils::symbol_parent_symtab(new_es)->get_counter() != current_scope->get_counter()) {
+            ADD_ASR_DEPENDENCIES(current_scope, new_es, current_function_dependencies);
+        }
         ASRUtils::insert_module_dependency(new_es, al, current_module_dependencies);
         x->m_name = new_es;
     }
@@ -3212,6 +3320,14 @@ class ReplaceArgVisitor: public ASR::BaseExprReplacer<ReplaceArgVisitor> {
         if( idx_found ) {
             LCOMPILERS_ASSERT(current_expr);
             *current_expr = orig_args[arg_idx].m_value;
+        }
+    }
+
+    void replace_ArraySize(ASR::ArraySize_t* x) {
+        ASR::BaseExprReplacer<ReplaceArgVisitor>::replace_ArraySize(x);
+        if( ASR::is_a<ASR::ArraySection_t>(*x->m_v) ) {
+            *current_expr = ASRUtils::EXPR(ASRUtils::make_ArraySize_t_util(
+                al, x->base.base.loc, x->m_v, x->m_dim, x->m_type, x->m_value, true));
         }
     }
 
@@ -3466,6 +3582,15 @@ class SymbolDuplicator {
         if( !node_duplicator.success ) {
             return nullptr;
         }
+        if (ASR::is_a<ASR::Struct_t>(*m_type)) {
+            ASR::Struct_t* st = ASR::down_cast<ASR::Struct_t>(m_type);
+            std::string derived_type_name = ASRUtils::symbol_name(st->m_derived_type);
+            ASR::symbol_t* derived_type_sym = destination_symtab->resolve_symbol(derived_type_name);
+            LCOMPILERS_ASSERT_MSG( derived_type_sym != nullptr, "derived_type_sym cannot be nullptr");
+            if (derived_type_sym != st->m_derived_type) {
+                st->m_derived_type = derived_type_sym;
+            }
+        }
         return ASR::down_cast<ASR::symbol_t>(
             ASR::make_Variable_t(al, variable->base.base.loc, destination_symtab,
                 variable->m_name, variable->m_dependencies, variable->n_dependencies,
@@ -3550,6 +3675,11 @@ class SymbolDuplicator {
         if( new_return_var ) {
             node_duplicator.success = true;
             new_return_var = node_duplicator.duplicate_expr(function->m_return_var);
+            if (ASR::is_a<ASR::Var_t>(*new_return_var)) {
+                ASR::Var_t* var = ASR::down_cast<ASR::Var_t>(new_return_var);
+                std::string var_sym_name = ASRUtils::symbol_name(var->m_v);
+                new_return_var = ASRUtils::EXPR(make_Var_t(al, var->base.base.loc, function_symtab->get_symbol(var_sym_name)));
+            }
             if( !node_duplicator.success ) {
                 return nullptr;
             }
@@ -4282,6 +4412,9 @@ inline ASR::asr_t* make_ArrayConstant_t_util(Allocator &al, const Location &a_lo
     return ASR::make_ArrayConstant_t(al, a_loc, a_args, n_args, a_type, a_storage_format);
 }
 
+void make_ArrayBroadcast_t_util(Allocator& al, const Location& loc,
+    ASR::expr_t*& expr1, ASR::expr_t*& expr2);
+
 static inline void Call_t_body(Allocator& al, ASR::symbol_t* a_name,
     ASR::call_arg_t* a_args, size_t n_args, ASR::expr_t* a_dt, ASR::stmt_t** cast_stmt, bool implicit_argument_casting) {
     bool is_method = a_dt != nullptr;
@@ -4428,8 +4561,10 @@ static inline void Call_t_body(Allocator& al, ASR::symbol_t* a_name,
             }
         }
         if( ASRUtils::is_array(arg_type) && ASRUtils::is_array(orig_arg_type) ) {
-            ASR::Array_t* arg_array_t = ASR::down_cast<ASR::Array_t>(ASRUtils::type_get_past_const(arg_type));
-            ASR::Array_t* orig_arg_array_t = ASR::down_cast<ASR::Array_t>(ASRUtils::type_get_past_const(orig_arg_type));
+            ASR::Array_t* arg_array_t = ASR::down_cast<ASR::Array_t>(
+                ASRUtils::type_get_past_pointer(ASRUtils::type_get_past_const(arg_type)));
+            ASR::Array_t* orig_arg_array_t = ASR::down_cast<ASR::Array_t>(
+                ASRUtils::type_get_past_pointer(ASRUtils::type_get_past_const(orig_arg_type)));
             if( (arg_array_t->m_physical_type != orig_arg_array_t->m_physical_type) ||
                 (arg_array_t->m_physical_type == ASR::array_physical_typeType::DescriptorArray &&
                  arg_array_t->m_physical_type == orig_arg_array_t->m_physical_type &&
@@ -4592,6 +4727,14 @@ inline ASR::ttype_t* make_Pointer_t_util(Allocator& al, const Location& loc, ASR
     }
 
     return ASRUtils::TYPE(ASR::make_Pointer_t(al, loc, type));
+}
+
+int64_t compute_trailing_zeros(int64_t number);
+
+static inline bool is_simd_array(ASR::expr_t *v) {
+    return (ASR::is_a<ASR::Array_t>(*expr_type(v)) &&
+        ASR::down_cast<ASR::Array_t>(expr_type(v))->m_physical_type
+            == ASR::array_physical_typeType::SIMDArray);
 }
 
 } // namespace ASRUtils
