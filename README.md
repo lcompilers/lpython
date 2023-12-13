@@ -52,10 +52,10 @@ This step involves setting up the required configuration to run the programs in 
 
 ### Linux
 
-Run the below command to install `binutils-dev` package on Linux.
+Run the below command to install `binutils-dev`, `re2c`, `bison` and `cmake` package on Linux.
 
 ```bash
-sudo apt install binutils-dev
+sudo apt install binutils-dev re2c bison cmake
 ```
 
 ### Windows
