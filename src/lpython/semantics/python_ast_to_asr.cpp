@@ -4051,7 +4051,7 @@ public:
     // Implement visit_Global for Symbol Table visitor.
     void visit_Global(const AST::Global_t &/*x*/) {}
 
-    void visit_AsyncFunctionDef(const AST::AsyncFunctionDef_t &/*x*/){
+    void visit_AsyncFunctionDef(const AST::AsyncFunctionDef_t &x){
         try
         {
             // to be implemented
@@ -4059,7 +4059,8 @@ public:
         catch(const std::exception& e)
         {
             std::cerr << e.what() << '\n';
-        }        
+        }
+        throw SemanticError("The `async` keyword is currently not supported", x.base.base.loc);
     }
 
     void visit_FunctionDef(const AST::FunctionDef_t &x) {
