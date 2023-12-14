@@ -592,6 +592,11 @@ public:
         return nullptr;
     }
 
+
+    void visit_AsyncFunctionDef(const AST::AsyncFunctionDef_t &x){
+        throw SemanticError("The `async` keyword is currently not supported", x.base.base.loc);
+    }
+
     void visit_expr_list(AST::expr_t** exprs, size_t n,
                          Vec<ASR::expr_t*>& exprs_vec) {
         LCOMPILERS_ASSERT(exprs_vec.reserve_called);
