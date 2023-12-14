@@ -592,6 +592,11 @@ public:
         return nullptr;
     }
 
+
+    void visit_AsyncFunctionDef(const AST::AsyncFunctionDef_t &x){
+        throw SemanticError("The `async` keyword is currently not supported", x.base.base.loc);
+    }
+
     void visit_expr_list(AST::expr_t** exprs, size_t n,
                          Vec<ASR::expr_t*>& exprs_vec) {
         LCOMPILERS_ASSERT(exprs_vec.reserve_called);
@@ -4051,17 +4056,7 @@ public:
     // Implement visit_Global for Symbol Table visitor.
     void visit_Global(const AST::Global_t &/*x*/) {}
 
-    void visit_AsyncFunctionDef(const AST::AsyncFunctionDef_t &x){
-        try
-        {
-            // to be implemented
-        }
-        catch(const std::exception& e)
-        {
-            std::cerr << e.what() << '\n';
-        }
-        throw SemanticError("The `async` keyword is currently not supported", x.base.base.loc);
-    }
+    
 
     void visit_FunctionDef(const AST::FunctionDef_t &x) {
         dependencies.clear(al);
@@ -4833,18 +4828,6 @@ public:
         }
         current_scope = old_scope;
         tmp = nullptr;
-    }
-
-    void visit_AsyncFunctionDef(const AST::AsyncFunctionDef_t &/*x*/) {
-        try
-        {
-            // BodyVisitor for visit_AsyncFunctionDef to be implemented
-        }
-        catch(const std::exception& e)
-        {
-            std::cerr << e.what() << '\n';
-        }
-        
     }
 
 
