@@ -145,6 +145,19 @@ def test_str_split():
     assert res5 == ["123"]
     # assert res6 == [""]
 
+def test_str_replace():
+    a: str = "abracadabra"
+    res: str = a.replace("a","b")
+    res1: str = a.replace("a","")
+    res2: str = a.replace("e","a") 
+    res3: str = a.replace("ab","ba")
+    res4: str = a.replace("","")
+    assert res == "bbrbcbdbbrb"
+    assert res1 == "brcdbr"
+    assert res2 == "abracadabra"
+    assert res3 == "baracadbara"
+    assert res4 == "abracadabra"
+
 def check():
     f()
     test_str_concat()
@@ -160,5 +173,6 @@ def check():
     test_str_istitle()
     test_str_isalpha()
     test_str_split()
+    test_str_replace()
 
 check()

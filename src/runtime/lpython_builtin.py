@@ -860,6 +860,23 @@ def _lpython_str_split(x: str, sep:str) -> list[str]:
     return res
 
 @overload
+def _lpython_str_replace(x: str, old:str, new:str) -> str:
+    if (old == ""):
+        res: str = ""
+        i: str
+        for i in x:
+            res += new + i
+        return res
+    return _lpython_str_join(new, _lpython_str_split(x,old))
+
+@overload
+def _lpython_str_index(s: str, sub: str) -> i32:
+    ind: i32 = _lpython_str_find(s, sub);
+    if (ind == -1):
+        raise ValueError("substring not found")
+    return ind
+
+@overload
 def _lpython_str_swapcase(s: str) -> str:
     res :str = ""
     cur: str
