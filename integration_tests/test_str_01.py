@@ -123,6 +123,28 @@ def test_constant_str_subscript():
     assert "abc"[2] == "c"
     assert "abc"[:2] == "ab"
 
+def test_str_split():
+    a: str = "1,2,3"
+    b: str = "1,2,,3,"
+    c: str = "1and2and3"
+    d: str = "1 2 3"
+    e: str = "   1   2   3   "
+    f: str = "123"
+    res: list[str] = a.split(",")
+    res1: list[str] = b.split(",")
+    res2: list[str] = c.split("and")
+    res3: list[str] = d.split()
+    res4: list[str] = e.split()
+    res5: list[str] = f.split(" ")
+    # res6: list[str] = "".split(" ")
+    assert res == ["1", "2", "3"]
+    assert res1 == ["1", "2", "", "3", ""]
+    assert res2 == ["1", "2", "3"]
+    assert res3 == ["1", "2", "3"]
+    assert res4 == ["1", "2", "3"]
+    assert res5 == ["123"]
+    # assert res6 == [""]
+
 def check():
     f()
     test_str_concat()
@@ -137,5 +159,6 @@ def check():
     test_str_title()
     test_str_istitle()
     test_str_isalpha()
+    test_str_split()
 
 check()
