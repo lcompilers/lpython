@@ -1,0 +1,13 @@
+{
+    "basename": "asr-test_async-361297c",
+    "cmd": "lpython --show-asr --no-color {infile} -o {outfile}",
+    "infile": "tests/errors/test_async.py",
+    "infile_hash": "f4d737246effd50f1798a81f07042ad15a045e275448fe0226334f03",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": null,
+    "stdout_hash": null,
+    "stderr": "asr-test_async-361297c.stderr",
+    "stderr_hash": "abf614594f89a7a6d93d469d512e31de5adc64feef866957de80cd03",
+    "returncode": 2
+}
