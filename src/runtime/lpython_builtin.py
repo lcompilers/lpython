@@ -876,7 +876,6 @@ def _lpython_str_index(s: str, sub: str) -> i32:
         raise ValueError("substring not found")
     return ind
 
-
 @overload
 def _lpython_str_swapcase(s: str) -> str:
     res :str = ""
