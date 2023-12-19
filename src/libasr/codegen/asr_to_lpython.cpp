@@ -242,7 +242,7 @@ public:
             visit_expr(*x.m_args[i]);
             r += s;
         }
-        r += ")";
+        r += "):";
         r += "\n";
 
         inc_indent();
@@ -262,12 +262,9 @@ public:
     void visit_Program(const ASR::Program_t &x) {
         // Generate code for main function
         std::string r;
-        r = "if";
+        r = "def";
         r += " ";
-        r += "__name__";
-        r += " == ";
-        r += "__main__";
-        r += ":";
+        r += "main0():";
         r += "\n";
         inc_indent();
         for (auto &item : x.m_symtab->get_scope()) {

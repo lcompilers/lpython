@@ -1328,9 +1328,8 @@ int link_executable(const std::vector<std::string> &infiles,
             return 10;
         }
         return 0;
-    //} else if (backend == Backend::lpython) {
-    //    std::string CXX = "g++";
-    //    return 0;
+    } else if (backend == Backend::lpython) {
+        // TODO
     } else if (backend == Backend::x86) {
         std::string cmd = "cp " + infiles[0] + " " + outfile;
         int err = system(cmd.c_str());
@@ -1769,8 +1768,8 @@ int main(int argc, char *argv[])
             backend = Backend::c;
         } else if (arg_backend == "cpp") {
             backend = Backend::cpp;
-        //} else if (arg_backend == "lpython") {
-        //    backend = Backend::lpython;
+        } else if (arg_backend == "lpython") {
+            backend = Backend::lpython;
         } else if (arg_backend == "x86") {
             backend = Backend::x86;
         } else if (arg_backend == "wasm") {

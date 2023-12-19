@@ -301,6 +301,15 @@ macro(RUN_UTIL RUN_FAIL RUN_NAME RUN_FILE_NAME RUN_LABELS RUN_EXTRAFILES RUN_NOM
             if (${fail})
                 set_tests_properties(${name} PROPERTIES WILL_FAIL TRUE)
             endif()
+        elseif(KIND STREQUAL "lpython")
+            # lpython test
+            execute_process(COMMAND ${LPYTHON} ${extra_arg} --backend lpython ${CMAKE_CURRENT_SOURCE_DIR}/${file_name}.py)
+            if (lables)
+                set_tests_properties(${name} PROPERTIES LABELS "${labels}")
+            endif()
+            if (${fail})
+                set_tests_properties(${name} PROPERTIES WILL_FAIL TRUE)
+            endif()
         endif()
 
         if (copy_to_bin)
