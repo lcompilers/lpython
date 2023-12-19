@@ -8,6 +8,18 @@ using LCompilers::ASR::down_cast;
 
 namespace LCompilers {
 
+enum Precedence {
+    Or = 4,
+    And = 5,
+    CmpOp = 7,
+    Add = 8,
+    Sub = 12,
+    UnaryMinus = 9,
+    Mul = 13,
+    Div = 13,
+    Pow = 15,
+};
+
 class ASRToLpythonVisitor : public ASR::BaseVisitor<ASRToLpythonVisitor>
 {
 public:
@@ -23,9 +35,10 @@ public:
     int last_expr_precedence;
 
 public:
-    ASRToLpythonVisitor(Allocator& al, diag::Diagnostics& diag)
-        : al{ al }
-        , diag{ diag }
+    // TODO: check this constructor
+    ASRToLpythonVisitor(Allocator& al, diag::Diagnostics& diag, CompilerOptions &co, bool _use_colors, int _indent)
+        : al{ al }, diag{ diag }, use_colors{_use_colors}, indent_level{0},
+            indent_spaces{_indent}
         { }
 
     void inc_indent() {
@@ -50,16 +63,16 @@ public:
     {
         switch (type) {
             case (ASR::binopType::Add) : {
-                last_expr_precedence = 12;
+                last_expr_precedence = Precedence::Add;
                 return " + ";
             } case (ASR::binopType::Sub) : {
-                last_expr_precedence = 12;
+                last_expr_precedence = Precedence::Sub;
                 return " - ";
 	    } case (ASR::binopType::Mul) : {
-                last_expr_precedence = 13;
+                last_expr_precedence = Precedence::Mul;
                 return " * ";
 	    } case (ASR::binopType::Div) : {
-                last_expr_precedence = 13;
+                last_expr_precedence = Precedence::Div;
                 return " / ";
             // TODO: add an overload in is_op_overloaded
 	    //} case (ASR::binopType::FloorDiv) : {
@@ -69,7 +82,7 @@ public:
             //    last_expr_precedence = 13;
             //    return " % ";
 	    } case (ASR::binopType::Pow) : {
-                last_expr_precedence = 15;
+                last_expr_precedence = Precedence::Pow;
                 return " ** ";
 	    } default : { 
                 throw LCompilersException("Cannot represent the binary operator as a string");
@@ -79,7 +92,7 @@ public:
 
     std::string cmpop2str(const ASR::cmpopType type)
     {
-        last_expr_precedence = 7;
+        last_expr_precedence = Precedence::CmpOp;
         switch (type) {
             case (ASR::cmpopType::Eq) : return " == ";
             case (ASR::cmpopType::NotEq) : return " != ";
@@ -95,13 +108,13 @@ public:
     {
         switch (type) {
             case (ASR::logicalbinopType::And) : {
-                last_expr_precedence = 5;
+                last_expr_precedence = Precedence::And;
                 return " and ";
             } case (ASR::logicalbinopType::Or) : {
-                last_expr_precedence = 4;
+                last_expr_precedence = Precedence::Or;
                 return " or ";
 	    //} case (ASR::logicalbinopType::Not) : {
-            //    last_expr_precedence = 6;
+            //    last_expr_precedence = Precedence::Not;
             //    return " not ";
 	    } default : {
                 throw LCompilersException("Cannot represent the boolean operator as a string");
@@ -283,10 +296,16 @@ public:
 
 };
 
-std::string asr_to_lpython(Allocator& al, ASR::TranslationUnit_t &asr,
-        diag::Diagnostics& diag, CompilerOptions &co) {
-    ASRToLpythonVisitor v(al, diag);
-    v.visit_TranslationUnit(asr);
+Result<std::string> asr_to_lpython(Allocator& al, ASR::TranslationUnit_t &asr,
+        diag::Diagnostics& diagnostics, CompilerOptions &co,
+        bool color, int indent) {
+    ASRToLpythonVisitor v(al, diagnostics, co, color, indent);
+    try {
+        v.visit_TranslationUnit(asr);
+    } catch (const CodeGenError &e) {
+        diagnostics.diagnostics.push_back(e.d);
+        return Error();
+    }
     return v.s;
 }
 

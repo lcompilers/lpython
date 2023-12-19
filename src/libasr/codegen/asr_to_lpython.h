@@ -7,8 +7,9 @@
 namespace LCompilers {
 
     // Convert ASR to Python source code
-    std::string asr_to_lpython(Allocator &al, ASR::TranslationUnit_t &asr,
-        diag::Diagnostics &diagnostics, CompilerOptions &co);
+    Result<std::string> asr_to_lpython(Allocator &al, ASR::TranslationUnit_t &asr,
+        diag::Diagnostics &diagnostics, CompilerOptions &co,
+        bool color, int indent);
 
 } // namespace LCompilers
 

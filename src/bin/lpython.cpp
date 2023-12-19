@@ -410,6 +410,8 @@ int emit_lpython(const std::string &infile,
     LCompilers::LPython::AST::ast_t* ast = r.result;
 
     diagnostics.diagnostics.clear();
+
+    // AST -> ASR
     LCompilers::Result<LCompilers::ASR::TranslationUnit_t*>
         r1 = LCompilers::LPython::python_ast_to_asr(al, lm, nullptr, *ast, diagnostics, compiler_options, true, "__main__", infile);
     std::cerr << diagnostics.render(lm, compiler_options);
@@ -420,7 +422,11 @@ int emit_lpython(const std::string &infile,
     LCompilers::ASR::TranslationUnit_t* asr = r1.result;
 
     diagnostics.diagnostics.clear();
-    LCompilers::Result<std::string> res = LCompilers::asr_to_lpython(al, *asr, diagnostics, compiler_options);
+
+    // ASR -> LPython
+    bool color = false;
+    int indent = 0;
+    LCompilers::Result<std::string> res = LCompilers::asr_to_lpython(al, *asr, diagnostics, compiler_options, color, indent);
     std::cerr << diagnostics.render(lm, compiler_options);
     if (!res.ok) {
         LCOMPILERS_ASSERT(diagnostics.has_error())
