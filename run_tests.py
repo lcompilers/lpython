@@ -26,7 +26,7 @@ def single_test(test, verbose, no_llvm, skip_run_with_dbg, skip_cpptranslate, up
     llvm_dbg = is_included("llvm_dbg")
     cpp = is_included("cpp")
     c = is_included("c")
-    lpython = is_included("lpython")
+    python = is_included("python")
     is_cumulative = is_included("cumulative")
     wat = is_included("wat")
     run = is_included("run")
@@ -135,8 +135,8 @@ def single_test(test, verbose, no_llvm, skip_run_with_dbg, skip_cpptranslate, up
             run_test(filename, "c", "lpython --no-color --show-c {infile}",
                  filename, update_reference, extra_args)
 
-    if lpython:
-       run_test(filename, "lpython", "lpython --no-color --show-lpython {infile}",
+    if python:
+       run_test(filename, "python", "lpython --no-color --show-python {infile}",
             filename, update_reference, extra_args)
 
     if wat:

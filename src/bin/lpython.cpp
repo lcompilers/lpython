@@ -13,7 +13,7 @@
 #include <libasr/codegen/asr_to_llvm.h>
 #include <libasr/codegen/asr_to_cpp.h>
 #include <libasr/codegen/asr_to_c.h>
-#include <libasr/codegen/asr_to_lpython.h>
+#include <libasr/codegen/asr_to_python.h>
 #include <libasr/codegen/asr_to_py.h>
 #include <libasr/codegen/asr_to_x86.h>
 #include <libasr/codegen/asr_to_wasm.h>
@@ -56,7 +56,7 @@ using LCompilers::CompilerOptions;
 using LCompilers::LPython::parse_python_file;
 
 enum class Backend {
-    llvm, cpp, c, x86, wasm, wasm_x86, wasm_x64, lpython
+    llvm, cpp, c, x86, wasm, wasm_x86, wasm_x64, python
 };
 
 
@@ -386,7 +386,7 @@ int emit_c_to_file(const std::string &infile, const std::string &outfile,
     return 0;
 }
 
-int emit_lpython(const std::string &infile,
+int emit_python(const std::string &infile,
     const std::string &runtime_library_dir,
     CompilerOptions &compiler_options)
 {
@@ -1328,8 +1328,6 @@ int link_executable(const std::vector<std::string> &infiles,
             return 10;
         }
         return 0;
-    } else if (backend == Backend::lpython) {
-        // TODO
     } else if (backend == Backend::x86) {
         std::string cmd = "cp " + infiles[0] + " " + outfile;
         int err = system(cmd.c_str());
@@ -1543,7 +1541,7 @@ int main(int argc, char *argv[])
         bool show_asr = false;
         bool show_cpp = false;
         bool show_c = false;
-        bool show_lpython = false;
+        bool show_python = false;
         bool show_document_symbols = false;
         bool show_errors = false;
         bool with_intrinsic_modules = false;
@@ -1610,7 +1608,7 @@ int main(int argc, char *argv[])
         app.add_flag("--show-llvm", show_llvm, "Show LLVM IR for the given file and exit");
         app.add_flag("--show-cpp", show_cpp, "Show C++ translation source for the given python file and exit");
         app.add_flag("--show-c", show_c, "Show C translation source for the given python file and exit");
-        app.add_flag("--show-lpython", show_lpython, "Show Lpython translation source for the given python file and exit");
+        app.add_flag("--show-python", show_python, "Show Python translation source for the given python file and exit");
         app.add_flag("--show-asm", show_asm, "Show assembly for the given file and exit");
         app.add_flag("--show-wat", show_wat, "Show WAT (WebAssembly Text Format) and exit");
         app.add_flag("--show-stacktrace", compiler_options.show_stacktrace, "Show internal stacktrace on compiler errors");
@@ -1629,7 +1627,7 @@ int main(int argc, char *argv[])
         app.add_flag("--static", static_link, "Create a static executable");
         app.add_flag("--no-warnings", compiler_options.no_warnings, "Turn off all warnings");
         app.add_flag("--no-error-banner", compiler_options.no_error_banner, "Turn off error banner");
-        app.add_option("--backend", arg_backend, "Select a backend (llvm, cpp, x86, wasm, wasm_x86, wasm_x64, lpython)")->capture_default_str();
+        app.add_option("--backend", arg_backend, "Select a backend (llvm, cpp, x86, wasm, wasm_x86, wasm_x64)")->capture_default_str();
         app.add_flag("--enable-bounds-checking", compiler_options.enable_bounds_checking, "Turn on index bounds checking");
         app.add_flag("--openmp", compiler_options.openmp, "Enable openmp");
         app.add_flag("--fast", compiler_options.po.fast, "Best performance (disable strict standard compliance)");
@@ -1768,8 +1766,6 @@ int main(int argc, char *argv[])
             backend = Backend::c;
         } else if (arg_backend == "cpp") {
             backend = Backend::cpp;
-        } else if (arg_backend == "lpython") {
-            backend = Backend::lpython;
         } else if (arg_backend == "x86") {
             backend = Backend::x86;
         } else if (arg_backend == "wasm") {
@@ -1779,7 +1775,7 @@ int main(int argc, char *argv[])
         } else if (arg_backend == "wasm_x64") {
             backend = Backend::wasm_x64;
         } else {
-            std::cerr << "The backend must be one of: llvm, c, cpp, lpython, x86, wasm, wasm_x86, wasm_x64." << std::endl;
+            std::cerr << "The backend must be one of: llvm, c, cpp, x86, wasm, wasm_x86, wasm_x64." << std::endl;
             return 1;
         }
 
@@ -1845,8 +1841,8 @@ int main(int argc, char *argv[])
             return emit_c(arg_file, runtime_library_dir, lpython_pass_manager,
                             compiler_options);
         }
-        if (show_lpython) {
-            return emit_lpython(arg_file, runtime_library_dir, compiler_options);
+        if (show_python) {
+            return emit_python(arg_file, runtime_library_dir, compiler_options);
         }
         if (show_wat) {
             return emit_wat(arg_file, runtime_library_dir, compiler_options);
@@ -1919,9 +1915,6 @@ int main(int argc, char *argv[])
             } else if (backend == Backend::wasm_x86 || backend == Backend::wasm_x64) {
                 err = compile_to_binary_wasm_to_x86(arg_file, outfile,
                         runtime_library_dir, compiler_options, time_report, backend);
-            //} else if (backend == Backend::lpython) {
-            //    err = compile_to_binary_lpython(arg_file, outfile,
-            //            runtime_library_dir, compiler_options, time_report);
             } else if (backend == Backend::c) {
                 std::string emit_file_name = basename + "__tmp__generated__.c";
                 err = emit_c_to_file(arg_file, emit_file_name, runtime_library_dir,

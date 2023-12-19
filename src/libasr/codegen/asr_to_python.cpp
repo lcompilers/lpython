@@ -1,7 +1,7 @@
 #include <libasr/asr.h>
 #include <libasr/asr_utils.h>
 #include <libasr/codegen/asr_to_c_cpp.h>
-#include <libasr/codegen/asr_to_lpython.h>
+#include <libasr/codegen/asr_to_python.h>
 
 using LCompilers::ASR::is_a;
 using LCompilers::ASR::down_cast;
@@ -35,8 +35,7 @@ public:
     int last_expr_precedence;
 
 public:
-    // TODO: check this constructor
-    ASRToLpythonVisitor(Allocator& al, diag::Diagnostics& diag, CompilerOptions &co, bool _use_colors, int _indent)
+    ASRToLpythonVisitor(Allocator& al, diag::Diagnostics& diag, CompilerOptions& /*co*/, bool _use_colors, int _indent)
         : al{ al }, diag{ diag }, use_colors{_use_colors}, indent_level{0},
             indent_spaces{_indent}
         { }
@@ -74,13 +73,6 @@ public:
 	    } case (ASR::binopType::Div) : {
                 last_expr_precedence = Precedence::Div;
                 return " / ";
-            // TODO: add an overload in is_op_overloaded
-	    //} case (ASR::binopType::FloorDiv) : {
-            //    last_expr_precedence = 13;
-            //    return " // ";
-	    //} case (ASR::binopType::Mod) : {
-            //    last_expr_precedence = 13;
-            //    return " % ";
 	    } case (ASR::binopType::Pow) : {
                 last_expr_precedence = Precedence::Pow;
                 return " ** ";
@@ -113,19 +105,11 @@ public:
             } case (ASR::logicalbinopType::Or) : {
                 last_expr_precedence = Precedence::Or;
                 return " or ";
-	    //} case (ASR::logicalbinopType::Not) : {
-            //    last_expr_precedence = Precedence::Not;
-            //    return " not ";
 	    } default : {
                 throw LCompilersException("Cannot represent the boolean operator as a string");
             }
         }
     }
-
-    // TODO: Bitwise operator
-    // TODO: Assignment operator
-    // TODO: Membership operator
-    // TODO: Identity operator
 
     template <typename T>
     void visit_body(const T &x, std::string &r, bool apply_indent=true) {
@@ -146,7 +130,7 @@ public:
         switch (t->type) {
             case ASR::ttypeType::Integer : {
                 r = "int(";
-                r += std::to_string(down_cast<ASR::Integer_t>(t)->m_kind);  // TODO: confirm what's m_kind
+                r += std::to_string(down_cast<ASR::Integer_t>(t)->m_kind);
                 r += ")";
                 break;
             } case ASR::ttypeType::Complex : {
@@ -164,18 +148,6 @@ public:
                 r += std::to_string(down_cast<ASR::Logical_t>(t)->m_kind);
                 r += ")";
                 break;
-            //} case ASR::ttypeType::Tuple : {  // TODO: make it work
-            //    r = "tuple(";
-            //    r += std::to_string(down_cast<ASR::Tuple_t>(t)->m_kind);
-            //    r = ")";
-            //    break;
-            //} case ASR::ttypeType::List : {
-            //    r = "list(";
-            //    r += "[";
-            //    r += std::to_string(down_cast<ASR::List_t>(t)->m_kind);
-            //    r += "]";
-            //    r = ")";
-            //    break;
             } case ASR::ttypeType::Array : {
                 r = get_type(down_cast<ASR::Array_t>(t)->m_type);
                 break;
@@ -294,7 +266,7 @@ public:
 };
 
 Result<std::string> asr_to_lpython(Allocator& al, ASR::TranslationUnit_t &asr,
-        diag::Diagnostics& diagnostics, CompilerOptions &co,
+        diag::Diagnostics& diagnostics, CompilerOptions& co,
         bool color, int indent) {
     ASRToLpythonVisitor v(al, diagnostics, co, color, indent);
     try {
