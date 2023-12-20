@@ -1,0 +1,26 @@
+Internal Compiler Error: Unhandled exception
+Traceback (most recent call last):
+[2m  Binary file "[0m[1m[35m$DIR/src/bin/lpython[39m[0m[2m", in _start()[0m
+[2m  File "[0m[1m[35m./csu/../csu/libc-start.c[39m[0m[2m", line 392, in __libc_start_main_impl()[0m
+[2m  File "[0m[1m[35m./csu/../sysdeps/nptl/libc_start_call_main.h[39m[0m[2m", line 58, in __libc_start_call_main()[0m
+[2m  File "[0m[1m[35m$DIR/src/bin/lpython.cpp[39m[0m[2m", line 1845, in ??[0m
+    return emit_python(arg_file, runtime_library_dir, compiler_options);
+[2m  File "[0m[1m[35m$DIR/src/bin/lpython.cpp[39m[0m[2m", line 429, in ??[0m
+    LCompilers::Result<std::string> res = LCompilers::asr_to_lpython(al, *asr, diagnostics, compiler_options, color, indent);
+[2m  File "[0m[1m[35m$DIR/src/libasr/codegen/asr_to_python.cpp[39m[0m[2m", line 273, in LCompilers::asr_to_lpython[abi:cxx11](Allocator&, LCompilers::ASR::TranslationUnit_t&, LCompilers::diag::Diagnostics&, LCompilers::CompilerOptions&, bool, int)[0m
+    v.visit_TranslationUnit(asr);
+[2m  File "[0m[1m[35m$DIR/src/libasr/codegen/asr_to_python.cpp[39m[0m[2m", line 183, in LCompilers::ASRToLpythonVisitor::visit_TranslationUnit(LCompilers::ASR::TranslationUnit_t const&)[0m
+    visit_symbol(*item.second);
+[2m  File "[0m[1m[35m$DIR/src/libasr/../libasr/asr.h[39m[0m[2m", line 5060, in LCompilers::ASR::BaseVisitor<LCompilers::ASRToLpythonVisitor>::visit_symbol(LCompilers::ASR::symbol_t const&)[0m
+    void visit_symbol(const symbol_t &b) { visit_symbol_t(b, self()); }
+[2m  File "[0m[1m[35m$DIR/src/libasr/../libasr/asr.h[39m[0m[2m", line 4774, in ??[0m
+    case symbolType::Program: { v.visit_Program((const Program_t &)x); return; }
+[2m  File "[0m[1m[35m$DIR/src/libasr/codegen/asr_to_python.cpp[39m[0m[2m", line 252, in LCompilers::ASRToLpythonVisitor::visit_Program(LCompilers::ASR::Program_t const&)[0m
+    visit_body(x, r, true);
+[2m  File "[0m[1m[35m$DIR/src/libasr/codegen/asr_to_python.cpp[39m[0m[2m", line 120, in void LCompilers::ASRToLpythonVisitor::visit_body<LCompilers::ASR::Program_t>(LCompilers::ASR::Program_t const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&, bool)[0m
+    visit_stmt(*x.m_body[i]);
+[2m  File "[0m[1m[35m$DIR/src/libasr/../libasr/asr.h[39m[0m[2m", line 5077, in LCompilers::ASR::BaseVisitor<LCompilers::ASRToLpythonVisitor>::visit_stmt(LCompilers::ASR::stmt_t const&)[0m
+    void visit_stmt(const stmt_t &b) { visit_stmt_t(b, self()); }
+[2m  File "[0m[1m[35m$DIR/src/libasr/../libasr/asr.h[39m[0m[2m", line 4826, in ??[0m
+    case stmtType::SubroutineCall: { v.visit_SubroutineCall((const SubroutineCall_t &)x); return; }
+LCompilersException: visit_SubroutineCall() not implemented

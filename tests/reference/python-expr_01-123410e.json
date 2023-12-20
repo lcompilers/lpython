@@ -1,0 +1,13 @@
+{
+    "basename": "python-expr_01-123410e",
+    "cmd": "lpython --no-color --show-python {infile}",
+    "infile": "tests/expr_01.py",
+    "infile_hash": "4284fe3a1b4dd3e5d1de1357a79e9a25b426ca245b4cc91cf99e8547",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": null,
+    "stdout_hash": null,
+    "stderr": "python-expr_01-123410e.stderr",
+    "stderr_hash": "c48bf3950a62f0ef47f60bffcd24fab81f76a02560b590ddda0e574f",
+    "returncode": 1
+}
