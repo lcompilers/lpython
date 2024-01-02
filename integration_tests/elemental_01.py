@@ -101,7 +101,7 @@ def elemental_sin():
 
     sin1d = sin(sin(array1d))
 
-    verify1d(array1d, sin1d, 256) # working fine
+    verify1d(array1d, sin1d, 256)
 
     arraynd: f32[256, 64, 16] = empty((256, 64, 16), dtype=float32)
     sinnd: f32[256, 64, 16] = empty((256, 64, 16), dtype=float32)
