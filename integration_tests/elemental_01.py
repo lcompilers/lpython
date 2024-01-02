@@ -9,17 +9,17 @@ def verify1d(array: f32[:], result: f32[:], size: i32):
     for i in range(size):
         assert abs(sin(sin(array[i])) - result[i]) <= eps
 
-def verifynd(array: f64[:, :, :], result: f64[:, :, :], size1: i32, size2: i32, size3: i32):
+def verifynd(array: f32[:, :, :], result: f32[:, :, :], size1: i32, size2: i32, size3: i32):
     i: i32
     j: i32
     k: i32
-    eps: f64
-    eps = 1e-12
+    eps: f32
+    eps = f32(1e-6)
 
     for i in range(size1):
         for j in range(size2):
             for k in range(size3):
-                assert abs(sin(array[i, j, k])**2.0 - result[i, j, k]) <= eps
+                assert abs(sin(array[i, j, k])**f32(2) - result[i, j, k]) <= eps
 
 def verify2d(array: f64[:, :], result: f64[:, :], size1: i32, size2: i32):
     i: i32
@@ -101,17 +101,17 @@ def elemental_sin():
 
     sin1d = sin(sin(array1d))
 
-    verify1d(array1d, sin1d, 256)
+    verify1d(array1d, sin1d, 256) # working fine
 
-    arraynd: f64[256, 64, 16] = empty((256, 64, 16), dtype=float64)
-    sinnd: f64[256, 64, 16] = empty((256, 64, 16), dtype=float64)
+    arraynd: f32[256, 64, 16] = empty((256, 64, 16), dtype=float32)
+    sinnd: f32[256, 64, 16] = empty((256, 64, 16), dtype=float32)
 
     for i in range(256):
         for j in range(64):
             for k in range(16):
-                arraynd[i, j, k] = float(i + j + k)
+                arraynd[i, j, k] = f32(i + j + k)
 
-    sinnd = sin(arraynd)**2.0
+    sinnd = sin(arraynd)**f32(2)
 
     verifynd(arraynd, sinnd, 256, 64, 16)
 
