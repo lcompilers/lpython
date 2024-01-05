@@ -1,2 +1,7 @@
-sh: 1: llvm-dwarfdump: not found
-Error in creating the files used to generate the debug information. This might be caused because either `llvm-dwarfdump` or `Python` are not available. Please activate the CONDA environment and compile again.
+  File "tests/runtime_errors/test_assert_02.py", line 1
+    def test():
+  File "tests/runtime_errors/test_assert_02.py", line 4
+    test()
+  File "tests/runtime_errors/test_assert_02.py", line 2
+    assert 1 != 1, "One is equal to one."
+AssertionError: One is equal to one.

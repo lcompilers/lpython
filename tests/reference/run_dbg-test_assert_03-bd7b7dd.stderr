@@ -1,2 +1,11 @@
-sh: 1: llvm-dwarfdump: not found
-Error in creating the files used to generate the debug information. This might be caused because either `llvm-dwarfdump` or `Python` are not available. Please activate the CONDA environment and compile again.
+  File "tests/runtime_errors/test_assert_03.py", line 1
+    def f():
+  File "tests/runtime_errors/test_assert_03.py", line 10
+    main()
+  File "tests/runtime_errors/test_assert_03.py", line 8
+    f()
+  File "tests/runtime_errors/test_assert_03.py", line 2
+    g()
+  File "tests/runtime_errors/test_assert_03.py", line 5
+    assert False
+AssertionError
