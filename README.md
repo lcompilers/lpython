@@ -163,6 +163,7 @@ Please follow the below steps for Windows:
 
   ```bash
   ctest
+  ./run_tests.py -u
   ./run_tests.py
   ```
 
