@@ -592,6 +592,11 @@ public:
         return nullptr;
     }
 
+
+    void visit_AsyncFunctionDef(const AST::AsyncFunctionDef_t &x){
+        throw SemanticError("The `async` keyword is currently not supported", x.base.base.loc);
+    }
+
     void visit_expr_list(AST::expr_t** exprs, size_t n,
                          Vec<ASR::expr_t*>& exprs_vec) {
         LCOMPILERS_ASSERT(exprs_vec.reserve_called);
@@ -6761,6 +6766,29 @@ public:
             // Push string and substring argument on top of Vector (or Function Arguments Stack basically)
             fn_args.push_back(al, str);
             fn_args.push_back(al, value);
+        } else if(attr_name == "split") {
+            if(args.size() > 1) {
+                throw SemanticError("str.split() takes at most one argument for now.", loc);
+            }
+            fn_call_name = "_lpython_str_split";
+            ASR::call_arg_t str;
+            str.loc = loc;
+            str.m_value = s_var;
+
+            if (args.size() == 1) {
+                ASR::expr_t *arg_value = args[0].m_value;
+                ASR::ttype_t *arg_value_type = ASRUtils::expr_type(arg_value);
+                if (!ASRUtils::is_character(*arg_value_type)) {
+                    throw SemanticError("str.split() takes one argument of type: str", loc);
+                }
+                ASR::call_arg_t value;
+                value.loc = loc;
+                value.m_value = args[0].m_value;
+                fn_args.push_back(al, str);
+                fn_args.push_back(al, value);
+            } else {
+                fn_args.push_back(al, str);
+            }
         } else if(attr_name.size() > 2 && attr_name[0] == 'i' && attr_name[1] == 's') {
             /*
                 String Validation Methods i.e all "is" based functions are handled here

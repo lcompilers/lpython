@@ -166,6 +166,11 @@ Please follow the below steps for Windows:
   ./run_tests.py
   ```
 
+- Update test references:
+  ```
+  ./run_tests.py -u
+  ```
+
 - Run integration tests:
 
   ```bash
