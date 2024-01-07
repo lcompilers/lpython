@@ -1252,31 +1252,6 @@ public:
             } else {
                 ptr_loads = 1;
             }
-            if (ASR::is_a<ASR::CPtr_t>(*ASRUtils::expr_type(x.m_args[i]))) {
-                bool is_argument = false;
-                ASR::expr_t *var = x.m_args[i];
-                if (is_a<ASR::Var_t>(*var)) {
-                    ASR::symbol_t *var_sym = ASR::down_cast<ASR::Var_t>(var)
-                        ->m_v;
-                    if (is_a<ASR::Variable_t>(*var_sym)) {
-                        ASR::Variable_t *v = down_cast<ASR::Variable_t>(var_sym);
-                        if (v->m_intent == intent_local ||
-                            v->m_intent == intent_return_var ||
-                            !v->m_intent) {
-                            is_argument = false;
-                        } else {
-                            is_argument = true;
-                        }
-                    }
-                }
-                if (is_argument) {
-                    ptr_loads = 0;
-                } else {
-                    ptr_loads = 1;
-                }
-            } else {
-                ptr_loads = 1;
-            }
             this->visit_expr(*x.m_args[i]);
             llvm::Value* item = tmp;
             llvm::Value* pos = llvm::ConstantInt::get(context, llvm::APInt(32, i));
