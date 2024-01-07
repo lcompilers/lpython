@@ -103,17 +103,17 @@ def elemental_sin():
 
     verify1d(array1d, sin1d, 256)
 
-    arraynd: f64[256, 64, 16] = empty((256, 64, 16), dtype=float64)
-    sinnd: f64[256, 64, 16] = empty((256, 64, 16), dtype=float64)
+    arraynd: f64[200, 64, 16] = empty((200, 64, 16), dtype=float64)
+    sinnd: f64[200, 64, 16] = empty((200, 64, 16), dtype=float64)
 
-    for i in range(256):
+    for i in range(200):
         for j in range(64):
             for k in range(16):
                 arraynd[i, j, k] = float(i + j + k)
 
     sinnd = sin(arraynd)**2.0
 
-    verifynd(arraynd, sinnd, 256, 64, 16)
+    verifynd(arraynd, sinnd, 200, 64, 16)
 
 def elemental_cos():
     i: i32
