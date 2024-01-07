@@ -525,8 +525,7 @@ public:
                 ASR::List_t* t = ASR::down_cast<ASR::List_t>(v_m_type);
                 std::string list_type_c = c_ds_api->get_list_type(t);
                 std::string name = v.m_name;
-                if (name == "_lpython_return_variable" && v.m_intent == ASRUtils::intent_out) {
-                    is_return_var_intent_out = true;
+                if (v.m_intent == ASRUtils::intent_out) {
                     name = "*" + name;
                 }
                 sub = format_type_c("", list_type_c, name,
