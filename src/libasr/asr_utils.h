@@ -4737,6 +4737,26 @@ static inline bool is_simd_array(ASR::expr_t *v) {
             == ASR::array_physical_typeType::SIMDArray);
 }
 
+static inline bool is_argument_of_type_CPtr(ASR::expr_t *var) {
+    bool is_argument = false;
+    if (ASR::is_a<ASR::CPtr_t>(*expr_type(var))) {
+        if (ASR::is_a<ASR::Var_t>(*var)) {
+            ASR::symbol_t *var_sym = ASR::down_cast<ASR::Var_t>(var)->m_v;
+            if (ASR::is_a<ASR::Variable_t>(*var_sym)) {
+                ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(var_sym);
+                if (v->m_intent == intent_local ||
+                    v->m_intent == intent_return_var ||
+                    !v->m_intent) {
+                    is_argument = false;
+                } else {
+                    is_argument = true;
+                }
+            }
+        }
+    }
+    return is_argument;
+}
+
 } // namespace ASRUtils
 
 } // namespace LCompilers

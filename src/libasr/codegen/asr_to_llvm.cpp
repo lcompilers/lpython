@@ -63,6 +63,7 @@ using ASRUtils::intent_local;
 using ASRUtils::intent_return_var;
 using ASRUtils::determine_module_dependencies;
 using ASRUtils::is_arg_dummy;
+using ASRUtils::is_argument_of_type_CPtr;
 
 void string_init(llvm::LLVMContext &context, llvm::Module &module,
         llvm::IRBuilder<> &builder, llvm::Value* arg_size, llvm::Value* arg_string) {
@@ -1246,6 +1247,11 @@ public:
         list_api->list_init(type_code, const_list, *module, x.n_args, x.n_args);
         int64_t ptr_loads_copy = ptr_loads;
         for( size_t i = 0; i < x.n_args; i++ ) {
+            if (is_argument_of_type_CPtr(x.m_args[i])) {
+                ptr_loads = 0;
+            } else {
+                ptr_loads = 1;
+            }
             if (ASR::is_a<ASR::CPtr_t>(*ASRUtils::expr_type(x.m_args[i]))) {
                 bool is_argument = false;
                 ASR::expr_t *var = x.m_args[i];
