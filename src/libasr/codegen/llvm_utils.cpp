@@ -4659,10 +4659,26 @@ namespace LCompilers {
 
         llvm::Value* end_point_ptr = get_pointer_to_current_end_point(list);
         llvm::Value* end_point = LLVM::CreateLoad(*builder, end_point_ptr);
+        llvm::Value* zero = llvm::ConstantInt::get(llvm::Type::getInt32Ty(context),
+                                                   llvm::APInt(32, 0));
+        llvm::Value* adjusted_pos = pos;
+        llvm::Value* is_negative = builder->CreateICmpSLT(pos, zero);
+        llvm::Value* abs_pos = builder->CreateSelect(is_negative,
+            builder->CreateNeg(pos),
+            pos
+        );
+        llvm::Value* is_negative_and_in_bounds = builder->CreateAnd(is_negative,
+            builder->CreateICmpULE(abs_pos, end_point)
+        );
 
+        // If the index is negative, convert it to the corresponding positive index
+        adjusted_pos = builder->CreateSelect(is_negative_and_in_bounds,
+            builder->CreateAdd(end_point, pos),
+            adjusted_pos
+        );
         llvm::AllocaInst *pos_ptr = builder0.CreateAlloca(
                                     llvm::Type::getInt32Ty(context), nullptr);
-        LLVM::CreateStore(*builder, pos, pos_ptr);
+        LLVM::CreateStore(*builder, adjusted_pos, pos_ptr);
         llvm::Value* tmp = nullptr;
 
         // Get element to return
