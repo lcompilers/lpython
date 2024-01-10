@@ -9,7 +9,12 @@
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     # g++
     set(common "-Wall -Wextra")
-    set(CMAKE_CXX_FLAGS_RELEASE_INIT "${common} -O3 -march=native -funroll-loops -DNDEBUG")
+    if (CMAKE_SYSTEM_PROCESSOR MATCHES "ppc|powerpc")
+        set(native "-mtune=native")
+    else ()
+        set(native "-march=native")
+    endif ()
+    set(CMAKE_CXX_FLAGS_RELEASE_INIT "${common} -O3 ${native} -funroll-loops -DNDEBUG")
     set(CMAKE_CXX_FLAGS_DEBUG_INIT   "${common} -g -ggdb")
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL "Intel")
     # icpc
