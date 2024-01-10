@@ -15,6 +15,11 @@
 // For registering SIGSEGV callbacks
 #include <csignal>
 
+#ifdef __APPLE__
+// For PATH_MAX
+#  include <sys/syslimits.h>
+#endif
+
 
 // The following C headers are needed for some specific C functionality (see
 // the comments), which is not available in C++:
