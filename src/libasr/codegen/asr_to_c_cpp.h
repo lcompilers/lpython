@@ -1077,6 +1077,15 @@ PyMODINIT_FUNC PyInit_lpython_module_)" + fn_name + R"((void) {
                     || param->m_intent == ASRUtils::intent_out)
                     && !ASRUtils::is_aggregate_type(param->m_type))) {
                     args += "&" + src;
+                } else if (param->m_intent == ASRUtils::intent_out) {
+                    if (ASR::is_a<ASR::List_t>(*param->m_type)) {
+                        ASR::List_t* list_type = ASR::down_cast<ASR::List_t>(param->m_type);
+                        if (list_type->m_type->type == ASR::ttypeType::CPtr){
+                            args += "&" + src;
+                        }
+                    } else {
+                        args += src;
+                    }
                 } else {
                     args += src;
                 }
@@ -1367,7 +1376,19 @@ PyMODINIT_FUNC PyInit_lpython_module_)" + fn_name + R"((void) {
         if( is_target_list && is_value_list ) {
             ASR::List_t* list_target = ASR::down_cast<ASR::List_t>(ASRUtils::expr_type(x.m_target));
             std::string list_dc_func = c_ds_api->get_list_deepcopy_func(list_target);
-            src += indent + list_dc_func + "(&" + value + ", &" + target + ");\n\n";
+            if (ASR::is_a<ASR::Var_t>(*x.m_target)) {
+                ASR::symbol_t *target_sym = ASR::down_cast<ASR::Var_t>(x.m_target)->m_v;
+                if (ASR::is_a<ASR::Variable_t>(*target_sym)) {
+                    ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(target_sym);
+                    if (v->m_intent == ASRUtils::intent_out) {
+                        src += indent + list_dc_func + "(&" + value + ", " + target + ");\n\n";
+                    } else {
+                        src += indent + list_dc_func + "(&" + value + ", &" + target + ");\n\n";
+                    }
+                }
+            } else {
+                src += indent + list_dc_func + "(&" + value + ", &" + target + ");\n\n";
+            }
         } else if ( is_target_tup && is_value_tup ) {
             ASR::Tuple_t* tup_target = ASR::down_cast<ASR::Tuple_t>(ASRUtils::expr_type(x.m_target));
             std::string dc_func = c_ds_api->get_tuple_deepcopy_func(tup_target);
