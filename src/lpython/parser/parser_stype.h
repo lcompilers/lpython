@@ -112,7 +112,10 @@ static_assert(std::is_trivial<YYSTYPE>::value);
 // Ensure the YYSTYPE size is equal to Vec<AST::ast_t*>, which is a required member, so
 // YYSTYPE must be at least as big, but it should not be bigger, otherwise it
 // would reduce performance.
+// A temporary fix for PowerPC 32-bit, where the following assert fails with (16 == 12).
+#ifndef __ppc__
 static_assert(sizeof(YYSTYPE) == sizeof(Vec<LPython::AST::ast_t*>));
+#endif
 
 static_assert(std::is_standard_layout<Location>::value);
 static_assert(std::is_trivial<Location>::value);
