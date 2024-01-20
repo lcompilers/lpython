@@ -165,13 +165,6 @@ public:
     void visit_TranslationUnit(const ASR::TranslationUnit_t &x) {
         std::string r = "";
         for (auto &item : x.m_symtab->get_scope()) {
-            if (is_a<ASR::Module_t>(*item.second)) {
-                visit_symbol(*item.second);
-                r += s;
-            }
-        }
-
-        for (auto &item : x.m_symtab->get_scope()) {
             if (is_a<ASR::Function_t>(*item.second)) {
                 visit_symbol(*item.second);
                 r += s;
@@ -184,22 +177,6 @@ public:
                 r += s;
             }
         }
-        s = r;
-    }
-
-    void visit_Module(const ASR::Module_t &x) {
-        // Generate code for the lpython function 
-        std::string r;
-        r = "def";
-        r += " ";
-        r.append(x.m_name);
-        r += "()";
-        r += ":";
-        r += "\n";
-        inc_indent();
-        r += "\n";
-        dec_indent();
-        r += "\n";
         s = r;
     }
 
@@ -232,35 +209,107 @@ public:
     }
 
     void visit_Program(const ASR::Program_t &x) {
-        // Generate code for main function
         std::string r;
-        r = "def";
-        r += " ";
-        r += "main0():";
-        r += "\n";
+
+        // Generate code for nested functions
+        for (auto &item : x.m_symtab->get_scope()) {
+            if (is_a<ASR::ExternalSymbol_t>(*item.second)) {
+                visit_symbol(*item.second);
+                r += s;
+            }
+        }
+
+        visit_body(x, r, false);
+
+        // Generate code for main function
         inc_indent();
+        std::string r2;
         for (auto &item : x.m_symtab->get_scope()) {
             if (is_a<ASR::Variable_t>(*item.second)) {
-                visit_symbol(*item.second);
-                r += s;
+                ASR::Variable_t* v = ASR::down_cast<ASR::Variable_t>(item.second);
+                visit_Variable(*v);
+                r2 += s;
             }
         }
-        r.append(x.m_name);
-        r += "()";
-        r += "\n";
-
-        visit_body(x, r, true);
-
-        for (auto &item : x.m_symtab->get_scope()) {
-            if (is_a<ASR::Function_t>(*item.second)) {
-                visit_symbol(*item.second);
-                r += s;
-            }
-        }
-
         dec_indent();
+
         r += "\n";
         s = r;
+    }
+
+    void visit_Variable(const ASR::Variable_t &x) {
+        std::string r = indent;
+        switch (x.m_type->type) {
+            case ASR::ttypeType::Integer: {
+                ASR::Integer_t *i = down_cast<ASR::Integer_t>(x.m_type);
+                r += x.m_name;
+                r += ": ";
+                r += std::to_string(i->m_kind);
+                break;
+            }
+            default:
+                throw LCompilersException("Type not implemented");
+        }
+        r += "\n";
+        s = r;
+    }
+
+    void visit_Assignment(const ASR::Assignment_t &x) {
+        std::string r = indent;
+        visit_expr(*x.m_target);
+        r += s;
+        r += " = ";
+        visit_expr(*x.m_value);
+        r += s;
+        r += "\n";
+        s = r;
+    }
+
+    void visit_SubroutineCall(const ASR::SubroutineCall_t /*&x*/) {
+        std::string r = indent;
+    }
+
+    void visit_Cast(const ASR::Cast_t &x) {
+        // TODO
+        visit_expr(*x.m_arg);
+    }
+
+    void visit_Var(const ASR::Var_t &x) {
+        s = ASRUtils::symbol_name(x.m_v);
+    }
+
+    void visit_IntegerBinOp(const ASR::IntegerBinOp_t &x) {
+        std::string r;
+        // TODO: Handle precedence based on the last_operator_precedence
+        r = "(";
+        visit_expr(*x.m_left);
+        r += s;
+        r += binop2str(x.m_op);
+        visit_expr(*x.m_right);
+        r += s;
+        r += ")";
+        s = r;
+    }
+
+    void visit_IntegerCompare(const ASR::IntegerCompare_t &x) {
+        std::string r;
+        // TODO: Handle precedence based on the last_operator_precedence
+        r = "(";
+        visit_expr(*x.m_left);
+        r += s;
+        r += cmpop2str(x.m_op);
+        visit_expr(*x.m_right);
+        r += s;
+        r += ")";
+        s = r;
+    }
+
+    void visit_IntegerConstant(const ASR::IntegerConstant_t &x) {
+        s = std::to_string(x.m_n);
+    }
+
+    void visit_RealConstant(const ASR::RealConstant_t &x) {
+        s = std::to_string(x.m_r);
     }
 
 };

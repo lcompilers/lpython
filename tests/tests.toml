@@ -21,7 +21,6 @@ cpp = true
 filename = "complex1.py"
 ast = true
 asr = true
-python = true
 
 [[test]]
 filename = "complex2.py"
@@ -63,7 +62,6 @@ ast = true
 asr = true
 cpp = true
 wat = true
-python = true
 
 [[test]]
 filename = "expr4.py"
@@ -143,7 +141,6 @@ ast = true
 asr = true
 llvm = true
 llvm_dbg = true
-python = true
 
 [[test]]
 filename = "../integration_tests/array_01_decl.py"
