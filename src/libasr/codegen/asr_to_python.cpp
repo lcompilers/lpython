@@ -223,12 +223,10 @@ public:
 
         // Generate code for main function
         inc_indent();
-        std::string r2;
         for (auto &item : x.m_symtab->get_scope()) {
-            if (is_a<ASR::Variable_t>(*item.second)) {
-                ASR::Variable_t* v = ASR::down_cast<ASR::Variable_t>(item.second);
-                visit_Variable(*v);
-                r2 += s;
+            if (is_a<ASR::Function_t>(*item.second)) {
+                visit_symbol(*item.second);
+                r += s;
             }
         }
         dec_indent();
@@ -250,6 +248,20 @@ public:
             default:
                 throw LCompilersException("Type not implemented");
         }
+        r += "\n";
+        s = r;
+    }
+
+    void visit_Print(const ASR::Print_t &x) {
+        std::string r;
+        r += "print(";
+        for (size_t i = 0; i < x.n_values; i++) {
+            visit_expr(*x.m_values[i]);
+            r += s;
+            if (i < x.n_values-1)
+                r += ", ";
+        }
+        r += ")";
         r += "\n";
         s = r;
     }
