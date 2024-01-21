@@ -115,7 +115,18 @@ LFORTRAN_API void _lfortran_init_random_seed(unsigned seed)
 
 LFORTRAN_API void _lfortran_init_random_clock()
 {
-    srand((unsigned int)clock());
+    unsigned int count;
+#if defined(_MSC_VER)
+    count = (unsigned int)clock();
+#else
+    struct timespec ts;
+    if (clock_gettime(CLOCK_MONOTONIC, &ts) == 0) {
+        count = (unsigned int)(ts.tv_nsec);
+    } else {
+        count = (unsigned int)clock();
+    }
+#endif
+    srand(count);
 }
 
 LFORTRAN_API double _lfortran_random()
