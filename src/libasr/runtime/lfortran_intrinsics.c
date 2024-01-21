@@ -1884,12 +1884,10 @@ LFORTRAN_API double _lfortran_time()
 }
 
 LFORTRAN_API void _lfortran_sp_rand_num(float *x) {
-    srand(time(0));
     *x = rand() / (float) RAND_MAX;
 }
 
 LFORTRAN_API void _lfortran_dp_rand_num(double *x) {
-    srand(time(0));
     *x = rand() / (double) RAND_MAX;
 }
 
