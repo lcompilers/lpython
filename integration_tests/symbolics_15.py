@@ -21,9 +21,16 @@ def basic_assign(x: CPtr, y:CPtr) -> None:
 def basic_str(x: CPtr) -> str:
     pass
 
+@ccall(header="symengine/cwrapper.h", c_shared_lib="symengine", c_shared_lib_path=f"{os.environ['CONDA_PREFIX']}/lib")
+def basic_free_stack(x: CPtr) -> None:
+    pass
+
 def mmrv(r: Out[list[CPtr]]) -> None:
     # x: S = pi
-    x: CPtr = basic_new_heap()
+    _x: i64 = i64(0)
+    x: CPtr = empty_c_void_p()
+    p_c_pointer(pointer(_x, i64), x)
+    basic_new_stack(x)
     basic_const_pi(x)
 
     # l1: list[S]
@@ -44,6 +51,8 @@ def mmrv(r: Out[list[CPtr]]) -> None:
 
     # r = l1
     r = l1
+
+    basic_free_stack(x)
 
 def test_mrv():
     # ans : list[S]
