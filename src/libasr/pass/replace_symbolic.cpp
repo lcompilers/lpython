@@ -388,25 +388,9 @@ public:
         } else if (xx.m_type->type == ASR::ttypeType::List) {
             ASR::List_t* list = ASR::down_cast<ASR::List_t>(xx.m_type);
             if (list->m_type->type == ASR::ttypeType::SymbolicExpression){
-                std::string var_name = xx.m_name;
-                std::string placeholder = "_" + std::string(var_name);
-
                 ASR::ttype_t *CPtr_type = ASRUtils::TYPE(ASR::make_CPtr_t(al, xx.base.base.loc));
                 ASR::ttype_t* list_type = ASRUtils::TYPE(ASR::make_List_t(al, xx.base.base.loc, CPtr_type));
-
-                if(xx.m_intent == ASR::intentType::Local){
-                    ASR::symbol_t* sym2 = ASR::down_cast<ASR::symbol_t>(
-                        ASR::make_Variable_t(al, xx.base.base.loc, current_scope,
-                                            s2c(al, placeholder), nullptr, 0,
-                                            xx.m_intent, nullptr,
-                                            nullptr, xx.m_storage,
-                                            list_type, nullptr, xx.m_abi,
-                                            xx.m_access, xx.m_presence,
-                                            xx.m_value_attr));
-
-                    current_scope->add_symbol(s2c(al, placeholder), sym2);
-                    xx.m_type = list_type;
-                }
+                xx.m_type = list_type;
             }
         }
     }
@@ -583,7 +567,17 @@ public:
                             ASR::Variable_t *list_variable = ASR::down_cast<ASR::Variable_t>(v);
                             std::string list_name = list_variable->m_name;
                             std::string placeholder = "_" + std::string(list_name);
-                            ASR::symbol_t* placeholder_sym = current_scope->get_symbol(placeholder);
+
+                            ASR::symbol_t* placeholder_sym = ASR::down_cast<ASR::symbol_t>(
+                                ASR::make_Variable_t(al, list_variable->base.base.loc, current_scope,
+                                                    s2c(al, placeholder), nullptr, 0,
+                                                    list_variable->m_intent, nullptr,
+                                                    nullptr, list_variable->m_storage,
+                                                    list_type, nullptr, list_variable->m_abi,
+                                                    list_variable->m_access, list_variable->m_presence,
+                                                    list_variable->m_value_attr));
+
+                            current_scope->add_symbol(s2c(al, placeholder), placeholder_sym);
                             ASR::expr_t* placeholder_target = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, placeholder_sym));
 
                             Vec<ASR::expr_t*> temp_list1, temp_list2;
