@@ -56,8 +56,8 @@ def mmrv(r: Out[list[CPtr]]) -> None:
 def test_mrv():
     # ans : list[S]
     # temp : list[S]
-    ans: list[CPtr] = []
-    temp: list[CPtr] = []
+    ans: list[CPtr]
+    temp: list[CPtr]
 
     # mmrv(ans)
     # temp = ans
