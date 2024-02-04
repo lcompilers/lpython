@@ -876,7 +876,12 @@ public:
         }
 
         if( !type && raise_error ) {
-            throw SemanticError("Unsupported type annotation: " + var_annotation, loc);
+            if (var_annotation == "int") {
+                throw SemanticError(var_annotation + " type is not supported yet. " , loc);
+            } else
+            { 
+                throw SemanticError("Unsupported type annotation: " + var_annotation, loc);
+            }
         }
 
         return type;
