@@ -561,6 +561,7 @@ public:
                     if(ASR::is_a<ASR::Var_t>(*x.m_target)) {
                         ASR::symbol_t *v = ASR::down_cast<ASR::Var_t>(x.m_target)->m_v;
                         if (ASR::is_a<ASR::Variable_t>(*v)) {
+                            // Step1: Add the placeholder for the list variable to the scope
                             ASRUtils::ASRBuilder b(al, x.base.base.loc);
                             ASR::ttype_t* CPtr_type = ASRUtils::TYPE(ASR::make_CPtr_t(al, x.base.base.loc));
                             ASR::ttype_t* list_type = ASRUtils::TYPE(ASR::make_List_t(al, x.base.base.loc, CPtr_type));
@@ -594,11 +595,13 @@ public:
                             ASR::stmt_t* stmt1 = ASRUtils::STMT(ASR::make_Assignment_t(al, x.base.base.loc, placeholder_target, temp_list_const1, nullptr));
                             pass_result.push_back(al, stmt1);
 
+                            // Step2: Add the empty list variable
                             ASR::expr_t* temp_list_const2 = ASRUtils::EXPR(ASR::make_ListConstant_t(al, x.base.base.loc, temp_list2.p,
                                             temp_list2.size(), list_type));
                             ASR::stmt_t* stmt2 = ASRUtils::STMT(ASR::make_Assignment_t(al, x.base.base.loc, x.m_target, temp_list_const2, nullptr));
                             pass_result.push_back(al, stmt2);
 
+                            // Step3: Add the list index to the function scope
                             std::string symbolic_list_index = current_scope->get_unique_name("symbolic_list_index");
                             ASR::ttype_t* int32_type = ASRUtils::TYPE(ASR::make_Integer_t(al, x.base.base.loc, 4));
                             ASR::symbol_t* index_sym = ASR::down_cast<ASR::symbol_t>(
@@ -611,6 +614,7 @@ public:
                                 ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, x.base.base.loc, 0, int32_type)), nullptr));
                             pass_result.push_back(al, stmt3);
 
+                            // Step4: Add the DoLoop for appending elements into the list
                             std::string block_name = current_scope->get_unique_name("block");
                             SymbolTable* block_symtab = al.make_new<SymbolTable>(current_scope);
                             char *tmp_var_name = s2c(al, "tmp");
