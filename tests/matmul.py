@@ -1,8 +1,12 @@
 import numpy
 from lpython import (i16, i32, ccallback, c_p_pointer, Pointer, u64, CPtr, i64)
 
+######## ALL THE LINES WITH EIGHT COMMENT MARKS ARE THE ONES WE NEED TO
+######## BRING UP!  AS IT STANDS, THIS CODE WORKS IN LPYTHON MAIN AS OF 4
+######## FEBRUARY 2024.
+
 # https://numpy.org/devdocs/reference/typing.html
-# from numpy.typing import NDArray
+######## from numpy.typing import NDArray
 
 
 # plan for 30 Jan 2024 --
@@ -15,7 +19,7 @@ from lpython import (i16, i32, ccallback, c_p_pointer, Pointer, u64, CPtr, i64)
 
 def numpy_side_by_side(n: i32, m: i32, l: i32, M1: i32, M2: i32,
                        A: CPtr, B: CPtr, C: CPtr) -> \
-        None: # NDArray[numpy.int16]:
+        None: ######## NDArray[numpy.int16]:
     VR_SIZE: i32 = 32_768
 
     # In the primary example, n = 15, m = 3, l = 32_768,
@@ -24,10 +28,6 @@ def numpy_side_by_side(n: i32, m: i32, l: i32, M1: i32, M2: i32,
     # source GSI L4 arrays
     pA_nm: Pointer[i16[:]] = c_p_pointer(A, i16[:], array([n * m]))
     pB_ml: Pointer[i16[:]] = c_p_pointer(B, i16[:], array([m * l]))
-
-    ######## ALL THE LINES WITH EIGHT COMMENT MARKS ARE THE ONES WE NEED TO
-    ######## BRING UP!  AS IT STANDS, THIS CODE WORKS IN LPYTHON MAIN AS OF 4
-    ######## FEBRUARY 2024.
 
     # source numpy arrays
     ######## A_nm: NDArray[numpy.int16] = numpy.zeros((n, m), dtype=numpy.int16)
