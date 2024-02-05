@@ -33,6 +33,12 @@ def numpy_side_by_side(n: i32, m: i32, l: i32, M1: i32, M2: i32,
     ######## A_nm: NDArray[numpy.int16] = numpy.zeros((n, m), dtype=numpy.int16)
     ######## for row in range(n):
     ########     A_nm[row,:] = pA_nm[(row * m):((row + 1) * m)]
+    A_nm: Array[i16, n, m]
+    row : i32
+    for row in range(n):
+        col : i32
+        for col in range(m):
+            A_nm[row, col] = pA_nm[(row * m):((row * m) + col)]
 
     ######## B_ml: NDArray[numpy.int16] = numpy.zeros((m, l), dtype=numpy.int16)
     ######## for row in range(m):
@@ -93,3 +99,19 @@ def numpy_side_by_side(n: i32, m: i32, l: i32, M1: i32, M2: i32,
     set_breakpoint_here_and_inspect_C_nl = 0
 
     ######## return C_nl
+
+def main():
+    n  : i32 = 15
+    m  : i32 = 3
+    l  : i32 = 32_768
+    M1 : i32 = 1
+    M2 : i32 = 5
+    A_l4 : CPtr
+    B_l4 : CPtr
+    C_l4 : CPtr
+    numpy_side_by_side(n, m, l, M1, M2, A_l4, B_l4, C_l4)
+    print ("hello, world!")
+
+
+if __name__ == "__main__":
+    main()
