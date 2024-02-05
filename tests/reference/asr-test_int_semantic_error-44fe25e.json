@@ -1,0 +1,13 @@
+{
+    "basename": "asr-test_int_semantic_error-44fe25e",
+    "cmd": "lpython --show-asr --no-color {infile} -o {outfile}",
+    "infile": "tests/errors/test_int_semantic_error.py",
+    "infile_hash": "79ca7d3f440b2538aa0819f910bea5ef24820d245b2179e1bf4cce6d",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": null,
+    "stdout_hash": null,
+    "stderr": "asr-test_int_semantic_error-44fe25e.stderr",
+    "stderr_hash": "a1cd1ec0fee194e3c1651668753a1666ca46c925fa91335c6230e026",
+    "returncode": 2
+}
