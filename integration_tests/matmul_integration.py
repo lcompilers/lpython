@@ -1,5 +1,7 @@
 import numpy
-from lpython import (i16, i32, ccallback, c_p_pointer, Pointer, u64, CPtr, i64)
+from numpy import array
+from lpython import (i16, i32, ccallback, c_p_pointer, Pointer, u64, CPtr, i64,
+                     ccall, sizeof)
 
 ######## ALL THE LINES WITH EIGHT COMMENT MARKS ARE THE ONES WE NEED TO
 ######## BRING UP!  AS IT STANDS, THIS CODE WORKS IN LPYTHON MAIN AS OF 4
@@ -29,16 +31,27 @@ def numpy_side_by_side(n: i32, m: i32, l: i32, M1: i32, M2: i32,
     pA_nm: Pointer[i16[:]] = c_p_pointer(A, i16[:], array([n * m]))
     pB_ml: Pointer[i16[:]] = c_p_pointer(B, i16[:], array([m * l]))
 
+    print(pA_nm[0])
+    assert pA_nm[0] == i16(0)
+
+    pA_nm[0] = i16(32_767)
+    assert pA_nm[0] == i16(0x7FFF)
+    print(pA_nm[0])
+
+    pA_nm[0] += i16(1)
+    assert pA_nm[0] == i16(-32_768)
+    print(pA_nm[0])
+
     # source numpy arrays
     ######## A_nm: NDArray[numpy.int16] = numpy.zeros((n, m), dtype=numpy.int16)
     ######## for row in range(n):
     ########     A_nm[row,:] = pA_nm[(row * m):((row + 1) * m)]
-    A_nm: Array[i16, n, m]
-    row : i32
-    for row in range(n):
-        col : i32
-        for col in range(m):
-            A_nm[row, col] = pA_nm[(row * m):((row * m) + col)]
+    # A_nm: Array[i16, n, m]
+    # row : i32
+    # for row in range(n):
+    #     col : i32
+    #     for col in range(m):
+    #         A_nm[row, col] = pA_nm[(row * m):((row * m) + col)]
 
     ######## B_ml: NDArray[numpy.int16] = numpy.zeros((m, l), dtype=numpy.int16)
     ######## for row in range(m):
@@ -100,16 +113,23 @@ def numpy_side_by_side(n: i32, m: i32, l: i32, M1: i32, M2: i32,
 
     ######## return C_nl
 
+
+@ccall
+def _lfortran_malloc(size : i32) -> CPtr:
+    """borrowed from bindc_07.py in integration_tests"""
+    pass
+
+
 def main():
     n  : i32 = 15
     m  : i32 = 3
     l  : i32 = 32_768
     M1 : i32 = 1
     M2 : i32 = 5
-    A_l4 : CPtr
-    B_l4 : CPtr
-    C_l4 : CPtr
-    numpy_side_by_side(n, m, l, M1, M2, A_l4, B_l4, C_l4)
+    Anm_l4 : CPtr = _lfortran_malloc( (n * m) * i32(sizeof(i16)) )
+    Bml_l4 : CPtr = _lfortran_malloc( (m * l) * i32(sizeof(i16)) )
+    Cnl_l4 : CPtr = _lfortran_malloc( (n * l) * i32(sizeof(i16)) )
+    numpy_side_by_side(n, m, l, M1, M2, Anm_l4, Bml_l4, Cnl_l4)
     print ("hello, world!")
 
 
