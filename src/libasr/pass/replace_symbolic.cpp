@@ -690,6 +690,15 @@ public:
                     xx.m_test = new_logical_not;
                 }
             }
+        } else if (ASR::is_a<ASR::SymbolicCompare_t>(*xx.m_test)) {
+            ASR::SymbolicCompare_t *s = ASR::down_cast<ASR::SymbolicCompare_t>(xx.m_test);
+            ASR::expr_t* function_call = nullptr;
+            if (s->m_op == ASR::cmpopType::Eq) {
+                function_call = basic_compare(xx.base.base.loc, "basic_eq", s->m_left, s->m_right);
+            } else {
+                function_call = basic_compare(xx.base.base.loc, "basic_neq", s->m_left, s->m_right);
+            }
+            xx.m_test = function_call;
         }
     }
 
