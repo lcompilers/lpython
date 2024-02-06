@@ -964,6 +964,8 @@ def _lpython_str_isascii(s: str) -> bool:
     return True
 
 def _lpython_str_isspace(s:str) -> bool:
+    if (len(s) == 0):
+        return False
     ch: str 
     for ch in s:
         if ch != ' ' and ch != '\t' and ch != '\n' and ch != '\r' and ch != '\f' and ch != '\v':
