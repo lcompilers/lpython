@@ -1,0 +1,5 @@
+semantic error: int type is not supported yet. 
+ --> tests/errors/test_int_semantic_error.py:4:8
+  |
+4 |     x: int = 1
+  |        ^^^ Hint: Use i8, i16, i32 or i64 for now. 

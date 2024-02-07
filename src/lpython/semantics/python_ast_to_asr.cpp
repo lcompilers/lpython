@@ -876,7 +876,18 @@ public:
         }
 
         if( !type && raise_error ) {
-            throw SemanticError("Unsupported type annotation: " + var_annotation, loc);
+            if (var_annotation == "int") {
+                std::string msg = "Hint: Use i8, i16, i32 or i64 for now. ";
+                diag.add(diag::Diagnostic(
+                    var_annotation + " type is not supported yet. ",
+                    diag::Level::Error, diag::Stage::Semantic, {
+                        diag::Label(msg, {loc})
+                    })
+                );
+                throw SemanticAbort();
+            } else { 
+                throw SemanticError("Unsupported type annotation: " + var_annotation, loc);
+            }
         }
 
         return type;
@@ -5301,7 +5312,8 @@ public:
         head.m_start = loop_start;
         head.m_increment = inc;
 
-        if( !ASR::is_a<ASR::Integer_t>(*ASRUtils::expr_type(inc)) ) {
+        if( !ASR::is_a<ASR::Integer_t>(*ASRUtils::type_get_past_const(
+                ASRUtils::expr_type(inc))) ) {
             throw SemanticError("For loop increment type should be Integer.", loc);
         }
         ASR::expr_t *inc_value = ASRUtils::expr_value(inc);
