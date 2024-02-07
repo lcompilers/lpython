@@ -1,4 +1,4 @@
-# LPython
+#  LPython
 
 LPython is a Python compiler. It is in heavy development, currently in alpha
 stage. LPython works on Windows, macOS and Linux. Some of the goals of LPython
