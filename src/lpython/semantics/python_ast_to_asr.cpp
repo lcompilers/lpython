@@ -1,4 +1,4 @@
-#include <fstream>
+einclude <fstream>
 #include <iostream>
 #include <map>
 #include <set>
@@ -7107,18 +7107,18 @@ public:
                     Return True if all cased characters in the string are uppercase and there is at least one cased character, False otherwise.
                 */
                 bool is_cased_present = false;
-                bool is_lower = true;
+                bool is_upper = true;
                 for (auto &i : s_var) {
                     if ((i >= 'A' && i <= 'Z') || (i >= 'a' && i <= 'z')) {
                         is_cased_present = true;
                         if(!(i >= 'A' && i <= 'Z')) {
-                            is_lower = false;
+                            is_upper = false;
                             break;
                         }
                     }
                 }
-                is_lower = is_lower && is_cased_present;
-                tmp = ASR::make_LogicalConstant_t(al, loc, is_lower,
+                is_upper = is_upper && is_cased_present;
+                tmp = ASR::make_LogicalConstant_t(al, loc, is_upper,
                         ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4)));
                 return;
             } else if(attr_name == "isdecimal") {
@@ -7160,13 +7160,13 @@ characters, as defined by CPython. Return false otherwise. For now we use the
 std::isspace function, but if we later discover that it differs from CPython,
 we will have to use something else.
                 */
-                bool is_space = true;
-                    for (char i : s_var) {
-                        if (!std::isspace(static_cast<unsigned char>(i))) {
-                            is_space = false;
-                            break;
-                        }
+                bool is_space = (s_var.size() != 0);
+                for (char i : s_var) {
+                    if (!std::isspace(static_cast<unsigned char>(i))) {
+                        is_space = false;
+                        break;
                     }
+                }
                 tmp = ASR::make_LogicalConstant_t(al, loc, is_space,
                         ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4)));
                 return;
