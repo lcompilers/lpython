@@ -1101,6 +1101,10 @@ filename = "errors/test_unsupported_type.py"
 asr = true
 
 [[test]]
+filename = "errors/test_int_semantic_error.py"
+asr = true
+
+[[test]]
 filename = "errors/generics_error_01.py"
 asr = true
 
