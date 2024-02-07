@@ -171,7 +171,7 @@ std::string str_escape_c(const std::string &s) {
     return o.str();
 }
 
-char* str_unescape_c(Allocator &al, LCompilers::Str &s) {
+std::string str_unescape_c0(LCompilers::Str &s) {
     std::string x = "";
     size_t idx = 0;
     for (; idx + 1 < s.size(); idx++) {
@@ -208,7 +208,11 @@ char* str_unescape_c(Allocator &al, LCompilers::Str &s) {
     if (idx < s.size()) {
         x += s[idx];
     }
-    return LCompilers::s2c(al, x);
+    return x;
+}
+
+char* str_unescape_c(Allocator &al, LCompilers::Str &s) {
+    return LCompilers::s2c(al, str_unescape_c0(s));
 }
 
 std::string str_escape_fortran_double_quote(const std::string &s) {

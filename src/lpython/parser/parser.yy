@@ -103,6 +103,12 @@ void yyerror(YYLTYPE *yyloc, LCompilers::LPython::Parser &p, const std::string &
 %token TK_CARET "^"
 %token TK_AT "@"
 %token <string> TK_STRING
+%token <string> TK_RAW_STRING
+%token <string> TK_UNI_STRING
+%token <string> TK_FMT_STRING
+%token <string> TK_RAW_FMT_STRING
+%token <string> TK_BYTES
+%token <string> TK_RAW_BYTES
 %token <string> TK_COMMENT
 %token <string> TK_EOLCOMMENT
 %token <string> TK_TYPE_COMMENT
@@ -1101,10 +1107,20 @@ subscript
     ;
 
 string
-    : string TK_STRING { $$ = STRING2($1, $2, @$); } // TODO
-    | string id TK_STRING { $$ = STRING4($1, STRING3($2, $3, @$), @$); }
+    : string TK_STRING { $$ = STRING4($1, $2, @$); } // TODO
+    | string TK_RAW_STRING { $$ = STRING5($1, STRING1($2, @$), @$); }
+    | string TK_UNI_STRING { $$ = STRING5($1, STRING2($2, @$), @$); }
+    | string TK_FMT_STRING { $$ = STRING5($1, STRING3($2, @$), @$); }
+    | string TK_RAW_FMT_STRING { $$ = STRING5($1, STRING3($2, @$), @$); }
+    | string TK_BYTES { $$ = STRING5($1, BYTES1($2, @$), @$); }
+    | string TK_RAW_BYTES { $$ = STRING5($1, BYTES1($2, @$), @$); }
     | TK_STRING { $$ = STRING1($1, @$); }
-    | id TK_STRING { $$ = STRING3($1, $2, @$); }
+    | TK_RAW_STRING { $$ = STRING1($1, @$); }
+    | TK_UNI_STRING { $$ = STRING2($1, @$); }
+    | TK_FMT_STRING { $$ = STRING3($1, @$); }
+    | TK_RAW_FMT_STRING { $$ = STRING3($1, @$); }
+    | TK_BYTES { $$ = BYTES1($1, @$); }
+    | TK_RAW_BYTES { $$ = BYTES1($1, @$); }
     ;
 
 lambda_parameter

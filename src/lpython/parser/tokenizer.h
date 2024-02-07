@@ -3,6 +3,7 @@
 
 #include <libasr/exception.h>
 #include <libasr/alloc.h>
+#include <libasr/string_utils.h>
 #include <lpython/parser/parser_stype.h>
 
 #define MAX_PAREN_LEVEL 200
@@ -53,19 +54,44 @@ public:
         s.n = cur-tok;
     }
 
-    // Return the current token as YYSTYPE::Str, strips first and last character
-    void token_str(Str &s) const
+    // Return the current token as YYSTYPE::Str, strip the string appropirately
+    // based on the quotes it uses and unescape the string
+    void token_str(Allocator &al, Str &s, int quote_len, int prefix_len) const
     {
-        s.p = (char*) tok + 1;
-        s.n = cur-tok-2;
+        s.p = (char*) tok + (prefix_len + quote_len);
+        s.n = cur-tok-(prefix_len + quote_len + quote_len);
+        s.p = str_unescape_c(al, s);
+        s.n = strlen(s.p);
     }
 
-    // Return the current token as YYSTYPE::Str, strips the first 3 and the last
-    // 3 characters
-    void token_str3(Str &s) const
+    // Return the current token as YYSTYPE::Str, strip the string appropirately
+    // based on the quotes it uses. It does not unescape the string
+    void token_raw_str(Str &s, int quote_len, int prefix_len) const
     {
-        s.p = (char*) tok + 3;
-        s.n = cur-tok-6;
+        s.p = (char*) tok + (prefix_len + quote_len);
+        s.n = cur-tok-(prefix_len + quote_len + quote_len);
+    }
+
+    // Return the current token as YYSTYPE::Str, strip the string appropriately,
+    // unescape the string and prepend 'b'
+    void token_bytes(Allocator &al, Str &s, int quote_len, int prefix_len) const
+    {
+        s.p = (char*) tok + (prefix_len + quote_len);
+        s.n = cur-tok-(prefix_len + quote_len + quote_len);
+        std::string s_ = "b'" + str_unescape_c0(s) +  "'";
+        s.p = s2c(al, s_);
+        s.n = strlen(s.p);
+    }
+
+    // Return the current token as YYSTYPE::Str, strip the string appropriately
+    // and prepend 'b'. It does not unescape the string.
+    void token_raw_bytes(Str &s, int quote_len, int prefix_len) const
+    {
+        s.p = (char*) tok + (prefix_len + quote_len - 2);
+        s.n = cur-tok-(prefix_len + quote_len + quote_len - 3);
+        s.p[0] = 'b';
+        s.p[1] = '\'';
+        s.p[s.n - 1] = '\'';
     }
 
     // Return the current token's location

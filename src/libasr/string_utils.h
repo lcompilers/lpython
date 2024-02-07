@@ -38,6 +38,7 @@ std::string join_paths(const std::vector<std::string> &paths);
 // Escapes special characters from the given string
 // using C style escaping
 std::string str_escape_c(const std::string &s);
+std::string str_unescape_c0(LCompilers::Str &s);
 char* str_unescape_c(Allocator &al, LCompilers::Str &s);
 
 // Escapes double quote characters from the given string

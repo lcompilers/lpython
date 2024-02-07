@@ -290,6 +290,18 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc, diag::Diagnost
                             | ("''" | "''" "\\"+) [^'\x00\\]
                             | [^'\x00\\] )*
                       "'''";
+            raw_str1 = 'r' (string1 | string2);
+            raw_str2 = 'r' (string3 | string4);
+            unicode_str1 = 'u' (string1 | string2);
+            unicode_str2 = 'u' (string3 | string4);
+            fmt_str1 = 'f' (string1 | string2);
+            fmt_str2 = 'f' (string3 | string4);
+            raw_fmt_str1 = ('rf' | 'fr') (string1 | string2);
+            raw_fmt_str2 = ('rf' | 'fr') (string3 | string4);
+            bytes1 = 'b' (string1 | string2);
+            bytes2 = 'b' (string3 | string4);
+            raw_bytes1 = ('rb' | 'br') (string1 | string2);
+            raw_bytes2 = ('rb' | 'br') (string3 | string4);
             type_ignore = "#" whitespace? "type:" whitespace? "ignore" [^\n\x00]*;
             type_comment = "#" whitespace? "type:" whitespace? [^\n\x00]*;
             comment = "#" [^\n\x00]*;
@@ -583,10 +595,28 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc, diag::Diagnost
             }
             //docstring { RET(TK_DOCSTRING) }
 
-            string1 { token_str(yylval.string); RET(TK_STRING) }
-            string2 { token_str(yylval.string); RET(TK_STRING) }
-            string3 { token_str3(yylval.string); RET(TK_STRING) }
-            string4 { token_str3(yylval.string); RET(TK_STRING) }
+            string1 { token_str(al, yylval.string, 1, 0); RET(TK_STRING) }
+            string2 { token_str(al, yylval.string, 1, 0); RET(TK_STRING) }
+            string3 { token_str(al, yylval.string, 3, 0); RET(TK_STRING) }
+            string4 { token_str(al, yylval.string, 3, 0); RET(TK_STRING) }
+
+            raw_str1 { token_raw_str(yylval.string, 1, 1); RET(TK_RAW_STRING) }
+            raw_str2 { token_raw_str(yylval.string, 3, 1); RET(TK_RAW_STRING) }
+
+            unicode_str1 { token_str(al, yylval.string, 1, 1); RET(TK_UNI_STRING) }
+            unicode_str2 { token_str(al, yylval.string, 3, 1); RET(TK_UNI_STRING) }
+
+            fmt_str1 { token_str(al, yylval.string, 1, 1); RET(TK_FMT_STRING) }
+            fmt_str2 { token_str(al, yylval.string, 3, 1); RET(TK_FMT_STRING) }
+
+            raw_fmt_str1 { token_raw_str(yylval.string, 1, 2); RET(TK_RAW_FMT_STRING) }
+            raw_fmt_str2 { token_raw_str(yylval.string, 3, 2); RET(TK_RAW_FMT_STRING) }
+
+            bytes1 { token_bytes(al, yylval.string, 1, 1); RET(TK_BYTES) }
+            bytes2 { token_bytes(al, yylval.string, 3, 1); RET(TK_BYTES) }
+
+            raw_bytes1 { token_raw_bytes(yylval.string, 1, 2); RET(TK_RAW_BYTES) }
+            raw_bytes2 { token_raw_bytes(yylval.string, 3, 2); RET(TK_RAW_BYTES) }
 
             name { token(yylval.string); RET(TK_NAME) }
         */
@@ -687,6 +717,12 @@ std::string token2text(const int token)
         T(TK_AT, "@")
 
         T(TK_STRING, "string")
+        T(TK_RAW_STRING, "raw_str")
+        T(TK_UNI_STRING, "unicode_str")
+        T(TK_FMT_STRING, "fmt_string")
+        T(TK_RAW_FMT_STRING, "raw_fmt_string")
+        T(TK_BYTES, "bytes")
+        T(TK_RAW_BYTES, "raw_bytes")
         T(TK_COMMENT, "comment")
         T(TK_EOLCOMMENT, "eolcomment")
         T(TK_TYPE_COMMENT, "type_comment")
@@ -824,7 +860,13 @@ std::string pickle_token(int token, const YYSTYPE &yystype)
         t += " " + std::to_string(yystype.f);
     } else if (token == yytokentype::TK_IMAG_NUM) {
         t += " " + std::to_string(yystype.f) + "j";
-    } else if (token == yytokentype::TK_STRING) {
+    } else if (token == yytokentype::TK_STRING
+        || token == yytokentype::TK_RAW_STRING
+        || token == yytokentype::TK_UNI_STRING
+        || token == yytokentype::TK_FMT_STRING
+        || token == yytokentype::TK_RAW_FMT_STRING
+        || token == yytokentype::TK_BYTES
+        || token == yytokentype::TK_RAW_BYTES) {
         t = t + " " + "\"" + str_escape_c(yystype.string.str()) + "\"";
     } else if (token == yytokentype::TK_TYPE_COMMENT) {
         t = t + " " + "\"" + yystype.string.str() + "\"";
