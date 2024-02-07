@@ -21,12 +21,14 @@ def lower():
     assert "DDd12Vv" .lower() == "ddd12vv"
     assert "".lower() == ""
 
+
 def upper():
     s: str
     s = "AaaaAABBbbbbBB!@12223BN"
     assert s.upper() == "AAAAAABBBBBBBB!@12223BN"
     assert "DDd12Vv".upper() == "DDD12VV"
     assert "".upper() == ""
+
 
 def strip():
     s: str
@@ -88,14 +90,15 @@ def startswith():
     assert s.startswith("sdd") == False
     assert "".startswith("ok") == False
 
+
 def endswith():
 
     # The following test suite fulfils the control flow graph coverage
     # in terms of Statement Coverage and Branch Coverage associated with endwith() functionality.
 
-    # Case 1: When string is constant and suffix is also constant 
+    # Case 1: When string is constant and suffix is also constant
     assert "".endswith("") == True
-    assert "".endswith(" ") ==  False
+    assert "".endswith(" ") == False
     assert "".endswith("%") == False
     assert "".endswith("a1234PT#$") == False
     assert "".endswith("blah blah") == False
@@ -105,13 +108,12 @@ def endswith():
     assert " rendezvous 5:30 ".endswith("apple") == False
     assert "two plus".endswith("longer than string") == False
 
-
     # Case 2: When string is constant and suffix is variable
     suffix: str
     suffix = ""
     assert "".endswith(suffix) == True
     suffix = " "
-    assert "".endswith(suffix) ==  False
+    assert "".endswith(suffix) == False
     suffix = "5:30 "
     assert " rendezvous 5:30 ".endswith(suffix) == True
     suffix = ""
@@ -138,13 +140,14 @@ def endswith():
     suffix = "apple"
     assert s.endswith(suffix) == False
 
+
 def partition():
-    
-    # Note: Both string or seperator cannot be empty 
-    # Case 1: When string is constant and seperator is also constant 
-    assert "   ".partition(" ") == (""," ","  ")
-    assert "apple mango".partition(" ") == ("apple"," ","mango")
-    assert "applemango".partition("afdnjkfsn") ==  ("applemango","","")
+
+    # Note: Both string or seperator cannot be empty
+    # Case 1: When string is constant and seperator is also constant
+    assert "   ".partition(" ") == ("", " ", "  ")
+    assert "apple mango".partition(" ") == ("apple", " ", "mango")
+    assert "applemango".partition("afdnjkfsn") == ("applemango", "", "")
     assert "applemango".partition("an") == ("applem", "an", "go")
     assert "applemango".partition("mango") == ("apple", "mango", "")
     assert "applemango".partition("applemango") == ("", "applemango", "")
@@ -154,15 +157,17 @@ def partition():
     # Case 2: When string is constant and seperator is variable
     seperator: str
     seperator = " "
-    assert "   ".partition(seperator) == (""," ","  ")
+    assert "   ".partition(seperator) == ("", " ", "  ")
     seperator = " "
-    assert "apple mango".partition(seperator) ==  ("apple"," ","mango")
+    assert "apple mango".partition(seperator) == ("apple", " ", "mango")
     seperator = "5:30 "
-    assert " rendezvous 5:30 ".partition(seperator) == (" rendezvous ", "5:30 ", "")
+    assert " rendezvous 5:30 ".partition(
+        seperator) == (" rendezvous ", "5:30 ", "")
     seperator = "^&"
     assert "@#$%^&*()#!".partition(seperator) == ("@#$%", "^&", "*()#!")
     seperator = "daddada "
-    assert " rendezvous 5:30 ".partition(seperator) == (" rendezvous 5:30 ", "", "")
+    assert " rendezvous 5:30 ".partition(
+        seperator) == (" rendezvous 5:30 ", "", "")
     seperator = "longer than string"
     assert "two plus".partition(seperator) == ("two plus", "", "")
 
@@ -181,6 +186,7 @@ def partition():
     assert s.partition(seperator) == ("rendez", "vous ", "5")
     seperator = "apple"
     assert s.partition(seperator) == ("rendezvous 5", "", "")
+
 
 def is_lower():
     # Case 1: When constant string is present
@@ -204,8 +210,9 @@ def is_lower():
     s = "apple is a fruit"
     assert s.islower() == True
 
+
 def is_upper():
-        # Case 1: When constant string is present
+    # Case 1: When constant string is present
     assert "".isupper() == False
     assert "apple".isupper() == False
     assert "4432632479".isupper() == False
@@ -225,6 +232,7 @@ def is_upper():
     assert s.isupper() == True
     s = "APPLE IS A FRUIT"
     assert s.isupper() == True
+
 
 def is_decimal():
     # Case 1: When constant string is present
@@ -250,6 +258,7 @@ def is_decimal():
     assert s.isdecimal() == False
     s = "12 34"
     assert s.isdecimal() == False
+
 
 def is_ascii():
     # Case 1: When constant string is present
@@ -317,12 +326,15 @@ def is_alpha():
 def is_space():
     assert "\n".isspace() == True
     assert "    ".isspace() == True
-    assert "\r".isspace() == True 
+    assert "\r".isspace() == True
 
-    s:str = " "
-    assert s.isspace() == True   
+    s: str = " "
+    assert s.isspace() == True
     s = "a"
     assert s.isspace() == False
+    s = ""
+    assert s.isspace() == False
+
 
 def check():
     capitalize()
@@ -341,5 +353,6 @@ def check():
     is_space()
     is_title()
     is_alpha()
+
 
 check()
