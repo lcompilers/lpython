@@ -33,13 +33,12 @@ def mmrv(r: Out[list[CPtr]]) -> None:
     basic_new_stack(x)
     basic_const_pi(x)
 
-    # l1: list[S]
+    # l1: list[S] = [x]
+    _l1: list[CPtr] = [x]
     l1: list[CPtr] = []
 
-    # l1 = [x]
     i: i32 = 0
-    Len: i32 = 1
-    for i in range(Len):
+    for i in range(len(_l1)):
         tmp: CPtr = basic_new_heap()
         l1.append(tmp)
         basic_assign(l1[0], x)
@@ -57,8 +56,8 @@ def mmrv(r: Out[list[CPtr]]) -> None:
 def test_mrv():
     # ans : list[S]
     # temp : list[S]
-    ans: list[CPtr] = []
-    temp: list[CPtr] = []
+    ans: list[CPtr]
+    temp: list[CPtr]
 
     # mmrv(ans)
     # temp = ans
