@@ -893,7 +893,8 @@ namespace LCompilers {
                 if( comp == -1 ) {
                     int increment;
                     bool not_constant_inc = false;
-                    if (!ASRUtils::is_integer(*ASRUtils::expr_type(c))) {
+                    if (!ASRUtils::is_integer(*ASRUtils::type_get_past_const(
+                            ASRUtils::expr_type(c)))) {
                         throw LCompilersException("Do loop increment type should be an integer");
                     }
                     if (c->type == ASR::exprType::IntegerConstant) {

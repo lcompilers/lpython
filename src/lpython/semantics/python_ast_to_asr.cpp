@@ -5311,7 +5311,8 @@ public:
         head.m_start = loop_start;
         head.m_increment = inc;
 
-        if( !ASR::is_a<ASR::Integer_t>(*ASRUtils::expr_type(inc)) ) {
+        if( !ASR::is_a<ASR::Integer_t>(*ASRUtils::type_get_past_const(
+                ASRUtils::expr_type(inc))) ) {
             throw SemanticError("For loop increment type should be Integer.", loc);
         }
         ASR::expr_t *inc_value = ASRUtils::expr_value(inc);
