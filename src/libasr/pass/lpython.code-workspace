@@ -1,0 +1,12 @@
+{
+	"folders": [
+		{
+			"path": "../../.."
+		},
+		{
+			"name": "lpython",
+			"path": "../../../../../../lpython"
+		}
+	],
+	"settings": {}
+}
