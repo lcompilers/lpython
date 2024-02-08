@@ -886,7 +886,7 @@ public:
                 );
                 throw SemanticAbort();
             } else { 
-                throw SemanticError("Unsupported type annotation: " + var_annotation, loc);
+                throw SemanticError("The type '" + var_annotation+"' is undeclared.", loc);
             }
         }
 
