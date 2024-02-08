@@ -72,6 +72,18 @@ def clear_row(a: i16[:], row: i32, cols: i32) -> None:
         a[row, j] = i16(0)
 
 
+def print_expected():
+    print("Expected result:")
+    print("[[ 5  8 11 ... 20 23 26],")
+    print(" [ 8 14 20 ... 38 44 50],")
+    print(" [11 20 29 ... 56 65 74], ...")
+    print("")
+    print(" [ 8 14 20 ... 38 44 50],")
+    print(" [11 20 29 ... 56 65 74],")
+    print(" [14 26 38 ... 74 86 98]]")
+    print("")
+
+
 def main(optimize: bool = False) -> i32:
 
     # "Const" lets these appear in type declarations such as i16[n, m]
@@ -111,36 +123,37 @@ def main(optimize: bool = False) -> i32:
     ii: i32
     i: i32
     ww: i32  # "ww" is short for "workaround_index."
-    print("optimized by hand ? ", optimize, "\n")
+
+    print("hand-blocked accumulated outer product; block size = M2 =", M2)
     if optimize:
+        print("optimized by hand to remove temporaries")
         for jj in range(0, l, VR_SIZE):  # each VR-col chunk in B and C
             for ii in range(0, n, M2):  # each M2 block in A cols and B rows
-                for i in range(0, M2):  # zero-out rows of C
-                    # Due to Issue 2496, I cannot pass an array to a function
+                for i in range(0, M2):  # Zero-out rows of C.
+                    # Due to Issue 2496, I cannot pass an array to a function.
                     # clear_row(Cnl, i + ii, l)
-                    # Due to Issue 2500, I cannot broadcast a constant
+                    # Due to Issue 2500, I cannot broadcast a constant.
                     # Cnl[i + ii, :] = 0
                     for ww in range(0, l):
                         Cnl[i + ii, ww] = i16(0)
                 for k in range(0, m):  # rows of B
                     for i in range(0, M2):
                         for ww in range(0, l):
-                            # optimization without the temporaries
-                            ######## Cnl[i + ii, :] += Bml[k, :] * A_ik
                             Cnl[i + ii, ww] += Bml[k, ww] * Anm[i + ii, k]
     else:
+        print("liberal usage of temporaries")
         for jj in range(0, l, VR_SIZE):  # each VR-col chunk in B and C
             for ii in range(0, n, M2):  # each M2 block in A cols and B rows
-                for i in range(0, M2):  # zero-out rows of C
-                    # Due to Issue 2496, I cannot pass an array to a function
+                for i in range(0, M2):  # Zero-out rows of C.
+                    # Due to Issue 2496, I cannot pass an array to a function.
                     # clear_row(Cnl, i + ii, l)
-                    # Due to Issue 2500, I cannot broadcast a constant
+                    # Due to Issue 2500, I cannot broadcast a constant.
                     # Cnl[i + ii, :] = 0
                     for ww in range(0, l):
                         Cnl[i + ii, ww] = i16(0)
                     pass
                 for k in range(0, m):  # rows of B
-                    # Issues 2496 and 2500 prevent the desirable form and workaround
+                    # Issues 2496 and 2500 prevent the desirable form and workaround.
                     # B_1l[0, :] = B_ml[k, :]
                     for ww in range(0, l):
                         B1l[0, ww] = Bml[k, ww]
@@ -154,33 +167,45 @@ def main(optimize: bool = False) -> i32:
                         # T1l[0, :] = np.multiply(B1l[0, :], T1l[0, :])
                         for ww in range(0, l):
                             T1l[0, ww] *= B1l[0, ww]
-                        # Accumulated outer product:
+                        # Accumulated Outer Product:
                         # Cnl[i + ii, :] += T1l[0, :]
                         for ww in range(0, l):
                             Cnl[i + ii, ww] += T1l[0, ww]
-                        # optimization without the temporaries
-                        ######## Cnl[i + ii, :] += Bml[k, :] * A_ik
                         pass
 
-    print("Expect:")
-    print("[[ 5  8 11 ... 20 23 26],")
-    print(" [ 8 14 20 ... 38 44 50],")
-    print(" [11 20 29 ... 56 65 74], ...")
-    print("")
-    print(" [ 8 14 20 ... 38 44 50],")
-    print(" [11 20 29 ... 56 65 74],")
-    print(" [14 26 38 ... 74 86 98]]")
-    print("")
-    print("Actual:")
+    print_expected()
+
+    print("Actual result:")
+    # Due to Issue 2496, I cannot pass an array to a function; just inline
+    # the code for 'spot-print'.
     for ww in range(0, 3):
         print(Cnl[ww, 0], Cnl[ww, 1], Cnl[ww, 2], "...", Cnl[ww, l - 3], Cnl[ww, l - 2], Cnl[ww, l - 1])
     print("...")
     for ww in range(n-3, n):
         print(Cnl[ww, 0], Cnl[ww, 1], Cnl[ww, 2], "...", Cnl[ww, l - 3], Cnl[ww, l - 2], Cnl[ww, l - 1])
-    # print(Cnl)
-    # for ww in range(0, l):
-    #     T1l[0, ww] = Cnl[0, ww]
-    # print(T1l)
+
+    print("")
+    print("unblocked, naive Accumulated Outer Product for reference")
+    for i in range(0, n):
+        # Due to Issue 2496, I cannot pass an array to a function.
+        # clear_row(Cnl, i + ii, l)
+        # Due to Issue 2500, I cannot broadcast a constant.
+        # Cnl[i + ii, :] = 0
+        for ww in range(0, l):
+            Cnl[i, ww] = i16(0)
+        for k in range(0, m):  # rows of B
+            for ww in range(0, l):
+                Cnl[i, ww] += Bml[k, ww] * Anm[i, k]
+
+    print("Actual result:")
+    # Due to Issue 2496, I cannot pass an array to a function; just inline
+    # the code for 'spot-print'.
+    for ww in range(0, 3):
+        print(Cnl[ww, 0], Cnl[ww, 1], Cnl[ww, 2], "...", Cnl[ww, l - 3], Cnl[ww, l - 2], Cnl[ww, l - 1])
+    print("...")
+    for ww in range(n-3, n):
+        print(Cnl[ww, 0], Cnl[ww, 1], Cnl[ww, 2], "...", Cnl[ww, l - 3], Cnl[ww, l - 2], Cnl[ww, l - 1])
+
     return 0
 
 
