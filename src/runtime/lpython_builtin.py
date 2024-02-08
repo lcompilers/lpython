@@ -687,6 +687,7 @@ def _lpython_str_join(s:str, lis:list[str]) -> str:
 
 def _lpython_str_isalpha(s: str) -> bool:
     ch: str
+    if len(s) == 0: return False
     for ch in s:
         ch_ord: i32 = ord(ch)
         if 65 <= ch_ord and ch_ord <= 90:
