@@ -435,6 +435,19 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc, diag::Diagnost
                 }
             }
 
+            [rR][bB] | [bB][rR]
+            | [fF][rR] | [rR][fF]
+            | [rR] | [bB] | [fF] | [uU]
+             {
+                if(cur[0] == '\'' || cur[0] == '"'){
+                    KW(STR_PREFIX);
+                }
+                else {
+                    token(yylval.string);
+                    RET(TK_NAME);
+                }
+            }
+
             // Tokens
             newline {
                 if(parenlevel) { continue; }
@@ -763,6 +776,7 @@ std::string token2text(const int token)
 
         T(KW_MATCH, "match")
         T(KW_CASE, "case")
+        T(KW_STR_PREFIX, "string prefix")
 
         default : {
             std::cout << "TOKEN: " << token << std::endl;
