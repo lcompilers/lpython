@@ -72,7 +72,7 @@ def clear_row(a: i16[:], row: i32, cols: i32) -> None:
         a[row, j] = i16(0)
 
 
-def main() -> i32:
+def main(optimize: bool = False) -> i32:
 
     # "Const" lets these appear in type declarations such as i16[n, m]
     n  : Const[i32] = 15
@@ -111,38 +111,56 @@ def main() -> i32:
     ii: i32
     i: i32
     ww: i32  # "ww" is short for "workaround_index."
-    for jj in range(0, l, VR_SIZE):  # each VR-col chunk in B and C
-        for ii in range(0, n, M2):  # each M2 block in A cols and B rows
-            for i in range(0, M2):  # zero-out rows of C
-                # Due to Issue 2496, I cannot pass an array to a function
-                # clear_row(Cnl, i + ii, l)
-                # Due to Issue 2500, I cannot broadcast a constant
-                # Cnl[i + ii, :] = 0
-                for ww in range(0, l):
-                    Cnl[i + ii, ww] = i16(0)
-                pass
-            for k in range(0, m):  # rows of B
-                # Issues 2496 and 2500 prevent the desirable form and workaround
-                # B_1l[0, :] = B_ml[k, :]
-                for ww in range(0, l):
-                    B1l[0, ww] = Bml[k, ww]
-                for i in range(0, M2):
-                    A_ik = Anm[i + ii, k]
-                    # broadcast a single element of A (why? might have a SIMD vector register for T1l)
-                    # T1l[0, :] = A_ik
+    print("optimized by hand ? ", optimize, "\n")
+    if optimize:
+        for jj in range(0, l, VR_SIZE):  # each VR-col chunk in B and C
+            for ii in range(0, n, M2):  # each M2 block in A cols and B rows
+                for i in range(0, M2):  # zero-out rows of C
+                    # Due to Issue 2496, I cannot pass an array to a function
+                    # clear_row(Cnl, i + ii, l)
+                    # Due to Issue 2500, I cannot broadcast a constant
+                    # Cnl[i + ii, :] = 0
                     for ww in range(0, l):
-                        T1l[0, ww] = A_ik
-                    # pointwise (Hadamard) product:
-                    # T1l[0, :] = np.multiply(B1l[0, :], T1l[0, :])
+                        Cnl[i + ii, ww] = i16(0)
+                for k in range(0, m):  # rows of B
+                    for i in range(0, M2):
+                        for ww in range(0, l):
+                            # optimization without the temporaries
+                            ######## Cnl[i + ii, :] += Bml[k, :] * A_ik
+                            Cnl[i + ii, ww] += Bml[k, ww] * Anm[i + ii, k]
+    else:
+        for jj in range(0, l, VR_SIZE):  # each VR-col chunk in B and C
+            for ii in range(0, n, M2):  # each M2 block in A cols and B rows
+                for i in range(0, M2):  # zero-out rows of C
+                    # Due to Issue 2496, I cannot pass an array to a function
+                    # clear_row(Cnl, i + ii, l)
+                    # Due to Issue 2500, I cannot broadcast a constant
+                    # Cnl[i + ii, :] = 0
                     for ww in range(0, l):
-                        T1l[0, ww] *= B1l[0, ww]
-                    # Accumulated outer product:
-                    # Cnl[i + ii, :] += T1l[0, :]
-                    for ww in range(0, l):
-                        Cnl[i + ii, ww] += T1l[0, ww]
-                    # optimization without the temporaries
-                    ######## Cnl[i + ii, :] += Bml[k, :] * A_ik
+                        Cnl[i + ii, ww] = i16(0)
                     pass
+                for k in range(0, m):  # rows of B
+                    # Issues 2496 and 2500 prevent the desirable form and workaround
+                    # B_1l[0, :] = B_ml[k, :]
+                    for ww in range(0, l):
+                        B1l[0, ww] = Bml[k, ww]
+                    for i in range(0, M2):
+                        A_ik = Anm[i + ii, k]
+                        # broadcast a single element of A (why? might have a SIMD vector register for T1l)
+                        # T1l[0, :] = A_ik
+                        for ww in range(0, l):
+                            T1l[0, ww] = A_ik
+                        # pointwise (Hadamard) product:
+                        # T1l[0, :] = np.multiply(B1l[0, :], T1l[0, :])
+                        for ww in range(0, l):
+                            T1l[0, ww] *= B1l[0, ww]
+                        # Accumulated outer product:
+                        # Cnl[i + ii, :] += T1l[0, :]
+                        for ww in range(0, l):
+                            Cnl[i + ii, ww] += T1l[0, ww]
+                        # optimization without the temporaries
+                        ######## Cnl[i + ii, :] += Bml[k, :] * A_ik
+                        pass
 
     print("Expect:")
     print("[[ 5  8 11 ... 20 23 26],")
@@ -167,4 +185,4 @@ def main() -> i32:
 
 
 if __name__ == "__main__":
-    main()
+    main(optimize=True)
