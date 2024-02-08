@@ -1520,7 +1520,7 @@ public:
             int64_t value_int = -1;
             if( !ASRUtils::extract_value(ASRUtils::expr_value(value), value_int) &&
                 contains_local_variable(value) && !is_allocatable) {
-                throw SemanticError("Only those local variables that can be reduced to" compile-time""
+                throw SemanticError("Only those local variables that can be reduced to compile-time"
                                     " constants should be used in dimensions of an array.",
                                     value->base.loc);
             }
