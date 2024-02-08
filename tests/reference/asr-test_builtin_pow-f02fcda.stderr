@@ -1,5 +1,1 @@
-style suggestion: Could have used '**' instead of 'pow'
-  --> tests/../integration_tests/test_builtin_pow.py:11:16
-   |
-11 |     assert i32(pow(a, b)) == 32
-   |                ^^^^^^^^^ '**' could be used instead
+
