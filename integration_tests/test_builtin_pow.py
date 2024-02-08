@@ -8,7 +8,7 @@ def test_pow():
     eps = 1e-12
     a = 2
     b = 5
-    assert i32(pow(a, b)) == 32
+    assert i32(pow(a, b)) == 32  # noqa
     a = 6
     b = 3
     assert i32(pow(a, b)) == 216
