@@ -120,7 +120,7 @@ def accumulate_in_place_row(
 
 
 def print_expected():
-    print("Expected result:")
+    print("\nExpected result:")
     print("[[ 5  8 11 ... 20 23 26],")
     print(" [ 8 14 20 ... 38 44 50],")
     print(" [11 20 29 ... 56 65 74], ...")
@@ -131,14 +131,14 @@ def print_expected():
     print("")
 
 
-def main(optimize: bool = False) -> i32:
+def main() -> i32:
 
     # "Const" lets these appear in type declarations such as i16[n, m]
     n  : Const[i32] = 15
     m  : Const[i32] = 3
     l  : Const[i32] = 32_768
 
-    M1 : i32 = 1
+    # M1 : i32 = 1  # Unused
     M2 : i32 = 5  # Issue 2499 -- can't be Const
 
     Anm_l4 : CPtr = _lfortran_malloc((n * m) * i32(sizeof(i16)))
@@ -149,7 +149,7 @@ def main(optimize: bool = False) -> i32:
     init_c_fortran_array(Bml_l4, m, l, 13)
     zero_c_fortran_array(Cnl_l4, n, l)
 
-    print (Anm_l4)
+    print("\nInputs:")
 
     Anm: i16[n, m] = load_lpython_array_from_c_fortran_array(Anm_l4, n, m)
     print("Anm[", n, ",", m, "]")
@@ -161,63 +161,90 @@ def main(optimize: bool = False) -> i32:
     print("Cnl[", n, ",", l, "]")
     spot_print(Cnl, n, l)
 
-    # Temporaries (TODO: get rid of them, as indicated by proposed syntax below)
-    B1l: i16[1, l] = empty((1, l), dtype=int16)
-    T1l: i16[1, l] = empty((1, l), dtype=int16)
+    print_expected()
 
     VR_SIZE: i32 = 32_768
-    k: i32
-    jj: i32
-    ii: i32
-    i: i32
     ww: i32  # "ww" is short for "workaround_index."
 
-    print("hand-blocked accumulated outer product; block size = M2 =", M2)
-    if optimize:
-        print("optimized by hand to remove temporaries")
-        for jj in range(0, l, VR_SIZE):  # each VR-col chunk in B and C
-            for ii in range(0, n, M2):  # each M2 block in A cols and B rows
-                for i in range(0, M2):  # Zero-out rows of C.
-                    clear_row(Cnl, i + ii, l)
-                for k in range(0, m):  # rows of B
-                    for i in range(0, M2):
-                        for ww in range(0, l):
-                            Cnl[i + ii, ww] += Bml[k, ww] * Anm[i + ii, k]
-    else:
-        print("liberal usage of temporaries")
-        for jj in range(0, l, VR_SIZE):  # each VR-col chunk in B and C
-            for ii in range(0, n, M2):  # each M2 block in A cols and B rows
-                for i in range(0, M2):  # Zero-out rows of C.
-                    clear_row(Cnl, i + ii, l)
-                for k in range(0, m):  # rows of B
-                    # B_1l[0, :] = B_ml[k, :]
-                    broadcast_copy_row(B1l, 0, Bml, k, l)
-                    for i in range(0, M2):
-                        # T1l[0, :] = Anm[i + ii, k]
-                        broadcast_i16_row(T1l, 0, Anm[i + ii, k], l)
-                        # T1l[0, :] = np.multiply(B1l[0, :], T1l[0, :])
-                        hadamard_product_in_place_row(T1l, 0, B1l, 0, l)
-                        # Cnl[i + ii, :] += T1l[0, :]
-                        accumulate_in_place_row(Cnl, i + ii, T1l, 0, l)
+    print("\nhand-blocked accumulated outer product; block size = M2 =", M2)
+    hand_optimized_to_remove_temporaries(Anm, Bml, Cnl, n, m, l, VR_SIZE, M2)
 
-    print("Actual result:")
+    print("\nActual result:")
     spot_print(Cnl, n, l)
 
-    print("")
-    print("unblocked, naive Accumulated Outer Product for reference")
+    with_liberal_use_of_temporaries(Anm, Bml, Cnl, n, m, l, VR_SIZE, M2)
+
+    print("\nActual result:")
+    spot_print(Cnl, n, l)
+
+    unblocked_accumulated_outer_product(Anm, Bml, Cnl, n, m, l)
+
+    print("\nActual result:")
+    spot_print(Cnl, n, l)
+
+    return 0
+
+
+def unblocked_accumulated_outer_product(
+        Anm: i16[:, :], Bml: i16[:, :], Cnl: i16[:, :],
+        n: i32, m: i32, l: i32):
+    print("\nunblocked, naive Accumulated Outer Product for reference")
+    i: i32
+    k: i32
+    ww: i32
     for i in range(0, n):
         clear_row(Cnl, i, l)
         for k in range(0, m):  # rows of B
             for ww in range(0, l):
                 Cnl[i, ww] += Bml[k, ww] * Anm[i, k]
 
-    print("Actual result:")
-    spot_print(Cnl, n, l)
 
-    return 0
+def with_liberal_use_of_temporaries(
+        Anm: i16[:, :], Bml: i16[:, :], Cnl: i16[:, :],
+        n: i32, m: i32, l: i32, VR_SIZE: i32, M2: i32):
+    k: i32
+    jj: i32
+    ii: i32
+    i: i32
+    ww: i32
+    print("\nliberal usage of temporaries")
+    # Temporaries (TODO: get rid of them, as indicated by proposed syntax below)
+    B1l: i16[1, l] = empty((1, l), dtype=int16)
+    T1l: i16[1, l] = empty((1, l), dtype=int16)
+    for jj in range(0, l, VR_SIZE):  # each VR-col chunk in B and C
+        for ii in range(0, n, M2):  # each M2 block in A cols and B rows
+            for i in range(0, M2):  # Zero-out rows of C.
+                clear_row(Cnl, i + ii, l)
+            for k in range(0, m):  # rows of B
+                # B_1l[0, :] = B_ml[k, :]
+                broadcast_copy_row(B1l, 0, Bml, k, l)
+                for i in range(0, M2):
+                    # T1l[0, :] = Anm[i + ii, k]
+                    broadcast_i16_row(T1l, 0, Anm[i + ii, k], l)
+                    # T1l[0, :] = np.multiply(B1l[0, :], T1l[0, :])
+                    hadamard_product_in_place_row(T1l, 0, B1l, 0, l)
+                    # Cnl[i + ii, :] += T1l[0, :]
+                    accumulate_in_place_row(Cnl, i + ii, T1l, 0, l)
+
+
+def hand_optimized_to_remove_temporaries(
+        Anm: i16[:, :], Bml: i16[:, :], Cnl: i16[:, :],
+        n: i32, m: i32, l: i32, VR_SIZE: i32, M2: i32):
+    k: i32
+    jj: i32
+    ii: i32
+    i: i32
+    ww: i32
+    print("\noptimized by hand to remove temporaries")
+    for jj in range(0, l, VR_SIZE):  # each VR-col chunk in B and C
+        for ii in range(0, n, M2):  # each M2 block in A cols and B rows
+            for i in range(0, M2):  # Zero-out rows of C.
+                clear_row(Cnl, i + ii, l)
+            for k in range(0, m):  # rows of B
+                for i in range(0, M2):
+                    for ww in range(0, l):
+                        Cnl[i + ii, ww] += Bml[k, ww] * Anm[i + ii, k]
 
 
 if __name__ == "__main__":
-    print_expected()
-    main(optimize=False)
-    main(optimize=True)
+    main()
