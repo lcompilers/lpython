@@ -3,12 +3,9 @@ from numpy import array, empty, int16
 from lpython import (i16, i32, ccallback, c_p_pointer, Pointer, u64, CPtr, i64,
                      ccall, sizeof, Array, Allocatable, TypeVar, Const)
 
-######## ALL THE LINES WITH EIGHT COMMENT MARKS ARE THE ONES WE NEED TO
-######## BRING UP!  AS IT STANDS, THIS CODE WORKS IN LPYTHON MAIN AS OF 4
-######## FEBRUARY 2024.
 
 # https://numpy.org/devdocs/reference/typing.html
-######## from numpy.typing import NDArray
+# from numpy.typing import NDArray
 
 
 # plan for 30 Jan 2024 --
@@ -61,20 +58,65 @@ def load_lpython_array_from_c_fortran_array(b: CPtr, rows: i32, cols: i32) -> i1
     return D
 
 
-def spot_print(a: i16[:, :], n: i32, l: i32) -> None:
-    """Issue2497"""
-    ww: i32
-    for ww in range(0, 3):
-        print(a[ww, 0], a[ww, 1], a[ww, 2], "...", a[ww, l - 3], a[ww, l - 2], a[ww, l - 1])
+def spot_print(Anl: i16[:, :], n: i32, l: i32) -> None:
+    j: i32
+    for j in range(0, 3):
+        spot_print_row(Anl, l, j)
     print("...")
-    for ww in range(n-3, n):
-        print(a[ww, 0], a[ww, 1], a[ww, 2], "...", a[ww, l - 3], a[ww, l - 2], [ww, l - 1])
+    for j in range(n - 3, n):
+        spot_print_row(Anl, l, j)
 
 
-def clear_row(a: i16[:], row: i32, cols: i32) -> None:
+def spot_print_row(Anl: i16[:, :], cols: i32, row: i32):
+    if (cols > 3):
+        print(Anl[row, 0], Anl[row, 1], Anl[row, 2], "...",
+              Anl[row, cols - 3], Anl[row, cols - 2], Anl[row, cols - 1])
+    else:
+        print(Anl[row, 0], Anl[row, 1], Anl[row, 2])
+
+
+def clear_row(a: i16[:, :], row: i32, cols: i32) -> None:
+    # Due to Issue 2500, I cannot broadcast a constant.
     j: i32
     for j in range(cols):
         a[row, j] = i16(0)
+
+
+def broadcast_i16_row(
+        a: i16[:, :], row: i32, val: i16,
+        cols: i32) -> None:
+    # Due to Issue 2500, I cannot broadcast a constant.
+    j: i32
+    for j in range(cols):
+        a[row, j] = i16(val)
+
+
+def broadcast_copy_row(
+        dest: i16[:, :], dest_row: i32,
+        src: i16[:, :], src_row: i32,
+        cols: i32) -> None:
+    # Due to Issue 2500, I cannot broadcast.
+    j: i32
+    for j in range(cols):
+        dest[dest_row, j] = src[src_row, j]
+
+
+def hadamard_product_in_place_row(
+        dest: i16[:, :], dest_row: i32,
+        src: i16[:, :], src_row: i32,
+        cols: i32) -> None:
+    j: i32
+    for j in range(cols):
+        dest[dest_row, j] *= src[src_row, j]
+
+
+def accumulate_in_place_row(
+        dest: i16[:, :], dest_row: i32,
+        src: i16[:, :], src_row: i32,
+        cols: i32) -> None:
+    j: i32
+    for j in range(cols):
+        dest[dest_row, j] += src[src_row, j]
 
 
 def print_expected():
@@ -110,12 +152,14 @@ def main(optimize: bool = False) -> i32:
     print (Anm_l4)
 
     Anm: i16[n, m] = load_lpython_array_from_c_fortran_array(Anm_l4, n, m)
-    # Issue 2497 spot_print(Anm)
-    print(Anm)
+    print("Anm[", n, ",", m, "]")
+    spot_print(Anm, n, m)
     Bml: i16[m, l] = load_lpython_array_from_c_fortran_array(Bml_l4, m, l)
-    # print(Bml)
+    print("Bml[", m, ",", l, "]")
+    spot_print(Bml, m, l)
     Cnl: i16[n, l] = load_lpython_array_from_c_fortran_array(Cnl_l4, n, l)
-    # print(Cnl)
+    print("Cnl[", n, ",", l, "]")
+    spot_print(Cnl, n, l)
 
     # Temporaries (TODO: get rid of them, as indicated by proposed syntax below)
     B1l: i16[1, l] = empty((1, l), dtype=int16)
@@ -123,7 +167,6 @@ def main(optimize: bool = False) -> i32:
 
     VR_SIZE: i32 = 32_768
     k: i32
-    A_ik: i16
     jj: i32
     ii: i32
     i: i32
@@ -135,12 +178,7 @@ def main(optimize: bool = False) -> i32:
         for jj in range(0, l, VR_SIZE):  # each VR-col chunk in B and C
             for ii in range(0, n, M2):  # each M2 block in A cols and B rows
                 for i in range(0, M2):  # Zero-out rows of C.
-                    # Due to Issue 2496, I cannot pass an array to a function.
-                    # clear_row(Cnl, i + ii, l)
-                    # Due to Issue 2500, I cannot broadcast a constant.
-                    # Cnl[i + ii, :] = 0
-                    for ww in range(0, l):
-                        Cnl[i + ii, ww] = i16(0)
+                    clear_row(Cnl, i + ii, l)
                 for k in range(0, m):  # rows of B
                     for i in range(0, M2):
                         for ww in range(0, l):
@@ -150,70 +188,36 @@ def main(optimize: bool = False) -> i32:
         for jj in range(0, l, VR_SIZE):  # each VR-col chunk in B and C
             for ii in range(0, n, M2):  # each M2 block in A cols and B rows
                 for i in range(0, M2):  # Zero-out rows of C.
-                    # Due to Issue 2496, I cannot pass an array to a function.
-                    # clear_row(Cnl, i + ii, l)
-                    # Due to Issue 2500, I cannot broadcast a constant.
-                    # Cnl[i + ii, :] = 0
-                    for ww in range(0, l):
-                        Cnl[i + ii, ww] = i16(0)
-                    pass
+                    clear_row(Cnl, i + ii, l)
                 for k in range(0, m):  # rows of B
-                    # Issues 2496 and 2500 prevent the desirable form and workaround.
                     # B_1l[0, :] = B_ml[k, :]
-                    for ww in range(0, l):
-                        B1l[0, ww] = Bml[k, ww]
+                    broadcast_copy_row(B1l, 0, Bml, k, l)
                     for i in range(0, M2):
-                        A_ik = Anm[i + ii, k]
-                        # broadcast a single element of A (why? might have a SIMD vector register for T1l)
-                        # T1l[0, :] = A_ik
-                        for ww in range(0, l):
-                            T1l[0, ww] = A_ik
-                        # pointwise (Hadamard) product:
+                        # T1l[0, :] = Anm[i + ii, k]
+                        broadcast_i16_row(T1l, 0, Anm[i + ii, k], l)
                         # T1l[0, :] = np.multiply(B1l[0, :], T1l[0, :])
-                        for ww in range(0, l):
-                            T1l[0, ww] *= B1l[0, ww]
-                        # Accumulated Outer Product:
+                        hadamard_product_in_place_row(T1l, 0, B1l, 0, l)
                         # Cnl[i + ii, :] += T1l[0, :]
-                        for ww in range(0, l):
-                            Cnl[i + ii, ww] += T1l[0, ww]
-                        pass
-
-    print_expected()
+                        accumulate_in_place_row(Cnl, i + ii, T1l, 0, l)
 
     print("Actual result:")
-    spot_print(Cnl, i32(n), i32(l))
-    # Due to Issue 2496, I cannot pass an array to a function; just inline
-    # the code for 'spot-print'.
-    # for ww in range(0, 3):
-    #     print(Cnl[ww, 0], Cnl[ww, 1], Cnl[ww, 2], "...", Cnl[ww, l - 3], Cnl[ww, l - 2], Cnl[ww, l - 1])
-    # print("...")
-    # for ww in range(n-3, n):
-    #     print(Cnl[ww, 0], Cnl[ww, 1], Cnl[ww, 2], "...", Cnl[ww, l - 3], Cnl[ww, l - 2], Cnl[ww, l - 1])
+    spot_print(Cnl, n, l)
 
     print("")
     print("unblocked, naive Accumulated Outer Product for reference")
     for i in range(0, n):
-        # Due to Issue 2496, I cannot pass an array to a function.
-        # clear_row(Cnl, i + ii, l)
-        # Due to Issue 2500, I cannot broadcast a constant.
-        # Cnl[i + ii, :] = 0
-        for ww in range(0, l):
-            Cnl[i, ww] = i16(0)
+        clear_row(Cnl, i, l)
         for k in range(0, m):  # rows of B
             for ww in range(0, l):
                 Cnl[i, ww] += Bml[k, ww] * Anm[i, k]
 
     print("Actual result:")
-    # Due to Issue 2496, I cannot pass an array to a function; just inline
-    # the code for 'spot-print'.
-    for ww in range(0, 3):
-        print(Cnl[ww, 0], Cnl[ww, 1], Cnl[ww, 2], "...", Cnl[ww, l - 3], Cnl[ww, l - 2], Cnl[ww, l - 1])
-    print("...")
-    for ww in range(n-3, n):
-        print(Cnl[ww, 0], Cnl[ww, 1], Cnl[ww, 2], "...", Cnl[ww, l - 3], Cnl[ww, l - 2], Cnl[ww, l - 1])
+    spot_print(Cnl, n, l)
 
     return 0
 
 
 if __name__ == "__main__":
+    print_expected()
+    main(optimize=False)
     main(optimize=True)
