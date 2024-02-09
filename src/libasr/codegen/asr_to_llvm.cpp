@@ -7946,7 +7946,7 @@ public:
                 // there might be a bug below.
                 llvm::Type *target_type = nullptr;
                 bool character_bindc = false;
-                ASR::ttype_t* arg_type_ = ASRUtils::type_get_past_array(arg_type);
+                ASR::ttype_t* arg_type_ = ASRUtils::type_get_past_const(ASRUtils::type_get_past_array(arg_type));
                 switch (arg_type_->type) {
                     case (ASR::ttypeType::Integer) : {
                         int a_kind = down_cast<ASR::Integer_t>(arg_type_)->m_kind;
