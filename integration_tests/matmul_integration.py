@@ -61,9 +61,14 @@ def load_lpython_array_from_c_fortran_array(b: CPtr, rows: i32, cols: i32) -> i1
     return D
 
 
-def spot_print(a: i16[:]) -> None:
+def spot_print(a: i16[:, :], n: i32, l: i32) -> None:
     """Issue2497"""
-    return
+    ww: i32
+    for ww in range(0, 3):
+        print(a[ww, 0], a[ww, 1], a[ww, 2], "...", a[ww, l - 3], a[ww, l - 2], a[ww, l - 1])
+    print("...")
+    for ww in range(n-3, n):
+        print(a[ww, 0], a[ww, 1], a[ww, 2], "...", a[ww, l - 3], a[ww, l - 2], [ww, l - 1])
 
 
 def clear_row(a: i16[:], row: i32, cols: i32) -> None:
@@ -176,13 +181,14 @@ def main(optimize: bool = False) -> i32:
     print_expected()
 
     print("Actual result:")
+    spot_print(Cnl, i32(n), i32(l))
     # Due to Issue 2496, I cannot pass an array to a function; just inline
     # the code for 'spot-print'.
-    for ww in range(0, 3):
-        print(Cnl[ww, 0], Cnl[ww, 1], Cnl[ww, 2], "...", Cnl[ww, l - 3], Cnl[ww, l - 2], Cnl[ww, l - 1])
-    print("...")
-    for ww in range(n-3, n):
-        print(Cnl[ww, 0], Cnl[ww, 1], Cnl[ww, 2], "...", Cnl[ww, l - 3], Cnl[ww, l - 2], Cnl[ww, l - 1])
+    # for ww in range(0, 3):
+    #     print(Cnl[ww, 0], Cnl[ww, 1], Cnl[ww, 2], "...", Cnl[ww, l - 3], Cnl[ww, l - 2], Cnl[ww, l - 1])
+    # print("...")
+    # for ww in range(n-3, n):
+    #     print(Cnl[ww, 0], Cnl[ww, 1], Cnl[ww, 2], "...", Cnl[ww, l - 3], Cnl[ww, l - 2], Cnl[ww, l - 1])
 
     print("")
     print("unblocked, naive Accumulated Outer Product for reference")
