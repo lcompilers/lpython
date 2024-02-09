@@ -119,6 +119,17 @@ def accumulate_in_place_row(
         dest[dest_row, j] += src[src_row, j]
 
 
+def accumulate_in_place_outer_product_row(
+        dest: i16[:, :], dest_row: i32,
+        src1: i16[:, :], src1_row: i32,
+        src2: i16[:, :],
+        cols: i32) -> None:
+    ww: i32
+    for ww in range(0, cols):
+        dest[dest_row, ww] += src1[src1_row, ww] * src2[dest_row, src1_row]
+
+
+
 def print_expected():
     print("\nExpected result:")
     print("[[ 5  8 11 ... 20 23 26],")
@@ -195,8 +206,7 @@ def unblocked_accumulated_outer_product(
     for i in range(0, n):
         clear_row(Cnl, i, l)
         for k in range(0, m):  # rows of B
-            for ww in range(0, l):
-                Cnl[i, ww] += Bml[k, ww] * Anm[i, k]
+            accumulate_in_place_outer_product_row(Cnl, i, Bml, k, Anm, l)
 
 
 def with_liberal_use_of_temporaries(
@@ -242,8 +252,8 @@ def hand_optimized_to_remove_temporaries(
                 clear_row(Cnl, i + ii, l)
             for k in range(0, m):  # rows of B
                 for i in range(0, M2):
-                    for ww in range(0, l):
-                        Cnl[i + ii, ww] += Bml[k, ww] * Anm[i + ii, k]
+                    accumulate_in_place_outer_product_row(
+                        Cnl, i + ii, Bml, k, Anm, l)
 
 
 if __name__ == "__main__":
