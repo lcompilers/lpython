@@ -2,12 +2,12 @@
     "basename": "ast-prefix_string_01-cf221fd",
     "cmd": "lpython --show-ast --no-color {infile} -o {outfile}",
     "infile": "tests/errors/prefix_string_01.py",
-    "infile_hash": "cabdebe33479b322c57ccff7c6b27eae2269832872208d2dc2ce3548",
+    "infile_hash": "0d83c0e32a78023fccb343a4d3358071792265c1ae357176fe0912eb",
     "outfile": null,
     "outfile_hash": null,
     "stdout": null,
     "stdout_hash": null,
     "stderr": "ast-prefix_string_01-cf221fd.stderr",
-    "stderr_hash": "b489b5727a016d8cce4fba576c74f0137d38d2783d38a7c3869df76f",
+    "stderr_hash": "b600057f41f59ba7fdebe3971bfea0eadca972747ccf70d575c1cdcd",
     "returncode": 1
 }
