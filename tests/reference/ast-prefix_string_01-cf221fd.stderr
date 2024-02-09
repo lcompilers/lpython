@@ -1,0 +1,5 @@
+syntax error: Token '"Hello"' (of type 'string') is unexpected here
+ --> tests/errors/prefix_string_01.py:3:11
+  |
+3 |     print "Hello", "World" 
+  |           ^^^^^^^ 
