@@ -1286,6 +1286,14 @@ asr = true
 filename = "errors/unsigned_04.py"
 asr = true
 
+[[test]]
+filename = "errors/prefix_string_01.py"
+ast = true
+
+[[test]]
+filename = "errors/prefix_string_02.py"
+ast = true
+
 # tests/runtime_errors
 [[test]]
 filename = "runtime_errors/test_list_01.py"
