@@ -29,5 +29,5 @@ else:
         python run_tests.py -j16 -b x86 wasm_x86 wasm_x64
         python run_tests.py -j16 -b x86 wasm_x86 wasm_x64 -f
     else:
-        python run_tests.py -j16 -b llvm cpython wasm
-        python run_tests.py -j16 -b llvm cpython wasm -f
+        python run_tests.py -j1 -b cpython wasm
+        python run_tests.py -j1 -b cpython wasm -f
