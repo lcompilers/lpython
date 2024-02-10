@@ -290,6 +290,7 @@ def is_space():
     assert "\n".isspace() == True
     assert "    ".isspace() == True
     assert "\r".isspace() == True
+    assert "".isspace() == False
 
     s: str = " "
     assert s.isspace() == True
