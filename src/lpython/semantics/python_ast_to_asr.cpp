@@ -7158,7 +7158,7 @@ we will have to use something else.
                 */
                 bool is_alpha = (s_var.size() != 0);
                 for (auto &i : s_var) {
-                    if ((i >= 'A' && i <= 'Z') || (i >= 'a' && i <= 'z')) {
+                    if (!((i >= 'A' && i <= 'Z') || (i >= 'a' && i <= 'z'))) {
                         is_alpha = false;
                         break;
                     }
