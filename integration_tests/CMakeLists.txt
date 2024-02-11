@@ -311,7 +311,7 @@ macro(RUN_UTIL RUN_FAIL RUN_NAME RUN_FILE_NAME RUN_LABELS RUN_EXTRAFILES RUN_NOM
 endmacro(RUN_UTIL)
 
 macro(RUN)
-    set(options FAIL NOFAST NOMOD ENABLE_CPYTHON LINK_NUMPY)
+    set(options FAIL NOFAST NOMOD ENABLE_CPYTHON LINK_NUMPY NO_WARNINGS)
     set(oneValueArgs NAME IMPORT_PATH COPY_TO_BIN REQ_PY_VER)
     set(multiValueArgs LABELS EXTRAFILES)
     cmake_parse_arguments(RUN "${options}" "${oneValueArgs}"
@@ -326,6 +326,10 @@ macro(RUN)
 
     if (RUN_ENABLE_CPYTHON)
         set(RUN_EXTRA_ARGS ${RUN_EXTRA_ARGS} --enable-cpython)
+    endif()
+
+    if (RUN_NO_WARNINGS)
+        set(RUN_EXTRA_ARGS ${RUN_EXTRA_ARGS} --no-warnings)
     endif()
 
     if (RUN_IMPORT_PATH)
@@ -607,7 +611,7 @@ RUN(NAME test_os             LABELS cpython llvm c NOFAST)
 RUN(NAME test_builtin        LABELS cpython llvm c)
 RUN(NAME test_builtin_abs    LABELS cpython llvm c)
 RUN(NAME test_builtin_bool   LABELS cpython llvm c)
-RUN(NAME test_builtin_pow    LABELS cpython llvm c)
+RUN(NAME test_builtin_pow    LABELS cpython llvm c NO_WARNINGS)
 RUN(NAME test_builtin_int    LABELS cpython llvm c)
 RUN(NAME test_builtin_len    LABELS cpython llvm c)
 RUN(NAME test_builtin_str    LABELS cpython llvm c)
