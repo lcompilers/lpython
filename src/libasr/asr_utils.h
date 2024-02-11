@@ -152,17 +152,6 @@ static inline const ASR::symbol_t *symbol_get_past_external(const ASR::symbol_t 
     }
 }
 
-static inline ASR::ttype_t *type_get_past_const(ASR::ttype_t *f)
-{
-    if (ASR::is_a<ASR::Const_t>(*f)) {
-        ASR::Const_t *e = ASR::down_cast<ASR::Const_t>(f);
-        LCOMPILERS_ASSERT(!ASR::is_a<ASR::Const_t>(*e->m_type));
-        return e->m_type;
-    } else {
-        return f;
-    }
-}
-
 static inline ASR::ttype_t *type_get_past_pointer(ASR::ttype_t *f)
 {
     if (ASR::is_a<ASR::Pointer_t>(*f)) {
@@ -227,9 +216,6 @@ static inline int extract_kind_from_ttype_t(const ASR::ttype_t* type) {
         case ASR::ttypeType::Allocatable: {
             return extract_kind_from_ttype_t(ASR::down_cast<ASR::Allocatable_t>(type)->m_type);
         }
-        case ASR::ttypeType::Const: {
-            return extract_kind_from_ttype_t(ASR::down_cast<ASR::Const_t>(type)->m_type);
-        }
         default : {
             return -1;
         }
@@ -275,10 +261,6 @@ static inline void set_kind_to_ttype_t(ASR::ttype_t* type, int kind) {
         }
         case ASR::ttypeType::Allocatable: {
             set_kind_to_ttype_t(ASR::down_cast<ASR::Allocatable_t>(type)->m_type, kind);
-            break;
-        }
-        case ASR::ttypeType::Const: {
-            set_kind_to_ttype_t(ASR::down_cast<ASR::Const_t>(type)->m_type, kind);
             break;
         }
         default : {
@@ -391,10 +373,6 @@ static inline ASR::ttype_t* get_contained_type(ASR::ttype_t* asr_type, int overl
         case ASR::ttypeType::Allocatable: {
             ASR::Allocatable_t* pointer_asr = ASR::down_cast<ASR::Allocatable_t>(asr_type);
             return pointer_asr->m_type;
-        }
-        case ASR::ttypeType::Const: {
-            ASR::Const_t* const_asr = ASR::down_cast<ASR::Const_t>(asr_type);
-            return const_asr->m_type;
         }
         default: {
             return asr_type;
@@ -602,10 +580,6 @@ static inline std::string type_to_str(const ASR::ttype_t *t)
             encode_dimensions(array_t->n_dims, res, false);
             return res;
         }
-        case ASR::ttypeType::Const: {
-            return type_to_str(ASRUtils::get_contained_type(
-                        const_cast<ASR::ttype_t*>(t))) + " const";
-        }
         case ASR::ttypeType::TypeParameter: {
             ASR::TypeParameter_t* tp = ASR::down_cast<ASR::TypeParameter_t>(t);
             return tp->m_param;
@@ -659,10 +633,6 @@ static inline std::string type_to_str_with_substitution(const ASR::ttype_t *t,
             std::string res = type_to_str_with_substitution(array_t->m_type, subs);
             encode_dimensions(array_t->n_dims, res, false);
             return res;
-        }
-        case ASR::ttypeType::Const: {
-            return type_to_str_with_substitution(ASRUtils::get_contained_type(
-                        const_cast<ASR::ttype_t*>(t)), subs) + " const";
         }
         case ASR::ttypeType::FunctionType: {
             ASR::FunctionType_t* ftp = ASR::down_cast<ASR::FunctionType_t>(t);
@@ -1552,15 +1522,6 @@ static inline std::string get_type_code(const ASR::ttype_t *t, bool use_undersco
             return "Allocatable[" + get_type_code(p->m_type, use_underscore_sep,
                                               encode_dimensions_, set_dimensional_hint) + "]";
         }
-        case ASR::ttypeType::Const: {
-            ASR::Const_t* p = ASR::down_cast<ASR::Const_t>(t);
-            if( use_underscore_sep ) {
-                return "Const_" + get_type_code(p->m_type, use_underscore_sep,
-                                                encode_dimensions_, set_dimensional_hint) + "_";
-            }
-            return "Const[" + get_type_code(p->m_type, use_underscore_sep,
-                                            encode_dimensions_, set_dimensional_hint) + "]";
-        }
         case ASR::ttypeType::SymbolicExpression: {
             return "S";
         }
@@ -1693,10 +1654,6 @@ static inline std::string type_to_str_python(const ASR::ttype_t *t,
         case ASR::ttypeType::Allocatable: {
             ASR::Allocatable_t* p = ASR::down_cast<ASR::Allocatable_t>(t);
             return "Allocatable[" + type_to_str_python(p->m_type) + "]";
-        }
-        case ASR::ttypeType::Const: {
-            ASR::Const_t* p = ASR::down_cast<ASR::Const_t>(t);
-            return "Const[" + type_to_str_python(p->m_type) + "]";
         }
         case ASR::ttypeType::TypeParameter: {
             ASR::TypeParameter_t *p = ASR::down_cast<ASR::TypeParameter_t>(t);
@@ -2020,10 +1977,9 @@ static inline bool is_integer(ASR::ttype_t &x) {
     //             type_get_past_pointer(
     //                 type_get_past_const(&x))))));
     return ASR::is_a<ASR::Integer_t>(
-        *type_get_past_const(
-            type_get_past_array(
+        *type_get_past_array(
             type_get_past_allocatable(
-                type_get_past_pointer(&x)))));
+                type_get_past_pointer(&x))));
 }
 
 static inline bool is_unsigned_integer(ASR::ttype_t &x) {
@@ -2172,10 +2128,6 @@ inline size_t extract_dimensions_from_ttype(ASR::ttype_t *x,
         }
         case ASR::ttypeType::Allocatable: {
             n_dims = extract_dimensions_from_ttype(ASR::down_cast<ASR::Allocatable_t>(x)->m_type, m_dims);
-            break;
-        }
-        case ASR::ttypeType::Const: {
-            n_dims = extract_dimensions_from_ttype(ASR::down_cast<ASR::Const_t>(x)->m_type, m_dims);
             break;
         }
         case ASR::ttypeType::SymbolicExpression:
@@ -2476,9 +2428,6 @@ inline bool is_array(ASR::ttype_t *x) {
 }
 
 static inline bool is_aggregate_type(ASR::ttype_t* asr_type) {
-    if( ASR::is_a<ASR::Const_t>(*asr_type) ) {
-        asr_type = ASR::down_cast<ASR::Const_t>(asr_type)->m_type;
-    }
     return ASRUtils::is_array(asr_type) ||
             !(ASR::is_a<ASR::Integer_t>(*asr_type) ||
               ASR::is_a<ASR::UnsignedInteger_t>(*asr_type) ||
@@ -2580,12 +2529,6 @@ static inline ASR::ttype_t* duplicate_type(Allocator& al, const ASR::ttype_t* t,
         case ASR::ttypeType::CPtr: {
             ASR::CPtr_t* ptr = ASR::down_cast<ASR::CPtr_t>(t);
             return ASRUtils::TYPE(ASR::make_CPtr_t(al, ptr->base.base.loc));
-        }
-        case ASR::ttypeType::Const: {
-            ASR::Const_t* c = ASR::down_cast<ASR::Const_t>(t);
-            ASR::ttype_t* dup_type = duplicate_type(al, c->m_type, dims);
-            return ASRUtils::TYPE(ASR::make_Const_t(al, c->base.base.loc,
-                        dup_type));
         }
         case ASR::ttypeType::List: {
             ASR::List_t* l = ASR::down_cast<ASR::List_t>(t);
@@ -3441,11 +3384,6 @@ inline bool check_equal_type(ASR::ttype_t* x, ASR::ttype_t* y, bool check_for_di
                ASR::is_a<ASR::Allocatable_t>(*y) ) {
         x = ASRUtils::type_get_past_allocatable(x);
         y = ASRUtils::type_get_past_allocatable(y);
-        return check_equal_type(x, y);
-    } else if(ASR::is_a<ASR::Const_t>(*x) ||
-              ASR::is_a<ASR::Const_t>(*y)) {
-        x = ASRUtils::get_contained_type(x);
-        y = ASRUtils::get_contained_type(y);
         return check_equal_type(x, y);
     } else if (ASR::is_a<ASR::List_t>(*x) && ASR::is_a<ASR::List_t>(*y)) {
         x = ASR::down_cast<ASR::List_t>(x)->m_type;
@@ -5189,9 +5127,9 @@ static inline void Call_t_body(Allocator& al, ASR::symbol_t* a_name,
         }
         if( ASRUtils::is_array(arg_type) && ASRUtils::is_array(orig_arg_type) ) {
             ASR::Array_t* arg_array_t = ASR::down_cast<ASR::Array_t>(
-                ASRUtils::type_get_past_pointer(ASRUtils::type_get_past_const(arg_type)));
+                ASRUtils::type_get_past_pointer(arg_type));
             ASR::Array_t* orig_arg_array_t = ASR::down_cast<ASR::Array_t>(
-                ASRUtils::type_get_past_pointer(ASRUtils::type_get_past_const(orig_arg_type)));
+                ASRUtils::type_get_past_pointer(orig_arg_type));
             if( (arg_array_t->m_physical_type != orig_arg_array_t->m_physical_type) ||
                 (arg_array_t->m_physical_type == ASR::array_physical_typeType::DescriptorArray &&
                  arg_array_t->m_physical_type == orig_arg_array_t->m_physical_type &&
