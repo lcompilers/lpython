@@ -7052,7 +7052,7 @@ public:
                 * islower() method is limited to English Alphabets currently
                 * TODO: We can support other characters from Unicode Library
             */
-            std::vector<std::string> validation_methods{"lower", "upper", "decimal", "ascii", "space", "alpha"};  // Database of validation methods supported
+            std::vector<std::string> validation_methods{"lower", "upper", "decimal", "ascii", "space", "alpha", "title"};  // Database of validation methods supported
             std::string method_name = attr_name.substr(2);
             if(std::find(validation_methods.begin(),validation_methods.end(), method_name) == validation_methods.end()) {
                 throw SemanticError("String method not implemented: " + attr_name, loc);
@@ -7164,6 +7164,41 @@ we will have to use something else.
                     }
                 }
                 tmp = ASR::make_LogicalConstant_t(al, loc, is_alpha,
+                        ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4)));
+                return;
+            } else if (attr_name == "istitle") {
+                /*
+                    * Specification -
+                    Returns True if all words in the string are in title case, 
+                    and there is at least one character in the string.
+                */
+                bool is_title = (s_var.size() != 0);
+
+                bool in_word = false; // Represents if we are in a word or not
+                bool is_alpha_present = false;
+                for (auto &i : s_var) {
+                    if (i >= 'A' && i <= 'Z') {
+                        is_alpha_present = true;
+                        if (in_word) {
+                            // We have come across an uppercase character in the middle of a word
+                            is_title = false;
+                            break;
+                        } else {
+                            in_word = true;
+                        }
+                    } else if (i >= 'a' && i <= 'z') {
+                        is_alpha_present = true;
+                        if (!in_word) {
+                            //We have come across a lowercase character at the start of a word
+                            is_title = false;
+                            break;
+                        }
+                    } else {
+                        in_word = false;
+                    }
+                }
+                is_title = is_title && is_alpha_present;
+                tmp = ASR::make_LogicalConstant_t(al, loc, is_title,
                         ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4)));
                 return;
             } else {
