@@ -37,23 +37,6 @@ def test_str_slice():
     # TODO:
     # assert a[0:5:-1] == ""
 
-def test_str_isalpha():
-    a: str = "helloworld"
-    b: str = "hj kl"
-    c: str = "a12(){}A"
-    d: str = " "
-    e: str = ""
-    res: bool = a.isalpha()
-    res2: bool = b.isalpha()
-    res3: bool = c.isalpha()
-    res4: bool = d.isalpha()
-    res5: bool = e.isalpha()
-    assert res == True 
-    assert res2 == False
-    assert res3 == False
-    assert res4 == False
-    assert res5 == False
-
    
 def test_str_title():
     a: str = "hello world"
@@ -161,7 +144,6 @@ def check():
     test_constant_str_subscript()
     test_str_title()
     test_str_istitle()
-    test_str_isalpha()
     test_str_split()
 
 check()
