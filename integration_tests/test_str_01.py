@@ -126,7 +126,6 @@ def check():
     test_str_join_empty_list()
     test_constant_str_subscript()
     test_str_title()
-    test_str_istitle()
     test_str_split()
 
 check()

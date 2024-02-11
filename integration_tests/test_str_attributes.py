@@ -310,7 +310,7 @@ def is_alpha():
     assert "".isalpha() == False
 
 
-def test_str_istitle():
+def is_title():
     a: str = "Hello World"
     b: str = "Hj'kl"
     c: str = "hELlo wOrlD"
@@ -359,6 +359,7 @@ def check():
     is_decimal()
     is_ascii()
     is_alpha()
+    is_title()
     is_space()
 
 
