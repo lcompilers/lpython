@@ -6568,26 +6568,6 @@ public:
             arg.loc = loc;
             arg.m_value = s_var;
             fn_args.push_back(al, arg);
-        } else if (attr_name == "isalpha") {
-            if (args.size() != 0) {
-                throw SemanticError("str.isalpha() takes no arguments",
-                    loc);
-            }
-            fn_call_name = "_lpython_str_isalpha";
-            ASR::call_arg_t arg;
-            arg.loc = loc;
-            arg.m_value = s_var;
-            fn_args.push_back(al, arg);
-        } else if (attr_name == "istitle") {
-            if (args.size() != 0) {
-                throw SemanticError("str.istitle() takes no arguments",
-                    loc);
-            }
-            fn_call_name = "_lpython_str_istitle";
-            ASR::call_arg_t arg;
-            arg.loc = loc;
-            arg.m_value = s_var;
-            fn_args.push_back(al, arg);
         } else if (attr_name == "title") {
             if (args.size() != 0) {
                 throw SemanticError("str.title() takes no arguments",
@@ -6804,7 +6784,7 @@ public:
             /*
                 String Validation Methods i.e all "is" based functions are handled here
             */
-            std::vector<std::string> validation_methods{"lower", "upper", "decimal", "ascii", "space"};  // Database of validation methods supported
+            std::vector<std::string> validation_methods{"lower", "upper", "decimal", "ascii", "space", "alpha", "title"};  // Database of validation methods supported
             std::string method_name = attr_name.substr(2);
 
             if(std::find(validation_methods.begin(),validation_methods.end(), method_name) == validation_methods.end()) {
