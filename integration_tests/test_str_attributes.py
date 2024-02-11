@@ -310,6 +310,29 @@ def is_alpha():
     assert "".isalpha() == False
 
 
+def test_str_istitle():
+    a: str = "Hello World"
+    b: str = "Hj'kl"
+    c: str = "hELlo wOrlD"
+    d: str = " Hello"
+    e: str = " "
+    res: bool = a.istitle()
+    res2: bool = b.istitle()
+    res3: bool = c.istitle()
+    res4: bool = d.istitle()
+    res5: bool = e.istitle()
+    assert res == True
+    assert res2 == False 
+    assert res3 == False
+    assert res4 == True
+    assert res5 == False
+
+    assert "Hello World".istitle() == True
+    assert "Hj'kl".istitle() == False
+    assert "hELlo wOrlD".istitle() == False
+    assert " Hello".istitle() == True
+    assert " ".istitle() == False
+
 def is_space():
     assert "\n".isspace() == True
     assert "    ".isspace() == True
