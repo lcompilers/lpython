@@ -201,7 +201,6 @@ ttype
     | Dict(ttype key_type, ttype value_type)
     | Pointer(ttype type)
     | Allocatable(ttype type)
-    | Const(ttype type)
     | CPtr()
     | SymbolicExpression()
     | TypeParameter(identifier param)
