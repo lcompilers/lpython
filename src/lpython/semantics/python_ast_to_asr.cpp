@@ -885,7 +885,16 @@ public:
                     })
                 );
                 throw SemanticAbort();
-            } else { 
+            } else if (var_annotation == "float") {
+                std::string msg = "Hint: Use f32 or f64 for now. ";
+                diag.add(diag::Diagnostic(
+                    var_annotation + " type is not supported yet. ",
+                    diag::Level::Error, diag::Stage::Semantic, {
+                        diag::Label(msg, {loc})
+                    })
+                );
+                throw SemanticAbort();
+            }  else {
                 throw SemanticError("The type '" + var_annotation+"' is undeclared.", loc);
             }
         }
