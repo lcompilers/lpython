@@ -290,6 +290,57 @@ public:
         s = ASRUtils::symbol_name(x.m_v);
     }
 
+    void visit_ExternalSymbol(const ASR::ExternalSymbol_t &x) {
+        visit_symbol(*x.m_external);
+    }
+
+    void visit_If(const ASR::If_t &x) {
+        std::string r = indent;
+        r += "if";
+        visit_expr(*x.m_test);
+        r += s;
+        r += ":";
+        r += "\n";
+        inc_indent();
+        for (size_t i = 0; i < x.n_body; i++) {
+            visit_stmt(*x.m_body[i]);
+            r += s;
+        }
+        dec_indent();
+        if (x.n_orelse == 0) {
+            r += "\n";
+        } else {
+            for (size_t i = 0; i < x.n_orelse; i++) {
+                r += "else:";
+                r += "\n";
+                inc_indent();
+                visit_stmt(*x.m_orelse[i]);
+                r += s;
+                dec_indent();
+            }
+            r += "\n";
+        }
+        s = r;
+    }
+
+    void visit_StringCompare(const ASR::StringCompare_t &x) {
+        std::string r;
+        r = "(";
+        visit_expr(*x.m_left);
+        r += s;
+        r += cmpop2str(x.m_op);
+        visit_expr(*x.m_right);
+        r += s;
+        r += ")";
+        s = r;
+    }
+
+    void visit_StringConstant(const ASR::StringConstant_t &x) {
+        s = "\"";
+        s.append(x.m_s);
+        s += "\"";
+    }
+
     void visit_IntegerBinOp(const ASR::IntegerBinOp_t &x) {
         std::string r;
         // TODO: Handle precedence based on the last_operator_precedence
