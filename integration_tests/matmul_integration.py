@@ -233,6 +233,7 @@ def blocked_and_tiled_with_temporaries(
     jj: i32
     i: i32
     ii: i32
+    A_ik: i16
     print("\nbloced and tiled with temporaries")
     B1l: i16[1, l] = empty((1, l), dtype=int16)
     T1l: i16[1, l] = empty((1, l), dtype=int16)
@@ -240,21 +241,37 @@ def blocked_and_tiled_with_temporaries(
         for ii in range(0, n, M2):  # each M2 block in A cols and B rows
             for i in range(0, M2):  # Zero-out rows of C.
                 clear_row(Cnl, i + ii, l)
-                # L1cache[L1_C_base + i, :] = C_vr[:]  # TODO
+                # L1cache[(L1_C_base + i), :] = C_vr[:]  # TODO
             for kk in range(0, m, M1):
                 for k in range(0, M1):  # rows of Bml
-                    # L1cache[L1_B_index, :] = Bml[kk + k, jj : (jj + VR_SIZE)] # TODO
+                    # L1cache[L1_B_index, :] = Bml[(kk + k), jj : (jj + VR_SIZE)] # TODO
                     # B_vr[:] = l1cache[L1_B_index, :]                          # TODO
-                    # --------------------------------------------
-                    # B_1l[0, :] = B_ml[k + kk, :]
+                    # ------------------------------------------------------------
+                    # B_1l[0, :] = B_ml[(k + kk), :]
                     broadcast_copy_row(B1l, 0, Bml, k + kk, l)
                     for i in range(0, M2):
-                        # T1l[0, :] = Anm[i + ii, k + kk]
-                        broadcast_i16_row(T1l, 0, Anm[i + ii, k + kk], l)
+                        # C_vr[:] = L1cache[(L1_C_base + i), :] # TODO
+                        # --------------------------------------------------------
+                        # T_vr[:] = A_ik # TODO
+                        # --------------------------------------------------------
+                        # T1l[0, :] = Anm[(i + ii), (k + kk)]
+                        A_ik = Anm[i + ii, k + kk]
+                        broadcast_i16_row(T1l, 0, A_ik, l)
+                        # --------------------------------------------------------
+                        # T_vr[:] = B_vr[:] * T_vr[:] # Hadamard product # TODO
+                        # T_vr[:] *= B_vr[:] # Hadamard product alternative # TODO
+                        # --------------------------------------------------------
                         # T1l[0, :] = np.multiply(B1l[0, :], T1l[0, :])
                         hadamard_product_in_place_row(T1l, 0, B1l, 0, l)
+                        # --------------------------------------------------------
+                        # C_vr[:] = C_vr[:] + T_vr[:] # TODO
+                        # C_vr[:] += T_vr[:] # Alternative # TODO
+                        # --------------------------------------------------------
                         # Cnl[i + ii, :] += T1l[0, :]
                         accumulate_in_place_row(Cnl, i + ii, T1l, 0, l)
+                        # L1cache[(L1_C_base + i), :] = C_vr[:] # TODO
+            # for i in range(0, M2):  # TODO
+            #     Cnl[(ii + i), jj : (jj + VR_SIZE)] = L1cache[(L1_C_base + i), :]  # TODO
 
 
 def with_liberal_use_of_temporaries(
@@ -272,13 +289,17 @@ def with_liberal_use_of_temporaries(
             for i in range(0, M2):  # Zero-out rows of C.
                 clear_row(Cnl, i + ii, l)
             for k in range(0, m):  # rows of B
+                # ------------------------------------------------------------
                 # B_1l[0, :] = B_ml[k, :]
                 broadcast_copy_row(B1l, 0, Bml, k, l)
                 for i in range(0, M2):
+                    # --------------------------------------------------------
                     # T1l[0, :] = Anm[i + ii, k]
                     broadcast_i16_row(T1l, 0, Anm[i + ii, k], l)
+                    # --------------------------------------------------------
                     # T1l[0, :] = np.multiply(B1l[0, :], T1l[0, :])
                     hadamard_product_in_place_row(T1l, 0, B1l, 0, l)
+                    # --------------------------------------------------------
                     # Cnl[i + ii, :] += T1l[0, :]
                     accumulate_in_place_row(Cnl, i + ii, T1l, 0, l)
 
