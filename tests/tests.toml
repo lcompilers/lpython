@@ -785,6 +785,10 @@ ast_new = true
 # tests/errors
 
 [[test]]
+filename = "errors/test_async.py"
+asr = true
+
+[[test]]
 filename = "errors/test_str_indexing.py"
 asr = true
 
@@ -1097,6 +1101,10 @@ filename = "errors/test_unsupported_type.py"
 asr = true
 
 [[test]]
+filename = "errors/test_int_semantic_error.py"
+asr = true
+
+[[test]]
 filename = "errors/generics_error_01.py"
 asr = true
 
@@ -1277,6 +1285,14 @@ asr = true
 [[test]]
 filename = "errors/unsigned_04.py"
 asr = true
+
+[[test]]
+filename = "errors/prefix_string_01.py"
+ast = true
+
+[[test]]
+filename = "errors/prefix_string_02.py"
+ast = true
 
 # tests/runtime_errors
 [[test]]

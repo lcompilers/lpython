@@ -800,7 +800,7 @@ static inline ast_t* concat_string(Allocator &al, Location &l,
 #define INTEGER(x, l) make_ConstantInt_t(p.m_a, l, x, nullptr)
 #define STRING1(x, l) make_ConstantStr_t(p.m_a, l, str_unescape_c(p.m_a, x), nullptr)
 #define STRING2(x, y, l) concat_string(p.m_a, l, EXPR(x), str_unescape_c(p.m_a, y), nullptr)
-#define STRING3(id, x, l) PREFIX_STRING(p.m_a, l, name2char(id), x.c_str(p.m_a))
+#define STRING3(prefix, x, l) PREFIX_STRING(p.m_a, l, prefix.c_str(p.m_a), x.c_str(p.m_a))
 #define STRING4(x, s, l) concat_string(p.m_a, l, EXPR(x), "", EXPR(s))
 #define FLOAT(x, l) make_ConstantFloat_t(p.m_a, l, x, nullptr)
 #define COMPLEX(x, l) make_ConstantComplex_t(p.m_a, l, 0, x, nullptr)

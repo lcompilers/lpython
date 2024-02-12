@@ -687,6 +687,7 @@ def _lpython_str_join(s:str, lis:list[str]) -> str:
 
 def _lpython_str_isalpha(s: str) -> bool:
     ch: str
+    if len(s) == 0: return False
     for ch in s:
         ch_ord: i32 = ord(ch)
         if 65 <= ch_ord and ch_ord <= 90:
@@ -822,6 +823,44 @@ def _lpython_str_strip(x: str) -> str:
     return res
 
 @overload
+def _lpython_str_split(x: str) -> list[str]:
+    sep: str = ' '
+    res: list[str] = []
+    start:i32 = 0
+    ind: i32
+    x_strip: str = _lpython_str_strip(x)
+    if (x_strip == ""): 
+        return res
+    while True:
+        while (start < len(x_strip) and x_strip[start] == ' '):
+            start += 1
+        ind = _lpython_str_find(x_strip[start:len(x_strip)], sep)
+        if ind == -1:
+            res.append(x_strip[start:len(x_strip)])
+            break
+        else:
+            res.append(x_strip[start:start + ind])
+            start += ind + len(sep)
+    return res
+    
+@overload
+def _lpython_str_split(x: str, sep:str) -> list[str]:
+    if len(sep) == 0:
+        raise ValueError('empty separator')
+    res: list[str] = []
+    start:i32 = 0
+    ind: i32
+    while True:
+        ind = _lpython_str_find(x[start:len(x)], sep)
+        if ind == -1:
+            res.append(x[start:len(x)])
+            break
+        else:
+            res.append(x[start:start + ind])
+            start += ind + len(sep)
+    return res
+
+@overload
 def _lpython_str_swapcase(s: str) -> str:
     res :str = ""
     cur: str
@@ -870,7 +909,7 @@ def _lpython_str_partition(s:str, sep: str) -> tuple[str, str, str]:
     if len(s) == 0:
         raise ValueError('empty string cannot be partitioned')
     if len(sep) == 0:
-        raise ValueError('empty seperator')
+        raise ValueError('empty separator')
     res : tuple[str, str, str]
     ind : i32
     ind = _lpython_str_find(s, sep)
@@ -916,7 +955,7 @@ def _lpython_str_isdecimal(s: str) -> bool:
 
 @overload
 def _lpython_str_isascii(s: str) -> bool:
-    if(len(s) == 0):
+    if len(s) == 0:
         return True
     i: str
     for i in s:
@@ -925,6 +964,8 @@ def _lpython_str_isascii(s: str) -> bool:
     return True
 
 def _lpython_str_isspace(s:str) -> bool:
+    if len(s) == 0:
+        return False
     ch: str 
     for ch in s:
         if ch != ' ' and ch != '\t' and ch != '\n' and ch != '\r' and ch != '\f' and ch != '\v':

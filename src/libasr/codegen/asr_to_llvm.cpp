@@ -63,6 +63,7 @@ using ASRUtils::intent_local;
 using ASRUtils::intent_return_var;
 using ASRUtils::determine_module_dependencies;
 using ASRUtils::is_arg_dummy;
+using ASRUtils::is_argument_of_type_CPtr;
 
 void string_init(llvm::LLVMContext &context, llvm::Module &module,
         llvm::IRBuilder<> &builder, llvm::Value* arg_size, llvm::Value* arg_string) {
@@ -1245,8 +1246,12 @@ public:
         llvm::Value* const_list = builder->CreateAlloca(const_list_type, nullptr, "const_list");
         list_api->list_init(type_code, const_list, *module, x.n_args, x.n_args);
         int64_t ptr_loads_copy = ptr_loads;
-        ptr_loads = 1;
         for( size_t i = 0; i < x.n_args; i++ ) {
+            if (is_argument_of_type_CPtr(x.m_args[i])) {
+                ptr_loads = 0;
+            } else {
+                ptr_loads = 1;
+            }
             this->visit_expr(*x.m_args[i]);
             llvm::Value* item = tmp;
             llvm::Value* pos = llvm::ConstantInt::get(context, llvm::APInt(32, i));
@@ -7941,7 +7946,7 @@ public:
                 // there might be a bug below.
                 llvm::Type *target_type = nullptr;
                 bool character_bindc = false;
-                ASR::ttype_t* arg_type_ = ASRUtils::type_get_past_array(arg_type);
+                ASR::ttype_t* arg_type_ = ASRUtils::type_get_past_const(ASRUtils::type_get_past_array(arg_type));
                 switch (arg_type_->type) {
                     case (ASR::ttypeType::Integer) : {
                         int a_kind = down_cast<ASR::Integer_t>(arg_type_)->m_kind;

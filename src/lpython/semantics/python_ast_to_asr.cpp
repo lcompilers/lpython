@@ -592,6 +592,11 @@ public:
         return nullptr;
     }
 
+
+    void visit_AsyncFunctionDef(const AST::AsyncFunctionDef_t &x){
+        throw SemanticError("The `async` keyword is currently not supported", x.base.base.loc);
+    }
+
     void visit_expr_list(AST::expr_t** exprs, size_t n,
                          Vec<ASR::expr_t*>& exprs_vec) {
         LCOMPILERS_ASSERT(exprs_vec.reserve_called);
@@ -871,7 +876,18 @@ public:
         }
 
         if( !type && raise_error ) {
-            throw SemanticError("Unsupported type annotation: " + var_annotation, loc);
+            if (var_annotation == "int") {
+                std::string msg = "Hint: Use i8, i16, i32 or i64 for now. ";
+                diag.add(diag::Diagnostic(
+                    var_annotation + " type is not supported yet. ",
+                    diag::Level::Error, diag::Stage::Semantic, {
+                        diag::Label(msg, {loc})
+                    })
+                );
+                throw SemanticAbort();
+            } else { 
+                throw SemanticError("The type '" + var_annotation+"' is undeclared.", loc);
+            }
         }
 
         return type;
@@ -1504,8 +1520,7 @@ public:
             int64_t value_int = -1;
             if( !ASRUtils::extract_value(ASRUtils::expr_value(value), value_int) &&
                 contains_local_variable(value) && !is_allocatable) {
-                throw SemanticError("Only those local variables which can be reduced to compile "
-                                    "time constant should be used in dimensions of an array.",
+                throw SemanticError("Only those local variables that can be reduced to compile-time constants should be used in dimensions of an array.",
                                     value->base.loc);
             }
             if (value_int != -1) {
@@ -5296,7 +5311,8 @@ public:
         head.m_start = loop_start;
         head.m_increment = inc;
 
-        if( !ASR::is_a<ASR::Integer_t>(*ASRUtils::expr_type(inc)) ) {
+        if( !ASR::is_a<ASR::Integer_t>(*ASRUtils::type_get_past_const(
+                ASRUtils::expr_type(inc))) ) {
             throw SemanticError("For loop increment type should be Integer.", loc);
         }
         ASR::expr_t *inc_value = ASRUtils::expr_value(inc);
@@ -6761,6 +6777,29 @@ public:
             // Push string and substring argument on top of Vector (or Function Arguments Stack basically)
             fn_args.push_back(al, str);
             fn_args.push_back(al, value);
+        } else if(attr_name == "split") {
+            if(args.size() > 1) {
+                throw SemanticError("str.split() takes at most one argument for now.", loc);
+            }
+            fn_call_name = "_lpython_str_split";
+            ASR::call_arg_t str;
+            str.loc = loc;
+            str.m_value = s_var;
+
+            if (args.size() == 1) {
+                ASR::expr_t *arg_value = args[0].m_value;
+                ASR::ttype_t *arg_value_type = ASRUtils::expr_type(arg_value);
+                if (!ASRUtils::is_character(*arg_value_type)) {
+                    throw SemanticError("str.split() takes one argument of type: str", loc);
+                }
+                ASR::call_arg_t value;
+                value.loc = loc;
+                value.m_value = args[0].m_value;
+                fn_args.push_back(al, str);
+                fn_args.push_back(al, value);
+            } else {
+                fn_args.push_back(al, str);
+            }
         } else if(attr_name.size() > 2 && attr_name[0] == 'i' && attr_name[1] == 's') {
             /*
                 String Validation Methods i.e all "is" based functions are handled here
@@ -7068,18 +7107,18 @@ public:
                     Return True if all cased characters in the string are uppercase and there is at least one cased character, False otherwise.
                 */
                 bool is_cased_present = false;
-                bool is_lower = true;
+                bool is_upper = true;
                 for (auto &i : s_var) {
                     if ((i >= 'A' && i <= 'Z') || (i >= 'a' && i <= 'z')) {
                         is_cased_present = true;
                         if(!(i >= 'A' && i <= 'Z')) {
-                            is_lower = false;
+                            is_upper = false;
                             break;
                         }
                     }
                 }
-                is_lower = is_lower && is_cased_present;
-                tmp = ASR::make_LogicalConstant_t(al, loc, is_lower,
+                is_upper = is_upper && is_cased_present;
+                tmp = ASR::make_LogicalConstant_t(al, loc, is_upper,
                         ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4)));
                 return;
             } else if(attr_name == "isdecimal") {
@@ -7121,13 +7160,13 @@ characters, as defined by CPython. Return false otherwise. For now we use the
 std::isspace function, but if we later discover that it differs from CPython,
 we will have to use something else.
                 */
-                bool is_space = true;
-                    for (char i : s_var) {
-                        if (!std::isspace(static_cast<unsigned char>(i))) {
-                            is_space = false;
-                            break;
-                        }
+                bool is_space = (s_var.size() != 0);
+                for (char i : s_var) {
+                    if (!std::isspace(static_cast<unsigned char>(i))) {
+                        is_space = false;
+                        break;
                     }
+                }
                 tmp = ASR::make_LogicalConstant_t(al, loc, is_space,
                         ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4)));
                 return;
