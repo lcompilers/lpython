@@ -1,2 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<module classpath="CMake" type="CPP_MODULE" version="4" />
+<module classpath="CMake" type="CPP_MODULE" version="4">
+  <component name="FacetManager">
+    <facet type="Python" name="Python facet">
+      <configuration sdkName="lp" />
+    </facet>
+  </component>
+  <component name="PyNamespacePackagesService">
+    <option name="namespacePackageFolders">
+      <list>
+        <option value="$MODULE_DIR$/src/libasr/runtime" />
+        <option value="$MODULE_DIR$/src/runtime/lpython" />
+      </list>
+    </option>
+  </component>
+</module>

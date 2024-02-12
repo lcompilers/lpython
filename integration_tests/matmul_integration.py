@@ -1,7 +1,9 @@
 import numpy
-from numpy import array, empty, int16
-from lpython import (i16, i32, ccallback, c_p_pointer, Pointer, u64, CPtr, i64,
-                     ccall, sizeof, Array, Allocatable, TypeVar, Const)
+from numpy import array, empty, int16, uint16
+from lpython import (i16, i32, c_p_pointer, Pointer, CPtr,
+                     ccall, sizeof, TypeVar, Const,
+                     # Annotation, SIMD  # TODO
+                     )
 
 
 # https://numpy.org/devdocs/reference/typing.html
@@ -23,7 +25,9 @@ def _lfortran_malloc(size : i32) -> CPtr:
 
 
 def init_c_fortran_array(b: CPtr, rows: i32, cols: i32, mod: i32) -> None:
-    """Initialize a C / Fortran array with test data."""
+    """Initialize a C / Fortran array with test data. A C / Fortran
+    array is, mathematically, a 2D structure. Its 2D indices are
+    converted inline to a 1D index into the 1D physical array."""
     B: Pointer[i16[:]] = c_p_pointer(b, i16[:], array([rows * cols]))
     i: i32
     j: i32
@@ -46,7 +50,8 @@ rows = TypeVar("rows")
 cols = TypeVar("cols")
 
 
-def load_lpython_array_from_c_fortran_array(b: CPtr, rows: i32, cols: i32) -> i16[rows, cols]:
+def load_lpython_array_from_c_fortran_array(
+        b: CPtr, rows: i32, cols: i32) -> i16[rows, cols]:
     """Load an LPython array from a C / Fortran array."""
     B: Pointer[i16[:]] = c_p_pointer(b, i16[:], array([rows * cols]))
     D: i16[rows, cols] = empty((rows, cols), dtype=int16)
@@ -67,7 +72,7 @@ def spot_print(Anl: i16[:, :], n: i32, l: i32) -> None:
         spot_print_row(Anl, l, j)
 
 
-def spot_print_row(Anl: i16[:, :], cols: i32, row: i32):
+def spot_print_row(Anl: i16[:, :], cols: i32, row: i32) -> None:
     if (cols > 3):
         print(Anl[row, 0], Anl[row, 1], Anl[row, 2], "...",
               Anl[row, cols - 3], Anl[row, cols - 2], Anl[row, cols - 1])
@@ -129,8 +134,7 @@ def accumulate_in_place_outer_product_row(
         dest[dest_row, ww] += src1[src1_row, ww] * src2[dest_row, src1_row]
 
 
-
-def print_expected():
+def print_expected() -> None:
     print("\nExpected result:")
     print("[[ 5  8 11 ... 20 23 26],")
     print(" [ 8 14 20 ... 38 44 50],")
@@ -149,7 +153,7 @@ def main() -> i32:
     m  : Const[i32] = 3
     l  : Const[i32] = 32_768
 
-    # M1 : i32 = 1  # Unused
+    M1 : i32 = 1
     M2 : i32 = 5  # Issue 2499 -- can't be Const
 
     Anm_l4 : CPtr = _lfortran_malloc((n * m) * i32(sizeof(i16)))
@@ -165,9 +169,11 @@ def main() -> i32:
     Anm: i16[n, m] = load_lpython_array_from_c_fortran_array(Anm_l4, n, m)
     print("Anm[", n, ",", m, "]")
     spot_print(Anm, n, m)
+
     Bml: i16[m, l] = load_lpython_array_from_c_fortran_array(Bml_l4, m, l)
     print("Bml[", m, ",", l, "]")
     spot_print(Bml, m, l)
+
     Cnl: i16[n, l] = load_lpython_array_from_c_fortran_array(Cnl_l4, n, l)
     print("Cnl[", n, ",", l, "]")
     spot_print(Cnl, n, l)
@@ -175,38 +181,80 @@ def main() -> i32:
     print_expected()
 
     VR_SIZE: i32 = 32_768
-    ww: i32  # "ww" is short for "workaround_index."
-
+    # ----------------------------------------------------------------
     print("\nhand-blocked accumulated outer product; block size = M2 =", M2)
     hand_optimized_to_remove_temporaries(Anm, Bml, Cnl, n, m, l, VR_SIZE, M2)
 
     print("\nActual result:")
     spot_print(Cnl, n, l)
-
+    # ----------------------------------------------------------------
     with_liberal_use_of_temporaries(Anm, Bml, Cnl, n, m, l, VR_SIZE, M2)
 
     print("\nActual result:")
     spot_print(Cnl, n, l)
+    # ----------------------------------------------------------------
+    blocked_and_tiled_with_temporaries(Anm, Bml, Cnl, n, m, l, VR_SIZE, M1, M2)
 
+    print("\nActual result:")
+    spot_print(Cnl, n, l)
+    # ----------------------------------------------------------------
     unblocked_accumulated_outer_product(Anm, Bml, Cnl, n, m, l)
 
     print("\nActual result:")
     spot_print(Cnl, n, l)
-
+    # ----------------------------------------------------------------
     return 0
 
 
 def unblocked_accumulated_outer_product(
         Anm: i16[:, :], Bml: i16[:, :], Cnl: i16[:, :],
-        n: i32, m: i32, l: i32):
+        n: i32, m: i32, l: i32) -> None:
     print("\nunblocked, naive Accumulated Outer Product for reference")
     i: i32
     k: i32
-    ww: i32
     for i in range(0, n):
         clear_row(Cnl, i, l)
         for k in range(0, m):  # rows of B
             accumulate_in_place_outer_product_row(Cnl, i, Bml, k, Anm, l)
+
+
+def blocked_and_tiled_with_temporaries(
+        Anm: i16[:, :], Bml: i16[:, :], Cnl: i16[:, :],
+        n: i32, m: i32, l: i32, VR_SIZE: i32,
+        M1: i32, M2: i32):
+    # L1cache: Annotation[u16[VR_SIZE], SIMD] = empty((M2 + 1), VR_SIZE, dtype=uint16)  # TODO
+    # B_vr: Annotation[u16[V], SIMD] = empty((V,), dtype=uint16) # TODO
+    # C_vr: Annotation[u16[V], SIMD] = empty((V,), dtype=uint16) # TODO
+    # T_vr: Annotation[u16[V], SIMD] = empty((V,), dtype=uint16) # TODO
+    L1_B_index: i32 = 0
+    L1_C_base:  i32 = 1
+    k: i32
+    kk: i32
+    jj: i32
+    i: i32
+    ii: i32
+    print("\nbloced and tiled with temporaries")
+    B1l: i16[1, l] = empty((1, l), dtype=int16)
+    T1l: i16[1, l] = empty((1, l), dtype=int16)
+    for jj in range(0, l, VR_SIZE):  # each VR-col chunk in B and C
+        for ii in range(0, n, M2):  # each M2 block in A cols and B rows
+            for i in range(0, M2):  # Zero-out rows of C.
+                clear_row(Cnl, i + ii, l)
+                # L1cache[L1_C_base + i, :] = C_vr[:]  # TODO
+            for kk in range(0, m, M1):
+                for k in range(0, M1):  # rows of Bml
+                    # L1cache[L1_B_index, :] = Bml[kk + k, jj : (jj + VR_SIZE)] # TODO
+                    # B_vr[:] = l1cache[L1_B_index, :]                          # TODO
+                    # --------------------------------------------
+                    # B_1l[0, :] = B_ml[k + kk, :]
+                    broadcast_copy_row(B1l, 0, Bml, k + kk, l)
+                    for i in range(0, M2):
+                        # T1l[0, :] = Anm[i + ii, k + kk]
+                        broadcast_i16_row(T1l, 0, Anm[i + ii, k + kk], l)
+                        # T1l[0, :] = np.multiply(B1l[0, :], T1l[0, :])
+                        hadamard_product_in_place_row(T1l, 0, B1l, 0, l)
+                        # Cnl[i + ii, :] += T1l[0, :]
+                        accumulate_in_place_row(Cnl, i + ii, T1l, 0, l)
 
 
 def with_liberal_use_of_temporaries(
@@ -216,9 +264,7 @@ def with_liberal_use_of_temporaries(
     jj: i32
     ii: i32
     i: i32
-    ww: i32
     print("\nliberal usage of temporaries")
-    # Temporaries (TODO: get rid of them, as indicated by proposed syntax below)
     B1l: i16[1, l] = empty((1, l), dtype=int16)
     T1l: i16[1, l] = empty((1, l), dtype=int16)
     for jj in range(0, l, VR_SIZE):  # each VR-col chunk in B and C
@@ -244,7 +290,6 @@ def hand_optimized_to_remove_temporaries(
     jj: i32
     ii: i32
     i: i32
-    ww: i32
     print("\noptimized by hand to remove temporaries")
     for jj in range(0, l, VR_SIZE):  # each VR-col chunk in B and C
         for ii in range(0, n, M2):  # each M2 block in A cols and B rows
