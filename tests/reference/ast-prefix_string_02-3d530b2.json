@@ -1,0 +1,13 @@
+{
+    "basename": "ast-prefix_string_02-3d530b2",
+    "cmd": "lpython --show-ast --no-color {infile} -o {outfile}",
+    "infile": "tests/errors/prefix_string_02.py",
+    "infile_hash": "5d0c279ea735e60d5243a4b33100832dc1564917d6ef83c9b32705f9",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": null,
+    "stdout_hash": null,
+    "stderr": "ast-prefix_string_02-3d530b2.stderr",
+    "stderr_hash": "cd72affed29823c0364d52bfb3ba0674d9d7950390b7cd6b04f7538b",
+    "returncode": 1
+}

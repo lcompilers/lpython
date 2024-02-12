@@ -179,6 +179,9 @@ void yyerror(YYLTYPE *yyloc, LCompilers::LPython::Parser &p, const std::string &
 %token KW_MATCH
 %token KW_CASE
 
+%token KW_STR_PREFIX
+%type <string> KW_STR_PREFIX
+
 // Nonterminal tokens
 
 %type <ast> script_unit
@@ -1102,9 +1105,9 @@ subscript
 
 string
     : string TK_STRING { $$ = STRING2($1, $2, @$); } // TODO
-    | string id TK_STRING { $$ = STRING4($1, STRING3($2, $3, @$), @$); }
+    | string KW_STR_PREFIX TK_STRING { $$ = STRING4($1, STRING3($2, $3, @$), @$); }
     | TK_STRING { $$ = STRING1($1, @$); }
-    | id TK_STRING { $$ = STRING3($1, $2, @$); }
+    | KW_STR_PREFIX TK_STRING { $$ = STRING3($1, $2, @$); }
     ;
 
 lambda_parameter
