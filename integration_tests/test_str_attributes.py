@@ -71,6 +71,26 @@ def find():
     assert s2.find("we") == -1
     assert "".find("") == 0
 
+def count():
+    s: str
+    sub: str
+    s = "ABC ABCDAB ABCDABCDABDE"
+    sub = "ABC"
+    assert s.count(sub) == 4
+    assert s.count("ABC") == 4
+    
+    sub = "AB"
+    assert s.count(sub) == 6
+    assert s.count("AB") == 6
+
+    sub = "ABC"
+    assert "ABC ABCDAB ABCDABCDABDE".count(sub) == 4
+    assert "ABC ABCDAB ABCDABCDABDE".count("ABC") == 4
+
+    sub = "AB"
+    assert "ABC ABCDAB ABCDABCDABDE".count(sub) == 6
+    assert "ABC ABCDAB ABCDABCDABDE".count("AB") == 6
+
 
 def startswith():
     s: str
@@ -344,6 +364,7 @@ def check():
     strip()
     swapcase()
     find()
+    count()
     startswith()
     endswith()
     partition()
