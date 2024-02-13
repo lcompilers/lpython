@@ -1,0 +1,13 @@
+{
+    "basename": "asr-test_float_semantic_error-58c0c90",
+    "cmd": "lpython --show-asr --no-color {infile} -o {outfile}",
+    "infile": "tests/errors/test_float_semantic_error.py",
+    "infile_hash": "10929e3991a4aee1a2de473fc5f8caa48b6dcf4a35e2329a15ea5f1f",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": null,
+    "stdout_hash": null,
+    "stderr": "asr-test_float_semantic_error-58c0c90.stderr",
+    "stderr_hash": "c11166fb86be513e74796a51f5c9e84653c2eb894ed95d502ed8af57",
+    "returncode": 2
+}
