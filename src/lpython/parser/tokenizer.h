@@ -1,6 +1,5 @@
 #ifndef LPYTHON_SRC_PARSER_TOKENIZER_H
 #define LPYTHON_SRC_PARSER_TOKENIZER_H
-
 #include <libasr/exception.h>
 #include <libasr/alloc.h>
 #include <lpython/parser/parser_stype.h>
@@ -91,6 +90,7 @@ Result<std::vector<int>> tokens(Allocator &al, const std::string &input,
 
 std::string pickle_token(int token, const YYSTYPE &yystype);
 
+std::string get_token_name(int token, const LFortran::YYSTYPE &yystype);
 
 } // namespace LCompilers::LPython
 
