@@ -710,6 +710,8 @@ RUN(NAME structs_32          LABELS cpython llvm c)
 RUN(NAME structs_33          LABELS cpython llvm c)
 RUN(NAME structs_34          LABELS cpython llvm c)
 RUN(NAME structs_35          LABELS cpython llvm)
+RUN(NAME structs_36          LABELS cpython llvm)
+RUN(NAME structs_37          LABELS cpython llvm)
 
 RUN(NAME symbolics_01        LABELS cpython_sym c_sym llvm_sym NOFAST)
 RUN(NAME symbolics_02        LABELS cpython_sym c_sym llvm_sym NOFAST)
