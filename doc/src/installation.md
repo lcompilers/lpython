@@ -12,10 +12,10 @@ Follow the steps below to install and run LPython on Linux, Windows or macOS.
 
 - ### Set up your system
     - Linux
-        - Make sure you have `gcc` and `cmake` installed. If not, install them using the below command:
+        - Make sure you have `g++` and `cmake` installed. If not, install them using the below command:
 
             ```bash
-            sudo apt-get install gcc cmake
+            sudo apt-get install g++ cmake
             ```
 
         - Run the following command to install the build dependencies:
