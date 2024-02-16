@@ -1735,7 +1735,8 @@ int main(int argc, char *argv[])
         // the first:
         std::string arg_file = arg_files[0];
         if (CLI::NonexistentPath(arg_file).empty()){
-            throw LCompilers::LCompilersException("No such file or directory: " + arg_file);
+            std::cerr << "Your input file doesn't exist. file name is: " << arg_file << std::endl;
+            return 1;
         }
 
         std::string outfile;
