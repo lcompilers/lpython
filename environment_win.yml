@@ -2,18 +2,20 @@ name: lp
 channels:
   - conda-forge
 dependencies:
-  - python=3.10.2
-  - numpy
-  - flake8
-  - pip
-  - toml
-  - setuptools
-  - llvmdev=11.1.0
-  - m2-bison=3.0.4
-  - re2c
-  - xonsh
-  - ninja
-  - cmake
-  - make
-  - zlib
   - git
+  - pip
+  - make
+  - re2c
+  - toml
+  - zlib
+  - flex
+  - cmake
+  - ninja
+  - numpy
+  - xonsh
+  - flake8
+  - setuptools
+  - python=3.10.2
+  - m2-bison=3.0.4
+  - llvmdev=11.1.0
+  - zstd-static=1.5.5
