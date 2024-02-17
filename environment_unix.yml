@@ -8,7 +8,6 @@ dependencies:
   - re2c
   - toml
   - zlib
-  - flex
   - cmake
   - numpy
   - flake8
