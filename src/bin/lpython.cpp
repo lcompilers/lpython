@@ -1735,7 +1735,7 @@ int main(int argc, char *argv[])
         // the first:
         std::string arg_file = arg_files[0];
         if (CLI::NonexistentPath(arg_file).empty()){
-            std::cerr << "Your input file doesn't exist. file name is: " << arg_file << std::endl;
+            std::cerr << "The input file does not exist: " << arg_file << std::endl;
             return 1;
         }
 
