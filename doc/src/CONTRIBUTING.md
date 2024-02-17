@@ -43,7 +43,8 @@ All contributions to a public repository on GitHub require the contributor to op
     - Go to your project fork on GitHub.
     - Select the branch which contains your commit.
       ![image](https://github.com/kmr-srbh/lpython/assets/151380951/fb595307-9610-44f3-89d0-0079a90fcf9e)
-    - Above the list of files, select the green button which says <kbd>Compare & pull request</kbd>.
+    - Above the list of files, select the green button which says <kbd>Compare & pull request</kbd>. If you do not see this option, select the <kbd>Contribute</kbd> option.
+      ![Screenshot from 2024-02-17 11-52-41](https://github.com/kmr-srbh/lpython/assets/151380951/08b3dc25-f5d1-4624-9887-2ede565230bc)
     - Type a descriptive title. Provide further details in the Description section below. If your PR fixes an issue, link it with the issue by appending `fixes #[issue-number]` to your PR title.
       ![image](https://github.com/kmr-srbh/lpython/assets/151380951/3f2245df-42f4-44e5-9c20-d6d7789ac894)
     - Once you are done, select the <kbd>Create Pull Request</kbd> button to open a new PR.
