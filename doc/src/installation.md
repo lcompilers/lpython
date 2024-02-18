@@ -12,16 +12,10 @@ Follow the steps below to install and run LPython on Linux, Windows or macOS.
 
 - ### Set up your system
     - Linux
-        - Make sure you have `g++` and `cmake` installed. If not, install them using the below command:
+        - Run the following command to install some global build dependencies:
 
             ```bash
-            sudo apt-get install g++ cmake
-            ```
-
-        - Run the following command to install the build dependencies:
-
-            ```bash
-            sudo apt-get install binutils-dev build-essential zlib1g-dev bison re2c flex
+            sudo apt-get install build-essential binutils-dev clang zlib1g-dev
             ```
     - Windows
         - Download and install [Microsoft Visual Studio Community](https://visualstudio.microsoft.com/downloads/) for free.
