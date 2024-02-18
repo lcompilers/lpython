@@ -6577,26 +6577,6 @@ public:
             arg.loc = loc;
             arg.m_value = s_var;
             fn_args.push_back(al, arg);
-        } else if (attr_name == "isalpha") {
-            if (args.size() != 0) {
-                throw SemanticError("str.isalpha() takes no arguments",
-                    loc);
-            }
-            fn_call_name = "_lpython_str_isalpha";
-            ASR::call_arg_t arg;
-            arg.loc = loc;
-            arg.m_value = s_var;
-            fn_args.push_back(al, arg);
-        } else if (attr_name == "istitle") {
-            if (args.size() != 0) {
-                throw SemanticError("str.istitle() takes no arguments",
-                    loc);
-            }
-            fn_call_name = "_lpython_str_istitle";
-            ASR::call_arg_t arg;
-            arg.loc = loc;
-            arg.m_value = s_var;
-            fn_args.push_back(al, arg);
         } else if (attr_name == "title") {
             if (args.size() != 0) {
                 throw SemanticError("str.title() takes no arguments",
@@ -6813,7 +6793,7 @@ public:
             /*
                 String Validation Methods i.e all "is" based functions are handled here
             */
-            std::vector<std::string> validation_methods{"lower", "upper", "decimal", "ascii", "space"};  // Database of validation methods supported
+            std::vector<std::string> validation_methods{"lower", "upper", "decimal", "ascii", "space", "alpha", "title"};  // Database of validation methods supported
             std::string method_name = attr_name.substr(2);
 
             if(std::find(validation_methods.begin(),validation_methods.end(), method_name) == validation_methods.end()) {
@@ -7116,7 +7096,7 @@ public:
                 * islower() method is limited to English Alphabets currently
                 * TODO: We can support other characters from Unicode Library
             */
-            std::vector<std::string> validation_methods{"lower", "upper", "decimal", "ascii", "space"};  // Database of validation methods supported
+            std::vector<std::string> validation_methods{"lower", "upper", "decimal", "ascii", "space", "alpha", "title"};  // Database of validation methods supported
             std::string method_name = attr_name.substr(2);
             if(std::find(validation_methods.begin(),validation_methods.end(), method_name) == validation_methods.end()) {
                 throw SemanticError("String method not implemented: " + attr_name, loc);
@@ -7212,6 +7192,57 @@ we will have to use something else.
                     }
                 }
                 tmp = ASR::make_LogicalConstant_t(al, loc, is_space,
+                        ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4)));
+                return;
+            } else if (attr_name == "isalpha") {
+                /*
+                    * Specification -
+                    Return True if all characters in the string are alphabets, 
+                    and there is at least one character in the string.
+                */
+                bool is_alpha = (s_var.size() != 0);
+                for (auto &i : s_var) {
+                    if (!((i >= 'A' && i <= 'Z') || (i >= 'a' && i <= 'z'))) {
+                        is_alpha = false;
+                        break;
+                    }
+                }
+                tmp = ASR::make_LogicalConstant_t(al, loc, is_alpha,
+                        ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4)));
+                return;
+            } else if (attr_name == "istitle") {
+                /*
+                    * Specification -
+                    Returns True if all words in the string are in title case, 
+                    and there is at least one character in the string.
+                */
+                bool is_title = (s_var.size() != 0);
+
+                bool in_word = false; // Represents if we are in a word or not
+                bool is_alpha_present = false;
+                for (auto &i : s_var) {
+                    if (i >= 'A' && i <= 'Z') {
+                        is_alpha_present = true;
+                        if (in_word) {
+                            // We have come across an uppercase character in the middle of a word
+                            is_title = false;
+                            break;
+                        } else {
+                            in_word = true;
+                        }
+                    } else if (i >= 'a' && i <= 'z') {
+                        is_alpha_present = true;
+                        if (!in_word) {
+                            //We have come across a lowercase character at the start of a word
+                            is_title = false;
+                            break;
+                        }
+                    } else {
+                        in_word = false;
+                    }
+                }
+                is_title = is_title && is_alpha_present;
+                tmp = ASR::make_LogicalConstant_t(al, loc, is_title,
                         ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4)));
                 return;
             } else {
