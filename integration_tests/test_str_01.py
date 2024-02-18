@@ -37,9 +37,6 @@ def test_str_slice():
     # TODO:
     # assert a[0:5:-1] == ""
 
-<<<<<<< HEAD
-
-=======
 def test_str_isalpha():
     a: str = "helloworld"
     b: str = "hj kl"
@@ -56,7 +53,6 @@ def test_str_isalpha():
     assert res3 == False
     assert res4 == False
     assert res5 == False
->>>>>>> 08e1f4502 (Fixes empty string bug in str isalpha method)
 
    
 def test_str_title():
@@ -179,8 +175,6 @@ def check():
     test_str_join_empty_list()
     test_constant_str_subscript()
     test_str_title()
-    test_str_istitle()
-    test_str_isalpha()
     test_str_split()
 
 check()
