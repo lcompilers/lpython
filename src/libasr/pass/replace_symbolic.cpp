@@ -698,7 +698,9 @@ public:
             } else {
                 function_call = basic_compare(xx.base.base.loc, "basic_neq", s->m_left, s->m_right);
             }
-            xx.m_test = function_call;
+            ASR::stmt_t* stmt = ASRUtils::STMT(ASR::make_If_t(al, xx.base.base.loc, function_call,
+                xx.m_body, xx.n_body, xx.m_orelse, xx.n_orelse));
+            pass_result.push_back(al, stmt);
         }
     }
 

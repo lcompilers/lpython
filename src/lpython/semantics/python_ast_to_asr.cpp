@@ -885,7 +885,16 @@ public:
                     })
                 );
                 throw SemanticAbort();
-            } else { 
+            } else if (var_annotation == "float") {
+                std::string msg = "Hint: Use f32 or f64 for now. ";
+                diag.add(diag::Diagnostic(
+                    var_annotation + " type is not supported yet. ",
+                    diag::Level::Error, diag::Stage::Semantic, {
+                        diag::Label(msg, {loc})
+                    })
+                );
+                throw SemanticAbort();
+            }  else {
                 throw SemanticError("The type '" + var_annotation+"' is undeclared.", loc);
             }
         }
@@ -6843,13 +6852,13 @@ public:
             }
         } else if (attr_name == "find") {
             if (args.size() != 1) {
-                throw SemanticError("str.find() takes one arguments",
+                throw SemanticError("str.find() takes one argument",
                         loc);
             }
             ASR::expr_t *arg = args[0].m_value;
             ASR::ttype_t *type = ASRUtils::expr_type(arg);
             if (!ASRUtils::is_character(*type)) {
-                throw SemanticError("str.find() takes one arguments of type: str",
+                throw SemanticError("str.find() takes one argument of type: str",
                     arg->base.loc);
             }
             if (ASRUtils::expr_value(arg) != nullptr) {
@@ -6874,6 +6883,41 @@ public:
                 args.push_back(al, str_arg);
                 args.push_back(al, sub_arg);
                 tmp = make_call_helper(al, fn_div, current_scope, args, "_lpython_str_find", loc);
+            }
+            return;
+        } else if (attr_name == "count") {
+            if (args.size() != 1) {
+                throw SemanticError("str.count() takes one argument",
+                        loc);
+            }
+            ASR::expr_t *arg = args[0].m_value;
+            ASR::ttype_t *type = ASRUtils::expr_type(arg);
+            if (!ASRUtils::is_character(*type)) {
+                throw SemanticError("str.count() takes one argument of type: str",
+                        arg->base.loc);
+            }
+            if (ASRUtils::expr_value(arg) != nullptr) {
+                ASR::StringConstant_t* sub_str_con = ASR::down_cast<ASR::StringConstant_t>(arg);
+                std::string sub = sub_str_con->m_s;
+                int res = ASRUtils::KMP_string_match_count(s_var, sub);
+                tmp = ASR::make_IntegerConstant_t(al, loc, res,
+                    ASRUtils::TYPE(ASR::make_Integer_t(al,loc, 4)));
+            } else {
+                ASR::symbol_t *fn_div = resolve_intrinsic_function(loc, "_lpython_str_count");
+                Vec<ASR::call_arg_t> args;
+                args.reserve(al, 1);
+                ASR::call_arg_t str_arg;
+                str_arg.loc = loc;
+                ASR::ttype_t *str_type = ASRUtils::TYPE(ASR::make_Character_t(al, loc,
+                        1, s_var.size(), nullptr));
+                str_arg.m_value = ASRUtils::EXPR(
+                        ASR::make_StringConstant_t(al, loc, s2c(al, s_var), str_type));
+                ASR::call_arg_t sub_arg;
+                sub_arg.loc = loc;
+                sub_arg.m_value = arg;
+                args.push_back(al, str_arg);
+                args.push_back(al, sub_arg);
+                tmp = make_call_helper(al, fn_div, current_scope, args, "_lpython_str_count", loc);
             }
             return;
         } else if (attr_name == "rstrip") {
@@ -7087,18 +7131,18 @@ public:
                     Return True if all cased characters in the string are uppercase and there is at least one cased character, False otherwise.
                 */
                 bool is_cased_present = false;
-                bool is_lower = true;
+                bool is_upper = true;
                 for (auto &i : s_var) {
                     if ((i >= 'A' && i <= 'Z') || (i >= 'a' && i <= 'z')) {
                         is_cased_present = true;
                         if(!(i >= 'A' && i <= 'Z')) {
-                            is_lower = false;
+                            is_upper = false;
                             break;
                         }
                     }
                 }
-                is_lower = is_lower && is_cased_present;
-                tmp = ASR::make_LogicalConstant_t(al, loc, is_lower,
+                is_upper = is_upper && is_cased_present;
+                tmp = ASR::make_LogicalConstant_t(al, loc, is_upper,
                         ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4)));
                 return;
             } else if(attr_name == "isdecimal") {
@@ -7140,13 +7184,13 @@ characters, as defined by CPython. Return false otherwise. For now we use the
 std::isspace function, but if we later discover that it differs from CPython,
 we will have to use something else.
                 */
-                bool is_space = true;
-                    for (char i : s_var) {
-                        if (!std::isspace(static_cast<unsigned char>(i))) {
-                            is_space = false;
-                            break;
-                        }
+                bool is_space = (s_var.size() != 0);
+                for (char i : s_var) {
+                    if (!std::isspace(static_cast<unsigned char>(i))) {
+                        is_space = false;
+                        break;
                     }
+                }
                 tmp = ASR::make_LogicalConstant_t(al, loc, is_space,
                         ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4)));
                 return;

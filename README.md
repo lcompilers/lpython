@@ -1,20 +1,19 @@
 # LPython
 
-LPython is a Python compiler. It is in heavy development, currently in alpha
-stage. LPython works on Windows, macOS and Linux. Some of the goals of LPython
-include:
+LPython is an ahead-of-time compiler for Python written in C++. It is currently in alpha
+stage and under heavy development. LPython works on Windows, macOS and Linux. 
 
-- The best possible performance for numerical, array-oriented code
-- Run on all platforms
-- Compile a subset of Python yet be fully compatible with Python
-- Explore designs so that LPython eventually can compile all Python code
-- Fast compilation
-- Excellent user-friendly diagnostic messages: error, warnings, hints, notes,
-  etc.
-- Ahead-of-Time compilation to binaries, plus interactive usage (Jupyter notebook)
-- Transforming Python code to C++, Fortran and other languages
+Some of the goals of LPython include:
 
-And more.
+- Providing the best possible performance for numerical and array-oriented code.
+- Ahead-of-Time, fast compilation to binaries, plus interactive usage (Jupyter notebook).
+- Cross-platform support.
+- Being able to compile a subset of Python yet be fully compatible with it.
+- Transforming Python code to other programming languages like C++ and Fortran.
+- Exploring design patterns so that LPython can eventually compile all Python code.
+- Providing excellent user-friendly diagnostic messages: error, warnings, hints, notes, etc.
+
+among many more.
 
 # Sponsors
 
@@ -25,235 +24,137 @@ LFortran, see that project for a list of sponsors.
 
 # Installation
 
-## Step 0: Prerequisites
+Follow the steps below to install and run LPython on Linux, Windows or macOS.
 
-Here is the list of requirements needed to build LPython:
+## Prerequisites
+- ### Install Conda
+  Follow the instructions provided [here](https://github.com/conda-forge/miniforge/#download) to install Conda on your platform (Linux, macOS and Windows) using a conda-forge distribution called Miniforge.
+  
+  For Windows, these are additional requirements:
+  - Miniforge Prompt
+  - Visual Studio (with "Desktop Development with C++" workload)
 
-- Conda
+- ### Set up your system
+    - Linux
+        - Run the following command to install some global build dependencies:
 
-For Windows, these are additionally required:
+            ```bash
+            sudo apt-get install build-essential binutils-dev clang zlib1g-dev
+            ```
+    - Windows
+        - Download and install [Microsoft Visual Studio Community](https://visualstudio.microsoft.com/downloads/) for free.
 
-- Miniforge Prompt
-- Visual Studio (with "Desktop Development with C++" workload)
+        - Run the Visual Studio Installer. Download and install the "Desktop Development with C++" workload which will install the Visual C++ Compiler (MSVC).
 
-Please follow the steps for your desired platform.
+        - Launch the Miniforge prompt from the Desktop. It is recommended to use MiniForge instead of Powershell as the main terminal to build and write code for LPython. In the MiniForge Prompt, initialize the MSVC compiler using the below command:
 
-## Step 1: Install Conda
+            ```bash
+            call "C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\Tools\VsDevCmd" -arch=x64
+            ```
 
-This step involves installing Conda using a conda-forge distribution called Miniforge.
+            You can optionally test MSVC via:
 
-Please follow the instructions here to install Conda on your platform:
+            ```bash
+            cl /?
+            link /?
+            ```
 
-Miniforge download link (for Linux, MacOS and Windows): https://github.com/conda-forge/miniforge/#download
+            Both commands must print several pages of help text.
 
-## Step 2: Setting up
+    - Windows with WSL
+        - Install Miniforge Prompt and add it to path:
+            ```bash
+            wget  https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-x86_64.sh -O miniconda.sh
+            bash miniconda.sh -b -p $HOME/conda_root
+            export PATH="$HOME/conda_root/bin:$PATH"
+            conda init bash # (shell name)
+            ```
+        - Open a new terminal window and run the following commands to install dependencies:
+            ```bash
+            conda create -n lp -c conda-forge llvmdev=11.0.1 bison=3.4 re2c python cmake make toml clangdev git
+            ```
+        
+        - Optionally, you can change the directory to a Windows location using `cd /mnt/[drive letter]/[windows location]`. For e.g. - `cd mnt/c/Users/name/source/repos/`.
 
-This step involves setting up the required configuration to run the programs in LPython.
-
-### Linux
-
-Run the below command to install `binutils-dev` package on Linux.
-
-```bash
-sudo apt install binutils-dev
-```
-
-### Windows
-
-Please follow the below steps for Windows:
-
-- Install Visual Studio, for example the version 2022.
-
-  - You can download the
-    Community version for free from: https://visualstudio.microsoft.com/downloads/.
-  - After installing Visual Studio and running the Visual Studio Installer, you must install the "Desktop Development with C++" workload which will install Visual C++ Compiler (MSVC).
-
-- Launch the Miniforge prompt from the Desktop.
-
-  - It is recommended to use MiniForge instead of Powershell as the main terminal to build and write code for LPython.
-
-- In the MiniForge Prompt, initialize the MSVC compiler using the below command:
-
-  ```bash
-  call "C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\Tools\VsDevCmd" -arch=x64
-  ```
-
-- You can optionally test MSVC via:
-
-  ```bash
-  cl /?
-  link /?
-  ```
-
-  Both commands must print several pages of help text.
-
-## Step 3: Build LPython
-
-- Clone LPython using the following commands
-
-  ```bash
-  git clone https://github.com/lcompilers/lpython.git
-  cd lpython
-  ```
-
-  You may also use GitHub Desktop to do the same.
-
-### Linux and MacOS
-
-- Create a Conda environment using the pre-existing file:
-
-  ```bash
-  conda env create -f environment_unix.yml
-  conda activate lp
-  ```
-
-- Generate prerequisite files; build in Debug Mode:
-
-  ```bash
-  # if you are developing on top of a forked repository; please run following command first
-  # ./generate_default_tag.sh
-
-
-  ./build0.sh
-  ./build1.sh
-  ```
-
-### Windows
-
-- Create a Conda environment using the pre-existing file:
-
-  ```bash
-  conda env create -f environment_win.yml
-  conda activate lp
-  ```
-
-- Generate prerequisite files; build in Release Mode:
-
-  ```bash
-  call build0.bat
-  call build1.bat
-  ```
-
-- Tests and examples
-
-  ```bash
-  ctest
-  src\bin\lpython examples\expr2.py
-  src\bin\lpython examples\expr2.py -o a.out
-  a.out
-  ```
-
-- Whenever you are updating a test case file, you also need to update all the reference results associated with that test case:
-
-  ```
-  python run_tests.py -u --skip-run-with-dbg
-  ```
-
-- To see all the options associated with LPython test suite, use:
-
-  ```
-  python run_tests.py --help
-  ```
-
-## Tests:
-
-### Linux or MacOS
-
-- Run tests:
-
-  ```bash
-  ctest
-  ./run_tests.py
-  ```
-
-- Update test references:
-  ```
-  ./run_tests.py -u
-  ```
-
-- Run integration tests:
-
-  ```bash
-  cd integration_tests
-  ./run_tests.py
-  ```
-- Troubleshooting on MacOS latest version:
-  - In case of recently updated MacOS, you may get a warning like below in some test cases:
-    ```bash
-    ld: warning: object file (test_list_index2.out.tmp.o) was built for newer macOS version (14.0) than being linked (13.3)
-    ```
-    This leads to mismatch of hashes with expected output in some test cases, this can be resolved by updating command line tools. Below is a snippet for the same.
+    
+- ### Clone the LPython repository
+    Make sure you have `git` installed. Type the following command to clone the repository:
 
     ```bash
-    git clean -dfx
-    sudo rm -rf /Library/Developer/CommandLineTools # make sure you know what you're doing here
-    sudo xcode-select --install
-    ./build.sh
-    ./run_tests.py
+    git clone https://github.com/lcompilers/lpython.git
+    cd lpython
     ```
+    
+    You may also use GitHub Desktop to do the same.
+
+## Building LPython
+- ### Linux and macOS
+    - Create a Conda environment:
+
+        ```bash
+        conda env create -f environment_unix.yml
+        conda activate lp
+        ```
+
+    - Generate the prerequisite files and build in Debug Mode:
+
+        ```bash
+        # if you are developing on top of a forked repository; please run following command first
+        # ./generate_default_tag.sh
 
 
-### Windows
+        ./build0.sh
+        ./build1.sh
+        ```
 
-- Run integration tests
+- ### Windows
+    - Create a Conda environment using the pre-existing file:
 
-  ```bash
-  python run_tests.py --skip-run-with-dbg
-  ```
+        ```bash
+        conda env create -f environment_win.yml
+        conda activate lp
+        ```
 
-- Update reference tests
+    - Generate the prerequisite files and build in Release Mode:
 
-  ```bash
-  python run_tests.py -u --skip-run-with-dbg
-  ```
+        ```bash
+        call build0.bat
+        call build1.bat
+        ```
+- ### Windows with WSL
 
-## Speed up Integration Tests on MacOS
+    - Activate the Conda environment:
+        ```bash
+        conda activate lp
+        ```
 
-Integration tests run slowly because Apple checks the hash of each
-executable online before running.
-
-You can turn off that feature in the Privacy tab of the Security and Privacy item of System Preferences > Developer Tools > Terminal.app > "allow the apps below
-to run software locally that does not meet the system's security
-policy."
-
-## Examples (Linux or MacOS)
-
-You can run the following examples manually in a terminal:
-
-```bash
-./src/bin/lpython examples/expr2.py
-./src/bin/lpython examples/expr2.py -o expr
-./expr
-./src/bin/lpython --show-ast examples/expr2.py
-./src/bin/lpython --show-asr examples/expr2.py
-./src/bin/lpython --show-cpp examples/expr2.py
-./src/bin/lpython --show-llvm examples/expr2.py
-./src/bin/lpython --show-c examples/expr2.py
-```
+    - Run the following commands to build the project:
+        ```bash
+        ./build0.sh
+        cmake -DCMAKE_BUILD_TYPE=Debug -DWITH_LLVM=yes -DCMAKE_INSTALL_PREFIX=`pwd`/inst .\
+        make -j8
+        ```
+Check the [installation-docs](./doc/src/installation.md) for more.
 
 ## Contributing
 
-We welcome contributions from anyone, even if you are new to compilers or to
-open source. It might sound daunting to contribute to a compiler at first, but
-please do, it is not complicated. We will help you with technical issues and
-help improve your contribution so that it can be merged.
+We welcome contributions from anyone, even if you are new to compilers or open source in general.
+It might sound daunting at first to contribute to a compiler, but do not worry, it is not that complicated.
+We will help you with any technical issues you face and provide support so your contribution gets merged.
 
-To contribute, submit a Pull Request (PR) against our repository at:
+To contribute, submit a Pull Request (PR) against our repository at: https://github.com/lcompilers/lpython
 
-https://github.com/lcompilers/lpython
-
-and don't forget to clean your history, see [example](./doc/src/rebasing.md).
-
-Please report any bugs you may find at our issue tracker:
-https://github.com/lcompilers/lpython/issues. Or, even better, fork the
-repository on GitHub and create a PR. We welcome all changes, big or small, and
-we will help you make a PR if you are new to git.
-
-If you have any questions or need help, please ask us at Zulip ([![project
-chat](https://img.shields.io/badge/zulip-join_chat-brightgreen.svg)](https://lfortran.zulipchat.com/))
-or our [mailinglist](https://groups.io/g/lfortran).
+Do not forget to clean your history, see [example](./doc/src/rebasing.md).
 
 See the [CONTRIBUTING](CONTRIBUTING.md) document for more information.
+
+## Found a bug?
+Please report any bugs you find at our issue tracker [here](https://github.com/lcompilers/lpython/issues). Or, even better, fork the repository on GitHub and create a Pull Request (PR). 
+
+We welcome all changes, big or small. We will help you make a PR if you are new to git.
+
+If you have any questions or need help, please ask us at [Zulip](https://lfortran.zulipchat.com/) or on our [mailinglist](https://groups.io/g/lfortran).
+
 
 # Star History
 
