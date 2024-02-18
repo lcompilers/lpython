@@ -4242,6 +4242,44 @@ static inline int KMP_string_match(std::string &s_var, std::string &sub) {
     return res;
 }
 
+static inline int KMP_string_match_count(std::string &s_var, std::string &sub) {
+    int str_len = s_var.size();
+    int sub_len = sub.size();
+    int count = 0;
+    std::vector<int> lps(sub_len, 0);
+    if (sub_len == 0) {
+        count = str_len + 1;
+    } else {
+        for(int i = 1, len = 0; i < sub_len;) {
+            if (sub[i] == sub[len]) {
+                lps[i++] = ++len;
+            } else {
+                if (len != 0) {
+                    len = lps[len - 1];
+                } else {
+                    lps[i++] = 0;
+                }
+            }
+        }
+        for (int i = 0, j = 0; (str_len - i) >= (sub_len - j);) {
+            if (sub[j] == s_var[i]) {
+                j++, i++;
+            }
+            if (j == sub_len) {
+                count++;
+                j = lps[j - 1];
+            } else if (i < str_len && sub[j] != s_var[i]) {
+                if (j != 0) {
+                    j = lps[j - 1];
+                } else {
+                    i = i + 1;
+                }
+            }
+        }
+    }
+    return count;
+}
+
 static inline void visit_expr_list(Allocator &al, Vec<ASR::call_arg_t>& exprs,
         Vec<ASR::expr_t*>& exprs_vec) {
     LCOMPILERS_ASSERT(exprs_vec.reserve_called);
