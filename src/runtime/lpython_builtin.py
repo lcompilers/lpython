@@ -764,9 +764,7 @@ def _lpython_str_istitle(s: str) -> bool:
     ch: str
     only_whitespace: bool = True 
     for ch in s:
-        if (ch == ' ' or ch == '\t' or ch == '\n') and word_start:
-            continue  # Found a space character at the start of a word
-        elif ch.isalpha() and (ord('A') <= ord(ch) and ord(ch) <= ord('Z')):
+        if ch.isalpha() and (ord('A') <= ord(ch) and ord(ch) <= ord('Z')):
             only_whitespace = False
             if word_start:
                 word_start = False
