@@ -985,7 +985,9 @@ public:
                     ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, symbol))));
             }
             symbolic_vars_to_free.clear();
-            pass_result.push_back(al, ASRUtils::STMT(ASR::make_Return_t(al, x.base.base.loc)));
+            for (ASR::symbol_t* symbol : symbolic_vars_to_omit) {
+                symbolic_vars_to_free.insert(symbol);
+            }
         }
     }
 };
