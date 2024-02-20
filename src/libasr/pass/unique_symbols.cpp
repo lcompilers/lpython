@@ -57,18 +57,19 @@ class SymbolRenameVisitor: public ASR::BaseWalkVisitor<SymbolRenameVisitor> {
     all_symbols_mangling(am), bindc_mangling(bcm), fortran_mangling(fm) , c_mangling(cm){}
 
     
-    const std::unordered_set<std::string> restricted_keywords_c = {
+    const std::unordered_set<std::string> reserved_keywords_c = {
         "_Alignas", "_Alignof", "_Atomic", "_Bool", "_Complex", "_Generic", "_Imaginary", "_Noreturn", "_Static_assert", "_Thread_local", "auto", "break", "case", "char", "_Bool", "const", "continue", "default", "do", "double", "else", "enum", "extern", "float", "for", "goto", "if", "int", "long", "register", "return", "short", "signed", "sizeof", "static", "struct", "switch", "typedef", "union", "unsigned", "void", "volatile", "while"
     };
 
-    bool is_restricted_c(const std::string& name) {
-        // Check if the name is a restricted keyword
-        if (restricted_keywords_c.find(name) != restricted_keywords_c.end()) {
-            return true;
-        } else {
-            return false;
+    
+    void mangle_c(ASR::symbol_t* sym, const std::string& name){
+        
+        if (reserved_keywords_c.find(name) != reserved_keywords_c.end()) {
+            sym_to_renamed[sym] = "_xx_"+std::string(name)+"_xx_";
         }
+        return;
     }
+
     std::string update_name(std::string curr_name) {
         if (startswith(curr_name, "_lpython") || startswith(curr_name, "_lfortran") ) {
             return curr_name;
@@ -163,10 +164,8 @@ class SymbolRenameVisitor: public ASR::BaseWalkVisitor<SymbolRenameVisitor> {
             } 
         }
         if ( c_mangling ) {
-            if(is_restricted_c(x.m_name)){
-                ASR::symbol_t *sym = ASR::down_cast<ASR::symbol_t>((ASR::asr_t*)&x);
-                sym_to_renamed[sym] = "_xx_"+std::string(x.m_name)+"_xx_";
-            }
+            ASR::symbol_t *sym = ASR::down_cast<ASR::symbol_t>((ASR::asr_t*)&x);
+            mangle_c(sym , std::string(x.m_name));
         }
         for (auto &a : x.m_symtab->get_scope()) {
             bool nested_function = is_nested_function(a.second);
@@ -199,9 +198,7 @@ class SymbolRenameVisitor: public ASR::BaseWalkVisitor<SymbolRenameVisitor> {
         }
         
         if ( c_mangling ) {
-            if(is_restricted_c(x.m_name)){
-                sym_to_renamed[sym] = "_xx_"+std::string(x.m_name)+"_xx_";
-            }
+            mangle_c(sym , std::string(x.m_name));
         }
     }
 
@@ -230,10 +227,8 @@ class SymbolRenameVisitor: public ASR::BaseWalkVisitor<SymbolRenameVisitor> {
             }
         }
         if ( c_mangling ) {
-            if(is_restricted_c(x.m_name)){
-                ASR::symbol_t *sym = ASR::down_cast<ASR::symbol_t>((ASR::asr_t*)&x);
-                sym_to_renamed[sym] = "_xx_"+std::string(x.m_name)+"_xx_";
-            }
+            ASR::symbol_t *sym = ASR::down_cast<ASR::symbol_t>((ASR::asr_t*)&x);
+            mangle_c(sym , std::string(x.m_name));
         }
         for (auto &a : x.m_symtab->get_scope()) {
             this->visit_symbol(*a.second);
@@ -264,10 +259,8 @@ class SymbolRenameVisitor: public ASR::BaseWalkVisitor<SymbolRenameVisitor> {
             }
         }
         if (c_mangling ) {
-            if(is_restricted_c(x.m_name)){
-                ASR::symbol_t *sym = ASR::down_cast<ASR::symbol_t>((ASR::asr_t*)&x);
-                sym_to_renamed[sym] = "_xx_"+std::string(x.m_name)+"_xx_";
-            }
+            ASR::symbol_t *sym = ASR::down_cast<ASR::symbol_t>((ASR::asr_t*)&x);
+            mangle_c(sym , std::string(x.m_name));
         }
     }
 
@@ -278,10 +271,8 @@ class SymbolRenameVisitor: public ASR::BaseWalkVisitor<SymbolRenameVisitor> {
             sym_to_renamed[sym] = update_name(x.m_name);
         }
         if ( c_mangling ) {
-            if(is_restricted_c(x.m_name)){
-                ASR::symbol_t *sym = ASR::down_cast<ASR::symbol_t>((ASR::asr_t*)&x);
-                sym_to_renamed[sym] = "_xx_"+std::string(x.m_name)+"_xx_";
-            }
+            ASR::symbol_t *sym = ASR::down_cast<ASR::symbol_t>((ASR::asr_t*)&x);
+            mangle_c(sym , std::string(x.m_name));
         }
         for (auto &a : x.m_symtab->get_scope()) {
             this->visit_symbol(*a.second);
