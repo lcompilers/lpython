@@ -5545,6 +5545,9 @@ public:
             body.reserve(al, 1);
             body.push_back(al, decls);
         }
+        Vec<ASR::stmt_t*> orelse;
+        orelse.reserve(al, x.n_orelse);
+        transform_stmts(orelse, x.n_orelse, x.m_orelse);
         current_scope = parent_scope;
         head.loc = head.m_v->base.loc;
         bool parallel = false;
@@ -5557,8 +5560,12 @@ public:
             tmp = ASR::make_DoConcurrentLoop_t(al, x.base.base.loc, head,
                 body.p, body.size());
         } else {
-            tmp = ASR::make_DoLoop_t(al, x.base.base.loc, nullptr, head,
-                body.p, body.size());
+            if (orelse.size() > 0)
+                tmp = ASR::make_DoLoop_t(al, x.base.base.loc, nullptr, head,
+                    body.p, body.size(), orelse.p, orelse.size());
+            else
+                tmp = ASR::make_DoLoop_t(al, x.base.base.loc, nullptr, head,
+                    body.p, body.size(), nullptr, 0);
         }
 
         if (!do_loop_variables.empty()) {

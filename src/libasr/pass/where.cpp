@@ -335,7 +335,7 @@ public:
         }
         do_loop_body.push_back(al, if_stmt);
 
-        doloop = ASRUtils::STMT(ASR::make_DoLoop_t(al, loc, 0, head, do_loop_body.p, do_loop_body.size()));
+        doloop = ASRUtils::STMT(ASR::make_DoLoop_t(al, loc, 0, head, do_loop_body.p, do_loop_body.size(), nullptr, 0));
         pass_result.push_back(al, doloop);
     }
 };

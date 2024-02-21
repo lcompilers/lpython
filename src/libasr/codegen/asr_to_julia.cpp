@@ -1237,7 +1237,7 @@ public:
 
     void visit_DoConcurrentLoop(const ASR::DoConcurrentLoop_t& x)
     {
-        const ASR::DoLoop_t do_loop = ASR::DoLoop_t{ x.base, nullptr, x.m_head, x.m_body, x.n_body };
+        const ASR::DoLoop_t do_loop = ASR::DoLoop_t{ x.base, nullptr, x.m_head, x.m_body, x.n_body , nullptr, 0};
         visit_DoLoop(do_loop, true);
     }
 

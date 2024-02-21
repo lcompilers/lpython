@@ -171,7 +171,7 @@ class ReplaceArrayOp: public ASR::BaseExprReplacer<ReplaceArrayOp> {
                         doloop_body.push_back(al, assign_stmt2);
                     }
                 }
-                doloop = ASRUtils::STMT(ASR::make_DoLoop_t(al, loc, nullptr, head, doloop_body.p, doloop_body.size()));
+                doloop = ASRUtils::STMT(ASR::make_DoLoop_t(al, loc, nullptr, head, doloop_body.p, doloop_body.size(), nullptr, 0));
             }
             if( var_rank > 0 ) {
                 ASR::expr_t* idx_lb = PassUtils::get_bound(op_expr1, 1, "lbound", al);
@@ -207,7 +207,7 @@ class ReplaceArrayOp: public ASR::BaseExprReplacer<ReplaceArrayOp> {
                 } else {
                     doloop_body.push_back(al, doloop);
                 }
-                doloop = ASRUtils::STMT(ASR::make_DoLoop_t(al, loc, nullptr, head, doloop_body.p, doloop_body.size()));
+                doloop = ASRUtils::STMT(ASR::make_DoLoop_t(al, loc, nullptr, head, doloop_body.p, doloop_body.size(), nullptr, 0));
             }
             pass_result.push_back(al, doloop);
         }
@@ -460,7 +460,7 @@ class ReplaceArrayOp: public ASR::BaseExprReplacer<ReplaceArrayOp> {
                     al, loc, idx_vars_value[i], inc_expr, nullptr));
                 doloop_body.push_back(al, assign_stmt);
             }
-            doloop = ASRUtils::STMT(ASR::make_DoLoop_t(al, loc, nullptr, head, doloop_body.p, doloop_body.size()));
+            doloop = ASRUtils::STMT(ASR::make_DoLoop_t(al, loc, nullptr, head, doloop_body.p, doloop_body.size(), nullptr, 0));
         }
         if( ASRUtils::is_array(ASRUtils::expr_type(op_expr)) ) {
             ASR::expr_t* idx_lb = PassUtils::get_bound(op_expr, 1, "lbound", al);
@@ -505,7 +505,7 @@ class ReplaceArrayOp: public ASR::BaseExprReplacer<ReplaceArrayOp> {
             } else {
                 doloop_body.push_back(al, doloop);
             }
-            doloop = ASRUtils::STMT(ASR::make_DoLoop_t(al, loc, nullptr, head, doloop_body.p, doloop_body.size()));
+            doloop = ASRUtils::STMT(ASR::make_DoLoop_t(al, loc, nullptr, head, doloop_body.p, doloop_body.size(), nullptr, 0));
         }
         pass_result.push_back(al, doloop);
     }
@@ -1780,7 +1780,7 @@ class ArrayOpVisitor : public ASR::CallReplacerOnExpressionsVisitor<ArrayOpVisit
                             al, loc, idx_vars_value[i], inc_expr, nullptr));
                         doloop_body.push_back(al, assign_stmt);
                     }
-                    doloop = ASRUtils::STMT(ASR::make_DoLoop_t(al, loc, nullptr, head, doloop_body.p, doloop_body.size()));
+                    doloop = ASRUtils::STMT(ASR::make_DoLoop_t(al, loc, nullptr, head, doloop_body.p, doloop_body.size(), nullptr, 0));
                 }
                 if( var_rank > 0 ) {
                     ASR::expr_t* idx_lb = PassUtils::get_bound(op_expr, 1, "lbound", al);
@@ -1810,7 +1810,7 @@ class ArrayOpVisitor : public ASR::CallReplacerOnExpressionsVisitor<ArrayOpVisit
                     } else {
                         doloop_body.push_back(al, doloop);
                     }
-                    doloop = ASRUtils::STMT(ASR::make_DoLoop_t(al, loc, nullptr, head, doloop_body.p, doloop_body.size()));
+                    doloop = ASRUtils::STMT(ASR::make_DoLoop_t(al, loc, nullptr, head, doloop_body.p, doloop_body.size(), nullptr, 0));
                 }
                 pass_result.push_back(al, doloop);
             }
