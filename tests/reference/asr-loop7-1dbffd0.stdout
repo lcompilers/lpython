@@ -1,0 +1,244 @@
+(TranslationUnit
+    (SymbolTable
+        1
+        {
+            __main__:
+                (Module
+                    (SymbolTable
+                        2
+                        {
+                            __main__global_stmts:
+                                (Function
+                                    (SymbolTable
+                                        6
+                                        {
+                                            
+                                        })
+                                    __main__global_stmts
+                                    (FunctionType
+                                        []
+                                        ()
+                                        Source
+                                        Implementation
+                                        ()
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .false.
+                                        []
+                                        .false.
+                                    )
+                                    [break_in_if_for]
+                                    []
+                                    [(SubroutineCall
+                                        2 break_in_if_for
+                                        ()
+                                        []
+                                        ()
+                                    )]
+                                    ()
+                                    Public
+                                    .false.
+                                    .false.
+                                    ()
+                                ),
+                            break_in_if_for:
+                                (Function
+                                    (SymbolTable
+                                        3
+                                        {
+                                            i:
+                                                (Variable
+                                                    3
+                                                    i
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Integer 4)
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                )
+                                        })
+                                    break_in_if_for
+                                    (FunctionType
+                                        []
+                                        ()
+                                        Source
+                                        Implementation
+                                        ()
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .false.
+                                        []
+                                        .false.
+                                    )
+                                    []
+                                    []
+                                    [(DoLoop
+                                        ()
+                                        ((Var 3 i)
+                                        (IntegerConstant 0 (Integer 4))
+                                        (IntegerBinOp
+                                            (IntegerConstant 2 (Integer 4))
+                                            Sub
+                                            (IntegerConstant 1 (Integer 4))
+                                            (Integer 4)
+                                            (IntegerConstant 1 (Integer 4))
+                                        )
+                                        (IntegerConstant 1 (Integer 4)))
+                                        [(Print
+                                            [(Var 3 i)]
+                                            ()
+                                            ()
+                                        )
+                                        (If
+                                            (IntegerCompare
+                                                (Var 3 i)
+                                                Eq
+                                                (IntegerConstant 1 (Integer 4))
+                                                (Logical 4)
+                                                ()
+                                            )
+                                            [(Exit
+                                                ()
+                                            )]
+                                            []
+                                        )]
+                                    )]
+                                    ()
+                                    Public
+                                    .false.
+                                    .false.
+                                    ()
+                                ),
+                            break_in_if_while:
+                                (Function
+                                    (SymbolTable
+                                        4
+                                        {
+                                            i:
+                                                (Variable
+                                                    4
+                                                    i
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Integer 4)
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                )
+                                        })
+                                    break_in_if_while
+                                    (FunctionType
+                                        []
+                                        ()
+                                        Source
+                                        Implementation
+                                        ()
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .false.
+                                        []
+                                        .false.
+                                    )
+                                    []
+                                    []
+                                    [(=
+                                        (Var 4 i)
+                                        (IntegerConstant 0 (Integer 4))
+                                        ()
+                                    )
+                                    (WhileLoop
+                                        ()
+                                        (IntegerCompare
+                                            (Var 4 i)
+                                            Lt
+                                            (IntegerConstant 2 (Integer 4))
+                                            (Logical 4)
+                                            ()
+                                        )
+                                        [(Print
+                                            [(Var 4 i)]
+                                            ()
+                                            ()
+                                        )
+                                        (If
+                                            (IntegerCompare
+                                                (Var 4 i)
+                                                Eq
+                                                (IntegerConstant 1 (Integer 4))
+                                                (Logical 4)
+                                                ()
+                                            )
+                                            [(Exit
+                                                ()
+                                            )]
+                                            []
+                                        )
+                                        (=
+                                            (Var 4 i)
+                                            (IntegerBinOp
+                                                (Var 4 i)
+                                                Add
+                                                (IntegerConstant 1 (Integer 4))
+                                                (Integer 4)
+                                                ()
+                                            )
+                                            ()
+                                        )]
+                                    )]
+                                    ()
+                                    Public
+                                    .false.
+                                    .false.
+                                    ()
+                                )
+                        })
+                    __main__
+                    []
+                    .false.
+                    .false.
+                ),
+            main_program:
+                (Program
+                    (SymbolTable
+                        7
+                        {
+                            __main__global_stmts:
+                                (ExternalSymbol
+                                    7
+                                    __main__global_stmts
+                                    2 __main__global_stmts
+                                    __main__
+                                    []
+                                    __main__global_stmts
+                                    Public
+                                )
+                        })
+                    main_program
+                    [__main__]
+                    [(SubroutineCall
+                        7 __main__global_stmts
+                        2 __main__global_stmts
+                        []
+                        ()
+                    )]
+                )
+        })
+    []
+)

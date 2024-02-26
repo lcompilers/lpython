@@ -1,0 +1,634 @@
+(TranslationUnit
+    (SymbolTable
+        1
+        {
+            __main__:
+                (Module
+                    (SymbolTable
+                        2
+                        {
+                            __main__global_stmts:
+                                (Function
+                                    (SymbolTable
+                                        11
+                                        {
+                                            
+                                        })
+                                    __main__global_stmts
+                                    (FunctionType
+                                        []
+                                        ()
+                                        Source
+                                        Implementation
+                                        ()
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .false.
+                                        []
+                                        .false.
+                                    )
+                                    [nested_loop_for_for
+                                    nested_loop_for_while
+                                    nested_loop_while_for
+                                    nested_loop_while_while]
+                                    []
+                                    [(SubroutineCall
+                                        2 nested_loop_for_for
+                                        ()
+                                        []
+                                        ()
+                                    )
+                                    (SubroutineCall
+                                        2 nested_loop_for_while
+                                        ()
+                                        []
+                                        ()
+                                    )
+                                    (SubroutineCall
+                                        2 nested_loop_while_for
+                                        ()
+                                        []
+                                        ()
+                                    )
+                                    (SubroutineCall
+                                        2 nested_loop_while_while
+                                        ()
+                                        []
+                                        ()
+                                    )]
+                                    ()
+                                    Public
+                                    .false.
+                                    .false.
+                                    ()
+                                ),
+                            nested_loop_for_for:
+                                (Function
+                                    (SymbolTable
+                                        3
+                                        {
+                                            i:
+                                                (Variable
+                                                    3
+                                                    i
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Integer 4)
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                ),
+                                            j:
+                                                (Variable
+                                                    3
+                                                    j
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Integer 4)
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                )
+                                        })
+                                    nested_loop_for_for
+                                    (FunctionType
+                                        []
+                                        ()
+                                        Source
+                                        Implementation
+                                        ()
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .false.
+                                        []
+                                        .false.
+                                    )
+                                    []
+                                    []
+                                    [(DoLoop
+                                        ()
+                                        ((Var 3 i)
+                                        (IntegerConstant 0 (Integer 4))
+                                        (IntegerBinOp
+                                            (IntegerConstant 2 (Integer 4))
+                                            Sub
+                                            (IntegerConstant 1 (Integer 4))
+                                            (Integer 4)
+                                            (IntegerConstant 1 (Integer 4))
+                                        )
+                                        (IntegerConstant 1 (Integer 4)))
+                                        [(Print
+                                            [(StringConcat
+                                                (StringConstant
+                                                    "outer: "
+                                                    (Character 1 7 ())
+                                                )
+                                                (Cast
+                                                    (Var 3 i)
+                                                    IntegerToCharacter
+                                                    (Character 1 -2 ())
+                                                    ()
+                                                )
+                                                (Character 1 5 ())
+                                                ()
+                                            )]
+                                            ()
+                                            ()
+                                        )
+                                        (DoLoop
+                                            ()
+                                            ((Var 3 j)
+                                            (IntegerConstant 10 (Integer 4))
+                                            (IntegerBinOp
+                                                (IntegerConstant 20 (Integer 4))
+                                                Sub
+                                                (IntegerConstant 1 (Integer 4))
+                                                (Integer 4)
+                                                (IntegerConstant 19 (Integer 4))
+                                            )
+                                            (IntegerConstant 1 (Integer 4)))
+                                            [(Print
+                                                [(StringConcat
+                                                    (StringConstant
+                                                        "  inner: "
+                                                        (Character 1 9 ())
+                                                    )
+                                                    (Cast
+                                                        (Var 3 j)
+                                                        IntegerToCharacter
+                                                        (Character 1 -2 ())
+                                                        ()
+                                                    )
+                                                    (Character 1 7 ())
+                                                    ()
+                                                )]
+                                                ()
+                                                ()
+                                            )
+                                            (Exit
+                                                ()
+                                            )]
+                                        )]
+                                    )]
+                                    ()
+                                    Public
+                                    .false.
+                                    .false.
+                                    ()
+                                ),
+                            nested_loop_for_while:
+                                (Function
+                                    (SymbolTable
+                                        4
+                                        {
+                                            i:
+                                                (Variable
+                                                    4
+                                                    i
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Integer 4)
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                ),
+                                            j:
+                                                (Variable
+                                                    4
+                                                    j
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Integer 4)
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                )
+                                        })
+                                    nested_loop_for_while
+                                    (FunctionType
+                                        []
+                                        ()
+                                        Source
+                                        Implementation
+                                        ()
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .false.
+                                        []
+                                        .false.
+                                    )
+                                    []
+                                    []
+                                    [(=
+                                        (Var 4 j)
+                                        (IntegerConstant 10 (Integer 4))
+                                        ()
+                                    )
+                                    (DoLoop
+                                        ()
+                                        ((Var 4 i)
+                                        (IntegerConstant 0 (Integer 4))
+                                        (IntegerBinOp
+                                            (IntegerConstant 2 (Integer 4))
+                                            Sub
+                                            (IntegerConstant 1 (Integer 4))
+                                            (Integer 4)
+                                            (IntegerConstant 1 (Integer 4))
+                                        )
+                                        (IntegerConstant 1 (Integer 4)))
+                                        [(Print
+                                            [(StringConcat
+                                                (StringConstant
+                                                    "outer: "
+                                                    (Character 1 7 ())
+                                                )
+                                                (Cast
+                                                    (Var 4 i)
+                                                    IntegerToCharacter
+                                                    (Character 1 -2 ())
+                                                    ()
+                                                )
+                                                (Character 1 5 ())
+                                                ()
+                                            )]
+                                            ()
+                                            ()
+                                        )
+                                        (WhileLoop
+                                            ()
+                                            (IntegerCompare
+                                                (Var 4 j)
+                                                Lt
+                                                (IntegerConstant 20 (Integer 4))
+                                                (Logical 4)
+                                                ()
+                                            )
+                                            [(Print
+                                                [(StringConcat
+                                                    (StringConstant
+                                                        "  inner: "
+                                                        (Character 1 9 ())
+                                                    )
+                                                    (Cast
+                                                        (Var 4 j)
+                                                        IntegerToCharacter
+                                                        (Character 1 -2 ())
+                                                        ()
+                                                    )
+                                                    (Character 1 7 ())
+                                                    ()
+                                                )]
+                                                ()
+                                                ()
+                                            )
+                                            (Exit
+                                                ()
+                                            )]
+                                        )]
+                                    )]
+                                    ()
+                                    Public
+                                    .false.
+                                    .false.
+                                    ()
+                                ),
+                            nested_loop_while_for:
+                                (Function
+                                    (SymbolTable
+                                        5
+                                        {
+                                            i:
+                                                (Variable
+                                                    5
+                                                    i
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Integer 4)
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                ),
+                                            j:
+                                                (Variable
+                                                    5
+                                                    j
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Integer 4)
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                )
+                                        })
+                                    nested_loop_while_for
+                                    (FunctionType
+                                        []
+                                        ()
+                                        Source
+                                        Implementation
+                                        ()
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .false.
+                                        []
+                                        .false.
+                                    )
+                                    []
+                                    []
+                                    [(=
+                                        (Var 5 i)
+                                        (IntegerConstant 0 (Integer 4))
+                                        ()
+                                    )
+                                    (WhileLoop
+                                        ()
+                                        (IntegerCompare
+                                            (Var 5 i)
+                                            Lt
+                                            (IntegerConstant 2 (Integer 4))
+                                            (Logical 4)
+                                            ()
+                                        )
+                                        [(Print
+                                            [(StringConcat
+                                                (StringConstant
+                                                    "outer: "
+                                                    (Character 1 7 ())
+                                                )
+                                                (Cast
+                                                    (Var 5 i)
+                                                    IntegerToCharacter
+                                                    (Character 1 -2 ())
+                                                    ()
+                                                )
+                                                (Character 1 5 ())
+                                                ()
+                                            )]
+                                            ()
+                                            ()
+                                        )
+                                        (=
+                                            (Var 5 i)
+                                            (IntegerBinOp
+                                                (Var 5 i)
+                                                Add
+                                                (IntegerConstant 1 (Integer 4))
+                                                (Integer 4)
+                                                ()
+                                            )
+                                            ()
+                                        )
+                                        (DoLoop
+                                            ()
+                                            ((Var 5 j)
+                                            (IntegerConstant 10 (Integer 4))
+                                            (IntegerBinOp
+                                                (IntegerConstant 20 (Integer 4))
+                                                Sub
+                                                (IntegerConstant 1 (Integer 4))
+                                                (Integer 4)
+                                                (IntegerConstant 19 (Integer 4))
+                                            )
+                                            (IntegerConstant 1 (Integer 4)))
+                                            [(Print
+                                                [(StringConcat
+                                                    (StringConstant
+                                                        "  inner: "
+                                                        (Character 1 9 ())
+                                                    )
+                                                    (Cast
+                                                        (Var 5 j)
+                                                        IntegerToCharacter
+                                                        (Character 1 -2 ())
+                                                        ()
+                                                    )
+                                                    (Character 1 7 ())
+                                                    ()
+                                                )]
+                                                ()
+                                                ()
+                                            )
+                                            (Exit
+                                                ()
+                                            )]
+                                        )]
+                                    )]
+                                    ()
+                                    Public
+                                    .false.
+                                    .false.
+                                    ()
+                                ),
+                            nested_loop_while_while:
+                                (Function
+                                    (SymbolTable
+                                        6
+                                        {
+                                            i:
+                                                (Variable
+                                                    6
+                                                    i
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Integer 4)
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                ),
+                                            j:
+                                                (Variable
+                                                    6
+                                                    j
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Integer 4)
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                )
+                                        })
+                                    nested_loop_while_while
+                                    (FunctionType
+                                        []
+                                        ()
+                                        Source
+                                        Implementation
+                                        ()
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .false.
+                                        []
+                                        .false.
+                                    )
+                                    []
+                                    []
+                                    [(=
+                                        (Var 6 i)
+                                        (IntegerConstant 0 (Integer 4))
+                                        ()
+                                    )
+                                    (=
+                                        (Var 6 j)
+                                        (IntegerConstant 10 (Integer 4))
+                                        ()
+                                    )
+                                    (WhileLoop
+                                        ()
+                                        (IntegerCompare
+                                            (Var 6 i)
+                                            Lt
+                                            (IntegerConstant 2 (Integer 4))
+                                            (Logical 4)
+                                            ()
+                                        )
+                                        [(Print
+                                            [(StringConcat
+                                                (StringConstant
+                                                    "outer: "
+                                                    (Character 1 7 ())
+                                                )
+                                                (Cast
+                                                    (Var 6 i)
+                                                    IntegerToCharacter
+                                                    (Character 1 -2 ())
+                                                    ()
+                                                )
+                                                (Character 1 5 ())
+                                                ()
+                                            )]
+                                            ()
+                                            ()
+                                        )
+                                        (=
+                                            (Var 6 i)
+                                            (IntegerBinOp
+                                                (Var 6 i)
+                                                Add
+                                                (IntegerConstant 1 (Integer 4))
+                                                (Integer 4)
+                                                ()
+                                            )
+                                            ()
+                                        )
+                                        (WhileLoop
+                                            ()
+                                            (IntegerCompare
+                                                (Var 6 j)
+                                                Lt
+                                                (IntegerConstant 20 (Integer 4))
+                                                (Logical 4)
+                                                ()
+                                            )
+                                            [(Print
+                                                [(StringConcat
+                                                    (StringConstant
+                                                        "  inner: "
+                                                        (Character 1 9 ())
+                                                    )
+                                                    (Cast
+                                                        (Var 6 j)
+                                                        IntegerToCharacter
+                                                        (Character 1 -2 ())
+                                                        ()
+                                                    )
+                                                    (Character 1 7 ())
+                                                    ()
+                                                )]
+                                                ()
+                                                ()
+                                            )
+                                            (Exit
+                                                ()
+                                            )]
+                                        )]
+                                    )]
+                                    ()
+                                    Public
+                                    .false.
+                                    .false.
+                                    ()
+                                )
+                        })
+                    __main__
+                    []
+                    .false.
+                    .false.
+                ),
+            main_program:
+                (Program
+                    (SymbolTable
+                        12
+                        {
+                            __main__global_stmts:
+                                (ExternalSymbol
+                                    12
+                                    __main__global_stmts
+                                    2 __main__global_stmts
+                                    __main__
+                                    []
+                                    __main__global_stmts
+                                    Public
+                                )
+                        })
+                    main_program
+                    [__main__]
+                    [(SubroutineCall
+                        12 __main__global_stmts
+                        2 __main__global_stmts
+                        []
+                        ()
+                    )]
+                )
+        })
+    []
+)
