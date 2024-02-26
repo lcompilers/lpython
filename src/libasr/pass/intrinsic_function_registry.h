@@ -487,7 +487,7 @@ class ASRBuilder {
         for (auto &x: body) m_body.push_back(al, x);
 
         return STMT(ASR::make_WhileLoop_t(al, loc, nullptr, a_test,
-            m_body.p, m_body.n));
+            m_body.p, m_body.n, nullptr, 0));
     }
 
     ASR::expr_t *TupleConstant(std::vector<ASR::expr_t*> ele, ASR::ttype_t *type) {

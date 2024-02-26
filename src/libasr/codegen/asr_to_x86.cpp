@@ -7,6 +7,7 @@
 #include <libasr/codegen/asr_to_x86.h>
 #include <libasr/codegen/x86_assembler.h>
 #include <libasr/pass/replace_do_loops.h>
+#include <libasr/pass/while_else.h>
 #include <libasr/pass/wrap_global_stmts.h>
 #include <libasr/exception.h>
 #include <libasr/asr_utils.h>
@@ -566,6 +567,7 @@ Result<int> asr_to_x86(ASR::TranslationUnit_t &asr, Allocator &al,
 {
     int time_pass_global=0;
     int time_pass_do_loops=0;
+    int time_pass_while_else=0;
     int time_visit_asr=0;
     int time_verify=0;
     int time_save=0;
@@ -585,6 +587,13 @@ Result<int> asr_to_x86(ASR::TranslationUnit_t &asr, Allocator &al,
     {
         auto t1 = std::chrono::high_resolution_clock::now();
         pass_replace_do_loops(al, asr, pass_options);
+        auto t2 = std::chrono::high_resolution_clock::now();
+        time_pass_do_loops = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();
+    }
+
+    {
+        auto t1 = std::chrono::high_resolution_clock::now();
+        pass_while_else(al, asr, pass_options);
         auto t2 = std::chrono::high_resolution_clock::now();
         time_pass_do_loops = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();
     }
@@ -620,13 +629,14 @@ Result<int> asr_to_x86(ASR::TranslationUnit_t &asr, Allocator &al,
 
     if (time_report) {
         std::cout << "Codegen Time report:" << std::endl;
-        std::cout << "Global:     " << std::setw(5) << time_pass_global << std::endl;
-        std::cout << "Do loops:   " << std::setw(5) << time_pass_do_loops << std::endl;
-        std::cout << "ASR -> x86: " << std::setw(5) << time_visit_asr << std::endl;
-        std::cout << "Verify:     " << std::setw(5) << time_verify << std::endl;
-        std::cout << "Save:       " << std::setw(5) << time_save << std::endl;
-        int total = time_pass_global + time_pass_do_loops + time_visit_asr + time_verify + time_verify + time_save;
-        std::cout << "Total:      " << std::setw(5) << total << std::endl;
+        std::cout << "Global:      " << std::setw(5) << time_pass_global << std::endl;
+        std::cout << "Do loops:    " << std::setw(5) << time_pass_do_loops << std::endl;
+        std::cout << "Else clause: " << std::setw(5) << time_pass_do_loops << std::endl;
+        std::cout << "ASR -> x86:  " << std::setw(5) << time_visit_asr << std::endl;
+        std::cout << "Verify:      " << std::setw(5) << time_verify << std::endl;
+        std::cout << "Save:        " << std::setw(5) << time_save << std::endl;
+        int total = time_pass_global + time_pass_do_loops + time_pass_while_else + time_visit_asr + time_verify + time_verify + time_save;
+        std::cout << "Total:       " << std::setw(5) << total << std::endl;
     }
     return 0;
 }

@@ -37,7 +37,7 @@ def single_test(test, verbose, no_llvm, skip_run_with_dbg, skip_cpptranslate, up
                            "dead_code_removal", "loop_vectorise", "print_list_tuple",
                            "class_constructor"]
 
-    if pass_ and (pass_ not in ["do_loops", "global_stmts"] and
+    if pass_ and (pass_ not in ["do_loops", "global_stmts", "while_else"] and
                   pass_ not in optimization_passes):
         raise Exception(f"Unknown pass: {pass_}")
     if no_color:

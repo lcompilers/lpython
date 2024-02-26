@@ -6073,8 +6073,11 @@ public:
         Vec<ASR::stmt_t*> body;
         body.reserve(al, x.n_body);
         transform_stmts(body, x.n_body, x.m_body);
+        Vec<ASR::stmt_t*> orelse;
+        orelse.reserve(al, x.n_orelse);
+        transform_stmts(orelse, x.n_orelse, x.m_orelse);
         tmp = ASR::make_WhileLoop_t(al, x.base.base.loc, nullptr, test, body.p,
-                body.size());
+                body.size(), orelse.p, orelse.size());
     }
 
     void visit_Compare(const AST::Compare_t &x) {
