@@ -3680,7 +3680,8 @@ public:
         ai.m_left = nullptr;
         ai.m_right = nullptr;
         ai.m_step = nullptr;
-        if (AST::is_a<AST::Slice_t>(*m_slice)) {
+        if (AST::is_a<AST::Slice_t>(*m_slice))
+        {
             AST::Slice_t *sl = AST::down_cast<AST::Slice_t>(m_slice);
             if (sl->m_lower != nullptr) {
                 this->visit_expr(*sl->m_lower);
@@ -3730,8 +3731,10 @@ public:
             } else if (ASR::is_a<ASR::Dict_t>(*type)) {
                 throw SemanticError("unhashable type in dict: 'slice'", loc);
             }
-        } else if(AST::is_a<AST::Tuple_t>(*m_slice) &&
-                    ASRUtils::is_array(type)) {
+        }
+        else if (AST::is_a<AST::Tuple_t>(*m_slice) &&
+                 ASRUtils::is_array(type))
+        {
             bool final_result = true;
             AST::Tuple_t* indices = AST::down_cast<AST::Tuple_t>(m_slice);
             for( size_t i = 0; i < indices->n_elts; i++ ) {
@@ -3739,8 +3742,40 @@ public:
                                                         value, type, is_item, loc);
             }
             return final_result;
-        } else {
-            this->visit_expr(*m_slice);
+        }
+        else
+        {
+            ASR::expr_t *index = nullptr;
+            if (ASR::is_a<ASR::Const_t>(*type))
+            {
+                std::cout << "Const: Yes" << std::endl;
+                ASR::ttype_t *contained_type = ASRUtils::get_contained_type(type);
+                // Check whether the contained type is a dictionary
+                if (ASR::is_a<ASR::Dict_t>(*contained_type)) {
+                    this->visit_expr(*m_slice);
+                    index = ASRUtils::EXPR(tmp);
+                    std::cout << "Dict: Yes" << std::endl;
+                    ASR::ttype_t *key_type = ASR::down_cast<ASR::Dict_t>(contained_type)->m_key_type;
+                    if (!ASRUtils::check_equal_type(ASRUtils::expr_type(index), key_type))
+                    {
+                        throw SemanticError("Key type should be '" + ASRUtils::type_to_str_python(key_type) +
+                                                "' instead of '" +
+                                                ASRUtils::type_to_str_python(ASRUtils::expr_type(index)) + "'",
+                                            index->base.loc);
+                    };
+                    std::cout << "value: " << ASRUtils::type_to_str_python(ASRUtils::expr_type(value)) << std::endl;
+                    tmp = make_DictItem_t(al, loc, value, index, nullptr,
+                                          ASR::down_cast<ASR::Dict_t>(contained_type)->m_value_type, nullptr);
+                    return false;
+                }
+                else if (ASR::is_a<ASR::List_t>(*contained_type))
+                {
+                    std::cout << "List: Yes" << std::endl;
+                    index = ASRUtils::EXPR(tmp);
+                    tmp = ASR::make_ListSection_t(al, loc, value, ai, type, nullptr);
+                    return false;
+                }
+            }
             if (!ASR::is_a<ASR::Dict_t>(*type) &&
                     !ASRUtils::is_integer(*ASRUtils::expr_type(ASRUtils::EXPR(tmp)))) {
                 std::string fnd = ASRUtils::type_to_str_python(ASRUtils::expr_type(ASRUtils::EXPR(tmp)));
@@ -3753,7 +3788,6 @@ public:
                 );
                 throw SemanticAbort();
             }
-            ASR::expr_t *index = nullptr;
             if (ASR::is_a<ASR::Dict_t>(*type)) {
                 index = ASRUtils::EXPR(tmp);
                 ASR::ttype_t *key_type = ASR::down_cast<ASR::Dict_t>(type)->m_key_type;
@@ -6577,6 +6611,26 @@ public:
             arg.loc = loc;
             arg.m_value = s_var;
             fn_args.push_back(al, arg);
+        } else if (attr_name == "isalpha") {
+            if (args.size() != 0) {
+                throw SemanticError("str.isalpha() takes no arguments",
+                    loc);
+            }
+            fn_call_name = "_lpython_str_isalpha";
+            ASR::call_arg_t arg;
+            arg.loc = loc;
+            arg.m_value = s_var;
+            fn_args.push_back(al, arg);
+        } else if (attr_name == "istitle") {
+            if (args.size() != 0) {
+                throw SemanticError("str.istitle() takes no arguments",
+                    loc);
+            }
+            fn_call_name = "_lpython_str_istitle";
+            ASR::call_arg_t arg;
+            arg.loc = loc;
+            arg.m_value = s_var;
+            fn_args.push_back(al, arg);
         } else if (attr_name == "title") {
             if (args.size() != 0) {
                 throw SemanticError("str.title() takes no arguments",
@@ -6793,7 +6847,7 @@ public:
             /*
                 String Validation Methods i.e all "is" based functions are handled here
             */
-            std::vector<std::string> validation_methods{"lower", "upper", "decimal", "ascii", "space", "alpha", "title"};  // Database of validation methods supported
+            std::vector<std::string> validation_methods{"lower", "upper", "decimal", "ascii", "space"};  // Database of validation methods supported
             std::string method_name = attr_name.substr(2);
 
             if(std::find(validation_methods.begin(),validation_methods.end(), method_name) == validation_methods.end()) {
@@ -7096,7 +7150,7 @@ public:
                 * islower() method is limited to English Alphabets currently
                 * TODO: We can support other characters from Unicode Library
             */
-            std::vector<std::string> validation_methods{"lower", "upper", "decimal", "ascii", "space", "alpha", "title"};  // Database of validation methods supported
+            std::vector<std::string> validation_methods{"lower", "upper", "decimal", "ascii", "space"};  // Database of validation methods supported
             std::string method_name = attr_name.substr(2);
             if(std::find(validation_methods.begin(),validation_methods.end(), method_name) == validation_methods.end()) {
                 throw SemanticError("String method not implemented: " + attr_name, loc);
@@ -7192,57 +7246,6 @@ we will have to use something else.
                     }
                 }
                 tmp = ASR::make_LogicalConstant_t(al, loc, is_space,
-                        ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4)));
-                return;
-            } else if (attr_name == "isalpha") {
-                /*
-                    * Specification -
-                    Return True if all characters in the string are alphabets, 
-                    and there is at least one character in the string.
-                */
-                bool is_alpha = (s_var.size() != 0);
-                for (auto &i : s_var) {
-                    if (!((i >= 'A' && i <= 'Z') || (i >= 'a' && i <= 'z'))) {
-                        is_alpha = false;
-                        break;
-                    }
-                }
-                tmp = ASR::make_LogicalConstant_t(al, loc, is_alpha,
-                        ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4)));
-                return;
-            } else if (attr_name == "istitle") {
-                /*
-                    * Specification -
-                    Returns True if all words in the string are in title case, 
-                    and there is at least one character in the string.
-                */
-                bool is_title = (s_var.size() != 0);
-
-                bool in_word = false; // Represents if we are in a word or not
-                bool is_alpha_present = false;
-                for (auto &i : s_var) {
-                    if (i >= 'A' && i <= 'Z') {
-                        is_alpha_present = true;
-                        if (in_word) {
-                            // We have come across an uppercase character in the middle of a word
-                            is_title = false;
-                            break;
-                        } else {
-                            in_word = true;
-                        }
-                    } else if (i >= 'a' && i <= 'z') {
-                        is_alpha_present = true;
-                        if (!in_word) {
-                            //We have come across a lowercase character at the start of a word
-                            is_title = false;
-                            break;
-                        }
-                    } else {
-                        in_word = false;
-                    }
-                }
-                is_title = is_title && is_alpha_present;
-                tmp = ASR::make_LogicalConstant_t(al, loc, is_title,
                         ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4)));
                 return;
             } else {
