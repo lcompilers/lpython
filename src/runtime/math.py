@@ -15,36 +15,169 @@ def modf(x: f64) -> tuple[f64, f64]:
     """
     return (x - f64(int(x)), float(int(x)))
 
-@overload
-def factorial(x: i32) -> i32:
-    """
-    Computes the factorial of `x`.
-    """
 
-    result: i32
-    result = 0
-    if x < 0:
-        return result
-    result = 1
-    i: i32
-    for i in range(1, x+1):
-        result *= i
-    return result
+def factorial(n: i32) -> i64:
+    """Computes the factorial of `n`."""
+    MAX_LOOKUP_VALUE: i32 = 20
+    FACTORIAL_LOOKUP_TABLE: list[i64] = [
+        i64(1),
+        i64(1),
+        i64(2),
+        i64(6),
+        i64(24),
+        i64(120),
+        i64(720),
+        i64(5040),
+        i64(40320),
+        i64(362880),
+        i64(3628800),
+        i64(39916800),
+        i64(479001600),
+        i64(6227020800),
+        i64(87178291200),
+        i64(1307674368000),
+        i64(20922789888000),
+        i64(355687428096000),
+        i64(6402373705728000),
+        i64(121645100408832000),
+        i64(2432902008176640000),
+    ]
+    if n < 0:
+        # Exceptions are not implemented currently
+        # raise ValueError("factorial() not defined for negative values")
+        assert 1 == 0, "factorial() not defined for negative values."
+    elif n < MAX_LOOKUP_VALUE:
+        return FACTORIAL_LOOKUP_TABLE[n]
+    else:
+        f: list[i32] = [0] * 4300
+        f[0] = 0
+        f[1] = 0
+        f[2] = 0
+        f[3] = 0
+        f[4] = 4
+        f[5] = 6
+        f[6] = 6
+        f[7] = 7
+        f[8] = 1
+        f[9] = 8
+        f[10] = 0
+        f[11] = 0
+        f[12] = 2
+        f[13] = 0
+        f[14] = 9
+        f[15] = 2
+        f[16] = 3
+        f[17] = 4
+        f[18] = 2
+
+        f_size: i32 = 19
+
+        i: i32 = 21
+        while i <= n:
+            index: i32 = 0
+            carry: i32 = 0
+            while index < f_size:
+                product: i32 = f[index] * i + carry
+                f[index] = product % 10
+
+                carry = product // 10
+                index += 1
+
+            while carry > 0:
+                f[f_size] = carry % 10
+                carry = carry // 10
+                f_size += 1
+            i += 1
+
+    result: str = ""
+    idx: i32
+    for idx in range(f_size - 1, -1, -1):
+        result += str(f[idx])
+    print(result)
+    return i64(0)
+
 
 @overload
-def factorial(x: i64) -> i64:
-    """
-    Computes the factorial of `x`.
-    """
-    result: i64
-    result = i64(0)
-    if x < i64(0):
-        return result
-    result = i64(1)
-    i: i64
-    for i in range(i64(1), x + i64(1)):
-        result *= i64(i)
-    return result
+def factorial(n: i64) -> i64:
+    """Computes the factorial of `n`."""
+    MAX_LOOKUP_VALUE: i64 = i64(20)
+    FACTORIAL_LOOKUP_TABLE: list[i64] = [
+        i64(1),
+        i64(1),
+        i64(2),
+        i64(6),
+        i64(24),
+        i64(120),
+        i64(720),
+        i64(5040),
+        i64(40320),
+        i64(362880),
+        i64(3628800),
+        i64(39916800),
+        i64(479001600),
+        i64(6227020800),
+        i64(87178291200),
+        i64(1307674368000),
+        i64(20922789888000),
+        i64(355687428096000),
+        i64(6402373705728000),
+        i64(121645100408832000),
+        i64(2432902008176640000),
+    ]
+    if n < i64(0):
+        # Exceptions are not implemented currently
+        # raise ValueError("factorial() not defined for negative values")
+        assert 1 == 0, "factorial() not defined for negative values."
+    elif n < MAX_LOOKUP_VALUE:
+        return FACTORIAL_LOOKUP_TABLE[n]
+    else:
+        f: list[i32] = [0] * 4300
+        f[0] = 0
+        f[1] = 0
+        f[2] = 0
+        f[3] = 0
+        f[4] = 4
+        f[5] = 6
+        f[6] = 6
+        f[7] = 7
+        f[8] = 1
+        f[9] = 8
+        f[10] = 0
+        f[11] = 0
+        f[12] = 2
+        f[13] = 0
+        f[14] = 9
+        f[15] = 2
+        f[16] = 3
+        f[17] = 4
+        f[18] = 2
+
+        f_size: i32 = 19
+
+        i: i32 = 21
+        while i64(i) <= n:
+            index: i32 = 0
+            carry: i32 = 0
+            while index < f_size:
+                product: i32 = f[index] * i + carry
+                f[index] = product % 10
+
+                carry = product // 10
+                index += 1
+
+            while carry > 0:
+                f[f_size] = carry % 10
+                carry = carry // 10
+                f_size += 1
+            i += 1
+
+    result: str = ""
+    idx: i32
+    for idx in range(f_size - 1, -1, -1):
+        result += str(f[idx])
+    print(result)
+    return i64(0)
+
 
 @overload
 def floor(x: i32) -> i32:
@@ -455,7 +588,6 @@ def ldexp(x: f64, i: i32) -> f64:
     result: f64
     result = x * f64(2**i)
     return result
-
 
 
 def mod(a: i32, b: i32) -> i32:
