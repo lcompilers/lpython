@@ -3729,7 +3729,6 @@ public:
             }
             if (ASR::is_a<ASR::Const_t>(*type))
             {
-                std::cout << ASRUtils::type_to_str(ASRUtils::get_contained_type(type)) << std::endl;
                 if (ASRUtils::type_to_str(ASRUtils::get_contained_type(type)) == "list")
                 {
                     throw SemanticError("slicing on a const list is not implemented till now", loc);
