@@ -3750,8 +3750,7 @@ public:
             }
         }
         else if (AST::is_a<AST::Tuple_t>(*m_slice) &&
-                 ASRUtils::is_array(type))
-        {
+                 ASRUtils::is_array(type)) {
             bool final_result = true;
             AST::Tuple_t* indices = AST::down_cast<AST::Tuple_t>(m_slice);
             for( size_t i = 0; i < indices->n_elts; i++ ) {
