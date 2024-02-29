@@ -3733,10 +3733,6 @@ public:
                 {
                     throw SemanticError("slicing on a const list is not implemented till now", loc);
                 }
-                else if (ASRUtils::type_to_str(ASRUtils::get_contained_type(type)) == "character")
-                {
-                    throw SemanticError("slicing on a const string is not implemented till now", loc);
-                }
             }
             else if (ASR::is_a<ASR::List_t>(*type)) {
                 tmp = ASR::make_ListSection_t(al, loc, value, ai, type, nullptr);
