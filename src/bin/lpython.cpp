@@ -891,6 +891,106 @@ int compile_python_to_object_file(
     return 0;
 }
 
+int execute_python_using_jit(
+        const std::string &infile,
+        const std::string &runtime_library_dir,
+        LCompilers::PassManager& pass_manager,
+        CompilerOptions &compiler_options,
+        bool time_report)
+{
+    Allocator al(4*1024);
+    LCompilers::diag::Diagnostics diagnostics;
+    LCompilers::LocationManager lm;
+    std::vector<std::pair<std::string, double>>times;
+    {
+        LCompilers::LocationManager::FileLocations fl;
+        fl.in_filename = infile;
+        lm.files.push_back(fl);
+
+        auto file_reading_start = std::chrono::high_resolution_clock::now();
+        std::string input = LCompilers::read_file(infile);
+        auto file_reading_end = std::chrono::high_resolution_clock::now();
+        times.push_back(std::make_pair("File reading", std::chrono::duration
+            <double, std::milli>(file_reading_end - file_reading_start).count()));
+
+        lm.init_simple(input);
+        lm.file_ends.push_back(input.size());
+    }
+    auto parsing_start = std::chrono::high_resolution_clock::now();
+    LCompilers::Result<LCompilers::LPython::AST::ast_t*> r = parse_python_file(
+        al, runtime_library_dir, infile, diagnostics, 0, compiler_options.new_parser);
+    auto parsing_end = std::chrono::high_resolution_clock::now();
+    times.push_back(std::make_pair("Parsing", std::chrono::duration<double, std::milli>(parsing_end - parsing_start).count()));
+    std::cerr << diagnostics.render(lm, compiler_options);
+    if (!r.ok) {
+        print_time_report(times, time_report);
+        return 1;
+    }
+
+    // Src -> AST -> ASR
+    LCompilers::LPython::AST::ast_t* ast = r.result;
+    diagnostics.diagnostics.clear();
+    auto ast_to_asr_start = std::chrono::high_resolution_clock::now();
+    LCompilers::Result<LCompilers::ASR::TranslationUnit_t*>
+        r1 = LCompilers::LPython::python_ast_to_asr(al, lm, nullptr, *ast, diagnostics, compiler_options,
+            !(false && compiler_options.po.disable_main), "__main__", infile);
+
+    auto ast_to_asr_end = std::chrono::high_resolution_clock::now();
+    times.push_back(std::make_pair("AST to ASR", std::chrono::duration<double, std::milli>(ast_to_asr_end - ast_to_asr_start).count()));
+    std::cerr << diagnostics.render(lm, compiler_options);
+    if (!r1.ok) {
+        LCOMPILERS_ASSERT(diagnostics.has_error())
+        print_time_report(times, time_report);
+        return 2;
+    }
+    LCompilers::ASR::TranslationUnit_t* asr = r1.result;
+    if( compiler_options.po.disable_main ) {
+        int err = LCompilers::LPython::save_pyc_files(*asr, infile);
+        if( err ) {
+            return err;
+        }
+    }
+    diagnostics.diagnostics.clear();
+
+    // ASR -> LLVM
+    if (compiler_options.emit_debug_info) {
+#ifndef HAVE_RUNTIME_STACKTRACE
+        diagnostics.add(LCompilers::diag::Diagnostic(
+            "The `runtime stacktrace` is not enabled. To get the stacktraces, "
+            "re-build LPython with `-DWITH_RUNTIME_STACKTRACE=yes`",
+            LCompilers::diag::Level::Error,
+            LCompilers::diag::Stage::Semantic, {})
+        );
+        std::cerr << diagnostics.render(lm, compiler_options);
+        return 1;
+#endif
+    }
+    LCompilers::PythonCompiler fe(compiler_options);
+    LCompilers::LLVMEvaluator e(compiler_options.target);
+    auto asr_to_llvm_start = std::chrono::high_resolution_clock::now();
+    LCompilers::Result<std::unique_ptr<LCompilers::LLVMModule>>
+        res = fe.get_llvm3(*asr, pass_manager, diagnostics, infile);
+    auto asr_to_llvm_end = std::chrono::high_resolution_clock::now();
+    times.push_back(std::make_pair("ASR to LLVM", std::chrono::duration<double, std::milli>(asr_to_llvm_end - asr_to_llvm_start).count()));
+
+    std::cerr << diagnostics.render(lm, compiler_options);
+    if (!res.ok) {
+        LCOMPILERS_ASSERT(diagnostics.has_error())
+        print_time_report(times, time_report);
+        return 3;
+    }
+
+    auto llvm_start = std::chrono::high_resolution_clock::now();
+    e.add_module(std::move(res.result));
+    try {
+        e.voidfn("__module___main_____main__global_stmts");
+    } catch (LCompilers::LCompilersException&) {}
+    auto llvm_end = std::chrono::high_resolution_clock::now();
+    times.push_back(std::make_pair("LLVM to binary", std::chrono::duration<double, std::milli>(llvm_end - llvm_start).count()));
+    print_time_report(times, time_report);
+    return 0;
+}
+
 #endif
 
 void do_print_rtl_header_dir() {
@@ -1560,6 +1660,7 @@ int main(int argc, char *argv[])
         bool print_rtl_header_dir = false;
         bool print_rtl_dir = false;
         bool separate_compilation = false;
+        bool to_jit = false;
 
         std::string arg_fmt_file;
         // int arg_fmt_indent = 4;
@@ -1593,6 +1694,7 @@ int main(int argc, char *argv[])
         app.add_option("-I", compiler_options.import_paths, "Specify the paths"
             "to look for the module")->allow_extra_args(false);
         // app.add_option("-J", arg_J, "Where to save mod files");
+        app.add_flag("--jit", to_jit, "Execute the program using just-in-time (JIT) compiler");
         app.add_flag("-g", compiler_options.emit_debug_info, "Compile with debugging information");
         app.add_flag("--debug-with-line-column", compiler_options.emit_debug_line_column,
             "Convert the linear location info into line + column in the debugging information");
@@ -1793,6 +1895,14 @@ int main(int argc, char *argv[])
         if (CLI::NonexistentPath(arg_file).empty()){
             std::cerr << "The input file does not exist: " << arg_file << std::endl;
             return 1;
+        }
+
+        if (to_jit) {
+            compiler_options.emit_debug_info = false;
+            compiler_options.emit_debug_line_column = false;
+            compiler_options.generate_object_code = false;
+            return execute_python_using_jit(arg_file, runtime_library_dir,
+                    lpython_pass_manager, compiler_options, time_report);
         }
 
         std::string outfile;
