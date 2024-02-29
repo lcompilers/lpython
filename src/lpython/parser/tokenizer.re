@@ -290,6 +290,11 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc, diag::Diagnost
                             | ("''" | "''" "\\"+) [^'\x00\\]
                             | [^'\x00\\] )*
                       "'''";
+            
+            fstring_start = ([fF] | [fF][rR] | [rR][fF]) '"' ('\\'[^\x00{}] | [^"\x00\n\\{}])* '{';
+            fstring_middle = '}' ('\\'[^\x00{}] | [^"\x00\n\\{}])* '{';
+            fstring_end = '}' ('\\'[^\x00{}] | [^"\x00\n\\{}])* '"';
+
             type_ignore = "#" whitespace? "type:" whitespace? "ignore" [^\n\x00]*;
             type_comment = "#" whitespace? "type:" whitespace? [^\n\x00]*;
             comment = "#" [^\n\x00]*;
@@ -434,10 +439,8 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc, diag::Diagnost
                     RET(TK_NAME);
                 }
             }
-
             [rR][bB] | [bB][rR]
-            | [fF][rR] | [rR][fF]
-            | [rR] | [bB] | [fF] | [uU]
+            | [rR] | [bB] | [uU]
              {
                 if(cur[0] == '\'' || cur[0] == '"'){
                     KW(STR_PREFIX);
@@ -601,6 +604,10 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc, diag::Diagnost
             string3 { token_str3(yylval.string); RET(TK_STRING) }
             string4 { token_str3(yylval.string); RET(TK_STRING) }
 
+            fstring_start { token(yylval.string); RET(TK_FSTRING_START) }
+            fstring_middle { token_str(yylval.string); RET(TK_FSTRING_MIDDLE) }
+            fstring_end { token_str(yylval.string); RET(TK_FSTRING_END) }
+
             name { token(yylval.string); RET(TK_NAME) }
         */
     }
@@ -700,6 +707,9 @@ std::string token2text(const int token)
         T(TK_AT, "@")
 
         T(TK_STRING, "string")
+        T(TK_FSTRING_START, "fstring_start")
+        T(TK_FSTRING_MIDDLE, "fstring_middle")
+        T(TK_FSTRING_END, "fstring_end")
         T(TK_COMMENT, "comment")
         T(TK_EOLCOMMENT, "eolcomment")
         T(TK_TYPE_COMMENT, "type_comment")

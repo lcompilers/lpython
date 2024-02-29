@@ -3352,6 +3352,19 @@ public:
         }
         tmp = ASR::make_LogicalBinOp_t(al, x.base.base.loc, lhs, op, rhs, dest_type, value);
     }
+    
+    void visit_FormattedValue(const AST::FormattedValue_t &x){
+        this->visit_expr(*x.m_value);
+        // converting x as call_arg for the handle_intrinsic_str function
+        ASR::expr_t* expr = ASRUtils::EXPR(tmp);
+        ASR::call_arg_t arg;
+        arg.loc = expr->base.loc;
+        arg.m_value = expr;
+        Vec<ASR::call_arg_t> call_args;
+        call_args.reserve(al, 1);
+        call_args.push_back(al, arg);
+        tmp = intrinsic_node_handler.handle_intrinsic_str(al, call_args, x.base.base.loc);
+    }
 
     void visit_BinOp(const AST::BinOp_t &x) {
         this->visit_expr(*x.m_left);

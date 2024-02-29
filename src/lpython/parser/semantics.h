@@ -802,9 +802,53 @@ static inline ast_t* concat_string(Allocator &al, Location &l,
 #define STRING2(x, y, l) concat_string(p.m_a, l, EXPR(x), str_unescape_c(p.m_a, y), nullptr)
 #define STRING3(prefix, x, l) PREFIX_STRING(p.m_a, l, prefix.c_str(p.m_a), x.c_str(p.m_a))
 #define STRING4(x, s, l) concat_string(p.m_a, l, EXPR(x), "", EXPR(s))
+#define FSTRING(s, m, e, l) fstring(p.m_a, l, s.c_str(p.m_a), EXPR(m), e.c_str(p.m_a))
+#define FSTRING_MIDDLE(s, m, e, l) fstring_middle(p.m_a, l, s, m.c_str(p.m_a), EXPR(e))
+#define FSTRING_MIDDLE1(x, l) fstring_middle1(p.m_a, l, EXPR(x))
+#define CONCAT_FSTRING(x, y, l) make_BinOp_t(p.m_a, l, EXPR(x), operatorType::Add, EXPR(y))
 #define FLOAT(x, l) make_ConstantFloat_t(p.m_a, l, x, nullptr)
 #define COMPLEX(x, l) make_ConstantComplex_t(p.m_a, l, 0, x, nullptr)
 #define BOOL(x, l) make_ConstantBool_t(p.m_a, l, x, nullptr)
+
+static inline ast_t *fstring_middle1(Allocator &al, Location &l, expr_t *start){
+    return make_FormattedValue_t(al, l, start, -1, nullptr);
+}
+
+static inline ast_t *fstring_middle(Allocator &al, Location &l, ast_t* start,
+        char *middle, expr_t *end) {
+    ast_t *tmp = nullptr;
+    tmp = start;
+    if(middle != nullptr && end != nullptr){
+        ast_t *middle_string = make_ConstantStr_t(al, l, middle, nullptr);
+        tmp = make_BinOp_t(al, l, EXPR(tmp), operatorType::Add, EXPR(middle_string));
+
+        ast_t *right = make_FormattedValue_t(al, l, end, -1, nullptr);
+        tmp = make_BinOp_t(al, l, EXPR(tmp), operatorType::Add, EXPR(right));
+    }
+    return tmp;
+}
+
+static inline ast_t *fstring(Allocator &al, Location &l, char *start, 
+        expr_t *middle, char *end) {
+    size_t k = 0;
+    while(start[k] != '"' && k < sizeof(start)) k++;
+    //discard the start prefix & quote & end brace characters, prefix can be 'r'|'f'
+    size_t len = strlen(start)-k++-1;
+    char *start_str = (char *)malloc(len*sizeof(char));
+    strncpy(start_str, start+k, len-1);
+    start_str[len-1] = '\0';
+
+    ast_t* tmp = nullptr;
+    // add left string and middle expr
+    ast_t *left = make_ConstantStr_t(al, l, start_str, nullptr);
+    ast_t *value = make_FormattedValue_t(al, l, middle, -1, nullptr);
+    tmp = make_BinOp_t(al, l, EXPR(left), operatorType::Add, EXPR(value));
+    // add the resultant to the end string
+    ast_t *right = make_ConstantStr_t(al, l, end, nullptr);
+    tmp = make_BinOp_t(al, l, EXPR(tmp), operatorType::Add, EXPR(right));
+    
+    return tmp;
+}
 
 static inline ast_t *PREFIX_STRING(Allocator &al, Location &l, char *prefix, char *s){
     Vec<expr_t *> exprs;

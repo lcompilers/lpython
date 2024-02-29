@@ -103,6 +103,9 @@ void yyerror(YYLTYPE *yyloc, LCompilers::LPython::Parser &p, const std::string &
 %token TK_CARET "^"
 %token TK_AT "@"
 %token <string> TK_STRING
+%token <string> TK_FSTRING_START
+%token <string> TK_FSTRING_MIDDLE
+%token <string> TK_FSTRING_END
 %token <string> TK_COMMENT
 %token <string> TK_EOLCOMMENT
 %token <string> TK_TYPE_COMMENT
@@ -260,6 +263,8 @@ void yyerror(YYLTYPE *yyloc, LCompilers::LPython::Parser &p, const std::string &
 %type <ast> sep_one
 %type <string> type_comment
 %type <ast> string
+%type <ast> fstring
+%type <ast> fstring_middle
 %type <ast> ternary_if_statement
 %type <ast> comprehension
 %type <vec_ast> id_list
@@ -1106,8 +1111,19 @@ subscript
 string
     : string TK_STRING { $$ = STRING2($1, $2, @$); } // TODO
     | string KW_STR_PREFIX TK_STRING { $$ = STRING4($1, STRING3($2, $3, @$), @$); }
+    | string fstring { $$ = CONCAT_FSTRING($1, $2, @$); }
     | TK_STRING { $$ = STRING1($1, @$); }
     | KW_STR_PREFIX TK_STRING { $$ = STRING3($1, $2, @$); }
+    | fstring
+    ;
+
+fstring_middle 
+    : fstring_middle TK_FSTRING_MIDDLE expr { $$ = FSTRING_MIDDLE($1, $2, $3, @$); }
+    | expr { $$ = FSTRING_MIDDLE1($1, @$); }
+    ;
+
+fstring
+    : TK_FSTRING_START fstring_middle TK_FSTRING_END { $$ = FSTRING($1, $2, $3, @$); }
     ;
 
 lambda_parameter
