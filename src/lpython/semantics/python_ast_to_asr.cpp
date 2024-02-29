@@ -1750,7 +1750,13 @@ public:
             } else if (var_annotation == "Const") {
                 ASR::ttype_t *type = ast_expr_to_asr_type(loc, *s->m_slice,
                     is_allocatable, raise_error, abi, is_argument);
-                return ASRUtils::TYPE(ASR::make_Const_t(al, loc, type));
+                if (ASRUtils::type_to_str(type) == "tuple") {
+                    throw SemanticError("'Const' not required as tuples are already immutable", loc);
+                }
+                else if (ASRUtils::type_to_str(type) == "character") {
+                    throw SemanticError("'Const' not required as strings are already immutable", loc);
+                }
+                    return ASRUtils::TYPE(ASR::make_Const_t(al, loc, type));
             } else {
                 AST::expr_t* dim_info = s->m_slice;
 
@@ -3721,7 +3727,19 @@ public:
                                       ai.m_step == nullptr &&
                                       ai.m_right != nullptr);
             }
-            if (ASR::is_a<ASR::List_t>(*type)) {
+            if (ASR::is_a<ASR::Const_t>(*type))
+            {
+                std::cout << ASRUtils::type_to_str(ASRUtils::get_contained_type(type)) << std::endl;
+                if (ASRUtils::type_to_str(ASRUtils::get_contained_type(type)) == "list")
+                {
+                    throw SemanticError("slicing on a const list is not implemented till now", loc);
+                }
+                else if (ASRUtils::type_to_str(ASRUtils::get_contained_type(type)) == "character")
+                {
+                    throw SemanticError("slicing on a const string is not implemented till now", loc);
+                }
+            }
+            else if (ASR::is_a<ASR::List_t>(*type)) {
                 tmp = ASR::make_ListSection_t(al, loc, value, ai, type, nullptr);
                 return false;
             } else if (ASR::is_a<ASR::Character_t>(*type)) {
@@ -3746,15 +3764,13 @@ public:
         else
         {
             ASR::expr_t *index = nullptr;
+            this->visit_expr(*m_slice);
             if (ASR::is_a<ASR::Const_t>(*type))
             {
-                std::cout << "Const: Yes" << std::endl;
-                ASR::ttype_t *contained_type = ASRUtils::get_contained_type(type);
-                // Check whether the contained type is a dictionary
-                if (ASR::is_a<ASR::Dict_t>(*contained_type)) {
-                    this->visit_expr(*m_slice);
+                ASR::ttype_t *contained_type = ASRUtils::type_get_past_const(type);
+                if (ASR::is_a<ASR::Dict_t>(*contained_type))
+                {
                     index = ASRUtils::EXPR(tmp);
-                    std::cout << "Dict: Yes" << std::endl;
                     ASR::ttype_t *key_type = ASR::down_cast<ASR::Dict_t>(contained_type)->m_key_type;
                     if (!ASRUtils::check_equal_type(ASRUtils::expr_type(index), key_type))
                     {
@@ -3762,18 +3778,25 @@ public:
                                                 "' instead of '" +
                                                 ASRUtils::type_to_str_python(ASRUtils::expr_type(index)) + "'",
                                             index->base.loc);
-                    };
-                    std::cout << "value: " << ASRUtils::type_to_str_python(ASRUtils::expr_type(value)) << std::endl;
-                    tmp = make_DictItem_t(al, loc, value, index, nullptr,
-                                          ASR::down_cast<ASR::Dict_t>(contained_type)->m_value_type, nullptr);
+                    }
+                    tmp = ASR::make_DictItem_t(al, loc, value, index, nullptr, ASR::down_cast<ASR::Dict_t>(contained_type)->m_value_type, nullptr);
                     return false;
                 }
                 else if (ASR::is_a<ASR::List_t>(*contained_type))
                 {
-                    std::cout << "List: Yes" << std::endl;
+                    this->visit_expr(*m_slice);
                     index = ASRUtils::EXPR(tmp);
-                    tmp = ASR::make_ListSection_t(al, loc, value, ai, type, nullptr);
+                    tmp = make_ListItem_t(al, loc, value, index,
+                                      ASR::down_cast<ASR::List_t>(contained_type)->m_type, nullptr);
                     return false;
+                }
+                else if (ASR::is_a<ASR::Character_t>(*contained_type))
+                {
+                    throw SemanticError("Const not required as strings are already immutable", loc);
+                }
+                else if (ASR::is_a<ASR::Tuple_t>(*contained_type))
+                {
+                    throw SemanticError("Const not required as tuples are already immutable", loc);
                 }
             }
             if (!ASR::is_a<ASR::Dict_t>(*type) &&
@@ -3789,6 +3812,7 @@ public:
                 throw SemanticAbort();
             }
             if (ASR::is_a<ASR::Dict_t>(*type)) {
+                this->visit_expr(*m_slice);
                 index = ASRUtils::EXPR(tmp);
                 ASR::ttype_t *key_type = ASR::down_cast<ASR::Dict_t>(type)->m_key_type;
                 if (!ASRUtils::check_equal_type(ASRUtils::expr_type(index), key_type)) {
@@ -3864,7 +3888,8 @@ public:
     void visit_Subscript(const AST::Subscript_t &x) {
         this->visit_expr(*x.m_value);
         if (using_args_attr) {
-            if (AST::is_a<AST::Attribute_t>(*x.m_value)){
+            if (AST::is_a<AST::Attribute_t>(*x.m_value))
+            {
                 AST::Attribute_t *attr = AST::down_cast<AST::Attribute_t>(x.m_value);
                 if (AST::is_a<AST::Name_t>(*attr->m_value)) {
                     AST::Name_t *var_name = AST::down_cast<AST::Name_t>(attr->m_value);
