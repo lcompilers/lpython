@@ -2744,14 +2744,17 @@ namespace DictKeys {
 static inline void verify_args(const ASR::IntrinsicScalarFunction_t& x, diag::Diagnostics& diagnostics) {
     ASRUtils::require_impl(x.n_args == 1, "Call to dict.keys must have no argument",
         x.base.base.loc, diagnostics);
-    ASRUtils::require_impl(ASR::is_a<ASR::Dict_t>(*ASRUtils::expr_type(x.m_args[0])),
-        "Argument to dict.keys must be of dict type",
-        x.base.base.loc, diagnostics);
+    ASR::ttype_t *dict_type = ASRUtils::type_to_str(ASRUtils::expr_type(x.m_args[0])) == "dict const"
+                                  ? ASRUtils::get_contained_type(ASRUtils::expr_type(x.m_args[0]))
+                                  : ASRUtils::expr_type(x.m_args[0]);
+    ASRUtils::require_impl(ASR::is_a<ASR::Dict_t>(*dict_type),
+                           "Argument to dict.keys must be of dict type",
+                           x.base.base.loc, diagnostics);
     ASRUtils::require_impl(ASR::is_a<ASR::List_t>(*x.m_type) &&
-        ASRUtils::check_equal_type(ASRUtils::get_contained_type(x.m_type),
-        ASRUtils::get_contained_type(ASRUtils::expr_type(x.m_args[0]), 0)),
-        "Return type of dict.keys must be of list of dict key element type",
-        x.base.base.loc, diagnostics);
+                               ASRUtils::check_equal_type(ASRUtils::get_contained_type(x.m_type),
+                                                          ASR::down_cast<ASR::Dict_t>(dict_type)->m_key_type),
+                           "Return type of dict.keys must be of list of dict key element type",
+                           x.base.base.loc, diagnostics);
 }
 
 static inline ASR::expr_t *eval_dict_keys(Allocator &/*al*/,
@@ -2766,9 +2769,10 @@ static inline ASR::asr_t* create_DictKeys(Allocator& al, const Location& loc,
     if (args.size() != 1) {
         err("Call to dict.keys must have no argument", loc);
     }
-
     ASR::expr_t* dict_expr = args[0];
-    ASR::ttype_t *type = ASRUtils::expr_type(dict_expr);
+    ASR::ttype_t *type = ASRUtils::type_to_str(ASRUtils::expr_type(dict_expr)) == "dict const"
+                             ? ASRUtils::get_contained_type(ASRUtils::expr_type(dict_expr))
+                             : ASRUtils::expr_type(dict_expr);
     ASR::ttype_t *dict_keys_type = ASR::down_cast<ASR::Dict_t>(type)->m_key_type;
 
     Vec<ASR::expr_t*> arg_values;
@@ -2790,14 +2794,17 @@ namespace DictValues {
 static inline void verify_args(const ASR::IntrinsicScalarFunction_t& x, diag::Diagnostics& diagnostics) {
     ASRUtils::require_impl(x.n_args == 1, "Call to dict.values must have no argument",
         x.base.base.loc, diagnostics);
-    ASRUtils::require_impl(ASR::is_a<ASR::Dict_t>(*ASRUtils::expr_type(x.m_args[0])),
+    ASR::ttype_t *dict_type = ASRUtils::type_to_str(ASRUtils::expr_type(x.m_args[0])) == "dict const"
+                                  ? ASRUtils::get_contained_type(ASRUtils::expr_type(x.m_args[0]))
+                                  : ASRUtils::expr_type(x.m_args[0]);
+    ASRUtils::require_impl(ASR::is_a<ASR::Dict_t>(*dict_type),
         "Argument to dict.values must be of dict type",
         x.base.base.loc, diagnostics);
     ASRUtils::require_impl(ASR::is_a<ASR::List_t>(*x.m_type) &&
-        ASRUtils::check_equal_type(ASRUtils::get_contained_type(x.m_type),
-        ASRUtils::get_contained_type(ASRUtils::expr_type(x.m_args[0]), 1)),
-        "Return type of dict.values must be of list of dict value element type",
-        x.base.base.loc, diagnostics);
+                               ASRUtils::check_equal_type(ASRUtils::get_contained_type(x.m_type),
+                                                          ASRUtils::get_contained_type(ASR::down_cast<ASR::Dict_t>(dict_type)->m_value_type, 1)),
+                           "Return type of dict.values must be of list of dict value element type",
+                           x.base.base.loc, diagnostics);
 }
 
 static inline ASR::expr_t *eval_dict_values(Allocator &/*al*/,
@@ -2814,7 +2821,9 @@ static inline ASR::asr_t* create_DictValues(Allocator& al, const Location& loc,
     }
 
     ASR::expr_t* dict_expr = args[0];
-    ASR::ttype_t *type = ASRUtils::expr_type(dict_expr);
+    ASR::ttype_t *type = ASRUtils::type_to_str(ASRUtils::expr_type(dict_expr)) == "dict const"
+                             ? ASRUtils::get_contained_type(ASRUtils::expr_type(dict_expr))
+                             : ASRUtils::expr_type(dict_expr);
     ASR::ttype_t *dict_values_type = ASR::down_cast<ASR::Dict_t>(type)->m_value_type;
 
     Vec<ASR::expr_t*> arg_values;

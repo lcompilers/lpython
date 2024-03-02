@@ -1523,8 +1523,15 @@ public:
     }
 
     void visit_ListItem(const ASR::ListItem_t& x) {
-        ASR::ttype_t* el_type = ASRUtils::get_contained_type(
-                                        ASRUtils::expr_type(x.m_a));
+        /*  Check whether the `list` is a `Const[list[data_type]]`:
+              - If true, set the list `el_type` to `data_type` by first going to `Const`, then `list`.
+              - If false, we have a normal list - `list[data_type]`, go to `list` and get `data_type`.
+
+            We do the type checking through strings because `ASR::is_a<T>` throws an error.
+        */
+        ASR::ttype_t *el_type = ASRUtils::type_to_str(ASRUtils::expr_type(x.m_a)) == "list const"
+                                    ? ASRUtils::get_contained_type(ASRUtils::get_contained_type(ASRUtils::expr_type(x.m_a)))
+                                    : ASRUtils::get_contained_type(ASRUtils::expr_type(x.m_a));
         int64_t ptr_loads_copy = ptr_loads;
         ptr_loads = 0;
         this->visit_expr(*x.m_a);
@@ -1540,8 +1547,16 @@ public:
     }
 
     void visit_DictItem(const ASR::DictItem_t& x) {
-        ASR::Dict_t* dict_type = ASR::down_cast<ASR::Dict_t>(
-                                    ASRUtils::expr_type(x.m_a));
+        /*  Check whether the `dict` is a `Const[dict[key_type, value_type]]`:
+              - If true, set the `dict_type` to `dict[key_type, value_type]' by going to `Const`.
+              - If false, we have a normal dict - `dict[key_type, value_type]`.
+        
+            We do the type checking through strings because `ASR::is_a<T>` throws an error.
+        */
+        ASR::Dict_t *dict_type = ASRUtils::type_to_str(ASRUtils::expr_type(x.m_a)) == "dict const"
+                                     ? ASR::down_cast<ASR::Dict_t>(ASRUtils::get_contained_type(ASRUtils::expr_type(x.m_a)))
+                                     : ASR::down_cast<ASR::Dict_t>(ASRUtils::expr_type(x.m_a));
+
         int64_t ptr_loads_copy = ptr_loads;
         ptr_loads = 0;
         this->visit_expr(*x.m_a);
@@ -1845,8 +1860,9 @@ public:
     }
 
     void generate_DictElems(ASR::expr_t* m_arg, bool key_or_value) {
-        ASR::Dict_t* dict_type = ASR::down_cast<ASR::Dict_t>(
-                                    ASRUtils::expr_type(m_arg));
+        ASR::Dict_t *dict_type = ASRUtils::type_to_str(ASRUtils::expr_type(m_arg)) == "dict const"
+                                     ? ASR::down_cast<ASR::Dict_t>(ASRUtils::get_contained_type(ASRUtils::expr_type(m_arg)))
+                                     : ASR::down_cast<ASR::Dict_t>(ASRUtils::expr_type(m_arg));
         ASR::ttype_t* el_type = key_or_value == 0 ?
                                     dict_type->m_key_type : dict_type->m_value_type;
 

@@ -68,7 +68,7 @@ struct AttributeHandler {
     ASR::asr_t* get_attribute(ASR::expr_t *e, std::string attr_name,
             Allocator &al, const Location &loc, Vec<ASR::expr_t*> &args, diag::Diagnostics &diag) {
         ASR::ttype_t *type = ASRUtils::expr_type(e);
-        std::string class_name = get_type_name(type);
+        std::string class_name = ASRUtils::type_to_str(type) == "dict const" ? "dict" : get_type_name(type);
         if (class_name == "") {
             throw SemanticError("Type name is not implemented yet.", loc);
         }
@@ -331,7 +331,9 @@ struct AttributeHandler {
             throw SemanticError("'get' takes atleast 1 and atmost 2 arguments",
                     loc);
         }
-        ASR::ttype_t *type = ASRUtils::expr_type(s);
+        ASR::ttype_t *type = ASRUtils::type_to_str(ASRUtils::expr_type(s)) == "dict const"
+                                 ? ASRUtils::get_contained_type(ASRUtils::expr_type(s))
+                                 : ASRUtils::expr_type(s);
         ASR::ttype_t *key_type = ASR::down_cast<ASR::Dict_t>(type)->m_key_type;
         ASR::ttype_t *value_type = ASR::down_cast<ASR::Dict_t>(type)->m_value_type;
         if (args.size() == 2) {
@@ -366,6 +368,9 @@ struct AttributeHandler {
 
     static ASR::asr_t* eval_dict_pop(ASR::expr_t *s, Allocator &al, const Location &loc,
             Vec<ASR::expr_t*> &args, diag::Diagnostics &diag) {
+        if (ASRUtils::type_to_str(ASRUtils::expr_type(s)) == "dict const") {
+            throw SemanticError("cannot pop elements from a const dict", loc);
+        }
         if (args.size() != 1) {
             throw SemanticError("'pop' takes only one argument for now", loc);
         }
