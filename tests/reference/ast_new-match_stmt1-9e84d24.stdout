@@ -1701,8 +1701,12 @@
                             ()
                         )
                         (FormattedValue
-                            (Name
-                                cls.__name__
+                            (Attribute
+                                (Name
+                                    cls
+                                    Load
+                                )
+                                __name__
                                 Load
                             )
                             -1

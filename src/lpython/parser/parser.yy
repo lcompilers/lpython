@@ -1111,7 +1111,7 @@ subscript
 string
     : string TK_STRING { $$ = STRING2($1, $2, @$); } // TODO
     | string KW_STR_PREFIX TK_STRING { $$ = STRING4($1, STRING3($2, $3, @$), @$); }
-    | string fstring { $$ = CONCAT_FSTRING($1, $2, @$); }
+    | string fstring { $$ = STRING4($1, $2, @$); }
     | TK_STRING { $$ = STRING1($1, @$); }
     | KW_STR_PREFIX TK_STRING { $$ = STRING3($1, $2, @$); }
     | fstring
