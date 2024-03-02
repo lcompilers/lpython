@@ -171,7 +171,7 @@ void Tokenizer::record_paren(Location &loc, char c) {
 #define KW(x) token(yylval.string); RET(KW_##x);
 #define RET(x) token_loc(loc); last_token=yytokentype::x; return yytokentype::x;
 
-/*!conditions:re2c*/
+/*!types:re2c*/
 int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc, diag::Diagnostics &/*diagnostics*/)
 {
     if(dedent == 1) {
