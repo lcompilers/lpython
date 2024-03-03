@@ -542,7 +542,7 @@ def trunc(x: f32) -> i32:
 @overload
 def sqrt(x: f32) -> f64:
     """
-    Returns cube root of a number x
+    Returns sqrt root of a number x
     """
     y : f64
     y = f64(x)
@@ -551,14 +551,14 @@ def sqrt(x: f32) -> f64:
 @overload
 def sqrt(x: f64) -> f64:
     """
-    Returns cube root of a number x
+    Returns sqrt root of a number x
     """
     return x**(1/2)
 
 @overload
 def sqrt(x: i32) -> f64:
     """
-    Returns cube root of a number x
+    Returns sqrt root of a number x
     """
     y : f64
     y = float(x)
@@ -567,7 +567,7 @@ def sqrt(x: i32) -> f64:
 @overload
 def sqrt(x: i64) -> f64:
     """
-    Returns cube root of a number x
+    Returns sqrt root of a number x
     """
     y : f64
     y = float(x)
