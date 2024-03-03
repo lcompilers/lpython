@@ -1523,15 +1523,7 @@ public:
     }
 
     void visit_ListItem(const ASR::ListItem_t& x) {
-        /*  Check whether the `list` is a `Const[list[data_type]]`:
-              - If true, set the list `el_type` to `data_type` by first going to `Const`, then `list`.
-              - If false, we have a normal list - `list[data_type]`, go to `list` and get `data_type`.
-
-            We do the type checking through strings because `ASR::is_a<T>` throws an error.
-        */
-        ASR::ttype_t *el_type = ASRUtils::type_to_str(ASRUtils::expr_type(x.m_a)) == "list const"
-                                    ? ASRUtils::get_contained_type(ASRUtils::get_contained_type(ASRUtils::expr_type(x.m_a)))
-                                    : ASRUtils::get_contained_type(ASRUtils::expr_type(x.m_a));
+        ASR::ttype_t *el_type = ASRUtils::get_contained_type(ASRUtils::expr_type(x.m_a));
         int64_t ptr_loads_copy = ptr_loads;
         ptr_loads = 0;
         this->visit_expr(*x.m_a);
