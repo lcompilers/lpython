@@ -184,11 +184,11 @@ struct AttributeHandler {
             throw SemanticError("count() takes exactly one argument",
                 loc);
         }
-        ASR::ttype_t *type = ASRUtils::type_to_str(ASRUtils::expr_type(e)) == "list const"
-                                 ? ASRUtils::get_contained_type(ASRUtils::expr_type(e))
-                                 : ASRUtils::expr_type(e);
+        ASR::ttype_t *type = ASRUtils::type_to_str(ASRUtils::expr_type(s)) == "list const"
+                                 ? ASRUtils::get_contained_type(ASRUtils::expr_type(s))
+                                 : ASRUtils::expr_type(s);
         ASR::ttype_t *list_type = ASR::down_cast<ASR::List_t>(type)->m_type;
-        ASR::ttype_t *ele_type = ASRUtils::expr_type(args[0]);
+        ASR::ttype_t *ele_type = ASRUtils::get_contained_type(list_type);
         if (!ASRUtils::check_equal_type(ele_type, list_type)) {
             std::string fnd = ASRUtils::type_to_str_python(ele_type);
             std::string org = ASRUtils::type_to_str_python(list_type);

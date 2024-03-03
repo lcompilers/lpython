@@ -2523,9 +2523,9 @@ static inline void verify_args(const ASR::IntrinsicScalarFunction_t& x, diag::Di
     ASR::ttype_t *list_type = ASRUtils::type_to_str(ASRUtils::expr_type(x.m_args[0])) == "list const"
                                   ? ASRUtils::get_contained_type(ASRUtils::expr_type(x.m_args[0]))
                                   : ASRUtils::expr_type(x.m_args[0]);
-    ASRUtils::require_impl(ASR::is_a<ASR::List_t>(*list_type)) &&
+    ASRUtils::require_impl(ASR::is_a<ASR::List_t>(*list_type) &&
                                ASRUtils::check_equal_type(ASRUtils::expr_type(x.m_args[1]),
-                                                          ASRUtils::get_contained_type(ASRUtils::expr_type(x.m_args[0]))),
+                                                          ASRUtils::get_contained_type(list_type)),
                            "First argument to list.index must be of list type and "
                            "second argument must be of same type as list elemental type",
                            x.base.base.loc, diagnostics);
@@ -2558,9 +2558,11 @@ static inline ASR::asr_t* create_ListIndex(Allocator& al, const Location& loc,
     const std::function<void (const std::string &, const Location &)> err) {
     int64_t overload_id = 0;
     ASR::expr_t* list_expr = args[0];
-    ASR::ttype_t *type = ASRUtils::expr_type(list_expr);
+    ASR::ttype_t *type = ASRUtils::type_to_str(ASRUtils::expr_type(list_expr)) == "list const"
+                             ? ASRUtils::get_contained_type(ASRUtils::expr_type(list_expr))
+                             : ASRUtils::expr_type(list_expr);
     ASR::ttype_t *list_type = ASR::down_cast<ASR::List_t>(type)->m_type;
-    ASR::ttype_t *ele_type = ASRUtils::expr_type(args[1]);
+    ASR::ttype_t *ele_type = ASRUtils::get_contained_type(list_type);
     if (!ASRUtils::check_equal_type(ele_type, list_type)) {
         std::string fnd = ASRUtils::get_type_code(ele_type);
         std::string org = ASRUtils::get_type_code(list_type);
