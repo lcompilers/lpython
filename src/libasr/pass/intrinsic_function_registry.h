@@ -2520,12 +2520,15 @@ namespace ListIndex {
 static inline void verify_args(const ASR::IntrinsicScalarFunction_t& x, diag::Diagnostics& diagnostics) {
     ASRUtils::require_impl(x.n_args <= 4, "Call to list.index must have at most four arguments",
         x.base.base.loc, diagnostics);
-    ASRUtils::require_impl(ASR::is_a<ASR::List_t>(*ASRUtils::expr_type(x.m_args[0])) &&
-        ASRUtils::check_equal_type(ASRUtils::expr_type(x.m_args[1]),
-            ASRUtils::get_contained_type(ASRUtils::expr_type(x.m_args[0]))),
-        "First argument to list.index must be of list type and "
-        "second argument must be of same type as list elemental type",
-        x.base.base.loc, diagnostics);
+    ASR::ttype_t *list_type = ASRUtils::type_to_str(ASRUtils::expr_type(x.m_args[0])) == "list const"
+                                  ? ASRUtils::get_contained_type(ASRUtils::expr_type(x.m_args[0]))
+                                  : ASRUtils::expr_type(x.m_args[0]);
+    ASRUtils::require_impl(ASR::is_a<ASR::List_t>(*list_type)) &&
+                               ASRUtils::check_equal_type(ASRUtils::expr_type(x.m_args[1]),
+                                                          ASRUtils::get_contained_type(ASRUtils::expr_type(x.m_args[0]))),
+                           "First argument to list.index must be of list type and "
+                           "second argument must be of same type as list elemental type",
+                           x.base.base.loc, diagnostics);
     if(x.n_args >= 3) {
         ASRUtils::require_impl(
             ASR::is_a<ASR::Integer_t>(*ASRUtils::expr_type(x.m_args[2])),
