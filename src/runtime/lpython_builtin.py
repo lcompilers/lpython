@@ -744,6 +744,16 @@ def _lpython_str_isalnum(s: str) -> bool:
         return False
     return True
 
+def _lpython_str_isnumeric(s: str) -> bool:
+    ch: str
+    if len(s) == 0: return False
+    for ch in s:
+        ch_ord: i32 = ord(ch)
+        if 48 <= ch_ord and ch_ord <= 57:
+            continue
+        return False
+    return True
+
 def _lpython_str_title(s: str) -> str:
     result: str = ""
     capitalize_next: bool = True

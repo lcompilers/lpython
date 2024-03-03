@@ -398,6 +398,38 @@ def is_alnum():
     assert "ab23".isalnum() == True
     assert "ab2%3".isalnum() == False
 
+def is_numeric():
+    a: str = "123"
+    b: str = "12 34"
+    c: str = "-123"
+    d: str = "12.3"
+    e: str = " "
+    f: str = ""
+    g: str = "ab2%3"
+    res: bool = a.isnumeric()
+    res2: bool = b.isnumeric()
+    res3: bool = c.isnumeric()
+    res4: bool = d.isnumeric()
+    res5: bool = e.isnumeric()
+    res6: bool = f.isnumeric()
+    res7: bool = g.isnumeric()
+
+    assert res == True
+    assert res2 == False
+    assert res3 == False
+    assert res4 == False
+    assert res5 == False
+    assert res6 == False
+    assert res7 == False
+
+    assert "123".isnumeric() == True
+    assert "12 34".isnumeric() == False
+    assert "-123".isnumeric() == False
+    assert "12.3".isnumeric() == False
+    assert " ".isnumeric() == False
+    assert "".isnumeric() == False
+    assert "ab2%3".isnumeric() == False
+
 def check():
     capitalize()
     lower()
@@ -414,9 +446,10 @@ def check():
     is_decimal()
     is_ascii()
     is_alpha()
-    is_alnum()
     is_title()
     is_space()
+    is_alnum()
+    is_numeric()
 
 
 check()
