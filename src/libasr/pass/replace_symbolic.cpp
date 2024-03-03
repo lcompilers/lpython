@@ -323,7 +323,6 @@ public:
             func_body.from_pointer_n_copy(al, xx.m_body, xx.n_body);
 
             for (ASR::symbol_t* symbol : symbolic_vars_to_free) {
-                if (symbolic_vars_to_omit.find(symbol) != symbolic_vars_to_omit.end()) continue;
                 func_body.push_back(al, basic_free_stack(x.base.base.loc,
                     ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, symbol))));
             }
@@ -352,7 +351,7 @@ public:
 
             ASR::ttype_t *CPtr_type = ASRUtils::TYPE(ASR::make_CPtr_t(al, xx.base.base.loc));
             xx.m_type = CPtr_type;
-            if (var_name != "_lpython_return_variable" && xx.m_intent != ASR::intentType::Out) {
+            if (xx.m_intent == ASR::intentType::Local) {
                 symbolic_vars_to_free.insert(ASR::down_cast<ASR::symbol_t>((ASR::asr_t*)&xx));
             }
             if(xx.m_intent == ASR::intentType::In){
@@ -524,7 +523,8 @@ public:
     void visit_Assignment(const ASR::Assignment_t &x) {
         if (ASR::is_a<ASR::Var_t>(*x.m_value) && ASR::is_a<ASR::CPtr_t>(*ASRUtils::expr_type(x.m_value))) {
             ASR::symbol_t *v = ASR::down_cast<ASR::Var_t>(x.m_value)->m_v;
-            if (symbolic_vars_to_free.find(v) == symbolic_vars_to_free.end()) return;
+            if ((symbolic_vars_to_free.find(v) == symbolic_vars_to_free.end()) &&
+                (symbolic_vars_to_omit.find(v) == symbolic_vars_to_omit.end())) return;
             ASR::symbol_t* var_sym = ASR::down_cast<ASR::Var_t>(x.m_value)->m_v;
             pass_result.push_back(al, basic_assign(x.base.base.loc, x.m_target,
                 ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, var_sym))));
@@ -784,7 +784,8 @@ public:
             ASR::expr_t* val = x.m_values[i];
             if (ASR::is_a<ASR::Var_t>(*val) && ASR::is_a<ASR::CPtr_t>(*ASRUtils::expr_type(val))) {
                 ASR::symbol_t *v = ASR::down_cast<ASR::Var_t>(val)->m_v;
-                if (symbolic_vars_to_free.find(v) == symbolic_vars_to_free.end()) return;
+                if ((symbolic_vars_to_free.find(v) == symbolic_vars_to_free.end()) &&
+                    (symbolic_vars_to_omit.find(v) == symbolic_vars_to_omit.end())) return;
                 print_tmp.push_back(basic_str(x.base.base.loc, val));
             } else if (ASR::is_a<ASR::IntrinsicScalarFunction_t>(*val)) {
                 ASR::IntrinsicScalarFunction_t* intrinsic_func = ASR::down_cast<ASR::IntrinsicScalarFunction_t>(val);
@@ -1007,10 +1008,9 @@ public:
     }
 
     void visit_Return(const ASR::Return_t &x) {
+        // freeing out variables
         if (!symbolic_vars_to_free.empty()){
             for (ASR::symbol_t* symbol : symbolic_vars_to_free) {
-                if (symbolic_vars_to_omit.find(symbol) != symbolic_vars_to_omit.end()) continue;
-                // freeing out variables
                 pass_result.push_back(al, basic_free_stack(x.base.base.loc,
                     ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, symbol))));
             }
