@@ -1014,7 +1014,6 @@ public:
                 pass_result.push_back(al, basic_free_stack(x.base.base.loc,
                     ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, symbol))));
             }
-            symbolic_vars_to_free.clear();
             pass_result.push_back(al, ASRUtils::STMT(ASR::make_Return_t(al, x.base.base.loc)));
         }
     }
