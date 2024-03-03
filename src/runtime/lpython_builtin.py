@@ -730,6 +730,20 @@ def _lpython_str_isalpha(s: str) -> bool:
         return False
     return True
 
+def _lpython_str_isalnum(s: str) -> bool:
+    ch: str
+    if len(s) == 0: return False
+    for ch in s:
+        ch_ord: i32 = ord(ch)
+        if 65 <= ch_ord and ch_ord <= 90:
+            continue
+        if 97 <= ch_ord and ch_ord <= 122:
+            continue
+        if 48 <= ch_ord and ch_ord <= 57:
+            continue
+        return False
+    return True
+
 def _lpython_str_title(s: str) -> str:
     result: str = ""
     capitalize_next: bool = True

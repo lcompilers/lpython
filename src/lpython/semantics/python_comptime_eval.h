@@ -83,6 +83,7 @@ struct PythonIntrinsicProcedures {
             {"_lpython_str_join", {m_builtin, &not_implemented}},
             {"_lpython_str_find", {m_builtin, &not_implemented}},
             {"_lpython_str_isalpha", {m_builtin, &not_implemented}},
+            {"_lpython_str_isalnum", {m_builtin, &not_implemented}},
             {"_lpython_str_title", {m_builtin, &not_implemented}},
             {"_lpython_str_istitle", {m_builtin, &not_implemented}},
             {"_lpython_str_rstrip", {m_builtin, &not_implemented}},
