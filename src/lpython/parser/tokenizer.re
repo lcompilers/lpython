@@ -171,7 +171,6 @@ void Tokenizer::record_paren(Location &loc, char c) {
 #define KW(x) token(yylval.string); RET(KW_##x);
 #define RET(x) token_loc(loc); last_token=yytokentype::x; return yytokentype::x;
 
-/*!types:re2c*/
 int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc, diag::Diagnostics &/*diagnostics*/)
 {
     if(dedent == 1) {
@@ -263,10 +262,6 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc, diag::Diagnost
             // re2c:define:YYCTXMARKER = ctxmar;
             re2c:yyfill:enable = 0;
             re2c:define:YYCTYPE = "unsigned char";
-            re2c:define:YYGETCONDITION = "cond";
-            re2c:define:YYGETCONDITION:naked = 1;
-            re2c:define:YYSETCONDITION = "cond = @@;";
-            re2c:define:YYSETCONDITION:naked = 1;
 
             end = "\x00";
             whitespace = [ \t\v]+;
@@ -296,73 +291,43 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc, diag::Diagnost
                             | [^'\x00\\] )*
                       "'''";
 
-            // fstring1 -> "'"            
-            <init> ([fF] | [fF][rR] | [rR][fF]) '"' ('\\'[^\x00{}] | [^"\x00\n\\{}])* '{' => fstring1 {
-                token(yylval.string); RET(TK_FSTRING_START)
-            }
-            <fstring1> '}' ('\\'[^\x00{}] | [^"\x00\n\\{}])* '{' {
-                token_str(yylval.string); RET(TK_FSTRING_MIDDLE)
-            }
-            <fstring1> '}' ('\\'[^\x00{}] | [^"\x00\n\\{}])* '"'  => init {
-                token(yylval.string); RET(TK_FSTRING_END)
-            }
-            // fstring2 -> "'"
-            <init> ([fF] | [fF][rR] | [rR][fF]) "'" ("\\"[^\x00{}] | [^'\x00\n\\{}])* '{' => fstring2 {
-                token(yylval.string); RET(TK_FSTRING_START)
-            }
-            <fstring2> '}' ("\\"[^\x00{}] | [^'\x00\n\\{}])* '{' {
-                token_str(yylval.string); RET(TK_FSTRING_MIDDLE)
-            }
-            <fstring2> '}' ("\\"[^\x00{}] | [^'\x00\n\\{}])* "'"  => init {
-                token(yylval.string); RET(TK_FSTRING_END)
-            }
-            // fstring3 -> '"""'
-            <init> ([fF] | [fF][rR] | [rR][fF]) '"""' ( '\\'[^\x00{}]
+            fstring_format1 = ('\\'[^\x00{}] | [^"\x00\n\\{}])*;
+            fstring_format2 = ("\\"[^\x00{}] | [^'\x00\n\\{}])*;
+            fstring_format3 = ( '\\'[^\x00{}]
                             | ('"' | '"' '\\'+ '"' | '"' '\\'+) [^"\x00\\{}]
                             | ('""' | '""' '\\'+) [^"\x00\\{}]
-                            | [^"\x00\\{}] )* '{' => fstring3 {
-                token(yylval.string); RET(TK_FSTRING_START)
-            }
-            <fstring3> '}' ( '\\'[^\x00{}]
-                            | ('"' | '"' '\\'+ '"' | '"' '\\'+) [^"\x00\\{}]
-                            | ('""' | '""' '\\'+) [^"\x00\\{}]
-                            | [^"\x00\\{}] )* '{' {
-                token_str(yylval.string); RET(TK_FSTRING_MIDDLE)
-            }
-            <fstring3> '}' ( '\\'[^\x00{}]
-                            | ('"' | '"' '\\'+ '"' | '"' '\\'+) [^"\x00\\{}]
-                            | ('""' | '""' '\\'+) [^"\x00\\{}]
-                            | [^"\x00\\{}] )* '"""'  => init {
-                token(yylval.string); RET(TK_FSTRING_END)
-            }
-            // fstring4 -> "'''"
-            <init> ([fF] | [fF][rR] | [rR][fF]) "'''" ( "\\"[^\x00{}]
+                            | [^"\x00\\{}] )*;
+            fstring_format4 = ( "\\"[^\x00{}]
                             | ("'" | "'" "\\"+ "'" | "'" "\\"+) [^'\x00\\{}]
                             | ("''" | "''" "\\"+) [^'\x00\\{}]
-                            | [^'\x00\\{}] )* '{' => fstring4 {
-                token(yylval.string); RET(TK_FSTRING_START)
-            }
-            <fstring4> '}' ( "\\"[^\x00{}]
-                            | ("'" | "'" "\\"+ "'" | "'" "\\"+) [^'\x00\\{}]
-                            | ("''" | "''" "\\"+) [^'\x00\\{}]
-                            | [^'\x00\\{}] )* '{' {
-                token_str(yylval.string); RET(TK_FSTRING_MIDDLE)
-            }
-            <fstring4> '}' ( "\\"[^\x00{}]
-                            | ("'" | "'" "\\"+ "'" | "'" "\\"+) [^'\x00\\{}]
-                            | ("''" | "''" "\\"+) [^'\x00\\{}]
-                            | [^'\x00\\{}] )* "'''"  => init {
-                token(yylval.string); RET(TK_FSTRING_END)
-            }
-           
+                            | [^'\x00\\{}] )*;
 
+            fstring_prefix = ([fF] | [fF][rR] | [rR][fF]);
+            fstring_start1 = fstring_prefix '"' fstring_format1 '{';
+            fstring_start2 = fstring_prefix "'" fstring_format2 '{';
+            fstring_start3 = fstring_prefix '"""' fstring_format3 '{';
+            fstring_start4 = fstring_prefix "'''" fstring_format4 '{';
+            
+            fstring_start1 {
+                fstring_flag = 1; token(yylval.string); RET(TK_FSTRING_START)
+            }
+            fstring_start2 {
+                fstring_flag = 2; token(yylval.string); RET(TK_FSTRING_START)
+            }
+            fstring_start3 {
+                fstring_flag = 3; token(yylval.string); RET(TK_FSTRING_START)
+            }
+            fstring_start4 {
+                fstring_flag = 4; token(yylval.string); RET(TK_FSTRING_START)
+            }
+            
             type_ignore = "#" whitespace? "type:" whitespace? "ignore" [^\n\x00]*;
             type_comment = "#" whitespace? "type:" whitespace? [^\n\x00]*;
             comment = "#" [^\n\x00]*;
             // docstring = newline whitespace? string1 | string2;
             ws_comment = whitespace? comment? newline;
 
-            <*> * { token_loc(loc);
+            * { token_loc(loc);
                 std::string t = token();
                 throw parser_local::TokenizerError(diag::Diagnostic(
                     "Token '" + t + "' is not recognized",
@@ -372,7 +337,7 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc, diag::Diagnost
                 );
             }
             
-            <*> end {
+            end {
                 token_loc(loc);
                 if(parenlevel) {
                     throw parser_local::TokenizerError(
@@ -381,7 +346,7 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc, diag::Diagnost
                 RET(END_OF_FILE);
             }
 
-            <*> whitespace {
+            whitespace {
                 if(cur[0] == '#') { continue; }
                 if(last_token == yytokentype::TK_NEWLINE && cur[0] == '\n') {
                     continue;
@@ -432,40 +397,40 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc, diag::Diagnost
              }
 
             // Keywords
-            <*> "as"       { KW(AS) }
-            <*> "assert"   { KW(ASSERT) }
-            <*> "async"    { KW(ASYNC) }
-            <*> "await"    { KW(AWAIT) }
-            <*> "break"    { KW(BREAK) }
-            <*> "class"    { KW(CLASS) }
-            <*> "continue" { KW(CONTINUE) }
-            <*> "def"      { KW(DEF) }
-            <*> "del"      { KW(DEL) }
-            <*> "elif"     { KW(ELIF) }
-            <*> "else"     { KW(ELSE) }
-            <*> "except"   { KW(EXCEPT) }
-            <*> "finally"  { KW(FINALLY) }
-            <*> "for"      { KW(FOR) }
-            <*> "from"     { KW(FROM) }
-            <*> "global"   { KW(GLOBAL) }
-            <*> "if"       { KW(IF) }
-            <*> "import"   { KW(IMPORT) }
-            <*> "in"       { KW(IN) }
-            <*> "is"       { KW(IS) }
-            <*> "lambda"   { KW(LAMBDA) }
-            <*> "None"     { KW(NONE) }
-            <*> "nonlocal" { KW(NONLOCAL) }
-            <*> "pass"     { KW(PASS) }
-            <*> "raise"    { KW(RAISE) }
-            <*> "return"   { KW(RETURN) }
-            <*> "try"      { KW(TRY) }
-            <*> "while"    { KW(WHILE) }
-            <*> "with"     { KW(WITH) }
-            <*> "yield"    { KW(YIELD) }
-            <*> "yield" whitespace "from" whitespace { KW(YIELD_FROM) }
+            "as"       { KW(AS) }
+            "assert"   { KW(ASSERT) }
+            "async"    { KW(ASYNC) }
+            "await"    { KW(AWAIT) }
+            "break"    { KW(BREAK) }
+            "class"    { KW(CLASS) }
+            "continue" { KW(CONTINUE) }
+            "def"      { KW(DEF) }
+            "del"      { KW(DEL) }
+            "elif"     { KW(ELIF) }
+            "else"     { KW(ELSE) }
+            "except"   { KW(EXCEPT) }
+            "finally"  { KW(FINALLY) }
+            "for"      { KW(FOR) }
+            "from"     { KW(FROM) }
+            "global"   { KW(GLOBAL) }
+            "if"       { KW(IF) }
+            "import"   { KW(IMPORT) }
+            "in"       { KW(IN) }
+            "is"       { KW(IS) }
+            "lambda"   { KW(LAMBDA) }
+            "None"     { KW(NONE) }
+            "nonlocal" { KW(NONLOCAL) }
+            "pass"     { KW(PASS) }
+            "raise"    { KW(RAISE) }
+            "return"   { KW(RETURN) }
+            "try"      { KW(TRY) }
+            "while"    { KW(WHILE) }
+            "with"     { KW(WITH) }
+            "yield"    { KW(YIELD) }
+            "yield" whitespace "from" whitespace { KW(YIELD_FROM) }
 
             // Soft Keywords
-            <*> "match" / [^:\n\x00] {
+            "match" / [^:\n\x00] {
                 if ((last_token == -1
                   || last_token == yytokentype::TK_DEDENT
                   || last_token == yytokentype::TK_INDENT
@@ -484,7 +449,7 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc, diag::Diagnost
                     RET(TK_NAME);
                 }
             }
-            <*> "case" / [^:\n\x00] {
+            "case" / [^:\n\x00] {
                 if ((last_token == yytokentype::TK_INDENT
                   || last_token == yytokentype::TK_DEDENT)
                   && parenlevel == 0) {
@@ -502,7 +467,7 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc, diag::Diagnost
                 }
             }
             
-            <*> [rR][bB] | [bB][rR]
+            [rR][bB] | [bB][rR]
             | [fF][rR] | [rR][fF]
             | [rR] | [fF] | [bB] | [uU]
              {
@@ -516,7 +481,7 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc, diag::Diagnost
             }
 
             // Tokens
-            <*> newline {
+            newline {
                 if(parenlevel) { continue; }
                 if(cur[0] == '#') { RET(TK_NEWLINE); }
                 if (last_token == yytokentype::TK_COLON
@@ -531,100 +496,106 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc, diag::Diagnost
                 RET(TK_NEWLINE);
             }
 
-            <*> "\\" newline { continue; }
+            "\\" newline { continue; }
 
             // Single character symbols
-            <*> "(" { token_loc(loc); record_paren(loc, '('); RET(TK_LPAREN) }
-            <*> "[" { token_loc(loc); record_paren(loc, '['); RET(TK_LBRACKET) }
-            <*> "{" { token_loc(loc); record_paren(loc, '{'); RET(TK_LBRACE) }
-            <*> ")" { token_loc(loc); record_paren(loc, ')'); RET(TK_RPAREN) }
-            <*> "]" { token_loc(loc); record_paren(loc, ']'); RET(TK_RBRACKET) }
-            <*> "}" { token_loc(loc); record_paren(loc, '}'); RET(TK_RBRACE) }
-            <*> "+" { RET(TK_PLUS) }
-            <*> "-" { RET(TK_MINUS) }
-            <*> "=" { RET(TK_EQUAL) }
-            <*> ":" {
+            "(" { token_loc(loc); record_paren(loc, '('); RET(TK_LPAREN) }
+            "[" { token_loc(loc); record_paren(loc, '['); RET(TK_LBRACKET) }
+            "{" { token_loc(loc); record_paren(loc, '{'); RET(TK_LBRACE) }
+            ")" { token_loc(loc); record_paren(loc, ')'); RET(TK_RPAREN) }
+            "]" { token_loc(loc); record_paren(loc, ']'); RET(TK_RBRACKET) }
+            "}" { 
+                if(fstring_flag >= 1){
+                    return lex_fstring(loc, cur, yylval);
+                }else{
+                    token_loc(loc); record_paren(loc, '}'); RET(TK_RBRACE) 
+                }
+              }
+            "+" { RET(TK_PLUS) }
+            "-" { RET(TK_MINUS) }
+            "=" { RET(TK_EQUAL) }
+            ":" {
                     if(cur[0] == '\n' && !parenlevel){
                         colon_actual_last_token = true;
                     }
                     RET(TK_COLON);
                 }
-            <*> ";" { RET(TK_SEMICOLON) }
-            <*> "/" { RET(TK_SLASH) }
-            <*> "%" { RET(TK_PERCENT) }
-            <*> "," { RET(TK_COMMA) }
-            <*> "*" { RET(TK_STAR) }
-            <*> "|" { RET(TK_VBAR) }
-            <*> "&" { RET(TK_AMPERSAND) }
-            <*> "." { RET(TK_DOT) }
-            <*> "~" { RET(TK_TILDE) }
-            <*> "^" { RET(TK_CARET) }
-            <*> "@" { RET(TK_AT) }
+            ";" { RET(TK_SEMICOLON) }
+            "/" { RET(TK_SLASH) }
+            "%" { RET(TK_PERCENT) }
+            "," { RET(TK_COMMA) }
+            "*" { RET(TK_STAR) }
+            "|" { RET(TK_VBAR) }
+            "&" { RET(TK_AMPERSAND) }
+            "." { RET(TK_DOT) }
+            "~" { RET(TK_TILDE) }
+            "^" { RET(TK_CARET) }
+            "@" { RET(TK_AT) }
 
             // Multiple character symbols
-            <*> ">>" { RET(TK_RIGHTSHIFT) }
-            <*> "<<" { RET(TK_LEFTSHIFT) }
-            <*> "**" { RET(TK_POW) }
-            <*> "//" { RET(TK_FLOOR_DIV) }
-            <*> "+=" { RET(TK_PLUS_EQUAL) }
-            <*> "-=" { RET(TK_MIN_EQUAL) }
-            <*> "*=" { RET(TK_STAR_EQUAL) }
-            <*> "/=" { RET(TK_SLASH_EQUAL) }
-            <*> "%=" { RET(TK_PERCENT_EQUAL) }
-            <*> "&=" { RET(TK_AMPER_EQUAL) }
-            <*> "|=" { RET(TK_VBAR_EQUAL) }
-            <*> "^=" { RET(TK_CARET_EQUAL) }
-            <*> "@=" { RET(TK_ATEQUAL) }
-            <*> "->" { RET(TK_RARROW) }
-            <*> ":=" { RET(TK_COLONEQUAL) }
-            <*> "..." { RET(TK_ELLIPSIS) }
-            <*> "<<=" { RET(TK_LEFTSHIFT_EQUAL) }
-            <*> ">>=" { RET(TK_RIGHTSHIFT_EQUAL) }
-            <*> "**=" { RET(TK_POW_EQUAL) }
-            <*> "//=" { RET(TK_DOUBLESLASH_EQUAL) }
+            ">>" { RET(TK_RIGHTSHIFT) }
+            "<<" { RET(TK_LEFTSHIFT) }
+            "**" { RET(TK_POW) }
+            "//" { RET(TK_FLOOR_DIV) }
+            "+=" { RET(TK_PLUS_EQUAL) }
+            "-=" { RET(TK_MIN_EQUAL) }
+            "*=" { RET(TK_STAR_EQUAL) }
+            "/=" { RET(TK_SLASH_EQUAL) }
+            "%=" { RET(TK_PERCENT_EQUAL) }
+            "&=" { RET(TK_AMPER_EQUAL) }
+            "|=" { RET(TK_VBAR_EQUAL) }
+            "^=" { RET(TK_CARET_EQUAL) }
+            "@=" { RET(TK_ATEQUAL) }
+            "->" { RET(TK_RARROW) }
+            ":=" { RET(TK_COLONEQUAL) }
+            "..." { RET(TK_ELLIPSIS) }
+            "<<=" { RET(TK_LEFTSHIFT_EQUAL) }
+            ">>=" { RET(TK_RIGHTSHIFT_EQUAL) }
+            "**=" { RET(TK_POW_EQUAL) }
+            "//=" { RET(TK_DOUBLESLASH_EQUAL) }
 
             // Relational operators
-            <*> "=="   { RET(TK_EQ) }
-            <*> "!="   { RET(TK_NE) }
-            <*> "<"    { RET(TK_LT) }
-            <*> "<="   { RET(TK_LE) }
-            <*> ">"    { RET(TK_GT) }
-            <*> ">="   { RET(TK_GE) }
+            "=="   { RET(TK_EQ) }
+            "!="   { RET(TK_NE) }
+            "<"    { RET(TK_LT) }
+            "<="   { RET(TK_LE) }
+            ">"    { RET(TK_GT) }
+            ">="   { RET(TK_GE) }
 
             // Logical operators
-            <*> "not"  { RET(TK_NOT) }
-            <*> "and"  { RET(TK_AND) }
-            <*> "or"   { RET(TK_OR) }
-            <*> "is" whitespace "not" whitespace { RET(TK_IS_NOT) }
-            <*> "is" whitespace? "\\" newline whitespace? "not" whitespace { RET(TK_IS_NOT) }
-            <*> "not" whitespace "in" "\\" newline { RET(TK_NOT_IN) }
-            <*> "not" whitespace "in" whitespace { RET(TK_NOT_IN) }
-            <*> "not" whitespace "in" newline { RET(TK_NOT_IN) }
-            <*> "not" whitespace? "\\" newline whitespace? "in" "\\" newline { RET(TK_NOT_IN) }
-            <*> "not" whitespace? "\\" newline whitespace? "in" whitespace { RET(TK_NOT_IN) }
+            "not"  { RET(TK_NOT) }
+            "and"  { RET(TK_AND) }
+            "or"   { RET(TK_OR) }
+            "is" whitespace "not" whitespace { RET(TK_IS_NOT) }
+            "is" whitespace? "\\" newline whitespace? "not" whitespace { RET(TK_IS_NOT) }
+            "not" whitespace "in" "\\" newline { RET(TK_NOT_IN) }
+            "not" whitespace "in" whitespace { RET(TK_NOT_IN) }
+            "not" whitespace "in" newline { RET(TK_NOT_IN) }
+            "not" whitespace? "\\" newline whitespace? "in" "\\" newline { RET(TK_NOT_IN) }
+            "not" whitespace? "\\" newline whitespace? "in" whitespace { RET(TK_NOT_IN) }
 
             // True/False
 
-            <*> "True" { RET(TK_TRUE) }
-            <*> "False" { RET(TK_FALSE) }
+            "True" { RET(TK_TRUE) }
+            "False" { RET(TK_FALSE) }
 
-            <*> real {
+            real {
                 yylval.f = std::strtod(remove_underscore(token()).c_str(), 0);
                 RET(TK_REAL)
             }
-            <*> integer {
+            integer {
                 BigInt::BigInt n;
                 token_loc(loc);
                 lex_int(al, tok, cur, n, loc);
                 yylval.n = n.n;
                 RET(TK_INTEGER)
             }
-            <*> imag_number {
+            imag_number {
                 yylval.f = std::strtod(remove_underscore(token()).c_str(), 0);
                 RET(TK_IMAG_NUM)
             }
 
-            <*> type_ignore {
+            type_ignore {
                 if (last_token == yytokentype::TK_COLON && !parenlevel) {
                     indent = true;
                 }
@@ -633,7 +604,7 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc, diag::Diagnost
                 return yytokentype::TK_TYPE_IGNORE;
             }
 
-            <*> type_comment {
+            type_comment {
                 if (last_token == yytokentype::TK_COLON && !parenlevel) {
                     indent = true;
                 }
@@ -642,7 +613,7 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc, diag::Diagnost
                 return yytokentype::TK_TYPE_COMMENT;
             }
 
-            <*> comment {
+            comment {
                 if(last_token == -1) { RET(TK_COMMENT); }
                 if(parenlevel) { continue; }
                 line_num++; cur_line=cur;
@@ -663,14 +634,103 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc, diag::Diagnost
             }
             //docstring { RET(TK_DOCSTRING) }
 
-            <*> string1 { token_str(yylval.string); RET(TK_STRING) }
-            <*> string2 { token_str(yylval.string); RET(TK_STRING) }
-            <*> string3 { token_str3(yylval.string); RET(TK_STRING) }
-            <*> string4 { token_str3(yylval.string); RET(TK_STRING) }
+            string1 { token_str(yylval.string); RET(TK_STRING) }
+            string2 { token_str(yylval.string); RET(TK_STRING) }
+            string3 { token_str3(yylval.string); RET(TK_STRING) }
+            string4 { token_str3(yylval.string); RET(TK_STRING) }
 
-            <*> name { token(yylval.string); RET(TK_NAME) }
+            name { token(yylval.string); RET(TK_NAME) }
         */
     }
+}
+
+int Tokenizer::lex_fstring(Location &loc, unsigned char * &cur, YYSTYPE &yylval){ 
+    unsigned char *mar;
+
+    /*!re2c
+        re2c:define:YYCURSOR = cur;
+        re2c:define:YYMARKER = mar;
+        re2c:yyfill:enable = 0;
+        re2c:define:YYCTYPE = "unsigned char";
+
+        //fstring_format1 = ('\\'[^\x00{}] | [^"\x00\n\\{}])*;
+        //fstring_format2 = ( "\\"[^\x00{}]
+        //                | ("'" | "'" "\\"+ "'" | "'" "\\"+) [^'\x00\\{}]
+        //                | ("''" | "''" "\\"+) [^'\x00\\{}]
+        //                | [^'\x00\\{}] )*;        
+    */
+    switch(fstring_flag){
+        case 1: goto fstring1;
+        case 2: goto fstring2;
+        case 3: goto fstring3;
+        case 4: goto fstring4;
+        default: return -1;
+    }
+fstring1:
+    /*!re2c
+        fstring_middle1 = fstring_format1 "{";
+        fstring_end1 = fstring_format1 '"';
+        
+        fstring_middle1 {
+            token_loc(loc);
+            token_str(yylval.string);
+            RET(TK_FSTRING_MIDDLE)
+        }
+        fstring_end1 { token_loc(loc); fstring_flag = 0; token(yylval.string); RET(TK_FSTRING_END) }
+        * { goto default_rule; }
+    */
+fstring2:   
+    /*!re2c
+        fstring_middle2 = fstring_format2 "{";
+        fstring_end2 = fstring_format2 "'";
+        fstring_middle2 {
+            token_loc(loc);
+            token_str(yylval.string);
+            RET(TK_FSTRING_MIDDLE)
+        }
+        fstring_end2 { token_loc(loc); fstring_flag = 0; token(yylval.string); RET(TK_FSTRING_END) }
+        * { goto default_rule; }
+    */
+fstring3:
+    /*!re2c
+        fstring_middle3 = fstring_format3 "{";
+        fstring_end3 = fstring_format3 '"""';
+        fstring_middle3 {
+            token_loc(loc);
+            token_str(yylval.string);
+            RET(TK_FSTRING_MIDDLE)
+        }
+        fstring_end3 { token_loc(loc); fstring_flag = 0; token(yylval.string); RET(TK_FSTRING_END) }
+        * { goto default_rule; }
+    */
+fstring4:
+    /*!re2c
+        fstring_middle4 = fstring_format4 "{";
+        fstring_end4 = fstring_format4 "'''";
+        fstring_middle4 {
+            token_loc(loc);
+            token_str(yylval.string);
+            RET(TK_FSTRING_MIDDLE)
+        }
+        fstring_end4 { token_loc(loc); fstring_flag = 0; token(yylval.string); RET(TK_FSTRING_END) }
+        * { goto default_rule; }
+    */
+default_rule:
+    /*!re2c
+    * {
+        token_loc(loc);
+        std::string t = std::string((char *)tok, cur - tok);
+        throw parser_local::TokenizerError("Token '"
+            + t + "' is not recognized in `fstring` statement", loc);
+    }
+    end {
+        token_loc(loc);
+        std::string t = std::string((char *)tok, cur - tok);
+        throw parser_local::TokenizerError(
+            "End of file not expected within `fstring` statement: '" + t
+            + "'", loc);
+    }
+    */
 }
 
 void Tokenizer::lex_match_or_case(Location &loc, unsigned char *cur,
@@ -864,7 +924,6 @@ Result<std::vector<int>> tokens(Allocator &al, const std::string &input,
     t.set_string(input, 0);
     std::vector<int> tst;
     int token = yytokentype::END_OF_FILE + 1; // Something different from EOF
-    t.cond = yycinit;
     while (token != yytokentype::END_OF_FILE) {
         YYSTYPE y;
         Location l;

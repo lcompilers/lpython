@@ -15,7 +15,7 @@ python src/libasr/asdl_cpp.py src/libasr/ASR.asdl src/libasr/asr.h
 python src/libasr/wasm_instructions_visitor.py
 
 # Generate the tokenizer and parser
-(cd src/lpython/parser && re2c -W -b -c tokenizer.re -o tokenizer.cpp)
+(cd src/lpython/parser && re2c -W -b tokenizer.re -o tokenizer.cpp)
 (cd src/lpython/parser && bison -Wall -d -r all parser.yy)
 
 python -c "file = 'src/lpython/parser/parser.tab.cc'

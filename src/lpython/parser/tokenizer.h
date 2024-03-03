@@ -20,7 +20,7 @@ public:
     uint32_t prev_loc; // The previous file ended at this location.
 
     int last_token=-1;
-    int cond; // variable to store re2c conditions
+    int fstring_flag = 0;
     bool indent = false; // Next line is expected to be indented
     int dedent = 0; // Allowed values: 0, 1, 2, see the code below the meaning of this state variable
     bool colon_actual_last_token = false; // If the actual last token was a colon
@@ -79,6 +79,7 @@ public:
 
     void lex_match_or_case(Location &loc, unsigned char *cur,
         bool &is_match_or_case_keyword);
+    int lex_fstring(Location &loc, unsigned char * &cur, YYSTYPE &yylval);
 };
 
 std::string token2text(const int token);

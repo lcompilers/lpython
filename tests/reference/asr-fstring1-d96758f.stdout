@@ -1,0 +1,522 @@
+(TranslationUnit
+    (SymbolTable
+        1
+        {
+            __main__:
+                (Module
+                    (SymbolTable
+                        2
+                        {
+                            __main__global_stmts:
+                                (Function
+                                    (SymbolTable
+                                        3
+                                        {
+                                            
+                                        })
+                                    __main__global_stmts
+                                    (FunctionType
+                                        []
+                                        ()
+                                        Source
+                                        Implementation
+                                        ()
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .false.
+                                        []
+                                        .false.
+                                    )
+                                    []
+                                    []
+                                    [(Print
+                                        [(StringConcat
+                                            (StringConcat
+                                                (StringConstant
+                                                    ""
+                                                    (Character 1 0 ())
+                                                )
+                                                (StringConcat
+                                                    (StringConcat
+                                                        (Cast
+                                                            (Var 2 b)
+                                                            IntegerToCharacter
+                                                            (Character 1 -2 ())
+                                                            ()
+                                                        )
+                                                        (StringConstant
+                                                            " + 1 = "
+                                                            (Character 1 7 ())
+                                                        )
+                                                        (Character 1 5 ())
+                                                        ()
+                                                    )
+                                                    (Cast
+                                                        (Var 2 c)
+                                                        IntegerToCharacter
+                                                        (Character 1 -2 ())
+                                                        ()
+                                                    )
+                                                    (Character 1 3 ())
+                                                    ()
+                                                )
+                                                (Character 1 3 ())
+                                                ()
+                                            )
+                                            (StringConstant
+                                                ""
+                                                (Character 1 0 ())
+                                            )
+                                            (Character 1 3 ())
+                                            ()
+                                        )]
+                                        ()
+                                        ()
+                                    )
+                                    (Print
+                                        [(StringConcat
+                                            (StringConcat
+                                                (StringConstant
+                                                    "Say something! "
+                                                    (Character 1 15 ())
+                                                )
+                                                (Var 2 a)
+                                                (Character 1 13 ())
+                                                ()
+                                            )
+                                            (StringConstant
+                                                ""
+                                                (Character 1 0 ())
+                                            )
+                                            (Character 1 13 ())
+                                            ()
+                                        )]
+                                        ()
+                                        ()
+                                    )
+                                    (Print
+                                        [(StringConcat
+                                            (StringConcat
+                                                (StringConstant
+                                                    "do some calculation: "
+                                                    (Character 1 21 ())
+                                                )
+                                                (Cast
+                                                    (IntegerBinOp
+                                                        (IntegerBinOp
+                                                            (Var 2 b)
+                                                            Mul
+                                                            (IntegerConstant 7 (Integer 4))
+                                                            (Integer 4)
+                                                            ()
+                                                        )
+                                                        Add
+                                                        (Var 2 c)
+                                                        (Integer 4)
+                                                        ()
+                                                    )
+                                                    IntegerToCharacter
+                                                    (Character 1 -2 ())
+                                                    ()
+                                                )
+                                                (Character 1 19 ())
+                                                ()
+                                            )
+                                            (StringConstant
+                                                ""
+                                                (Character 1 0 ())
+                                            )
+                                            (Character 1 19 ())
+                                            ()
+                                        )]
+                                        ()
+                                        ()
+                                    )
+                                    (Print
+                                        [(StringConcat
+                                            (StringConcat
+                                                (StringConcat
+                                                    (StringConstant
+                                                        "9..."
+                                                        (Character 1 4 ())
+                                                    )
+                                                    (StringConstant
+                                                        ""
+                                                        (Character 1 0 ())
+                                                    )
+                                                    (Character 1 4 ())
+                                                    (StringConstant
+                                                        "9..."
+                                                        (Character 1 4 ())
+                                                    )
+                                                )
+                                                (StringConcat
+                                                    (StringConcat
+                                                        (Cast
+                                                            (Var 2 b)
+                                                            IntegerToCharacter
+                                                            (Character 1 -2 ())
+                                                            ()
+                                                        )
+                                                        (StringConstant
+                                                            "..."
+                                                            (Character 1 3 ())
+                                                        )
+                                                        (Character 1 1 ())
+                                                        ()
+                                                    )
+                                                    (Cast
+                                                        (Var 2 c)
+                                                        IntegerToCharacter
+                                                        (Character 1 -2 ())
+                                                        ()
+                                                    )
+                                                    (Character 1 -1 ())
+                                                    ()
+                                                )
+                                                (Character 1 3 ())
+                                                ()
+                                            )
+                                            (StringConstant
+                                                ""
+                                                (Character 1 0 ())
+                                            )
+                                            (Character 1 3 ())
+                                            ()
+                                        )]
+                                        ()
+                                        ()
+                                    )
+                                    (Print
+                                        [(StringConcat
+                                            (StringConcat
+                                                (StringConcat
+                                                    (StringConstant
+                                                        ""
+                                                        (Character 1 0 ())
+                                                    )
+                                                    (StringConcat
+                                                        (StringConcat
+                                                            (Cast
+                                                                (Var 2 b)
+                                                                IntegerToCharacter
+                                                                (Character 1 -2 ())
+                                                                ()
+                                                            )
+                                                            (StringConstant
+                                                                "..."
+                                                                (Character 1 3 ())
+                                                            )
+                                                            (Character 1 1 ())
+                                                            ()
+                                                        )
+                                                        (Cast
+                                                            (Var 2 c)
+                                                            IntegerToCharacter
+                                                            (Character 1 -2 ())
+                                                            ()
+                                                        )
+                                                        (Character 1 -1 ())
+                                                        ()
+                                                    )
+                                                    (Character 1 -1 ())
+                                                    ()
+                                                )
+                                                (StringConstant
+                                                    "..."
+                                                    (Character 1 3 ())
+                                                )
+                                                (Character 1 2 ())
+                                                ()
+                                            )
+                                            (StringConstant
+                                                "12"
+                                                (Character 1 2 ())
+                                            )
+                                            (Character 1 4 ())
+                                            ()
+                                        )]
+                                        ()
+                                        ()
+                                    )
+                                    (Print
+                                        [(StringConcat
+                                            (StringConcat
+                                                (StringConcat
+                                                    (StringConcat
+                                                        (StringConcat
+                                                            (StringConstant
+                                                                ""
+                                                                (Character 1 0 ())
+                                                            )
+                                                            (Cast
+                                                                (Var 2 b)
+                                                                IntegerToCharacter
+                                                                (Character 1 -2 ())
+                                                                ()
+                                                            )
+                                                            (Character 1 -2 ())
+                                                            ()
+                                                        )
+                                                        (StringConstant
+                                                            " "
+                                                            (Character 1 1 ())
+                                                        )
+                                                        (Character 1 -1 ())
+                                                        ()
+                                                    )
+                                                    (StringConstant
+                                                        ""
+                                                        (Character 1 0 ())
+                                                    )
+                                                    (Character 1 -1 ())
+                                                    ()
+                                                )
+                                                (Cast
+                                                    (Var 2 c)
+                                                    IntegerToCharacter
+                                                    (Character 1 -2 ())
+                                                    ()
+                                                )
+                                                (Character 1 -3 ())
+                                                ()
+                                            )
+                                            (StringConstant
+                                                ""
+                                                (Character 1 0 ())
+                                            )
+                                            (Character 1 -3 ())
+                                            ()
+                                        )]
+                                        ()
+                                        ()
+                                    )
+                                    (Print
+                                        [(StringConcat
+                                            (StringConcat
+                                                (StringConstant
+                                                    "Hello! "
+                                                    (Character 1 7 ())
+                                                )
+                                                (Var 2 a)
+                                                (Character 1 5 ())
+                                                ()
+                                            )
+                                            (StringConstant
+                                                ""
+                                                (Character 1 0 ())
+                                            )
+                                            (Character 1 5 ())
+                                            ()
+                                        )]
+                                        ()
+                                        ()
+                                    )
+                                    (Print
+                                        [(StringConcat
+                                            (StringConcat
+                                                (StringConstant
+                                                    "\n Something fun! "
+                                                    (Character 1 17 ())
+                                                )
+                                                (StringRepeat
+                                                    (Var 2 a)
+                                                    (IntegerConstant 2 (Integer 4))
+                                                    (Character 1 0 ())
+                                                    ()
+                                                )
+                                                (Character 1 17 ())
+                                                ()
+                                            )
+                                            (StringConstant
+                                                "\n"
+                                                (Character 1 1 ())
+                                            )
+                                            (Character 1 18 ())
+                                            ()
+                                        )]
+                                        ()
+                                        ()
+                                    )
+                                    (Print
+                                        [(StringConcat
+                                            (StringConcat
+                                                (StringConstant
+                                                    "\n Something fun! "
+                                                    (Character 1 17 ())
+                                                )
+                                                (Cast
+                                                    (Var 2 c)
+                                                    IntegerToCharacter
+                                                    (Character 1 -2 ())
+                                                    ()
+                                                )
+                                                (Character 1 15 ())
+                                                ()
+                                            )
+                                            (StringConstant
+                                                "\n"
+                                                (Character 1 1 ())
+                                            )
+                                            (Character 1 16 ())
+                                            ()
+                                        )]
+                                        ()
+                                        ()
+                                    )
+                                    (Print
+                                        [(StringConcat
+                                            (StringConcat
+                                                (StringConstant
+                                                    "Hello World "
+                                                    (Character 1 12 ())
+                                                )
+                                                (StringConcat
+                                                    (StringConcat
+                                                        (Cast
+                                                            (Var 2 b)
+                                                            IntegerToCharacter
+                                                            (Character 1 -2 ())
+                                                            ()
+                                                        )
+                                                        (StringConstant
+                                                            " "
+                                                            (Character 1 1 ())
+                                                        )
+                                                        (Character 1 -1 ())
+                                                        ()
+                                                    )
+                                                    (Cast
+                                                        (Var 2 c)
+                                                        IntegerToCharacter
+                                                        (Character 1 -2 ())
+                                                        ()
+                                                    )
+                                                    (Character 1 -3 ())
+                                                    ()
+                                                )
+                                                (Character 1 9 ())
+                                                ()
+                                            )
+                                            (StringConstant
+                                                ""
+                                                (Character 1 0 ())
+                                            )
+                                            (Character 1 9 ())
+                                            ()
+                                        )]
+                                        ()
+                                        ()
+                                    )
+                                    (Print
+                                        [(StringConstant
+                                            "LEFT RIGHT"
+                                            (Character 1 10 ())
+                                        )]
+                                        ()
+                                        ()
+                                    )
+                                    (Print
+                                        [(StringConstant
+                                            "THIS THAT"
+                                            (Character 1 9 ())
+                                        )]
+                                        ()
+                                        ()
+                                    )]
+                                    ()
+                                    Public
+                                    .false.
+                                    .false.
+                                    ()
+                                ),
+                            a:
+                                (Variable
+                                    2
+                                    a
+                                    []
+                                    Local
+                                    (StringConstant
+                                        "FooBar"
+                                        (Character 1 6 ())
+                                    )
+                                    (StringConstant
+                                        "FooBar"
+                                        (Character 1 6 ())
+                                    )
+                                    Default
+                                    (Character 1 -2 ())
+                                    ()
+                                    Source
+                                    Public
+                                    Required
+                                    .false.
+                                ),
+                            b:
+                                (Variable
+                                    2
+                                    b
+                                    []
+                                    Local
+                                    (IntegerConstant 10 (Integer 4))
+                                    (IntegerConstant 10 (Integer 4))
+                                    Default
+                                    (Integer 4)
+                                    ()
+                                    Source
+                                    Public
+                                    Required
+                                    .false.
+                                ),
+                            c:
+                                (Variable
+                                    2
+                                    c
+                                    []
+                                    Local
+                                    (IntegerConstant 11 (Integer 4))
+                                    (IntegerConstant 11 (Integer 4))
+                                    Default
+                                    (Integer 4)
+                                    ()
+                                    Source
+                                    Public
+                                    Required
+                                    .false.
+                                )
+                        })
+                    __main__
+                    []
+                    .false.
+                    .false.
+                ),
+            main_program:
+                (Program
+                    (SymbolTable
+                        4
+                        {
+                            __main__global_stmts:
+                                (ExternalSymbol
+                                    4
+                                    __main__global_stmts
+                                    2 __main__global_stmts
+                                    __main__
+                                    []
+                                    __main__global_stmts
+                                    Public
+                                )
+                        })
+                    main_program
+                    [__main__]
+                    [(SubroutineCall
+                        4 __main__global_stmts
+                        2 __main__global_stmts
+                        []
+                        ()
+                    )]
+                )
+        })
+    []
+)

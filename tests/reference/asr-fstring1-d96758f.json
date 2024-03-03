@@ -1,0 +1,13 @@
+{
+    "basename": "asr-fstring1-d96758f",
+    "cmd": "lpython --show-asr --no-color {infile} -o {outfile}",
+    "infile": "tests/fstring1.py",
+    "infile_hash": "ddceb6a09b5bc556ae8d2db18908c8f60af3ee96cc971bed1f5f9ae9",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "asr-fstring1-d96758f.stdout",
+    "stdout_hash": "c19f804850e02097002f4c40c7a990738d19f28aed1486010de3ee2b",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}

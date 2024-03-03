@@ -143,6 +143,12 @@ llvm = true
 llvm_dbg = true
 
 [[test]]
+filename = "fstring1.py"
+ast = true
+asr = true
+run = true 
+
+[[test]]
 filename = "../integration_tests/array_01_decl.py"
 asr = true
 

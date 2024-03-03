@@ -14,5 +14,6 @@ print(rF"""
 print(Fr'''
  Something fun! {c}
 ''')
+print(F"""Hello World {b} {c}""")
 print(r"LEFT " f"RIGHT")
 print(f"THIS " r"THAT")

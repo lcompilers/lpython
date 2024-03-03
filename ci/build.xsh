@@ -36,7 +36,7 @@ python grammar/asdl_py.py
 python src/libasr/wasm_instructions_visitor.py
 
 # Generate the tokenizer and parser
-pushd src/lpython/parser && re2c -W -b -c tokenizer.re -o tokenizer.cpp && popd
+pushd src/lpython/parser && re2c -W -b tokenizer.re -o tokenizer.cpp && popd
 pushd src/lpython/parser && bison -Wall -d -r all parser.yy && popd
 
 $lpython_version=$(cat version).strip()
