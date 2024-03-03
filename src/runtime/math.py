@@ -539,17 +539,73 @@ def trunc(x: f32) -> i32:
     else:
         return ceil(x)
 
+@overload
+def sqrt(x: f32) -> f64:
+    """
+    Returns cube root of a number x
+    """
+    y : f64
+    y = f64(x)
+    return y**(1/2)
+
+@overload
 def sqrt(x: f64) -> f64:
     """
-    Returns square root of a number x
+    Returns cube root of a number x
     """
     return x**(1/2)
 
+@overload
+def sqrt(x: i32) -> f64:
+    """
+    Returns cube root of a number x
+    """
+    y : f64
+    y = float(x)
+    return y**(1/2)
+
+@overload
+def sqrt(x: i64) -> f64:
+    """
+    Returns cube root of a number x
+    """
+    y : f64
+    y = float(x)
+    return y**(1/2)
+
+@overload
+def cbrt(x: f32) -> f64:
+    """
+    Returns cube root of a number x
+    """
+    y : f64
+    y = f64(x)
+    return y**(1/3)
+
+@overload
 def cbrt(x: f64) -> f64:
     """
     Returns cube root of a number x
     """
     return x**(1/3)
+
+@overload
+def cbrt(x: i32) -> f64:
+    """
+    Returns cube root of a number x
+    """
+    y : f64
+    y = float(x)
+    return y**(1/3)
+
+@overload
+def cbrt(x: i64) -> f64:
+    """
+    Returns cube root of a number x
+    """
+    y : f64
+    y = float(x)
+    return y**(1/3)
 
 @ccall
 def _lfortran_dsin(x: f64) -> f64:
