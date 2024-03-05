@@ -5,6 +5,7 @@ Traceback (most recent call last):
 [2m  File "[0m[1m[35m$DIR/src/bin/lpython.cpp[39m[0m[2m", line 233[0m
     std::cout << LCompilers::pickle(*asr, compiler_options.use_colors,
 [2m  File "[0m[1m[35m$DIR/src/lpython/semantics/python_ast_to_asr.cpp[39m[0m[2m", line 7912[0m
+    throw SemanticError("sizeof only accepts one argument, found " +
 [2m  File "[0m[1m[35m$DIR/src/lpython/semantics/python_ast_to_asr.cpp[39m[0m[2m", line 4589[0m
     }
 [2m  File "[0m[1m[35m$DIR/src/lpython/semantics/python_ast_to_asr.cpp[39m[0m[2m", line 3911[0m
