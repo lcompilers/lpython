@@ -9,16 +9,18 @@ using LCompilers::ASR::down_cast;
 namespace LCompilers {
 
 enum Precedence {
-    Exp = 15,
-    Pow = 15,
-    UnaryMinus = 14,
-    Mul = 13,
-    Div = 13,
+    Or = 4,
+    And = 5,
+    Not = 6,
+    CmpOp = 7,
     Add = 12,
     Sub = 12,
-    CmpOp = 7,
-    And = 5,
-    Or = 4,
+    Mul = 13,
+    Div = 13,
+    BitNot = 14,
+    UnaryMinus = 14,
+    Exp = 15,
+    Pow = 15,
 };
 
 class ASRToLpythonVisitor : public ASR::BaseVisitor<ASRToLpythonVisitor>
@@ -161,8 +163,7 @@ public:
                 }
                 break;
             } case ASR::ttypeType::Character : {
-                r = "utf";
-                r += std::to_string(down_cast<ASR::Character_t>(t)->m_kind);
+                r = "str";
                 break;
             } case ASR::ttypeType::Logical : {
                 r = "bool";
@@ -406,6 +407,18 @@ public:
         s = std::to_string(x.m_n);
     }
 
+    void visit_IntegerUnaryMinus(const ASR::IntegerUnaryMinus_t &x) {
+        visit_expr_with_precedence(*x.m_arg, 14);
+        s =  "-" + s;
+        last_expr_precedence = Precedence::UnaryMinus;
+    }
+
+    void visit_IntegerBitNot(const ASR::IntegerBitNot_t &x) {
+        visit_expr_with_precedence(*x.m_arg, 14);
+        s = "~" + s;
+        last_expr_precedence = Precedence::BitNot;
+    }
+
     void visit_RealConstant(const ASR::RealConstant_t &x) {
         s = std::to_string(x.m_r);
     }
@@ -420,6 +433,12 @@ public:
        r += s;
        r += ")";
        s = r;
+    }
+
+    void visit_RealUnaryMinus(const ASR::RealUnaryMinus_t &x) {
+        visit_expr_with_precedence(*x.m_arg, 14);
+        s =  "-" + s;
+        last_expr_precedence = Precedence::UnaryMinus;
     }
 
     void visit_LogicalConstant(const ASR::LogicalConstant_t &x) {
@@ -455,6 +474,53 @@ public:
        r += s;
        r += ")";
        s = r;
+    }
+
+    void visit_LogicalNot(const ASR::LogicalNot_t &x) {
+        visit_expr_with_precedence(*x.m_arg, 6);
+        s = "not " + s;
+        last_expr_precedence = Precedence::Not;
+    }
+
+    void visit_StringConcat(const ASR::StringConcat_t &x) {
+        this->visit_expr(*x.m_left);
+        std::string left = std::move(s);
+        this->visit_expr(*x.m_right);
+        std::string right = std::move(s);
+        s = left + " + " + right;
+    }
+
+    void visit_StringRepeat(const ASR::StringRepeat_t &x) {
+        this->visit_expr(*x.m_left);
+        std::string left = std::move(s);
+        this->visit_expr(*x.m_right);
+        std::string right = std::move(s);
+        s = left + " * " + right;
+    }
+
+    void visit_IfExp(const ASR::IfExp_t &x) {
+        std::string r;
+        visit_expr(*x.m_body);
+        r += s;
+        r += " if ";
+        visit_expr(*x.m_test);
+        r += s;
+        r += " else ";
+        visit_expr(*x.m_orelse);
+        r += s;
+        s = r;
+    }
+
+    void visit_ComplexConstant(const ASR::ComplexConstant_t &x) {
+        std::string re = std::to_string(x.m_re);
+        std::string im = std::to_string(x.m_im);
+        s = "complex(" + re + ", " + im + ")";
+    }
+
+    void visit_ComplexUnaryMinus(const ASR::ComplexUnaryMinus_t &x) {
+        visit_expr_with_precedence(*x.m_arg, 14);
+        s = "-" + s;
+        last_expr_precedence = Precedence::UnaryMinus;
     }
 };
 

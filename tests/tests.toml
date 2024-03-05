@@ -74,12 +74,14 @@ filename = "expr5.py"
 ast = true
 asr = true
 cpp = true
+python = true
 
 [[test]]
 filename = "expr6.py"
 ast = true
 asr = true
 cpp = true
+python = true
 
 [[test]]
 filename = "expr7.py"
@@ -111,6 +113,7 @@ asr = true
 filename = "expr11.py"
 ast = true
 asr = true
+python = true
 
 [[test]]
 filename = "expr12.py"

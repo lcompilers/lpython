@@ -1,0 +1,13 @@
+{
+    "basename": "python-expr5-dee0e5c",
+    "cmd": "lpython --no-color --show-python {infile}",
+    "infile": "tests/expr5.py",
+    "infile_hash": "7bbb5f9dacb13556f99de8f2969f9089235fea372fc2f43fc9c4bb18",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "python-expr5-dee0e5c.stdout",
+    "stdout_hash": "cef56dbae8b4efd362ea96bcbdc080667fd46930c1d7cfbca92bbe8e",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}

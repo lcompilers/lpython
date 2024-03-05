@@ -1,0 +1,13 @@
+{
+    "basename": "python-expr11-e6681c8",
+    "cmd": "lpython --no-color --show-python {infile}",
+    "infile": "tests/expr11.py",
+    "infile_hash": "940f2d32759315dfb8d54ea50819f2bfef9737e486615703609fd47a",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "python-expr11-e6681c8.stdout",
+    "stdout_hash": "ed9438b7349f462f0de6fa7a1035c7266187fb4a2455f6fc83f029e8",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}
