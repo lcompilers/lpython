@@ -250,7 +250,6 @@ public:
 
         visit_body(x, r, true);
 
-        r += "\n";
         s = r;
     }
 
@@ -261,7 +260,6 @@ public:
             if (is_a<ASR::Function_t>(*item.second)) {
                 visit_symbol(*item.second);
                 r += s;
-                r += "\n";
             }
         }
 

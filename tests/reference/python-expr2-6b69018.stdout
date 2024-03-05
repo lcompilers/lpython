@@ -11,4 +11,3 @@ def test_boolOp():
     a = b or b
 
 
-
