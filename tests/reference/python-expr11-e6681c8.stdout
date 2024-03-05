@@ -1,10 +1,10 @@
 def test_StrOp_repeat():
     s: str
     s = "a" * 2
-    s = "a" * -1
+    s = "a" * -(1)
     s = "test" * 5
     s = "bb" * 4
-    s = "bb" * -40
+    s = "bb" * -(40)
     s = "a" * 3 * 3
 
 

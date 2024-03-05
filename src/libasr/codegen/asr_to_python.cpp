@@ -21,6 +21,7 @@ enum Precedence {
     UnaryMinus = 14,
     Exp = 15,
     Pow = 15,
+    Constant = 18,
 };
 
 class ASRToLpythonVisitor : public ASR::BaseVisitor<ASRToLpythonVisitor>
@@ -70,16 +71,16 @@ public:
             } case (ASR::binopType::Sub) : {
                 last_expr_precedence = Precedence::Sub;
                 return " - ";
-	    } case (ASR::binopType::Mul) : {
+	        } case (ASR::binopType::Mul) : {
                 last_expr_precedence = Precedence::Mul;
                 return " * ";
-	    } case (ASR::binopType::Div) : {
+	        } case (ASR::binopType::Div) : {
                 last_expr_precedence = Precedence::Div;
                 return " / ";
-	    } case (ASR::binopType::Pow) : {
+	        } case (ASR::binopType::Pow) : {
                 last_expr_precedence = Precedence::Pow;
                 return " ** ";
-	    } default : { 
+	        } default : {
                 throw LCompilersException("Cannot represent the binary operator as a string");
             }
         }
@@ -108,7 +109,7 @@ public:
             } case (ASR::logicalbinopType::Or) : {
                 last_expr_precedence = Precedence::Or;
                 return " or ";
-	    } default : {
+	        } default : {
                 throw LCompilersException("Cannot represent the boolean operator as a string");
             }
         }
@@ -132,35 +133,16 @@ public:
         std::string r = "";
         switch (t->type) {
             case ASR::ttypeType::Integer : {
-                std::string out;
-                out = std::to_string(down_cast<ASR::Integer_t>(t)->m_kind);
-                if (out == "1") {
-                    r += "i8";
-                } else if (out == "2") {
-                    r += "i16";
-                } else if (out == "4") {
-                    r += "i32";
-                } else if (out == "8") {
-                    r += "i64";
-                }
+                r += "i";
+                r += std::to_string(ASRUtils::extract_kind_from_ttype_t(t)*8);
                 break;
             } case ASR::ttypeType::Real : {
-                std::string out;
-                out = std::to_string(down_cast<ASR::Real_t>(t)->m_kind);
-                if (out == "4") {
-                    r += "f32";
-                } else if (out == "8") {
-                    r += "f64";
-                }
+                r += "f";
+                r += std::to_string(ASRUtils::extract_kind_from_ttype_t(t)*8);
                 break;
             } case ASR::ttypeType::Complex : {
-                std::string out;
-                out = std::to_string(down_cast<ASR::Complex_t>(t)->m_kind);
-                if (out == "4") {
-                    r += "c32";
-                } else if (out == "8") {
-                    r += "c64";
-                }
+                r += "c";
+                r += std::to_string(ASRUtils::extract_kind_from_ttype_t(t)*8);
                 break;
             } case ASR::ttypeType::Character : {
                 r = "str";
@@ -168,13 +150,7 @@ public:
             } case ASR::ttypeType::Logical : {
                 r = "bool";
                 break;
-            } case ASR::ttypeType::Array: {
-                r = get_type(down_cast<ASR::Array_t>(t)->m_type);
-                break;
-            } case ASR::ttypeType::Allocatable: {
-                r = get_type(down_cast<ASR::Allocatable_t>(t)->m_type);
-                break;
-	    } default : {
+            } default : {
                 throw LCompilersException("The type `"
                     + ASRUtils::type_to_str_python(t) + "` is not handled yet");
             }
@@ -302,8 +278,18 @@ public:
         s = r;
     }
 
-    void visit_SubroutineCall(const ASR::SubroutineCall_t /*&x*/) {
+    void visit_SubroutineCall(const ASR::SubroutineCall_t &x) {
         std::string r = indent;
+        r += ASRUtils::symbol_name(x.m_name);
+        r += "(";
+        for (size_t i = 0; i < x.n_args; i++) {
+            visit_expr(*x.m_args[i].m_value);
+            r += s;
+            if (i < x.n_args - 1)
+                r += ", ";
+        }
+        r += ")\n";
+        s = r;
     }
 
     void visit_Cast(const ASR::Cast_t &x) {
@@ -317,11 +303,10 @@ public:
 
     void visit_If(const ASR::If_t &x) {
         std::string r = indent;
-        r += "if";
+        r += "if ";
         visit_expr(*x.m_test);
         r += s;
-        r += ":";
-        r += "\n";
+        r += ":\n";
         inc_indent();
         for (size_t i = 0; i < x.n_body; i++) {
             visit_stmt(*x.m_body[i]);
@@ -332,14 +317,43 @@ public:
             r += "\n";
         } else {
             for (size_t i = 0; i < x.n_orelse; i++) {
-                r += "else:";
-                r += "\n";
+                r += indent + "else:\n";
                 inc_indent();
                 visit_stmt(*x.m_orelse[i]);
                 r += s;
                 dec_indent();
+                r += "\n";
             }
-            r += "\n";
+        }
+        s = r;
+    }
+
+    void visit_WhileLoop(const ASR::WhileLoop_t &x) {
+        std::string r = indent;
+        r += "while ";
+        visit_expr(*x.m_test);
+        r += s;
+        r += ":\n";
+        visit_body(x, r);
+        s = r;
+    }
+
+    void visit_NamedExpr(const ASR::NamedExpr_t &x) {
+        this->visit_expr(*x.m_target);
+        std::string t = std::move(s);
+        this->visit_expr(*x.m_value);
+        std::string v = std::move(s);
+        s = "(" + t + " := " + v + ")";
+    }
+
+    void visit_ExplicitDeallocate(const ASR::ExplicitDeallocate_t &x) {
+        std::string r;
+        r = "del ";
+        for (size_t i = 0; i < x.n_vars; i++) {
+            if (i > 0) {
+                r += ", ";
+            }
+            visit_expr(*x.m_vars[i]);
         }
         s = r;
     }
@@ -363,11 +377,13 @@ public:
     void visit_StringCompare(const ASR::StringCompare_t &x) {
         std::string r;
         r = " ";
-        visit_expr(*x.m_left);
+        int current_precedence = last_expr_precedence;
+        visit_expr_with_precedence(*x.m_left, current_precedence);
         r += s;
         r += cmpop2str(x.m_op);
-        visit_expr(*x.m_right);
+        visit_expr_with_precedence(*x.m_right, current_precedence);
         r += s;
+        last_expr_precedence = current_precedence;
         s = r;
     }
 
@@ -392,19 +408,21 @@ public:
 
     void visit_IntegerCompare(const ASR::IntegerCompare_t &x) {
         std::string r;
-        // TODO: Handle precedence based on the last_operator_precedence
         r = "(";
-        visit_expr(*x.m_left);
+        int current_precedence = last_expr_precedence;
+        visit_expr_with_precedence(*x.m_left, current_precedence);
         r += s;
         r += cmpop2str(x.m_op);
-        visit_expr(*x.m_right);
+        visit_expr_with_precedence(*x.m_right, current_precedence);
         r += s;
+        last_expr_precedence = current_precedence;
         r += ")";
         s = r;
     }
 
     void visit_IntegerConstant(const ASR::IntegerConstant_t &x) {
         s = std::to_string(x.m_n);
+        last_expr_precedence = Precedence::Constant;
     }
 
     void visit_IntegerUnaryMinus(const ASR::IntegerUnaryMinus_t &x) {
@@ -421,16 +439,19 @@ public:
 
     void visit_RealConstant(const ASR::RealConstant_t &x) {
         s = std::to_string(x.m_r);
+        last_expr_precedence = Precedence::Constant;
     }
 
     void visit_RealCompare(const ASR::RealCompare_t &x) {
        std::string r;
        r = "(";
-       visit_expr(*x.m_left);
+       int current_precedence = last_expr_precedence;
+       visit_expr_with_precedence(*x.m_left, current_precedence);
        r += s;
        r += cmpop2str(x.m_op);
-       visit_expr(*x.m_right);
+       visit_expr_with_precedence(*x.m_right, current_precedence);
        r += s;
+       last_expr_precedence = current_precedence;
        r += ")";
        s = r;
     }
@@ -467,12 +488,14 @@ public:
     void visit_LogicalCompare(const ASR::LogicalCompare_t &x) {
        std::string r;
        r = "(";
-       visit_expr(*x.m_left);
+       int current_precedence = last_expr_precedence;
+       visit_expr_with_precedence(*x.m_left, current_precedence);
        r += s;
        r += cmpop2str(x.m_op);
-       visit_expr(*x.m_right);
+       visit_expr_with_precedence(*x.m_right, current_precedence);
        r += s;
        r += ")";
+       last_expr_precedence = current_precedence;
        s = r;
     }
 
@@ -496,6 +519,15 @@ public:
         this->visit_expr(*x.m_right);
         std::string right = std::move(s);
         s = left + " * " + right;
+    }
+
+    void visit_StringOrd(const ASR::StringOrd_t &x) {
+        std::string r;
+        r = "ord(";
+        visit_expr(*x.m_arg);
+        r += s;
+        r += ")";
+        s = r;
     }
 
     void visit_IfExp(const ASR::IfExp_t &x) {
