@@ -9,15 +9,16 @@ using LCompilers::ASR::down_cast;
 namespace LCompilers {
 
 enum Precedence {
-    Or = 4,
-    And = 5,
-    CmpOp = 7,
-    Add = 8,
-    Sub = 12,
-    UnaryMinus = 9,
+    Exp = 15,
+    Pow = 15,
+    UnaryMinus = 14,
     Mul = 13,
     Div = 13,
-    Pow = 15,
+    Add = 12,
+    Sub = 12,
+    CmpOp = 7,
+    And = 5,
+    Or = 4,
 };
 
 class ASRToLpythonVisitor : public ASR::BaseVisitor<ASRToLpythonVisitor>
@@ -128,30 +129,29 @@ public:
     std::string get_type(const ASR::ttype_t *t) {
         std::string r = "";
         switch (t->type) {
-            case ASR::ttypeType::Integer : {
-                r = "int(";
+            case ASR::ttypeType::Integer: {
+                r = "i";
                 r += std::to_string(down_cast<ASR::Integer_t>(t)->m_kind);
-                r += ")";
                 break;
-            } case ASR::ttypeType::Complex : {
-                r = "complex(";
+            } case ASR::ttypeType::Real: {
+                r += "f";
+                r += std::to_string(down_cast<ASR::Real_t>(t)->m_kind);
+                break;
+            } case ASR::ttypeType::Complex: {
+                r = "c";
                 r += std::to_string(down_cast<ASR::Complex_t>(t)->m_kind);
-                r += ")";
                 break;
-            } case ASR::ttypeType::Character : {
-                r = "chr(";
+            } case ASR::ttypeType::Character: {
+                r = "utf";
                 r += std::to_string(down_cast<ASR::Character_t>(t)->m_kind);
-                r += ")";
-                break;
-            } case ASR::ttypeType::Logical : {
-                r = "bool(";
+
+                r = "bool ";
                 r += std::to_string(down_cast<ASR::Logical_t>(t)->m_kind);
-                r += ")";
                 break;
-            } case ASR::ttypeType::Array : {
+            } case ASR::ttypeType::Array: {
                 r = get_type(down_cast<ASR::Array_t>(t)->m_type);
                 break;
-            } case ASR::ttypeType::Allocatable : {
+            } case ASR::ttypeType::Allocatable: {
                 r = get_type(down_cast<ASR::Allocatable_t>(t)->m_type);
                 break;
 	    } default : {
@@ -164,15 +164,43 @@ public:
 
     void visit_TranslationUnit(const ASR::TranslationUnit_t &x) {
         std::string r = "";
+
         for (auto &item : x.m_symtab->get_scope()) {
-            if (is_a<ASR::Function_t>(*item.second)) {
+            if (is_a<ASR::Module_t>(*item.second)) {
                 visit_symbol(*item.second);
                 r += s;
+                r += "\n";
             }
         }
 
         for (auto &item : x.m_symtab->get_scope()) {
+            if (is_a<ASR::Function_t>(*item.second)) {
+                visit_symbol(*item.second);
+                r += s;
+                r += "\n";
+            }
+        }
+
+        // Main program
+        for (auto &item : x.m_symtab->get_scope()) {
             if (is_a<ASR::Program_t>(*item.second)) {
+                visit_symbol(*item.second);
+                r += s;
+            }
+        }
+        s = r;
+    }
+
+    void visit_Module(const ASR::Module_t &x) {
+        std::string r;
+        r = x.m_name;
+
+        //std::vector<std::string> func_name;
+        for (auto &item : x.m_symtab->get_scope()) {
+            if (is_a<ASR::Function_t>(*item.second)) {
+                //ASR::Function_t *f = ASR::down_cast<ASR::Function_t>(item.second);
+                //func_name.push_back(item.first);
+                //visit_Function(item.second);
                 visit_symbol(*item.second);
                 r += s;
             }
@@ -190,6 +218,9 @@ public:
         for (size_t i = 0; i < x.n_args; i++) {
             visit_expr(*x.m_args[i]);
             r += s;
+            if (i < x.n_args - 1) {
+                r += ", ";
+            }
         }
         r += "):";
         r += "\n";
@@ -201,19 +232,46 @@ public:
                 r += s;
             }
         }
+        dec_indent();
 
         visit_body(x, r, true);
-        dec_indent();
+
         r += "\n";
         s = r;
     }
 
     void visit_Program(const ASR::Program_t &x) {
         std::string r;
-
+/*
+        r = "if ";
+        r += "__name__";
+        r += " == ";
+        r += "__main__:";
+        r += "\n";
+        r += "    ";
+        r.append(x.m_name);
+        r += "()";
+*/
         // Generate code for nested functions
-        for (auto &item : x.m_symtab->get_scope()) {
+        /*for (auto &item : x.m_symtab->get_scope()) {
             if (is_a<ASR::ExternalSymbol_t>(*item.second)) {
+                visit_symbol(*item.second);
+                r += s;
+            }
+        }*/
+
+        /*std::vector<std::string> var_order = ASRUtils::determine_variable_declaration_order(x.m_symtab);
+        for (auto &item : var_order) {
+            ASR::symbol_t* var_sym = x.m_symtab->get_symbol(item);
+            if (is_a<ASR::Variable_t>(*var_sym)) {
+                visit_symbol(*var_sym);
+                r += s;
+            }
+        }*/
+/*
+        inc_indent();
+        for (auto &item : x.m_symtab->get_scope()) {
+            if (is_a<ASR::Variable_t>(*item.second)) {
                 visit_symbol(*item.second);
                 r += s;
             }
@@ -221,15 +279,17 @@ public:
 
         visit_body(x, r, false);
 
-        // Generate code for main function
-        inc_indent();
+        dec_indent();
+*/
         for (auto &item : x.m_symtab->get_scope()) {
             if (is_a<ASR::Function_t>(*item.second)) {
+                //ASR::Function_t *f = ASR::down_cast<ASR::Function_t>(item.second);
+                //visit_Function(*f);
                 visit_symbol(*item.second);
                 r += s;
+                r += "\n";
             }
         }
-        dec_indent();
 
         r += "\n";
         s = r;
@@ -237,23 +297,17 @@ public:
 
     void visit_Variable(const ASR::Variable_t &x) {
         std::string r = indent;
-        switch (x.m_type->type) {
-            case ASR::ttypeType::Integer: {
-                ASR::Integer_t *i = down_cast<ASR::Integer_t>(x.m_type);
-                r += x.m_name;
-                r += ": ";
-                r += std::to_string(i->m_kind);
-                break;
-            }
-            default:
-                throw LCompilersException("Type not implemented");
-        }
+        r += x.m_name;
+        r += ": ";
+        r += get_type(x.m_type);
+        //r += " : ";
+        //r.append(x.m_name);
         r += "\n";
         s = r;
     }
 
     void visit_Print(const ASR::Print_t &x) {
-        std::string r;
+        std::string r = indent;
         r += "print(";
         for (size_t i = 0; i < x.n_values; i++) {
             visit_expr(*x.m_values[i]);
@@ -290,9 +344,9 @@ public:
         s = ASRUtils::symbol_name(x.m_v);
     }
 
-    void visit_ExternalSymbol(const ASR::ExternalSymbol_t &x) {
+    /*void visit_ExternalSymbol(const ASR::ExternalSymbol_t &x) {
         visit_symbol(*x.m_external);
-    }
+    }*/
 
     void visit_If(const ASR::If_t &x) {
         std::string r = indent;
@@ -323,15 +377,30 @@ public:
         s = r;
     }
 
+    void visit_IntrinsicScalarFunction(const ASR::IntrinsicScalarFunction_t &x) {
+        std::string r;
+        switch (x.m_intrinsic_id) {
+            //SET_INTRINSIC_NAME(Abs, "abs");
+            default : {
+                throw LCompilersException("IntrinsicScalarFunction: `"
+                    + ASRUtils::get_intrinsic_name(x.m_intrinsic_id)
+                    + "` is not implemented");
+            }
+        }
+        LCOMPILERS_ASSERT(x.n_args == 1);
+        visit_expr(*x.m_args[0]);
+        r += "(" + s + ")";
+        s = r;
+    }
+
     void visit_StringCompare(const ASR::StringCompare_t &x) {
         std::string r;
-        r = "(";
+        r = " ";
         visit_expr(*x.m_left);
         r += s;
         r += cmpop2str(x.m_op);
         visit_expr(*x.m_right);
         r += s;
-        r += ")";
         s = r;
     }
 
@@ -375,12 +444,23 @@ public:
         s = std::to_string(x.m_r);
     }
 
+    void visit_RealCompare(const ASR::RealCompare_t &x) {
+       std::string r;
+       r = "(";
+       visit_expr(*x.m_left);
+       r += s;
+       r += cmpop2str(x.m_op);
+       visit_expr(*x.m_right);
+       r += s;
+       r += ")";
+       s = r;
+    }
 };
 
-Result<std::string> asr_to_lpython(Allocator& al, ASR::TranslationUnit_t &asr,
+Result<std::string> asr_to_python(Allocator& al, ASR::TranslationUnit_t &asr,
         diag::Diagnostics& diagnostics, CompilerOptions& co,
         bool color, int indent) {
-    ASRToLpythonVisitor v(al, diagnostics, co, color, indent);
+    ASRToLpythonVisitor v(al, diagnostics, co, color, indent=4);
     try {
         v.visit_TranslationUnit(asr);
     } catch (const CodeGenError &e) {

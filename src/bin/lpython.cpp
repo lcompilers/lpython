@@ -426,7 +426,7 @@ int emit_python(const std::string &infile,
     // ASR -> LPython
     bool color = false;
     int indent = 0;
-    LCompilers::Result<std::string> res = LCompilers::asr_to_lpython(al, *asr, diagnostics, compiler_options, color, indent);
+    LCompilers::Result<std::string> res = LCompilers::asr_to_python(al, *asr, diagnostics, compiler_options, color, indent);
     std::cerr << diagnostics.render(lm, compiler_options);
     if (!res.ok) {
         LCOMPILERS_ASSERT(diagnostics.has_error())
