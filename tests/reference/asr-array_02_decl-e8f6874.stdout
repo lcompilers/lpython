@@ -684,6 +684,7 @@
                                         ()
                                     )
                                     (Print
+                                        ()
                                         [(FunctionCall
                                             2 accept_multidim_i32_array
                                             ()
@@ -709,6 +710,7 @@
                                         ()
                                     )
                                     (Print
+                                        ()
                                         [(FunctionCall
                                             2 accept_multidim_i64_array
                                             ()
@@ -736,6 +738,7 @@
                                         ()
                                     )
                                     (Print
+                                        ()
                                         [(FunctionCall
                                             2 accept_multidim_f32_array
                                             ()
@@ -759,6 +762,7 @@
                                         ()
                                     )
                                     (Print
+                                        ()
                                         [(FunctionCall
                                             2 accept_multidim_f64_array
                                             ()

@@ -188,7 +188,9 @@
                                                 "last_column": 7
                                             }
                                         },
-                                        "dependencies": [],
+                                        "dependencies": [
+                                            "f"
+                                        ],
                                         "args": [],
                                         "body": [
                                             {
@@ -709,7 +711,9 @@
                                                 "last_column": 16
                                             }
                                         },
-                                        "dependencies": [],
+                                        "dependencies": [
+                                            "g"
+                                        ],
                                         "args": [],
                                         "body": [
                                             {
@@ -734,6 +738,7 @@
                                             {
                                                 "node": "Print",
                                                 "fields": {
+                                                    "fmt": [],
                                                     "values": [
                                                         {
                                                             "node": "StringConstant",
@@ -891,6 +896,7 @@
                                             {
                                                 "node": "Print",
                                                 "fields": {
+                                                    "fmt": [],
                                                     "values": [
                                                         {
                                                             "node": "StringConstant",

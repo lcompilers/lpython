@@ -1,0 +1,1 @@
+ld: warning: object file (test_str_01.out.tmp.o) was built for newer macOS version (14.0) than being linked (13.3)

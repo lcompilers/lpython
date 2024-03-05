@@ -1,9 +1,19 @@
-semantic error: The `async` keyword is currently not supported
- --> tests/errors/test_async.py:1:1 - 2:17
-  |
-1 |    async def test_async():
-  |    ^^^^^^^^^^^^^^^^^^^^^^^...
-...
-  |
-2 |        print("done")
-  | ...^^^^^^^^^^^^^^^^^ 
+Internal Compiler Error: Unhandled exception
+Traceback (most recent call last):
+[2m  File "[0m[1m[35m$DIR/src/bin/lpython.cpp[39m[0m[2m", line 1778[0m
+    if (show_ast) {
+[2m  File "[0m[1m[35m$DIR/src/bin/lpython.cpp[39m[0m[2m", line 233[0m
+    std::cout << LCompilers::pickle(*asr, compiler_options.use_colors,
+[2m  File "[0m[1m[35m$DIR/src/lpython/semantics/python_ast_to_asr.cpp[39m[0m[2m", line 7912[0m
+    ASRUtils::type_to_str(type) + " type.", x.base.base.loc);
+[2m  File "[0m[1m[35m$DIR/src/lpython/semantics/python_ast_to_asr.cpp[39m[0m[2m", line 4589[0m
+    }
+[2m  File "[0m[1m[35m$DIR/src/lpython/semantics/python_ast_to_asr.cpp[39m[0m[2m", line 3911[0m
+    ASR::symbol_t *current_module_sym;
+[2m  File "[0m[1m[35m$DIR/src/lpython/python_ast.h[39m[0m[2m", line 1883[0m
+    void visit_stmt(const stmt_t &b) { visit_stmt_t(b, self()); }
+[2m  File "[0m[1m[35m$DIR/src/lpython/python_ast.h[39m[0m[2m", line 1751[0m
+    case stmtType::FunctionDef: { v.visit_FunctionDef((const FunctionDef_t &)x); return; }
+[2m  File "[0m[1m[35m$DIR/src/lpython/python_ast.h[39m[0m[2m", line 1885[0m
+    void visit_AsyncFunctionDef(const AsyncFunctionDef_t & /* x */) { throw LCompilersException("visit_AsyncFunctionDef() not implemented"); }
+LCompilersException: visit_AsyncFunctionDef() not implemented

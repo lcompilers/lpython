@@ -306,6 +306,7 @@
                                         ()
                                     )
                                     (Print
+                                        ()
                                         [(StringConstant
                                             "End Stream Triad"
                                             (Character 1 16 ())

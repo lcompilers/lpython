@@ -90,7 +90,7 @@
                                         []
                                         .false.
                                     )
-                                    []
+                                    [f]
                                     []
                                     [(=
                                         (Var 7 x)
@@ -189,7 +189,7 @@
                                         []
                                         .false.
                                     )
-                                    []
+                                    [g]
                                     []
                                     [(SubroutineCall
                                         3 g
@@ -198,6 +198,7 @@
                                         ()
                                     )
                                     (Print
+                                        ()
                                         [(StringConstant
                                             "f()"
                                             (Character 1 3 ())
@@ -257,6 +258,7 @@
                                     []
                                     []
                                     [(Print
+                                        ()
                                         [(StringConstant
                                             "g()"
                                             (Character 1 3 ())

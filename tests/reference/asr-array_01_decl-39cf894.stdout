@@ -878,6 +878,7 @@
                                         ()
                                     )
                                     (Print
+                                        ()
                                         [(FunctionCall
                                             2 accept_i16_array
                                             ()
@@ -901,6 +902,7 @@
                                         ()
                                     )
                                     (Print
+                                        ()
                                         [(FunctionCall
                                             2 accept_i32_array
                                             ()
@@ -924,6 +926,7 @@
                                         ()
                                     )
                                     (Print
+                                        ()
                                         [(FunctionCall
                                             2 accept_i64_array
                                             ()
@@ -947,6 +950,7 @@
                                         ()
                                     )
                                     (Print
+                                        ()
                                         [(FunctionCall
                                             2 accept_f32_array
                                             ()
@@ -970,6 +974,7 @@
                                         ()
                                     )
                                     (Print
+                                        ()
                                         [(FunctionCall
                                             2 accept_f64_array
                                             ()

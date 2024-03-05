@@ -269,26 +269,31 @@
                                         ()
                                     )
                                     (Print
+                                        ()
                                         [(Var 3 a)]
                                         ()
                                         ()
                                     )
                                     (Print
+                                        ()
                                         [(Var 3 b)]
                                         ()
                                         ()
                                     )
                                     (Print
+                                        ()
                                         [(Var 3 c)]
                                         ()
                                         ()
                                     )
                                     (Print
+                                        ()
                                         [(Var 3 d)]
                                         ()
                                         ()
                                     )
                                     (Print
+                                        ()
                                         [(Var 3 a)
                                         (Var 3 a)
                                         (Var 3 b)
@@ -298,6 +303,7 @@
                                         ()
                                     )
                                     (Print
+                                        ()
                                         [(Var 3 a)
                                         (Var 3 a)
                                         (IntegerConstant 1 (Integer 4))
@@ -312,6 +318,7 @@
                                         ()
                                     )
                                     (Print
+                                        ()
                                         [(ListConstant
                                             [(IntegerUnaryMinus
                                                 (IntegerConstant 3 (Integer 4))
@@ -329,6 +336,7 @@
                                         ()
                                     )
                                     (Print
+                                        ()
                                         [(ListConstant
                                             [(StringConstant
                                                 "a"
@@ -362,6 +370,7 @@
                                         ()
                                     )
                                     (Print
+                                        ()
                                         [(ListConstant
                                             [(IntegerConstant 1 (Integer 4))
                                             (IntegerConstant 2 (Integer 4))
@@ -779,21 +788,25 @@
                                         ()
                                     )
                                     (Print
+                                        ()
                                         [(Var 4 w)]
                                         ()
                                         ()
                                     )
                                     (Print
+                                        ()
                                         [(Var 4 x)]
                                         ()
                                         ()
                                     )
                                     (Print
+                                        ()
                                         [(Var 4 y)]
                                         ()
                                         ()
                                     )
                                     (Print
+                                        ()
                                         [(Var 4 z)]
                                         ()
                                         ()
@@ -2551,16 +2564,19 @@
                                         ()
                                     )
                                     (Print
+                                        ()
                                         [(Var 6 p)]
                                         ()
                                         ()
                                     )
                                     (Print
+                                        ()
                                         [(Var 6 q)]
                                         ()
                                         ()
                                     )
                                     (Print
+                                        ()
                                         [(Var 6 r)]
                                         ()
                                         ()
@@ -2872,12 +2888,14 @@
                                         ()
                                     )
                                     (Print
+                                        ()
                                         [(Var 5 a)
                                         (Var 5 b)]
                                         ()
                                         ()
                                     )
                                     (Print
+                                        ()
                                         [(Var 5 c)
                                         (Var 5 b1)
                                         (Var 5 b2)

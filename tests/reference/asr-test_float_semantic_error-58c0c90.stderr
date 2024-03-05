@@ -1,5 +1,5 @@
-semantic error: float type is not supported yet. 
+semantic error: Unsupported type annotation: float
  --> tests/errors/test_float_semantic_error.py:4:9
   |
 4 |     pi: float = 3.14
-  |         ^^^^^ Hint: Use f32 or f64 for now. 
+  |         ^^^^^ 

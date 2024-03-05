@@ -98,6 +98,7 @@
                                         ()
                                     )
                                     (Print
+                                        ()
                                         [(Cast
                                             (LogicalConstant
                                                 .true.
@@ -288,6 +289,7 @@
                                         ()
                                     )
                                     (Print
+                                        ()
                                         [(Var 4 a)
                                         (Var 4 b)]
                                         ()
@@ -367,6 +369,7 @@
                                     []
                                     [(Var 3 x)]
                                     [(Print
+                                        ()
                                         [(Var 3 x)]
                                         ()
                                         ()

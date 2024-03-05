@@ -1,3 +1,4 @@
+ld: warning: object file (test_quit_01.out.tmp.o) was built for newer macOS version (14.0) than being linked (13.3)
   File "tests/runtime_errors/test_quit_01.py", line 1
     def test():
   File "tests/runtime_errors/test_quit_01.py", line 4

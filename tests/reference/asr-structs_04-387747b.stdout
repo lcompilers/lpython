@@ -210,6 +210,7 @@
                                     []
                                     [(Var 5 b)]
                                     [(Print
+                                        ()
                                         [(StructInstanceMember
                                             (Var 5 b)
                                             4 z

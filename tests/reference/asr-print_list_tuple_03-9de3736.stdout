@@ -169,6 +169,7 @@
                                         ()
                                     )
                                     (Print
+                                        ()
                                         [(DictItem
                                             (Var 3 x)
                                             (IntegerConstant 1 (Integer 4))

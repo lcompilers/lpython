@@ -165,7 +165,7 @@
                                         []
                                         .false.
                                     )
-                                    []
+                                    [pow@__lpython_overloaded_0__pow]
                                     []
                                     [(=
                                         (Var 3 a)
@@ -300,7 +300,7 @@
                                         []
                                         .false.
                                     )
-                                    []
+                                    [pow@__lpython_overloaded_0__pow]
                                     [(Var 4 a)
                                     (Var 4 b)]
                                     [(=
