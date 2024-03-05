@@ -62,6 +62,7 @@ ast = true
 asr = true
 cpp = true
 wat = true
+python = true
 
 [[test]]
 filename = "expr4.py"

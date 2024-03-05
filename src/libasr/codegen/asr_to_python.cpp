@@ -51,7 +51,7 @@ public:
         indent = std::string(indent_level*indent_spaces, ' ');
     }
 
-    void visit_expr_with_last_precedence(const ASR::expr_t &x, int current_precedence) {
+    void visit_expr_with_precedence(const ASR::expr_t &x, int current_precedence) {
         visit_expr(x);
         if (last_expr_precedence == 18 ||
                 last_expr_precedence < current_precedence) {
@@ -129,24 +129,43 @@ public:
     std::string get_type(const ASR::ttype_t *t) {
         std::string r = "";
         switch (t->type) {
-            case ASR::ttypeType::Integer: {
-                r = "i";
-                r += std::to_string(down_cast<ASR::Integer_t>(t)->m_kind);
+            case ASR::ttypeType::Integer : {
+                std::string out;
+                out = std::to_string(down_cast<ASR::Integer_t>(t)->m_kind);
+                if (out == "1") {
+                    r += "i8";
+                } else if (out == "2") {
+                    r += "i16";
+                } else if (out == "4") {
+                    r += "i32";
+                } else if (out == "8") {
+                    r += "i64";
+                }
                 break;
-            } case ASR::ttypeType::Real: {
-                r += "f";
-                r += std::to_string(down_cast<ASR::Real_t>(t)->m_kind);
+            } case ASR::ttypeType::Real : {
+                std::string out;
+                out = std::to_string(down_cast<ASR::Real_t>(t)->m_kind);
+                if (out == "4") {
+                    r += "f32";
+                } else if (out == "8") {
+                    r += "f64";
+                }
                 break;
-            } case ASR::ttypeType::Complex: {
-                r = "c";
-                r += std::to_string(down_cast<ASR::Complex_t>(t)->m_kind);
+            } case ASR::ttypeType::Complex : {
+                std::string out;
+                out = std::to_string(down_cast<ASR::Complex_t>(t)->m_kind);
+                if (out == "4") {
+                    r += "c32";
+                } else if (out == "8") {
+                    r += "c64";
+                }
                 break;
-            } case ASR::ttypeType::Character: {
+            } case ASR::ttypeType::Character : {
                 r = "utf";
                 r += std::to_string(down_cast<ASR::Character_t>(t)->m_kind);
-
-                r = "bool ";
-                r += std::to_string(down_cast<ASR::Logical_t>(t)->m_kind);
+                break;
+            } case ASR::ttypeType::Logical : {
+                r = "bool";
                 break;
             } case ASR::ttypeType::Array: {
                 r = get_type(down_cast<ASR::Array_t>(t)->m_type);
@@ -193,14 +212,9 @@ public:
 
     void visit_Module(const ASR::Module_t &x) {
         std::string r;
-        r = x.m_name;
 
-        //std::vector<std::string> func_name;
         for (auto &item : x.m_symtab->get_scope()) {
             if (is_a<ASR::Function_t>(*item.second)) {
-                //ASR::Function_t *f = ASR::down_cast<ASR::Function_t>(item.second);
-                //func_name.push_back(item.first);
-                //visit_Function(item.second);
                 visit_symbol(*item.second);
                 r += s;
             }
@@ -242,49 +256,9 @@ public:
 
     void visit_Program(const ASR::Program_t &x) {
         std::string r;
-/*
-        r = "if ";
-        r += "__name__";
-        r += " == ";
-        r += "__main__:";
-        r += "\n";
-        r += "    ";
-        r.append(x.m_name);
-        r += "()";
-*/
-        // Generate code for nested functions
-        /*for (auto &item : x.m_symtab->get_scope()) {
-            if (is_a<ASR::ExternalSymbol_t>(*item.second)) {
-                visit_symbol(*item.second);
-                r += s;
-            }
-        }*/
 
-        /*std::vector<std::string> var_order = ASRUtils::determine_variable_declaration_order(x.m_symtab);
-        for (auto &item : var_order) {
-            ASR::symbol_t* var_sym = x.m_symtab->get_symbol(item);
-            if (is_a<ASR::Variable_t>(*var_sym)) {
-                visit_symbol(*var_sym);
-                r += s;
-            }
-        }*/
-/*
-        inc_indent();
-        for (auto &item : x.m_symtab->get_scope()) {
-            if (is_a<ASR::Variable_t>(*item.second)) {
-                visit_symbol(*item.second);
-                r += s;
-            }
-        }
-
-        visit_body(x, r, false);
-
-        dec_indent();
-*/
         for (auto &item : x.m_symtab->get_scope()) {
             if (is_a<ASR::Function_t>(*item.second)) {
-                //ASR::Function_t *f = ASR::down_cast<ASR::Function_t>(item.second);
-                //visit_Function(*f);
                 visit_symbol(*item.second);
                 r += s;
                 r += "\n";
@@ -300,8 +274,6 @@ public:
         r += x.m_name;
         r += ": ";
         r += get_type(x.m_type);
-        //r += " : ";
-        //r.append(x.m_name);
         r += "\n";
         s = r;
     }
@@ -344,10 +316,6 @@ public:
         s = ASRUtils::symbol_name(x.m_v);
     }
 
-    /*void visit_ExternalSymbol(const ASR::ExternalSymbol_t &x) {
-        visit_symbol(*x.m_external);
-    }*/
-
     void visit_If(const ASR::If_t &x) {
         std::string r = indent;
         r += "if";
@@ -378,9 +346,9 @@ public:
     }
 
     void visit_IntrinsicScalarFunction(const ASR::IntrinsicScalarFunction_t &x) {
-        std::string r;
+        std::string out;
         switch (x.m_intrinsic_id) {
-            //SET_INTRINSIC_NAME(Abs, "abs");
+            SET_INTRINSIC_NAME(Abs, "abs");
             default : {
                 throw LCompilersException("IntrinsicScalarFunction: `"
                     + ASRUtils::get_intrinsic_name(x.m_intrinsic_id)
@@ -389,8 +357,8 @@ public:
         }
         LCOMPILERS_ASSERT(x.n_args == 1);
         visit_expr(*x.m_args[0]);
-        r += "(" + s + ")";
-        s = r;
+        out += "(" + s + ")";
+        s = out;
     }
 
     void visit_StringCompare(const ASR::StringCompare_t &x) {
@@ -445,6 +413,41 @@ public:
     }
 
     void visit_RealCompare(const ASR::RealCompare_t &x) {
+       std::string r;
+       r = "(";
+       visit_expr(*x.m_left);
+       r += s;
+       r += cmpop2str(x.m_op);
+       visit_expr(*x.m_right);
+       r += s;
+       r += ")";
+       s = r;
+    }
+
+    void visit_LogicalConstant(const ASR::LogicalConstant_t &x) {
+        std::string r;
+        if (x.m_value) {
+            r += "True";
+        } else {
+            r += "False";
+        }
+        s = r;
+    }
+
+    void visit_LogicalBinOp(const ASR::LogicalBinOp_t &x) {
+        std::string r;
+        std::string m_op = logicalbinop2str(x.m_op);
+        int current_precedence = last_expr_precedence;
+        visit_expr_with_precedence(*x.m_left, current_precedence);
+        r += s;
+        r += m_op;
+        visit_expr_with_precedence(*x.m_right, current_precedence);
+        r += s;
+        last_expr_precedence = current_precedence;
+        s = r;
+    }
+
+    void visit_LogicalCompare(const ASR::LogicalCompare_t &x) {
        std::string r;
        r = "(";
        visit_expr(*x.m_left);
