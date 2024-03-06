@@ -6070,6 +6070,7 @@ public:
                 if (!ASRUtils::check_equal_type(ASRUtils::expr_type(key), key_type)) {
                 	//set the tmp to use it in the error message.(copied from the end of this function + creating values_type)
          			Vec<ASR::expr_t*> values;
+         			values.reserve(al, x.n_values);
         			ASR::ttype_t* value_type = nullptr;
         			visit_expr(*x.m_values[0]);
             		ASR::expr_t *value = ASRUtils::EXPR(tmp);
