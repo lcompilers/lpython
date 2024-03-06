@@ -5071,8 +5071,9 @@ public:
         assign_asr_target = ASRUtils::EXPR(tmp);
         //Construction-While-Assigning Problem
         AST::exprType value_type_ast = (x.m_value)->type;
-        AST::exprType objects_to_check[4] {AST::exprType::Set,AST::exprType::Dict, // just check these 4 for now.
-                                           AST::exprType::Tuple,AST::exprType::List};
+        AST::exprType objects_to_check[3] { AST::exprType::Set,  // just check these 3 for now.
+        									AST::exprType::Dict,
+        									AST::exprType::List };  
         for(AST::exprType &exp : objects_to_check){
             if (exp == value_type_ast){
                 ASR::ttype_t *target_type = ASRUtils::expr_type(assign_asr_target);
@@ -5237,6 +5238,10 @@ public:
                 this->visit_expr(*x.m_elts[i]);
                 expr = ASRUtils::EXPR(tmp);
                 if (!ASRUtils::check_equal_type(ASRUtils::expr_type(expr), type)) {
+                	//set the tmp to use it in the error message.(copied from the end of this function)              	
+        			ASR::ttype_t* list_type = ASRUtils::TYPE(ASR::make_List_t(al, x.base.base.loc, type));
+        			tmp = ASR::make_ListConstant_t(al, x.base.base.loc, list.p,
+            			list.size(), list_type);
                     throw SemanticError("All List elements must be of the same type for now",
                         x.base.base.loc);
                 }
@@ -6063,6 +6068,16 @@ public:
                 key_type = ASRUtils::expr_type(key);
             } else {
                 if (!ASRUtils::check_equal_type(ASRUtils::expr_type(key), key_type)) {
+                	//set the tmp to use it in the error message.(copied from the end of this function + creating values_type)
+         			Vec<ASR::expr_t*> values;
+        			ASR::ttype_t* value_type = nullptr;
+        			visit_expr(*x.m_values[0]);
+            		ASR::expr_t *value = ASRUtils::EXPR(tmp);
+        			value_type = ASRUtils::expr_type(value);          	
+        			ASR::ttype_t* type = ASRUtils::TYPE(ASR::make_Dict_t(al, x.base.base.loc,
+                                             key_type, value_type));
+       				 tmp = ASR::make_DictConstant_t(al, x.base.base.loc, keys.p, keys.size(),
+                                             values.p, values.size(), type);
                     throw SemanticError("All dictionary keys must be of the same type",
                                         x.base.base.loc);
                 }
@@ -6079,6 +6094,11 @@ public:
                 value_type = ASRUtils::expr_type(value);
             } else {
                 if (!ASRUtils::check_equal_type(ASRUtils::expr_type(value), value_type)) {
+                    //set the tmp to use it in the error message.(copied from the end of this function)
+        			 ASR::ttype_t* type = ASRUtils::TYPE(ASR::make_Dict_t(al, x.base.base.loc,
+                                             key_type, value_type));
+        			tmp = ASR::make_DictConstant_t(al, x.base.base.loc, keys.p, keys.size(),
+                                             values.p, values.size(), type);
                     throw SemanticError("All dictionary values must be of the same type",
                                         x.base.base.loc);
                 }
@@ -6541,7 +6561,7 @@ public:
                 type = ASRUtils::expr_type(value);
             } else {
                 if (!ASRUtils::check_equal_type(ASRUtils::expr_type(value), type)) {
-                    //set the tmp to use it in the error message.
+                	//set the tmp to use it in the error message.(copied from the end of this function)              	
                     ASR::ttype_t* set_type = ASRUtils::TYPE(ASR::make_Set_t(al, x.base.base.loc, type));
                     tmp = ASR::make_SetConstant_t(al, x.base.base.loc, elements.p, elements.size(), set_type);
                     throw SemanticError("All Set values must be of the same type for now",
