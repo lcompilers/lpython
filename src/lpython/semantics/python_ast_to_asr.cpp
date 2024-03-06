@@ -885,7 +885,16 @@ public:
                     })
                 );
                 throw SemanticAbort();
-            } else { 
+            } else if (var_annotation == "float") {
+                std::string msg = "Hint: Use f32 or f64 for now. ";
+                diag.add(diag::Diagnostic(
+                    var_annotation + " type is not supported yet. ",
+                    diag::Level::Error, diag::Stage::Semantic, {
+                        diag::Label(msg, {loc})
+                    })
+                );
+                throw SemanticAbort();
+            }  else {
                 throw SemanticError("The type '" + var_annotation+"' is undeclared.", loc);
             }
         }
@@ -6568,26 +6577,6 @@ public:
             arg.loc = loc;
             arg.m_value = s_var;
             fn_args.push_back(al, arg);
-        } else if (attr_name == "isalpha") {
-            if (args.size() != 0) {
-                throw SemanticError("str.isalpha() takes no arguments",
-                    loc);
-            }
-            fn_call_name = "_lpython_str_isalpha";
-            ASR::call_arg_t arg;
-            arg.loc = loc;
-            arg.m_value = s_var;
-            fn_args.push_back(al, arg);
-        } else if (attr_name == "istitle") {
-            if (args.size() != 0) {
-                throw SemanticError("str.istitle() takes no arguments",
-                    loc);
-            }
-            fn_call_name = "_lpython_str_istitle";
-            ASR::call_arg_t arg;
-            arg.loc = loc;
-            arg.m_value = s_var;
-            fn_args.push_back(al, arg);
         } else if (attr_name == "title") {
             if (args.size() != 0) {
                 throw SemanticError("str.title() takes no arguments",
@@ -6804,7 +6793,7 @@ public:
             /*
                 String Validation Methods i.e all "is" based functions are handled here
             */
-            std::vector<std::string> validation_methods{"lower", "upper", "decimal", "ascii", "space"};  // Database of validation methods supported
+            std::vector<std::string> validation_methods{"lower", "upper", "decimal", "ascii", "space", "alpha", "title"};  // Database of validation methods supported
             std::string method_name = attr_name.substr(2);
 
             if(std::find(validation_methods.begin(),validation_methods.end(), method_name) == validation_methods.end()) {
@@ -6863,13 +6852,13 @@ public:
             }
         } else if (attr_name == "find") {
             if (args.size() != 1) {
-                throw SemanticError("str.find() takes one arguments",
+                throw SemanticError("str.find() takes one argument",
                         loc);
             }
             ASR::expr_t *arg = args[0].m_value;
             ASR::ttype_t *type = ASRUtils::expr_type(arg);
             if (!ASRUtils::is_character(*type)) {
-                throw SemanticError("str.find() takes one arguments of type: str",
+                throw SemanticError("str.find() takes one argument of type: str",
                     arg->base.loc);
             }
             if (ASRUtils::expr_value(arg) != nullptr) {
@@ -6894,6 +6883,41 @@ public:
                 args.push_back(al, str_arg);
                 args.push_back(al, sub_arg);
                 tmp = make_call_helper(al, fn_div, current_scope, args, "_lpython_str_find", loc);
+            }
+            return;
+        } else if (attr_name == "count") {
+            if (args.size() != 1) {
+                throw SemanticError("str.count() takes one argument",
+                        loc);
+            }
+            ASR::expr_t *arg = args[0].m_value;
+            ASR::ttype_t *type = ASRUtils::expr_type(arg);
+            if (!ASRUtils::is_character(*type)) {
+                throw SemanticError("str.count() takes one argument of type: str",
+                        arg->base.loc);
+            }
+            if (ASRUtils::expr_value(arg) != nullptr) {
+                ASR::StringConstant_t* sub_str_con = ASR::down_cast<ASR::StringConstant_t>(arg);
+                std::string sub = sub_str_con->m_s;
+                int res = ASRUtils::KMP_string_match_count(s_var, sub);
+                tmp = ASR::make_IntegerConstant_t(al, loc, res,
+                    ASRUtils::TYPE(ASR::make_Integer_t(al,loc, 4)));
+            } else {
+                ASR::symbol_t *fn_div = resolve_intrinsic_function(loc, "_lpython_str_count");
+                Vec<ASR::call_arg_t> args;
+                args.reserve(al, 1);
+                ASR::call_arg_t str_arg;
+                str_arg.loc = loc;
+                ASR::ttype_t *str_type = ASRUtils::TYPE(ASR::make_Character_t(al, loc,
+                        1, s_var.size(), nullptr));
+                str_arg.m_value = ASRUtils::EXPR(
+                        ASR::make_StringConstant_t(al, loc, s2c(al, s_var), str_type));
+                ASR::call_arg_t sub_arg;
+                sub_arg.loc = loc;
+                sub_arg.m_value = arg;
+                args.push_back(al, str_arg);
+                args.push_back(al, sub_arg);
+                tmp = make_call_helper(al, fn_div, current_scope, args, "_lpython_str_count", loc);
             }
             return;
         } else if (attr_name == "rstrip") {
@@ -7072,7 +7096,7 @@ public:
                 * islower() method is limited to English Alphabets currently
                 * TODO: We can support other characters from Unicode Library
             */
-            std::vector<std::string> validation_methods{"lower", "upper", "decimal", "ascii", "space"};  // Database of validation methods supported
+            std::vector<std::string> validation_methods{"lower", "upper", "decimal", "ascii", "space", "alpha", "title"};  // Database of validation methods supported
             std::string method_name = attr_name.substr(2);
             if(std::find(validation_methods.begin(),validation_methods.end(), method_name) == validation_methods.end()) {
                 throw SemanticError("String method not implemented: " + attr_name, loc);
@@ -7168,6 +7192,57 @@ we will have to use something else.
                     }
                 }
                 tmp = ASR::make_LogicalConstant_t(al, loc, is_space,
+                        ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4)));
+                return;
+            } else if (attr_name == "isalpha") {
+                /*
+                    * Specification -
+                    Return True if all characters in the string are alphabets, 
+                    and there is at least one character in the string.
+                */
+                bool is_alpha = (s_var.size() != 0);
+                for (auto &i : s_var) {
+                    if (!((i >= 'A' && i <= 'Z') || (i >= 'a' && i <= 'z'))) {
+                        is_alpha = false;
+                        break;
+                    }
+                }
+                tmp = ASR::make_LogicalConstant_t(al, loc, is_alpha,
+                        ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4)));
+                return;
+            } else if (attr_name == "istitle") {
+                /*
+                    * Specification -
+                    Returns True if all words in the string are in title case, 
+                    and there is at least one character in the string.
+                */
+                bool is_title = (s_var.size() != 0);
+
+                bool in_word = false; // Represents if we are in a word or not
+                bool is_alpha_present = false;
+                for (auto &i : s_var) {
+                    if (i >= 'A' && i <= 'Z') {
+                        is_alpha_present = true;
+                        if (in_word) {
+                            // We have come across an uppercase character in the middle of a word
+                            is_title = false;
+                            break;
+                        } else {
+                            in_word = true;
+                        }
+                    } else if (i >= 'a' && i <= 'z') {
+                        is_alpha_present = true;
+                        if (!in_word) {
+                            //We have come across a lowercase character at the start of a word
+                            is_title = false;
+                            break;
+                        }
+                    } else {
+                        in_word = false;
+                    }
+                }
+                is_title = is_title && is_alpha_present;
+                tmp = ASR::make_LogicalConstant_t(al, loc, is_title,
                         ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4)));
                 return;
             } else {
