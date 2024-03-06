@@ -5169,8 +5169,9 @@ public:
         assign_asr_target = ASRUtils::EXPR(tmp);
         //Construction-While-Assigning Problem
         AST::exprType value_type_ast = (x.m_value)->type;
-        AST::exprType objects_to_check[4] {AST::exprType::Set,AST::exprType::Dict, // just check these 4 for now.
-                                           AST::exprType::Tuple,AST::exprType::List};
+        AST::exprType objects_to_check[3] { AST::exprType::Set,  // just check these 3 for now.
+        									AST::exprType::Dict,
+        									AST::exprType::List };  
         for(AST::exprType &exp : objects_to_check){
             if (exp == value_type_ast){
                 ASR::ttype_t *target_type = ASRUtils::expr_type(assign_asr_target);
@@ -6670,7 +6671,7 @@ public:
                 }
             } else {
                 if (!ASRUtils::check_equal_type(ASRUtils::expr_type(value), type)) {
-                    //set the tmp to use it in the error message.
+                	//set the tmp to use it in the error message.(copied from the end of this function)              	
                     ASR::ttype_t* set_type = ASRUtils::TYPE(ASR::make_Set_t(al, x.base.base.loc, type));
                     tmp = ASR::make_SetConstant_t(al, x.base.base.loc, elements.p, elements.size(), set_type);
                     throw SemanticError("All Set values must be of the same type for now",
