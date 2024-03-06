@@ -5204,39 +5204,6 @@ public:
         ASR::expr_t* assign_asr_target_copy = assign_asr_target;
         this->visit_expr(*x.m_targets[0]);
         assign_asr_target = ASRUtils::EXPR(tmp);
-        //Construction-While-Assigning Problem
-        AST::exprType value_type_ast = (x.m_value)->type;
-        AST::exprType objects_to_check[3] { AST::exprType::Set,  // just check these 3 for now.
-        									AST::exprType::Dict,
-        									AST::exprType::List };  
-        for(AST::exprType &exp : objects_to_check){
-            if (exp == value_type_ast){
-                ASR::ttype_t *target_type = ASRUtils::expr_type(assign_asr_target);
-                try{
-                    this->visit_expr(*x.m_value);
-                }
-                catch (SemanticError &error){
-                    ASR::expr_t *value_ASR_after_down_cast = ASRUtils::EXPR(tmp);
-                    ASR::ttype_t *value_type = ASRUtils::expr_type(value_ASR_after_down_cast);
-                    if (!ASRUtils::check_equal_type(target_type, value_type)){
-                        std::string ltype = ASRUtils::type_to_str_python(target_type);
-                        std::string rtype = ASRUtils::type_to_str_python(value_type);
-                        diag.add(diag::Diagnostic(
-                                "Type mismatch in assignment, the types must be compatible",
-                                diag::Level::Error, diag::Stage::Semantic, {
-                                        diag::Label("type mismatch ('" + ltype + "' and '" + rtype + "')",
-                                                    {assign_asr_target->base.loc, value_ASR_after_down_cast->base.loc})
-                                })
-                        );
-                        throw SemanticAbort();
-                    }
-                }
-            }
-
-        }
-
-
-
         this->visit_expr(*x.m_value);
         assign_asr_target = assign_asr_target_copy;
         if (tmp) {
@@ -6223,16 +6190,6 @@ public:
                 }
             } else {
                 if (!ASRUtils::check_equal_type(ASRUtils::expr_type(key), key_type)) {
-                	//set the tmp to use it in the error message.(copied from the end of this function + creating values_type)
-         			Vec<ASR::expr_t*> values;
-        			ASR::ttype_t* value_type = nullptr;
-        			visit_expr(*x.m_values[0]);
-            		ASR::expr_t *value = ASRUtils::EXPR(tmp);
-        			value_type = ASRUtils::expr_type(value);          	
-        			ASR::ttype_t* type = ASRUtils::TYPE(ASR::make_Dict_t(al, x.base.base.loc,
-                                             key_type, value_type));
-       				 tmp = ASR::make_DictConstant_t(al, x.base.base.loc, keys.p, keys.size(),
-                                             values.p, values.size(), type);
                     throw SemanticError("All dictionary keys must be of the same type",
                                         x.base.base.loc);
                 }
