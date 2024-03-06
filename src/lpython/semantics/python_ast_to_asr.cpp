@@ -6223,16 +6223,6 @@ public:
                 }
             } else {
                 if (!ASRUtils::check_equal_type(ASRUtils::expr_type(key), key_type)) {
-                	//set the tmp to use it in the error message.(copied from the end of this function + creating values_type)
-         			Vec<ASR::expr_t*> values;
-        			ASR::ttype_t* value_type = nullptr;
-        			visit_expr(*x.m_values[0]);
-            		ASR::expr_t *value = ASRUtils::EXPR(tmp);
-        			value_type = ASRUtils::expr_type(value);          	
-        			ASR::ttype_t* type = ASRUtils::TYPE(ASR::make_Dict_t(al, x.base.base.loc,
-                                             key_type, value_type));
-       				 tmp = ASR::make_DictConstant_t(al, x.base.base.loc, keys.p, keys.size(),
-                                             values.p, values.size(), type);
                     throw SemanticError("All dictionary keys must be of the same type",
                                         x.base.base.loc);
                 }
