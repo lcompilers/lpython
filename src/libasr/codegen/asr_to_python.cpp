@@ -292,6 +292,25 @@ public:
         s = r;
     }
 
+    void visit_FunctionCall(const ASR::FunctionCall_t &x) {
+        std::string r = indent;
+        if (x.m_original_name) {
+            r += ASRUtils::symbol_name(x.m_original_name);
+        } else {
+            r += ASRUtils::symbol_name(x.m_name);
+        }
+
+        r += "(";
+        for (size_t i = 0; i < x.n_args; i++) {
+            visit_expr(*x.m_args[i].m_value);
+            r += s;
+            if (i < x.n_args - 1)
+                r += ", ";
+        }
+        r += ")";
+        s = r;
+    }
+
     void visit_Cast(const ASR::Cast_t &x) {
         // TODO
         visit_expr(*x.m_arg);
@@ -347,13 +366,14 @@ public:
     }
 
     void visit_ExplicitDeallocate(const ASR::ExplicitDeallocate_t &x) {
-        std::string r;
-        r = "del ";
+        std::string r = indent;
+        r += "del ";
         for (size_t i = 0; i < x.n_vars; i++) {
             if (i > 0) {
                 r += ", ";
             }
             visit_expr(*x.m_vars[i]);
+            r += s;
         }
         s = r;
     }
@@ -376,7 +396,6 @@ public:
 
     void visit_StringCompare(const ASR::StringCompare_t &x) {
         std::string r;
-        r = " ";
         int current_precedence = last_expr_precedence;
         visit_expr_with_precedence(*x.m_left, current_precedence);
         r += s;
@@ -393,22 +412,25 @@ public:
         s += "\"";
     }
 
+    void visit_StringChr(const ASR::StringChr_t &x) {
+        visit_expr(*x.m_arg);
+        s = "chr(" + s + ")";
+    }
+
     void visit_IntegerBinOp(const ASR::IntegerBinOp_t &x) {
         std::string r;
-        // TODO: Handle precedence based on the last_operator_precedence
-        r = "(";
-        visit_expr(*x.m_left);
+        int current_precedence = last_expr_precedence;
+        visit_expr_with_precedence(*x.m_left, current_precedence);
         r += s;
         r += binop2str(x.m_op);
-        visit_expr(*x.m_right);
+        visit_expr_with_precedence(*x.m_right, current_precedence);
         r += s;
-        r += ")";
+        last_expr_precedence = current_precedence;
         s = r;
     }
 
     void visit_IntegerCompare(const ASR::IntegerCompare_t &x) {
         std::string r;
-        r = "(";
         int current_precedence = last_expr_precedence;
         visit_expr_with_precedence(*x.m_left, current_precedence);
         r += s;
@@ -416,7 +438,6 @@ public:
         visit_expr_with_precedence(*x.m_right, current_precedence);
         r += s;
         last_expr_precedence = current_precedence;
-        r += ")";
         s = r;
     }
 
@@ -444,7 +465,6 @@ public:
 
     void visit_RealCompare(const ASR::RealCompare_t &x) {
        std::string r;
-       r = "(";
        int current_precedence = last_expr_precedence;
        visit_expr_with_precedence(*x.m_left, current_precedence);
        r += s;
@@ -452,7 +472,6 @@ public:
        visit_expr_with_precedence(*x.m_right, current_precedence);
        r += s;
        last_expr_precedence = current_precedence;
-       r += ")";
        s = r;
     }
 
@@ -460,6 +479,19 @@ public:
         visit_expr_with_precedence(*x.m_arg, 14);
         s =  "-" + s;
         last_expr_precedence = Precedence::UnaryMinus;
+    }
+
+    void visit_RealBinOp(const ASR::RealBinOp_t &x) {
+        std::string r;
+        std::string m_op = binop2str(x.m_op);
+        int current_precedence = last_expr_precedence;
+        visit_expr_with_precedence(*x.m_left, current_precedence);
+        r += s;
+        r += m_op;
+        visit_expr_with_precedence(*x.m_right, current_precedence);
+        r += s;
+        last_expr_precedence = current_precedence;
+        s = r;
     }
 
     void visit_LogicalConstant(const ASR::LogicalConstant_t &x) {
@@ -487,14 +519,12 @@ public:
 
     void visit_LogicalCompare(const ASR::LogicalCompare_t &x) {
        std::string r;
-       r = "(";
        int current_precedence = last_expr_precedence;
        visit_expr_with_precedence(*x.m_left, current_precedence);
        r += s;
        r += cmpop2str(x.m_op);
        visit_expr_with_precedence(*x.m_right, current_precedence);
        r += s;
-       r += ")";
        last_expr_precedence = current_precedence;
        s = r;
     }
@@ -530,6 +560,11 @@ public:
         s = r;
     }
 
+    void visit_StringLen(const ASR::StringLen_t &x) {
+        visit_expr(*x.m_arg);
+        s += "len(" + s + ")";
+    }
+
     void visit_IfExp(const ASR::IfExp_t &x) {
         std::string r;
         visit_expr(*x.m_body);
@@ -554,6 +589,33 @@ public:
         s = "-" + s;
         last_expr_precedence = Precedence::UnaryMinus;
     }
+
+    void visit_ComplexCompare(const ASR::ComplexCompare_t &x) {
+        std::string r;
+        int current_precedence = last_expr_precedence;
+        visit_expr_with_precedence(*x.m_left, current_precedence);
+        r += s;
+        r += cmpop2str(x.m_op);
+        visit_expr_with_precedence(*x.m_right, current_precedence);
+        r += s;
+        last_expr_precedence = current_precedence;
+        s = r;
+    }
+
+    void visit_Assert(const ASR::Assert_t &x) {
+        std::string r = indent;
+        r += "assert ";
+        visit_expr(*x.m_test);
+        r += s;
+        if (x.m_msg) {
+            r += ", ";
+            visit_expr(*x.m_msg);
+            r += s;
+        }
+        r += "\n";
+        s = r;
+    }
+
 };
 
 Result<std::string> asr_to_python(Allocator& al, ASR::TranslationUnit_t &asr,
