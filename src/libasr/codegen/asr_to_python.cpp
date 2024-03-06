@@ -71,16 +71,16 @@ public:
             } case (ASR::binopType::Sub) : {
                 last_expr_precedence = Precedence::Sub;
                 return " - ";
-	        } case (ASR::binopType::Mul) : {
+            } case (ASR::binopType::Mul) : {
                 last_expr_precedence = Precedence::Mul;
                 return " * ";
-	        } case (ASR::binopType::Div) : {
+            } case (ASR::binopType::Div) : {
                 last_expr_precedence = Precedence::Div;
                 return " / ";
-	        } case (ASR::binopType::Pow) : {
+            } case (ASR::binopType::Pow) : {
                 last_expr_precedence = Precedence::Pow;
                 return " ** ";
-	        } default : {
+            } default : {
                 throw LCompilersException("Cannot represent the binary operator as a string");
             }
         }
@@ -109,7 +109,7 @@ public:
             } case (ASR::logicalbinopType::Or) : {
                 last_expr_precedence = Precedence::Or;
                 return " or ";
-	        } default : {
+            } default : {
                 throw LCompilersException("Cannot represent the boolean operator as a string");
             }
         }
@@ -209,6 +209,7 @@ public:
         for (size_t i = 0; i < x.n_args; i++) {
             visit_expr(*x.m_args[i]);
             r += s;
+            // TODO: Specify the datatype of the argument here
             if (i < x.n_args - 1) {
                 r += ", ";
             }
@@ -278,6 +279,11 @@ public:
         s = r;
     }
 
+    void visit_Return(const ASR::Return_t /*&x*/) {
+        // TODO: Handle cases for returning an expression/value
+        s = indent + "return" + "\n";
+    }
+
     void visit_SubroutineCall(const ASR::SubroutineCall_t &x) {
         std::string r = indent;
         r += ASRUtils::symbol_name(x.m_name);
@@ -293,7 +299,7 @@ public:
     }
 
     void visit_FunctionCall(const ASR::FunctionCall_t &x) {
-        std::string r = indent;
+        std::string r = "";
         if (x.m_original_name) {
             r += ASRUtils::symbol_name(x.m_original_name);
         } else {
@@ -410,6 +416,7 @@ public:
         s = "\"";
         s.append(x.m_s);
         s += "\"";
+        last_expr_precedence = Precedence::Constant;
     }
 
     void visit_StringChr(const ASR::StringChr_t &x) {
@@ -502,6 +509,7 @@ public:
             r += "False";
         }
         s = r;
+        last_expr_precedence = Precedence::Constant;
     }
 
     void visit_LogicalBinOp(const ASR::LogicalBinOp_t &x) {
