@@ -71,6 +71,26 @@ def find():
     assert s2.find("we") == -1
     assert "".find("") == 0
 
+def count():
+    s: str
+    sub: str
+    s = "ABC ABCDAB ABCDABCDABDE"
+    sub = "ABC"
+    assert s.count(sub) == 4
+    assert s.count("ABC") == 4
+    
+    sub = "AB"
+    assert s.count(sub) == 6
+    assert s.count("AB") == 6
+
+    sub = "ABC"
+    assert "ABC ABCDAB ABCDABCDABDE".count(sub) == 4
+    assert "ABC ABCDAB ABCDABCDABDE".count("ABC") == 4
+
+    sub = "AB"
+    assert "ABC ABCDAB ABCDABCDABDE".count(sub) == 6
+    assert "ABC ABCDAB ABCDABCDABDE".count("AB") == 6
+
 
 def startswith():
     s: str
@@ -286,6 +306,53 @@ def is_ascii():
     assert s.isascii() == True
 
 
+def is_alpha():
+    a: str = "helloworld"
+    b: str = "hj kl"
+    c: str = "a12(){}A"
+    d: str = " "
+    e: str = ""
+    res: bool = a.isalpha()
+    res2: bool = b.isalpha()
+    res3: bool = c.isalpha()
+    res4: bool = d.isalpha()
+    res5: bool = e.isalpha()
+    assert res == True
+    assert res2 == False
+    assert res3 == False
+    assert res4 == False
+    assert res5 == False
+
+    assert "helloworld".isalpha() == True
+    assert "hj kl".isalpha() == False
+    assert "a12(){}A".isalpha() == False
+    assert " ".isalpha() == False
+    assert "".isalpha() == False
+
+
+def is_title():
+    a: str = "Hello World"
+    b: str = "Hj'kl"
+    c: str = "hELlo wOrlD"
+    d: str = " Hello"
+    e: str = " "
+    res: bool = a.istitle()
+    res2: bool = b.istitle()
+    res3: bool = c.istitle()
+    res4: bool = d.istitle()
+    res5: bool = e.istitle()
+    assert res == True
+    assert res2 == False 
+    assert res3 == False
+    assert res4 == True
+    assert res5 == False
+
+    assert "Hello World".istitle() == True
+    assert "Hj'kl".istitle() == False
+    assert "hELlo wOrlD".istitle() == False
+    assert " Hello".istitle() == True
+    assert " ".istitle() == False
+
 def is_space():
     assert "\n".isspace() == True
     assert "    ".isspace() == True
@@ -300,6 +367,7 @@ def is_space():
     assert s.isspace() == False
 
 
+
 def check():
     capitalize()
     lower()
@@ -307,6 +375,7 @@ def check():
     strip()
     swapcase()
     find()
+    count()
     startswith()
     endswith()
     partition()
@@ -314,6 +383,8 @@ def check():
     is_upper()
     is_decimal()
     is_ascii()
+    is_alpha()
+    is_title()
     is_space()
 
 

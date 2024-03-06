@@ -637,17 +637,50 @@ def _lpython_str_capitalize(x: str) -> str:
 
 
 @overload
-def _lpython_str_count(x: str, y: str) -> i32:
-    if(len(y) == 0): return len(x) + 1
+def _lpython_str_count(s: str, sub: str) -> i32:
+    s_len :i32; sub_len :i32; flag: bool; _len: i32;
+    count: i32; i: i32;
+    lps: list[i32] = []
+    s_len = len(s)
+    sub_len = len(sub)
 
-    count: i32 = 0
-    curr_char: str
-    i: i32
+    if sub_len == 0:
+        return s_len + 1 
 
-    for i in range(len(x)):
-        curr_char = x[i]
-        if curr_char == y[0]:
-            count += i32(x[i:i+len(y)] == y)
+    count = 0
+
+    for i in range(sub_len):
+        lps.append(0)
+
+    i = 1
+    _len = 0
+    while i < sub_len:
+        if sub[i] == sub[_len]:
+            _len += 1
+            lps[i] = _len
+            i += 1
+        else:
+            if _len != 0:
+                _len = lps[_len - 1]
+            else:
+                lps[i] = 0
+                i += 1
+
+    j: i32
+    j = 0
+    i = 0
+    while (s_len - i) >= (sub_len - j):
+        if sub[j] == s[i]:
+            i += 1
+            j += 1
+        if j == sub_len:
+            count += 1
+            j = lps[j - 1]
+        elif i < s_len and sub[j] != s[i]:
+            if j != 0:
+                j = lps[j - 1]
+            else:
+                i = i + 1
 
     return count
 
@@ -731,9 +764,7 @@ def _lpython_str_istitle(s: str) -> bool:
     ch: str
     only_whitespace: bool = True 
     for ch in s:
-        if (ch == ' ' or ch == '\t' or ch == '\n') and word_start:
-            continue  # Found a space character at the start of a word
-        elif ch.isalpha() and (ord('A') <= ord(ch) and ord(ch) <= ord('Z')):
+        if ch.isalpha() and (ord('A') <= ord(ch) and ord(ch) <= ord('Z')):
             only_whitespace = False
             if word_start:
                 word_start = False
