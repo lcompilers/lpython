@@ -3754,8 +3754,7 @@ public:
         } else {
             ASR::expr_t *index = nullptr;
             this->visit_expr(*m_slice);
-            if (ASR::is_a<ASR::Const_t>(*type))
-            {
+            if (ASR::is_a<ASR::Const_t>(*type)) {
                 ASR::ttype_t *contained_type = ASRUtils::type_get_past_const(type);
                 if (ASR::is_a<ASR::Dict_t>(*contained_type))
                 {
