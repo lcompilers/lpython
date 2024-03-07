@@ -371,6 +371,12 @@ class ASRBuilder {
             ASR::logicalbinopType::And, y, logical, nullptr))
     #define Not(x)    EXPR(ASR::make_LogicalNot_t(al, loc, x, logical, nullptr))
 
+
+    #define i_BitRshift(n, bits, t) EXPR(ASR::make_IntegerBinOp_t(al, loc,      \
+                n, ASR::binopType::BitRShift, bits, t, nullptr))
+    #define i_BitLshift(n, bits, t) EXPR(ASR::make_IntegerBinOp_t(al, loc,      \
+                n, ASR::binopType::BitLShift, bits, t, nullptr))
+
     ASR::expr_t *Add(ASR::expr_t *left, ASR::expr_t *right) {
         LCOMPILERS_ASSERT(check_equal_type(expr_type(left), expr_type(right)));
         ASR::ttype_t *type = expr_type(left);
@@ -2384,11 +2390,6 @@ namespace Mod {
 
 } // namespace Mod
 
-#define i_BitRshift(n, bits, t) EXPR(ASR::make_IntegerBinOp_t(al, loc,      \
-            n, ASR::binopType::BitRShift, bits, t, nullptr))
-#define i_BitLshift(n, bits, t) EXPR(ASR::make_IntegerBinOp_t(al, loc,      \
-            n, ASR::binopType::BitLShift, bits, t, nullptr))
-
 namespace LShift {
 
      static inline void verify_args(const ASR::IntrinsicScalarFunction_t& x, diag::Diagnostics& diagnostics) {
@@ -2403,11 +2404,11 @@ namespace LShift {
     }
 
     static ASR::expr_t *eval_LShift(Allocator &al, const Location &loc,
-            ASR::ttype_t* t1, Vec<ASR::expr_t*> &args) {
-            int64_t a = ASR::down_cast<ASR::IntegerConstant_t>(args[0])->m_n;
-            int64_t b = ASR::down_cast<ASR::IntegerConstant_t>(args[1])->m_n;
-            int64_t val = a << b;
-            return make_ConstantWithType(make_IntegerConstant_t, val, t1, loc);
+        ASR::ttype_t* t1, Vec<ASR::expr_t*> &args) {
+        int64_t a = ASR::down_cast<ASR::IntegerConstant_t>(args[0])->m_n;
+        int64_t b = ASR::down_cast<ASR::IntegerConstant_t>(args[1])->m_n;
+        int64_t val = a << b;
+        return make_ConstantWithType(make_IntegerConstant_t, val, t1, loc);
     }
 
     static inline ASR::asr_t* create_LShift(Allocator& al, const Location& loc,
