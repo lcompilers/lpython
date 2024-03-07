@@ -1539,14 +1539,8 @@ public:
     }
 
     void visit_DictItem(const ASR::DictItem_t& x) {
-        /*  Check whether the `dict` is a `Const[dict[key_type, value_type]]`:
-              - If true, set the `dict_type` to `dict[key_type, value_type]' by going to `Const`.
-              - If false, we have a normal dict - `dict[key_type, value_type]`.
-        
-            We do the type checking through strings because `ASR::is_a<T>` throws an error.
-        */
-        ASR::Dict_t *dict_type = ASRUtils::type_to_str(ASRUtils::expr_type(x.m_a)) == "dict const"
-                                     ? ASR::down_cast<ASR::Dict_t>(ASRUtils::get_contained_type(ASRUtils::expr_type(x.m_a)))
+        ASR::Dict_t *dict_type = ASR::is_a<ASR::Const_t>(*ASRUtils::expr_type(x.m_a))
+                                     ? ASR::down_cast<ASR::Dict_t>(ASRUtils::type_get_past_const(ASRUtils::expr_type(x.m_a)))
                                      : ASR::down_cast<ASR::Dict_t>(ASRUtils::expr_type(x.m_a));
 
         int64_t ptr_loads_copy = ptr_loads;
@@ -1852,8 +1846,8 @@ public:
     }
 
     void generate_DictElems(ASR::expr_t* m_arg, bool key_or_value) {
-        ASR::Dict_t *dict_type = ASRUtils::type_to_str(ASRUtils::expr_type(m_arg)) == "dict const"
-                                     ? ASR::down_cast<ASR::Dict_t>(ASRUtils::get_contained_type(ASRUtils::expr_type(m_arg)))
+        ASR::Dict_t *dict_type = ASR::is_a<ASR::Const_t>(*ASRUtils::expr_type(m_arg))
+                                     ? ASR::down_cast<ASR::Dict_t>(ASRUtils::type_get_past_const(ASRUtils::expr_type(m_arg)))
                                      : ASR::down_cast<ASR::Dict_t>(ASRUtils::expr_type(m_arg));
         ASR::ttype_t* el_type = key_or_value == 0 ?
                                     dict_type->m_key_type : dict_type->m_value_type;
