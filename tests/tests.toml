@@ -144,7 +144,6 @@ asr = true
 filename = "expr17.py"
 asr = true
 ast = true
-cpp = true
 llvm = true
 python = true
 
