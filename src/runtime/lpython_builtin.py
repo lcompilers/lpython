@@ -781,8 +781,6 @@ def _lpython_str_istitle(s: str) -> bool:
 
     return True if not only_whitespace else False
 
-
-
 @overload
 def _lpython_str_find(s: str, sub: str) -> i32:
     s_len :i32; sub_len :i32; flag: bool; _len: i32;
