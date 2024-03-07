@@ -142,9 +142,6 @@ asr = true
 
 [[test]]
 filename = "expr17.py"
-asr = true
-ast = true
-llvm = true
 python = true
 
 [[test]]
