@@ -567,7 +567,6 @@ Result<int> asr_to_x86(ASR::TranslationUnit_t &asr, Allocator &al,
 {
     int time_pass_global=0;
     int time_pass_do_loops=0;
-    int time_pass_while_else=0;
     int time_visit_asr=0;
     int time_verify=0;
     int time_save=0;
@@ -624,11 +623,10 @@ Result<int> asr_to_x86(ASR::TranslationUnit_t &asr, Allocator &al,
         std::cout << "Codegen Time report:" << std::endl;
         std::cout << "Global:      " << std::setw(5) << time_pass_global << std::endl;
         std::cout << "Do loops:    " << std::setw(5) << time_pass_do_loops << std::endl;
-        std::cout << "Else clause: " << std::setw(5) << time_pass_do_loops << std::endl;
         std::cout << "ASR -> x86:  " << std::setw(5) << time_visit_asr << std::endl;
         std::cout << "Verify:      " << std::setw(5) << time_verify << std::endl;
         std::cout << "Save:        " << std::setw(5) << time_save << std::endl;
-        int total = time_pass_global + time_pass_do_loops + time_pass_while_else + time_visit_asr + time_verify + time_verify + time_save;
+        int total = time_pass_global + time_pass_do_loops + time_visit_asr + time_verify + time_verify + time_save;
         std::cout << "Total:       " << std::setw(5) << total << std::endl;
     }
     return 0;
