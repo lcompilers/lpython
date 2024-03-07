@@ -573,6 +573,42 @@ public:
         s += "len(" + s + ")";
     }
 
+    void visit_StringItem(const ASR::StringItem_t &x) {
+        std::string r = "";
+        visit_expr(*x.m_arg);
+        r += s;
+        r += "[";
+        visit_expr(*x.m_idx);
+        r += s;
+        r += "]";
+        s = r;
+    }
+
+    void visit_StringSection(const ASR::StringSection_t &x) {
+        std::string r = "";
+        visit_expr(*x.m_arg);
+        r += s;
+        if (x.m_start) {
+            r += "[";
+            visit_expr(*x.m_start);
+            r += s;
+        }
+        if (x.m_end) {
+            r += ":";
+            visit_expr(*x.m_end);
+            r += s;
+        }
+        if (x.m_step) {
+            r += ":";
+            visit_expr(*x.m_step);
+            r += s;
+            r += "]";
+        } else {
+            r += "]";
+        }
+        s = r;
+    }
+
     void visit_IfExp(const ASR::IfExp_t &x) {
         std::string r;
         visit_expr(*x.m_body);
@@ -615,7 +651,7 @@ public:
         std::string re = s;
         visit_expr(*x.m_im);
         std::string im = s;
-        s = "(" + re + ", " + im + ")";
+        s = "complex(" + re + ", " + im + ")";
     }
 
     void visit_ComplexBinOp(const ASR::ComplexBinOp_t &x) {
@@ -632,12 +668,12 @@ public:
 
     void visit_ComplexRe(const ASR::ComplexRe_t &x) {
         visit_expr(*x.m_arg);
-        s = "real(" + s + ")";
+        s = s + ".real";
     }
 
     void visit_ComplexIm(const ASR::ComplexIm_t &x) {
         visit_expr(*x.m_arg);
-        s = "img(" + s + ")";
+        s = s + ".imag";
     }
 
     void visit_Assert(const ASR::Assert_t &x) {
