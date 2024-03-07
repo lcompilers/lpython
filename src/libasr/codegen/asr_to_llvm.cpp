@@ -1541,9 +1541,7 @@ public:
     }
 
     void visit_DictItem(const ASR::DictItem_t& x) {
-        ASR::Dict_t *dict_type = ASR::is_a<ASR::Const_t>(*ASRUtils::expr_type(x.m_a))
-                                     ? ASR::down_cast<ASR::Dict_t>(ASRUtils::type_get_past_const(ASRUtils::expr_type(x.m_a)))
-                                     : ASR::down_cast<ASR::Dict_t>(ASRUtils::expr_type(x.m_a));
+        ASR::Dict_t *dict_type = ASR::down_cast<ASR::Dict_t>(ASRUtils::type_get_past_const(ASRUtils::expr_type(x.m_a)));
 
         int64_t ptr_loads_copy = ptr_loads;
         ptr_loads = 0;
