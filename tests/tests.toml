@@ -141,6 +141,10 @@ filename = "expr16.py"
 asr = true
 
 [[test]]
+filename = "expr17.py"
+python = true
+
+[[test]]
 filename = "expr_01.py"
 ast = true
 asr = true
