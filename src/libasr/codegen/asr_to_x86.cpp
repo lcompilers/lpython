@@ -593,13 +593,6 @@ Result<int> asr_to_x86(ASR::TranslationUnit_t &asr, Allocator &al,
 
     {
         auto t1 = std::chrono::high_resolution_clock::now();
-        pass_while_else(al, asr, pass_options);
-        auto t2 = std::chrono::high_resolution_clock::now();
-        time_pass_do_loops = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();
-    }
-
-    {
-        auto t1 = std::chrono::high_resolution_clock::now();
         try {
             v.visit_asr((ASR::asr_t &)asr);
         } catch (const CodeGenError &e) {
