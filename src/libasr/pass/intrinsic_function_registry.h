@@ -2744,9 +2744,7 @@ namespace DictKeys {
 static inline void verify_args(const ASR::IntrinsicScalarFunction_t& x, diag::Diagnostics& diagnostics) {
     ASRUtils::require_impl(x.n_args == 1, "Call to dict.keys must have no argument",
         x.base.base.loc, diagnostics);
-    ASR::ttype_t *dict_type = ASR::is_a<ASR::Const_t>(*ASRUtils::expr_type(x.m_args[0]))
-                                  ? ASRUtils::type_get_past_const(ASRUtils::expr_type(x.m_args[0]))
-                                  : ASRUtils::expr_type(x.m_args[0]);
+    ASR::ttype_t *dict_type = ASRUtils::type_get_past_const(ASRUtils::expr_type(x.m_args[0]));
     ASRUtils::require_impl(ASR::is_a<ASR::Dict_t>(*dict_type),
                            "Argument to dict.keys must be of dict type",
                            x.base.base.loc, diagnostics);
@@ -2770,9 +2768,7 @@ static inline ASR::asr_t* create_DictKeys(Allocator& al, const Location& loc,
         err("Call to dict.keys must have no argument", loc);
     }
     ASR::expr_t* dict_expr = args[0];
-    ASR::ttype_t *type = ASR::is_a<ASR::Const_t> (*ASRUtils::expr_type(dict_expr))
-                             ? ASRUtils::type_get_past_const(ASRUtils::expr_type(dict_expr))
-                             : ASRUtils::expr_type(dict_expr);
+    ASR::ttype_t *type = ASRUtils::type_get_past_const(ASRUtils::expr_type(dict_expr));
     ASR::ttype_t *dict_keys_type = ASR::down_cast<ASR::Dict_t>(type)->m_key_type;
 
     Vec<ASR::expr_t*> arg_values;
@@ -2821,9 +2817,7 @@ static inline ASR::asr_t* create_DictValues(Allocator& al, const Location& loc,
     }
 
     ASR::expr_t* dict_expr = args[0];
-    ASR::ttype_t *type = ASR::is_a<ASR::Const_t>(*ASRUtils::expr_type(dict_expr))
-                             ? ASRUtils::type_get_past_const(ASRUtils::expr_type(dict_expr))
-                             : ASRUtils::expr_type(dict_expr);
+    ASR::ttype_t *type = ASRUtils::type_get_past_const(ASRUtils::expr_type(dict_expr));
     ASR::ttype_t *dict_values_type = ASR::down_cast<ASR::Dict_t>(type)->m_value_type;
 
     Vec<ASR::expr_t*> arg_values;
