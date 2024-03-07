@@ -1750,6 +1750,12 @@ public:
             } else if (var_annotation == "Const") {
                 ASR::ttype_t *type = ast_expr_to_asr_type(loc, *s->m_slice,
                     is_allocatable, raise_error, abi, is_argument);
+                if (ASR::is_a<ASR::Tuple_t>(*type)) {
+                    throw SemanticError("'Const' not required as tuples are already immutable", loc);
+                }
+                else if (ASR::is_a<ASR::Character_t>(*type)) {
+                    throw SemanticError("'Const' not required as strings are already immutable", loc);
+                }
                 return ASRUtils::TYPE(ASR::make_Const_t(al, loc, type));
             } else {
                 AST::expr_t* dim_info = s->m_slice;
@@ -3730,6 +3736,12 @@ public:
             } else if (ASR::is_a<ASR::Dict_t>(*type)) {
                 throw SemanticError("unhashable type in dict: 'slice'", loc);
             }
+            if (ASR::is_a<ASR::Const_t>(*type))
+            {
+                if (ASR::is_a<ASR::List_t>(*ASRUtils::type_get_past_const(type))) {
+                    throw SemanticError("slicing on a const list is not implemented till now", loc);
+                }
+            }
         } else if(AST::is_a<AST::Tuple_t>(*m_slice) &&
                     ASRUtils::is_array(type)) {
             bool final_result = true;
@@ -3740,7 +3752,42 @@ public:
             }
             return final_result;
         } else {
+            ASR::expr_t *index = nullptr;
             this->visit_expr(*m_slice);
+            if (ASR::is_a<ASR::Const_t>(*type))
+            {
+                ASR::ttype_t *contained_type = ASRUtils::type_get_past_const(type);
+                if (ASR::is_a<ASR::Dict_t>(*contained_type))
+                {
+                    index = ASRUtils::EXPR(tmp);
+                    ASR::ttype_t *key_type = ASR::down_cast<ASR::Dict_t>(contained_type)->m_key_type;
+                    if (!ASRUtils::check_equal_type(ASRUtils::expr_type(index), key_type))
+                    {
+                        throw SemanticError("Key type should be '" + ASRUtils::type_to_str_python(key_type) +
+                                                "' instead of '" +
+                                                ASRUtils::type_to_str_python(ASRUtils::expr_type(index)) + "'",
+                                            index->base.loc);
+                    }
+                    tmp = ASR::make_DictItem_t(al, loc, value, index, nullptr, ASR::down_cast<ASR::Dict_t>(contained_type)->m_value_type, nullptr);
+                    return false;
+                }
+                else if (ASR::is_a<ASR::List_t>(*contained_type))
+                {
+                    this->visit_expr(*m_slice);
+                    index = ASRUtils::EXPR(tmp);
+                    tmp = make_ListItem_t(al, loc, value, index,
+                                      ASR::down_cast<ASR::List_t>(contained_type)->m_type, nullptr);
+                    return false;
+                }
+                else if (ASR::is_a<ASR::Character_t>(*contained_type))
+                {
+                    throw SemanticError("'Const' not required as strings are already immutable", loc);
+                }
+                else if (ASR::is_a<ASR::Tuple_t>(*contained_type))
+                {
+                    throw SemanticError("'Const' not required as tuples are already immutable", loc);
+                }
+            }
             if (!ASR::is_a<ASR::Dict_t>(*type) &&
                     !ASRUtils::is_integer(*ASRUtils::expr_type(ASRUtils::EXPR(tmp)))) {
                 std::string fnd = ASRUtils::type_to_str_python(ASRUtils::expr_type(ASRUtils::EXPR(tmp)));
@@ -3753,8 +3800,8 @@ public:
                 );
                 throw SemanticAbort();
             }
-            ASR::expr_t *index = nullptr;
             if (ASR::is_a<ASR::Dict_t>(*type)) {
+                this->visit_expr(*m_slice);
                 index = ASRUtils::EXPR(tmp);
                 ASR::ttype_t *key_type = ASR::down_cast<ASR::Dict_t>(type)->m_key_type;
                 if (!ASRUtils::check_equal_type(ASRUtils::expr_type(index), key_type)) {
