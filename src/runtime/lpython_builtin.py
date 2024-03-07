@@ -994,7 +994,6 @@ def _lpython_str_isascii(s: str) -> bool:
             return False
     return True
 
-
 def _lpython_str_isspace(s: str) -> bool:
     # A Unicode character is considered a 'whitespace' if it has has a bidirectional
     # type 'WS', 'B' or 'S'; or the category 'Zs'.
@@ -1039,7 +1038,6 @@ def _lpython_str_isspace(s: str) -> bool:
             return False
     return True
 
-
 def list(s: str) -> list[str]:
     l: list[str] = []
     i: i32
@@ -1048,3 +1046,4 @@ def list(s: str) -> list[str]:
     for i in range(len(s)):
         l.append(s[i])
     return l
+  
