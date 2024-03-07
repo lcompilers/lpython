@@ -1729,9 +1729,7 @@ public:
     }
 
     void visit_ListCount(const ASR::ListCount_t& x) {
-        ASR::ttype_t *asr_el_type = ASR::is_a<ASR::Const_t>(*ASRUtils::expr_type(x.m_arg))
-                                        ? ASRUtils::get_contained_type(ASRUtils::type_get_past_const(ASRUtils::expr_type(x.m_arg)))
-                                        : ASRUtils::get_contained_type(ASRUtils::expr_type(x.m_arg));        
+        ASR::ttype_t *asr_el_type = ASRUtils::get_contained_type(ASRUtils::type_get_past_const(ASRUtils::expr_type(x.m_arg)));
         int64_t ptr_loads_copy = ptr_loads;
         ptr_loads = 0;
         this->visit_expr(*x.m_arg);
@@ -1746,9 +1744,7 @@ public:
 
     void generate_ListIndex(ASR::expr_t* m_arg, ASR::expr_t* m_ele,
             ASR::expr_t* m_start=nullptr, ASR::expr_t* m_end=nullptr) {
-        ASR::ttype_t *asr_el_type = ASR::is_a<ASR::Const_t>(*ASRUtils::expr_type(m_arg))
-                                        ? ASRUtils::get_contained_type(ASRUtils::type_get_past_const(ASRUtils::expr_type(m_arg)))
-                                        : ASRUtils::get_contained_type(ASRUtils::expr_type(m_arg));
+        ASR::ttype_t *asr_el_type = ASRUtils::get_contained_type(ASRUtils::type_get_past_const(ASRUtils::expr_type(m_arg)));
         int64_t ptr_loads_copy = ptr_loads;
         ptr_loads = 0;
         this->visit_expr(*m_arg);

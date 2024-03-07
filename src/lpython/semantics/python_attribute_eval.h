@@ -67,9 +67,7 @@ struct AttributeHandler {
 
     ASR::asr_t* get_attribute(ASR::expr_t *e, std::string attr_name,
             Allocator &al, const Location &loc, Vec<ASR::expr_t*> &args, diag::Diagnostics &diag) {
-        ASR::ttype_t *type = ASR::is_a<ASR::Const_t>(*ASRUtils::expr_type(e))
-                                 ? ASRUtils::type_get_past_const(ASRUtils::expr_type(e))
-                                 : ASRUtils::expr_type(e);
+        ASR::ttype_t *type = ASRUtils::type_get_past_const(ASRUtils::expr_type(e));
         std::string class_name = get_type_name(type);
         if (class_name == "") {
             throw SemanticError("Type name is not implemented yet.", loc);
@@ -184,9 +182,7 @@ struct AttributeHandler {
             throw SemanticError("count() takes exactly one argument",
                 loc);
         }
-        ASR::ttype_t *type = ASR::is_a<ASR::Const_t>(*ASRUtils::expr_type(s))
-                                 ? ASRUtils::type_get_past_const(ASRUtils::expr_type(s))
-                                 : ASRUtils::expr_type(s);
+        ASR::ttype_t *type = ASRUtils::type_get_past_const(ASRUtils::expr_type(s));
         ASR::ttype_t *list_type = ASR::down_cast<ASR::List_t>(type)->m_type;
         ASR::ttype_t *ele_type = ASRUtils::get_contained_type(list_type);
         if (!ASRUtils::check_equal_type(ele_type, list_type)) {
