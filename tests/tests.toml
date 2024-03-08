@@ -1198,6 +1198,10 @@ filename = "tokens/errors/indent3.py"
 tokens = true
 
 [[test]]
+filename = "errors/test_literal.py"
+tokens = true
+
+[[test]]
 filename = "errors/kwargs_01_error.py"
 asr = true
 
