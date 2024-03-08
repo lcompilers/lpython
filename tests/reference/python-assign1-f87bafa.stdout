@@ -11,4 +11,3 @@ def test_augassign():
     r = r / s
     a = ""
     a = a + "test"
-

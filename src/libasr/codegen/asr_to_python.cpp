@@ -238,8 +238,6 @@ public:
                 r += s;
             }
         }
-
-        r += "\n";
         s = r;
     }
 
@@ -345,7 +343,6 @@ public:
                 visit_stmt(*x.m_orelse[i]);
                 r += s;
                 dec_indent();
-                r += "\n";
             }
         }
         s = r;
