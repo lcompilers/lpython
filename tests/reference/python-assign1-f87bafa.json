@@ -1,0 +1,13 @@
+{
+    "basename": "python-assign1-f87bafa",
+    "cmd": "lpython --no-color --show-python {infile}",
+    "infile": "tests/assign1.py",
+    "infile_hash": "3b82a73e457bd65e85828b72d56596ca927e7c661e333691f154912b",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "python-assign1-f87bafa.stdout",
+    "stdout_hash": "6fa5f5e1492cac718631d3c05d27ab2ddda15dd2e56cc37a1ce188b9",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}

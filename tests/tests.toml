@@ -62,23 +62,27 @@ ast = true
 asr = true
 cpp = true
 wat = true
+python = true
 
 [[test]]
 filename = "expr4.py"
 ast = true
 asr = true
+python = true
 
 [[test]]
 filename = "expr5.py"
 ast = true
 asr = true
 cpp = true
+python = true
 
 [[test]]
 filename = "expr6.py"
 ast = true
 asr = true
 cpp = true
+python = true
 
 [[test]]
 filename = "expr7.py"
@@ -110,6 +114,7 @@ asr = true
 filename = "expr11.py"
 ast = true
 asr = true
+python = true
 
 [[test]]
 filename = "expr12.py"
@@ -134,6 +139,10 @@ cpp = true
 [[test]]
 filename = "expr16.py"
 asr = true
+
+[[test]]
+filename = "expr17.py"
+python = true
 
 [[test]]
 filename = "expr_01.py"
@@ -250,11 +259,13 @@ ast = true
 asr = true
 cpp = true
 llvm = true
+python = true
 
 [[test]]
 filename = "assign1.py"
 ast = true
 asr = true
+python = true
 
 [[test]]
 filename = "assign2.py"
