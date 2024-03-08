@@ -96,6 +96,10 @@ void lex_int(Allocator &al, const unsigned char *s,
         u.from_smallint(n);
     } else {
         lex_dec_int_large(al, s, e, u);
+        if (s[0] == '0' && u.n != 0) {            
+            throw parser_local::TokenizerError(
+                "Leading zeros in decimal integer are not allowed", {loc});
+        }
     }
     return;
 }
