@@ -6,4 +6,3 @@ def test_ifexp():
     b = 6 if (a) == (2) else 8
     c = True if (b) > (5) else False
 
-

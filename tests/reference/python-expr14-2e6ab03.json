@@ -1,0 +1,13 @@
+{
+    "basename": "python-expr14-2e6ab03",
+    "cmd": "lpython --no-color --show-python {infile}",
+    "infile": "tests/expr14.py",
+    "infile_hash": "d18abc152939c944f6a1e493754cea8b72f0d03d360ab4c9e75ad697",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "python-expr14-2e6ab03.stdout",
+    "stdout_hash": "21575ff5209313762756f1f8c19f492df623221026258fbf9a3cec54",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}

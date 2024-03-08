@@ -1,0 +1,13 @@
+def test_boolean_comparison():
+    b1: bool
+    b2: bool
+    b3: bool
+    b1 = True
+    b2 = True
+    b3 = False
+    b1 = (b1) > (b2)
+    b1 = (b1) == (b2)
+    b1 = (b2) != (b3)
+    b1 = (b2) >= (b3)
+    b1 = (b2) <= (b3)
+
