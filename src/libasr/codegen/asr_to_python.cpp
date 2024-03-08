@@ -573,6 +573,58 @@ public:
         s += "len(" + s + ")";
     }
 
+    void visit_StringItem(const ASR::StringItem_t &x) {
+        std::string r = "";
+        visit_expr(*x.m_arg);
+        r += s;
+        r += "[";
+        visit_expr(*x.m_idx);
+        r += s;
+        r += "]";
+        s = r;
+    }
+
+    void visit_StringSection(const ASR::StringSection_t &x) {
+        std::string r = "";
+        visit_expr(*x.m_arg);
+        r += s;
+        if (x.m_start) {
+            r += "[";
+            visit_expr(*x.m_start);
+            r += s;
+        }
+        if (x.m_end) {
+            r += ":";
+            visit_expr(*x.m_end);
+            r += s;
+        }
+        if (x.m_step) {
+            r += ":";
+            visit_expr(*x.m_step);
+            r += s;
+            r += "]";
+        } else {
+            r += "]";
+        }
+        s = r;
+    }
+
+    void visit_StringFormat(const ASR::StringFormat_t &x) {
+        std::string r = "";
+        visit_expr(*x.m_fmt);
+        r += s;
+        r += ".format(";
+        for (size_t i = 0; i < x.n_args; i++) {
+            visit_expr(*x.m_args[i]);
+            r += s;
+            if (i < x.n_args - 1) {
+                r += ", ";
+            }
+        }
+        r += ")";
+        s = r;
+    }
+
     void visit_IfExp(const ASR::IfExp_t &x) {
         std::string r;
         visit_expr(*x.m_body);
