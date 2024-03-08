@@ -979,12 +979,23 @@ int execute_python_using_jit(
         print_time_report(times, time_report);
         return 3;
     }
+    std::unique_ptr<LCompilers::LLVMModule> m = std::move(res.result);
 
     auto llvm_start = std::chrono::high_resolution_clock::now();
-    e.add_module(std::move(res.result));
-    try {
+
+    bool call_init = false;
+    bool call_stmts = false;
+    if (m->get_return_type("__module___main_____main__global_init") == "void")
+        call_init = true;
+    if (m->get_return_type("__module___main_____main__global_stmts") == "void")
+        call_stmts = true;
+
+    e.add_module(std::move(m));
+    if (call_init)
+        e.voidfn("__module___main_____main__global_init");
+    if (call_stmts)
         e.voidfn("__module___main_____main__global_stmts");
-    } catch (LCompilers::LCompilersException&) {}
+
     auto llvm_end = std::chrono::high_resolution_clock::now();
     times.push_back(std::make_pair("LLVM to binary", std::chrono::duration<double, std::milli>(llvm_end - llvm_start).count()));
     print_time_report(times, time_report);
