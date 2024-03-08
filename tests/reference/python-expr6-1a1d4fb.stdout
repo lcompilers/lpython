@@ -5,5 +5,3 @@ def test_ifexp():
     a = 2
     b = 6 if (a) == (2) else 8
     c = True if (b) > (5) else False
-
-

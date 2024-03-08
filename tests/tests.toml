@@ -131,6 +131,7 @@ asr = true
 filename = "expr14.py"
 llvm = true
 wat = true
+python = true
 
 [[test]]
 filename = "expr15.py"
