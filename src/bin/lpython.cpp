@@ -1908,14 +1908,6 @@ int main(int argc, char *argv[])
             return 1;
         }
 
-        if (to_jit) {
-            compiler_options.emit_debug_info = false;
-            compiler_options.emit_debug_line_column = false;
-            compiler_options.generate_object_code = false;
-            return execute_python_using_jit(arg_file, runtime_library_dir,
-                    lpython_pass_manager, compiler_options, time_report);
-        }
-
         std::string outfile;
         std::string basename;
         basename = remove_extension(arg_file);
@@ -2032,6 +2024,20 @@ int main(int argc, char *argv[])
         if (endswith(arg_file, ".py"))
         {
             int err = 0;
+            if (to_jit) {
+#ifdef HAVE_LFORTRAN_LLVM
+                if (backend != Backend::llvm)
+                    std::cerr << "JIT option is only available with LLVM backend" << std::endl;
+
+                compiler_options.emit_debug_info = false;
+                compiler_options.emit_debug_line_column = false;
+                compiler_options.generate_object_code = false;
+                return execute_python_using_jit(arg_file, runtime_library_dir,
+                        lpython_pass_manager, compiler_options, time_report);
+#else
+                std::cerr << "Just-In-Time Compilation of Python files requires the LLVM backend to be enabled. Recompile with `WITH_LLVM=yes`." << std::endl;
+#endif
+        }
             if (backend == Backend::x86) {
                 err = compile_to_binary_x86(arg_file, outfile,
                         runtime_library_dir, compiler_options, time_report);
