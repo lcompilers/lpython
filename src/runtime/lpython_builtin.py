@@ -1051,12 +1051,31 @@ def _lpython_str_isspace(s: str) -> bool:
     char: str
     w_char: str
     for char in s:
-        is_whitespace: bool = False
-        for w_char in WHITESPACE:
-            if char == w_char:
-                is_whitespace = True
-                break
-        if not is_whitespace:
+        if not (char == " "  or   # SPACE
+            char == "\n"     or   # LINE FEED (LF)
+            char == "\r"     or   # CARRIAGE RETURN (CR)
+            char == "\t"     or   # CHARACTER TABULATION (HT)
+            char == "\v"     or   # VERTICAL TAB (VT)
+            char == "\f"     or   # FORM FEED (FF)
+            char == "\u00A0" or   # NO-BREAK SPACE
+            char == "\u1680" or   # OGHAM SPACE MARK
+            char == "\u2000" or   # EN QUAD
+            char == "\u2001" or   # EM QUAD
+            char == "\u2002" or   # EN SPACE
+            char == "\u2003" or   # EM SPACE
+            char == "\u2004" or   # THREE-PER-EM SPACE
+            char == "\u2005" or   # FOUR-PER-EM SPACE
+            char == "\u2006" or   # SIX-PER-EM SPACE
+            char == "\u2007" or   # FIGURE SPACE
+            char == "\u2008" or   # PUNCTUATION SPACE
+            char == "\u2009" or   # THIN SPACE
+            char == "\u200A" or   # HAIR SPACE
+            char == "\u2028" or   # LINE SEPARATOR
+            char == "\u2029" or   # PARAGRAPH SEPARATOR
+            char == "\u202F" or   # NARROW NO-BREAK SPACE
+            char == "\u205F" or   # MEDIUM MATHEMATICAL SPACE
+            char == "\u3000"      # IDEOGRAPHIC SPACE
+        ):
             return False
     return True
 
