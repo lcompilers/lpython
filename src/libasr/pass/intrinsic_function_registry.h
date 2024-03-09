@@ -1180,8 +1180,8 @@ namespace ObjectType {
     static inline ASR::asr_t* create_ObjectType(Allocator& al, const Location& loc,
             Vec<ASR::expr_t*>& args,
             const std::function<void (const std::string &, const Location &)> err) {
-        if (args.size() > 1) {
-            err("type() takes only 1 argument `object`", loc);
+        if (args.size() != 1) {
+            err("type() takes exactly 1 argument `object` for now", loc);
         }
 
         Vec<ASR::expr_t *> arg_values;
