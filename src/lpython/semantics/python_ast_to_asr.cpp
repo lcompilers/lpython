@@ -7487,9 +7487,6 @@ we will have to use something else.
             throw SemanticError("Only Name or Attribute type supported in Call",
                 x.base.base.loc);
         }
-        if (call_name == "type" && x.n_args == 0) {
-            throw SemanticError("type() takes 1 required argument `object`", x.base.base.loc);
-        }
 
         ASR::symbol_t *s = current_scope->resolve_symbol(call_name);
         if( s && ASR::is_a<ASR::Module_t>(*s) ) {
@@ -7522,7 +7519,8 @@ we will have to use something else.
                 }
                 Vec<ASR::expr_t*> args_; args_.reserve(al, x.n_args);
                 visit_expr_list(x.m_args, x.n_args, args_);
-                if (ASRUtils::is_array(ASRUtils::expr_type(args_[0])) &&
+                
+                if (x.n_args && ASRUtils::is_array(ASRUtils::expr_type(args_[0])) &&
                     imported_functions[call_name] == "math" ) {
                     throw SemanticError("Function '" + call_name + "' does not accept vector values",
                         x.base.base.loc);
