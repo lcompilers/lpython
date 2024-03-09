@@ -6151,22 +6151,25 @@ public:
         left_type = ASRUtils::expr_type(left);
         right_type = ASRUtils::expr_type(right);
         ASR::ttype_t *dest_type = left_type;
-        if (!ASRUtils::check_equal_type(left_type, right_type)) {
-            std::string ltype = ASRUtils::type_to_str_python(ASRUtils::expr_type(left));
-            std::string rtype = ASRUtils::type_to_str_python(ASRUtils::expr_type(right));
-            diag.add(diag::Diagnostic(
-                "Type mismatch in comparison operator, the types must be compatible",
-                diag::Level::Error, diag::Stage::Semantic, {
-                    diag::Label("type mismatch ('" + ltype + "' and '" + rtype + "')",
-                            {left->base.loc, right->base.loc})
-                })
-            );
-            throw SemanticAbort();
-        }
+
         ASR::ttype_t *type = ASRUtils::TYPE(
             ASR::make_Logical_t(al, x.base.base.loc, 4));
         ASR::expr_t *value = nullptr;
 
+        if (!ASRUtils::check_equal_type(left_type, right_type)) {
+            bool result;
+            switch (asr_op) {
+                case (ASR::cmpopType::Eq):  { result = 0; break; }
+                case (ASR::cmpopType::NotEq): { result = 1; break; }
+                default: {
+                    throw SemanticError("Comparison operator not supported between instances of '" + ASRUtils::type_to_str_python(left_type) 
+                    + "' and '" + ASRUtils::type_to_str_python(right_type) + "'",
+                                        x.base.base.loc);
+                }
+            }
+            tmp = ASR::make_LogicalConstant_t(al, x.base.base.loc, result, type);
+            return;
+        }
         if( ASR::is_a<ASR::Enum_t>(*dest_type) || ASR::is_a<ASR::Const_t>(*dest_type) ) {
             dest_type = ASRUtils::get_contained_type(dest_type);
         }
