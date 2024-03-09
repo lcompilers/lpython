@@ -1185,8 +1185,6 @@ namespace ObjectType {
         }
 
         Vec<ASR::expr_t *> arg_values;
-        arg_values.reserve(al, 1);
-        arg_values.push_back(al, expr_value(args[0]));
         ASR::expr_t *m_value = eval_ObjectType(al, loc, expr_type(args[0]), arg_values);
         return ASR::make_IntrinsicScalarFunction_t(al, loc,
             static_cast<int64_t>(IntrinsicScalarFunctions::ObjectType),
