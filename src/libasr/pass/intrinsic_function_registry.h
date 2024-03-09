@@ -1191,18 +1191,6 @@ namespace ObjectType {
             args.p, args.n, 0, ASRUtils::expr_type(args[0]), m_value);
     }
 
-    static inline ASR::expr_t* instantiate_ObjectType(Allocator &al, const Location &loc,
-            SymbolTable *scope, Vec<ASR::ttype_t*>& arg_types, ASR::ttype_t *return_type,
-            Vec<ASR::call_arg_t>& new_args, int64_t /*overload_id*/) {
-        declare_basic_variables("_lcompilers_objectType_" + type_to_str_python(arg_types[0]));
-        fill_func_arg("a", arg_types[0]);
-        auto result = declare(fn_name, return_type, ReturnVar);
-
-        ASR::symbol_t *f_sym = make_ASR_Function_t(fn_name, fn_symtab, dep, args,
-            body, result, ASR::abiType::Source, ASR::deftypeType::Implementation, nullptr);
-        scope->add_symbol(fn_name, f_sym);
-        return b.Call(f_sym, new_args, return_type, nullptr);
-    }
 
 } // namespace ObjectType
 
