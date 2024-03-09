@@ -729,6 +729,7 @@ RUN(NAME test_gruntz         LABELS cpython_sym c_sym llvm_sym NOFAST)
 RUN(NAME symbolics_15        LABELS c_sym llvm_sym NOFAST)
 RUN(NAME symbolics_16        LABELS cpython_sym c_sym llvm_sym NOFAST)
 RUN(NAME symbolics_17        LABELS cpython_sym c_sym llvm_sym NOFAST)
+RUN(NAME symbolics_18        LABELS cpython_sym c_sym llvm_sym NOFAST)
 
 RUN(NAME sizeof_01           LABELS llvm c
         EXTRAFILES sizeof_01b.c)
