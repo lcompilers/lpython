@@ -792,13 +792,17 @@ int emit_llvm(const std::string &infile,
     return 0;
 }
 
-int compile_python_to_object_file(
+/*
+    Compiles python to object file, if `to_jit` is false
+    otherwise execute python code using llvm JIT
+*/
+int compile_python_using_llvm(
         const std::string &infile,
         const std::string &outfile,
         const std::string &runtime_library_dir,
         LCompilers::PassManager& pass_manager,
         CompilerOptions &compiler_options,
-        bool time_report, bool arg_c=false)
+        bool time_report, bool arg_c=false, bool to_jit=false)
 {
     Allocator al(4*1024);
     LCompilers::diag::Diagnostics diagnostics;
@@ -869,104 +873,6 @@ int compile_python_to_object_file(
     }
     LCompilers::PythonCompiler fe(compiler_options);
     LCompilers::LLVMEvaluator e(compiler_options.target);
-    std::unique_ptr<LCompilers::LLVMModule> m;
-    auto asr_to_llvm_start = std::chrono::high_resolution_clock::now();
-    LCompilers::Result<std::unique_ptr<LCompilers::LLVMModule>>
-        res = fe.get_llvm3(*asr, pass_manager, diagnostics, infile);
-    auto asr_to_llvm_end = std::chrono::high_resolution_clock::now();
-    times.push_back(std::make_pair("ASR to LLVM", std::chrono::duration<double, std::milli>(asr_to_llvm_end - asr_to_llvm_start).count()));
-
-    std::cerr << diagnostics.render(lm, compiler_options);
-    if (!res.ok) {
-        LCOMPILERS_ASSERT(diagnostics.has_error())
-        print_time_report(times, time_report);
-        return 3;
-    }
-    m = std::move(res.result);
-    auto llvm_start = std::chrono::high_resolution_clock::now();
-    e.save_object_file(*(m->m_m), outfile);
-    auto llvm_end = std::chrono::high_resolution_clock::now();
-    times.push_back(std::make_pair("LLVM to binary", std::chrono::duration<double, std::milli>(llvm_end - llvm_start).count()));
-    print_time_report(times, time_report);
-    return 0;
-}
-
-int execute_python_using_jit(
-        const std::string &infile,
-        const std::string &runtime_library_dir,
-        LCompilers::PassManager& pass_manager,
-        CompilerOptions &compiler_options,
-        bool time_report)
-{
-    Allocator al(4*1024);
-    LCompilers::diag::Diagnostics diagnostics;
-    LCompilers::LocationManager lm;
-    std::vector<std::pair<std::string, double>>times;
-    {
-        LCompilers::LocationManager::FileLocations fl;
-        fl.in_filename = infile;
-        lm.files.push_back(fl);
-
-        auto file_reading_start = std::chrono::high_resolution_clock::now();
-        std::string input = LCompilers::read_file(infile);
-        auto file_reading_end = std::chrono::high_resolution_clock::now();
-        times.push_back(std::make_pair("File reading", std::chrono::duration
-            <double, std::milli>(file_reading_end - file_reading_start).count()));
-
-        lm.init_simple(input);
-        lm.file_ends.push_back(input.size());
-    }
-    auto parsing_start = std::chrono::high_resolution_clock::now();
-    LCompilers::Result<LCompilers::LPython::AST::ast_t*> r = parse_python_file(
-        al, runtime_library_dir, infile, diagnostics, 0, compiler_options.new_parser);
-    auto parsing_end = std::chrono::high_resolution_clock::now();
-    times.push_back(std::make_pair("Parsing", std::chrono::duration<double, std::milli>(parsing_end - parsing_start).count()));
-    std::cerr << diagnostics.render(lm, compiler_options);
-    if (!r.ok) {
-        print_time_report(times, time_report);
-        return 1;
-    }
-
-    // Src -> AST -> ASR
-    LCompilers::LPython::AST::ast_t* ast = r.result;
-    diagnostics.diagnostics.clear();
-    auto ast_to_asr_start = std::chrono::high_resolution_clock::now();
-    LCompilers::Result<LCompilers::ASR::TranslationUnit_t*>
-        r1 = LCompilers::LPython::python_ast_to_asr(al, lm, nullptr, *ast, diagnostics, compiler_options,
-            !(false && compiler_options.po.disable_main), "__main__", infile);
-
-    auto ast_to_asr_end = std::chrono::high_resolution_clock::now();
-    times.push_back(std::make_pair("AST to ASR", std::chrono::duration<double, std::milli>(ast_to_asr_end - ast_to_asr_start).count()));
-    std::cerr << diagnostics.render(lm, compiler_options);
-    if (!r1.ok) {
-        LCOMPILERS_ASSERT(diagnostics.has_error())
-        print_time_report(times, time_report);
-        return 2;
-    }
-    LCompilers::ASR::TranslationUnit_t* asr = r1.result;
-    if( compiler_options.po.disable_main ) {
-        int err = LCompilers::LPython::save_pyc_files(*asr, infile);
-        if( err ) {
-            return err;
-        }
-    }
-    diagnostics.diagnostics.clear();
-
-    // ASR -> LLVM
-    if (compiler_options.emit_debug_info) {
-#ifndef HAVE_RUNTIME_STACKTRACE
-        diagnostics.add(LCompilers::diag::Diagnostic(
-            "The `runtime stacktrace` is not enabled. To get the stacktraces, "
-            "re-build LPython with `-DWITH_RUNTIME_STACKTRACE=yes`",
-            LCompilers::diag::Level::Error,
-            LCompilers::diag::Stage::Semantic, {})
-        );
-        std::cerr << diagnostics.render(lm, compiler_options);
-        return 1;
-#endif
-    }
-    LCompilers::PythonCompiler fe(compiler_options);
-    LCompilers::LLVMEvaluator e(compiler_options.target);
     auto asr_to_llvm_start = std::chrono::high_resolution_clock::now();
     LCompilers::Result<std::unique_ptr<LCompilers::LLVMModule>>
         res = fe.get_llvm3(*asr, pass_manager, diagnostics, infile);
@@ -981,24 +887,32 @@ int execute_python_using_jit(
     }
     std::unique_ptr<LCompilers::LLVMModule> m = std::move(res.result);
 
-    auto llvm_start = std::chrono::high_resolution_clock::now();
+    if (to_jit) {
+        auto llvm_start = std::chrono::high_resolution_clock::now();
 
-    bool call_init = false;
-    bool call_stmts = false;
-    if (m->get_return_type("__module___main_____main__global_init") == "void")
-        call_init = true;
-    if (m->get_return_type("__module___main_____main__global_stmts") == "void")
-        call_stmts = true;
+        bool call_init = false;
+        bool call_stmts = false;
+        if (m->get_return_type("__module___main_____main__global_init") == "void")
+            call_init = true;
+        if (m->get_return_type("__module___main_____main__global_stmts") == "void")
+            call_stmts = true;
 
-    e.add_module(std::move(m));
-    if (call_init)
-        e.voidfn("__module___main_____main__global_init");
-    if (call_stmts)
-        e.voidfn("__module___main_____main__global_stmts");
+        e.add_module(std::move(m));
+        if (call_init)
+            e.voidfn("__module___main_____main__global_init");
+        if (call_stmts)
+            e.voidfn("__module___main_____main__global_stmts");
 
-    auto llvm_end = std::chrono::high_resolution_clock::now();
-    times.push_back(std::make_pair("LLVM to binary", std::chrono::duration<double, std::milli>(llvm_end - llvm_start).count()));
-    print_time_report(times, time_report);
+        auto llvm_end = std::chrono::high_resolution_clock::now();
+        times.push_back(std::make_pair("LLVM JIT execution", std::chrono::duration<double, std::milli>(llvm_end - llvm_start).count()));
+        print_time_report(times, time_report);
+    } else {
+        auto llvm_start = std::chrono::high_resolution_clock::now();
+        e.save_object_file(*(m->m_m), outfile);
+        auto llvm_end = std::chrono::high_resolution_clock::now();
+        times.push_back(std::make_pair("LLVM to binary", std::chrono::duration<double, std::milli>(llvm_end - llvm_start).count()));
+        print_time_report(times, time_report);
+    }
     return 0;
 }
 
@@ -2010,7 +1924,7 @@ int main(int argc, char *argv[])
         if (arg_c) {
             if (backend == Backend::llvm) {
 #ifdef HAVE_LFORTRAN_LLVM
-                return compile_python_to_object_file(arg_file, outfile, runtime_library_dir, lpython_pass_manager, compiler_options, time_report,
+                return compile_python_using_llvm(arg_file, outfile, runtime_library_dir, lpython_pass_manager, compiler_options, time_report,
                                                      arg_c);
 #else
                 std::cerr << "The -c option requires the LLVM backend to be enabled. Recompile with `WITH_LLVM=yes`." << std::endl;
@@ -2032,10 +1946,11 @@ int main(int argc, char *argv[])
                 compiler_options.emit_debug_info = false;
                 compiler_options.emit_debug_line_column = false;
                 compiler_options.generate_object_code = false;
-                return execute_python_using_jit(arg_file, runtime_library_dir,
-                        lpython_pass_manager, compiler_options, time_report);
+                err = compile_python_using_llvm(arg_file, nullptr, runtime_library_dir,
+                        lpython_pass_manager, compiler_options, time_report, false, true);
 #else
-                std::cerr << "Just-In-Time Compilation of Python files requires the LLVM backend to be enabled. Recompile with `WITH_LLVM=yes`." << std::endl;
+                std::cerr << "Just-In-Time Compilation of Python files requires the LLVM backend to be enabled."
+                             " Recompile with `WITH_LLVM=yes`." << std::endl;
 #endif
         }
             if (backend == Backend::x86) {
@@ -2058,7 +1973,7 @@ int main(int argc, char *argv[])
             } else if (backend == Backend::llvm) {
 #ifdef HAVE_LFORTRAN_LLVM
                 std::string tmp_o = outfile + ".tmp.o";
-                err = compile_python_to_object_file(arg_file, tmp_o, runtime_library_dir,
+                err = compile_python_using_llvm(arg_file, tmp_o, runtime_library_dir,
                     lpython_pass_manager, compiler_options, time_report);
                 if (err != 0) return err;
                 err = link_executable({tmp_o}, outfile, runtime_library_dir,
