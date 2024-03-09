@@ -3040,6 +3040,7 @@ PyMODINIT_FUNC PyInit_lpython_module_)" + fn_name + R"((void) {
         std::string out;
         std::string indent(4, ' ');
         switch (x.m_intrinsic_id) {
+            SET_INTRINSIC_NAME(ObjectType, "type");
             SET_INTRINSIC_NAME(Sin, "sin");
             SET_INTRINSIC_NAME(Cos, "cos");
             SET_INTRINSIC_NAME(Tan, "tan");

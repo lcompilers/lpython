@@ -27,6 +27,7 @@ the code size.
 */
 
 enum class IntrinsicScalarFunctions : int64_t {
+    ObjectType,
     Sin,
     Cos,
     Tan,
@@ -100,6 +101,7 @@ enum class IntrinsicScalarFunctions : int64_t {
 
 inline std::string get_intrinsic_name(int x) {
     switch (x) {
+        INTRINSIC_NAME_CASE(ObjectType)
         INTRINSIC_NAME_CASE(Sin)
         INTRINSIC_NAME_CASE(Cos)
         INTRINSIC_NAME_CASE(Tan)
@@ -1159,6 +1161,55 @@ static inline void verify_args(const ASR::IntrinsicScalarFunction_t& x,
 }
 
 } // namespace BinaryIntrinsicFunction
+
+
+namespace ObjectType {
+
+     static inline void verify_args(const ASR::IntrinsicScalarFunction_t& x, diag::Diagnostics& diagnostics) {
+        ASRUtils::require_impl(x.n_args != 1,
+            "ASR Verify: type() accepts 1 argument `name`",
+            x.base.base.loc, diagnostics);
+    }
+
+    static ASR::expr_t *eval_ObjectType(Allocator &al, const Location &loc,
+            ASR::ttype_t* t1, Vec<ASR::expr_t*>& args) {
+        std::string object_type = "<type '" + ASRUtils::type_to_str_python(t1) + "'>";
+        return ASR::down_cast<ASR::expr_t>(
+            ASR::make_StringConstant_t(al, loc, s2c(al, object_type), character(object_type.length()))
+            );
+    }
+
+    static inline ASR::asr_t* create_ObjectType(Allocator& al, const Location& loc,
+            Vec<ASR::expr_t*>& args,
+            const std::function<void (const std::string &, const Location &)> err) {
+        if (args.size() > 1) {
+            err("type() currently accepts only 1 argument `name`", loc);
+        }
+
+        Vec<ASR::expr_t *> arg_values;
+        arg_values.reserve(al, 1);
+        arg_values.push_back(al, expr_value(args[0]));
+        ASR::expr_t *m_value = eval_ObjectType(al, loc, expr_type(args[0]), arg_values);
+        return ASR::make_IntrinsicScalarFunction_t(al, loc,
+            static_cast<int64_t>(IntrinsicScalarFunctions::ObjectType),
+            args.p, args.n, 0, ASRUtils::expr_type(args[0]), m_value);
+    }
+
+    static inline ASR::expr_t* instantiate_ObjectType(Allocator &al, const Location &loc,
+            SymbolTable *scope, Vec<ASR::ttype_t*>& arg_types, ASR::ttype_t *return_type,
+            Vec<ASR::call_arg_t>& new_args, int64_t /*overload_id*/) {
+        declare_basic_variables("_lcompilers_objectType_" + type_to_str_python(arg_types[0]));
+        fill_func_arg("a", arg_types[0]);
+        auto result = declare(fn_name, return_type, ReturnVar);
+
+        ASR::symbol_t *f_sym = make_ASR_Function_t(fn_name, fn_symtab, dep, args,
+            body, result, ASR::abiType::Source, ASR::deftypeType::Implementation, nullptr);
+        scope->add_symbol(fn_name, f_sym);
+        return b.Call(f_sym, new_args, return_type, nullptr);
+    }
+
+} // namespace ObjectType
+
 
 namespace LogGamma {
 
@@ -3625,6 +3676,8 @@ namespace IntrinsicScalarFunctionRegistry {
     static const std::map<int64_t,
         std::tuple<impl_function,
                    verify_function>>& intrinsic_function_by_id_db = {
+        {static_cast<int64_t>(IntrinsicScalarFunctions::ObjectType),
+            {&ObjectType::instantiate_ObjectType, &UnaryIntrinsicFunction::verify_args}},
         {static_cast<int64_t>(IntrinsicScalarFunctions::LogGamma),
             {&LogGamma::instantiate_LogGamma, &UnaryIntrinsicFunction::verify_args}},
         {static_cast<int64_t>(IntrinsicScalarFunctions::Trunc),
@@ -3752,9 +3805,10 @@ namespace IntrinsicScalarFunctionRegistry {
     };
 
     static const std::map<int64_t, std::string>& intrinsic_function_id_to_name = {
+        {static_cast<int64_t>(IntrinsicScalarFunctions::ObjectType),
+            "type"},
         {static_cast<int64_t>(IntrinsicScalarFunctions::LogGamma),
             "log_gamma"},
-
         {static_cast<int64_t>(IntrinsicScalarFunctions::Trunc),
             "trunc"},
         {static_cast<int64_t>(IntrinsicScalarFunctions::Fix),
@@ -3881,6 +3935,7 @@ namespace IntrinsicScalarFunctionRegistry {
     static const std::map<std::string,
         std::tuple<create_intrinsic_function,
                     eval_intrinsic_function>>& intrinsic_function_by_name_db = {
+                {"type", {&ObjectType::create_ObjectType, &ObjectType::eval_ObjectType}},
                 {"log_gamma", {&LogGamma::create_LogGamma, &LogGamma::eval_log_gamma}},
                 {"trunc", {&Trunc::create_Trunc, &Trunc::eval_Trunc}},
                 {"fix", {&Fix::create_Fix, &Fix::eval_Fix}},
