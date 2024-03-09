@@ -1167,23 +1167,21 @@ namespace ObjectType {
 
      static inline void verify_args(const ASR::IntrinsicScalarFunction_t& x, diag::Diagnostics& diagnostics) {
         ASRUtils::require_impl(x.n_args != 1,
-            "ASR Verify: type() accepts 1 argument `name`",
+            "ASR Verify: type() takes only 1 argument `object`",
             x.base.base.loc, diagnostics);
     }
 
     static ASR::expr_t *eval_ObjectType(Allocator &al, const Location &loc,
             ASR::ttype_t* t1, Vec<ASR::expr_t*>& args) {
         std::string object_type = "<type '" + ASRUtils::type_to_str_python(t1) + "'>";
-        return ASR::down_cast<ASR::expr_t>(
-            ASR::make_StringConstant_t(al, loc, s2c(al, object_type), character(object_type.length()))
-            );
+        return StringConstant(object_type, character(object_type.length()));
     }
 
     static inline ASR::asr_t* create_ObjectType(Allocator& al, const Location& loc,
             Vec<ASR::expr_t*>& args,
             const std::function<void (const std::string &, const Location &)> err) {
         if (args.size() > 1) {
-            err("type() currently accepts only 1 argument `name`", loc);
+            err("type() takes only 1 argument `object`", loc);
         }
 
         Vec<ASR::expr_t *> arg_values;

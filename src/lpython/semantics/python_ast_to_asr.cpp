@@ -7488,7 +7488,7 @@ we will have to use something else.
                 x.base.base.loc);
         }
         if (call_name == "type" && x.n_args == 0) {
-            throw SemanticError("type() takes 1 required argument `name`", x.base.base.loc);
+            throw SemanticError("type() takes 1 required argument `object`", x.base.base.loc);
         }
 
         ASR::symbol_t *s = current_scope->resolve_symbol(call_name);
