@@ -1172,7 +1172,7 @@ namespace ObjectType {
     }
 
     static ASR::expr_t *eval_ObjectType(Allocator &al, const Location &loc,
-            ASR::ttype_t* t1, Vec<ASR::expr_t*>& args) {
+            ASR::ttype_t* t1, Vec<ASR::expr_t*>& /*args*/) {
         std::string object_type = "<type '" + ASRUtils::type_to_str_python(t1) + "'>";
         return StringConstant(object_type, character(object_type.length()));
     }
