@@ -923,7 +923,7 @@ def _lpython_str_replace(x: str, old:str, new:str) -> str:
         for i in x:
             res += new + i
         return res
-    return _lpython_str_join(new, _lpython_str_split(x,old))
+    return _lpython_str_replace(x, old, new, len(x))
     
 
 @overload
