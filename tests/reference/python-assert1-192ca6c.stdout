@@ -3,5 +3,3 @@ def test_assert():
     a = 5
     assert (a) == (5), "a is not 5"
     assert (a) != (10)
-
-
