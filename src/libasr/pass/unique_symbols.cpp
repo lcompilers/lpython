@@ -61,9 +61,8 @@ class SymbolRenameVisitor: public ASR::BaseWalkVisitor<SymbolRenameVisitor> {
         "_Alignas", "_Alignof", "_Atomic", "_Bool", "_Complex", "_Generic", "_Imaginary", "_Noreturn", "_Static_assert", "_Thread_local", "auto", "break", "case", "char", "_Bool", "const", "continue", "default", "do", "double", "else", "enum", "extern", "float", "for", "goto", "if", "int", "long", "register", "return", "short", "signed", "sizeof", "static", "struct", "switch", "typedef", "union", "unsigned", "void", "volatile", "while"
     };
 
-    
-    void mangle_c(ASR::symbol_t* sym, const std::string& name){
-        
+//TODO: Implement other backends mangling when refactoring the pass infrastructure    
+    void mangle_c(ASR::symbol_t* sym, const std::string& name){        
         if (reserved_keywords_c.find(name) != reserved_keywords_c.end()) {
             sym_to_renamed[sym] = "_xx_"+std::string(name)+"_xx_";
         }
