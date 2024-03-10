@@ -709,3 +709,64 @@ def remainder(x: f64, y: f64) -> f64:
     if x - y*f64(q) > y*f64(q + i64(1)) - x:
         return x - y*f64(q + i64(1))
     return x - y*f64(q)
+
+
+def sumprod(x: list[f64], y: list[f64]) -> f64:
+    '''
+    Return the sum of products of values from the lists x and y.
+    '''
+    if len(x) != len(y):
+        raise ValueError("The two lists must have the same length.")
+    
+    result: f64 = 0.0
+    for i in range(len(x)):
+        result += x[i] * y[i]
+
+    return result
+
+
+@overload
+def frexp(x:f64) -> tuple[f64,i16]:
+    '''
+    Return the mantissa and exponent of x as the pair (m, e).
+    m is a float and e is an integer such that x == m * 2**e exactly.
+    '''
+    exponent: i16 = 0
+    while fabs(x) > 1.0:
+        exponent += 1
+        x /= 2.0
+    return x, exponent
+
+
+@overload
+def frexp(x:f32) -> tuple[f32,i8]:
+    '''
+    Return the mantissa and exponent of x as the pair (m, e).
+    m is a float and e is an integer such that x == m * 2**e exactly.
+    '''
+    exponent: i8 = 0
+    while fabs(x) > 1.0:
+        exponent += 1
+        x /= 2.0
+    return x, exponent
+
+
+@overload
+def isclose(a:f64, b:f64, *, rel_tol:f64 = 1e-09, abs_tol:f64 = 0.0) -> bool:
+    '''
+    Return True if the values a and b are close to each other and False otherwise.
+    '''
+    diff = fabs(a-b)
+    greater = max(fabs(a),fabs(b))
+    return (diff <= rel_tol*greater) and (diff <= abs_tol)
+
+
+@overload
+def isclose(a:f32, b:f32, *, rel_tol:f64 = 1e-09, abs_tol:f64 = 0.0) -> bool:
+    '''
+    Return True if the values a and b are close to each other and False otherwise.
+    '''
+    diff = fabs(a-b)
+    greater = max(fabs(a),fabs(b))
+    return (diff <= rel_tol*greater) and (diff <= abs_tol)
+
