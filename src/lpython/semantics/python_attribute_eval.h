@@ -68,7 +68,7 @@ struct AttributeHandler {
     ASR::asr_t* get_attribute(ASR::expr_t *e, std::string attr_name,
             Allocator &al, const Location &loc, Vec<ASR::expr_t*> &args, diag::Diagnostics &diag) {
         ASR::ttype_t *type = ASRUtils::expr_type(e);
-        std::string class_name = ASR::is_a<ASR::Const_t>(*type) ? "dict" : get_type_name(type);
+        std::string class_name = get_type_name(ASRUtils::type_get_past_const(type));
         if (class_name == "") {
             throw SemanticError("Type name is not implemented yet.", loc);
         }
