@@ -115,7 +115,10 @@ def test_str_split():
     # assert res6 == [""]
 
 def test_str_replace():
+    x: str = "abc"
     a: str = "zzaaabracadabra"
+    print(x.replace("", ","))
+    print(a.replace("a",""))
     print(a.replace("",""))
     print(a.replace("a","b"))
     print(a.replace("e","a")) 
@@ -136,6 +139,7 @@ def test_str_replace():
     print(a.replace("b","k",1))
     print(a.replace("b","k",2))
     print(a.replace("zza","yo",2))
+    assert a.replace("a","") == "zzbrcdbr"
     assert a.replace("","") == "zzaaabracadabra"
     assert a.replace("a","b") == "zzbbbbrbcbdbbrb"
     assert a.replace("e","a") == "zzaaabracadabra"
@@ -156,6 +160,8 @@ def test_str_replace():
     assert a.replace("b","k",1) == "zzaaakracadabra"
     assert a.replace("b","k",2) == "zzaaakracadakra"
     assert a.replace("zza","yo",2) == "yoaabracadabra"
+    assert x.replace("", ",") == ",a,b,c,"
+
 
 def check():
     f()

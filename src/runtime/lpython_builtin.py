@@ -917,12 +917,6 @@ def _lpython_str_split(x: str, sep:str) -> list[str]:
 
 @overload
 def _lpython_str_replace(x: str, old:str, new:str) -> str:
-    if (old == ""):
-        res: str = ""
-        i: str
-        for i in x:
-            res += new + i
-        return res
     return _lpython_str_replace(x, old, new, len(x))
     
 
@@ -933,7 +927,7 @@ def _lpython_str_replace(x: str, old:str, new:str, count: i32) -> str:
         s: str
         for s in x:
             res1 += new + s
-        return res1
+        return res1 + new
     res: str = ""
     i: i32 = 0
     ind: i32 = -1
