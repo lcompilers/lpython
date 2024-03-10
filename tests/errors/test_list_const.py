@@ -1,3 +1,5 @@
+from lpython import i32, list, Const
+
 def test_list_const():
     CONST_INTEGER_LIST: Const[list[i32]] = [1, 2, 3, 4, 5, 1]
 
@@ -9,4 +11,4 @@ def test_list_const():
     CONST_INTEGER_LIST.clear()
     CONST_INTEGER_LIST.remove(1)
 
-
+test_list_const()
