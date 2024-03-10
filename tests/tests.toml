@@ -489,6 +489,10 @@ filename = "../integration_tests/global_syms_01.py"
 asr = true
 
 [[test]]
+filename = "../integration_tests/test_list_const.py"
+asr = true
+
+[[test]]
 filename = "cast.py"
 asr = true
 
@@ -826,6 +830,10 @@ asr = true
 
 [[test]]
 filename = "errors/test_list_slicing.py"
+asr = true
+
+[[test]]
+filename = "errors/test_list_const.py"
 asr = true
 
 [[test]]
