@@ -1188,7 +1188,7 @@ namespace ObjectType {
         ASR::expr_t *m_value = eval_ObjectType(al, loc, expr_type(args[0]), arg_values);
         return ASR::make_IntrinsicScalarFunction_t(al, loc,
             static_cast<int64_t>(IntrinsicScalarFunctions::ObjectType),
-            args.p, args.n, 0, ASRUtils::expr_type(args[0]), m_value);
+            args.p, args.n, 0, ASRUtils::expr_type(m_value), m_value);
     }
 
 
