@@ -732,7 +732,7 @@ def frexp(x:f64) -> tuple[f64,i16]:
     Return the mantissa and exponent of x as the pair (m, e).
     m is a float and e is an integer such that x == m * 2**e exactly.
     '''
-    exponent: i16 = 0
+    exponent: i16 = i16(0)
     while fabs(x) > 1.0:
         exponent += 1
         x /= 2.0
@@ -745,7 +745,7 @@ def frexp(x:f32) -> tuple[f32,i8]:
     Return the mantissa and exponent of x as the pair (m, e).
     m is a float and e is an integer such that x == m * 2**e exactly.
     '''
-    exponent: i8 = 0
+    exponent: i8 = i8(0)
     while fabs(x) > 1.0:
         exponent += 1
         x /= 2.0
