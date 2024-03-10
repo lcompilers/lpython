@@ -112,6 +112,11 @@
                                             )]
                                             []
                                         )]
+                                        [(Print
+                                            [(IntegerConstant 10 (Integer 4))]
+                                            ()
+                                            ()
+                                        )]
                                     )]
                                     ()
                                     Public
@@ -199,6 +204,11 @@
                                                 (Integer 4)
                                                 ()
                                             )
+                                            ()
+                                        )]
+                                        [(Print
+                                            [(IntegerConstant 10 (Integer 4))]
+                                            ()
                                             ()
                                         )]
                                     )]
