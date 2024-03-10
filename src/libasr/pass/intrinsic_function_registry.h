@@ -2558,7 +2558,7 @@ static inline ASR::asr_t* create_ListIndex(Allocator& al, const Location& loc,
     ASR::expr_t* list_expr = args[0];
     ASR::ttype_t *type = ASRUtils::type_get_past_const(ASRUtils::expr_type(list_expr));
     ASR::ttype_t *list_type = ASR::down_cast<ASR::List_t>(type)->m_type;
-    ASR::ttype_t *ele_type = ASRUtils::get_contained_type(list_type);
+    ASR::ttype_t *ele_type = ASRUtils::expr_type(args[1]);
     if (!ASRUtils::check_equal_type(ele_type, list_type)) {
         std::string fnd = ASRUtils::get_type_code(ele_type);
         std::string org = ASRUtils::get_type_code(list_type);

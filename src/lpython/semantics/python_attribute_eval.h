@@ -184,7 +184,7 @@ struct AttributeHandler {
         }
         ASR::ttype_t *type = ASRUtils::type_get_past_const(ASRUtils::expr_type(s));
         ASR::ttype_t *list_type = ASR::down_cast<ASR::List_t>(type)->m_type;
-        ASR::ttype_t *ele_type = ASRUtils::get_contained_type(list_type);
+        ASR::ttype_t *ele_type = ASRUtils::expr_type(args[0]);
         if (!ASRUtils::check_equal_type(ele_type, list_type)) {
             std::string fnd = ASRUtils::type_to_str_python(ele_type);
             std::string org = ASRUtils::type_to_str_python(list_type);
