@@ -1,0 +1,13 @@
+{
+    "basename": "asr-test_const_list_clear-33bfae7",
+    "cmd": "lpython --show-asr --no-color {infile} -o {outfile}",
+    "infile": "tests/errors/test_const_list_clear.py",
+    "infile_hash": "df04c8c3b9063bbbe0a24443f962c70732fecef59a7418cd7d5182af",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": null,
+    "stdout_hash": null,
+    "stderr": "asr-test_const_list_clear-33bfae7.stderr",
+    "stderr_hash": "5c0c698319211c447c76e3309a027ee068dffded22d87bb3024cedf9",
+    "returncode": 2
+}

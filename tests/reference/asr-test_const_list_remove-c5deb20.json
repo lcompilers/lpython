@@ -1,0 +1,13 @@
+{
+    "basename": "asr-test_const_list_remove-c5deb20",
+    "cmd": "lpython --show-asr --no-color {infile} -o {outfile}",
+    "infile": "tests/errors/test_const_list_remove.py",
+    "infile_hash": "e2bfdbf86ced2fae5e85037b6ea8479c1b73ab9b11b21c259739f8c1",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": null,
+    "stdout_hash": null,
+    "stderr": "asr-test_const_list_remove-c5deb20.stderr",
+    "stderr_hash": "3529d822548d9327dbd0eab32aebc7b4a0da518cc0a6c2356e65c7b8",
+    "returncode": 2
+}

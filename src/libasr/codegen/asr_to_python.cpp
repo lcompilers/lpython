@@ -165,7 +165,6 @@ public:
             if (is_a<ASR::Module_t>(*item.second)) {
                 visit_symbol(*item.second);
                 r += s;
-                r += "\n";
             }
         }
 
@@ -173,7 +172,6 @@ public:
             if (is_a<ASR::Function_t>(*item.second)) {
                 visit_symbol(*item.second);
                 r += s;
-                r += "\n";
             }
         }
 
@@ -240,8 +238,6 @@ public:
                 r += s;
             }
         }
-
-        r += "\n";
         s = r;
     }
 
@@ -347,7 +343,6 @@ public:
                 visit_stmt(*x.m_orelse[i]);
                 r += s;
                 dec_indent();
-                r += "\n";
             }
         }
         s = r;
