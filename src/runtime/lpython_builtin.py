@@ -1023,7 +1023,6 @@ def _lpython_str_isspace(s: str) -> bool:
         return False
     
     char: str
-    w_char: str
     for char in s:
         if not (char == " "  or   # SPACE
             char == "\n"     or   # LINE FEED (LF)
