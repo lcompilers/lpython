@@ -1,0 +1,117 @@
+(TranslationUnit
+    (SymbolTable
+        1
+        {
+            __main__:
+                (Module
+                    (SymbolTable
+                        2
+                        {
+                            test_list_count_error:
+                                (Function
+                                    (SymbolTable
+                                        3
+                                        {
+                                            __lcompilers_dummy:
+                                                (Variable
+                                                    3
+                                                    __lcompilers_dummy
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Integer 4)
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                ),
+                                            a:
+                                                (Variable
+                                                    3
+                                                    a
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (List
+                                                        (Integer 4)
+                                                    )
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                )
+                                        })
+                                    test_list_count_error
+                                    (FunctionType
+                                        []
+                                        ()
+                                        Source
+                                        Implementation
+                                        ()
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .false.
+                                        []
+                                        .false.
+                                    )
+                                    []
+                                    []
+                                    [(=
+                                        (Var 3 a)
+                                        (ListConstant
+                                            [(IntegerConstant 1 (Integer 4))
+                                            (IntegerConstant 2 (Integer 4))
+                                            (IntegerConstant 3 (Integer 4))]
+                                            (List
+                                                (Integer 4)
+                                            )
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (Var 3 __lcompilers_dummy)
+                                        (ListCount
+                                            (Var 3 a)
+                                            (RealConstant
+                                                1.000000
+                                                (Real 8)
+                                            )
+                                            (Integer 4)
+                                            ()
+                                        )
+                                        ()
+                                    )]
+                                    ()
+                                    Public
+                                    .false.
+                                    .false.
+                                    ()
+                                )
+                        })
+                    __main__
+                    []
+                    .false.
+                    .false.
+                ),
+            main_program:
+                (Program
+                    (SymbolTable
+                        4
+                        {
+                            
+                        })
+                    main_program
+                    []
+                    []
+                )
+        })
+    []
+)

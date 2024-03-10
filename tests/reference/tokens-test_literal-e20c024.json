@@ -2,11 +2,11 @@
     "basename": "tokens-test_literal-e20c024",
     "cmd": "lpython --no-color --show-tokens {infile} -o {outfile}",
     "infile": "tests/errors/test_literal.py",
-    "infile_hash": "ac9e219faa40c6554983087e8ac198c323f2e5af284b8689f5608f76",
+    "infile_hash": "51816f91966accc300687c81b8903f6d64f96dd7085f9f8b82e5f19a",
     "outfile": null,
     "outfile_hash": null,
     "stdout": "tokens-test_literal-e20c024.stdout",
-    "stdout_hash": "5eef739e7cd2a03fa9b24992f8c4436186d69d8f3a045a00e5a0d6a1",
+    "stdout_hash": "cd5d90b5519655776ec9d8723286c9cd7259c1063269a5919fbdc5b9",
     "stderr": null,
     "stderr_hash": null,
     "returncode": 0

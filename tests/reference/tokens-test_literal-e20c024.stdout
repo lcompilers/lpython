@@ -1,13 +1,25 @@
-(KEYWORD "def") 0:2
-(TOKEN "identifier" test_literal1) 4:16
-(TOKEN "(") 17:17
-(TOKEN ")") 18:18
-(TOKEN ":") 19:19
-(NEWLINE) 20:20
-(TOKEN "indent") 21:24
-(TOKEN "identifier" x) 25:25
-(TOKEN ":") 26:26
-(TOKEN "identifier" i32) 28:30
-(TOKEN "=") 32:32
-(TOKEN "integer" 123) 34:37
-(EOF) 38:38
+(KEYWORD "from") 0:3
+(TOKEN "identifier" lpython) 5:11
+(KEYWORD "import") 13:18
+(TOKEN "identifier" i32) 20:22
+(NEWLINE) 23:23
+(NEWLINE) 24:24
+(KEYWORD "def") 25:27
+(TOKEN "identifier" test_literal1) 29:41
+(TOKEN "(") 42:42
+(TOKEN ")") 43:43
+(TOKEN ":") 44:44
+(NEWLINE) 45:45
+(TOKEN "indent") 46:49
+(TOKEN "identifier" x) 50:50
+(TOKEN ":") 51:51
+(TOKEN "identifier" i32) 53:55
+(TOKEN "=") 57:57
+(TOKEN "integer" 123) 59:62
+(NEWLINE) 63:63
+(NEWLINE) 64:64
+(TOKEN "dedent") 64:64
+(TOKEN "identifier" test_literal1) 65:77
+(TOKEN "(") 78:78
+(TOKEN ")") 79:79
+(EOF) 80:80
