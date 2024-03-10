@@ -719,6 +719,7 @@ def sumprod(x: list[f64], y: list[f64]) -> f64:
         raise ValueError("The two lists must have the same length.")
     
     result: f64 = 0.0
+    i:i32
     for i in range(len(x)):
         result += x[i] * y[i]
 
