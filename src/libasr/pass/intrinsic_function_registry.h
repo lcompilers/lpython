@@ -2522,11 +2522,11 @@ static inline void verify_args(const ASR::IntrinsicScalarFunction_t& x, diag::Di
         x.base.base.loc, diagnostics);
     ASR::ttype_t *list_type = ASRUtils::type_get_past_const(ASRUtils::expr_type(x.m_args[0]));
     ASRUtils::require_impl(ASR::is_a<ASR::List_t>(*list_type) &&
-                               ASRUtils::check_equal_type(ASRUtils::expr_type(x.m_args[1]),
-                                                          ASRUtils::get_contained_type(list_type)),
-                           "First argument to list.index must be of list type and "
-                           "second argument must be of same type as list elemental type",
-                           x.base.base.loc, diagnostics);
+        ASRUtils::check_equal_type(ASRUtils::expr_type(x.m_args[1]),
+            ASRUtils::get_contained_type(list_type)),
+        "First argument to list.index must be of list type and "
+        "second argument must be of same type as list elemental type",
+        x.base.base.loc, diagnostics);        
     if(x.n_args >= 3) {
         ASRUtils::require_impl(
             ASR::is_a<ASR::Integer_t>(*ASRUtils::expr_type(x.m_args[2])),
