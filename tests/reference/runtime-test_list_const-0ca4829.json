@@ -1,0 +1,13 @@
+{
+    "basename": "runtime-test_list_const-0ca4829",
+    "cmd": "lpython {infile}",
+    "infile": "tests/errors/test_list_const.py",
+    "infile_hash": "794f98a9e575bf64082d76c78f2466bf023c8b3f9432fdf3ec8fe866",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": null,
+    "stdout_hash": null,
+    "stderr": "runtime-test_list_const-0ca4829.stderr",
+    "stderr_hash": "be9de860495ffefe5254883bbf042bf04f698ea68e76516dc98fdbff",
+    "returncode": 2
+}

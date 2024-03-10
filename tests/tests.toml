@@ -834,7 +834,7 @@ asr = true
 
 [[test]]
 filename = "errors/test_list_const.py"
-asr = true
+run = true
 
 [[test]]
 filename = "errors/test_annassign_01.py"
