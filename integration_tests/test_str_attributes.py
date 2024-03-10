@@ -354,12 +354,12 @@ def is_title():
     assert " ".istitle() == False
 
 def is_space():
-    s: str = " \t\n\v\f\r"
-    assert s.isspace() == True
+    s1: str = " \t\n\v\f\r"
+    assert s1.isspace() == True
     assert " \t\n\v\f\r".isspace() == True
 
-    s: str = " \t\n\v\f\rabcd"
-    assert s.isspace() == False
+    s2: str = " \t\n\v\f\rabcd"
+    assert s2.isspace() == False
     assert " \t\n\v\f\rabcd".isspace() == False
 
     assert "\n".isspace() == True
