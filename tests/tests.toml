@@ -489,10 +489,6 @@ filename = "../integration_tests/global_syms_01.py"
 asr = true
 
 [[test]]
-filename = "../integration_tests/test_list_const.py"
-asr = true
-
-[[test]]
 filename = "cast.py"
 asr = true
 
@@ -833,7 +829,27 @@ filename = "errors/test_list_slicing.py"
 asr = true
 
 [[test]]
-filename = "errors/test_list_const.py"
+filename = "errors/test_const_list_append.py"
+asr = true
+
+[[test]]
+filename = "errors/test_const_list_clear.py"
+asr = true
+
+[[test]]
+filename = "errors/test_const_list_insert.py"
+asr = true
+
+[[test]]
+filename = "errors/test_const_list_pop.py"
+asr = true
+
+[[test]]
+filename = "errors/test_const_list_reverse.py"
+asr = true
+
+[[test]]
+filename = "errors/test_const_list_remove.py"
 asr = true
 
 [[test]]

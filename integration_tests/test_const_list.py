@@ -1,7 +1,7 @@
-from lpython import i32, i64, f32, f64, dict, list, tuple, str, Const, c64
+from lpython import i32, list, str, Const
 
 
-def test_list_const():
+def test_const_list():
     CONST_INTEGER_LIST: Const[list[i32]] = [1, 2, 3, 4, 5, 1]
 
     assert CONST_INTEGER_LIST.count(1) == 2
@@ -12,4 +12,4 @@ def test_list_const():
     assert CONST_STRING_LIST.index("RELEASE") == 2
 
 
-test_list_const()
+test_const_list()
