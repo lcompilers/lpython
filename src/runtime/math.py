@@ -734,7 +734,7 @@ def frexp(x:f64) -> tuple[f64,i16]:
     '''
     exponent: i16 = i16(0)
     while fabs(x) > 1.0:
-        exponent += 1
+        exponent += i16(1)
         x /= 2.0
     return x, exponent
 
@@ -747,7 +747,7 @@ def frexp(x:f32) -> tuple[f32,i8]:
     '''
     exponent: i8 = i8(0)
     while fabs(x) > 1.0:
-        exponent += 1
+        exponent += i8(1)
         x /= 2.0
     return x, exponent
 
