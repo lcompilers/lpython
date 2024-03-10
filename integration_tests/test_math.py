@@ -1,8 +1,8 @@
 from math import (factorial, isqrt, perm, comb, degrees, radians, exp, pow,
                   ldexp, fabs, gcd, lcm, floor, ceil, remainder, expm1, fmod, log1p, trunc,
-                  modf, fsum, prod, dist, sumprod, frexp, isclose)
+                  modf, fsum, prod, dist, frexp, isclose, sumprod)
 import math
-from lpython import i32, i64, f32, f64
+from lpython import i16, i32, i64, f32, f64
 
 eps: f64
 eps = 1e-12
@@ -264,24 +264,27 @@ def test_sumprod():
 
 def test_frexp():
     x:f64 = 6.23
+    mantissa:f64
+    exponent:i16
     mantissa, exponent = frexp(x)
-    assert abs(mantissa - 0.77875) < eps and exponent == 3
+    assert abs(mantissa - 0.77875) < eps and exponent == i16(3)
 
     x = 0.8
     mantissa, exponent = frexp(x)
-    assert abs(mantissa - 0.8) < eps and exponent == 0
+    assert abs(mantissa - 0.8) < eps and exponent == i16(0)
 
     x = 19.74
     mantissa, exponent = frexp(x)
-    assert abs(mantissa - 0.616875) < eps and exponent == 5
+    assert abs(mantissa - 0.616875) < eps and exponent == i16(5)
 
 
 def test_isclose():
-    x:f64 = 2.211030
-    y:f64 = 2.211029
-    assert isclose(x,y,rel_tol=0.00001)==False
-    assert isclose(x,y,abs_tol=0.00001)==False
-    assert isclose(x,y,abs_tol=0.00001,rel_tol=0.00001)==True
+    x:f64 = 2.2130
+    y:f64 = 2.2129
+    assert isclose(x, y, rel_tol=0.01, abs_tol=0.001)
+    assert isclose(x,y,rel_tol=0.0000001,abs_tol=0.01)
+    assert isclose(x,y,rel_tol=0.1,abs_tol=0.000001)
+    assert not isclose(x,y,rel_tol=0.0000001,abs_tol=0.00001)
 
 
 def check():
