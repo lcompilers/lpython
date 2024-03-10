@@ -2,11 +2,11 @@
     "basename": "asr-test_dict_const-69479e2",
     "cmd": "lpython --show-asr --no-color {infile} -o {outfile}",
     "infile": "tests/../integration_tests/test_dict_const.py",
-    "infile_hash": "61ca282635e2a28e2c7740f44cc8e1cc1af49988155e9f32b737cec3",
+    "infile_hash": "e897020e0517d4a97b2f1cd2971ebf3686c0de832412160a0583e28d",
     "outfile": null,
     "outfile_hash": null,
     "stdout": "asr-test_dict_const-69479e2.stdout",
-    "stdout_hash": "9b7d2dc1e374e1a711a9b91edf78debb0b6f038b7e7f000769f57f96",
+    "stdout_hash": "072819f5feb77a8ba653fbd38c2f2b1345dbf5588e05e57a8c206cd4",
     "stderr": null,
     "stderr_hash": null,
     "returncode": 0

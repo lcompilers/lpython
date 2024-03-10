@@ -48,10 +48,10 @@
                                     (SymbolTable
                                         3
                                         {
-                                            d_float:
+                                            CONST_DICTIONARY_FLOAT:
                                                 (Variable
                                                     3
-                                                    d_float
+                                                    CONST_DICTIONARY_FLOAT
                                                     []
                                                     Local
                                                     (DictConstant
@@ -127,10 +127,10 @@
                                                     Required
                                                     .false.
                                                 ),
-                                            d_int:
+                                            CONST_DICTIONARY_INTEGR:
                                                 (Variable
                                                     3
-                                                    d_int
+                                                    CONST_DICTIONARY_INTEGR
                                                     []
                                                     Local
                                                     (DictConstant
@@ -209,7 +209,7 @@
                                     [(Assert
                                         (IntegerCompare
                                             (DictItem
-                                                (Var 3 d_int)
+                                                (Var 3 CONST_DICTIONARY_INTEGR)
                                                 (StringConstant
                                                     "a"
                                                     (Character 1 1 ())
@@ -229,7 +229,7 @@
                                         (ListCompare
                                             (IntrinsicScalarFunction
                                                 DictKeys
-                                                [(Var 3 d_int)]
+                                                [(Var 3 CONST_DICTIONARY_INTEGR)]
                                                 0
                                                 (List
                                                     (Character 1 -2 ())
@@ -263,7 +263,7 @@
                                         (ListCompare
                                             (IntrinsicScalarFunction
                                                 DictValues
-                                                [(Var 3 d_int)]
+                                                [(Var 3 CONST_DICTIONARY_INTEGR)]
                                                 0
                                                 (List
                                                     (Integer 4)
@@ -287,7 +287,7 @@
                                     (Assert
                                         (RealCompare
                                             (DictItem
-                                                (Var 3 d_float)
+                                                (Var 3 CONST_DICTIONARY_FLOAT)
                                                 (StringConstant
                                                     "a"
                                                     (Character 1 1 ())
@@ -310,7 +310,7 @@
                                         (ListCompare
                                             (IntrinsicScalarFunction
                                                 DictKeys
-                                                [(Var 3 d_float)]
+                                                [(Var 3 CONST_DICTIONARY_FLOAT)]
                                                 0
                                                 (List
                                                     (Character 1 -2 ())
@@ -344,7 +344,7 @@
                                         (ListCompare
                                             (IntrinsicScalarFunction
                                                 DictValues
-                                                [(Var 3 d_float)]
+                                                [(Var 3 CONST_DICTIONARY_FLOAT)]
                                                 0
                                                 (List
                                                     (Real 8)

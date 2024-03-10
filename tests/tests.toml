@@ -1032,6 +1032,10 @@ filename = "errors/test_dict16.py"
 run = true
 
 [[test]]
+filename = "errors/test_dict_const.py"
+run = true
+
+[[test]]
 filename = "errors/test_zero_division.py"
 asr = true
 
