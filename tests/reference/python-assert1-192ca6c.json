@@ -5,9 +5,9 @@
     "infile_hash": "0ff84ea5ccd3d0815cbb66e1c3d3acd61dee7257c98aa1a27ceeef3b",
     "outfile": null,
     "outfile_hash": null,
-    "stdout": null,
-    "stdout_hash": null,
-    "stderr": "python-assert1-192ca6c.stderr",
-    "stderr_hash": "66203f8186d39e82e445c38cd4b48def18018149f7f5b50f43ae2478",
-    "returncode": 127
+    "stdout": "python-assert1-192ca6c.stdout",
+    "stdout_hash": "0de7de97bd936f6a66e73ba9789e50ed968b66edce04acfcc168c6db",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
 }

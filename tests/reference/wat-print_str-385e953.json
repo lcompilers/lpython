@@ -5,9 +5,9 @@
     "infile_hash": "56d2a86f8e1cca05ff1749d1c4cdaa79f99b6f92d3ce60870ee900d7",
     "outfile": null,
     "outfile_hash": null,
-    "stdout": null,
-    "stdout_hash": null,
-    "stderr": "wat-print_str-385e953.stderr",
-    "stderr_hash": "66203f8186d39e82e445c38cd4b48def18018149f7f5b50f43ae2478",
-    "returncode": 127
+    "stdout": "wat-print_str-385e953.stdout",
+    "stdout_hash": "8e9a0f7a017cdd451f10e9b8686d3a9ba00c1c4088fbd01cfa2df1cc",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
 }

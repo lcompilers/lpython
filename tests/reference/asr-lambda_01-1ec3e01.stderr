@@ -1,1 +1,5 @@
-/bin/sh: 1: lpython: not found
+semantic error: The number of args to lambda function much match the number of args declared in function type
+ --> tests/errors/lambda_01.py:5:8
+  |
+5 |     x: Callable[[i32, i32, i32], i32] = lambda p, q, r, s: p +  q + r + s
+  |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^          ^^^^^^^^^^ 

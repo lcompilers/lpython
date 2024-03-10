@@ -1,1 +1,5 @@
-/bin/sh: 1: lpython: not found
+semantic error: Type mismatch in shorthand operator, the types must be compatible
+ --> tests/errors/test_list_concat.py:8:3
+  |
+8 |   a += b
+  |   ^    ^ type mismatch ('list[i32]' and 'list[f64]')

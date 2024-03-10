@@ -1,1 +1,1 @@
-/bin/sh: 1: lpython: not found
+IndexError: List index is out of range. Index range is (0, 2), but the given index is 3

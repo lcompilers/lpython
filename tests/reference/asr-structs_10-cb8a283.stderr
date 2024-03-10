@@ -1,1 +1,9 @@
-/bin/sh: 1: lpython: not found
+semantic error: Struct member functions are not supported
+ --> tests/errors/structs_10.py:7:5 - 8:24
+  |
+7 |        def print_len(self: StringIO):
+  |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^...
+...
+  |
+8 |            print(self._len)
+  | ...^^^^^^^^^^^^^^^^^^^^^^^^ 

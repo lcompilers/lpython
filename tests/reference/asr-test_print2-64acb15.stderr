@@ -1,1 +1,5 @@
-/bin/sh: 1: lpython: not found
+semantic error: End is expected to be of string type
+ --> tests/errors/test_print2.py:2:26
+  |
+2 |      print("a", "b", end=1)
+  |                          ^ Expected string, found: integer

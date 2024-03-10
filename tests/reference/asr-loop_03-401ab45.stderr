@@ -1,1 +1,5 @@
-/bin/sh: 1: lpython: not found
+semantic error: Assignment to loop variable `i` is not allowed
+ --> tests/errors/loop_03.py:5:9
+  |
+5 |         i=i*10
+  |         ^ 

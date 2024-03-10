@@ -5,9 +5,9 @@
     "infile_hash": "0d9e4ba965ad635b7081019955a0f6d3d54b4f04f17239c454364d83",
     "outfile": null,
     "outfile_hash": null,
-    "stdout": null,
-    "stdout_hash": null,
-    "stderr": "ast_new-lambda1-260d046.stderr",
-    "stderr_hash": "66203f8186d39e82e445c38cd4b48def18018149f7f5b50f43ae2478",
-    "returncode": 127
+    "stdout": "ast_new-lambda1-260d046.stdout",
+    "stdout_hash": "9efeee85a5a565024e5487cec1f868ce923dba161bfb2e7a0d24431f",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
 }

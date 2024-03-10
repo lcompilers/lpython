@@ -1,1 +1,8 @@
-/bin/sh: 1: lpython: not found
+semantic error: Type mismatch in procedure call; the types must be compatible
+  --> tests/errors/arrays_01.py:15:9
+   |
+15 |         [i8(214), i8(157), i8(3), i8(146)])
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ type mismatch (passed argument type is list[i8] but required type is i8[4])
+   |
+ 9 |     a : i8[4] = empty(4, dtype=int8)
+   |         ^^^^^ type mismatch (passed argument type is list[i8] but required type is i8[4])

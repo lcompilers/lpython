@@ -1,1 +1,11 @@
-/bin/sh: 1: lpython: not found
+  File "tests/runtime_errors/test_assert_03.py", line 1
+    def f():
+  File "tests/runtime_errors/test_assert_03.py", line 10
+    main()
+  File "tests/runtime_errors/test_assert_03.py", line 8
+    f()
+  File "tests/runtime_errors/test_assert_03.py", line 2
+    g()
+  File "tests/runtime_errors/test_assert_03.py", line 5
+    assert False
+AssertionError

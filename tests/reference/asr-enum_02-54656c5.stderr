@@ -1,1 +1,9 @@
-/bin/sh: 1: lpython: not found
+semantic error: Enumerations with non-integer or non-unique integer values cannot interoperate with C code.
+ --> tests/errors/enum_02.py:5:1 - 8:17
+  |
+5 |    class Color(Enum):
+  |    ^^^^^^^^^^^^^^^^^^...
+...
+  |
+8 |        BLUE: i32 = 2
+  | ...^^^^^^^^^^^^^^^^^ 

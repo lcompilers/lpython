@@ -1,1 +1,5 @@
-/bin/sh: 1: lpython: not found
+style suggestion: Could have used '**' instead of 'pow'
+ --> tests/errors/test_pow.py:2:11
+  |
+2 |     print(pow(2, 2))
+  |           ^^^^^^^^^ '**' could be used instead

@@ -1,1 +1,5 @@
-/bin/sh: 1: lpython: not found
+semantic error: 'dict' key type cannot be float/complex because resolving collisions by exact comparison of float/complex values will result in unexpected behaviours. In addition fuzzy equality checks with a certain tolerance does not follow transitivity with float/complex values.
+ --> tests/errors/test_dict12.py:2:11
+  |
+2 |     print({0.0: 1.1}) # constant dict with floating point value as key
+  |           ^^^^^^^^^^ 

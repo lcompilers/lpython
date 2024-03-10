@@ -1,1 +1,5 @@
-/bin/sh: 1: lpython: not found
+semantic error: len() is only supported for `str`, `set`, `dict`, `list` and `tuple`
+ --> tests/errors/test_len1.py:4:11
+  |
+4 |     print(len(x))
+  |           ^^^^^^ 

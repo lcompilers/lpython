@@ -1,1 +1,5 @@
-/bin/sh: 1: lpython: not found
+semantic error: Type mismatch in annotation-assignment, the types must be compatible
+ --> tests/errors/arrays_13.py:7:5
+  |
+7 |     x: i16[4] = empty(5, dtype=int16)
+  |     ^           ^^^^^^^^^^^^^^^^^^^^^ type mismatch ('i16[4]' and 'i16[5]')

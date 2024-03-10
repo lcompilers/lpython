@@ -1,1 +1,5 @@
-/bin/sh: 1: lpython: not found
+semantic error: str.join() takes type list only
+ --> tests/errors/string_02.py:6:15
+  |
+6 |     res:str = x.join(p)
+  |               ^^^^^^^^^ 

@@ -1,1 +1,8 @@
-/bin/sh: 1: lpython: not found
+semantic error: Type mismatch in procedure call; the types must be compatible
+ --> tests/errors/bindc_01.py:9:14
+  |
+9 |     cptr_arg(int32obj)
+  |              ^^^^^^^^ type mismatch (passed argument type is i32 but required type is CPtr)
+  |
+4 | def cptr_arg(arg1: CPtr):
+  |                    ^^^^ type mismatch (passed argument type is i32 but required type is CPtr)

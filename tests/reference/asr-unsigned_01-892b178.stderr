@@ -1,1 +1,5 @@
-/bin/sh: 1: lpython: not found
+semantic error: Cannot cast negative value to unsigned integer 
+ --> tests/errors/unsigned_01.py:3:10
+  |
+3 | i: u16 = u16(-5)
+  |          ^^^^^^^ 

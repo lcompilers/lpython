@@ -1,1 +1,5 @@
-/bin/sh: 1: lpython: not found
+semantic error: read not present in StringIO dataclass
+  --> tests/errors/structs_09.py:13:23
+   |
+13 |     bytes_read: i32 = fd.read()
+   |                       ^^^^^^^^^ 

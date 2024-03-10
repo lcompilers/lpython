@@ -1,1 +1,5 @@
-/bin/sh: 1: lpython: not found
+semantic error: Division is not supported for string type
+ --> tests/errors/test_binop2.py:6:11
+  |
+6 |     print(a/b)
+  |           ^ ^ string not supported in division

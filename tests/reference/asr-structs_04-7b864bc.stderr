@@ -1,1 +1,5 @@
-/bin/sh: 1: lpython: not found
+semantic error: S() got multiple values for argument 'x'
+ --> tests/errors/structs_04.py:9:18
+  |
+9 |     s: S = S(24, x=2)
+  |                  ^^^ 

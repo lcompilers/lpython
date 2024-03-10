@@ -8,6 +8,6 @@
     "stdout": null,
     "stdout_hash": null,
     "stderr": "asr-lambda_01-1ec3e01.stderr",
-    "stderr_hash": "66203f8186d39e82e445c38cd4b48def18018149f7f5b50f43ae2478",
-    "returncode": 127
+    "stderr_hash": "99ca916bd82540da6812ad3149c0026c812efdbc777dbb5fb465e868",
+    "returncode": 2
 }

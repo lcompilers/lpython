@@ -1,1 +1,5 @@
-/bin/sh: 1: lpython: not found
+semantic error: Type mismatch in shorthand operator, the types must be compatible
+ --> tests/expr16.py:6:9
+  |
+6 |         sum += data[i]
+  |         ^^^    ^^^^^^^ type mismatch ('f64' and 'i32')

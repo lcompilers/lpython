@@ -1,1 +1,5 @@
-/bin/sh: 1: lpython: not found
+semantic error: Only those local variables that can be reduced to compile-time constants should be used in dimensions of an array.
+ --> tests/errors/arrays_10.py:9:36
+  |
+9 |     x: i64[100, 120, 200] = empty([q, p, r], dtype=int64)
+  |                                    ^ 

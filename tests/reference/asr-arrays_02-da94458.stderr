@@ -1,1 +1,5 @@
-/bin/sh: 1: lpython: not found
+semantic error: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all()
+  --> tests/errors/arrays_02.py:28:8
+   |
+28 | assert r1.a == t1.a
+   |        ^^^^^^^^^^^^ 

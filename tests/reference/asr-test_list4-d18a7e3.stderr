@@ -1,1 +1,5 @@
-/bin/sh: 1: lpython: not found
+semantic error: Type mismatch in index, expected a single integer or slice
+ --> tests/errors/test_list4.py:7:11
+  |
+7 |     x = a[0.2]
+  |           ^^^ type mismatch (found: 'f64', expected: 'i32' or slice)

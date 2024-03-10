@@ -8,6 +8,6 @@
     "stdout": null,
     "stdout_hash": null,
     "stderr": "runtime-test_list_index-0483808.stderr",
-    "stderr_hash": "66203f8186d39e82e445c38cd4b48def18018149f7f5b50f43ae2478",
-    "returncode": 127
+    "stderr_hash": "dd3d49b5f2f97ed8f1d27cd73ebca7a8740483660dd4ae702e2048b2",
+    "returncode": 1
 }

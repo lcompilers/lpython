@@ -1,1 +1,7 @@
-/bin/sh: 1: lpython: not found
+  File "tests/runtime_errors/test_assert_02.py", line 1
+    def test():
+  File "tests/runtime_errors/test_assert_02.py", line 4
+    test()
+  File "tests/runtime_errors/test_assert_02.py", line 2
+    assert 1 != 1, "One is equal to one."
+AssertionError: One is equal to one.
