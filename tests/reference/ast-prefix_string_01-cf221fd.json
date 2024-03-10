@@ -8,6 +8,6 @@
     "stdout": null,
     "stdout_hash": null,
     "stderr": "ast-prefix_string_01-cf221fd.stderr",
-    "stderr_hash": "b600057f41f59ba7fdebe3971bfea0eadca972747ccf70d575c1cdcd",
-    "returncode": 1
+    "stderr_hash": "66203f8186d39e82e445c38cd4b48def18018149f7f5b50f43ae2478",
+    "returncode": 127
 }

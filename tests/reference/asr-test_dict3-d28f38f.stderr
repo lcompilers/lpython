@@ -1,5 +1,1 @@
-semantic error: Type mismatch in get's key value, the types must be compatible
- --> tests/errors/test_dict3.py:5:15
-  |
-5 |     x = y.get(1)
-  |               ^ type mismatch (found: 'i32', expected: 'str')
+/bin/sh: 1: lpython: not found

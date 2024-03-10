@@ -1,5 +1,1 @@
-semantic error: Tuple index out of bounds
- --> tests/errors/test_tuple3.py:3:11
-  |
-3 |     print(t[-4])
-  |           ^^^^^ 
+/bin/sh: 1: lpython: not found

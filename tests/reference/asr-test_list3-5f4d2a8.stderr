@@ -1,5 +1,1 @@
-semantic error: Argument to list.pop must be an integer
- --> tests/errors/test_list3.py:5:9
-  |
-5 |     x = a.pop(2.2)
-  |         ^^^^^^^^^^ 
+/bin/sh: 1: lpython: not found

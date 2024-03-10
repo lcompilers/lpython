@@ -1,5 +1,1 @@
-semantic error: Type mismatch in loop start and loop end values, the types must be compatible
- --> tests/errors/loop_01.py:5:20
-  |
-5 |     for i in range(15, i16(-1), i16(-1)):
-  |                    ^^  ^^^^^^^ type mismatch ('i32' and 'i16')
+/bin/sh: 1: lpython: not found

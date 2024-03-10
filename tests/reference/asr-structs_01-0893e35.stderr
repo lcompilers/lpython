@@ -1,5 +1,1 @@
-semantic error: Alignment 5 is not a positive power of 2.
- --> tests/errors/structs_01.py:3:17
-  |
-3 | @packed(aligned=5)
-  |                 ^ 
+/bin/sh: 1: lpython: not found

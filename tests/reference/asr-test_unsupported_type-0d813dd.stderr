@@ -1,5 +1,1 @@
-semantic error: The type 'i128' is undeclared.
- --> tests/errors/test_unsupported_type.py:2:8
-  |
-2 |     i: i128
-  |        ^^^^ 
+/bin/sh: 1: lpython: not found

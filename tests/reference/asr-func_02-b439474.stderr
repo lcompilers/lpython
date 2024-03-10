@@ -1,5 +1,1 @@
-semantic error: Assignment to an input function parameter `n` is not allowed
- --> tests/errors/func_02.py:4:5
-  |
-4 |     n = 5
-  |     ^ Hint: create a new local variable with a different name
+/bin/sh: 1: lpython: not found

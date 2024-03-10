@@ -5,9 +5,9 @@
     "infile_hash": "498c7c40ca352ed21dde33c128aff4d59d3c329e770e3a2ff3eb3fad",
     "outfile": null,
     "outfile_hash": null,
-    "stdout": "asr-loop3-a579196.stdout",
-    "stdout_hash": "871e9f9402932018e5122327d38ca7822eb61596f04e0bdc4e03ad7a",
-    "stderr": null,
-    "stderr_hash": null,
-    "returncode": 0
+    "stdout": null,
+    "stdout_hash": null,
+    "stderr": "asr-loop3-a579196.stderr",
+    "stderr_hash": "66203f8186d39e82e445c38cd4b48def18018149f7f5b50f43ae2478",
+    "returncode": 127
 }
