@@ -1183,9 +1183,19 @@ namespace ObjectType {
         if (args.size() != 1) {
             err("type() takes exactly 1 argument `object` for now", loc);
         }
-
+        ASR::expr_t *m_value = nullptr;
         Vec<ASR::expr_t *> arg_values;
-        ASR::expr_t *m_value = eval_ObjectType(al, loc, expr_type(args[0]), arg_values);
+       
+        if (ASR::is_a<ASR::IntrinsicScalarFunction_t>(*args[0])) {
+            ASR::IntrinsicScalarFunction_t *object = ASR::down_cast<ASR::IntrinsicScalarFunction_t>(args[0]);
+            if (static_cast<IntrinsicScalarFunctions>(object->m_intrinsic_id) == IntrinsicScalarFunctions::ObjectType) {
+                m_value = StringConstant("<type 'type'>", character(13)); // 13 is the length of the string "<type 'type'>"
+            }
+        } 
+        else {
+            m_value = eval_ObjectType(al, loc, expr_type(args[0]), arg_values);
+        }
+        
         return ASR::make_IntrinsicScalarFunction_t(al, loc,
             static_cast<int64_t>(IntrinsicScalarFunctions::ObjectType),
             args.p, args.n, 0, ASRUtils::expr_type(m_value), m_value);
