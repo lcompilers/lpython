@@ -117,7 +117,6 @@ def test_str_split():
 def test_str_replace():
     x: str = "abc"
     a: str = "zzaaabracadabra"
-    print(x.replace("", ","))
     print(a.replace("a",""))
     print(a.replace("",""))
     print(a.replace("a","b"))
@@ -139,6 +138,7 @@ def test_str_replace():
     print(a.replace("b","k",1))
     print(a.replace("b","k",2))
     print(a.replace("zza","yo",2))
+    print(x.replace("", ","))
     assert a.replace("a","") == "zzbrcdbr"
     assert a.replace("","") == "zzaaabracadabra"
     assert a.replace("a","b") == "zzbbbbrbcbdbbrb"
