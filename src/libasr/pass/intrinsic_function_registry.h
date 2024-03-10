@@ -1166,7 +1166,7 @@ static inline void verify_args(const ASR::IntrinsicScalarFunction_t& x,
 namespace ObjectType {
 
      static inline void verify_args(const ASR::IntrinsicScalarFunction_t& x, diag::Diagnostics& diagnostics) {
-        ASRUtils::require_impl(x.n_args != 1,
+        ASRUtils::require_impl(x.n_args == 1,
             "ASR Verify: type() takes only 1 argument `object`",
             x.base.base.loc, diagnostics);
     }
