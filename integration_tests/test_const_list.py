@@ -1,4 +1,4 @@
-from lpython import i32, list, str, Const
+from lpython import i32, Const
 
 
 def test_const_list():
