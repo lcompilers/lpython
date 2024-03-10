@@ -1,4 +1,4 @@
-from lpython import i32, f64, str, dict, Const
+from lpython import i32, f64, dict, Const
 
 
 def test_const_dict():

@@ -2,7 +2,7 @@
     "basename": "asr-test_const_dict-59445d7",
     "cmd": "lpython --show-asr --no-color {infile} -o {outfile}",
     "infile": "tests/errors/test_const_dict.py",
-    "infile_hash": "86ebfc5e88bd38f880eca81c3a7456f33991135e335c13525acca172",
+    "infile_hash": "51130e98c759eb3cdbd50848e59879e4689d241c7a8674aa06a5b3c7",
     "outfile": null,
     "outfile_hash": null,
     "stdout": null,
