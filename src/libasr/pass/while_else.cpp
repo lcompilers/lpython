@@ -53,7 +53,12 @@ public:
 
 class WhileLoopVisitor : public ASR::StatementWalkVisitor<WhileLoopVisitor>
 {
+private:
+    int counter;
+
 public:
+    std::unordered_map<ASR::stmt_t*, ASR::symbol_t*> flag_map;
+
     WhileLoopVisitor(Allocator &al) : StatementWalkVisitor(al) {
         counter = 0;
         flag_map = {};
@@ -105,17 +110,10 @@ public:
             pass_result = result;
         }
     }
-
-    std::unordered_map<ASR::stmt_t*, ASR::symbol_t*> flag_map;
-
-
-private:
-    int counter;
 };
 
 void pass_while_else(Allocator &al, ASR::TranslationUnit_t &unit,
-                           const LCompilers::PassOptions& pass_options) {
-    (void)pass_options;
+                           const LCompilers::PassOptions& /*pass_options*/) {
     WhileLoopVisitor v(al);
     ExitVisitor e(al);
     v.visit_TranslationUnit(unit);
