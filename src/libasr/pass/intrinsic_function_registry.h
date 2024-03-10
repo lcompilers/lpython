@@ -2790,9 +2790,7 @@ namespace DictValues {
 static inline void verify_args(const ASR::IntrinsicScalarFunction_t& x, diag::Diagnostics& diagnostics) {
     ASRUtils::require_impl(x.n_args == 1, "Call to dict.values must have no argument",
         x.base.base.loc, diagnostics);
-    ASR::ttype_t *dict_type = ASR::is_a<ASR::Const_t>(*ASRUtils::expr_type(x.m_args[0]))
-                                  ? ASRUtils::type_get_past_const(ASRUtils::expr_type(x.m_args[0]))
-                                  : ASRUtils::expr_type(x.m_args[0]);
+    ASR::ttype_t *dict_type = ASRUtils::type_get_past_const(ASRUtils::expr_type(x.m_args[0]));
     ASRUtils::require_impl(ASR::is_a<ASR::Dict_t>(*dict_type),
         "Argument to dict.values must be of dict type",
         x.base.base.loc, diagnostics);
