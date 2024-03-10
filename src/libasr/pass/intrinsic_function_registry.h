@@ -2795,10 +2795,11 @@ static inline void verify_args(const ASR::IntrinsicScalarFunction_t& x, diag::Di
         "Argument to dict.values must be of dict type",
         x.base.base.loc, diagnostics);
     ASRUtils::require_impl(ASR::is_a<ASR::List_t>(*x.m_type) &&
-                               ASRUtils::check_equal_type(ASRUtils::get_contained_type(x.m_type),
-                                                          ASRUtils::get_contained_type(ASR::down_cast<ASR::Dict_t>(dict_type)->m_value_type, 1)),
-                           "Return type of dict.values must be of list of dict value element type",
-                           x.base.base.loc, diagnostics);
+        ASRUtils::check_equal_type(ASRUtils::get_contained_type(x.m_type),
+            ASRUtils::get_contained_type(
+                ASR::down_cast<ASR::Dict_t>(dict_type)->m_value_type, 1)),
+        "Return type of dict.values must be of list of dict value element type",
+        x.base.base.loc, diagnostics);
 }
 
 static inline ASR::expr_t *eval_dict_values(Allocator &/*al*/,
