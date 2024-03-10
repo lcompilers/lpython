@@ -411,6 +411,10 @@ filename = "../integration_tests/test_builtin_oct.py"
 asr = true
 
 [[test]]
+filename = "../integration_tests/test_builtin_type.py"
+asr = true
+
+[[test]]
 filename = "../integration_tests/test_max_min.py"
 asr = true
 
