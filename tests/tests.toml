@@ -488,7 +488,7 @@ filename = "../integration_tests/global_syms_01.py"
 asr = true
 
 [[test]]
-filename = "../integration_tests/test_dict_const.py"
+filename = "../integration_tests/test_const_dict.py"
 asr = true
 
 [[test]]
@@ -1032,8 +1032,8 @@ filename = "errors/test_dict16.py"
 run = true
 
 [[test]]
-filename = "errors/test_dict_const.py"
-run = true
+filename = "errors/test_const_dict.py"
+asr = true
 
 [[test]]
 filename = "errors/test_zero_division.py"
