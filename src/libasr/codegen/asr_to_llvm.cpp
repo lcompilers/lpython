@@ -1523,9 +1523,7 @@ public:
     }
 
     void visit_ListItem(const ASR::ListItem_t& x) {
-        ASR::ttype_t *el_type = ASR::is_a<ASR::Const_t>(*ASRUtils::expr_type(x.m_a))
-                                    ? ASRUtils::get_contained_type(ASRUtils::type_get_past_const(ASRUtils::expr_type(x.m_a)))
-                                    : ASRUtils::get_contained_type(ASRUtils::expr_type(x.m_a));
+        ASR::ttype_t *el_type = ASRUtils::get_contained_type(ASRUtils::type_get_past_const(ASRUtils::expr_type(x.m_a)));
         int64_t ptr_loads_copy = ptr_loads;
         ptr_loads = 0;
         this->visit_expr(*x.m_a);

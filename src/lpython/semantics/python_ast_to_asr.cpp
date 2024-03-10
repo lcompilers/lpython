@@ -3686,6 +3686,7 @@ public:
         ai.m_left = nullptr;
         ai.m_right = nullptr;
         ai.m_step = nullptr;
+        type = ASRUtils::type_get_past_const(type);
         if (AST::is_a<AST::Slice_t>(*m_slice)) {
             AST::Slice_t *sl = AST::down_cast<AST::Slice_t>(m_slice);
             if (sl->m_lower != nullptr) {
@@ -3736,12 +3737,6 @@ public:
             } else if (ASR::is_a<ASR::Dict_t>(*type)) {
                 throw SemanticError("unhashable type in dict: 'slice'", loc);
             }
-            if (ASR::is_a<ASR::Const_t>(*type))
-            {
-                if (ASR::is_a<ASR::List_t>(*ASRUtils::type_get_past_const(type))) {
-                    throw SemanticError("slicing on a const list is not implemented till now", loc);
-                }
-            }
         } else if(AST::is_a<AST::Tuple_t>(*m_slice) &&
                     ASRUtils::is_array(type)) {
             bool final_result = true;
@@ -3754,42 +3749,6 @@ public:
         } else {
             ASR::expr_t *index = nullptr;
             this->visit_expr(*m_slice);
-            if (ASR::is_a<ASR::Const_t>(*type)) {
-                ASR::ttype_t *contained_type = ASRUtils::type_get_past_const(type);
-                if (ASR::is_a<ASR::Dict_t>(*contained_type)) {
-                    index = ASRUtils::EXPR(tmp);
-                    ASR::ttype_t *key_type = ASR::down_cast<ASR::Dict_t>(contained_type)->m_key_type;
-                    if (!ASRUtils::check_equal_type(ASRUtils::expr_type(index), key_type)) {
-                        throw SemanticError("Key type should be '" + ASRUtils::type_to_str_python(key_type) +
-                                                "' instead of '" +
-                                                ASRUtils::type_to_str_python(ASRUtils::expr_type(index)) + "'",
-                                            index->base.loc);
-                    }
-                    tmp = ASR::make_DictItem_t(al, loc, value, index, nullptr,
-                                    ASR::down_cast<ASR::Dict_t>(contained_type)->m_value_type, nullptr);
-                    return false;
-                }
-                else if (ASR::is_a<ASR::List_t>(*contained_type)) {
-                    this->visit_expr(*m_slice);
-                    index = ASRUtils::EXPR(tmp);
-                    ASR::expr_t* val = ASRUtils::expr_value(index);
-                    if (val && ASR::is_a<ASR::IntegerConstant_t>(*val)) {
-                        if (ASR::down_cast<ASR::IntegerConstant_t>(val)->m_n < 0) {
-                            // Replace `x[-1]` to `x[len(x)+(-1)]`
-                            ASR::ttype_t *int_type = ASRUtils::TYPE(ASR::make_Integer_t(
-                                                            al, loc, 4));
-                            ASR::expr_t *list_len = ASRUtils::EXPR(ASR::make_ListLen_t(
-                                        al, loc, value, int_type, nullptr));
-                            ASR::expr_t *neg_idx = ASRUtils::expr_value(index);
-                            index = ASRUtils::EXPR(ASR::make_IntegerBinOp_t(al, loc,
-                                list_len, ASR::binopType::Add, neg_idx, int_type, nullptr));
-                        }
-                    }
-                    tmp = make_ListItem_t(al, loc, value, index,
-                                      ASR::down_cast<ASR::List_t>(contained_type)->m_type, nullptr);
-                    return false;
-                }
-            }
             if (!ASR::is_a<ASR::Dict_t>(*type) &&
                     !ASRUtils::is_integer(*ASRUtils::expr_type(ASRUtils::EXPR(tmp)))) {
                 std::string fnd = ASRUtils::type_to_str_python(ASRUtils::expr_type(ASRUtils::EXPR(tmp)));
