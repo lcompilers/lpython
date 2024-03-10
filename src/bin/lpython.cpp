@@ -1921,7 +1921,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (arg_c) {
+        if (arg_c && !to_jit) {
             if (backend == Backend::llvm) {
 #ifdef HAVE_LFORTRAN_LLVM
                 return compile_python_using_llvm(arg_file, outfile, runtime_library_dir, lpython_pass_manager, compiler_options, time_report,
@@ -1946,7 +1946,7 @@ int main(int argc, char *argv[])
                 compiler_options.emit_debug_info = false;
                 compiler_options.emit_debug_line_column = false;
                 compiler_options.generate_object_code = false;
-                err = compile_python_using_llvm(arg_file, nullptr, runtime_library_dir,
+                return compile_python_using_llvm(arg_file, "", runtime_library_dir,
                         lpython_pass_manager, compiler_options, time_report, false, true);
 #else
                 std::cerr << "Just-In-Time Compilation of Python files requires the LLVM backend to be enabled."
