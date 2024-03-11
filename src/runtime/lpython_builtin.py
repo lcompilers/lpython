@@ -914,6 +914,39 @@ def _lpython_str_split(x: str, sep:str) -> list[str]:
     return res
 
 @overload
+def _lpython_str_replace(x: str, old:str, new:str) -> str:
+    return _lpython_str_replace(x, old, new, len(x))
+    
+
+@overload
+def _lpython_str_replace(x: str, old:str, new:str, count: i32) -> str:
+    if (old == ""):
+        res1: str = ""
+        s: str
+        for s in x:
+            res1 += new + s
+        return res1 + new
+    res: str = ""
+    i: i32 = 0
+    ind: i32 = -1
+    l: i32 = len(new)
+    lo: i32 = len(old)
+    lx: i32 = len(x)
+    c: i32 = 0
+    t: i32 = -1
+
+    while(c<count):
+        t = _lpython_str_find(x[i:lx], old)
+        if(t==-1):
+            break
+        ind = i + t
+        res = res + x[i:ind] + new
+        i = ind + lo
+        c = c + 1
+    res = res + x[i:lx]
+    return res
+
+@overload
 def _lpython_str_swapcase(s: str) -> str:
     res :str = ""
     cur: str
