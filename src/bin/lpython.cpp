@@ -13,6 +13,7 @@
 #include <libasr/codegen/asr_to_llvm.h>
 #include <libasr/codegen/asr_to_cpp.h>
 #include <libasr/codegen/asr_to_c.h>
+#include <libasr/codegen/asr_to_python.h>
 #include <libasr/codegen/asr_to_py.h>
 #include <libasr/codegen/asr_to_x86.h>
 #include <libasr/codegen/asr_to_wasm.h>
@@ -55,7 +56,7 @@ using LCompilers::CompilerOptions;
 using LCompilers::LPython::parse_python_file;
 
 enum class Backend {
-    llvm, cpp, c, x86, wasm, wasm_x86, wasm_x64
+    llvm, cpp, c, x86, wasm, wasm_x86, wasm_x64, python
 };
 
 
@@ -382,6 +383,56 @@ int emit_c_to_file(const std::string &infile, const std::string &outfile,
     fp = fopen(outfile.c_str(), "w");
     fputs(res.result.c_str(), fp);
     fclose(fp);
+    return 0;
+}
+
+int emit_python(const std::string &infile,
+    const std::string &runtime_library_dir,
+    CompilerOptions &compiler_options)
+{
+    Allocator al(4*1024);
+    LCompilers::diag::Diagnostics diagnostics;
+    LCompilers::LocationManager lm;
+    {
+        LCompilers::LocationManager::FileLocations fl;
+        fl.in_filename = infile;
+        lm.files.push_back(fl);
+        std::string input = LCompilers::read_file(infile);
+        lm.init_simple(input);
+        lm.file_ends.push_back(input.size());
+    }
+    LCompilers::Result<LCompilers::LPython::AST::ast_t*> r = parse_python_file(
+        al, runtime_library_dir, infile, diagnostics, 0, compiler_options.new_parser);
+    std::cerr << diagnostics.render(lm, compiler_options);
+    if (!r.ok) {
+        return 1;
+    }
+    LCompilers::LPython::AST::ast_t* ast = r.result;
+
+    diagnostics.diagnostics.clear();
+
+    // AST -> ASR
+    LCompilers::Result<LCompilers::ASR::TranslationUnit_t*>
+        r1 = LCompilers::LPython::python_ast_to_asr(al, lm, nullptr, *ast, diagnostics, compiler_options, true, "__main__", infile);
+    std::cerr << diagnostics.render(lm, compiler_options);
+    if (!r1.ok) {
+        LCOMPILERS_ASSERT(diagnostics.has_error())
+        return 2;
+    }
+    LCompilers::ASR::TranslationUnit_t* asr = r1.result;
+
+    diagnostics.diagnostics.clear();
+
+    // ASR -> LPython
+    bool color = false;
+    int indent = 0;
+    LCompilers::Result<std::string> res = LCompilers::asr_to_python(al, *asr, diagnostics, compiler_options, color, indent);
+    std::cerr << diagnostics.render(lm, compiler_options);
+    if (!res.ok) {
+        LCOMPILERS_ASSERT(diagnostics.has_error())
+        return 3;
+    }
+    std::cout << res.result;
     return 0;
 }
 
@@ -1490,6 +1541,7 @@ int main(int argc, char *argv[])
         bool show_asr = false;
         bool show_cpp = false;
         bool show_c = false;
+        bool show_python = false;
         bool show_document_symbols = false;
         bool show_errors = false;
         bool with_intrinsic_modules = false;
@@ -1556,6 +1608,7 @@ int main(int argc, char *argv[])
         app.add_flag("--show-llvm", show_llvm, "Show LLVM IR for the given file and exit");
         app.add_flag("--show-cpp", show_cpp, "Show C++ translation source for the given python file and exit");
         app.add_flag("--show-c", show_c, "Show C translation source for the given python file and exit");
+        app.add_flag("--show-python", show_python, "Show Python translation source for the given python file and exit");
         app.add_flag("--show-asm", show_asm, "Show assembly for the given file and exit");
         app.add_flag("--show-wat", show_wat, "Show WAT (WebAssembly Text Format) and exit");
         app.add_flag("--show-stacktrace", compiler_options.show_stacktrace, "Show internal stacktrace on compiler errors");
@@ -1788,6 +1841,9 @@ int main(int argc, char *argv[])
         if (show_c) {
             return emit_c(arg_file, runtime_library_dir, lpython_pass_manager,
                             compiler_options);
+        }
+        if (show_python) {
+            return emit_python(arg_file, runtime_library_dir, compiler_options);
         }
         if (show_wat) {
             return emit_wat(arg_file, runtime_library_dir, compiler_options);
