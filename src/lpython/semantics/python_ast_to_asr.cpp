@@ -3326,8 +3326,12 @@ public:
                     x.base.base.loc);
             }
         }
-        LCOMPILERS_ASSERT(
-            ASRUtils::check_equal_type(ASRUtils::expr_type(lhs), ASRUtils::expr_type(rhs)));
+        if (!ASR::is_a<ASR::Logical_t>(*ASRUtils::expr_type(lhs))) {
+            throw SemanticError("Operand is not of type 'bool'", lhs->base.loc);
+        }
+        if (!ASR::is_a<ASR::Logical_t>(*ASRUtils::expr_type(rhs))) {
+            throw SemanticError("Operand is not of type 'bool'", rhs->base.loc);
+        }
         ASR::expr_t *value = nullptr;
         ASR::ttype_t *dest_type = ASRUtils::expr_type(lhs);
 
