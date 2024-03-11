@@ -1,0 +1,13 @@
+{
+    "basename": "asr-test_const_list_append-ada1ade",
+    "cmd": "lpython --show-asr --no-color {infile} -o {outfile}",
+    "infile": "tests/errors/test_const_list_append.py",
+    "infile_hash": "1f8e9cdfaf24139c23d0a063fcce8c1765b0349500874c946c2a5bda",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": null,
+    "stdout_hash": null,
+    "stderr": "asr-test_const_list_append-ada1ade.stderr",
+    "stderr_hash": "84fe0a7a75edd73700bce92d3e43cdc85e7f3c58f0047f53fb4412ad",
+    "returncode": 2
+}

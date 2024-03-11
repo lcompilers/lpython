@@ -1,0 +1,13 @@
+{
+    "basename": "python-expr6-1a1d4fb",
+    "cmd": "lpython --no-color --show-python {infile}",
+    "infile": "tests/expr6.py",
+    "infile_hash": "1f3b5a7d997851264e679d58353346835eb450c608f6da7d2f5e5cd2",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "python-expr6-1a1d4fb.stdout",
+    "stdout_hash": "36557786797da33792a4a672d4f5e5b0a6ced2c51e674c5ad9426d62",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}

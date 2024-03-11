@@ -1,5 +1,5 @@
 from lpython import i32, f32, f64
-from numpy import empty, arcsin, arccos, sin, cos, sqrt, arctan, tan, degrees, radians, float32, float64
+from numpy import empty, arcsin, arccos, sin, cos, sqrt, arctan, tan, degrees, radians, hypot, float32, float64
 from math import pi
 
 def verify1d_same(array: f32[:], result: f32[:], size: i32):
@@ -56,6 +56,15 @@ def verify_arctan_2d(array: f64[:, :], result: f64[:, :], size1:i32, size2:i32):
     for i in range(size1):
         for j in range(size2):
             assert abs(arctan(array[i, j])**2.0 - result[i, j]) <= eps
+
+def verify_hypot_2d(array1: f64[:, :], array2: f64[:, :], result: f64[:, :], size1:i32, size2:i32):
+    i: i32
+    j: i32
+    eps: f64
+    eps = 1e-12
+    for i in range(size1):
+        for j in range(size2):
+            assert abs(hypot(array1[i, j], array2[i, j]) - result[i, j]) <= eps
 
 def elemental_arcsin():
     i: i32
@@ -222,6 +231,35 @@ def elemental_radians():
         for j in range(64):
             assert abs(radians2d[i, j] - cos(radians(array2d[i, j]))) <= eps_64
 
+def elemental_hypot():
+    i: i32
+    j: i32
+    eps_32: f32
+    eps_32 = f32(1e-6)
+
+    hypot1d: f32[200] = empty(200, dtype=float32)
+    array1d1: f32[200] = empty(200, dtype=float32)
+    array1d2: f32[200] = empty(200, dtype=float32)
+    for i in range(200):
+        array1d1[i] =  f32(i)
+        array1d2[i] =  f32(i+10)
+
+    hypot1d = hypot(array1d1, array1d2)
+
+    for i in range(200):
+        assert abs(hypot1d[i] - hypot(array1d1[i], array1d2[i])) <= eps_32
+
+    array2d1: f64[64, 64] = empty((64, 64), dtype=float64)
+    array2d2: f64[64, 64] = empty((64, 64), dtype=float64)
+    hypot2d: f64[64, 64] = empty((64, 64), dtype=float64)
+    for i in range(64):
+        for j in range(64):
+            array2d1[i,j]= float(i * j)
+            array2d2[i,j]= float(64*i + j - 2048)
+
+    hypot2d = hypot(array2d1, array2d2)
+    verify_hypot_2d(array2d1, array2d2, hypot2d, 64, 64)
+
 
 elemental_arcsin()
 elemental_arccos()
@@ -231,3 +269,4 @@ elemental_radians()
 elemental_trig_identity()
 elemental_reverse()
 elemental_trig_identity_extra()
+elemental_hypot()
