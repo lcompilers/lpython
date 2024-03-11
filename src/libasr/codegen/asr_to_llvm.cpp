@@ -1729,7 +1729,7 @@ public:
     }
 
     void visit_ListCount(const ASR::ListCount_t& x) {
-        ASR::ttype_t* asr_el_type = ASRUtils::get_contained_type(ASRUtils::expr_type(x.m_arg));
+        ASR::ttype_t *asr_el_type = ASRUtils::get_contained_type(ASRUtils::type_get_past_const(ASRUtils::expr_type(x.m_arg)));
         int64_t ptr_loads_copy = ptr_loads;
         ptr_loads = 0;
         this->visit_expr(*x.m_arg);
@@ -1744,7 +1744,7 @@ public:
 
     void generate_ListIndex(ASR::expr_t* m_arg, ASR::expr_t* m_ele,
             ASR::expr_t* m_start=nullptr, ASR::expr_t* m_end=nullptr) {
-        ASR::ttype_t* asr_el_type = ASRUtils::get_contained_type(ASRUtils::expr_type(m_arg));
+        ASR::ttype_t *asr_el_type = ASRUtils::get_contained_type(ASRUtils::type_get_past_const(ASRUtils::expr_type(m_arg)));
         int64_t ptr_loads_copy = ptr_loads;
         ptr_loads = 0;
         this->visit_expr(*m_arg);
@@ -3514,7 +3514,7 @@ public:
                         }
                     }
                     if( init_expr != nullptr &&
-                        !ASR::is_a<ASR::List_t>(*v->m_type)) {
+                        !is_list) {
                         target_var = ptr;
                         tmp = nullptr;
                         if (v->m_value != nullptr) {
@@ -3590,7 +3590,8 @@ public:
                                 throw CodeGenError("Unsupported len value in ASR");
                             }
                         } else if (is_list) {
-                            ASR::List_t* asr_list = ASR::down_cast<ASR::List_t>(v->m_type);
+                            ASR::List_t* asr_list = ASR::down_cast<ASR::List_t>(
+                                ASRUtils::type_get_past_const(v->m_type));
                             std::string type_code = ASRUtils::get_type_code(asr_list->m_type);
                             list_api->list_init(type_code, ptr, *module);
                         }
