@@ -122,7 +122,7 @@ Of the 3 types stated above, not all are always required to be written together.
 
 #### Integration tests
 The integration tests are located inside `./integration_tests`. To write an integration test, follow the steps provided below:
-1. **Write tests:** This is almost always the case when you want to include tests for new additions to a module, built-in functions or data-type attributes. If it does, just add a new function which tests for the changes you made. Add a function call for your function at the required position.
+1. **Write tests:** Check whether the test file already exists. This will almost always be the case when you want to include tests for new additions to a module, built-in functions or data-type attributes. Just add a new function which tests for the changes you made. Add a function call for your function at the required position.
 
 If the file does not exist, create one and follow the steps stated above.
 
