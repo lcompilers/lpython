@@ -1055,32 +1055,32 @@ def _lpython_str_isspace(s: str) -> bool:
     if len(s) == 0:
         return False
     
-    char: str
-    for char in s:
-        if not (char == " "  or   # SPACE
-            char == "\n"     or   # LINE FEED (LF)
-            char == "\r"     or   # CARRIAGE RETURN (CR)
-            char == "\t"     or   # CHARACTER TABULATION (HT)
-            char == "\v"     or   # VERTICAL TAB (VT)
-            char == "\f"     or   # FORM FEED (FF)
-            char == "\u00A0" or   # NO-BREAK SPACE
-            char == "\u1680" or   # OGHAM SPACE MARK
-            char == "\u2000" or   # EN QUAD
-            char == "\u2001" or   # EM QUAD
-            char == "\u2002" or   # EN SPACE
-            char == "\u2003" or   # EM SPACE
-            char == "\u2004" or   # THREE-PER-EM SPACE
-            char == "\u2005" or   # FOUR-PER-EM SPACE
-            char == "\u2006" or   # SIX-PER-EM SPACE
-            char == "\u2007" or   # FIGURE SPACE
-            char == "\u2008" or   # PUNCTUATION SPACE
-            char == "\u2009" or   # THIN SPACE
-            char == "\u200A" or   # HAIR SPACE
-            char == "\u2028" or   # LINE SEPARATOR
-            char == "\u2029" or   # PARAGRAPH SEPARATOR
-            char == "\u202F" or   # NARROW NO-BREAK SPACE
-            char == "\u205F" or   # MEDIUM MATHEMATICAL SPACE
-            char == "\u3000"      # IDEOGRAPHIC SPACE
+    ch: str
+    for ch in s:
+        if not (ch == " "  or   # SPACE
+            ch == "\n"     or   # LINE FEED (LF)
+            ch == "\r"     or   # CARRIAGE RETURN (CR)
+            ch == "\t"     or   # CHARACTER TABULATION (HT)
+            ch == "\v"     or   # VERTICAL TAB (VT)
+            ch == "\f"     or   # FORM FEED (FF)
+            ch == "\u00A0" or   # NO-BREAK SPACE
+            ch == "\u1680" or   # OGHAM SPACE MARK
+            ch == "\u2000" or   # EN QUAD
+            ch == "\u2001" or   # EM QUAD
+            ch == "\u2002" or   # EN SPACE
+            ch == "\u2003" or   # EM SPACE
+            ch == "\u2004" or   # THREE-PER-EM SPACE
+            ch == "\u2005" or   # FOUR-PER-EM SPACE
+            ch == "\u2006" or   # SIX-PER-EM SPACE
+            ch == "\u2007" or   # FIGURE SPACE
+            ch == "\u2008" or   # PUNCTUATION SPACE
+            ch == "\u2009" or   # THIN SPACE
+            ch == "\u200A" or   # HAIR SPACE
+            ch == "\u2028" or   # LINE SEPARATOR
+            ch == "\u2029" or   # PARAGRAPH SEPARATOR
+            ch == "\u202F" or   # NARROW NO-BREAK SPACE
+            ch == "\u205F" or   # MEDIUM MATHEMATICAL SPACE
+            ch == "\u3000"      # IDEOGRAPHIC SPACE
         ):
             return False
     return True
