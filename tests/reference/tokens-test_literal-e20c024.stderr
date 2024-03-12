@@ -1,5 +1,5 @@
 tokenizer error: Leading zeros in decimal integer are not allowed
- --> tests/errors/test_literal.py:4:14
+ --> tests/errors/test_literal.py:2:14
   |
-4 |     x: i32 = 0123
+2 |     x: i32 = 0123
   |              ^^^^ 
