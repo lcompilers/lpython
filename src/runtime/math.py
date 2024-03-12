@@ -16,7 +16,7 @@ def modf(x: f64) -> tuple[f64, f64]:
     return (x - f64(int(x)), float(int(x)))
 
 
-def factorial(n: i32) -> int:
+def factorial(n: i32) -> i64:
     """Computes the factorial of `n`."""
     MAX_LOOKUP_VALUE: i32 = 20
     FACTORIAL_LOOKUP_TABLE: list[i64] = [
@@ -93,11 +93,11 @@ def factorial(n: i32) -> int:
     idx: i32
     for idx in range(f_size - 1, -1, -1):
         result += str(f[idx])
-    return int(result)
+    return i64(0)
 
 
 @overload
-def factorial(n: i64) -> int:
+def factorial(n: i64) -> i64:
     """Computes the factorial of `n`."""
     MAX_LOOKUP_VALUE: i64 = i64(20)
     FACTORIAL_LOOKUP_TABLE: list[i64] = [
@@ -174,7 +174,7 @@ def factorial(n: i64) -> int:
     idx: i32
     for idx in range(f_size - 1, -1, -1):
         result += str(f[idx])
-    return int(result)
+    return i64(0)
 
 
 @overload
