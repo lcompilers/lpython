@@ -228,6 +228,7 @@ asr = true
 llvm = true
 pass_with_llvm = true
 pass = "inline_function_calls"
+fast = true
 
 # to make sure static keyword is actually present in function declaration
 [[test]]
