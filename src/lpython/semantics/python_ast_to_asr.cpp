@@ -6845,11 +6845,46 @@ public:
             } else {
                 fn_args.push_back(al, str);
             }
+         } else if(attr_name == "replace") {
+            if(!(args.size() == 2 || args.size()==3)) {
+                throw SemanticError("str.replace() takes two or three arguments.", loc);
+            }
+            ASR::expr_t *arg_value = args[0].m_value;
+            ASR::ttype_t *arg_value_type = ASRUtils::expr_type(arg_value);
+            if (!ASRUtils::is_character(*arg_value_type)) {
+                throw SemanticError("str.replace() argument 1 must be str", loc);
+            }
+            arg_value = args[1].m_value;
+            arg_value_type = ASRUtils::expr_type(arg_value);
+            if (!ASRUtils::is_character(*arg_value_type)) {
+                throw SemanticError("str.replace() argument 2 must be str", loc);
+            }
+            fn_call_name = "_lpython_str_replace";
+            ASR::call_arg_t str;
+            str.loc = loc;
+            str.m_value = s_var;
+
+            ASR::call_arg_t value;
+            value.loc = loc;
+            value.m_value = args[0].m_value;
+            fn_args.push_back(al, str);
+            fn_args.push_back(al, value);
+            value.m_value = args[1].m_value;
+            fn_args.push_back(al, value);
+            if(args.size()==3){
+                ASR::expr_t *arg_value = args[2].m_value;
+                ASR::ttype_t *arg_value_type = ASRUtils::expr_type(arg_value);
+                if (!ASRUtils::is_integer(*arg_value_type)) {
+                    throw SemanticError("str.replace() argument 3 must be int", loc);
+                }
+                value.m_value = args[2].m_value;
+                fn_args.push_back(al, value);
+            }
         } else if(attr_name.size() > 2 && attr_name[0] == 'i' && attr_name[1] == 's') {
             /*
                 String Validation Methods i.e all "is" based functions are handled here
             */
-            std::vector<std::string> validation_methods{"lower", "upper", "decimal", "ascii", "space", "alpha", "title"};  // Database of validation methods supported
+            std::vector<std::string> validation_methods{"lower", "upper", "decimal", "ascii", "space", "alpha", "title", "alnum", "numeric"};  // Database of validation methods supported
             std::string method_name = attr_name.substr(2);
 
             if(std::find(validation_methods.begin(),validation_methods.end(), method_name) == validation_methods.end()) {
@@ -7152,7 +7187,7 @@ public:
                 * islower() method is limited to English Alphabets currently
                 * TODO: We can support other characters from Unicode Library
             */
-            std::vector<std::string> validation_methods{"lower", "upper", "decimal", "ascii", "space", "alpha", "title"};  // Database of validation methods supported
+            std::vector<std::string> validation_methods{"lower", "upper", "decimal", "ascii", "space", "alpha", "title", "alnum", "numeric"};  // Database of validation methods supported
             std::string method_name = attr_name.substr(2);
             if(std::find(validation_methods.begin(),validation_methods.end(), method_name) == validation_methods.end()) {
                 throw SemanticError("String method not implemented: " + attr_name, loc);
@@ -7264,6 +7299,38 @@ we will have to use something else.
                     }
                 }
                 tmp = ASR::make_LogicalConstant_t(al, loc, is_alpha,
+                        ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4)));
+                return;
+            } else if (attr_name == "isalnum") {
+                /*
+                    * Specification -
+                    Return True if all characters in the string are alphabets or numbers, 
+                    and there is at least one character in the string.
+                */
+                bool is_alnum = (s_var.size() != 0);
+                for (auto &i : s_var) {
+                    if (!((i >= 'A' && i <= 'Z') || (i >= 'a' && i <= 'z') || (i >= '0' && i <= '9'))) {
+                        is_alnum = false;
+                        break;
+                    }
+                }
+                tmp = ASR::make_LogicalConstant_t(al, loc, is_alnum,
+                        ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4)));
+                return;
+            } else if (attr_name == "isnumeric") {
+                /*
+                    * Specification -
+                    Return True if all characters in the string are numbers, 
+                    and there is at least one character in the string.
+                */
+                bool is_numeric = (s_var.size() != 0);
+                for (auto &i : s_var) {
+                    if (!(i >= '0' && i <= '9')) {
+                        is_numeric = false;
+                        break;
+                    }
+                }
+                tmp = ASR::make_LogicalConstant_t(al, loc, is_numeric,
                         ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4)));
                 return;
             } else if (attr_name == "istitle") {

@@ -1,0 +1,6 @@
+def test_del():
+    a: i32
+    b: i32
+    a = 4
+    b = 20
+    del a, b

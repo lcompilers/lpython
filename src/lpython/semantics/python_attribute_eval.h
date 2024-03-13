@@ -67,7 +67,7 @@ struct AttributeHandler {
 
     ASR::asr_t* get_attribute(ASR::expr_t *e, std::string attr_name,
             Allocator &al, const Location &loc, Vec<ASR::expr_t*> &args, diag::Diagnostics &diag) {
-        ASR::ttype_t *type = ASRUtils::expr_type(e);
+        ASR::ttype_t *type = ASRUtils::type_get_past_const(ASRUtils::expr_type(e));
         std::string class_name = get_type_name(type);
         if (class_name == "") {
             throw SemanticError("Type name is not implemented yet.", loc);
@@ -124,6 +124,9 @@ struct AttributeHandler {
 
     static ASR::asr_t* eval_list_append(ASR::expr_t *s, Allocator &al, const Location &loc,
             Vec<ASR::expr_t*> &args, diag::Diagnostics &diag) {
+        if (ASR::is_a<ASR::Const_t>(*ASRUtils::expr_type(s))) {
+            throw SemanticError("cannot append element to a const list", loc);
+        }
         if (args.size() != 1) {
             throw SemanticError("append() takes exactly one argument",
                 loc);
@@ -148,6 +151,9 @@ struct AttributeHandler {
 
     static ASR::asr_t* eval_list_remove(ASR::expr_t *s, Allocator &al, const Location &loc,
             Vec<ASR::expr_t*> &args, diag::Diagnostics &diag) {
+        if (ASR::is_a<ASR::Const_t>(*ASRUtils::expr_type(s))) {
+            throw SemanticError("cannot remove element from a const list", loc);
+        }
         if (args.size() != 1) {
             throw SemanticError("remove() takes exactly one argument",
                 loc);
@@ -176,7 +182,7 @@ struct AttributeHandler {
             throw SemanticError("count() takes exactly one argument",
                 loc);
         }
-        ASR::ttype_t *type = ASRUtils::expr_type(s);
+        ASR::ttype_t *type = ASRUtils::type_get_past_const(ASRUtils::expr_type(s));
         ASR::ttype_t *list_type = ASR::down_cast<ASR::List_t>(type)->m_type;
         ASR::ttype_t *ele_type = ASRUtils::expr_type(args[0]);
         if (!ASRUtils::check_equal_type(ele_type, list_type)) {
@@ -211,6 +217,9 @@ struct AttributeHandler {
 
     static ASR::asr_t* eval_list_reverse(ASR::expr_t *s, Allocator &al, const Location &loc,
             Vec<ASR::expr_t*> &args, diag::Diagnostics &/*diag*/) {
+        if (ASR::is_a<ASR::Const_t>(*ASRUtils::expr_type(s))) {
+            throw SemanticError("cannot reverse a const list", loc);
+        }
         Vec<ASR::expr_t*> args_with_list;
         args_with_list.reserve(al, args.size() + 1);
         args_with_list.push_back(al, s);
@@ -225,6 +234,9 @@ struct AttributeHandler {
 
     static ASR::asr_t* eval_list_pop(ASR::expr_t *s, Allocator &al, const Location &loc,
             Vec<ASR::expr_t*> &args, diag::Diagnostics &/*diag*/) {
+        if (ASR::is_a<ASR::Const_t>(*ASRUtils::expr_type(s))) {
+            throw SemanticError("cannot pop element from a const list", loc);
+        }
         Vec<ASR::expr_t*> args_with_list;
         args_with_list.reserve(al, args.size() + 1);
         args_with_list.push_back(al, s);
@@ -239,6 +251,9 @@ struct AttributeHandler {
 
     static ASR::asr_t* eval_list_insert(ASR::expr_t *s, Allocator &al, const Location &loc,
             Vec<ASR::expr_t*> &args, diag::Diagnostics &diag) {
+            if (ASR::is_a<ASR::Const_t>(*ASRUtils::expr_type(s))) {
+                throw SemanticError("cannot insert element in a const list", loc);
+            }    
             if (args.size() != 2) {
                 throw SemanticError("insert() takes exactly two arguments",
                         loc);
@@ -270,6 +285,9 @@ struct AttributeHandler {
 
     static ASR::asr_t* eval_list_clear(ASR::expr_t *s, Allocator &al,
         const Location &loc, Vec<ASR::expr_t*> &args, diag::Diagnostics & diag) {
+            if (ASR::is_a<ASR::Const_t>(*ASRUtils::expr_type(s))) {
+                throw SemanticError("cannot clear elements from a const list", loc);
+            }
             if (args.size() != 0) {
                 diag.add(diag::Diagnostic(
                     "Incorrect number of arguments in 'clear', it accepts no argument",

@@ -89,13 +89,17 @@ void lex_int(Allocator &al, const unsigned char *s,
         s = s + 2;
         uint64_t n = get_value((char*)s, 2, loc);
         u.from_smallint(n);
-    } else if ((std::tolower(s[1]) == 'o')) {
+    } else if (std::tolower(s[1]) == 'o') {
         // Oct
         s = s + 2;
         uint64_t n = get_value((char*)s, 8, loc);
         u.from_smallint(n);
     } else {
         lex_dec_int_large(al, s, e, u);
+        if (s[0] == '0' && u.n != 0) {            
+            throw parser_local::TokenizerError(
+                "Leading zeros in decimal integer are not allowed", {loc});
+        }
     }
     return;
 }
