@@ -2524,7 +2524,7 @@ namespace Input {
         ASRUtils::require_impl(x.n_args <= 1,
             "ASR Verify: Call `input` takes 0 or 1 argument",
             x.base.base.loc, diagnostics);
-        if (x.n_args != 0) {
+        if (x.n_args == 1) {
             ASR::ttype_t *type = ASRUtils::expr_type(x.m_args[0]);
             ASRUtils::require_impl(ASRUtils::is_character(*type),
                 "ASR Verify: Argument to `input` must be of string type",
@@ -2534,7 +2534,14 @@ namespace Input {
 
     static inline ASR::asr_t* create_Input(Allocator& al, const Location& loc,
             Vec<ASR::expr_t*>& args,
-            const std::function<void (const std::string &, const Location &)> /*err*/) {
+            const std::function<void (const std::string &, const Location &)> err) {
+        if (args.n != 1) {
+            err("input() takes 0 or 1 argument", loc);
+        }
+        if (!ASRUtils::is_character(*ASRUtils::expr_type(args[0]))) {
+            err("Argument `prompt` to input() must be of type 'str'",
+                loc);
+        }
         std::string dummy_string = "";
         ASR::ttype_t* return_type = expr_type(StringConstant(dummy_string, character(dummy_string.length())));
         return ASR::make_IntrinsicScalarFunction_t(al, loc,
