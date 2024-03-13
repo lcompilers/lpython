@@ -1791,6 +1791,19 @@ public:
         tmp = builder->CreateFSub(exp, one);
     }
 
+    void generate_Input0() {
+        std::string input;
+        std::cin >> input;
+        tmp = builder->CreateGlobalStringPtr(input);
+    }
+
+    void generate_Input1(ASR::expr_t* m_arg) {
+        std::string input;
+        std::cout << ASR::down_cast<ASR::StringConstant_t>(m_arg)->m_s;
+        std::cin >> input;
+        tmp = builder->CreateGlobalStringPtr(input);
+    }
+
     void generate_ListReverse(ASR::expr_t* m_arg) {
         ASR::ttype_t* asr_el_type = ASRUtils::get_contained_type(ASRUtils::expr_type(m_arg));
         int64_t ptr_loads_copy = ptr_loads;
@@ -1927,7 +1940,25 @@ public:
             return;
         }
         switch (static_cast<ASRUtils::IntrinsicScalarFunctions>(x.m_intrinsic_id)) {
-            case ASRUtils::IntrinsicScalarFunctions::ListIndex: {
+            case ASRUtils::IntrinsicScalarFunctions::Input: {
+                switch (x.n_args) {
+                    case 0: {
+                        generate_Input0();
+                        break;
+                    }
+                    case 1: {
+                        generate_Input1(x.m_args[0]);
+                        break;
+                    }
+                    default: {
+                        throw CodeGenError("input() takes at most 1 argument",
+                                            x.base.base.loc);
+                    }
+                }
+                break;
+            }
+            case ASRUtils::IntrinsicScalarFunctions::ListIndex:
+            {
                 ASR::expr_t* m_arg = x.m_args[0];
                 ASR::expr_t* m_ele = x.m_args[1];
                 ASR::expr_t* m_start = nullptr;

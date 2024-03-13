@@ -50,6 +50,7 @@ enum class IntrinsicScalarFunctions : int64_t {
     Mod,
     Trailz,
     FloorDiv,
+    Input,
     ListIndex,
     Partition,
     ListReverse,
@@ -100,6 +101,7 @@ enum class IntrinsicScalarFunctions : int64_t {
 
 inline std::string get_intrinsic_name(int x) {
     switch (x) {
+        INTRINSIC_NAME_CASE(Input)
         INTRINSIC_NAME_CASE(Sin)
         INTRINSIC_NAME_CASE(Cos)
         INTRINSIC_NAME_CASE(Tan)
@@ -2515,6 +2517,33 @@ create_exp_macro(Exp, exp)
 create_exp_macro(Exp2, exp2)
 create_exp_macro(Expm1, expm1)
 
+namespace Input {
+
+    static inline void verify_args(const ASR::IntrinsicScalarFunction_t& x,
+            diag::Diagnostics& diagnostics) {
+        ASRUtils::require_impl(x.n_args <= 1,
+            "ASR Verify: Call `input` takes 0 or 1 argument",
+            x.base.base.loc, diagnostics);
+        if (x.n_args != 0) {
+            ASR::ttype_t *type = ASRUtils::expr_type(x.m_args[0]);
+            ASRUtils::require_impl(ASRUtils::is_character(*type),
+                "ASR Verify: Argument to `input` must be of string type",
+                x.base.base.loc, diagnostics);
+        }
+    }
+
+    static inline ASR::asr_t* create_Input(Allocator& al, const Location& loc,
+            Vec<ASR::expr_t*>& args,
+            const std::function<void (const std::string &, const Location &)> /*err*/) {
+        std::string dummy_string = "";
+        ASR::ttype_t* return_type = expr_type(StringConstant(dummy_string, character(dummy_string.length())));
+        return ASR::make_IntrinsicScalarFunction_t(al, loc,
+            static_cast<int64_t>(IntrinsicScalarFunctions::Input),
+            args.p, args.n, 0, return_type, nullptr);
+    }
+
+} // namespace Input
+
 namespace ListIndex {
 
 static inline void verify_args(const ASR::IntrinsicScalarFunction_t& x, diag::Diagnostics& diagnostics) {
@@ -3625,6 +3654,8 @@ namespace IntrinsicScalarFunctionRegistry {
     static const std::map<int64_t,
         std::tuple<impl_function,
                    verify_function>>& intrinsic_function_by_id_db = {
+        {static_cast<int64_t>(IntrinsicScalarFunctions::Input),
+            {nullptr, &Input::verify_args}},
         {static_cast<int64_t>(IntrinsicScalarFunctions::LogGamma),
             {&LogGamma::instantiate_LogGamma, &UnaryIntrinsicFunction::verify_args}},
         {static_cast<int64_t>(IntrinsicScalarFunctions::Trunc),
@@ -3752,9 +3783,10 @@ namespace IntrinsicScalarFunctionRegistry {
     };
 
     static const std::map<int64_t, std::string>& intrinsic_function_id_to_name = {
+        {static_cast<int64_t>(IntrinsicScalarFunctions::Input),
+            "input"},
         {static_cast<int64_t>(IntrinsicScalarFunctions::LogGamma),
             "log_gamma"},
-
         {static_cast<int64_t>(IntrinsicScalarFunctions::Trunc),
             "trunc"},
         {static_cast<int64_t>(IntrinsicScalarFunctions::Fix),
@@ -3881,6 +3913,7 @@ namespace IntrinsicScalarFunctionRegistry {
     static const std::map<std::string,
         std::tuple<create_intrinsic_function,
                     eval_intrinsic_function>>& intrinsic_function_by_name_db = {
+                {"input", {&Input::create_Input, nullptr}},
                 {"log_gamma", {&LogGamma::create_LogGamma, &LogGamma::eval_log_gamma}},
                 {"trunc", {&Trunc::create_Trunc, &Trunc::eval_Trunc}},
                 {"fix", {&Fix::create_Fix, &Fix::eval_Fix}},
