@@ -131,6 +131,7 @@ asr = true
 filename = "expr14.py"
 llvm = true
 wat = true
+python = true
 
 [[test]]
 filename = "expr15.py"
@@ -227,6 +228,7 @@ asr = true
 llvm = true
 pass_with_llvm = true
 pass = "inline_function_calls"
+fast = true
 
 # to make sure static keyword is actually present in function declaration
 [[test]]
@@ -828,6 +830,30 @@ filename = "errors/test_list_slicing.py"
 asr = true
 
 [[test]]
+filename = "errors/test_const_list_append.py"
+asr = true
+
+[[test]]
+filename = "errors/test_const_list_clear.py"
+asr = true
+
+[[test]]
+filename = "errors/test_const_list_insert.py"
+asr = true
+
+[[test]]
+filename = "errors/test_const_list_pop.py"
+asr = true
+
+[[test]]
+filename = "errors/test_const_list_reverse.py"
+asr = true
+
+[[test]]
+filename = "errors/test_const_list_remove.py"
+asr = true
+
+[[test]]
 filename = "errors/test_annassign_01.py"
 asr = true
 
@@ -1195,6 +1221,10 @@ tokens = true
 
 [[test]]
 filename = "tokens/errors/indent3.py"
+tokens = true
+
+[[test]]
+filename = "errors/test_literal.py"
 tokens = true
 
 [[test]]

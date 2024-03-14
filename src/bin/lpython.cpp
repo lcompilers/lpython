@@ -1691,7 +1691,10 @@ int main(int argc, char *argv[])
         // ReleaseSafe Mode
         } else if ( compiler_options.po.fast ) {
         // Release Mode
-            lpython_pass_manager.use_optimization_passes();
+        // No need to do anything, compiler_options.po.fast
+        // sends the signal to pass_manager when passes are applied
+        // Earlier it was redundant to call `use_optimisation_passes`
+        // which is now removed
         } else {
         // Debug Mode
             compiler_options.enable_bounds_checking = true;

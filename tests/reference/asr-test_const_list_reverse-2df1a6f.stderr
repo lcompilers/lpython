@@ -1,0 +1,5 @@
+semantic error: cannot reverse a const list
+ --> tests/errors/test_const_list_reverse.py:7:5
+  |
+7 |     CONST_INTEGER_LIST.reverse()
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
