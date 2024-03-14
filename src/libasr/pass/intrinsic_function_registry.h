@@ -1173,7 +1173,24 @@ namespace ObjectType {
 
     static ASR::expr_t *eval_ObjectType(Allocator &al, const Location &loc,
             ASR::ttype_t* t1, Vec<ASR::expr_t*>& /*args*/) {
-        std::string object_type = "<type '" + ASRUtils::type_to_str_python(t1) + "'>";
+        std::string object_type = "<class '";
+        switch (t1->type) {
+            case ASR::ttypeType::Integer : {
+                object_type += "int"; break;
+            } case ASR::ttypeType::Real : {
+                object_type += "float"; break;
+            } case ASR::ttypeType::Character : {
+                object_type += "str"; break;
+            } case ASR::ttypeType::List : {
+                object_type += "list"; break;
+            } case ASR::ttypeType::Dict : {
+               object_type += "dict"; break;
+            } default: {
+                LCOMPILERS_ASSERT_MSG(false, "Unsupported type");
+                break;
+            }
+        }
+        object_type += "'>";
         return StringConstant(object_type, character(object_type.length()));
     }
 
@@ -1185,17 +1202,9 @@ namespace ObjectType {
         }
         ASR::expr_t *m_value = nullptr;
         Vec<ASR::expr_t *> arg_values;
-       
-        if (ASR::is_a<ASR::IntrinsicScalarFunction_t>(*args[0])) {
-            ASR::IntrinsicScalarFunction_t *object = ASR::down_cast<ASR::IntrinsicScalarFunction_t>(args[0]);
-            if (static_cast<IntrinsicScalarFunctions>(object->m_intrinsic_id) == IntrinsicScalarFunctions::ObjectType) {
-                m_value = StringConstant("<type 'type'>", character(13)); // 13 is the length of the string "<type 'type'>"
-            }
-        } 
-        else {
-            m_value = eval_ObjectType(al, loc, expr_type(args[0]), arg_values);
-        }
-        
+
+        m_value = eval_ObjectType(al, loc, expr_type(args[0]), arg_values);
+
         return ASR::make_IntrinsicScalarFunction_t(al, loc,
             static_cast<int64_t>(IntrinsicScalarFunctions::ObjectType),
             args.p, args.n, 0, ASRUtils::expr_type(m_value), m_value);
