@@ -2,7 +2,7 @@ from lpython import i32, f64, Const
 
 def test_builtin_type():
     i: i32 = 42
-    f: f64 = 64
+    f: f64 = 64.0
     s: str = "Hello, LPython!"
     l: list[i32] = [1, 2, 3, 4, 5]
     d: dict[str, i32] = {"a": 1, "b": 2, "c": 3}
