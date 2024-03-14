@@ -805,8 +805,6 @@ def _lpython_str_istitle(s: str) -> bool:
 
     return True if not only_whitespace else False
 
-
-
 @overload
 def _lpython_str_find(s: str, sub: str) -> i32:
     s_len :i32; sub_len :i32; flag: bool; _len: i32;
@@ -1051,15 +1049,41 @@ def _lpython_str_isascii(s: str) -> bool:
             return False
     return True
 
-def _lpython_str_isspace(s:str) -> bool:
+def _lpython_str_isspace(s: str) -> bool:
+    # A Unicode character is considered a 'whitespace' if it has has a bidirectional
+    # type 'WS', 'B' or 'S'; or the category 'Zs'.
     if len(s) == 0:
         return False
-    ch: str 
+    
+    ch: str
     for ch in s:
-        if ch != ' ' and ch != '\t' and ch != '\n' and ch != '\r' and ch != '\f' and ch != '\v':
+        if not (ch == " "  or   # SPACE
+            ch == "\n"     or   # LINE FEED (LF)
+            ch == "\r"     or   # CARRIAGE RETURN (CR)
+            ch == "\t"     or   # CHARACTER TABULATION (HT)
+            ch == "\v"     or   # VERTICAL TAB (VT)
+            ch == "\f"     or   # FORM FEED (FF)
+            ch == "\u00A0" or   # NO-BREAK SPACE
+            ch == "\u1680" or   # OGHAM SPACE MARK
+            ch == "\u2000" or   # EN QUAD
+            ch == "\u2001" or   # EM QUAD
+            ch == "\u2002" or   # EN SPACE
+            ch == "\u2003" or   # EM SPACE
+            ch == "\u2004" or   # THREE-PER-EM SPACE
+            ch == "\u2005" or   # FOUR-PER-EM SPACE
+            ch == "\u2006" or   # SIX-PER-EM SPACE
+            ch == "\u2007" or   # FIGURE SPACE
+            ch == "\u2008" or   # PUNCTUATION SPACE
+            ch == "\u2009" or   # THIN SPACE
+            ch == "\u200A" or   # HAIR SPACE
+            ch == "\u2028" or   # LINE SEPARATOR
+            ch == "\u2029" or   # PARAGRAPH SEPARATOR
+            ch == "\u202F" or   # NARROW NO-BREAK SPACE
+            ch == "\u205F" or   # MEDIUM MATHEMATICAL SPACE
+            ch == "\u3000"      # IDEOGRAPHIC SPACE
+        ):
             return False
     return True
-
 
 def list(s: str) -> list[str]:
     l: list[str] = []
@@ -1069,3 +1093,4 @@ def list(s: str) -> list[str]:
     for i in range(len(s)):
         l.append(s[i])
     return l
+  
