@@ -1,5 +1,5 @@
 from statistics import (mean, fmean, geometric_mean, harmonic_mean, variance,
-                        stdev, pvariance, pstdev, mode)
+                        stdev, pvariance, pstdev, mode, correlation, covariance, linear_regression)
 from lpython import i32, f64, i64
 
 
@@ -154,6 +154,77 @@ def test_mode():
     l: i64 = mode(e)
     assert l == i64(-3)
 
+def test_correlation():
+    x: list[i32] = [1, 2, 3, 4, 5]
+    y: list[i32] = [5, 4, 3, 2, 1]
+    j: f64 = correlation(x, y)
+    assert abs(j + 1.0) < eps
+
+    x = [1, 2, 3, 4, 5]
+    y = [1, 2, 3, 4, 5]
+    k: f64 = correlation(x, y)
+    assert abs(k - 1.0) < eps
+
+    x = [1, 2, 3, 4, 5]
+    y = [-1, -2, -3, -4, -5]
+    l: f64 = correlation(x, y)
+    assert abs(l - (-1.0)) < eps
+
+    x = [1, 2, 3, 4, 5]
+    y = [5, 4, 3, 2, 1]
+    m: f64 = correlation(x, y)
+    assert abs(m + 1.0) < eps
+
+    x = [1, 2, 3, 4, 5]
+    y = [1, 3, 3, 3, 5]
+    n: f64 = correlation(x, y)
+    assert abs(n - 0.8) < eps
+
+def test_covariance():
+    x: list[i32] = [1, 2, 3, 4, 5]
+    y: list[i32] = [5, 4, 3, 2, 1]
+    j: f64 = covariance(x, y)
+    assert abs(j - (-2.5)) < eps
+
+    x = [1, 2, 3, 4, 5]
+    y = [1, 2, 3, 4, 5]
+    k: f64 = covariance(x, y)
+    assert abs(k - 2.5) < eps
+
+    x = [1, 2, 3, 4, 5]
+    y = [-1, -2, -3, -4, -5]
+    l: f64 = covariance(x, y)
+    assert abs(l - 2.5) < eps
+
+    x = [1, 2, 3, 4, 5]
+    y = [5, 4, 3, 2, 1]
+    m: f64 = covariance(x, y)
+    assert abs(m - (-2.5)) < eps
+
+    x = [1, 2, 3, 4, 5]
+    y = [1, 3, 3, 3, 5]
+    n: f64 = covariance(x, y)
+    assert abs(n - 2.0) < eps
+
+def test_linear_regression():
+    x: list[i32] = [1, 2, 3, 4, 5]
+    y: list[i32] = [2, 4, 6, 8, 10]
+    slope, intercept = linear_regression(x, y)
+    assert abs(slope - 2.0) < eps
+    assert abs(intercept - 0.0) < eps
+
+    x = [1, 2, 3, 4, 5]
+    y = [1, 3, 5, 7, 9]
+    slope, intercept = linear_regression(x, y)
+    assert abs(slope - 2.0) < eps
+    assert abs(intercept - (-1.0)) < eps
+
+    x = [1, 2, 3, 4, 5]
+    y = [-1, -2, -3, -4, -5]
+    slope, intercept = linear_regression(x, y)
+    assert abs(slope + 1.0) < eps
+    assert abs(intercept - 0.0) < eps
+
 
 def check():
     test_mean()
@@ -165,5 +236,8 @@ def check():
     test_pvariance()
     test_pstdev()
     test_mode()
+    test_correlation()
+    test_covariance()
+    test_linear_regression()
 
 check()
