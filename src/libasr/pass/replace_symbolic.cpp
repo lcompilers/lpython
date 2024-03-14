@@ -1012,7 +1012,7 @@ public:
         transform_stmts(xx.m_body, xx.n_body);
         if (ASR::is_a<ASR::IntrinsicScalarFunction_t>(*xx.m_test)) {
             ASR::IntrinsicScalarFunction_t* intrinsic_func = ASR::down_cast<ASR::IntrinsicScalarFunction_t>(xx.m_test);
-            if (intrinsic_func->m_type->type == ASR::ttypeType::Logical) {
+            if (ASRUtils::is_logical(intrinsic_func->m_type)) {
                 ASR::expr_t* function_call = process_attributes(xx.base.base.loc, xx.m_test);
                 xx.m_test = function_call;
             }
