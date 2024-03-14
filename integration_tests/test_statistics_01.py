@@ -1,5 +1,5 @@
 from statistics import (mean, fmean, geometric_mean, harmonic_mean, variance,
-                        stdev, pvariance, pstdev, mode)
+                        stdev, pvariance, pstdev, mode, median, median_low)
 from lpython import i32, f64, i64
 
 
@@ -154,6 +154,43 @@ def test_mode():
     l: i64 = mode(e)
     assert l == i64(-3)
 
+def test_median():
+    a: list[int]
+    a = [1, 3, 5, 7, 9]
+    j: float
+    j = median(a)
+    assert j == 5.0
+
+    b: list[int]
+    b = [1, 3, 5, 7]
+    k: float
+    k = median(b)
+    assert k == 4.0
+
+    c: list[float]
+    c = [1.5, 2.5, 3.5]
+    l: float
+    l = median(c)
+    assert l == 2.5
+
+def test_median_low():
+    a: list[int]
+    a = [1, 3, 5, 7, 9]
+    j: float
+    j = median_low(a)
+    assert j == 5
+
+    b: list[int]
+    b = [1, 3, 5, 7]
+    k: float
+    k = median_low(b)
+    assert k == 3
+
+    c: list[float]
+    c = [1.5, 2.5, 3.5]
+    l: float
+    l = median_low(c)
+    assert l == 2.5
 
 def check():
     test_mean()
@@ -165,5 +202,7 @@ def check():
     test_pvariance()
     test_pstdev()
     test_mode()
+    test_median()
+    test_median_low()
 
 check()

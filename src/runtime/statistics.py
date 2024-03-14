@@ -1,4 +1,4 @@
-from lpython import i32, f64, i64, f64, overload
+from lpython import i32, f64, i64, f64, overload, Counter
 
 
 @overload
@@ -545,3 +545,54 @@ def linear_regression(x: list[f64], y: list[f64]) -> tuple[f64, f64]:
     LinReg: tuple[f64, f64] = (slope, intercept)
 
     return LinReg
+
+@overload
+def mode(x: list[i32]) -> i32:
+    """
+    Returns the mode (most common value) of a data sequence of integers
+    """
+    counter = Counter(x)
+    mode_value, mode_count = counter.most_common(1)[0]
+    return mode_value
+
+@overload
+def mode(x: list[i64]) -> i64:
+    """
+    Returns the mode (most common value) of a data sequence of long integers
+    """
+    counter = Counter(x)
+    mode_value, mode_count = counter.most_common(1)[0]
+    return mode_value
+
+@overload
+def mode(x: list[f64]) -> f64:
+    """
+    Returns the mode (most common value) of a data sequence of floating-point numbers
+    """
+    counter = Counter(x)
+    mode_value, mode_count = counter.most_common(1)[0]
+    return mode_value
+
+def median(x: list[int]) -> float:
+    """
+    Returns the median (middle value) of a data sequence of integers
+    """
+    sorted_x = sorted(x)
+    n = len(sorted_x)
+    mid = n // 2
+    if n % 2 == 0:
+        return (sorted_x[mid - 1] + sorted_x[mid]) / 2
+    else:
+        return sorted_x[mid]
+
+def median_low(x: list[int]) -> float:
+    """
+    Returns the low median (middle value) of a data sequence of integers
+    """
+    sorted_x = sorted(x)
+    n = len(sorted_x)
+    mid = n // 2
+    if n % 2 == 0:
+        return sorted_x[mid - 1]
+    else:
+        return sorted_x[mid]
