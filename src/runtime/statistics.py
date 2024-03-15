@@ -545,3 +545,151 @@ def linear_regression(x: list[f64], y: list[f64]) -> tuple[f64, f64]:
     LinReg: tuple[f64, f64] = (slope, intercept)
 
     return LinReg
+
+@overload
+def median(x: list[f64]) -> f64:
+    """
+    Returns the median of a data sequence of numbers
+    """
+    sorted_x = sorted(x)
+    n = len(sorted_x)
+    if n % 2 == 0:
+        return (sorted_x[n // 2 - 1] + sorted_x[n // 2]) / 2
+    else:
+        return sorted_x[n // 2]
+
+@overload
+def median(x: list[i32]) -> f64:
+    """
+    Returns the median of a data sequence of numbers
+    """
+    sorted_x = sorted(x)
+    n = len(sorted_x)
+    if n % 2 == 0:
+        return (f64(sorted_x[n // 2 - 1]) + f64(sorted_x[n // 2])) / 2
+    else:
+        return f64(sorted_x[n // 2])
+
+@overload
+def median_low(x: list[f64]) -> f64:
+    """
+    Returns the low median (the middle value in the lower half of the data) of a data sequence of numbers
+    """
+    sorted_x = sorted(x)
+    n = len(sorted_x)
+    if n % 2 == 0:
+        return sorted_x[n // 2 - 1]
+    else:
+        return sorted_x[n // 2]
+
+@overload
+def median_low(x: list[i32]) -> f64:
+    """
+    Returns the low median (the middle value in the lower half of the data) of a data sequence of numbers
+    """
+    sorted_x = sorted(x)
+    n = len(sorted_x)
+    if n % 2 == 0:
+        return f64(sorted_x[n // 2 - 1])
+    else:
+        return f64(sorted_x[n // 2])
+
+@overload
+def median_high(x: list[f64]) -> f64:
+    """
+    Returns the high median (the middle value in the upper half of the data) of a data sequence of numbers
+    """
+    sorted_x = sorted(x)
+    n = len(sorted_x)
+    if n % 2 == 0:
+        return sorted_x[n // 2]
+    else:
+        return sorted_x[n // 2 + 1]
+
+@overload
+def median_high(x: list[i32]) -> f64:
+    """
+    Returns the high median (the middle value in the upper half of the data) of a data sequence of numbers
+    """
+    sorted_x = sorted(x)
+    n = len(sorted_x)
+    if n % 2 == 0:
+        return f64(sorted_x[n // 2])
+    else:
+        return f64(sorted_x[n // 2 + 1])
+
+@overload
+def median_grouped(x: list[f64], interval: f64 = 1.0) -> f64:
+    """
+    Returns the median of grouped continuous data
+    """
+    sorted_x = sorted(x)
+    n = len(sorted_x)
+    if n % 2 == 0:
+        return (sorted_x[n // 2 - 1] + sorted_x[n // 2]) / 2
+    else:
+        return sorted_x[n // 2]
+
+@overload
+def median_grouped(x: list[i32], interval: f64 = 1.0) -> f64:
+    """
+    Returns the median of grouped continuous data
+    """
+    sorted_x = sorted(x)
+    n = len(sorted_x)
+    if n % 2 == 0:
+        return (f64(sorted_x[n // 2 - 1]) + f64(sorted_x[n // 2])) / 2
+    else:
+        return f64(sorted_x[n // 2])
+
+@overload
+def multimode(x: list[f64]) -> list[f64]:
+    """
+    Returns a list of modes in a data sequence of numbers
+    """
+    counts = {}
+    for value in x:
+        if value in counts:
+            counts[value] += 1
+        else:
+            counts[value] = 1
+    
+    max_count = max(counts.values())
+    modes = [value for value, count in counts.items() if count == max_count]
+    return modes
+
+@overload
+def multimode(x: list[i32]) -> list[f64]:
+    """
+    Returns a list of modes in a data sequence of numbers
+    """
+    counts = {}
+    for value in x:
+        if value in counts:
+            counts[value] += 1
+        else:
+            counts[value] = 1
+    
+    max_count = max(counts.values())
+    modes = [f64(value) for value, count in counts.items() if count == max_count]
+    return modes
+
+@overload
+def quantiles(x: list[f64], n: int = 4) -> list[f64]:
+    """
+    Divide data into n continuous intervals with equal probabilities
+    """
+    sorted_x = sorted(x)
+    quantile_size = len(sorted_x) / n
+    quantiles = [sorted_x[int(i * quantile_size)] for i in range(1, n)]
+    return quantiles
+
+@overload
+def quantiles(x: list[i32], n: int = 4) -> list[f64]:
+    """
+    Divide data into n continuous intervals with equal probabilities
+    """
+    sorted_x = sorted(x)
+    quantile_size = len(sorted_x) / n
+    quantiles = [f64(sorted_x[int(i * quantile_size)]) for i in range(1, n)]
+    return quantiles

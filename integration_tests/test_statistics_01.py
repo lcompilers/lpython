@@ -1,5 +1,5 @@
 from statistics import (mean, fmean, geometric_mean, harmonic_mean, variance,
-                        stdev, pvariance, pstdev, mode)
+                        stdev, pvariance, pstdev, mode, median, median_low, median_high, median_grouped, multimode, quantiles)
 from lpython import i32, f64, i64
 
 
@@ -154,6 +154,86 @@ def test_mode():
     l: i64 = mode(e)
     assert l == i64(-3)
 
+def test_median():
+    a: list[i32]
+    a = [1, 2, 3, 4, 5]
+    j: f64
+    j = median(a)
+    assert j == 3
+
+    b: list[f64]
+    b = [1.2, 2.3, 3.4, 4.5, 5.6]
+    k: f64
+    k = median(b)
+    assert abs(k - 3.4) < eps
+
+def test_median_low():
+    a: list[i32]
+    a = [1, 2, 3, 4, 5]
+    j: f64
+    j = median_low(a)
+    assert j == 2
+
+    b: list[f64]
+    b = [1.2, 2.3, 3.4, 4.5, 5.6]
+    k: f64
+    k = median_low(b)
+    assert abs(k - 2.3) < eps
+
+def test_median_high():
+    a: list[i32]
+    a = [1, 2, 3, 4, 5]
+    j: f64
+    j = median_high(a)
+    assert j == 4
+
+    b: list[f64]
+    b = [1.2, 2.3, 3.4, 4.5, 5.6]
+    k: f64
+    k = median_high(b)
+    assert abs(k - 4.5) < eps
+
+def test_median_grouped():
+    a: list[i32]
+    a = [1, 2, 3, 4, 5]
+    j: f64
+    j = median_grouped(a)
+    assert j == 3
+
+    b: list[f64]
+    b = [1.2, 2.3, 3.4, 4.5, 5.6]
+    k: f64
+    k = median_grouped(b)
+    assert abs(k - 3.4) < eps
+
+def test_multimode():
+    a: list[i32]
+    a = [1, 2, 3, 3, 4, 4, 4]
+    j: list[i32]
+    j = multimode(a)
+    assert j == [3, 4]
+
+    b: list[f64]
+    b = [1.2, 2.2, 2.2, 3.3, 4.4]
+    k: list[f64]
+    k = multimode(b)
+    assert k == [2.2]
+
+def test_quantiles():
+    a: list[i32]
+    a = [1, 2, 3, 4, 5]
+    j: list[f64]
+    j = quantiles(a)
+    assert j == [2.0, 3.0, 4.0]
+
+    b: list[f64]
+    b = [1.2, 2.3, 3.4, 4.5, 5.6]
+    k: list[f64]
+    k = quantiles(b)
+    assert abs(k[0] - 2.3) < eps
+    assert abs(k[1] - 3.4) < eps
+    assert abs(k[2] - 4.5) < eps
+
 
 def check():
     test_mean()
@@ -165,5 +245,11 @@ def check():
     test_pvariance()
     test_pstdev()
     test_mode()
+    test_median()
+    test_median_low()
+    test_median_high()
+    test_median_grouped()
+    test_multimode()
+    test_quantiles()
 
 check()
