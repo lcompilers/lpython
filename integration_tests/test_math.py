@@ -1,6 +1,6 @@
 from math import (factorial, isqrt, perm, comb, degrees, radians, exp, pow,
                   ldexp, fabs, gcd, lcm, floor, ceil, remainder, expm1, fmod, log1p, trunc,
-                  modf, fsum, prod, dist, frexp, isclose, sumprod)
+                  modf, fsum, prod, dist, frexp, isclose)
 import math
 from lpython import i16, i32, i64, f32, f64
 
@@ -253,15 +253,6 @@ def test_issue_1242():
     assert abs(math.pi - 3.14159265358979323846) < 1e-10
 
 
-def test_sumprod():
-    ls1:list[f64] = [2.5, 3.0, 10.2, 5.3]
-    ls2:list[f64] = [1.4, 6.5, 2.7, 0.0]
-    assert abs(sumprod(ls1,ls2) - 50.54) < eps
-    
-    ls2 = [9.93, 2.18, -7.21]
-    assert abs(sumprod(ls1[:3], ls2) + 42.177) < eps
-
-
 def test_frexp():
     x:f64 = 6.23
     mantissa:f64
@@ -312,7 +303,6 @@ def check():
     test_dist()
     test_modf()
     test_issue_1242()
-    test_sumprod()
     test_frexp()
     test_isclose()
 

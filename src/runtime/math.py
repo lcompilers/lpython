@@ -711,21 +711,6 @@ def remainder(x: f64, y: f64) -> f64:
     return x - y*f64(q)
 
 
-def sumprod(x: list[f64], y: list[f64]) -> f64:
-    '''
-    Return the sum of products of values from the lists x and y.
-    '''
-    if len(x) != len(y):
-        raise ValueError("The two lists must have the same length.")
-    
-    result: f64 = 0.0
-    i:i32
-    for i in range(len(x)):
-        result += x[i] * y[i]
-
-    return result
-
-
 @overload
 def frexp(x:f64) -> tuple[f64,i16]:
     '''
