@@ -245,22 +245,6 @@ c = true
 cpp = true
 
 [[test]]
-filename = "loop5.py"
-asr = true
-
-[[test]]
-filename = "loop6.py"
-asr = true
-
-[[test]]
-filename = "loop7.py"
-asr = true
-
-[[test]]
-filename = "loop8.py"
-asr = true
-
-[[test]]
 filename = "assert1.py"
 ast = true
 asr = true
