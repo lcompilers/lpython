@@ -3332,10 +3332,10 @@ public:
         ASR::expr_t *value = nullptr;
         ASR::ttype_t *dest_type = left_operand_type;
 
-        if (ASR::is_a<ASR::StringConstant_t>(*left_operand_type)) {
+        if (ASR::is_a<ASR::Character_t>(*left_operand_type)) {
             throw SemanticError("Logical operation not supported on object of type 'str'", lhs->base.loc);
         }
-        if (ASR::is_a<ASR::StringConstant_t>(*right_operand_type)) {
+        if (ASR::is_a<ASR::Character_t>(*right_operand_type)) {
             throw SemanticError("Logical operation not supported on object of type 'str'", rhs->base.loc);
         }
         if (ASRUtils::expr_value(lhs) != nullptr && ASRUtils::expr_value(rhs) != nullptr) {
