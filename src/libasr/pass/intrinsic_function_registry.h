@@ -48,6 +48,7 @@ enum class IntrinsicScalarFunctions : int64_t {
     FMA,
     FlipSign,
     Mod,
+    LShift,
     Trailz,
     FloorDiv,
     ListIndex,
@@ -122,6 +123,7 @@ inline std::string get_intrinsic_name(int x) {
         INTRINSIC_NAME_CASE(FlipSign)
         INTRINSIC_NAME_CASE(FloorDiv)
         INTRINSIC_NAME_CASE(Mod)
+        INTRINSIC_NAME_CASE(LShift)
         INTRINSIC_NAME_CASE(Trailz)
         INTRINSIC_NAME_CASE(ListIndex)
         INTRINSIC_NAME_CASE(Partition)
@@ -368,6 +370,12 @@ class ASRBuilder {
     #define And(x, y) EXPR(ASR::make_LogicalBinOp_t(al, loc, x,                 \
             ASR::logicalbinopType::And, y, logical, nullptr))
     #define Not(x)    EXPR(ASR::make_LogicalNot_t(al, loc, x, logical, nullptr))
+
+
+    #define i_BitRshift(n, bits, t) EXPR(ASR::make_IntegerBinOp_t(al, loc,      \
+                n, ASR::binopType::BitRShift, bits, t, nullptr))
+    #define i_BitLshift(n, bits, t) EXPR(ASR::make_IntegerBinOp_t(al, loc,      \
+                n, ASR::binopType::BitLShift, bits, t, nullptr))
 
     ASR::expr_t *Add(ASR::expr_t *left, ASR::expr_t *right) {
         LCOMPILERS_ASSERT(check_equal_type(expr_type(left), expr_type(right)));
@@ -2382,6 +2390,76 @@ namespace Mod {
 
 } // namespace Mod
 
+namespace LShift {
+
+     static inline void verify_args(const ASR::IntrinsicScalarFunction_t& x, diag::Diagnostics& diagnostics) {
+        ASRUtils::require_impl(x.n_args == 2,
+            "ASR Verify: Call to LShift must have exactly 2 arguments",
+            x.base.base.loc, diagnostics);
+        ASR::ttype_t *type1 = ASRUtils::expr_type(x.m_args[0]);
+        ASR::ttype_t *type2 = ASRUtils::expr_type(x.m_args[1]);
+        ASRUtils::require_impl((is_integer(*type1) && is_integer(*type2)),
+            "ASR Verify: Arguments to LShift must be of integer type",
+            x.base.base.loc, diagnostics);
+    }
+
+    static ASR::expr_t *eval_LShift(Allocator &al, const Location &loc,
+        ASR::ttype_t* t1, Vec<ASR::expr_t*> &args) {
+        int64_t a = ASR::down_cast<ASR::IntegerConstant_t>(args[0])->m_n;
+        int64_t b = ASR::down_cast<ASR::IntegerConstant_t>(args[1])->m_n;
+        int64_t val = a << b;
+        return make_ConstantWithType(make_IntegerConstant_t, val, t1, loc);
+    }
+
+    static inline ASR::asr_t* create_LShift(Allocator& al, const Location& loc,
+            Vec<ASR::expr_t*>& args,
+            const std::function<void (const std::string &, const Location &)> err) {
+        if (args.size() != 2) {
+            err("Intrinsic LShift function accepts exactly 2 arguments", loc);
+        }
+        ASR::ttype_t *type1 = ASRUtils::expr_type(args[0]);
+        ASR::ttype_t *type2 = ASRUtils::expr_type(args[1]);
+        if (!((ASRUtils::is_integer(*type1) && ASRUtils::is_integer(*type2)))) {
+            err("Argument of the LShift function must be Integer",
+                args[0]->base.loc);
+        }
+        ASR::expr_t *m_value = nullptr;
+        if (all_args_evaluated(args)) {
+            Vec<ASR::expr_t*> arg_values; arg_values.reserve(al, 2);
+            arg_values.push_back(al, expr_value(args[0]));
+            arg_values.push_back(al, expr_value(args[1]));
+            m_value = eval_LShift(al, loc, expr_type(args[1]), arg_values);
+        }
+        return ASR::make_IntrinsicScalarFunction_t(al, loc,
+            static_cast<int64_t>(IntrinsicScalarFunctions::LShift),
+            args.p, args.n, 0, ASRUtils::expr_type(args[0]), m_value);
+    }
+
+    static inline ASR::expr_t* instantiate_LShift(Allocator &al, const Location &loc,
+            SymbolTable *scope, Vec<ASR::ttype_t*>& arg_types, ASR::ttype_t *return_type,
+            Vec<ASR::call_arg_t>& new_args, int64_t /*overload_id*/) {
+        declare_basic_variables("_lcompilers_lshift_" + type_to_str_python(arg_types[1]));
+        fill_func_arg("a", arg_types[0]);
+        fill_func_arg("p", arg_types[1]);
+        auto result = declare(fn_name, return_type, ReturnVar);
+        /*
+        function LShifti32i32(a, p) result(d)
+            integer(int32) :: a
+            integer(int32) :: b
+            result = a << b
+            return result
+        end function
+        */
+        body.push_back(al, b.Assignment(result, i_BitLshift(args[0], args[1], arg_types[0])));
+
+        ASR::symbol_t *f_sym = make_ASR_Function_t(fn_name, fn_symtab, dep, args,
+            body, result, ASR::abiType::Source, ASR::deftypeType::Implementation, nullptr);
+        scope->add_symbol(fn_name, f_sym);
+        return b.Call(f_sym, new_args, return_type, nullptr);
+    }
+
+} // namespace LShift
+
 namespace Trailz {
 
      static inline void verify_args(const ASR::IntrinsicScalarFunction_t& x, diag::Diagnostics& diagnostics) {
@@ -3666,6 +3744,8 @@ namespace IntrinsicScalarFunctionRegistry {
             {&FloorDiv::instantiate_FloorDiv, &FloorDiv::verify_args}},
         {static_cast<int64_t>(IntrinsicScalarFunctions::Mod),
             {&Mod::instantiate_Mod, &Mod::verify_args}},
+        {static_cast<int64_t>(IntrinsicScalarFunctions::LShift),
+            {&LShift::instantiate_LShift, &LShift::verify_args}},
         {static_cast<int64_t>(IntrinsicScalarFunctions::Trailz),
             {&Trailz::instantiate_Trailz, &Trailz::verify_args}},
         {static_cast<int64_t>(IntrinsicScalarFunctions::Abs),
@@ -3794,6 +3874,8 @@ namespace IntrinsicScalarFunctionRegistry {
             "floordiv"},
         {static_cast<int64_t>(IntrinsicScalarFunctions::Mod),
             "mod"},
+        {static_cast<int64_t>(IntrinsicScalarFunctions::LShift),
+            "lshift"},
         {static_cast<int64_t>(IntrinsicScalarFunctions::Trailz),
             "trailz"},
         {static_cast<int64_t>(IntrinsicScalarFunctions::Expm1),
@@ -3902,6 +3984,7 @@ namespace IntrinsicScalarFunctionRegistry {
                 {"fma", {&FMA::create_FMA, &FMA::eval_FMA}},
                 {"floordiv", {&FloorDiv::create_FloorDiv, &FloorDiv::eval_FloorDiv}},
                 {"mod", {&Mod::create_Mod, &Mod::eval_Mod}},
+                {"lshift", {&LShift::create_LShift, &LShift::eval_LShift}},
                 {"trailz", {&Trailz::create_Trailz, &Trailz::eval_Trailz}},
                 {"list.index", {&ListIndex::create_ListIndex, &ListIndex::eval_list_index}},
                 {"list.reverse", {&ListReverse::create_ListReverse, &ListReverse::eval_list_reverse}},
