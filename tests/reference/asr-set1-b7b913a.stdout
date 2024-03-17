@@ -7,167 +7,6 @@
                     (SymbolTable
                         2
                         {
-                            __main__global_init:
-                                (Function
-                                    (SymbolTable
-                                        4
-                                        {
-                                            
-                                        })
-                                    __main__global_init
-                                    (FunctionType
-                                        []
-                                        ()
-                                        Source
-                                        Implementation
-                                        ()
-                                        .false.
-                                        .false.
-                                        .false.
-                                        .false.
-                                        .false.
-                                        []
-                                        .false.
-                                    )
-                                    []
-                                    []
-                                    [(=
-                                        (Var 2 s1)
-                                        (SetConstant
-                                            [(StringConstant
-                                                "a"
-                                                (Character 1 1 ())
-                                            )
-                                            (StringConstant
-                                                "b"
-                                                (Character 1 1 ())
-                                            )
-                                            (StringConstant
-                                                "c"
-                                                (Character 1 1 ())
-                                            )
-                                            (StringConstant
-                                                "a"
-                                                (Character 1 1 ())
-                                            )]
-                                            (Set
-                                                (Character 1 1 ())
-                                            )
-                                        )
-                                        ()
-                                    )
-                                    (=
-                                        (Var 2 s2)
-                                        (SetConstant
-                                            [(IntegerConstant 1 (Integer 4))
-                                            (IntegerConstant 2 (Integer 4))
-                                            (IntegerConstant 3 (Integer 4))
-                                            (IntegerConstant 1 (Integer 4))]
-                                            (Set
-                                                (Integer 4)
-                                            )
-                                        )
-                                        ()
-                                    )
-                                    (=
-                                        (Var 2 s3)
-                                        (SetConstant
-                                            [(TupleConstant
-                                                [(IntegerConstant 1 (Integer 4))
-                                                (IntegerConstant 2 (Integer 4))]
-                                                (Tuple
-                                                    [(Integer 4)
-                                                    (Integer 4)]
-                                                )
-                                            )
-                                            (TupleConstant
-                                                [(IntegerConstant 2 (Integer 4))
-                                                (IntegerConstant 3 (Integer 4))]
-                                                (Tuple
-                                                    [(Integer 4)
-                                                    (Integer 4)]
-                                                )
-                                            )
-                                            (TupleConstant
-                                                [(IntegerConstant 4 (Integer 4))
-                                                (IntegerConstant 5 (Integer 4))]
-                                                (Tuple
-                                                    [(Integer 4)
-                                                    (Integer 4)]
-                                                )
-                                            )]
-                                            (Set
-                                                (Tuple
-                                                    [(Integer 4)
-                                                    (Integer 4)]
-                                                )
-                                            )
-                                        )
-                                        ()
-                                    )]
-                                    ()
-                                    Public
-                                    .false.
-                                    .false.
-                                    ()
-                                ),
-                            s1:
-                                (Variable
-                                    2
-                                    s1
-                                    []
-                                    Local
-                                    ()
-                                    ()
-                                    Default
-                                    (Set
-                                        (Character 1 -2 ())
-                                    )
-                                    ()
-                                    Source
-                                    Public
-                                    Required
-                                    .false.
-                                ),
-                            s2:
-                                (Variable
-                                    2
-                                    s2
-                                    []
-                                    Local
-                                    ()
-                                    ()
-                                    Default
-                                    (Set
-                                        (Integer 4)
-                                    )
-                                    ()
-                                    Source
-                                    Public
-                                    Required
-                                    .false.
-                                ),
-                            s3:
-                                (Variable
-                                    2
-                                    s3
-                                    []
-                                    Local
-                                    ()
-                                    ()
-                                    Default
-                                    (Set
-                                        (Tuple
-                                            [(Integer 4)
-                                            (Integer 4)]
-                                        )
-                                    )
-                                    ()
-                                    Source
-                                    Public
-                                    Required
-                                    .false.
-                                ),
                             test_Set:
                                 (Function
                                     (SymbolTable
@@ -334,27 +173,13 @@
             main_program:
                 (Program
                     (SymbolTable
-                        5
+                        4
                         {
-                            __main__global_init:
-                                (ExternalSymbol
-                                    5
-                                    __main__global_init
-                                    2 __main__global_init
-                                    __main__
-                                    []
-                                    __main__global_init
-                                    Public
-                                )
+                            
                         })
                     main_program
-                    [__main__]
-                    [(SubroutineCall
-                        5 __main__global_init
-                        2 __main__global_init
-                        []
-                        ()
-                    )]
+                    []
+                    []
                 )
         })
     []
