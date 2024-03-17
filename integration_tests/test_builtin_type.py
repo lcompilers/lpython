@@ -1,4 +1,4 @@
-from lpython import i32, f64, Const
+from lpython import i32, f64
 
 def test_builtin_type():
     i: i32 = 42
