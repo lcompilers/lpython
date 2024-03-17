@@ -2,7 +2,7 @@ from math import (factorial, isqrt, perm, comb, degrees, radians, exp, pow,
                   ldexp, fabs, gcd, lcm, floor, ceil, remainder, expm1, fmod, log1p, trunc,
                   modf, fsum, prod, dist, frexp, isclose)
 import math
-from lpython import i16, i32, i64, f32, f64
+from lpython import i8, i16, i32, i64, f32, f64
 
 eps: f64
 eps = 1e-12
@@ -268,10 +268,37 @@ def test_frexp():
     mantissa, exponent = frexp(x)
     assert abs(mantissa - 0.616875) < eps and exponent == i16(5)
 
+    x = -23.6
+    mantissa, exponent = frexp(x)
+    assert abs(mantissa + 0.7375) < eps and exponent == i16(5)
+
+    y:f32 = f32(1.23)
+    mantissa2:f32
+    exponent2:i8
+    mantissa2, exponent2 = frexp(y)
+    assert abs(mantissa2 - f32(0.615)) < f32(eps) and exponent2 == i8(1)
+
+    y = f32(-1.23)
+    mantissa2, exponent2 = frexp(y)
+    assert abs(mantissa2 - f32(-0.615)) < f32(eps) and exponent2 == i8(1)
+
 
 def test_isclose():
     x:f64 = 2.2130
     y:f64 = 2.2129
+    assert isclose(x, y, rel_tol=0.01, abs_tol=0.001)
+    assert isclose(x,y,rel_tol=0.0000001,abs_tol=0.01)
+    assert isclose(x,y,rel_tol=0.1,abs_tol=0.000001)
+    assert not isclose(x,y,rel_tol=0.0000001,abs_tol=0.00001)
+
+    x = -1.265
+    y = 1.265
+    assert not isclose(x,y,rel_tol=0.001,abs_tol=0.0001)
+    assert not isclose(y,x,rel_tol=0.01,abs_tol=0.1)
+    assert not isclose(x,y,rel_tol=0.01,abs_tol=0.1)
+
+    x = -1.2650
+    y = -1.2651
     assert isclose(x, y, rel_tol=0.01, abs_tol=0.001)
     assert isclose(x,y,rel_tol=0.0000001,abs_tol=0.01)
     assert isclose(x,y,rel_tol=0.1,abs_tol=0.000001)
