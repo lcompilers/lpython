@@ -2520,12 +2520,13 @@ namespace ListIndex {
 static inline void verify_args(const ASR::IntrinsicScalarFunction_t& x, diag::Diagnostics& diagnostics) {
     ASRUtils::require_impl(x.n_args <= 4, "Call to list.index must have at most four arguments",
         x.base.base.loc, diagnostics);
-    ASRUtils::require_impl(ASR::is_a<ASR::List_t>(*ASRUtils::expr_type(x.m_args[0])) &&
+    ASR::ttype_t *list_type = ASRUtils::type_get_past_const(ASRUtils::expr_type(x.m_args[0]));
+    ASRUtils::require_impl(ASR::is_a<ASR::List_t>(*list_type) &&
         ASRUtils::check_equal_type(ASRUtils::expr_type(x.m_args[1]),
-            ASRUtils::get_contained_type(ASRUtils::expr_type(x.m_args[0]))),
+            ASRUtils::get_contained_type(list_type)),
         "First argument to list.index must be of list type and "
         "second argument must be of same type as list elemental type",
-        x.base.base.loc, diagnostics);
+        x.base.base.loc, diagnostics);        
     if(x.n_args >= 3) {
         ASRUtils::require_impl(
             ASR::is_a<ASR::Integer_t>(*ASRUtils::expr_type(x.m_args[2])),
@@ -2555,7 +2556,7 @@ static inline ASR::asr_t* create_ListIndex(Allocator& al, const Location& loc,
     const std::function<void (const std::string &, const Location &)> err) {
     int64_t overload_id = 0;
     ASR::expr_t* list_expr = args[0];
-    ASR::ttype_t *type = ASRUtils::expr_type(list_expr);
+    ASR::ttype_t *type = ASRUtils::type_get_past_const(ASRUtils::expr_type(list_expr));
     ASR::ttype_t *list_type = ASR::down_cast<ASR::List_t>(type)->m_type;
     ASR::ttype_t *ele_type = ASRUtils::expr_type(args[1]);
     if (!ASRUtils::check_equal_type(ele_type, list_type)) {

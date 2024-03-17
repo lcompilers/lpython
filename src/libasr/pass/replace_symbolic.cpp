@@ -266,6 +266,25 @@ public:
             {handle_argument(al, loc, value_01), handle_argument(al, loc, value_02)},
             ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4)));
     }
+
+    static inline bool is_logical_intrinsic_symbolic(ASR::expr_t* expr) {
+        if (ASR::is_a<ASR::IntrinsicScalarFunction_t>(*expr)) {
+            ASR::IntrinsicScalarFunction_t* intrinsic_func = ASR::down_cast<ASR::IntrinsicScalarFunction_t>(expr);
+            int64_t intrinsic_id = intrinsic_func->m_intrinsic_id;
+            switch (static_cast<LCompilers::ASRUtils::IntrinsicScalarFunctions>(intrinsic_id)) {
+                case LCompilers::ASRUtils::IntrinsicScalarFunctions::SymbolicHasSymbolQ:
+                case LCompilers::ASRUtils::IntrinsicScalarFunctions::SymbolicAddQ:
+                case LCompilers::ASRUtils::IntrinsicScalarFunctions::SymbolicMulQ:
+                case LCompilers::ASRUtils::IntrinsicScalarFunctions::SymbolicPowQ:
+                case LCompilers::ASRUtils::IntrinsicScalarFunctions::SymbolicLogQ:
+                case LCompilers::ASRUtils::IntrinsicScalarFunctions::SymbolicSinQ:
+                    return true;
+                default:
+                    return false;
+            }
+        }
+        return true;
+    }
     /********************************** Utils *********************************/
 
     void visit_Function(const ASR::Function_t &x) {
@@ -304,7 +323,6 @@ public:
             func_body.from_pointer_n_copy(al, xx.m_body, xx.n_body);
 
             for (ASR::symbol_t* symbol : symbolic_vars_to_free) {
-                if (symbolic_vars_to_omit.find(symbol) != symbolic_vars_to_omit.end()) continue;
                 func_body.push_back(al, basic_free_stack(x.base.base.loc,
                     ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, symbol))));
             }
@@ -333,7 +351,7 @@ public:
 
             ASR::ttype_t *CPtr_type = ASRUtils::TYPE(ASR::make_CPtr_t(al, xx.base.base.loc));
             xx.m_type = CPtr_type;
-            if (var_name != "_lpython_return_variable" && xx.m_intent != ASR::intentType::Out) {
+            if (xx.m_intent == ASR::intentType::Local) {
                 symbolic_vars_to_free.insert(ASR::down_cast<ASR::symbol_t>((ASR::asr_t*)&xx));
             }
             if(xx.m_intent == ASR::intentType::In){
@@ -505,7 +523,8 @@ public:
     void visit_Assignment(const ASR::Assignment_t &x) {
         if (ASR::is_a<ASR::Var_t>(*x.m_value) && ASR::is_a<ASR::CPtr_t>(*ASRUtils::expr_type(x.m_value))) {
             ASR::symbol_t *v = ASR::down_cast<ASR::Var_t>(x.m_value)->m_v;
-            if (symbolic_vars_to_free.find(v) == symbolic_vars_to_free.end()) return;
+            if ((symbolic_vars_to_free.find(v) == symbolic_vars_to_free.end()) &&
+                (symbolic_vars_to_omit.find(v) == symbolic_vars_to_omit.end())) return;
             ASR::symbol_t* var_sym = ASR::down_cast<ASR::Var_t>(x.m_value)->m_v;
             pass_result.push_back(al, basic_assign(x.base.base.loc, x.m_target,
                 ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, var_sym))));
@@ -514,9 +533,11 @@ public:
             if (intrinsic_func->m_type->type == ASR::ttypeType::SymbolicExpression) {
                 process_intrinsic_function(x.base.base.loc, intrinsic_func, x.m_target);
             } else if (intrinsic_func->m_type->type == ASR::ttypeType::Logical) {
-                ASR::expr_t* function_call = process_attributes(x.base.base.loc, x.m_value);
-                ASR::stmt_t* stmt = ASRUtils::STMT(ASR::make_Assignment_t(al, x.base.base.loc, x.m_target, function_call, nullptr));
-                pass_result.push_back(al, stmt);
+                if (is_logical_intrinsic_symbolic(x.m_value)) {
+                    ASR::expr_t* function_call = process_attributes(x.base.base.loc, x.m_value);
+                    ASR::stmt_t* stmt = ASRUtils::STMT(ASR::make_Assignment_t(al, x.base.base.loc, x.m_target, function_call, nullptr));
+                    pass_result.push_back(al, stmt);
+                }
             }
         } else if (ASR::is_a<ASR::Cast_t>(*x.m_value)) {
             ASR::Cast_t* cast_t = ASR::down_cast<ASR::Cast_t>(x.m_value);
@@ -676,18 +697,22 @@ public:
         if (ASR::is_a<ASR::IntrinsicScalarFunction_t>(*xx.m_test)) {
             ASR::IntrinsicScalarFunction_t* intrinsic_func = ASR::down_cast<ASR::IntrinsicScalarFunction_t>(xx.m_test);
             if (intrinsic_func->m_type->type == ASR::ttypeType::Logical) {
-                ASR::expr_t* function_call = process_attributes(xx.base.base.loc, xx.m_test);
-                xx.m_test = function_call;
+                if (is_logical_intrinsic_symbolic(xx.m_test)) {
+                    ASR::expr_t* function_call = process_attributes(xx.base.base.loc, xx.m_test);
+                    xx.m_test = function_call;
+                }
             }
         } else if (ASR::is_a<ASR::LogicalNot_t>(*xx.m_test)) {
             ASR::LogicalNot_t* logical_not = ASR::down_cast<ASR::LogicalNot_t>(xx.m_test);
             if (ASR::is_a<ASR::IntrinsicScalarFunction_t>(*logical_not->m_arg)) {
                 ASR::IntrinsicScalarFunction_t* intrinsic_func = ASR::down_cast<ASR::IntrinsicScalarFunction_t>(logical_not->m_arg);
                 if (intrinsic_func->m_type->type == ASR::ttypeType::Logical) {
-                    ASR::expr_t* function_call = process_attributes(xx.base.base.loc, logical_not->m_arg);
-                    ASR::expr_t* new_logical_not = ASRUtils::EXPR(ASR::make_LogicalNot_t(al, xx.base.base.loc, function_call,
-                        logical_not->m_type, logical_not->m_value));
-                    xx.m_test = new_logical_not;
+                    if (is_logical_intrinsic_symbolic(logical_not->m_arg)) {
+                        ASR::expr_t* function_call = process_attributes(xx.base.base.loc, logical_not->m_arg);
+                        ASR::expr_t* new_logical_not = ASRUtils::EXPR(ASR::make_LogicalNot_t(al, xx.base.base.loc, function_call,
+                            logical_not->m_type, logical_not->m_value));
+                        xx.m_test = new_logical_not;
+                    }
                 }
             }
         } else if (ASR::is_a<ASR::SymbolicCompare_t>(*xx.m_test)) {
@@ -759,7 +784,8 @@ public:
             ASR::expr_t* val = x.m_values[i];
             if (ASR::is_a<ASR::Var_t>(*val) && ASR::is_a<ASR::CPtr_t>(*ASRUtils::expr_type(val))) {
                 ASR::symbol_t *v = ASR::down_cast<ASR::Var_t>(val)->m_v;
-                if (symbolic_vars_to_free.find(v) == symbolic_vars_to_free.end()) return;
+                if ((symbolic_vars_to_free.find(v) == symbolic_vars_to_free.end()) &&
+                    (symbolic_vars_to_omit.find(v) == symbolic_vars_to_omit.end())) return;
                 print_tmp.push_back(basic_str(x.base.base.loc, val));
             } else if (ASR::is_a<ASR::IntrinsicScalarFunction_t>(*val)) {
                 ASR::IntrinsicScalarFunction_t* intrinsic_func = ASR::down_cast<ASR::IntrinsicScalarFunction_t>(val);
@@ -784,8 +810,10 @@ public:
                     // Now create the FunctionCall node for basic_str
                     print_tmp.push_back(basic_str(x.base.base.loc, target));
                 } else if (ASR::is_a<ASR::Logical_t>(*ASRUtils::expr_type(val))) {
-                    ASR::expr_t* function_call = process_attributes(x.base.base.loc, val);
-                    print_tmp.push_back(function_call);
+                    if (is_logical_intrinsic_symbolic(val)) {
+                        ASR::expr_t* function_call = process_attributes(x.base.base.loc, val);
+                        print_tmp.push_back(function_call);
+                    }
                 }
             } else if (ASR::is_a<ASR::Cast_t>(*val)) {
                 ASR::Cast_t* cast_t = ASR::down_cast<ASR::Cast_t>(val);
@@ -926,14 +954,15 @@ public:
         ASR::expr_t* right_tmp = nullptr;
         if (ASR::is_a<ASR::LogicalCompare_t>(*x.m_test)) {
             ASR::LogicalCompare_t *l = ASR::down_cast<ASR::LogicalCompare_t>(x.m_test);
+            if (is_logical_intrinsic_symbolic(l->m_left) && is_logical_intrinsic_symbolic(l->m_right)) {
+                left_tmp = process_attributes(x.base.base.loc, l->m_left);
+                right_tmp = process_attributes(x.base.base.loc, l->m_right);
+                ASR::expr_t* test =  ASRUtils::EXPR(ASR::make_LogicalCompare_t(al, x.base.base.loc, left_tmp,
+                    l->m_op, right_tmp, l->m_type, l->m_value));
 
-            left_tmp = process_attributes(x.base.base.loc, l->m_left);
-            right_tmp = process_attributes(x.base.base.loc, l->m_right);
-            ASR::expr_t* test =  ASRUtils::EXPR(ASR::make_LogicalCompare_t(al, x.base.base.loc, left_tmp,
-                l->m_op, right_tmp, l->m_type, l->m_value));
-
-            ASR::stmt_t *assert_stmt = ASRUtils::STMT(ASR::make_Assert_t(al, x.base.base.loc, test, x.m_msg));
-            pass_result.push_back(al, assert_stmt);
+                ASR::stmt_t *assert_stmt = ASRUtils::STMT(ASR::make_Assert_t(al, x.base.base.loc, test, x.m_msg));
+                pass_result.push_back(al, assert_stmt);
+            }
         } else if (ASR::is_a<ASR::SymbolicCompare_t>(*x.m_test)) {
             ASR::SymbolicCompare_t* s = ASR::down_cast<ASR::SymbolicCompare_t>(x.m_test);
             if (s->m_op == ASR::cmpopType::Eq || s->m_op == ASR::cmpopType::NotEq) {
@@ -949,9 +978,11 @@ public:
         } else if (ASR::is_a<ASR::IntrinsicScalarFunction_t>(*x.m_test)) {
             ASR::IntrinsicScalarFunction_t* intrinsic_func = ASR::down_cast<ASR::IntrinsicScalarFunction_t>(x.m_test);
             if (intrinsic_func->m_type->type == ASR::ttypeType::Logical) {
-                ASR::expr_t* test = process_attributes(x.base.base.loc, x.m_test);
-                ASR::stmt_t *assert_stmt = ASRUtils::STMT(ASR::make_Assert_t(al, x.base.base.loc, test, x.m_msg));
-                pass_result.push_back(al, assert_stmt);
+                if (is_logical_intrinsic_symbolic(x.m_test)) {
+                    ASR::expr_t* test = process_attributes(x.base.base.loc, x.m_test);
+                    ASR::stmt_t *assert_stmt = ASRUtils::STMT(ASR::make_Assert_t(al, x.base.base.loc, test, x.m_msg));
+                    pass_result.push_back(al, assert_stmt);
+                }
             }
         } else if (ASR::is_a<ASR::LogicalBinOp_t>(*x.m_test)) {
             ASR::LogicalBinOp_t* binop = ASR::down_cast<ASR::LogicalBinOp_t>(x.m_test);
@@ -976,15 +1007,25 @@ public:
         }
     }
 
+    void visit_WhileLoop(const ASR::WhileLoop_t &x) {
+        ASR::WhileLoop_t &xx = const_cast<ASR::WhileLoop_t&>(x);
+        transform_stmts(xx.m_body, xx.n_body);
+        if (ASR::is_a<ASR::IntrinsicScalarFunction_t>(*xx.m_test)) {
+            ASR::IntrinsicScalarFunction_t* intrinsic_func = ASR::down_cast<ASR::IntrinsicScalarFunction_t>(xx.m_test);
+            if (ASR::is_a<ASR::Logical_t>(*intrinsic_func->m_type)) {
+                ASR::expr_t* function_call = process_attributes(xx.base.base.loc, xx.m_test);
+                xx.m_test = function_call;
+            }
+        }
+    }
+
     void visit_Return(const ASR::Return_t &x) {
+        // freeing out variables
         if (!symbolic_vars_to_free.empty()){
             for (ASR::symbol_t* symbol : symbolic_vars_to_free) {
-                if (symbolic_vars_to_omit.find(symbol) != symbolic_vars_to_omit.end()) continue;
-                // freeing out variables
                 pass_result.push_back(al, basic_free_stack(x.base.base.loc,
                     ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, symbol))));
             }
-            symbolic_vars_to_free.clear();
             pass_result.push_back(al, ASRUtils::STMT(ASR::make_Return_t(al, x.base.base.loc)));
         }
     }
