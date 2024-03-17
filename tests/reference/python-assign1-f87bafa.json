@@ -5,9 +5,9 @@
     "infile_hash": "3b82a73e457bd65e85828b72d56596ca927e7c661e333691f154912b",
     "outfile": null,
     "outfile_hash": null,
-    "stdout": "python-assign1-f87bafa.stdout",
-    "stdout_hash": "bd60a7791394a67503473530adb0369f2f12407e0108423397f3e4e4",
-    "stderr": null,
-    "stderr_hash": null,
-    "returncode": 0
+    "stdout": null,
+    "stdout_hash": null,
+    "stderr": "python-assign1-f87bafa.stderr",
+    "stderr_hash": "a1afd66905ebb1ec9220326ec8f0f611c9246c8c1c164603455362c5",
+    "returncode": 109
 }

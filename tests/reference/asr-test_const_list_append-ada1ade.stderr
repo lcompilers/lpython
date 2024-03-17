@@ -1,4 +1,4 @@
-semantic error: cannot append element to a const list
+semantic error: Type name is not implemented yet.
  --> tests/errors/test_const_list_append.py:7:5
   |
 7 |     CONST_INTEGER_LIST.append(6)
