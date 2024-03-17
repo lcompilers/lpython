@@ -7587,7 +7587,7 @@ we will have to use something else.
                 Vec<ASR::expr_t*> args_; args_.reserve(al, x.n_args);
                 visit_expr_list(x.m_args, x.n_args, args_);
                 
-                if (x.n_args && ASRUtils::is_array(ASRUtils::expr_type(args_[0])) &&
+                if (x.n_args > 0 && ASRUtils::is_array(ASRUtils::expr_type(args_[0])) &&
                     imported_functions[call_name] == "math" ) {
                     throw SemanticError("Function '" + call_name + "' does not accept vector values",
                         x.base.base.loc);
