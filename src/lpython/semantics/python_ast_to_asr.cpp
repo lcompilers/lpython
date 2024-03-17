@@ -3338,35 +3338,36 @@ public:
         if (ASR::is_a<ASR::StringConstant_t>(*right_operand_type)) {
             throw SemanticError("Logical operation not supported on object of type 'str'", rhs->base.loc);
         }
+        if (ASRUtils::expr_value(lhs) != nullptr && ASRUtils::expr_value(rhs) != nullptr) {
+            if (ASR::is_a<ASR::Logical_t>(*left_operand_type) 
+                && ASR::is_a<ASR::Logical_t>(*right_operand_type)) {
 
-        if (ASR::is_a<ASR::Logical_t>(*left_operand_type) 
-            && ASR::is_a<ASR::Logical_t>(*right_operand_type)) {
-
-            bool left_value = ASR::down_cast<ASR::LogicalConstant_t>(
-                                    ASRUtils::expr_value(lhs))->m_value;
-            bool right_value = ASR::down_cast<ASR::LogicalConstant_t>(
-                                    ASRUtils::expr_value(rhs))->m_value;
-            bool result;
-            switch (op) {
-                case (ASR::logicalbinopType::And): { result = left_value && right_value; break; }
-                case (ASR::logicalbinopType::Or): { result = left_value || right_value; break; }
-                default : {
-                    throw SemanticError("Boolean operator type not supported",
-                        x.base.base.loc);
+                bool left_value = ASR::down_cast<ASR::LogicalConstant_t>(
+                                        ASRUtils::expr_value(lhs))->m_value;
+                bool right_value = ASR::down_cast<ASR::LogicalConstant_t>(
+                                        ASRUtils::expr_value(rhs))->m_value;
+                bool result;
+                switch (op) {
+                    case (ASR::logicalbinopType::And): { result = left_value && right_value; break; }
+                    case (ASR::logicalbinopType::Or): { result = left_value || right_value; break; }
+                    default : {
+                        throw SemanticError("Boolean operator type not supported",
+                            x.base.base.loc);
+                    }
                 }
+                value = ASR::down_cast<ASR::expr_t>(ASR::make_LogicalConstant_t(
+                    al, x.base.base.loc, result, dest_type));
+            } else if(ASR::is_a<ASR::Logical_t>(*left_operand_type) 
+                        && !ASR::is_a<ASR::Logical_t>(*right_operand_type)) {
+                throw SemanticError("Type mismatch: '" + ASRUtils::type_to_str_python(left_operand_type) 
+                                + "' and '" + ASRUtils::type_to_str_python(right_operand_type) 
+                                + "'. Operand should be of type 'bool'", rhs->base.loc);
+            } else if(!ASR::is_a<ASR::Logical_t>(*left_operand_type) 
+                        && ASR::is_a<ASR::Logical_t>(*right_operand_type)) {
+                throw SemanticError("Type mismatch: '" + ASRUtils::type_to_str_python(left_operand_type) 
+                                + "' and '" + ASRUtils::type_to_str_python(right_operand_type) 
+                                + "'. Operand should be of type 'bool'", lhs->base.loc);
             }
-            value = ASR::down_cast<ASR::expr_t>(ASR::make_LogicalConstant_t(
-                al, x.base.base.loc, result, dest_type));
-        } else if(ASR::is_a<ASR::Logical_t>(*left_operand_type) 
-                    && !ASR::is_a<ASR::Logical_t>(*right_operand_type)) {
-            throw SemanticError("Type mismatch: '" + ASRUtils::type_to_str_python(left_operand_type) 
-                            + "' and '" + ASRUtils::type_to_str_python(right_operand_type) 
-                            + "'. Operand should be of type 'bool'", rhs->base.loc);
-        } else if(!ASR::is_a<ASR::Logical_t>(*left_operand_type) 
-                    && ASR::is_a<ASR::Logical_t>(*right_operand_type)) {
-            throw SemanticError("Type mismatch: '" + ASRUtils::type_to_str_python(left_operand_type) 
-                            + "' and '" + ASRUtils::type_to_str_python(right_operand_type) 
-                            + "'. Operand should be of type 'bool'", lhs->base.loc);
         }
         tmp = ASR::make_LogicalBinOp_t(al, x.base.base.loc, lhs, op, rhs, dest_type, value);
     }
