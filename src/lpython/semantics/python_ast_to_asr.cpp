@@ -3332,14 +3332,15 @@ public:
         ASR::expr_t *value = nullptr;
         ASR::ttype_t *dest_type = left_operand_type;
 
-        if (ASR::is_a<ASR::StringConstant_t>(*lhs)) {
+        if (ASR::is_a<ASR::StringConstant_t>(*left_operand_type)) {
             throw SemanticError("Logical operation not supported on object of type 'str'", lhs->base.loc);
         }
-        if (ASR::is_a<ASR::StringConstant_t>(*rhs)) {
+        if (ASR::is_a<ASR::StringConstant_t>(*right_operand_type)) {
             throw SemanticError("Logical operation not supported on object of type 'str'", rhs->base.loc);
         }
 
-        if (ASR::is_a<ASR::LogicalConstant_t>(*lhs) && ASR::is_a<ASR::LogicalConstant_t>(*rhs)) {
+        if (ASR::is_a<ASR::Logical_t>(*left_operand_type) 
+            && ASR::is_a<ASR::Logical_t>(*right_operand_type)) {
 
             bool left_value = ASR::down_cast<ASR::LogicalConstant_t>(
                                     ASRUtils::expr_value(lhs))->m_value;
@@ -3356,13 +3357,13 @@ public:
             }
             value = ASR::down_cast<ASR::expr_t>(ASR::make_LogicalConstant_t(
                 al, x.base.base.loc, result, dest_type));
-        } else if(ASR::is_a<ASR::LogicalConstant_t>(*left_operand_type) 
-                    && !ASR::is_a<ASR::LogicalConstant_t>(*right_operand_type)) {
+        } else if(ASR::is_a<ASR::Logical_t>(*left_operand_type) 
+                    && !ASR::is_a<ASR::Logical_t>(*right_operand_type)) {
             throw SemanticError("Type mismatch: '" + ASRUtils::type_to_str_python(left_operand_type) 
                             + "' and '" + ASRUtils::type_to_str_python(right_operand_type) 
                             + "'. Operand should be of type 'bool'", rhs->base.loc);
-        } else if(!ASR::is_a<ASR::LogicalConstant_t>(*left_operand_type) 
-                    && ASR::is_a<ASR::LogicalConstant_t>(*right_operand_type)) {
+        } else if(!ASR::is_a<ASR::Logical_t>(*left_operand_type) 
+                    && ASR::is_a<ASR::Logical_t>(*right_operand_type)) {
             throw SemanticError("Type mismatch: '" + ASRUtils::type_to_str_python(left_operand_type) 
                             + "' and '" + ASRUtils::type_to_str_python(right_operand_type) 
                             + "'. Operand should be of type 'bool'", lhs->base.loc);
