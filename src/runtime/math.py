@@ -744,4 +744,4 @@ def isclose(a:f64, b:f64, rel_tol:f64 = 1e-09, abs_tol:f64 = 0.0) -> bool:
     '''
     difference:f64 = fabs(a-b)
     greater:f64 = max(fabs(a),fabs(b))
-    return (difference <= rel_tol*greater) or (difference <= abs_tol)
+    return difference <= max(rel_tol*greater, abs_tol)
