@@ -3326,18 +3326,14 @@ public:
                     x.base.base.loc);
             }
         }
-        if (!ASR::is_a<ASR::Logical_t>(*ASRUtils::expr_type(lhs))) {
-            throw SemanticError("Operand is not of type 'bool'", lhs->base.loc);
-        }
-        if (!ASR::is_a<ASR::Logical_t>(*ASRUtils::expr_type(rhs))) {
-            throw SemanticError("Operand is not of type 'bool'", rhs->base.loc);
-        }
+        ASR::ttype_t *left_operand_type = ASRUtils::expr_type(lhs);
+        ASR::ttype_t *right_operand_type = ASRUtils::expr_type(rhs);
+
         ASR::expr_t *value = nullptr;
-        ASR::ttype_t *dest_type = ASRUtils::expr_type(lhs);
+        ASR::ttype_t *dest_type = left_operand_type;
 
-        if (ASRUtils::expr_value(lhs) != nullptr && ASRUtils::expr_value(rhs) != nullptr) {
+        if (ASR::is_a<ASR::Logical_t>(*left_operand_type) && ASR::is_a<ASR::Logical_t>(*right_operand_type)) {
 
-            LCOMPILERS_ASSERT(ASR::is_a<ASR::Logical_t>(*dest_type));
             bool left_value = ASR::down_cast<ASR::LogicalConstant_t>(
                                     ASRUtils::expr_value(lhs))->m_value;
             bool right_value = ASR::down_cast<ASR::LogicalConstant_t>(
@@ -3353,6 +3349,16 @@ public:
             }
             value = ASR::down_cast<ASR::expr_t>(ASR::make_LogicalConstant_t(
                 al, x.base.base.loc, result, dest_type));
+        } else if(ASR::is_a<ASR::Logical_t>(*left_operand_type) 
+                    && !ASR::is_a<ASR::Logical_t>(*right_operand_type)) {
+            throw SemanticError("Type mismatch: '" + ASRUtils::type_to_str_python(left_operand_type) 
+                            + "' and '" + ASRUtils::type_to_str_python(right_operand_type) 
+                            + "'. Operand should be of type 'bool'", rhs->base.loc);
+        } else if(!ASR::is_a<ASR::Logical_t>(*left_operand_type) 
+                    && ASR::is_a<ASR::Logical_t>(*right_operand_type)) {
+            throw SemanticError("Type mismatch: '" + ASRUtils::type_to_str_python(left_operand_type) 
+                            + "' and '" + ASRUtils::type_to_str_python(right_operand_type) 
+                            + "'. Operand should be of type 'bool'", lhs->base.loc);
         }
         tmp = ASR::make_LogicalBinOp_t(al, x.base.base.loc, lhs, op, rhs, dest_type, value);
     }
