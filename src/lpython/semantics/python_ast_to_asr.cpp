@@ -3354,7 +3354,7 @@ public:
                                 x.base.base.loc);
                         }
                     }
-                    value = ASR::down_cast<ASR::expr_t>(ASR::make_LogicalConstant_t(
+                    value = ASRUtils::EXPR(ASR::make_LogicalConstant_t(
                         al, x.base.base.loc, result, dest_type));
                     break;
                 }
@@ -3378,7 +3378,7 @@ public:
                                 x.base.base.loc);
                         }
                     }
-                    value = ASR::down_cast<ASR::expr_t>(ASR::make_IntegerConstant_t(
+                    value = ASRUtils::EXPR(ASR::make_IntegerConstant_t(
                         al, x.base.base.loc, result, dest_type));
                     break;
                 }
@@ -3402,7 +3402,7 @@ public:
                                 x.base.base.loc);
                         }
                     }
-                    value = ASR::down_cast<ASR::expr_t>(ASR::make_RealConstant_t(
+                    value = ASRUtils::EXPR(ASR::make_RealConstant_t(
                         al, x.base.base.loc, result, dest_type));
                     break;
                 }
@@ -3426,7 +3426,7 @@ public:
                                 x.base.base.loc);
                         }
                     }
-                    value = ASR::down_cast<ASR::expr_t>(ASR::make_StringConstant_t(
+                    value = ASRUtils::EXPR(ASR::make_StringConstant_t(
                         al, x.base.base.loc, result, dest_type));
                     break;
                 }
@@ -3436,9 +3436,8 @@ public:
                             + ASRUtils::type_to_str_python(dest_type) + "'",
                                 x.base.base.loc);
             }
-
-            tmp = ASR::make_LogicalBinOp_t(al, x.base.base.loc, lhs, op, rhs, dest_type, value);
         }
+        tmp = ASR::make_LogicalBinOp_t(al, x.base.base.loc, lhs, op, rhs, dest_type, value);
     }
 
     void visit_BinOp(const AST::BinOp_t &x) {
@@ -7674,8 +7673,7 @@ we will have to use something else.
                 }
                 Vec<ASR::expr_t*> args_; args_.reserve(al, x.n_args);
                 visit_expr_list(x.m_args, x.n_args, args_);
-                
-                if (x.n_args > 0 && ASRUtils::is_array(ASRUtils::expr_type(args_[0])) &&
+                if (ASRUtils::is_array(ASRUtils::expr_type(args_[0])) &&
                     imported_functions[call_name] == "math" ) {
                     throw SemanticError("Function '" + call_name + "' does not accept vector values",
                         x.base.base.loc);
