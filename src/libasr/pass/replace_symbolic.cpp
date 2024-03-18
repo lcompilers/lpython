@@ -1007,6 +1007,18 @@ public:
         }
     }
 
+    void visit_WhileLoop(const ASR::WhileLoop_t &x) {
+        ASR::WhileLoop_t &xx = const_cast<ASR::WhileLoop_t&>(x);
+        transform_stmts(xx.m_body, xx.n_body);
+        if (ASR::is_a<ASR::IntrinsicScalarFunction_t>(*xx.m_test)) {
+            ASR::IntrinsicScalarFunction_t* intrinsic_func = ASR::down_cast<ASR::IntrinsicScalarFunction_t>(xx.m_test);
+            if (ASR::is_a<ASR::Logical_t>(*intrinsic_func->m_type)) {
+                ASR::expr_t* function_call = process_attributes(xx.base.base.loc, xx.m_test);
+                xx.m_test = function_call;
+            }
+        }
+    }
+
     void visit_Return(const ASR::Return_t &x) {
         // freeing out variables
         if (!symbolic_vars_to_free.empty()){

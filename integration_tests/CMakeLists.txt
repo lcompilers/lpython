@@ -579,6 +579,7 @@ RUN(NAME test_dict_nested1   LABELS cpython llvm)
 RUN(NAME test_set_len        LABELS cpython llvm)
 RUN(NAME test_set_add        LABELS cpython llvm)
 RUN(NAME test_set_remove     LABELS cpython llvm)
+RUN(NAME test_global_set     LABELS cpython llvm)
 RUN(NAME test_for_loop       LABELS cpython llvm c)
 RUN(NAME modules_01          LABELS cpython llvm c wasm wasm_x86 wasm_x64)
 RUN(NAME modules_02          LABELS cpython llvm c wasm wasm_x86 wasm_x64)
@@ -819,6 +820,7 @@ RUN(NAME callback_04       IMPORT_PATH .. LABELS cpython)
 # Intrinsic Functions
 RUN(NAME intrinsics_01     LABELS cpython llvm NOFAST) # any
 RUN(NAME intrinsics_02     LABELS cpython llvm c) # floordiv
+RUN(NAME test_builtin_type LABELS cpython llvm c) # type
 
 # lpython decorator
 RUN(NAME lpython_decorator_01    LABELS cpython)
