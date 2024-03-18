@@ -12,6 +12,7 @@ def g():
         for i2 in range(dim2):
             a[i1, i2] = i32(i1 * dim2 + i2)
     # a: [[0, 1, 2], [3, 4, 5]]
+    print(a)
     assert a[-1, -1] == 5
     assert a[-1, -2] == 4
     assert a[-1, -3] == 3
