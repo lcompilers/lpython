@@ -141,7 +141,7 @@ double __lpython_overloaded_7__pow(double x, int32_t y)
 int32_t __lpython_overloaded_8__pow(bool x, bool y)
 {
     int32_t _lpython_return_variable;
-    if (y && !x) {
+    if (!x) {
         _lpython_return_variable = 0;
         return _lpython_return_variable;
     }

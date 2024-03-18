@@ -1,0 +1,5 @@
+semantic error: Boolean operation not supported on objects of type 'list[i32]'
+ --> tests/errors/test_logical_compare_01.py:2:11
+  |
+2 |     print([1, 2, 3] or [1, 2, 3, 4])
+  |           ^^^^^^^^^^^^^^^^^^^^^^^^^ 

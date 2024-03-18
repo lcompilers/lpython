@@ -307,32 +307,15 @@
                                         ()
                                     )
                                     (Assert
-                                        (LogicalBinOp
-                                            (IntegerCompare
-                                                (TupleItem
-                                                    (Var 5 c)
-                                                    (IntegerConstant 0 (Integer 4))
-                                                    (Integer 4)
-                                                    ()
-                                                )
-                                                Eq
-                                                (Var 5 a)
-                                                (Logical 4)
+                                        (IntegerCompare
+                                            (TupleItem
+                                                (Var 5 c)
+                                                (IntegerConstant 1 (Integer 4))
+                                                (Integer 4)
                                                 ()
                                             )
-                                            And
-                                            (IntegerCompare
-                                                (TupleItem
-                                                    (Var 5 c)
-                                                    (IntegerConstant 1 (Integer 4))
-                                                    (Integer 4)
-                                                    ()
-                                                )
-                                                Eq
-                                                (Var 5 b)
-                                                (Logical 4)
-                                                ()
-                                            )
+                                            Eq
+                                            (Var 5 b)
                                             (Logical 4)
                                             ()
                                         )

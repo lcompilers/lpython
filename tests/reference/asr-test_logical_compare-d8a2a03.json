@@ -1,0 +1,13 @@
+{
+    "basename": "asr-test_logical_compare-d8a2a03",
+    "cmd": "lpython --show-asr --no-color {infile} -o {outfile}",
+    "infile": "tests/../integration_tests/test_logical_compare.py",
+    "infile_hash": "da97ff499f0466d27c685fc224a112879e4c18d7b40d1c17fc50820e",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": null,
+    "stdout_hash": null,
+    "stderr": "asr-test_logical_compare-d8a2a03.stderr",
+    "stderr_hash": "1047f02931d793890d85304ec1ab66e628f5e8d2654728f93f48d14f",
+    "returncode": 2
+}

@@ -80,34 +80,27 @@
                                     )
                                     (=
                                         (Var 3 a)
-                                        (LogicalBinOp
-                                            (Var 3 a)
-                                            And
-                                            (Var 3 b)
-                                            (Logical 4)
-                                            ()
-                                        )
+                                        (Var 3 b)
                                         ()
                                     )
                                     (=
                                         (Var 3 b)
-                                        (LogicalBinOp
-                                            (Var 3 a)
-                                            Or
-                                            (LogicalConstant
-                                                .true.
-                                                (Logical 4)
-                                            )
+                                        (LogicalConstant
+                                            .true.
                                             (Logical 4)
-                                            ()
                                         )
                                         ()
                                     )
                                     (=
                                         (Var 3 a)
-                                        (LogicalBinOp
-                                            (Var 3 a)
-                                            Or
+                                        (Var 3 b)
+                                        ()
+                                    )
+                                    (=
+                                        (Var 3 a)
+                                        (LogicalCompare
+                                            (Var 3 b)
+                                            Eq
                                             (Var 3 b)
                                             (Logical 4)
                                             ()
@@ -116,16 +109,10 @@
                                     )
                                     (=
                                         (Var 3 a)
-                                        (LogicalBinOp
-                                            (Var 3 a)
-                                            And
-                                            (LogicalCompare
-                                                (Var 3 b)
-                                                Eq
-                                                (Var 3 b)
-                                                (Logical 4)
-                                                ()
-                                            )
+                                        (LogicalCompare
+                                            (Var 3 b)
+                                            NotEq
+                                            (Var 3 b)
                                             (Logical 4)
                                             ()
                                         )
@@ -133,30 +120,7 @@
                                     )
                                     (=
                                         (Var 3 a)
-                                        (LogicalBinOp
-                                            (Var 3 a)
-                                            And
-                                            (LogicalCompare
-                                                (Var 3 b)
-                                                NotEq
-                                                (Var 3 b)
-                                                (Logical 4)
-                                                ()
-                                            )
-                                            (Logical 4)
-                                            ()
-                                        )
-                                        ()
-                                    )
-                                    (=
-                                        (Var 3 a)
-                                        (LogicalBinOp
-                                            (Var 3 b)
-                                            Or
-                                            (Var 3 b)
-                                            (Logical 4)
-                                            ()
-                                        )
+                                        (Var 3 b)
                                         ()
                                     )]
                                     ()
