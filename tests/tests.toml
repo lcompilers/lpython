@@ -1260,6 +1260,10 @@ filename = "errors/loop_03.py"
 asr = true
 
 [[test]]
+filename = "errors/test_logical_compare_01.py"
+asr = true
+
+[[test]]
 filename = "errors/bindc_01.py"
 asr = true
 
