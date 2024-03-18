@@ -1,5 +1,0 @@
-semantic error: Type mismatch: 'str' and 'i32'. Both operands must be of the same type.
- --> tests/errors/test_logical_compare_02.py:2:11
-  |
-2 |     print("hello" or 10)
-  |           ^^^^^^^^^^^^^ 
