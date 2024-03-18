@@ -1,5 +1,5 @@
-semantic error: Boolean operation not supported on objects of type 'list[i32]'
+semantic error: Type mismatch: 'str' and 'i32'. Both operands must be of the same type.
  --> tests/errors/test_logical_compare_01.py:2:11
   |
-2 |     print([1, 2, 3] or [1, 2, 3, 4])
-  |           ^^^^^^^^^^^^^^^^^^^^^^^^^ 
+2 |     print("hello" or 10)
+  |           ^^^^^^^^^^^^^ 

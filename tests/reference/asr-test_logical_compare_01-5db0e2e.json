@@ -2,12 +2,12 @@
     "basename": "asr-test_logical_compare_01-5db0e2e",
     "cmd": "lpython --show-asr --no-color {infile} -o {outfile}",
     "infile": "tests/errors/test_logical_compare_01.py",
-    "infile_hash": "104f3a2803ff13b0d6d930f9685b96af448c74cf34d0bbfb348b3bee",
+    "infile_hash": "467dc216d8ce90f4b3a1ec06610cea226ae96152763cfa42d5ab8f33",
     "outfile": null,
     "outfile_hash": null,
     "stdout": null,
     "stdout_hash": null,
     "stderr": "asr-test_logical_compare_01-5db0e2e.stderr",
-    "stderr_hash": "5a5f8c02f2fe4e0da212816a9043bdcd9be47aac28f0c1be72869a03",
+    "stderr_hash": "d10cac68687315b5d29828e0acb5170f44bd91dd30784f8bd4943bb0",
     "returncode": 2
 }

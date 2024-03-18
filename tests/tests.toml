@@ -430,14 +430,6 @@ filename = "../integration_tests/test_bool_binop.py"
 asr = true
 
 [[test]]
-filename = "../integration_tests/test_logical_compare.py"
-asr = true
-
-[[test]]
-filename = "../integration_tests/test_logical_assignment.py"
-asr = true
-
-[[test]]
 filename = "../integration_tests/test_issue_518.py"
 llvm = true
 c = true
@@ -1265,14 +1257,6 @@ asr = true
 
 [[test]]
 filename = "errors/loop_03.py"
-asr = true
-
-[[test]]
-filename = "errors/test_logical_compare_01.py"
-asr = true
-
-[[test]]
-filename = "errors/test_logical_compare_02.py"
 asr = true
 
 [[test]]

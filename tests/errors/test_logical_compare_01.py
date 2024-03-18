@@ -1,5 +1,5 @@
 def f():
-    print([1, 2, 3] or [1, 2, 3, 4])
+    print("hello" or 10)
 
 
 f()
