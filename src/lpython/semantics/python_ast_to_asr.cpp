@@ -3902,13 +3902,18 @@ public:
             } else if (ASR::is_a<ASR::Array_t>(*type)) {
                 index = ASRUtils::EXPR(tmp);
                 ASR::expr_t* val = ASRUtils::expr_value(index);
-                if (val && ASR::is_a<ASR::IntegerConstant_t>(*val) && 
-                    ASRUtils::extract_physical_type(type) != ASR::array_physical_typeType::DescriptorArray) {
+                if (val && ASR::is_a<ASR::IntegerConstant_t>(*val)) {
                     if (ASR::down_cast<ASR::IntegerConstant_t>(val)->m_n < 0) {
                         ASR::ttype_t *int_type = ASRUtils::TYPE(ASR::make_Integer_t(
                                                         al, loc, 4));
                         ASR::expr_t *neg_idx = ASRUtils::expr_value(index);
-                        ASR::expr_t *dim_size = ASR::down_cast<ASR::Array_t>(type)->m_dims[idx].m_length;
+                        ASR::expr_t *dim_size;
+                        if (ASRUtils::extract_physical_type(type) != ASR::array_physical_typeType::DescriptorArray)
+                            dim_size = ASR::down_cast<ASR::Array_t>(type)->m_dims[idx].m_length;
+                        else {
+                            ASR::expr_t *idx_expr = ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, loc, idx + 1, int_type));
+                            dim_size = ASRUtils::EXPR(ASRUtils::make_ArraySize_t_util(al, loc, value, idx_expr, int_type, nullptr, false));
+                        }
                         index = ASRUtils::EXPR(ASR::make_IntegerBinOp_t(al, loc, 
                             dim_size, ASR::binopType::Add, neg_idx, int_type, nullptr));
                     }
