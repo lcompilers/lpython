@@ -1,5 +1,0 @@
-semantic error: Type mismatch in binary operator; the types must be compatible
-  --> tests/../integration_tests/test_logical_assignment.py:16:18
-   |
-16 |     f_var: f64 = 2 * _PI or _PI**2
-   |                  ^   ^^^ type mismatch (i32 and f64)
