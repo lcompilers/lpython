@@ -1,5 +1,0 @@
-semantic error: Type mismatch: 'i32' and 'bool'. Both operands must be of the same type.
- --> tests/../integration_tests/test_logical_compare.py:7:12
-  |
-7 |     assert 1 or 3 == 1
-  |            ^^^^^^^^^^^ 
