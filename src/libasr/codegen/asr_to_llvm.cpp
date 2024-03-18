@@ -2802,6 +2802,14 @@ public:
                 llvm::ConstantStruct::get(dict_type,
                 llvm::Constant::getNullValue(dict_type)));
             llvm_symtab[h] = ptr;
+        } else if(x.m_type->type == ASR::ttypeType::Set) {
+            llvm::StructType* set_type = static_cast<llvm::StructType*>(
+                llvm_utils->get_type_from_ttype_t_util(x.m_type, module.get()));
+            llvm::Constant *ptr = module->getOrInsertGlobal(x.m_name, set_type);
+            module->getNamedGlobal(x.m_name)->setInitializer(
+                llvm::ConstantStruct::get(set_type,
+                llvm::Constant::getNullValue(set_type)));
+            llvm_symtab[h] = ptr;
         } else if (x.m_type->type == ASR::ttypeType::TypeParameter) {
             // Ignore type variables
         } else {

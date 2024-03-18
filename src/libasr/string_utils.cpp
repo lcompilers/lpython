@@ -192,6 +192,9 @@ char* str_unescape_c(Allocator &al, LCompilers::Str &s) {
         } else if (s[idx] == '\\' && s[idx+1] == 'v') {
             x += "\v";
             idx++;
+        } else if (s[idx] == '\\' && s[idx + 1] == 'f') {
+            x += "\f";
+            idx++;
         } else if (s[idx] == '\\' && s[idx+1] == '\\') {
             x += "\\";
             idx++;
