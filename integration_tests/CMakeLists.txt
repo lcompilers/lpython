@@ -121,6 +121,9 @@ macro(RUN_UTIL RUN_FAIL RUN_NAME RUN_FILE_NAME RUN_LABELS RUN_EXTRAFILES RUN_NOM
             set_target_properties(${name} PROPERTIES LINKER_LANGUAGE C)
             target_link_libraries(${name} lpython_rtlib Python::Python)
             add_test(${name} ${CMAKE_CURRENT_BINARY_DIR}/${name})
+            add_test(
+                NAME "${name}_jit"
+                COMMAND ${LPYTHON} --jit ${extra_args} ${CMAKE_CURRENT_SOURCE_DIR}/${file_name}.py)
             if (labels)
                 set_tests_properties(${name} PROPERTIES LABELS "${labels}")
             endif()
@@ -142,6 +145,9 @@ macro(RUN_UTIL RUN_FAIL RUN_NAME RUN_FILE_NAME RUN_LABELS RUN_EXTRAFILES RUN_NOM
             endif()
             target_link_libraries(${name} lpython_rtlib ${SYMENGINE_LIB})
             add_test(${name} ${CMAKE_CURRENT_BINARY_DIR}/${name})
+            add_test(
+                NAME "${name}_jit"
+                COMMAND ${LPYTHON} --jit ${extra_args} ${CMAKE_CURRENT_SOURCE_DIR}/${file_name}.py)
             if (labels)
                 set_tests_properties(${name} PROPERTIES LABELS "${labels}")
             endif()
@@ -363,13 +369,6 @@ macro(RUN)
         list(REMOVE_ITEM RUN_LABELS cpython cpython_sym) # remove cpython, cpython_sym, from --fast test
         RUN_UTIL(RUN_FAIL RUN_NAME RUN_FILE_NAME RUN_LABELS RUN_EXTRAFILES RUN_NOMOD RUN_EXTRA_ARGS RUN_COPY_TO_BIN)
     endif()
-    
-    # if (llvm IN_LIST RUN_LABELS)
-    #     unset(RUN_EXTRA_ARGS)
-    #     set(RUN_EXTRA_ARGS --jit)
-    #     set(RUN_NAME "${RUN_NAME}_JIT")
-    #     RUN_UTIL(RUN_FAIL RUN_NAME RUN_FILE_NAME RUN_LABELS RUN_EXTRAFILES RUN_NOMOD RUN_EXTRA_ARGS RUN_COPY_TO_BIN)
-    # endif()
 endmacro(RUN)
 
 # only compiles till object file
