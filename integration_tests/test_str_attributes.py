@@ -354,6 +354,42 @@ def is_title():
     assert " ".istitle() == False
 
 def is_space():
+    s0: str = ""
+    assert s0.isspace() == False
+    assert "".isspace() == False
+
+    s1: str = " \t\n\v\f\r"
+    assert s1.isspace() == True
+    assert " \t\n\v\f\r".isspace() == True
+
+    s2: str = " \t\n\v\f\rabcd"
+    assert s2.isspace() == False
+    assert " \t\n\v\f\rabcd".isspace() == False
+
+    s3: str = "abcd \t\n\v\f\ref"
+    assert s3.isspace() == False
+    assert "abcd \t\n\v\f\ref".isspace() == False
+
+    s4: str = " \\t\n\v\f\r"
+    assert s4.isspace() == False
+    assert " \\t\n\v\f\r".isspace() == False
+
+    s5: str = " \\t\\n\\v\\f\\r"
+    assert s5.isspace() == False
+    assert " \\t\\n\\v\\f\\r".isspace() == False
+
+    s6: str = "Hello, LPython!\n"
+    assert s6.isspace() == False
+    assert "Hello, LPython!\n".isspace() == False
+
+    s7: str = "\t\tHello! \n"
+    assert s7.isspace() == False
+    assert "\t\tHello! \n".isspace() == False
+
+    s8: str = " \t \n \v \f \r "
+    assert s8.isspace() == True
+    assert " \t \n \v \f \r ".isspace() == True
+
     assert "\n".isspace() == True
     assert "    ".isspace() == True
     assert "\r".isspace() == True
