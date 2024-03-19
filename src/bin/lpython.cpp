@@ -33,6 +33,7 @@
 #include <lpython/python_serialization.h>
 #include <lpython/parser/tokenizer.h>
 #include <lpython/parser/parser.h>
+#include <libasr/exception.h>
 
 #include <cpp-terminal/terminal.h>
 #include <cpp-terminal/prompt0.h>
@@ -789,6 +790,123 @@ int emit_llvm(const std::string &infile,
         return 3;
     }
     std::cout << (res.result)->str();
+    return 0;
+}
+
+int interactive_python_repl(
+        LCompilers::PassManager& pass_manager,
+        CompilerOptions &compiler_options,
+        bool time_report)
+{
+    Allocator al(4*1024);
+    
+    LCompilers::diag::Diagnostics diagnostics;
+    LCompilers::LocationManager lm;    
+    std::vector<std::pair<std::string, double>> times;
+    std::string infile;
+
+    std::string code_string;
+    std::cout << ">>> ";
+    size_t cell_count = 0;
+    for (std::string input; std::getline(std::cin, input);) {
+
+        if (input == "exit" || input == "quit") // exit condition
+            return 0;
+
+        if ((input.rfind("def", 0) == 0) || 
+            (input.rfind("for", 0) == 0) || 
+            (input.rfind("if", 0) == 0) || 
+            (input.rfind("else", 0) == 0) || 
+            (input.rfind("elif", 0) == 0) || 
+            (input.rfind("class", 0) == 0) ||
+            (input.rfind(' ', 0) == 0) ||
+            (input.rfind('\t', 0) == 0)) {
+            // start of a block
+            code_string += input + "\n";
+            std::cout << "... ";
+            continue;
+        }
+        code_string += input + "\n";
+
+        // std::cout << "code block: \n" << code_string;
+
+        {
+            cell_count++;
+            LCompilers::LocationManager::FileLocations fl;
+            infile = "stdin" + std::to_string(cell_count);
+            fl.in_filename = infile;
+            lm.files.push_back(fl);
+            lm.init_simple(code_string);
+            lm.file_ends.push_back(code_string.size());
+        }
+
+        /* parse and run */
+        // parsing string to AST
+        auto parsing_start = std::chrono::high_resolution_clock::now();
+        // ???: change `parse_python_file` to `parse` or `parse_string`
+        LCompilers::Result<LCompilers::LPython::AST::Module_t*> r = LCompilers::LPython::parse(al, code_string, 0, diagnostics);
+        auto parsing_end = std::chrono::high_resolution_clock::now();
+        times.push_back(std::make_pair("Parsing", std::chrono::duration<double, std::milli>(parsing_end - parsing_start).count()));
+        std::cerr << diagnostics.render(lm, compiler_options);
+        if (!r.ok) {
+            LCOMPILERS_ASSERT(diagnostics.has_error())
+            print_time_report(times, time_report);
+            return 1;
+        }
+
+        // AST -> ASR
+        LCompilers::LPython::AST::ast_t* ast = (LCompilers::LPython::AST::ast_t*)r.result;
+        diagnostics.diagnostics.clear();
+        auto ast_to_asr_start = std::chrono::high_resolution_clock::now();
+        LCompilers::Result<LCompilers::ASR::TranslationUnit_t*>
+            r1 = LCompilers::LPython::python_ast_to_asr(al, lm, nullptr, *ast, diagnostics, compiler_options,
+                !(false && compiler_options.po.disable_main), "__main__", infile);
+
+        auto ast_to_asr_end = std::chrono::high_resolution_clock::now();
+        times.push_back(std::make_pair("AST to ASR", std::chrono::duration<double, std::milli>(ast_to_asr_end - ast_to_asr_start).count()));
+        std::cerr << diagnostics.render(lm, compiler_options);
+        if (!r1.ok) {
+            LCOMPILERS_ASSERT(diagnostics.has_error())
+            print_time_report(times, time_report);
+            return 2;
+        }
+        LCompilers::ASR::TranslationUnit_t* asr = r1.result;
+        diagnostics.diagnostics.clear();
+
+        LCompilers::PythonCompiler fe(compiler_options);
+        LCompilers::LLVMEvaluator e(compiler_options.target);
+        std::unique_ptr<LCompilers::LLVMModule> m;
+        auto asr_to_llvm_start = std::chrono::high_resolution_clock::now();
+        LCompilers::Result<std::unique_ptr<LCompilers::LLVMModule>>
+            res = fe.get_llvm3(*asr, pass_manager, diagnostics, infile);
+        auto asr_to_llvm_end = std::chrono::high_resolution_clock::now();
+        times.push_back(std::make_pair("ASR to LLVM", std::chrono::duration<double, std::milli>(asr_to_llvm_end - asr_to_llvm_start).count()));
+
+        std::cerr << diagnostics.render(lm, compiler_options);
+        if (!res.ok) {
+            LCOMPILERS_ASSERT(diagnostics.has_error())
+            print_time_report(times, time_report);
+            return 3;
+        }
+        m = std::move(res.result);
+        
+        bool call_init = false;
+        bool call_stmts = false;
+        if (m->get_return_type("__module___main_____main__global_init") == "void")
+            call_init = true;
+        if (m->get_return_type("__module___main_____main__global_stmts") == "void")
+            call_stmts = true;
+
+        e.add_module(std::move(m));
+        if (call_init)
+            e.voidfn("__module___main_____main__global_init");
+        if (call_stmts)
+            e.voidfn("__module___main_____main__global_stmts");
+        /* end parse and run */
+
+        code_string = "";
+        std::cout << ">>> ";
+    }
     return 0;
 }
 
@@ -1778,6 +1896,9 @@ int main(int argc, char *argv[])
         compiler_options.use_colors = !arg_no_color;
         compiler_options.indent = !arg_no_indent;
 
+        lpython_pass_manager.parse_pass_arg(arg_pass, skip_pass);
+        lpython_pass_manager.use_default_passes();
+
         // if (fmt) {
         //     return format(arg_fmt_file, arg_fmt_inplace, !arg_fmt_no_color,
         //         arg_fmt_indent, arg_fmt_indent_unit, compiler_options);
@@ -1824,8 +1945,10 @@ int main(int argc, char *argv[])
         }
 
         if (arg_files.size() == 0) {
-            std::cerr << "Interactive prompt is not implemented yet in LPython" << std::endl;
-            return 1;
+            compiler_options.po.disable_main = true;
+            compiler_options.emit_debug_line_column = false;
+            compiler_options.generate_object_code = false;
+            return interactive_python_repl(lpython_pass_manager, compiler_options, time_report);
         }
 
         // TODO: for now we ignore the other filenames, only handle
@@ -1868,7 +1991,6 @@ int main(int argc, char *argv[])
         //     return emit_c_preprocessor(arg_file, compiler_options);
         // }
 
-        lpython_pass_manager.parse_pass_arg(arg_pass, skip_pass);
         if (show_tokens) {
             return emit_tokens(arg_file, true, compiler_options);
         }
@@ -1910,7 +2032,6 @@ int main(int argc, char *argv[])
             return 1;
 #endif
         }
-        lpython_pass_manager.use_default_passes();
         if (show_llvm) {
 #ifdef HAVE_LFORTRAN_LLVM
             return emit_llvm(arg_file, runtime_library_dir, lpython_pass_manager, compiler_options);
