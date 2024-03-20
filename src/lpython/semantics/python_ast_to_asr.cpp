@@ -1152,7 +1152,7 @@ public:
                     args.push_back(al,call_arg);
                     ASR::symbol_t* sym = (ASR::down_cast<ASR::Var_t>((func->m_args)[def_arg]))->m_v;
                     ASR::Variable_t* var = ASR::down_cast<ASR::Variable_t>(sym);
-                    args.p[def_arg].loc = ((var->m_value)->base).loc;
+                    // args.p[def_arg].loc = ((var->m_value)->base).loc;
                     args.p[def_arg].m_value = (var->m_value);
                 }
             }
