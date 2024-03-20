@@ -1199,7 +1199,6 @@ public:
                 return make_call_helper(al, t, current_scope, new_args, new_call_name, loc);
             }
             if (args.size() != func->n_args) {
-                std::cout<<"\nthis happened";
                 std::string fnd = std::to_string(args.size());
                 std::string org = std::to_string(func->n_args);
                 diag.add(diag::Diagnostic(
