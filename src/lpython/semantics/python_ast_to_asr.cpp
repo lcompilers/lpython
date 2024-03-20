@@ -1143,6 +1143,19 @@ public:
                 visit_expr_list(pos_args, n_pos_args, kwargs, n_kwargs,
                                 args, rt_subs, func, loc);
             }
+            if((n_pos_args+ n_kwargs) < func->n_args){
+                for(size_t def_arg = (n_pos_args+ n_kwargs) ; def_arg <(func->n_args) ;def_arg++){
+                    if(! ((func->m_args)[def_arg]) ) {
+                        break;
+                    }
+                    ASR::call_arg_t call_arg;
+                    args.push_back(al,call_arg);
+                    ASR::symbol_t* sym = (ASR::down_cast<ASR::Var_t>((func->m_args)[def_arg]))->m_v;
+                    ASR::Variable_t* var = ASR::down_cast<ASR::Variable_t>(sym);
+                    args.p[def_arg].loc = ((var->m_value)->base).loc;
+                    args.p[def_arg].m_value = (var->m_value);
+                }
+            }
             if (ASRUtils::get_FunctionType(func)->m_is_restriction) {
                 rt_vec.push_back(s);
             } else if (ASRUtils::is_generic_function(s)) {
@@ -4269,6 +4282,8 @@ public:
             throw SemanticError("Function " + std::string(x.m_name) +  " is already defined", x.base.base.loc);
         }
         bool is_allocatable = false, is_const = false;
+        size_t default_arg_index_start = x.m_args.n_args - x.m_args.n_defaults;
+
         for (size_t i=0; i<x.m_args.n_args; i++) {
             char *arg=x.m_args.m_args[i].m_arg;
             Location loc = x.m_args.m_args[i].loc;
@@ -4290,6 +4305,13 @@ public:
             std::string arg_s = arg;
             ASR::expr_t *value = nullptr;
             ASR::expr_t *init_expr = nullptr;
+            if (i >= default_arg_index_start)
+            {
+                size_t default_arg_index = i - default_arg_index_start;
+                this->visit_expr(*(x.m_args.m_defaults[default_arg_index]));
+                value = ASRUtils::EXPR(tmp);
+                init_expr = value;                    
+            }
             if (s_intent == ASRUtils::intent_unspecified) {
                 s_intent = ASRUtils::intent_in;
                 if (ASRUtils::is_array(arg_type)) {
@@ -4308,6 +4330,9 @@ public:
             }
             ASR::accessType s_access = ASR::accessType::Public;
             ASR::presenceType s_presence = ASR::presenceType::Required;
+            if (i >= default_arg_index_start){
+                s_presence = ASR::presenceType::Optional;
+            }
             bool value_attr = false;
             if (current_procedure_abi_type == ASR::abiType::BindC) {
                 value_attr = true;
