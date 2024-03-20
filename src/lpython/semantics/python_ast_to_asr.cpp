@@ -1143,7 +1143,7 @@ public:
                 visit_expr_list(pos_args, n_pos_args, kwargs, n_kwargs,
                                 args, rt_subs, func, loc);
             }
-        	if((n_pos_args+ n_kwargs) < func->n_args){
+        	if((n_pos_args+ n_kwargs) < func->n_args && (args.size() < func->n_args) ){
                 for(size_t def_arg = (n_pos_args+ n_kwargs) ; def_arg <(func->n_args) ;def_arg++){
                     if(! ((func->m_args)[def_arg]) ) {
                         break;
@@ -1152,7 +1152,7 @@ public:
                     args.push_back(al,call_arg);
                     ASR::symbol_t* sym = (ASR::down_cast<ASR::Var_t>((func->m_args)[def_arg]))->m_v;
                     ASR::Variable_t* var = ASR::down_cast<ASR::Variable_t>(sym);
-                    // args.p[def_arg].loc = ((var->m_value)->base).loc;
+                    args.p[def_arg].loc = ((var->m_value)->base).loc;
                     args.p[def_arg].m_value = (var->m_value);
                 }
             }
@@ -1200,6 +1200,7 @@ public:
                 return make_call_helper(al, t, current_scope, new_args, new_call_name, loc);
             }
             if (args.size() != func->n_args) {
+                std::cout<<"\nthis happened";
                 std::string fnd = std::to_string(args.size());
                 std::string org = std::to_string(func->n_args);
                 diag.add(diag::Diagnostic(
