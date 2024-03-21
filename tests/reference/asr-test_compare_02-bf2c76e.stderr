@@ -1,5 +1,5 @@
-semantic error: Type mismatch in comparison operator, the types must be compatible
+semantic error: Comparison operator not supported between instances of 'i32' and 'u32'
  --> tests/errors/test_compare_02.py:6:11
   |
 6 |     print(x > y)
-  |           ^   ^ type mismatch ('i32' and 'u32')
+  |           ^^^^^ 
