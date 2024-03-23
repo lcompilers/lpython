@@ -216,22 +216,22 @@ int emit_asr(const std::string &infile,
         LCOMPILERS_ASSERT(diagnostics.has_error())
         return 2;
     }
-    LCompilers::ASR::TranslationUnit_t* asr = r.result;
+    LCompilers::ASR::TranslationUnit_t& asr = *r.result;
     compiler_options.po.always_run = true;
     compiler_options.po.run_fun = "f";
 
-    pass_manager.apply_passes(al, asr, compiler_options.po, diagnostics);
+    pass_manager.apply_passes(al, &asr, compiler_options.po, diagnostics);
 
     if (compiler_options.po.tree) {
-        std::cout << LCompilers::pickle_tree(*asr,
+        std::cout << LCompilers::pickle_tree(asr,
             compiler_options.use_colors, with_intrinsic_modules) << std::endl;
     } else if (compiler_options.po.json) {
-         std::cout << LCompilers::pickle_json(*asr, lm, compiler_options.po.no_loc, with_intrinsic_modules) << std::endl;
+         std::cout << LCompilers::pickle_json(asr, lm, compiler_options.po.no_loc, with_intrinsic_modules) << std::endl;
     } else if (compiler_options.po.visualize) {
-        std::string astr_data_json = LCompilers::pickle_json(*asr, lm, compiler_options.po.no_loc, with_intrinsic_modules);
+        std::string astr_data_json = LCompilers::pickle_json(asr, lm, compiler_options.po.no_loc, with_intrinsic_modules);
         return visualize_json(astr_data_json, compiler_options.platform);
     } else {
-        std::cout << LCompilers::pickle(*asr, compiler_options.use_colors,
+        std::cout << LCompilers::pickle(asr, compiler_options.use_colors,
             compiler_options.indent, with_intrinsic_modules) << std::endl;
     }
     return 0;
