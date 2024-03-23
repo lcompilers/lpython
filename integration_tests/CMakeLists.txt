@@ -435,6 +435,7 @@ RUN(NAME array_expr_06            LABELS cpython llvm c)
 RUN(NAME array_expr_07            LABELS cpython llvm c)
 RUN(NAME array_expr_08            LABELS cpython llvm c)
 RUN(NAME array_expr_09            LABELS cpython llvm c)
+RUN(NAME array_expr_10            LABELS cpython llvm c)
 RUN(NAME array_size_01            LABELS cpython llvm c)
 RUN(NAME array_size_02            LABELS cpython llvm c)
 RUN(NAME array_01            LABELS cpython llvm wasm c)
@@ -815,6 +816,8 @@ RUN(NAME callback_02       LABELS cpython llvm c)
 RUN(NAME callback_03       LABELS cpython llvm c)
 
 RUN(NAME lambda_01         LABELS cpython llvm)
+
+RUN(NAME c_mangling        LABELS cpython llvm c)
 
 # callback_04 is to test emulation. So just run with cpython
 RUN(NAME callback_04       IMPORT_PATH .. LABELS cpython)
