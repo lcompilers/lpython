@@ -819,6 +819,8 @@ RUN(NAME callback_03       LABELS cpython llvm c)
 
 RUN(NAME lambda_01         LABELS cpython llvm)
 
+RUN(NAME c_mangling        LABELS cpython llvm c)
+
 # callback_04 is to test emulation. So just run with cpython
 RUN(NAME callback_04       IMPORT_PATH .. LABELS cpython)
 
