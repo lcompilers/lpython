@@ -843,10 +843,7 @@ public:
                         ASRUtils::TYPE(ASR::make_CPtr_t(al, x.base.base.loc)), nullptr));
                     print_tmp.push_back(basic_str(x.base.base.loc, value));
                 } else {
-                    ASR::expr_t *value = ASRUtils::EXPR(ASR::make_ListItem_t(al,
-                        x.base.base.loc, list_item->m_a, list_item->m_pos,
-                        ASRUtils::expr_type(val), nullptr));
-                    print_tmp.push_back(value);
+                    print_tmp.push_back(val);
                 }
             } else {
                 print_tmp.push_back(x.m_values[i]);
