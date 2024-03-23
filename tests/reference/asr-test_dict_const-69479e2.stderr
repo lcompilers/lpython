@@ -1,0 +1,5 @@
+semantic error: Type name is not implemented yet.
+ --> tests/../integration_tests/test_dict_const.py:8:12
+  |
+8 |     assert d_int.get("a") == 1
+  |            ^^^^^^^^^^^^^^ 

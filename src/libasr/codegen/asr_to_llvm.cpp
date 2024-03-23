@@ -1523,8 +1523,7 @@ public:
     }
 
     void visit_ListItem(const ASR::ListItem_t& x) {
-        ASR::ttype_t* el_type = ASRUtils::get_contained_type(
-                                        ASRUtils::expr_type(x.m_a));
+        ASR::ttype_t *el_type = ASRUtils::get_contained_type(ASRUtils::expr_type(x.m_a));
         int64_t ptr_loads_copy = ptr_loads;
         ptr_loads = 0;
         this->visit_expr(*x.m_a);
@@ -1540,8 +1539,9 @@ public:
     }
 
     void visit_DictItem(const ASR::DictItem_t& x) {
-        ASR::Dict_t* dict_type = ASR::down_cast<ASR::Dict_t>(
-                                    ASRUtils::expr_type(x.m_a));
+        ASR::Dict_t *dict_type = ASR::down_cast<ASR::Dict_t>(
+            ASRUtils::type_get_past_const(ASRUtils::expr_type(x.m_a)));
+
         int64_t ptr_loads_copy = ptr_loads;
         ptr_loads = 0;
         this->visit_expr(*x.m_a);
@@ -1845,8 +1845,7 @@ public:
     }
 
     void generate_DictElems(ASR::expr_t* m_arg, bool key_or_value) {
-        ASR::Dict_t* dict_type = ASR::down_cast<ASR::Dict_t>(
-                                    ASRUtils::expr_type(m_arg));
+        ASR::Dict_t *dict_type = ASR::down_cast<ASR::Dict_t>(ASRUtils::type_get_past_const(ASRUtils::expr_type(m_arg)));
         ASR::ttype_t* el_type = key_or_value == 0 ?
                                     dict_type->m_key_type : dict_type->m_value_type;
 

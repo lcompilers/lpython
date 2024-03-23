@@ -1,0 +1,416 @@
+(TranslationUnit
+    (SymbolTable
+        1
+        {
+            __main__:
+                (Module
+                    (SymbolTable
+                        2
+                        {
+                            __main__global_stmts:
+                                (Function
+                                    (SymbolTable
+                                        4
+                                        {
+                                            
+                                        })
+                                    __main__global_stmts
+                                    (FunctionType
+                                        []
+                                        ()
+                                        Source
+                                        Implementation
+                                        ()
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .false.
+                                        []
+                                        .false.
+                                    )
+                                    [test_const_dict]
+                                    []
+                                    [(SubroutineCall
+                                        2 test_const_dict
+                                        ()
+                                        []
+                                        ()
+                                    )]
+                                    ()
+                                    Public
+                                    .false.
+                                    .false.
+                                    ()
+                                ),
+                            test_const_dict:
+                                (Function
+                                    (SymbolTable
+                                        3
+                                        {
+                                            CONST_DICTIONARY_FLOAT:
+                                                (Variable
+                                                    3
+                                                    CONST_DICTIONARY_FLOAT
+                                                    []
+                                                    Local
+                                                    (DictConstant
+                                                        [(StringConstant
+                                                            "a"
+                                                            (Character 1 1 ())
+                                                        )
+                                                        (StringConstant
+                                                            "b"
+                                                            (Character 1 1 ())
+                                                        )
+                                                        (StringConstant
+                                                            "c"
+                                                            (Character 1 1 ())
+                                                        )]
+                                                        [(RealConstant
+                                                            1.000000
+                                                            (Real 8)
+                                                        )
+                                                        (RealConstant
+                                                            2.000000
+                                                            (Real 8)
+                                                        )
+                                                        (RealConstant
+                                                            3.000000
+                                                            (Real 8)
+                                                        )]
+                                                        (Dict
+                                                            (Character 1 1 ())
+                                                            (Real 8)
+                                                        )
+                                                    )
+                                                    (DictConstant
+                                                        [(StringConstant
+                                                            "a"
+                                                            (Character 1 1 ())
+                                                        )
+                                                        (StringConstant
+                                                            "b"
+                                                            (Character 1 1 ())
+                                                        )
+                                                        (StringConstant
+                                                            "c"
+                                                            (Character 1 1 ())
+                                                        )]
+                                                        [(RealConstant
+                                                            1.000000
+                                                            (Real 8)
+                                                        )
+                                                        (RealConstant
+                                                            2.000000
+                                                            (Real 8)
+                                                        )
+                                                        (RealConstant
+                                                            3.000000
+                                                            (Real 8)
+                                                        )]
+                                                        (Dict
+                                                            (Character 1 1 ())
+                                                            (Real 8)
+                                                        )
+                                                    )
+                                                    Parameter
+                                                    (Const
+                                                        (Dict
+                                                            (Character 1 -2 ())
+                                                            (Real 8)
+                                                        )
+                                                    )
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                ),
+                                            CONST_DICTIONARY_INTEGR:
+                                                (Variable
+                                                    3
+                                                    CONST_DICTIONARY_INTEGR
+                                                    []
+                                                    Local
+                                                    (DictConstant
+                                                        [(StringConstant
+                                                            "a"
+                                                            (Character 1 1 ())
+                                                        )
+                                                        (StringConstant
+                                                            "b"
+                                                            (Character 1 1 ())
+                                                        )
+                                                        (StringConstant
+                                                            "c"
+                                                            (Character 1 1 ())
+                                                        )]
+                                                        [(IntegerConstant 1 (Integer 4))
+                                                        (IntegerConstant 2 (Integer 4))
+                                                        (IntegerConstant 3 (Integer 4))]
+                                                        (Dict
+                                                            (Character 1 1 ())
+                                                            (Integer 4)
+                                                        )
+                                                    )
+                                                    (DictConstant
+                                                        [(StringConstant
+                                                            "a"
+                                                            (Character 1 1 ())
+                                                        )
+                                                        (StringConstant
+                                                            "b"
+                                                            (Character 1 1 ())
+                                                        )
+                                                        (StringConstant
+                                                            "c"
+                                                            (Character 1 1 ())
+                                                        )]
+                                                        [(IntegerConstant 1 (Integer 4))
+                                                        (IntegerConstant 2 (Integer 4))
+                                                        (IntegerConstant 3 (Integer 4))]
+                                                        (Dict
+                                                            (Character 1 1 ())
+                                                            (Integer 4)
+                                                        )
+                                                    )
+                                                    Parameter
+                                                    (Const
+                                                        (Dict
+                                                            (Character 1 -2 ())
+                                                            (Integer 4)
+                                                        )
+                                                    )
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                )
+                                        })
+                                    test_const_dict
+                                    (FunctionType
+                                        []
+                                        ()
+                                        Source
+                                        Implementation
+                                        ()
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .false.
+                                        []
+                                        .false.
+                                    )
+                                    []
+                                    []
+                                    [(Assert
+                                        (IntegerCompare
+                                            (DictItem
+                                                (Var 3 CONST_DICTIONARY_INTEGR)
+                                                (StringConstant
+                                                    "a"
+                                                    (Character 1 1 ())
+                                                )
+                                                ()
+                                                (Integer 4)
+                                                ()
+                                            )
+                                            Eq
+                                            (IntegerConstant 1 (Integer 4))
+                                            (Logical 4)
+                                            ()
+                                        )
+                                        ()
+                                    )
+                                    (Assert
+                                        (ListCompare
+                                            (IntrinsicScalarFunction
+                                                DictKeys
+                                                [(Var 3 CONST_DICTIONARY_INTEGR)]
+                                                0
+                                                (List
+                                                    (Character 1 -2 ())
+                                                )
+                                                ()
+                                            )
+                                            Eq
+                                            (ListConstant
+                                                [(StringConstant
+                                                    "c"
+                                                    (Character 1 1 ())
+                                                )
+                                                (StringConstant
+                                                    "a"
+                                                    (Character 1 1 ())
+                                                )
+                                                (StringConstant
+                                                    "b"
+                                                    (Character 1 1 ())
+                                                )]
+                                                (List
+                                                    (Character 1 1 ())
+                                                )
+                                            )
+                                            (Logical 4)
+                                            ()
+                                        )
+                                        ()
+                                    )
+                                    (Assert
+                                        (ListCompare
+                                            (IntrinsicScalarFunction
+                                                DictValues
+                                                [(Var 3 CONST_DICTIONARY_INTEGR)]
+                                                0
+                                                (List
+                                                    (Integer 4)
+                                                )
+                                                ()
+                                            )
+                                            Eq
+                                            (ListConstant
+                                                [(IntegerConstant 3 (Integer 4))
+                                                (IntegerConstant 1 (Integer 4))
+                                                (IntegerConstant 2 (Integer 4))]
+                                                (List
+                                                    (Integer 4)
+                                                )
+                                            )
+                                            (Logical 4)
+                                            ()
+                                        )
+                                        ()
+                                    )
+                                    (Assert
+                                        (RealCompare
+                                            (DictItem
+                                                (Var 3 CONST_DICTIONARY_FLOAT)
+                                                (StringConstant
+                                                    "a"
+                                                    (Character 1 1 ())
+                                                )
+                                                ()
+                                                (Real 8)
+                                                ()
+                                            )
+                                            Eq
+                                            (RealConstant
+                                                1.000000
+                                                (Real 8)
+                                            )
+                                            (Logical 4)
+                                            ()
+                                        )
+                                        ()
+                                    )
+                                    (Assert
+                                        (ListCompare
+                                            (IntrinsicScalarFunction
+                                                DictKeys
+                                                [(Var 3 CONST_DICTIONARY_FLOAT)]
+                                                0
+                                                (List
+                                                    (Character 1 -2 ())
+                                                )
+                                                ()
+                                            )
+                                            Eq
+                                            (ListConstant
+                                                [(StringConstant
+                                                    "c"
+                                                    (Character 1 1 ())
+                                                )
+                                                (StringConstant
+                                                    "a"
+                                                    (Character 1 1 ())
+                                                )
+                                                (StringConstant
+                                                    "b"
+                                                    (Character 1 1 ())
+                                                )]
+                                                (List
+                                                    (Character 1 1 ())
+                                                )
+                                            )
+                                            (Logical 4)
+                                            ()
+                                        )
+                                        ()
+                                    )
+                                    (Assert
+                                        (ListCompare
+                                            (IntrinsicScalarFunction
+                                                DictValues
+                                                [(Var 3 CONST_DICTIONARY_FLOAT)]
+                                                0
+                                                (List
+                                                    (Real 8)
+                                                )
+                                                ()
+                                            )
+                                            Eq
+                                            (ListConstant
+                                                [(RealConstant
+                                                    3.000000
+                                                    (Real 8)
+                                                )
+                                                (RealConstant
+                                                    1.000000
+                                                    (Real 8)
+                                                )
+                                                (RealConstant
+                                                    2.000000
+                                                    (Real 8)
+                                                )]
+                                                (List
+                                                    (Real 8)
+                                                )
+                                            )
+                                            (Logical 4)
+                                            ()
+                                        )
+                                        ()
+                                    )]
+                                    ()
+                                    Public
+                                    .false.
+                                    .false.
+                                    ()
+                                )
+                        })
+                    __main__
+                    []
+                    .false.
+                    .false.
+                ),
+            main_program:
+                (Program
+                    (SymbolTable
+                        5
+                        {
+                            __main__global_stmts:
+                                (ExternalSymbol
+                                    5
+                                    __main__global_stmts
+                                    2 __main__global_stmts
+                                    __main__
+                                    []
+                                    __main__global_stmts
+                                    Public
+                                )
+                        })
+                    main_program
+                    [__main__]
+                    [(SubroutineCall
+                        5 __main__global_stmts
+                        2 __main__global_stmts
+                        []
+                        ()
+                    )]
+                )
+        })
+    []
+)
