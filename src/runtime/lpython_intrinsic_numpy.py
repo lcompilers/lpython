@@ -411,6 +411,19 @@ def ceil(x: f32) -> f32:
         return resultf
     return resultf + f32(1)
 
+########## hypot ##########
+
+
+@overload
+@vectorize
+def hypot(x: f64, y: f64) -> f64:
+    return sqrt(f64(1.0)*f64(x**f64(2) + y**f64(2)))
+
+@overload
+@vectorize
+def hypot(x: f32, y: f32) -> f32:
+    return sqrt(f32(1)*(x**f32(2) + y**f32(2)))
+
 ########## trunc ##########
 
 @ccall

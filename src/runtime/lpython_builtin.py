@@ -730,6 +730,30 @@ def _lpython_str_isalpha(s: str) -> bool:
         return False
     return True
 
+def _lpython_str_isalnum(s: str) -> bool:
+    ch: str
+    if len(s) == 0: return False
+    for ch in s:
+        ch_ord: i32 = ord(ch)
+        if 65 <= ch_ord and ch_ord <= 90:
+            continue
+        if 97 <= ch_ord and ch_ord <= 122:
+            continue
+        if 48 <= ch_ord and ch_ord <= 57:
+            continue
+        return False
+    return True
+
+def _lpython_str_isnumeric(s: str) -> bool:
+    ch: str
+    if len(s) == 0: return False
+    for ch in s:
+        ch_ord: i32 = ord(ch)
+        if 48 <= ch_ord and ch_ord <= 57:
+            continue
+        return False
+    return True
+
 def _lpython_str_title(s: str) -> str:
     result: str = ""
     capitalize_next: bool = True
@@ -764,9 +788,7 @@ def _lpython_str_istitle(s: str) -> bool:
     ch: str
     only_whitespace: bool = True 
     for ch in s:
-        if (ch == ' ' or ch == '\t' or ch == '\n') and word_start:
-            continue  # Found a space character at the start of a word
-        elif ch.isalpha() and (ord('A') <= ord(ch) and ord(ch) <= ord('Z')):
+        if ch.isalpha() and (ord('A') <= ord(ch) and ord(ch) <= ord('Z')):
             only_whitespace = False
             if word_start:
                 word_start = False
@@ -782,8 +804,6 @@ def _lpython_str_istitle(s: str) -> bool:
             word_start = True
 
     return True if not only_whitespace else False
-
-
 
 @overload
 def _lpython_str_find(s: str, sub: str) -> i32:
@@ -894,6 +914,39 @@ def _lpython_str_split(x: str, sep:str) -> list[str]:
     return res
 
 @overload
+def _lpython_str_replace(x: str, old:str, new:str) -> str:
+    return _lpython_str_replace(x, old, new, len(x))
+    
+
+@overload
+def _lpython_str_replace(x: str, old:str, new:str, count: i32) -> str:
+    if (old == ""):
+        res1: str = ""
+        s: str
+        for s in x:
+            res1 += new + s
+        return res1 + new
+    res: str = ""
+    i: i32 = 0
+    ind: i32 = -1
+    l: i32 = len(new)
+    lo: i32 = len(old)
+    lx: i32 = len(x)
+    c: i32 = 0
+    t: i32 = -1
+
+    while(c<count):
+        t = _lpython_str_find(x[i:lx], old)
+        if(t==-1):
+            break
+        ind = i + t
+        res = res + x[i:ind] + new
+        i = ind + lo
+        c = c + 1
+    res = res + x[i:lx]
+    return res
+
+@overload
 def _lpython_str_swapcase(s: str) -> str:
     res :str = ""
     cur: str
@@ -996,15 +1049,41 @@ def _lpython_str_isascii(s: str) -> bool:
             return False
     return True
 
-def _lpython_str_isspace(s:str) -> bool:
+def _lpython_str_isspace(s: str) -> bool:
+    # A Unicode character is considered a 'whitespace' if it has has a bidirectional
+    # type 'WS', 'B' or 'S'; or the category 'Zs'.
     if len(s) == 0:
         return False
-    ch: str 
+    
+    ch: str
     for ch in s:
-        if ch != ' ' and ch != '\t' and ch != '\n' and ch != '\r' and ch != '\f' and ch != '\v':
+        if not (ch == " "  or   # SPACE
+            ch == "\n"     or   # LINE FEED (LF)
+            ch == "\r"     or   # CARRIAGE RETURN (CR)
+            ch == "\t"     or   # CHARACTER TABULATION (HT)
+            ch == "\v"     or   # VERTICAL TAB (VT)
+            ch == "\f"     or   # FORM FEED (FF)
+            ch == "\u00A0" or   # NO-BREAK SPACE
+            ch == "\u1680" or   # OGHAM SPACE MARK
+            ch == "\u2000" or   # EN QUAD
+            ch == "\u2001" or   # EM QUAD
+            ch == "\u2002" or   # EN SPACE
+            ch == "\u2003" or   # EM SPACE
+            ch == "\u2004" or   # THREE-PER-EM SPACE
+            ch == "\u2005" or   # FOUR-PER-EM SPACE
+            ch == "\u2006" or   # SIX-PER-EM SPACE
+            ch == "\u2007" or   # FIGURE SPACE
+            ch == "\u2008" or   # PUNCTUATION SPACE
+            ch == "\u2009" or   # THIN SPACE
+            ch == "\u200A" or   # HAIR SPACE
+            ch == "\u2028" or   # LINE SEPARATOR
+            ch == "\u2029" or   # PARAGRAPH SEPARATOR
+            ch == "\u202F" or   # NARROW NO-BREAK SPACE
+            ch == "\u205F" or   # MEDIUM MATHEMATICAL SPACE
+            ch == "\u3000"      # IDEOGRAPHIC SPACE
+        ):
             return False
     return True
-
 
 def list(s: str) -> list[str]:
     l: list[str] = []
@@ -1014,3 +1093,4 @@ def list(s: str) -> list[str]:
     for i in range(len(s)):
         l.append(s[i])
     return l
+  

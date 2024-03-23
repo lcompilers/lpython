@@ -37,23 +37,6 @@ def test_str_slice():
     # TODO:
     # assert a[0:5:-1] == ""
 
-def test_str_isalpha():
-    a: str = "helloworld"
-    b: str = "hj kl"
-    c: str = "a12(){}A"
-    d: str = " "
-    e: str = ""
-    res: bool = a.isalpha()
-    res2: bool = b.isalpha()
-    res3: bool = c.isalpha()
-    res4: bool = d.isalpha()
-    res5: bool = e.isalpha()
-    assert res == True 
-    assert res2 == False
-    assert res3 == False
-    assert res4 == False
-    assert res5 == False
-
    
 def test_str_title():
     a: str = "hello world"
@@ -68,23 +51,6 @@ def test_str_title():
     assert res2 == "Hj'Kl"
     assert res3 == "Hello World"
     assert res4 == "{Hel1O}World"
-
-def test_str_istitle():
-    a: str = "Hello World"
-    b: str = "Hj'kl"
-    c: str = "hELlo wOrlD"
-    d: str = " Hello"
-    e: str = " "
-    res: bool = a.istitle()
-    res2: bool = b.istitle()
-    res3: bool = c.istitle()
-    res4: bool = d.istitle()
-    res5: bool = e.istitle()
-    assert res == True
-    assert res2 == False 
-    assert res3 == False
-    assert res4 == True
-    assert res5 == False
 
 def test_str_repeat():
     a: str
@@ -148,6 +114,55 @@ def test_str_split():
     assert res5 == ["123"]
     # assert res6 == [""]
 
+def test_str_replace():
+    x: str = "abc"
+    a: str = "zzaaabracadabra"
+    print(a.replace("a",""))
+    print(a.replace("",""))
+    print(a.replace("a","b"))
+    print(a.replace("e","a")) 
+    print(a.replace("ab","ba"))
+    print(a.replace("c","z"))
+    print(a.replace("zza","yo"))
+    print(a.replace("a","b",0))
+    print(a.replace("a","b",1))
+    print(a.replace("a","b",2))
+    print(a.replace("a","b",2))
+    print(a.replace("a","b",3))
+    print(a.replace("a","b",4))
+    print(a.replace("a","b",5))
+    print(a.replace("a","b",6))
+    print(a.replace("a","b",7))
+    print(a.replace("a","b",8))
+    print(a.replace("a","b",9))
+    print(a.replace("b","k",1))
+    print(a.replace("b","k",2))
+    print(a.replace("zza","yo",2))
+    print(x.replace("", ","))
+    assert a.replace("a","") == "zzbrcdbr"
+    assert a.replace("","") == "zzaaabracadabra"
+    assert a.replace("a","b") == "zzbbbbrbcbdbbrb"
+    assert a.replace("e","a") == "zzaaabracadabra"
+    assert a.replace("ab","ba") == "zzaabaracadbara"
+    assert a.replace("c","z") == "zzaaabrazadabra"
+    assert a.replace("zza","yo") == "yoaabracadabra"
+    assert a.replace("a","b",0) == "zzaaabracadabra"
+    assert a.replace("a","b",1) == "zzbaabracadabra"
+    assert a.replace("a","b",2) == "zzbbabracadabra"
+    assert a.replace("a","b",2) == "zzbbabracadabra"
+    assert a.replace("a","b",3) == "zzbbbbracadabra"
+    assert a.replace("a","b",4) == "zzbbbbrbcadabra"
+    assert a.replace("a","b",5) == "zzbbbbrbcbdabra"
+    assert a.replace("a","b",6) == "zzbbbbrbcbdbbra"
+    assert a.replace("a","b",7) == "zzbbbbrbcbdbbrb"
+    assert a.replace("a","b",8) == "zzbbbbrbcbdbbrb"
+    assert a.replace("a","b",9) == "zzbbbbrbcbdbbrb"
+    assert a.replace("b","k",1) == "zzaaakracadabra"
+    assert a.replace("b","k",2) == "zzaaakracadakra"
+    assert a.replace("zza","yo",2) == "yoaabracadabra"
+    assert x.replace("", ",") == ",a,b,c,"
+
+
 def check():
     f()
     test_str_concat()
@@ -160,8 +175,7 @@ def check():
     test_str_join_empty_list()
     test_constant_str_subscript()
     test_str_title()
-    test_str_istitle()
-    test_str_isalpha()
     test_str_split()
+    test_str_replace()
 
 check()

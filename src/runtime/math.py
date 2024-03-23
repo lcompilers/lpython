@@ -709,3 +709,39 @@ def remainder(x: f64, y: f64) -> f64:
     if x - y*f64(q) > y*f64(q + i64(1)) - x:
         return x - y*f64(q + i64(1))
     return x - y*f64(q)
+
+
+@overload
+def frexp(x:f64) -> tuple[f64,i16]:
+    '''
+    Return the mantissa and exponent of x as the pair (m, e).
+    m is a float and e is an integer such that x == m * 2**e exactly.
+    '''
+    exponent: i16 = i16(0)
+    while f64(fabs(x)) > f64(1.0):
+        exponent += i16(1)
+        x /= 2.0
+    return x, exponent
+
+
+@overload
+def frexp(x:f32) -> tuple[f32,i8]:
+    '''
+    Return the mantissa and exponent of x as the pair (m, e).
+    m is a float and e is an integer such that x == m * 2**e exactly.
+    '''
+    exponent: i8 = i8(0)
+    while f32(fabs(x)) > f32(1.0):
+        exponent += i8(1)
+        x /= f32(2.0)
+    return x, exponent
+
+
+@overload
+def isclose(a:f64, b:f64, rel_tol:f64 = 1e-09, abs_tol:f64 = 0.0) -> bool:
+    '''
+    Return True if the values a and b are close to each other and False otherwise.
+    '''
+    difference:f64 = fabs(a-b)
+    greater:f64 = max(fabs(a),fabs(b))
+    return difference <= max(rel_tol*greater, abs_tol)

@@ -306,7 +306,90 @@ def is_ascii():
     assert s.isascii() == True
 
 
+def is_alpha():
+    a: str = "helloworld"
+    b: str = "hj kl"
+    c: str = "a12(){}A"
+    d: str = " "
+    e: str = ""
+    res: bool = a.isalpha()
+    res2: bool = b.isalpha()
+    res3: bool = c.isalpha()
+    res4: bool = d.isalpha()
+    res5: bool = e.isalpha()
+    assert res == True
+    assert res2 == False
+    assert res3 == False
+    assert res4 == False
+    assert res5 == False
+
+    assert "helloworld".isalpha() == True
+    assert "hj kl".isalpha() == False
+    assert "a12(){}A".isalpha() == False
+    assert " ".isalpha() == False
+    assert "".isalpha() == False
+
+
+def is_title():
+    a: str = "Hello World"
+    b: str = "Hj'kl"
+    c: str = "hELlo wOrlD"
+    d: str = " Hello"
+    e: str = " "
+    res: bool = a.istitle()
+    res2: bool = b.istitle()
+    res3: bool = c.istitle()
+    res4: bool = d.istitle()
+    res5: bool = e.istitle()
+    assert res == True
+    assert res2 == False 
+    assert res3 == False
+    assert res4 == True
+    assert res5 == False
+
+    assert "Hello World".istitle() == True
+    assert "Hj'kl".istitle() == False
+    assert "hELlo wOrlD".istitle() == False
+    assert " Hello".istitle() == True
+    assert " ".istitle() == False
+
 def is_space():
+    s0: str = ""
+    assert s0.isspace() == False
+    assert "".isspace() == False
+
+    s1: str = " \t\n\v\f\r"
+    assert s1.isspace() == True
+    assert " \t\n\v\f\r".isspace() == True
+
+    s2: str = " \t\n\v\f\rabcd"
+    assert s2.isspace() == False
+    assert " \t\n\v\f\rabcd".isspace() == False
+
+    s3: str = "abcd \t\n\v\f\ref"
+    assert s3.isspace() == False
+    assert "abcd \t\n\v\f\ref".isspace() == False
+
+    s4: str = " \\t\n\v\f\r"
+    assert s4.isspace() == False
+    assert " \\t\n\v\f\r".isspace() == False
+
+    s5: str = " \\t\\n\\v\\f\\r"
+    assert s5.isspace() == False
+    assert " \\t\\n\\v\\f\\r".isspace() == False
+
+    s6: str = "Hello, LPython!\n"
+    assert s6.isspace() == False
+    assert "Hello, LPython!\n".isspace() == False
+
+    s7: str = "\t\tHello! \n"
+    assert s7.isspace() == False
+    assert "\t\tHello! \n".isspace() == False
+
+    s8: str = " \t \n \v \f \r "
+    assert s8.isspace() == True
+    assert " \t \n \v \f \r ".isspace() == True
+
     assert "\n".isspace() == True
     assert "    ".isspace() == True
     assert "\r".isspace() == True
@@ -319,6 +402,69 @@ def is_space():
     s = ""
     assert s.isspace() == False
 
+def is_alnum():
+    a: str = "helloworld"
+    b: str = "hj kl"
+    c: str = "a12(){}A"
+    d: str = " "
+    e: str = ""
+    f: str = "ab23"
+    g: str = "ab2%3"
+    res: bool = a.isalnum()
+    res2: bool = b.isalnum()
+    res3: bool = c.isalnum()
+    res4: bool = d.isalnum()
+    res5: bool = e.isalnum()
+    res6: bool = f.isalnum()
+    res7: bool = g.isalnum()
+
+    assert res == True
+    assert res2 == False
+    assert res3 == False
+    assert res4 == False
+    assert res5 == False
+    assert res6 == True
+    assert res7 == False
+
+    assert "helloworld".isalnum() == True
+    assert "hj kl".isalnum() == False
+    assert "a12(){}A".isalnum() == False
+    assert " ".isalnum() == False
+    assert "".isalnum() == False
+    assert "ab23".isalnum() == True
+    assert "ab2%3".isalnum() == False
+
+def is_numeric():
+    a: str = "123"
+    b: str = "12 34"
+    c: str = "-123"
+    d: str = "12.3"
+    e: str = " "
+    f: str = ""
+    g: str = "ab2%3"
+    res: bool = a.isnumeric()
+    res2: bool = b.isnumeric()
+    res3: bool = c.isnumeric()
+    res4: bool = d.isnumeric()
+    res5: bool = e.isnumeric()
+    res6: bool = f.isnumeric()
+    res7: bool = g.isnumeric()
+
+    assert res == True
+    assert res2 == False
+    assert res3 == False
+    assert res4 == False
+    assert res5 == False
+    assert res6 == False
+    assert res7 == False
+
+    assert "123".isnumeric() == True
+    assert "12 34".isnumeric() == False
+    assert "-123".isnumeric() == False
+    assert "12.3".isnumeric() == False
+    assert " ".isnumeric() == False
+    assert "".isnumeric() == False
+    assert "ab2%3".isnumeric() == False
 
 def check():
     capitalize()
@@ -335,7 +481,11 @@ def check():
     is_upper()
     is_decimal()
     is_ascii()
+    is_alpha()
+    is_title()
     is_space()
+    is_alnum()
+    is_numeric()
 
 
 check()
