@@ -35,6 +35,7 @@ def test_list_item_mixed_print():
     i: i32
     for i in range(len(i_list)):
         print(i_list[i], end=" # ")
+    print("\n")
 
     n_list: list[list[i32]] = [[1, 2], [3, 4], [5, 6]]
     for i in range(len(n_list)):
