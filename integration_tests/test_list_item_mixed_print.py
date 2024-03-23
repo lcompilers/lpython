@@ -41,5 +41,3 @@ def test_list_item_mixed_print():
         print("List ", i, ":", n_list[i])
 
 test_list_item_mixed_print()
-
-    
