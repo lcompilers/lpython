@@ -1383,3 +1383,7 @@ run_with_dbg = true
 [[test]]
 filename = "runtime_errors/test_raise_01.py"
 run_with_dbg = true
+
+[[test]]
+filename = "errors/test_optional.py"
+asr = true
