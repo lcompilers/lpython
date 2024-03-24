@@ -55,6 +55,7 @@ struct PassOptions {
     bool visualize = false;
     bool tree = false;
     bool with_intrinsic_mods = false;
+    bool c_mangling = false;
 };
 
 struct CompilerOptions {

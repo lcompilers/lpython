@@ -1842,6 +1842,7 @@ int main(int argc, char *argv[])
             return emit_cpp(arg_file, runtime_library_dir, compiler_options);
         }
         if (show_c) {
+            compiler_options.po.c_mangling = true;
             return emit_c(arg_file, runtime_library_dir, lpython_pass_manager,
                             compiler_options);
         }
@@ -1920,6 +1921,7 @@ int main(int argc, char *argv[])
                 err = compile_to_binary_wasm_to_x86(arg_file, outfile,
                         runtime_library_dir, compiler_options, time_report, backend);
             } else if (backend == Backend::c) {
+                compiler_options.po.c_mangling = true;
                 std::string emit_file_name = basename + "__tmp__generated__.c";
                 err = emit_c_to_file(arg_file, emit_file_name, runtime_library_dir,
                                         lpython_pass_manager, compiler_options);

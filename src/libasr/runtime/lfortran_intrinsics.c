@@ -2545,6 +2545,13 @@ LFORTRAN_API char *_lpython_get_argv(int32_t index) {
 
 // << Command line arguments << ------------------------------------------------
 
+// Initial setup
+LFORTRAN_API void _lpython_call_initial_functions(int32_t argc_1, char *argv_1[]) {
+    _lpython_set_argv(argc_1, argv_1);
+    _lfortran_init_random_clock();
+}
+// << Initial setup << ---------------------------------------------------------
+
 // >> Runtime Stacktrace >> ----------------------------------------------------
 #ifdef HAVE_RUNTIME_STACKTRACE
 #ifdef HAVE_LFORTRAN_UNWIND

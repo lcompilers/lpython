@@ -462,6 +462,10 @@ filename = "../integration_tests/print_04.py"
 llvm = true
 
 [[test]]
+filename = "../integration_tests/test_list_item_mixed_print.py"
+run = true
+
+[[test]]
 filename = "../integration_tests/generics_01.py"
 asr = true
 
@@ -1257,6 +1261,10 @@ asr = true
 
 [[test]]
 filename = "errors/loop_03.py"
+asr = true
+
+[[test]]
+filename = "errors/test_logical_compare_01.py"
 asr = true
 
 [[test]]

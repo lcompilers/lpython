@@ -2834,6 +2834,14 @@ public:
                 llvm::ConstantStruct::get(dict_type,
                 llvm::Constant::getNullValue(dict_type)));
             llvm_symtab[h] = ptr;
+        } else if(x.m_type->type == ASR::ttypeType::Set) {
+            llvm::StructType* set_type = static_cast<llvm::StructType*>(
+                llvm_utils->get_type_from_ttype_t_util(x.m_type, module.get()));
+            llvm::Constant *ptr = module->getOrInsertGlobal(x.m_name, set_type);
+            module->getNamedGlobal(x.m_name)->setInitializer(
+                llvm::ConstantStruct::get(set_type,
+                llvm::Constant::getNullValue(set_type)));
+            llvm_symtab[h] = ptr;
         } else if (x.m_type->type == ASR::ttypeType::TypeParameter) {
             // Ignore type variables
         } else {
@@ -3057,11 +3065,11 @@ public:
         }
         builder->SetInsertPoint(BB);
 
-        // Call the `_lpython_set_argv` function to assign command line argument
-        // values to `argc` and `argv`.
+        // Call the `_lpython_call_initial_functions` function to assign command line argument
+        // values to `argc` and `argv`, and set the random seed to the system clock.
         {
             if (compiler_options.emit_debug_info) debug_emit_loc(x);
-            llvm::Function *fn = module->getFunction("_lpython_set_argv");
+            llvm::Function *fn = module->getFunction("_lpython_call_initial_functions");
             if(!fn) {
                 llvm::FunctionType *function_type = llvm::FunctionType::get(
                     llvm::Type::getVoidTy(context), {
@@ -3069,7 +3077,7 @@ public:
                         character_type->getPointerTo()
                     }, false);
                 fn = llvm::Function::Create(function_type,
-                    llvm::Function::ExternalLinkage, "_lpython_set_argv", *module);
+                    llvm::Function::ExternalLinkage, "_lpython_call_initial_functions", *module);
             }
             std::vector<llvm::Value *> args;
             for (llvm::Argument &llvm_arg : F->args()) {
