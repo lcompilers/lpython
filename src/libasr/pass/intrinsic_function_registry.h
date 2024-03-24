@@ -3750,7 +3750,7 @@ namespace IntrinsicScalarFunctionRegistry {
         std::tuple<impl_function,
                    verify_function>>& intrinsic_function_by_id_db = {
         {static_cast<int64_t>(IntrinsicScalarFunctions::Input),
-            {nullptr, &Input::verify_args}},
+            {&Input::instantiate_Input, &Input::verify_args}},
         {static_cast<int64_t>(IntrinsicScalarFunctions::ObjectType),
             {nullptr, &ObjectType::verify_args}},
         {static_cast<int64_t>(IntrinsicScalarFunctions::LogGamma),
