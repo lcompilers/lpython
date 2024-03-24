@@ -1,0 +1,13 @@
+{
+    "basename": "asr-test_const_list_pop-568b207",
+    "cmd": "lpython --show-asr --no-color {infile} -o {outfile}",
+    "infile": "tests/errors/test_const_list_pop.py",
+    "infile_hash": "e6cae5dc10a6a3505b3227d8492f32859f5baef086c143b1afcacdbf",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": null,
+    "stdout_hash": null,
+    "stderr": "asr-test_const_list_pop-568b207.stderr",
+    "stderr_hash": "32d57cbb983509ca6c54bc0812c9a74b3c1886ecc94e635c5011c378",
+    "returncode": 2
+}

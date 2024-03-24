@@ -465,6 +465,8 @@ RUN(NAME array_expr_05            LABELS cpython llvm c)
 RUN(NAME array_expr_06            LABELS cpython llvm c)
 RUN(NAME array_expr_07            LABELS cpython llvm c)
 RUN(NAME array_expr_08            LABELS cpython llvm c)
+RUN(NAME array_expr_09            LABELS cpython llvm c)
+RUN(NAME array_expr_10            LABELS cpython llvm c)
 RUN(NAME array_size_01            LABELS cpython llvm c)
 RUN(NAME array_size_02            LABELS cpython llvm c)
 RUN(NAME array_01            LABELS cpython llvm wasm c)
@@ -500,6 +502,7 @@ RUN(NAME print_float         LABELS cpython llvm c wasm wasm_x64)
 RUN(NAME print_list_tuple_01    LABELS cpython llvm c NOFAST)
 RUN(NAME print_list_tuple_02    LABELS cpython llvm c NOFAST)
 RUN(NAME print_list_tuple_03    LABELS cpython llvm c NOFAST SKIP_ON_JIT 139)
+RUN(NAME test_list_item_mixed_print    LABELS cpython llvm c NOFAST)
 
 # CPython and LLVM
 RUN(NAME const_01            LABELS cpython llvm c wasm)
@@ -582,6 +585,7 @@ RUN(NAME test_list_pop3      LABELS cpython llvm)
 RUN(NAME test_list_compare   LABELS cpython llvm)
 RUN(NAME test_list_concat    LABELS cpython llvm c NOFAST)
 RUN(NAME test_list_reserve   LABELS cpython llvm)
+RUN(NAME test_const_list     LABELS cpython llvm)
 RUN(NAME test_tuple_01       LABELS cpython llvm c)
 RUN(NAME test_tuple_02       LABELS cpython llvm c NOFAST)
 RUN(NAME test_tuple_03       LABELS cpython llvm c)
@@ -608,6 +612,7 @@ RUN(NAME test_dict_nested1   LABELS cpython llvm SKIP_ON_JIT 139)
 RUN(NAME test_set_len        LABELS cpython llvm)
 RUN(NAME test_set_add        LABELS cpython llvm)
 RUN(NAME test_set_remove     LABELS cpython llvm)
+RUN(NAME test_global_set     LABELS cpython llvm)
 RUN(NAME test_for_loop       LABELS cpython llvm c)
 RUN(NAME modules_01          LABELS cpython llvm c wasm wasm_x86 wasm_x64)
 RUN(NAME modules_02          LABELS cpython llvm c wasm wasm_x86 wasm_x64)
@@ -760,6 +765,7 @@ RUN(NAME test_gruntz         LABELS cpython_sym c_sym llvm_sym NOFAST)
 RUN(NAME symbolics_15        LABELS c_sym llvm_sym NOFAST)
 RUN(NAME symbolics_16        LABELS cpython_sym c_sym llvm_sym NOFAST)
 RUN(NAME symbolics_17        LABELS cpython_sym c_sym llvm_sym NOFAST)
+RUN(NAME symbolics_18        LABELS cpython_sym c_sym llvm_sym NOFAST)
 
 RUN(NAME sizeof_01           LABELS llvm c
         EXTRAFILES sizeof_01b.c)
@@ -783,6 +789,8 @@ RUN(NAME test_platform       LABELS cpython llvm c)
 RUN(NAME test_vars_01        LABELS cpython llvm)
 RUN(NAME test_version        LABELS cpython llvm)
 RUN(NAME logical_binop1      LABELS cpython llvm)
+RUN(NAME test_logical_compare           LABELS cpython llvm)
+RUN(NAME test_logical_assignment        LABELS cpython llvm)
 RUN(NAME vec_01              LABELS cpython llvm c NOFAST)
 RUN(NAME test_str_comparison LABELS cpython llvm c wasm)
 RUN(NAME test_bit_length     LABELS cpython llvm c)
@@ -841,12 +849,15 @@ RUN(NAME callback_03       LABELS cpython llvm c)
 
 RUN(NAME lambda_01         LABELS cpython llvm)
 
+RUN(NAME c_mangling        LABELS cpython llvm c)
+
 # callback_04 is to test emulation. So just run with cpython
 RUN(NAME callback_04       IMPORT_PATH .. LABELS cpython)
 
 # Intrinsic Functions
 RUN(NAME intrinsics_01     LABELS cpython llvm NOFAST) # any
 RUN(NAME intrinsics_02     LABELS cpython llvm c) # floordiv
+RUN(NAME test_builtin_type LABELS cpython llvm c) # type
 
 # lpython decorator
 RUN(NAME lpython_decorator_01    LABELS cpython)

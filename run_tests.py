@@ -26,11 +26,13 @@ def single_test(test, verbose, no_llvm, skip_run_with_dbg, skip_cpptranslate, up
     llvm_dbg = is_included("llvm_dbg")
     cpp = is_included("cpp")
     c = is_included("c")
+    python = is_included("python")
     is_cumulative = is_included("cumulative")
     wat = is_included("wat")
     run = is_included("run")
     run_with_dbg = is_included("run_with_dbg")
     disable_main = is_included("disable_main")
+    fast = is_included("fast")
     pass_ = test.get("pass", None)
     optimization_passes = ["flip_sign", "div_to_mul", "fma", "sign_from_value",
                            "inline_function_calls", "loop_unroll",
@@ -96,6 +98,8 @@ def single_test(test, verbose, no_llvm, skip_run_with_dbg, skip_cpptranslate, up
         cmd = "lpython "
         if is_cumulative:
             cmd += "--cumulative "
+        if fast:
+            cmd += "--fast "
         cmd += "--pass=" + pass_ + \
             " --show-asr --no-color {infile} -o {outfile}"
         run_test(filename, "pass_{}".format(pass_), cmd,
@@ -133,6 +137,11 @@ def single_test(test, verbose, no_llvm, skip_run_with_dbg, skip_cpptranslate, up
         else:
             run_test(filename, "c", "lpython --no-color --show-c {infile}",
                  filename, update_reference, extra_args)
+
+    if python:
+       run_test(filename, "python", "lpython --no-color --show-python {infile}",
+            filename, update_reference, extra_args)
+
     if wat:
         run_test(filename, "wat", "lpython --no-color --show-wat {infile}",
                  filename, update_reference, extra_args)

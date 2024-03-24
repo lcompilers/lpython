@@ -114,6 +114,55 @@ def test_str_split():
     assert res5 == ["123"]
     # assert res6 == [""]
 
+def test_str_replace():
+    x: str = "abc"
+    a: str = "zzaaabracadabra"
+    print(a.replace("a",""))
+    print(a.replace("",""))
+    print(a.replace("a","b"))
+    print(a.replace("e","a")) 
+    print(a.replace("ab","ba"))
+    print(a.replace("c","z"))
+    print(a.replace("zza","yo"))
+    print(a.replace("a","b",0))
+    print(a.replace("a","b",1))
+    print(a.replace("a","b",2))
+    print(a.replace("a","b",2))
+    print(a.replace("a","b",3))
+    print(a.replace("a","b",4))
+    print(a.replace("a","b",5))
+    print(a.replace("a","b",6))
+    print(a.replace("a","b",7))
+    print(a.replace("a","b",8))
+    print(a.replace("a","b",9))
+    print(a.replace("b","k",1))
+    print(a.replace("b","k",2))
+    print(a.replace("zza","yo",2))
+    print(x.replace("", ","))
+    assert a.replace("a","") == "zzbrcdbr"
+    assert a.replace("","") == "zzaaabracadabra"
+    assert a.replace("a","b") == "zzbbbbrbcbdbbrb"
+    assert a.replace("e","a") == "zzaaabracadabra"
+    assert a.replace("ab","ba") == "zzaabaracadbara"
+    assert a.replace("c","z") == "zzaaabrazadabra"
+    assert a.replace("zza","yo") == "yoaabracadabra"
+    assert a.replace("a","b",0) == "zzaaabracadabra"
+    assert a.replace("a","b",1) == "zzbaabracadabra"
+    assert a.replace("a","b",2) == "zzbbabracadabra"
+    assert a.replace("a","b",2) == "zzbbabracadabra"
+    assert a.replace("a","b",3) == "zzbbbbracadabra"
+    assert a.replace("a","b",4) == "zzbbbbrbcadabra"
+    assert a.replace("a","b",5) == "zzbbbbrbcbdabra"
+    assert a.replace("a","b",6) == "zzbbbbrbcbdbbra"
+    assert a.replace("a","b",7) == "zzbbbbrbcbdbbrb"
+    assert a.replace("a","b",8) == "zzbbbbrbcbdbbrb"
+    assert a.replace("a","b",9) == "zzbbbbrbcbdbbrb"
+    assert a.replace("b","k",1) == "zzaaakracadabra"
+    assert a.replace("b","k",2) == "zzaaakracadakra"
+    assert a.replace("zza","yo",2) == "yoaabracadabra"
+    assert x.replace("", ",") == ",a,b,c,"
+
+
 def check():
     f()
     test_str_concat()
@@ -127,5 +176,6 @@ def check():
     test_constant_str_subscript()
     test_str_title()
     test_str_split()
+    test_str_replace()
 
 check()

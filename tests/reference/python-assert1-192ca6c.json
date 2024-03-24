@@ -1,0 +1,13 @@
+{
+    "basename": "python-assert1-192ca6c",
+    "cmd": "lpython --no-color --show-python {infile}",
+    "infile": "tests/assert1.py",
+    "infile_hash": "0ff84ea5ccd3d0815cbb66e1c3d3acd61dee7257c98aa1a27ceeef3b",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "python-assert1-192ca6c.stdout",
+    "stdout_hash": "0de7de97bd936f6a66e73ba9789e50ed968b66edce04acfcc168c6db",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}

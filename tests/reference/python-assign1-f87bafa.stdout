@@ -1,0 +1,13 @@
+def test_augassign():
+    a: str
+    r: i32
+    s: i32
+    r = 0
+    r = (r) + (4)
+    s = 5
+    r = (r) * (s)
+    r = (r) - (2)
+    s = 10
+    r = r / s
+    a = ""
+    a = a + "test"

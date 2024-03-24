@@ -27,6 +27,7 @@ the code size.
 */
 
 enum class IntrinsicScalarFunctions : int64_t {
+    ObjectType,
     Sin,
     Cos,
     Tan,
@@ -100,6 +101,7 @@ enum class IntrinsicScalarFunctions : int64_t {
 
 inline std::string get_intrinsic_name(int x) {
     switch (x) {
+        INTRINSIC_NAME_CASE(ObjectType)
         INTRINSIC_NAME_CASE(Sin)
         INTRINSIC_NAME_CASE(Cos)
         INTRINSIC_NAME_CASE(Tan)
@@ -1159,6 +1161,58 @@ static inline void verify_args(const ASR::IntrinsicScalarFunction_t& x,
 }
 
 } // namespace BinaryIntrinsicFunction
+
+
+namespace ObjectType {
+
+     static inline void verify_args(const ASR::IntrinsicScalarFunction_t& x, diag::Diagnostics& diagnostics) {
+        ASRUtils::require_impl(x.n_args == 1,
+            "ASR Verify: type() takes only 1 argument `object`",
+            x.base.base.loc, diagnostics);
+    }
+
+    static ASR::expr_t *eval_ObjectType(Allocator &al, const Location &loc,
+            ASR::ttype_t* t1, Vec<ASR::expr_t*>& /*args*/) {
+        std::string object_type = "<class '";
+        switch (t1->type) {
+            case ASR::ttypeType::Integer : {
+                object_type += "int"; break;
+            } case ASR::ttypeType::Real : {
+                object_type += "float"; break;
+            } case ASR::ttypeType::Character : {
+                object_type += "str"; break;
+            } case ASR::ttypeType::List : {
+                object_type += "list"; break;
+            } case ASR::ttypeType::Dict : {
+               object_type += "dict"; break;
+            } default: {
+                LCOMPILERS_ASSERT_MSG(false, "Unsupported type");
+                break;
+            }
+        }
+        object_type += "'>";
+        return StringConstant(object_type, character(object_type.length()));
+    }
+
+    static inline ASR::asr_t* create_ObjectType(Allocator& al, const Location& loc,
+            Vec<ASR::expr_t*>& args,
+            const std::function<void (const std::string &, const Location &)> err) {
+        if (args.size() != 1) {
+            err("type() takes exactly 1 argument `object` for now", loc);
+        }
+        ASR::expr_t *m_value = nullptr;
+        Vec<ASR::expr_t *> arg_values;
+
+        m_value = eval_ObjectType(al, loc, expr_type(args[0]), arg_values);
+
+        return ASR::make_IntrinsicScalarFunction_t(al, loc,
+            static_cast<int64_t>(IntrinsicScalarFunctions::ObjectType),
+            args.p, args.n, 0, ASRUtils::expr_type(m_value), m_value);
+    }
+
+
+} // namespace ObjectType
+
 
 namespace LogGamma {
 
@@ -2520,12 +2574,13 @@ namespace ListIndex {
 static inline void verify_args(const ASR::IntrinsicScalarFunction_t& x, diag::Diagnostics& diagnostics) {
     ASRUtils::require_impl(x.n_args <= 4, "Call to list.index must have at most four arguments",
         x.base.base.loc, diagnostics);
-    ASRUtils::require_impl(ASR::is_a<ASR::List_t>(*ASRUtils::expr_type(x.m_args[0])) &&
+    ASR::ttype_t *list_type = ASRUtils::type_get_past_const(ASRUtils::expr_type(x.m_args[0]));
+    ASRUtils::require_impl(ASR::is_a<ASR::List_t>(*list_type) &&
         ASRUtils::check_equal_type(ASRUtils::expr_type(x.m_args[1]),
-            ASRUtils::get_contained_type(ASRUtils::expr_type(x.m_args[0]))),
+            ASRUtils::get_contained_type(list_type)),
         "First argument to list.index must be of list type and "
         "second argument must be of same type as list elemental type",
-        x.base.base.loc, diagnostics);
+        x.base.base.loc, diagnostics);        
     if(x.n_args >= 3) {
         ASRUtils::require_impl(
             ASR::is_a<ASR::Integer_t>(*ASRUtils::expr_type(x.m_args[2])),
@@ -2555,7 +2610,7 @@ static inline ASR::asr_t* create_ListIndex(Allocator& al, const Location& loc,
     const std::function<void (const std::string &, const Location &)> err) {
     int64_t overload_id = 0;
     ASR::expr_t* list_expr = args[0];
-    ASR::ttype_t *type = ASRUtils::expr_type(list_expr);
+    ASR::ttype_t *type = ASRUtils::type_get_past_const(ASRUtils::expr_type(list_expr));
     ASR::ttype_t *list_type = ASR::down_cast<ASR::List_t>(type)->m_type;
     ASR::ttype_t *ele_type = ASRUtils::expr_type(args[1]);
     if (!ASRUtils::check_equal_type(ele_type, list_type)) {
@@ -3625,6 +3680,8 @@ namespace IntrinsicScalarFunctionRegistry {
     static const std::map<int64_t,
         std::tuple<impl_function,
                    verify_function>>& intrinsic_function_by_id_db = {
+        {static_cast<int64_t>(IntrinsicScalarFunctions::ObjectType),
+            {nullptr, &ObjectType::verify_args}},
         {static_cast<int64_t>(IntrinsicScalarFunctions::LogGamma),
             {&LogGamma::instantiate_LogGamma, &UnaryIntrinsicFunction::verify_args}},
         {static_cast<int64_t>(IntrinsicScalarFunctions::Trunc),
@@ -3752,9 +3809,10 @@ namespace IntrinsicScalarFunctionRegistry {
     };
 
     static const std::map<int64_t, std::string>& intrinsic_function_id_to_name = {
+        {static_cast<int64_t>(IntrinsicScalarFunctions::ObjectType),
+            "type"},
         {static_cast<int64_t>(IntrinsicScalarFunctions::LogGamma),
             "log_gamma"},
-
         {static_cast<int64_t>(IntrinsicScalarFunctions::Trunc),
             "trunc"},
         {static_cast<int64_t>(IntrinsicScalarFunctions::Fix),
@@ -3881,6 +3939,7 @@ namespace IntrinsicScalarFunctionRegistry {
     static const std::map<std::string,
         std::tuple<create_intrinsic_function,
                     eval_intrinsic_function>>& intrinsic_function_by_name_db = {
+                {"type", {&ObjectType::create_ObjectType, &ObjectType::eval_ObjectType}},
                 {"log_gamma", {&LogGamma::create_LogGamma, &LogGamma::eval_log_gamma}},
                 {"trunc", {&Trunc::create_Trunc, &Trunc::eval_Trunc}},
                 {"fix", {&Fix::create_Fix, &Fix::eval_Fix}},

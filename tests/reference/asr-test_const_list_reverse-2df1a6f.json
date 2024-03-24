@@ -1,0 +1,13 @@
+{
+    "basename": "asr-test_const_list_reverse-2df1a6f",
+    "cmd": "lpython --show-asr --no-color {infile} -o {outfile}",
+    "infile": "tests/errors/test_const_list_reverse.py",
+    "infile_hash": "b49f332d26356501f60c0342b86303deb62cd13621a821f3f2bc30c9",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": null,
+    "stdout_hash": null,
+    "stderr": "asr-test_const_list_reverse-2df1a6f.stderr",
+    "stderr_hash": "78d4df28bbde66600867165e7c4d2b7e56874ba0f459052f8ab1b7fc",
+    "returncode": 2
+}
