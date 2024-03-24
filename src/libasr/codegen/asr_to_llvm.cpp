@@ -1957,8 +1957,7 @@ public:
                 }
                 break;
             }
-            case ASRUtils::IntrinsicScalarFunctions::ListIndex:
-            {
+            case ASRUtils::IntrinsicScalarFunctions::ListIndex: {
                 ASR::expr_t* m_arg = x.m_args[0];
                 ASR::expr_t* m_ele = x.m_args[1];
                 ASR::expr_t* m_start = nullptr;
