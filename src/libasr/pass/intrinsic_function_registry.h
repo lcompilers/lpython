@@ -2572,18 +2572,13 @@ create_exp_macro(Exp2, exp2)
 create_exp_macro(Expm1, expm1)
 
 namespace Input {
+    const std::string EMPTY_STRING = "";
 
     static inline void verify_args(const ASR::IntrinsicScalarFunction_t& x,
             diag::Diagnostics& diagnostics) {
         ASRUtils::require_impl(x.n_args <= 1,
             "ASR Verify: Call `input` takes 0 or 1 argument",
             x.base.base.loc, diagnostics);
-        if (x.n_args == 1) {
-            ASR::ttype_t *type = ASRUtils::expr_type(x.m_args[0]);
-            ASRUtils::require_impl(ASRUtils::is_character(*type),
-                "ASR Verify: Argument to `input` must be of string type",
-                x.base.base.loc, diagnostics);
-        }
     }
 
     static inline ASR::asr_t* create_Input(Allocator& al, const Location& loc,
@@ -2592,12 +2587,7 @@ namespace Input {
         if (args.n != 1) {
             err("input() takes 0 or 1 argument", loc);
         }
-        if (!ASRUtils::is_character(*ASRUtils::expr_type(args[0]))) {
-            err("Argument `prompt` to input() must be of type 'str'",
-                loc);
-        }
-        std::string dummy_string = "";
-        ASR::ttype_t* return_type = expr_type(StringConstant(dummy_string, character(dummy_string.length())));
+        ASR::ttype_t* return_type = expr_type(StringConstant(EMPTY_STRING, character(EMPTY_STRING.length())));
         return ASR::make_IntrinsicScalarFunction_t(al, loc,
             static_cast<int64_t>(IntrinsicScalarFunctions::Input),
             args.p, args.n, 0, return_type, nullptr);
@@ -2627,6 +2617,8 @@ namespace Input {
         Vec<ASR::expr_t*> read_values;
         read_values.reserve(al, 1);
         read_values.push_back(al, result);
+        body.push_back(al, ASRUtils::STMT(ASR::make_Print_t(
+            al, loc, args.p, args.size(), nullptr, StringConstant(EMPTY_STRING, character(EMPTY_STRING.length())))));
         body.push_back(al, ASRUtils::STMT(ASR::make_FileRead_t(
             al, loc, 0, nullptr, nullptr, nullptr, nullptr, nullptr, read_values.p, read_values.n)));
 
