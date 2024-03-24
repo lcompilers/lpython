@@ -27,6 +27,7 @@ namespace LCompilers::CastingUtil {
         {std::make_pair(ASR::ttypeType::Integer, ASR::ttypeType::Complex), ASR::cast_kindType::IntegerToComplex},
         {std::make_pair(ASR::ttypeType::Integer, ASR::ttypeType::Real), ASR::cast_kindType::IntegerToReal},
         {std::make_pair(ASR::ttypeType::Integer, ASR::ttypeType::Logical), ASR::cast_kindType::IntegerToLogical},
+        {std::make_pair(ASR::ttypeType::Character, ASR::ttypeType::Integer), ASR::cast_kindType::CharacterToInteger},
         {std::make_pair(ASR::ttypeType::Integer, ASR::ttypeType::UnsignedInteger), ASR::cast_kindType::IntegerToUnsignedInteger},
         {std::make_pair(ASR::ttypeType::Logical, ASR::ttypeType::Real), ASR::cast_kindType::LogicalToReal},
         {std::make_pair(ASR::ttypeType::Logical, ASR::ttypeType::Integer), ASR::cast_kindType::LogicalToInteger},
