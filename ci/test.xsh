@@ -16,7 +16,7 @@ src/bin/lpython --show-asr tests/doconcurrentloop_01.py
 src/bin/lpython --show-cpp tests/doconcurrentloop_01.py
 
 if $WIN == "1":
-    python run_tests.py --skip-run-with-dbg --no-color
+    python run_tests.py --skip-run-with-dbg --no-color -s
 else:
     python run_tests.py
     src/bin/lpython examples/expr2.py
