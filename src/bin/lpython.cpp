@@ -3,6 +3,12 @@
 #include <stdlib.h>
 #include <cstdlib>
 
+#if (defined (__linux__)) or (defined (__APPLE__))
+#include <dlfcn.h>
+#else
+// TODO: support windows
+#endif
+
 #define CLI11_HAS_FILESYSTEM 0
 #include <bin/CLI11.hpp>
 
@@ -888,6 +894,37 @@ int compile_python_using_llvm(
     std::unique_ptr<LCompilers::LLVMModule> m = std::move(res.result);
 
     if (to_jit) {
+        void *cpython_lib = nullptr;
+        void *symengine_lib = nullptr;
+        if (compiler_options.enable_cpython) {
+            std::string conda_prefix = std::getenv("CONDA_PREFIX");
+#if defined (__linux__)
+            cpython_lib = dlopen((conda_prefix + "/lib/libpython3.so").c_str(), RTLD_DEEPBIND | RTLD_GLOBAL | RTLD_NOW);
+#elif defined (__APPLE__)
+            cpython_lib = dlopen((conda_prefix + "/lib/libpython3.dylib").c_str(), RTLD_DEEPBIND | RTLD_GLOBAL | RTLD_NOW);
+#else
+            // TODO: support windows
+#endif
+            if (!cpython_lib) {
+                std::cerr << "Could not load \"libpython3.so\"" << std::endl;
+                return 1;
+            }
+        }
+        if (compiler_options.enable_symengine) {
+            std::string conda_prefix = std::getenv("CONDA_PREFIX");
+#if defined (__linux__)
+            symengine_lib = dlopen((conda_prefix + "/lib/libsymengine.so").c_str(), RTLD_DEEPBIND | RTLD_GLOBAL | RTLD_NOW);
+#elif defined (__APPLE__)
+            symengine_lib = dlopen((conda_prefix + "/lib/libsymengine.dylib").c_str(), RTLD_DEEPBIND | RTLD_GLOBAL | RTLD_NOW);
+#else
+            // TODO: support windows
+#endif
+            if (!symengine_lib) {
+                std::cerr << "Could not load \"libsymengine.so\"\n" << std::endl;
+                return 1;
+            }
+        }
+
         auto llvm_start = std::chrono::high_resolution_clock::now();
 
         bool call_init = false;
@@ -902,6 +939,11 @@ int compile_python_using_llvm(
             e.voidfn("__module___main_____main__global_init");
         if (call_stmts)
             e.voidfn("__module___main_____main__global_stmts");
+
+        if (cpython_lib)
+            dlclose(cpython_lib);
+        if (symengine_lib)
+            dlclose(symengine_lib);
 
         auto llvm_end = std::chrono::high_resolution_clock::now();
         times.push_back(std::make_pair("LLVM JIT execution", std::chrono::duration<double, std::milli>(llvm_end - llvm_start).count()));

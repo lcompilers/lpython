@@ -140,12 +140,11 @@ macro(RUN_UTIL RUN_FAIL RUN_NAME RUN_FILE_NAME RUN_LABELS RUN_EXTRAFILES RUN_NOM
                 set_tests_properties(${name} PROPERTIES WILL_FAIL TRUE)
                 set_tests_properties("${name}_jit" PROPERTIES WILL_FAIL TRUE)
             endif()
-            set_tests_properties("${name}_jit" PROPERTIES SKIP_RETURN_CODE 1) # TODO: remove this line and uncomment below
-            # if (${skip_jit})
-            #     set_tests_properties("${name}_jit" PROPERTIES SKIP_RETURN_CODE ${skip_jit})
-            # elseif (DEFINED ${RUN_EXTRAFILES} AND NOT ${RUN_FAIL})
-            #     set_tests_properties("${name}_jit" PROPERTIES SKIP_RETURN_CODE 1)
-            # endif()
+            if (${skip_jit})
+                set_tests_properties("${name}_jit" PROPERTIES SKIP_RETURN_CODE ${skip_jit})
+            elseif (DEFINED ${RUN_EXTRAFILES} AND NOT ${RUN_FAIL})
+                set_tests_properties("${name}_jit" PROPERTIES SKIP_RETURN_CODE 1)
+            endif()
         elseif(KIND STREQUAL "llvm_sym")
             add_custom_command(
                 OUTPUT ${name}.o
@@ -163,7 +162,7 @@ macro(RUN_UTIL RUN_FAIL RUN_NAME RUN_FILE_NAME RUN_LABELS RUN_EXTRAFILES RUN_NOM
             add_test(${name} ${CMAKE_CURRENT_BINARY_DIR}/${name})
             add_test(
                 NAME "${name}_jit"
-                COMMAND ${LPYTHON} --jit ${extra_args} ${CMAKE_CURRENT_SOURCE_DIR}/${file_name}.py)
+                COMMAND ${LPYTHON} --enable-symengine --jit ${extra_args} ${CMAKE_CURRENT_SOURCE_DIR}/${file_name}.py)
             if (labels)
                 set_tests_properties(${name} PROPERTIES LABELS "${labels}")
                 set_tests_properties("${name}_jit" PROPERTIES LABELS "${labels}")
@@ -172,12 +171,11 @@ macro(RUN_UTIL RUN_FAIL RUN_NAME RUN_FILE_NAME RUN_LABELS RUN_EXTRAFILES RUN_NOM
                 set_tests_properties(${name} PROPERTIES WILL_FAIL TRUE)
                 set_tests_properties("${name}_jit" PROPERTIES WILL_FAIL TRUE)
             endif()
-            set_tests_properties("${name}_jit" PROPERTIES SKIP_RETURN_CODE 1) # TODO: remove this line and uncomment below
-            # if (${skip_jit})
-            #     set_tests_properties("${name}_jit" PROPERTIES SKIP_RETURN_CODE ${skip_jit})
-            # elseif (DEFINED ${RUN_EXTRAFILES} AND NOT ${RUN_FAIL})
-            #     set_tests_properties("${name}_jit" PROPERTIES SKIP_RETURN_CODE 1)
-            # endif()
+            if (${skip_jit})
+                set_tests_properties("${name}_jit" PROPERTIES SKIP_RETURN_CODE ${skip_jit})
+            elseif (DEFINED ${RUN_EXTRAFILES} AND NOT ${RUN_FAIL})
+                set_tests_properties("${name}_jit" PROPERTIES SKIP_RETURN_CODE 1)
+            endif()
         elseif(KIND STREQUAL "c")
             add_custom_command(
                 OUTPUT ${name}.c
