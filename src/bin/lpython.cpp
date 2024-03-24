@@ -5,7 +5,7 @@
 
 #if (defined (__linux__)) or (defined (__APPLE__))
 #include <dlfcn.h>
-#else
+#elif (defined (WIN32))
 #include <windows.h>
 #endif
 
