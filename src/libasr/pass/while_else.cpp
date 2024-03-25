@@ -7,6 +7,7 @@
 #include <libasr/pass/stmt_walk_visitor.h>
 #include <libasr/pass/pass_utils.h>
 #include <stack>
+#include <unordered_map>
 
 namespace LCompilers {
 
