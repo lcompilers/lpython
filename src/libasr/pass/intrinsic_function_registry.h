@@ -2572,7 +2572,6 @@ create_exp_macro(Exp2, exp2)
 create_exp_macro(Expm1, expm1)
 
 namespace Input {
-    const std::string EMPTY_STRING = "";
 
     static inline void verify_args(const ASR::IntrinsicScalarFunction_t& x,
             diag::Diagnostics& diagnostics) {
@@ -2587,6 +2586,7 @@ namespace Input {
         if (args.n != 1) {
             err("input() takes 0 or 1 argument", loc);
         }
+        const std::string EMPTY_STRING = "";
         ASR::ttype_t* return_type = expr_type(StringConstant(EMPTY_STRING, character(EMPTY_STRING.length())));
         return ASR::make_IntrinsicScalarFunction_t(al, loc,
             static_cast<int64_t>(IntrinsicScalarFunctions::Input),
@@ -2617,6 +2617,8 @@ namespace Input {
         Vec<ASR::expr_t*> read_values;
         read_values.reserve(al, 1);
         read_values.push_back(al, result);
+        
+        const std::string EMPTY_STRING = "";
         body.push_back(al, ASRUtils::STMT(ASR::make_Print_t(
             al, loc, args.p, args.size(), nullptr, StringConstant(EMPTY_STRING, character(EMPTY_STRING.length())))));
         body.push_back(al, ASRUtils::STMT(ASR::make_FileRead_t(
