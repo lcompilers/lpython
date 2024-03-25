@@ -1750,6 +1750,12 @@ public:
             } else if (var_annotation == "Const") {
                 ASR::ttype_t *type = ast_expr_to_asr_type(loc, *s->m_slice,
                     is_allocatable, raise_error, abi, is_argument);
+                if (ASR::is_a<ASR::Tuple_t>(*type)) {
+                    throw SemanticError("'Const' not required as tuples are already immutable", loc);
+                }
+                else if (ASR::is_a<ASR::Character_t>(*type)) {
+                    throw SemanticError("'Const' not required as strings are already immutable", loc);
+                }
                 return ASRUtils::TYPE(ASR::make_Const_t(al, loc, type));
             } else {
                 AST::expr_t* dim_info = s->m_slice;
@@ -3767,6 +3773,7 @@ public:
         ai.m_left = nullptr;
         ai.m_right = nullptr;
         ai.m_step = nullptr;
+        type = ASRUtils::type_get_past_const(type);
         if (AST::is_a<AST::Slice_t>(*m_slice)) {
             AST::Slice_t *sl = AST::down_cast<AST::Slice_t>(m_slice);
             if (sl->m_lower != nullptr) {
@@ -3827,6 +3834,7 @@ public:
             }
             return final_result;
         } else {
+            ASR::expr_t *index = nullptr;
             this->visit_expr(*m_slice);
             if (!ASR::is_a<ASR::Dict_t>(*type) &&
                     !ASRUtils::is_integer(*ASRUtils::expr_type(ASRUtils::EXPR(tmp)))) {
@@ -3840,8 +3848,8 @@ public:
                 );
                 throw SemanticAbort();
             }
-            ASR::expr_t *index = nullptr;
             if (ASR::is_a<ASR::Dict_t>(*type)) {
+                this->visit_expr(*m_slice);
                 index = ASRUtils::EXPR(tmp);
                 ASR::ttype_t *key_type = ASR::down_cast<ASR::Dict_t>(type)->m_key_type;
                 if (!ASRUtils::check_equal_type(ASRUtils::expr_type(index), key_type)) {

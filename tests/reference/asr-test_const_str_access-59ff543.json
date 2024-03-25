@@ -1,0 +1,13 @@
+{
+    "basename": "asr-test_const_str_access-59ff543",
+    "cmd": "lpython --show-asr --no-color {infile} -o {outfile}",
+    "infile": "tests/errors/test_const_str_access.py",
+    "infile_hash": "356d24d72537679b048256fe36e06defe1525ea6abbdef9d9a05bce7",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": null,
+    "stdout_hash": null,
+    "stderr": "asr-test_const_str_access-59ff543.stderr",
+    "stderr_hash": "22aab31426a34d40549295ecdbdac10ecdf67689aa464522f42b0f52",
+    "returncode": 2
+}
