@@ -3299,7 +3299,7 @@ void get_local_address_mac(struct Stacktrace *d) {
     printf("The stack address was not found in any shared library or"
         " the main program, the stack is probably corrupted.\n"
         "Aborting...\n");
-    abort();
+    exit(1);
 }
 #endif // HAVE_LFORTRAN_MACHO
 
@@ -3315,7 +3315,7 @@ void get_local_address(struct Stacktrace *d) {
             printf("The stack address was not found in any shared library or"
                 " the main program, the stack is probably corrupted.\n"
                 "Aborting...\n");
-            abort();
+            exit(1);
         }
 #else
 #ifdef HAVE_LFORTRAN_MACHO
