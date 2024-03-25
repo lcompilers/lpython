@@ -185,7 +185,7 @@ stmt
     -- deallocates if allocated otherwise does nothing
     | ImplicitDeallocate(expr* vars)
     | DoConcurrentLoop(do_loop_head head, stmt* body)
-    | DoLoop(identifier? name, do_loop_head head, stmt* body)
+    | DoLoop(identifier? name, do_loop_head head, stmt* body, stmt* orelse)
     | ErrorStop(expr? code)
     | Exit(identifier? stmt_name)
     | ForAllSingle(do_loop_head head, stmt assign_stmt)
@@ -219,7 +219,7 @@ stmt
     | Assert(expr test, expr? msg)
     | SubroutineCall(symbol name, symbol? original_name, call_arg* args, expr? dt)
     | Where(expr test, stmt* body, stmt* orelse)
-    | WhileLoop(identifier? name, expr test, stmt* body)
+    | WhileLoop(identifier? name, expr test, stmt* body, stmt* orelse)
     | Nullify(symbol* vars)
     | Flush(int label, expr unit, expr? err, expr? iomsg, expr? iostat)
     | ListAppend(expr a, expr ele)

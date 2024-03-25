@@ -16,6 +16,7 @@
 
 #include <libasr/pass/replace_do_loops.h>
 #include <libasr/pass/replace_for_all.h>
+#include <libasr/pass/while_else.h>
 #include <libasr/pass/replace_init_expr.h>
 #include <libasr/pass/replace_implied_do_loops.h>
 #include <libasr/pass/replace_array_op.h>
@@ -73,6 +74,7 @@ namespace LCompilers {
         std::vector<std::string> _skip_passes, _c_skip_passes;
         std::map<std::string, pass_function> _passes_db = {
             {"do_loops", &pass_replace_do_loops},
+            {"while_else", &pass_while_else},
             {"global_stmts", &pass_wrap_global_stmts},
             {"implied_do_loops", &pass_replace_implied_do_loops},
             {"array_op", &pass_replace_array_op},
@@ -219,6 +221,7 @@ namespace LCompilers {
                 "array_dim_intrinsics_update",
                 "do_loops",
                 "forall",
+                "while_else",
                 "select_case",
                 "inline_function_calls",
                 "unused_functions",
@@ -250,6 +253,7 @@ namespace LCompilers {
                 "array_dim_intrinsics_update",
                 "do_loops",
                 "forall",
+                "while_else",
                 "dead_code_removal",
                 "select_case",
                 "unused_functions",
