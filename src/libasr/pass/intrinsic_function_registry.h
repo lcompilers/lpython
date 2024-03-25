@@ -51,6 +51,7 @@ enum class IntrinsicScalarFunctions : int64_t {
     Mod,
     Trailz,
     FloorDiv,
+    Input,
     ListIndex,
     Partition,
     ListReverse,
@@ -101,6 +102,7 @@ enum class IntrinsicScalarFunctions : int64_t {
 
 inline std::string get_intrinsic_name(int x) {
     switch (x) {
+        INTRINSIC_NAME_CASE(Input)
         INTRINSIC_NAME_CASE(ObjectType)
         INTRINSIC_NAME_CASE(Sin)
         INTRINSIC_NAME_CASE(Cos)
@@ -2569,6 +2571,67 @@ create_exp_macro(Exp, exp)
 create_exp_macro(Exp2, exp2)
 create_exp_macro(Expm1, expm1)
 
+namespace Input {
+
+    static inline void verify_args(const ASR::IntrinsicScalarFunction_t& x,
+            diag::Diagnostics& diagnostics) {
+        ASRUtils::require_impl(x.n_args <= 1,
+            "ASR Verify: Call `input` takes 0 or 1 argument",
+            x.base.base.loc, diagnostics);
+    }
+
+    static inline ASR::asr_t* create_Input(Allocator& al, const Location& loc,
+            Vec<ASR::expr_t*>& args,
+            const std::function<void (const std::string &, const Location &)> err) {
+        if (args.n != 1) {
+            err("input() takes 0 or 1 argument", loc);
+        }
+        const std::string EMPTY_STRING = "";
+        ASR::ttype_t* return_type = expr_type(StringConstant(EMPTY_STRING, character(EMPTY_STRING.length())));
+        return ASR::make_IntrinsicScalarFunction_t(al, loc,
+            static_cast<int64_t>(IntrinsicScalarFunctions::Input),
+            args.p, args.n, 0, return_type, nullptr);
+    }
+
+    static inline ASR::expr_t* instantiate_Input(Allocator &al, const Location &loc,
+        SymbolTable *scope, Vec<ASR::ttype_t*>& arg_types, ASR::ttype_t *return_type,
+        Vec<ASR::call_arg_t>& new_args, int64_t /*overload_id*/) {
+
+        std::string func_name = "_lpython_input_";
+        std::string fn_name = scope->get_unique_name(func_name);
+        SymbolTable *fn_symtab = al.make_new<SymbolTable>(scope);
+        
+        Vec<ASR::expr_t*> args;
+        args.reserve(al, new_args.size());
+        ASRBuilder b(al, loc);
+        Vec<ASR::stmt_t*> body; body.reserve(al, args.size());
+        SetChar dep; dep.reserve(al, 1);
+        if (scope->get_symbol(fn_name)) {
+            ASR::symbol_t *s = scope->get_symbol(fn_name);
+            ASR::Function_t *f = ASR::down_cast<ASR::Function_t>(s);
+            return b.Call(s, new_args, expr_type(f->m_return_var), nullptr);
+        }
+
+        fill_func_arg("prompt", arg_types[0]);
+        auto result = declare(fn_name, return_type, ReturnVar);
+        Vec<ASR::expr_t*> read_values;
+        read_values.reserve(al, 1);
+        read_values.push_back(al, result);
+        
+        const std::string EMPTY_STRING = "";
+        body.push_back(al, ASRUtils::STMT(ASR::make_Print_t(
+            al, loc, args.p, args.size(), nullptr, StringConstant(EMPTY_STRING, character(EMPTY_STRING.length())))));
+        body.push_back(al, ASRUtils::STMT(ASR::make_FileRead_t(
+            al, loc, 0, nullptr, nullptr, nullptr, nullptr, nullptr, read_values.p, read_values.n)));
+
+        ASR::symbol_t *f_sym = make_ASR_Function_t(fn_name, fn_symtab, dep, args,
+            body, result, ASR::abiType::Source, ASR::deftypeType::Implementation, nullptr);
+        scope->add_symbol(fn_name, f_sym);
+        return b.Call(f_sym, new_args, return_type, nullptr);
+    }
+
+} // namespace Input
+
 namespace ListIndex {
 
 static inline void verify_args(const ASR::IntrinsicScalarFunction_t& x, diag::Diagnostics& diagnostics) {
@@ -3680,6 +3743,8 @@ namespace IntrinsicScalarFunctionRegistry {
     static const std::map<int64_t,
         std::tuple<impl_function,
                    verify_function>>& intrinsic_function_by_id_db = {
+        {static_cast<int64_t>(IntrinsicScalarFunctions::Input),
+            {&Input::instantiate_Input, &Input::verify_args}},
         {static_cast<int64_t>(IntrinsicScalarFunctions::ObjectType),
             {nullptr, &ObjectType::verify_args}},
         {static_cast<int64_t>(IntrinsicScalarFunctions::LogGamma),
@@ -3809,6 +3874,8 @@ namespace IntrinsicScalarFunctionRegistry {
     };
 
     static const std::map<int64_t, std::string>& intrinsic_function_id_to_name = {
+        {static_cast<int64_t>(IntrinsicScalarFunctions::Input),
+            "input"},
         {static_cast<int64_t>(IntrinsicScalarFunctions::ObjectType),
             "type"},
         {static_cast<int64_t>(IntrinsicScalarFunctions::LogGamma),
@@ -3939,6 +4006,7 @@ namespace IntrinsicScalarFunctionRegistry {
     static const std::map<std::string,
         std::tuple<create_intrinsic_function,
                     eval_intrinsic_function>>& intrinsic_function_by_name_db = {
+                {"input", {&Input::create_Input, nullptr}},
                 {"type", {&ObjectType::create_ObjectType, &ObjectType::eval_ObjectType}},
                 {"log_gamma", {&LogGamma::create_LogGamma, &LogGamma::eval_log_gamma}},
                 {"trunc", {&Trunc::create_Trunc, &Trunc::eval_Trunc}},

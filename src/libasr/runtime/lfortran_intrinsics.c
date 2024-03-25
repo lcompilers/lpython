@@ -2416,6 +2416,11 @@ LFORTRAN_API void _lfortran_formatted_read(int32_t unit_num, int32_t* iostat, ch
 }
 
 LFORTRAN_API void _lfortran_empty_read(int32_t unit_num, int32_t* iostat) {
+    if (unit_num == -1) {
+        // Read from stdin
+        return;
+    }
+
     bool unit_file_bin;
     FILE* fp = get_file_pointer_from_unit(unit_num, &unit_file_bin);
     if (!fp) {
