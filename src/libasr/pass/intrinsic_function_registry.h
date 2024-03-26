@@ -60,6 +60,7 @@ enum class IntrinsicScalarFunctions : int64_t {
     DictValues,
     SetAdd,
     SetRemove,
+    SetDiscard,
     Max,
     Min,
     Radix,
@@ -134,6 +135,7 @@ inline std::string get_intrinsic_name(int x) {
         INTRINSIC_NAME_CASE(DictValues)
         INTRINSIC_NAME_CASE(SetAdd)
         INTRINSIC_NAME_CASE(SetRemove)
+        INTRINSIC_NAME_CASE(SetDiscard)
         INTRINSIC_NAME_CASE(Max)
         INTRINSIC_NAME_CASE(Min)
         INTRINSIC_NAME_CASE(Sign)
@@ -2984,6 +2986,55 @@ static inline ASR::asr_t* create_SetRemove(Allocator& al, const Location& loc,
 
 } // namespace SetRemove
 
+namespace SetDiscard {
+
+    static inline void verify_args(const ASR::IntrinsicScalarFunction_t& x, diag::Diagnostics& diagnostics) {
+        ASRUtils::require_impl(x.n_args == 2, "Call to set.discard must have exactly one argument",
+            x.base.base.loc, diagnostics);
+        ASRUtils::require_impl(ASR::is_a<ASR::Set_t>(*ASRUtils::expr_type(x.m_args[0])),
+            "First argument to set.discard must be of set type",
+            x.base.base.loc, diagnostics);
+        ASRUtils::require_impl(ASRUtils::check_equal_type(ASRUtils::expr_type(x.m_args[1]),
+                ASRUtils::get_contained_type(ASRUtils::expr_type(x.m_args[0]))),
+            "Second argument to set.discard must be of same type as set's element type",
+            x.base.base.loc, diagnostics);
+        ASRUtils::require_impl(x.m_type == nullptr,
+            "Return type of set.discard must be empty",
+            x.base.base.loc, diagnostics);
+    }
+
+    static inline ASR::expr_t *eval_set_discard(Allocator &/*al*/,
+        const Location &/*loc*/, ASR::ttype_t *, Vec<ASR::expr_t*>& /*args*/) {
+        // TODO: To be implemented for SetConstant expression
+        return nullptr;
+    }
+
+    static inline ASR::asr_t* create_SetDiscard(Allocator& al, const Location& loc,
+        Vec<ASR::expr_t*>& args,
+        const std::function<void (const std::string &, const Location &)> err) {
+        if (args.size() != 2) {
+            err("Call to set.discard must have exactly one argument", loc);
+        }
+        if (!ASRUtils::check_equal_type(ASRUtils::expr_type(args[1]),
+            ASRUtils::get_contained_type(ASRUtils::expr_type(args[0])))) {
+            err("Argument to set.discard must be of same type as set's "
+                "element type", loc);
+        }
+
+        Vec<ASR::expr_t*> arg_values;
+        arg_values.reserve(al, args.size());
+        for( size_t i = 0; i < args.size(); i++ ) {
+            arg_values.push_back(al, ASRUtils::expr_value(args[i]));
+        }
+        ASR::expr_t* compile_time_value = eval_set_discard(al, loc, nullptr, arg_values);
+        return ASR::make_Expr_t(al, loc,
+                ASRUtils::EXPR(ASR::make_IntrinsicScalarFunction_t(al, loc,
+                static_cast<int64_t>(IntrinsicScalarFunctions::SetDiscard),
+                args.p, args.size(), 0, nullptr, compile_time_value)));
+    }
+
+} // namespace SetDiscard
+
 namespace Max {
 
     static inline void verify_args(const ASR::IntrinsicScalarFunction_t& x, diag::Diagnostics& diagnostics) {
@@ -3744,6 +3795,8 @@ namespace IntrinsicScalarFunctionRegistry {
             {nullptr, &SetAdd::verify_args}},
         {static_cast<int64_t>(IntrinsicScalarFunctions::SetRemove),
             {nullptr, &SetRemove::verify_args}},
+        {static_cast<int64_t>(IntrinsicScalarFunctions::SetDiscard),
+            {nullptr, &SetDiscard::verify_args}},
         {static_cast<int64_t>(IntrinsicScalarFunctions::Max),
             {&Max::instantiate_Max, &Max::verify_args}},
         {static_cast<int64_t>(IntrinsicScalarFunctions::Min),
@@ -3871,6 +3924,8 @@ namespace IntrinsicScalarFunctionRegistry {
             "set.add"},
         {static_cast<int64_t>(IntrinsicScalarFunctions::SetRemove),
             "set.remove"},
+        {static_cast<int64_t>(IntrinsicScalarFunctions::SetDiscard),
+            "set.discard"},
         {static_cast<int64_t>(IntrinsicScalarFunctions::Max),
             "max"},
         {static_cast<int64_t>(IntrinsicScalarFunctions::Min),
@@ -3969,6 +4024,7 @@ namespace IntrinsicScalarFunctionRegistry {
                 {"dict.values", {&DictValues::create_DictValues, &DictValues::eval_dict_values}},
                 {"set.add", {&SetAdd::create_SetAdd, &SetAdd::eval_set_add}},
                 {"set.remove", {&SetRemove::create_SetRemove, &SetRemove::eval_set_remove}},
+                {"set.discard", {&SetDiscard::create_SetDiscard, &SetDiscard::eval_set_discard}},
                 {"max0", {&Max::create_Max, &Max::eval_Max}},
                 {"min0", {&Min::create_Min, &Min::eval_Min}},
                 {"min", {&Min::create_Min, &Min::eval_Min}},

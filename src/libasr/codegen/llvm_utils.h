@@ -944,12 +944,12 @@ namespace LCompilers {
             virtual
             void resolve_collision_for_read_with_bound_check(
                 llvm::Value* set, llvm::Value* el_hash, llvm::Value* el,
-                llvm::Module& module, ASR::ttype_t* el_asr_type) = 0;
+                llvm::Module& module, ASR::ttype_t* el_asr_type, bool throw_error) = 0;
 
             virtual
             void remove_item(
                 llvm::Value* set, llvm::Value* el,
-                llvm::Module& module, ASR::ttype_t* el_asr_type) = 0;
+                llvm::Module& module, ASR::ttype_t* el_asr_type, bool throw_error) = 0;
 
             virtual
             void set_deepcopy(
@@ -1015,11 +1015,11 @@ namespace LCompilers {
 
             void resolve_collision_for_read_with_bound_check(
                 llvm::Value* set, llvm::Value* el_hash, llvm::Value* el,
-                llvm::Module& module, ASR::ttype_t* el_asr_type);
+                llvm::Module& module, ASR::ttype_t* el_asr_type, bool throw_error);
 
             void remove_item(
                 llvm::Value* set, llvm::Value* el,
-                llvm::Module& module, ASR::ttype_t* el_asr_type);
+                llvm::Module& module, ASR::ttype_t* el_asr_type, bool throw_error);
 
             void set_deepcopy(
                 llvm::Value* src, llvm::Value* dest,
@@ -1096,11 +1096,11 @@ namespace LCompilers {
 
             void resolve_collision_for_read_with_bound_check(
                 llvm::Value* set, llvm::Value* el_hash, llvm::Value* el,
-                llvm::Module& module, ASR::ttype_t* el_asr_type);
+                llvm::Module& module, ASR::ttype_t* el_asr_type, bool throw_error);
 
             void remove_item(
                 llvm::Value* set, llvm::Value* el,
-                llvm::Module& module, ASR::ttype_t* el_asr_type);
+                llvm::Module& module, ASR::ttype_t* el_asr_type, bool throw_error);
 
             void set_deepcopy(
                 llvm::Value* src, llvm::Value* dest,
