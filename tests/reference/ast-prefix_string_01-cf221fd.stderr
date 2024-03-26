@@ -3,3 +3,7 @@ syntax error: Token '"Hello"' (of type 'string') is unexpected here
   |
 3 |     print "Hello", "World" 
   |           ^^^^^^^ 
+
+
+Note: Please report unclear or confusing messages as bugs at
+https://github.com/lcompilers/lpython/issues.

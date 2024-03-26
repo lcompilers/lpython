@@ -3,3 +3,7 @@ tokenizer error: Leading zeros in decimal integer are not allowed
   |
 2 |     x: i32 = 0123
   |              ^^^^ 
+
+
+Note: Please report unclear or confusing messages as bugs at
+https://github.com/lcompilers/lpython/issues.

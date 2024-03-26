@@ -3,3 +3,7 @@ semantic error: Type mismatch in loop start and loop end values, the types must 
   |
 5 |     for i in range(15, i16(-1), i16(-1)):
   |                    ^^  ^^^^^^^ type mismatch ('i32' and 'i16')
+
+
+Note: Please report unclear or confusing messages as bugs at
+https://github.com/lcompilers/lpython/issues.

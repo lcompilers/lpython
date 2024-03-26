@@ -3,3 +3,7 @@ semantic error: Argument to list.pop must be an integer
   |
 5 |     x = a.pop(2.2)
   |         ^^^^^^^^^^ 
+
+
+Note: Please report unclear or confusing messages as bugs at
+https://github.com/lcompilers/lpython/issues.

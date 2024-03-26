@@ -232,9 +232,9 @@
                                     update_1
                                     update_2]
                                     []
-                                    [(=
+                                    [(Assignment
                                         (Var 224 y)
-                                        (ArrayConstant
+                                        (ArrayConstructor
                                             []
                                             (Array
                                                 (Struct
@@ -244,11 +244,12 @@
                                                 (IntegerConstant 2 (Integer 4)))]
                                                 FixedSizeArray
                                             )
+                                            ()
                                             RowMajor
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (ArrayItem
                                             (Var 224 y)
                                             [(()
@@ -308,7 +309,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (ArrayItem
                                             (Var 224 y)
                                             [(()
@@ -510,7 +511,7 @@
                                     )
                                     []
                                     [(Var 222 s)]
-                                    [(=
+                                    [(Assignment
                                         (StructInstanceMember
                                             (Var 222 s)
                                             220 x
@@ -520,7 +521,7 @@
                                         (IntegerConstant 2 (Integer 4))
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (StructInstanceMember
                                             (Var 222 s)
                                             220 y
@@ -533,7 +534,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (StructInstanceMember
                                             (Var 222 s)
                                             220 z
@@ -548,7 +549,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (StructInstanceMember
                                             (Var 222 s)
                                             220 a
@@ -569,7 +570,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (StructInstanceMember
                                             (Var 222 s)
                                             220 b
@@ -584,7 +585,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (StructInstanceMember
                                             (Var 222 s)
                                             220 c
@@ -658,7 +659,7 @@
                                     )
                                     []
                                     [(Var 223 s)]
-                                    [(=
+                                    [(Assignment
                                         (StructInstanceMember
                                             (ArrayItem
                                                 (Var 223 s)
@@ -678,7 +679,7 @@
                                         (IntegerConstant 3 (Integer 4))
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (StructInstanceMember
                                             (ArrayItem
                                                 (Var 223 s)
@@ -701,7 +702,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (StructInstanceMember
                                             (ArrayItem
                                                 (Var 223 s)
@@ -726,7 +727,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (StructInstanceMember
                                             (ArrayItem
                                                 (Var 223 s)
@@ -757,7 +758,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (StructInstanceMember
                                             (ArrayItem
                                                 (Var 223 s)
@@ -782,7 +783,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (StructInstanceMember
                                             (ArrayItem
                                                 (Var 223 s)
@@ -990,7 +991,7 @@
                                     (Var 221 y1)
                                     (Var 221 x2)
                                     (Var 221 y2)]
-                                    [(=
+                                    [(Assignment
                                         (Var 221 eps)
                                         (RealConstant
                                             0.000000
@@ -998,7 +999,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 221 s0)
                                         (ArrayItem
                                             (Var 221 s)
@@ -1076,7 +1077,7 @@
                                     )
                                     (Assert
                                         (RealCompare
-                                            (IntrinsicScalarFunction
+                                            (IntrinsicElementalFunction
                                                 Abs
                                                 [(RealBinOp
                                                     (StructInstanceMember
@@ -1123,7 +1124,7 @@
                                     )
                                     (Assert
                                         (RealCompare
-                                            (IntrinsicScalarFunction
+                                            (IntrinsicElementalFunction
                                                 Abs
                                                 [(RealBinOp
                                                     (StructInstanceMember
@@ -1213,7 +1214,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 221 s1)
                                         (ArrayItem
                                             (Var 221 s)
@@ -1291,7 +1292,7 @@
                                     )
                                     (Assert
                                         (RealCompare
-                                            (IntrinsicScalarFunction
+                                            (IntrinsicElementalFunction
                                                 Abs
                                                 [(RealBinOp
                                                     (StructInstanceMember
@@ -1338,7 +1339,7 @@
                                     )
                                     (Assert
                                         (RealCompare
-                                            (IntrinsicScalarFunction
+                                            (IntrinsicElementalFunction
                                                 Abs
                                                 [(RealBinOp
                                                     (StructInstanceMember

@@ -8,3 +8,7 @@ semantic error: Type mismatch in procedure call; the types must be compatible
   |
 3 | def test(x: i32) -> i32:
   |             ^^^ type mismatch (passed argument type is f64 but required type is i32)
+
+
+Note: Please report unclear or confusing messages as bugs at
+https://github.com/lcompilers/lpython/issues.

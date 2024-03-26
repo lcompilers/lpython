@@ -3,3 +3,7 @@ semantic error: Cannot cast negative value to unsigned integer
   |
 3 | i: u16 = u16(-5)
   |          ^^^^^^^ 
+
+
+Note: Please report unclear or confusing messages as bugs at
+https://github.com/lcompilers/lpython/issues.

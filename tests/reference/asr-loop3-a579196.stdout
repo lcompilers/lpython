@@ -46,7 +46,7 @@
                                     )
                                     []
                                     []
-                                    [(=
+                                    [(Assignment
                                         (Var 3 a)
                                         (IntegerConstant 1 (Integer 4))
                                         ()

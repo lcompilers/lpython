@@ -3,3 +3,7 @@ semantic error: pop() takes no arguments (1 given)
   |
 5 |     i = s.pop(3)
   |         ^^^^^^^^ 
+
+
+Note: Please report unclear or confusing messages as bugs at
+https://github.com/lcompilers/lpython/issues.

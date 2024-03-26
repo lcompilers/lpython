@@ -3,3 +3,7 @@ semantic error: Type mismatch in shorthand operator, the types must be compatibl
   |
 8 |   a += b
   |   ^    ^ type mismatch ('list[i32]' and 'list[f64]')
+
+
+Note: Please report unclear or confusing messages as bugs at
+https://github.com/lcompilers/lpython/issues.

@@ -98,12 +98,12 @@
                                     )
                                     []
                                     []
-                                    [(=
+                                    [(Assignment
                                         (Var 3 i)
                                         (IntegerConstant 5 (Integer 4))
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 res)
                                         (IntegerBitNot
                                             (Var 3 i)
@@ -126,7 +126,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 i)
                                         (IntegerUnaryMinus
                                             (IntegerConstant 235346 (Integer 4))

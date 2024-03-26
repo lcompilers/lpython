@@ -3,3 +3,7 @@ semantic error: 'str' object does not support item assignment
   |
 4 |     s[0] = 'f'
   |     ^^^^ 
+
+
+Note: Please report unclear or confusing messages as bugs at
+https://github.com/lcompilers/lpython/issues.

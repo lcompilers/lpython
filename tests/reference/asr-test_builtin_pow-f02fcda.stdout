@@ -504,7 +504,7 @@
                                     )
                                     []
                                     []
-                                    [(=
+                                    [(Assignment
                                         (Var 3 eps)
                                         (RealConstant
                                             0.000000
@@ -512,12 +512,12 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 a)
                                         (IntegerConstant 2 (Integer 4))
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 b)
                                         (IntegerConstant 5 (Integer 4))
                                         ()
@@ -545,12 +545,12 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 a)
                                         (IntegerConstant 6 (Integer 4))
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 b)
                                         (IntegerConstant 3 (Integer 4))
                                         ()
@@ -578,12 +578,12 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 a)
                                         (IntegerConstant 2 (Integer 4))
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 b)
                                         (IntegerConstant 0 (Integer 4))
                                         ()
@@ -611,12 +611,12 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 a)
                                         (IntegerConstant 2 (Integer 4))
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 b)
                                         (IntegerUnaryMinus
                                             (IntegerConstant 1 (Integer 4))
@@ -625,12 +625,12 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 a)
                                         (IntegerConstant 6 (Integer 4))
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 b)
                                         (IntegerUnaryMinus
                                             (IntegerConstant 4 (Integer 4))
@@ -639,7 +639,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 i1)
                                         (Cast
                                             (IntegerConstant 2 (Integer 4))
@@ -649,7 +649,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 i2)
                                         (Cast
                                             (IntegerConstant 5 (Integer 4))
@@ -687,7 +687,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 i1)
                                         (Cast
                                             (IntegerConstant 6 (Integer 4))
@@ -697,7 +697,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 i2)
                                         (IntegerUnaryMinus
                                             (Cast
@@ -711,7 +711,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 f1)
                                         (Cast
                                             (RealBinOp
@@ -749,7 +749,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 f2)
                                         (Cast
                                             (RealConstant
@@ -765,7 +765,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 p)
                                         (FunctionCall
                                             3 pow@__lpython_overloaded_2__pow
@@ -778,7 +778,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 f1)
                                         (FunctionCall
                                             3 pow@__lpython_overloaded_4__pow
@@ -791,7 +791,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 f1)
                                         (FunctionCall
                                             3 pow@__lpython_overloaded_5__pow
@@ -804,7 +804,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 b1)
                                         (LogicalConstant
                                             .true.
@@ -812,7 +812,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 b2)
                                         (LogicalConstant
                                             .false.
@@ -901,7 +901,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 a1)
                                         (RealConstant
                                             4.500000
@@ -909,7 +909,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 a2)
                                         (RealConstant
                                             2.300000
@@ -919,7 +919,7 @@
                                     )
                                     (Assert
                                         (RealCompare
-                                            (IntrinsicScalarFunction
+                                            (IntrinsicElementalFunction
                                                 Abs
                                                 [(RealBinOp
                                                     (FunctionCall
@@ -952,7 +952,7 @@
                                     )
                                     (Assert
                                         (RealCompare
-                                            (IntrinsicScalarFunction
+                                            (IntrinsicElementalFunction
                                                 Abs
                                                 [(RealBinOp
                                                     (FunctionCall
@@ -983,12 +983,12 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 x)
                                         (IntegerConstant 3 (Integer 4))
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 y)
                                         (RealConstant
                                             2.300000
@@ -998,7 +998,7 @@
                                     )
                                     (Assert
                                         (RealCompare
-                                            (IntrinsicScalarFunction
+                                            (IntrinsicElementalFunction
                                                 Abs
                                                 [(RealBinOp
                                                     (FunctionCall
@@ -1031,7 +1031,7 @@
                                     )
                                     (Assert
                                         (RealCompare
-                                            (IntrinsicScalarFunction
+                                            (IntrinsicElementalFunction
                                                 Abs
                                                 [(RealBinOp
                                                     (FunctionCall
@@ -1064,7 +1064,7 @@
                                     )
                                     (Assert
                                         (RealCompare
-                                            (IntrinsicScalarFunction
+                                            (IntrinsicElementalFunction
                                                 Abs
                                                 [(RealBinOp
                                                     (FunctionCall
@@ -1100,7 +1100,7 @@
                                     )
                                     (Assert
                                         (RealCompare
-                                            (IntrinsicScalarFunction
+                                            (IntrinsicElementalFunction
                                                 Abs
                                                 [(RealBinOp
                                                     (FunctionCall
@@ -1156,7 +1156,7 @@
                                     )
                                     (Assert
                                         (RealCompare
-                                            (IntrinsicScalarFunction
+                                            (IntrinsicElementalFunction
                                                 Abs
                                                 [(RealBinOp
                                                     (FunctionCall
@@ -1212,7 +1212,7 @@
                                     )
                                     (Assert
                                         (RealCompare
-                                            (IntrinsicScalarFunction
+                                            (IntrinsicElementalFunction
                                                 Abs
                                                 [(RealBinOp
                                                     (FunctionCall
@@ -1272,7 +1272,7 @@
                                     )
                                     (Assert
                                         (RealCompare
-                                            (IntrinsicScalarFunction
+                                            (IntrinsicElementalFunction
                                                 Abs
                                                 [(RealBinOp
                                                     (FunctionCall
@@ -1328,7 +1328,7 @@
                                     )
                                     (Assert
                                         (RealCompare
-                                            (IntrinsicScalarFunction
+                                            (IntrinsicElementalFunction
                                                 Abs
                                                 [(RealBinOp
                                                     (FunctionCall
@@ -1376,7 +1376,7 @@
                                     )
                                     (Assert
                                         (RealCompare
-                                            (IntrinsicScalarFunction
+                                            (IntrinsicElementalFunction
                                                 Abs
                                                 [(RealBinOp
                                                     (FunctionCall
@@ -1424,7 +1424,7 @@
                                     )
                                     (Assert
                                         (RealCompare
-                                            (IntrinsicScalarFunction
+                                            (IntrinsicElementalFunction
                                                 Abs
                                                 [(RealBinOp
                                                     (FunctionCall
@@ -1479,7 +1479,7 @@
                                     )
                                     (Assert
                                         (RealCompare
-                                            (IntrinsicScalarFunction
+                                            (IntrinsicElementalFunction
                                                 Abs
                                                 [(RealBinOp
                                                     (FunctionCall
@@ -1524,7 +1524,7 @@
                                     )
                                     (Assert
                                         (RealCompare
-                                            (IntrinsicScalarFunction
+                                            (IntrinsicElementalFunction
                                                 Abs
                                                 [(RealBinOp
                                                     (FunctionCall
@@ -1576,7 +1576,7 @@
                                     )
                                     (Assert
                                         (RealCompare
-                                            (IntrinsicScalarFunction
+                                            (IntrinsicElementalFunction
                                                 Abs
                                                 [(RealBinOp
                                                     (FunctionCall
@@ -1621,7 +1621,7 @@
                                     )
                                     (Assert
                                         (RealCompare
-                                            (IntrinsicScalarFunction
+                                            (IntrinsicElementalFunction
                                                 Abs
                                                 [(RealBinOp
                                                     (FunctionCall
@@ -1695,7 +1695,7 @@
                                     )
                                     (Assert
                                         (RealCompare
-                                            (IntrinsicScalarFunction
+                                            (IntrinsicElementalFunction
                                                 Abs
                                                 [(RealBinOp
                                                     (FunctionCall
@@ -1745,7 +1745,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 i)
                                         (Cast
                                             (IntegerConstant 7 (Integer 4))
@@ -1755,7 +1755,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 j)
                                         (Cast
                                             (IntegerConstant 2 (Integer 4))
@@ -1765,7 +1765,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 k)
                                         (Cast
                                             (IntegerConstant 5 (Integer 4))
@@ -1824,7 +1824,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 c1)
                                         (Cast
                                             (FunctionCall
@@ -1850,7 +1850,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 c1)
                                         (FunctionCall
                                             3 pow@__lpython_overloaded_9__pow

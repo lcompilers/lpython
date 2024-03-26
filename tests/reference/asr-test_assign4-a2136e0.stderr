@@ -3,3 +3,7 @@ semantic error: Assigning integer to float is not supported
   |
 7 |     f = x
   |         ^ 
+
+
+Note: Please report unclear or confusing messages as bugs at
+https://github.com/lcompilers/lpython/issues.

@@ -3,3 +3,7 @@ semantic error: Type mismatch: 'str' and 'i32'. Both operands must be of the sam
   |
 2 |     print("hello" or 10)
   |           ^^^^^^^^^^^^^ 
+
+
+Note: Please report unclear or confusing messages as bugs at
+https://github.com/lcompilers/lpython/issues.

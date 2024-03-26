@@ -165,9 +165,9 @@
                                     [(Var 226 n)
                                     (Var 226 a)
                                     (Var 226 b)]
-                                    [(=
+                                    [(Assignment
                                         (Var 226 r)
-                                        (ArrayConstant
+                                        (ArrayConstructor
                                             []
                                             (Array
                                                 (Integer 4)
@@ -175,6 +175,7 @@
                                                 (Var 226 n))]
                                                 PointerToDataArray
                                             )
+                                            ()
                                             RowMajor
                                         )
                                         ()
@@ -191,7 +192,7 @@
                                             ()
                                         )
                                         (IntegerConstant 1 (Integer 4)))
-                                        [(=
+                                        [(Assignment
                                             (ArrayItem
                                                 (Var 226 r)
                                                 [(()
@@ -389,9 +390,9 @@
                                     [(Var 227 n)
                                     (Var 227 a)
                                     (Var 227 b)]
-                                    [(=
+                                    [(Assignment
                                         (Var 227 r)
-                                        (ArrayConstant
+                                        (ArrayConstructor
                                             []
                                             (Array
                                                 (Real 4)
@@ -399,6 +400,7 @@
                                                 (Var 227 n))]
                                                 PointerToDataArray
                                             )
+                                            ()
                                             RowMajor
                                         )
                                         ()
@@ -415,7 +417,7 @@
                                             ()
                                         )
                                         (IntegerConstant 1 (Integer 4)))
-                                        [(=
+                                        [(Assignment
                                             (ArrayItem
                                                 (Var 227 r)
                                                 [(()
@@ -674,7 +676,7 @@
                                     []
                                     [(Var 222 x)
                                     (Var 222 y)]
-                                    [(=
+                                    [(Assignment
                                         (Var 222 _lpython_return_variable)
                                         (RealBinOp
                                             (Var 222 x)
@@ -765,7 +767,7 @@
                                     []
                                     [(Var 221 x)
                                     (Var 221 y)]
-                                    [(=
+                                    [(Assignment
                                         (Var 221 _lpython_return_variable)
                                         (IntegerBinOp
                                             (Var 221 x)
@@ -933,9 +935,9 @@
                                     [(Var 223 n)
                                     (Var 223 a)
                                     (Var 223 b)]
-                                    [(=
+                                    [(Assignment
                                         (Var 223 r)
-                                        (ArrayConstant
+                                        (ArrayConstructor
                                             []
                                             (Array
                                                 (TypeParameter
@@ -945,6 +947,7 @@
                                                 (Var 223 n))]
                                                 PointerToDataArray
                                             )
+                                            ()
                                             RowMajor
                                         )
                                         ()
@@ -961,7 +964,7 @@
                                             ()
                                         )
                                         (IntegerConstant 1 (Integer 4)))
-                                        [(=
+                                        [(Assignment
                                             (ArrayItem
                                                 (Var 223 r)
                                                 [(()
@@ -1137,9 +1140,9 @@
                                     [__asr_generic_g_0
                                     __asr_generic_g_1]
                                     []
-                                    [(=
+                                    [(Assignment
                                         (Var 224 a_int)
-                                        (ArrayConstant
+                                        (ArrayConstructor
                                             []
                                             (Array
                                                 (Integer 4)
@@ -1147,11 +1150,12 @@
                                                 (IntegerConstant 1 (Integer 4)))]
                                                 FixedSizeArray
                                             )
+                                            ()
                                             RowMajor
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (ArrayItem
                                             (Var 224 a_int)
                                             [(()
@@ -1164,9 +1168,9 @@
                                         (IntegerConstant 400 (Integer 4))
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 224 b_int)
-                                        (ArrayConstant
+                                        (ArrayConstructor
                                             []
                                             (Array
                                                 (Integer 4)
@@ -1174,11 +1178,12 @@
                                                 (IntegerConstant 1 (Integer 4)))]
                                                 FixedSizeArray
                                             )
+                                            ()
                                             RowMajor
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (ArrayItem
                                             (Var 224 b_int)
                                             [(()
@@ -1221,9 +1226,9 @@
                                         ))]
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 224 a_float)
-                                        (ArrayConstant
+                                        (ArrayConstructor
                                             []
                                             (Array
                                                 (Real 4)
@@ -1231,11 +1236,12 @@
                                                 (IntegerConstant 1 (Integer 4)))]
                                                 FixedSizeArray
                                             )
+                                            ()
                                             RowMajor
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (ArrayItem
                                             (Var 224 a_float)
                                             [(()
@@ -1259,9 +1265,9 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 224 b_float)
-                                        (ArrayConstant
+                                        (ArrayConstructor
                                             []
                                             (Array
                                                 (Real 4)
@@ -1269,11 +1275,12 @@
                                                 (IntegerConstant 1 (Integer 4)))]
                                                 FixedSizeArray
                                             )
+                                            ()
                                             RowMajor
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (ArrayItem
                                             (Var 224 b_float)
                                             [(()

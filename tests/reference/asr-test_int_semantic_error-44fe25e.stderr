@@ -3,3 +3,7 @@ semantic error: int type is not supported yet.
   |
 4 |     x: int = 1
   |        ^^^ Hint: Use i8, i16, i32 or i64 for now. 
+
+
+Note: Please report unclear or confusing messages as bugs at
+https://github.com/lcompilers/lpython/issues.
