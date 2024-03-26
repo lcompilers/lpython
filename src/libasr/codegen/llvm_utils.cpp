@@ -6200,9 +6200,10 @@ namespace LCompilers {
                 llvm_utils->list_api->read_item(el_list, el_hash, false, module,
                     LLVM::is_llvm_struct(el_asr_type)), module, el_asr_type);
 
-            llvm_utils->create_if_else(is_el_matching, [=]() {
+            if (throw_error) {
+                llvm_utils->create_if_else(is_el_matching, [=]() {
                 LLVM::CreateStore(*builder, el_hash, pos_ptr);
-            }, [&]() {
+                }, [&]() {
                 std::string message = "The set does not contain the specified element";
                 llvm::Value *fmt_ptr = builder->CreateGlobalStringPtr("KeyError: %s\n");
                 llvm::Value *fmt_ptr2 = builder->CreateGlobalStringPtr(message);
@@ -6211,7 +6212,8 @@ namespace LCompilers {
                 llvm::Value *exit_code = llvm::ConstantInt::get(context,
                         llvm::APInt(32, exit_code_int));
                 exit(context, module, *builder, exit_code);
-            });
+                });
+            }
         }
         builder->CreateBr(mergeBB);
         llvm_utils->start_new_block(elseBB);
