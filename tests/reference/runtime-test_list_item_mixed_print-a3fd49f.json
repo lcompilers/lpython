@@ -1,0 +1,13 @@
+{
+    "basename": "runtime-test_list_item_mixed_print-a3fd49f",
+    "cmd": "lpython {infile}",
+    "infile": "tests/../integration_tests/test_list_item_mixed_print.py",
+    "infile_hash": "14ce4950ca0ff6c6f610df787ad8d260148866f4c7062ab0b856ec5a",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "runtime-test_list_item_mixed_print-a3fd49f.stdout",
+    "stdout_hash": "cffcdb43864ef4e234dec5a10923f9077b7c6d1f4d9c37df1882f375",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}

@@ -211,6 +211,7 @@
                                             )
                                             ()
                                         )]
+                                        []
                                     )
                                     (=
                                         (Var 17 _lpython_return_variable)
@@ -418,6 +419,7 @@
                                             )
                                             ()
                                         )]
+                                        []
                                     )
                                     (=
                                         (Var 18 _lpython_return_variable)
@@ -625,6 +627,7 @@
                                             )
                                             ()
                                         )]
+                                        []
                                     )
                                     (=
                                         (Var 19 _lpython_return_variable)
@@ -1893,6 +1896,7 @@
                                             )
                                             ()
                                         )]
+                                        []
                                     )
                                     (=
                                         (Var 15 _lpython_return_variable)

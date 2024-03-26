@@ -842,6 +842,8 @@ public:
                         x.base.base.loc, list_item->m_a, list_item->m_pos,
                         ASRUtils::TYPE(ASR::make_CPtr_t(al, x.base.base.loc)), nullptr));
                     print_tmp.push_back(basic_str(x.base.base.loc, value));
+                } else {
+                    print_tmp.push_back(val);
                 }
             } else {
                 print_tmp.push_back(x.m_values[i]);

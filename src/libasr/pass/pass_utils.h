@@ -604,7 +604,7 @@ namespace LCompilers {
                 }
             }
             ASR::stmt_t* doloop = ASRUtils::STMT(ASR::make_DoLoop_t(al, arr_var->base.loc,
-                                                                    nullptr, head, doloop_body.p, doloop_body.size()));
+                                                                    nullptr, head, doloop_body.p, doloop_body.size(), nullptr, 0));
             result_vec->push_back(al, doloop);
         }
 
@@ -633,7 +633,7 @@ namespace LCompilers {
                     doloop_body.push_back(al, doloop);
                 }
                 doloop = ASRUtils::STMT(ASR::make_DoLoop_t(al, loc, nullptr, head,
-                            doloop_body.p, doloop_body.size()));
+                            doloop_body.p, doloop_body.size(), nullptr, 0));
             }
             result_vec->push_back(al, doloop);
         }
@@ -666,7 +666,7 @@ namespace LCompilers {
                     doloop_body.push_back(al, doloop);
                 }
                 doloop = ASRUtils::STMT(ASR::make_DoLoop_t(al, loc, nullptr, head,
-                            doloop_body.p, doloop_body.size()));
+                            doloop_body.p, doloop_body.size(), nullptr, 0));
             }
             result_vec->push_back(al, doloop);
         }

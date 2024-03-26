@@ -8,6 +8,7 @@ passes = [
         "replace_flip_sign",
         "replace_fma",
         "replace_for_all",
+        "while_else",
         "wrap_global_stmts",
         "replace_implied_do_loops",
         "replace_init_expr",
