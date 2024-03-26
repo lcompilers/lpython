@@ -6201,7 +6201,7 @@ namespace LCompilers {
                     LLVM::is_llvm_struct(el_asr_type)), module, el_asr_type);
 
             llvm_utils->create_if_else(is_el_matching, [=]() {
-            LLVM::CreateStore(*builder, el_hash, pos_ptr);
+                LLVM::CreateStore(*builder, el_hash, pos_ptr);
             }, [&]() {
                 if (throw_error) {
                     std::string message = "The set does not contain the specified element";
@@ -6228,18 +6228,18 @@ namespace LCompilers {
                 llvm_utils->list_api->read_item(el_list, pos, false, module,
                     LLVM::is_llvm_struct(el_asr_type)), module, el_asr_type);
 
-            llvm_utils->create_if_else(is_el_matching, []() {}, [&]() {
-                if (throw_error) {
-                    std::string message = "The set does not contain the specified element";
-                    llvm::Value *fmt_ptr = builder->CreateGlobalStringPtr("KeyError: %s\n");
-                    llvm::Value *fmt_ptr2 = builder->CreateGlobalStringPtr(message);
-                    print_error(context, module, *builder, {fmt_ptr, fmt_ptr2});
-                    int exit_code_int = 1;
-                    llvm::Value *exit_code = llvm::ConstantInt::get(context,
-                            llvm::APInt(32, exit_code_int));
-                    exit(context, module, *builder, exit_code);
-                }
-            });
+        llvm_utils->create_if_else(is_el_matching, []() {}, [&]() {
+            if (throw_error) {
+                std::string message = "The set does not contain the specified element";
+                llvm::Value *fmt_ptr = builder->CreateGlobalStringPtr("KeyError: %s\n");
+                llvm::Value *fmt_ptr2 = builder->CreateGlobalStringPtr(message);
+                print_error(context, module, *builder, {fmt_ptr, fmt_ptr2});
+                int exit_code_int = 1;
+                llvm::Value *exit_code = llvm::ConstantInt::get(context,
+                        llvm::APInt(32, exit_code_int));
+                exit(context, module, *builder, exit_code);
+            }
+        });
     }
 
     void LLVMSetSeparateChaining::resolve_collision_for_read_with_bound_check(
