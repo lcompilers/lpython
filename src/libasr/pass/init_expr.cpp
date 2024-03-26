@@ -52,6 +52,23 @@ class ReplaceInitExpr: public ASR::BaseExprReplacer<ReplaceInitExpr> {
         *current_expr = nullptr;
     }
 
+    void replace_ArrayConstructor(ASR::ArrayConstructor_t* x) {
+        if( symtab2decls.find(current_scope) == symtab2decls.end() ) {
+            Vec<ASR::stmt_t*> result_vec_;
+            result_vec_.reserve(al, 0);
+            symtab2decls[current_scope] = result_vec_;
+        }
+        Vec<ASR::stmt_t*>* result_vec = &symtab2decls[current_scope];
+        bool remove_original_statement = false;
+        if( casted_type != nullptr ) {
+            casted_type = ASRUtils::type_get_past_array(casted_type);
+        }
+        PassUtils::ReplacerUtils::replace_ArrayConstructor(x, this,
+            remove_original_statement, result_vec,
+            perform_cast, cast_kind, casted_type);
+        *current_expr = nullptr;
+    }
+
     void replace_StructTypeConstructor(ASR::StructTypeConstructor_t* x) {
         if( symtab2decls.find(current_scope) == symtab2decls.end() ) {
             Vec<ASR::stmt_t*> result_vec_;
@@ -165,9 +182,11 @@ class InitExprVisitor : public ASR::CallReplacerOnExpressionsVisitor<InitExprVis
             }
             if( !(symbolic_value &&
                   (ASR::is_a<ASR::ArrayConstant_t>(*symbolic_value) ||
-                   ASR::is_a<ASR::StructTypeConstructor_t>(*symbolic_value))) ||
+                   ASR::is_a<ASR::StructTypeConstructor_t>(*symbolic_value) ||
+                   ASR::is_a<ASR::ArrayConstructor_t>(*symbolic_value))) ||
                  (ASR::is_a<ASR::Module_t>(*asr_owner) &&
-                  ASR::is_a<ASR::ArrayConstant_t>(*symbolic_value))) {
+                  (ASR::is_a<ASR::ArrayConstant_t>(*symbolic_value) ||
+                  ASR::is_a<ASR::ArrayConstructor_t>(*symbolic_value)))) {
                 return ;
             }
 

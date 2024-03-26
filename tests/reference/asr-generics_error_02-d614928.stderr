@@ -3,3 +3,7 @@ semantic error: No applicable argument to the restriction zero
    |
 37 | print(mean(["a","b","c"], add=add_string, div=div_string))
    |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
+
+
+Note: Please report unclear or confusing messages as bugs at
+https://github.com/lcompilers/lpython/issues.

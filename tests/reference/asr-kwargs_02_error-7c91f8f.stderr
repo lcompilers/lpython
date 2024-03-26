@@ -3,3 +3,7 @@ semantic error: func02() got multiple values for argument 'b'
    |
 13 |     func02(arg3, arg4, c=arg5, b=arg4)
    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
+
+
+Note: Please report unclear or confusing messages as bugs at
+https://github.com/lcompilers/lpython/issues.

@@ -46,14 +46,15 @@ class ReplaceArrayConstant: public ASR::BaseExprReplacer<ReplaceArrayConstant> {
         ASR::expr_t* end = implied_doloop->m_end;
         ASR::expr_t* d = implied_doloop->m_increment;
         ASR::expr_t* implied_doloop_size = nullptr;
+        int kind = ASRUtils::extract_kind_from_ttype_t(ASRUtils::expr_type(end));
         if( d == nullptr ) {
             implied_doloop_size = builder.ElementalAdd(
                 builder.ElementalSub(end, start, loc),
-                make_ConstantWithKind(make_IntegerConstant_t, make_Integer_t, 1, 4, loc), loc);
+                make_ConstantWithKind(make_IntegerConstant_t, make_Integer_t, 1, kind, loc), loc);
         } else {
             implied_doloop_size = builder.ElementalAdd(builder.ElementalDiv(
                 builder.ElementalSub(end, start, loc), d, loc),
-                make_ConstantWithKind(make_IntegerConstant_t, make_Integer_t, 1, 4, loc), loc);
+                make_ConstantWithKind(make_IntegerConstant_t, make_Integer_t, 1, kind, loc), loc);
         }
         int const_elements = 0;
         ASR::expr_t* implied_doloop_size_ = nullptr;
@@ -74,11 +75,11 @@ class ReplaceArrayConstant: public ASR::BaseExprReplacer<ReplaceArrayConstant> {
         if( const_elements > 1 ) {
             if( implied_doloop_size_ == nullptr ) {
                 implied_doloop_size_ = make_ConstantWithKind(make_IntegerConstant_t,
-                    make_Integer_t, const_elements, 4, loc);
+                    make_Integer_t, const_elements, kind, loc);
             } else {
                 implied_doloop_size_ = builder.ElementalAdd(
                     make_ConstantWithKind(make_IntegerConstant_t,
-                        make_Integer_t, const_elements, 4, loc),
+                        make_Integer_t, const_elements, kind, loc),
                     implied_doloop_size_, loc);
             }
         }
@@ -89,19 +90,10 @@ class ReplaceArrayConstant: public ASR::BaseExprReplacer<ReplaceArrayConstant> {
     }
 
     size_t get_constant_ArrayConstant_size(ASR::ArrayConstant_t* x) {
-        size_t size = 0;
-        for( size_t i = 0; i < x->n_args; i++ ) {
-            if( ASR::is_a<ASR::ArrayConstant_t>(*x->m_args[i]) ) {
-                size += get_constant_ArrayConstant_size(
-                    ASR::down_cast<ASR::ArrayConstant_t>(x->m_args[i]));
-            } else {
-                size += 1;
-            }
-        }
-        return size;
+        return x->n_args;
     }
 
-    ASR::expr_t* get_ArrayConstant_size(ASR::ArrayConstant_t* x, bool& is_allocatable) {
+    ASR::expr_t* get_ArrayConstructor_size(ASR::ArrayConstructor_t* x, bool& is_allocatable) {
         ASR::ttype_t* int_type = ASRUtils::TYPE(ASR::make_Integer_t(al, x->base.base.loc, 4));
         ASR::expr_t* array_size = nullptr;
         int64_t constant_size = 0;
@@ -115,13 +107,22 @@ class ReplaceArrayConstant: public ASR::BaseExprReplacer<ReplaceArrayConstant> {
                         ASR::down_cast<ASR::ArrayConstant_t>(element));
                 } else {
                     ASR::expr_t* element_array_size = get_ArrayConstant_size(
-                        ASR::down_cast<ASR::ArrayConstant_t>(element), is_allocatable);
+                        ASR::down_cast<ASR::ArrayConstant_t>(element));
                     if( array_size == nullptr ) {
                         array_size = element_array_size;
                     } else {
                         array_size = builder.ElementalAdd(array_size,
                                         element_array_size, x->base.base.loc);
                     }
+                }
+            } else if( ASR::is_a<ASR::ArrayConstructor_t>(*element) ) {
+                ASR::expr_t* element_array_size = get_ArrayConstructor_size(
+                    ASR::down_cast<ASR::ArrayConstructor_t>(element), is_allocatable);
+                if( array_size == nullptr ) {
+                    array_size = element_array_size;
+                } else {
+                    array_size = builder.ElementalAdd(array_size,
+                                    element_array_size, x->base.base.loc);
                 }
             } else if( ASR::is_a<ASR::Var_t>(*element) ) {
                 ASR::ttype_t* element_type = ASRUtils::type_get_past_allocatable(
@@ -201,6 +202,98 @@ class ReplaceArrayConstant: public ASR::BaseExprReplacer<ReplaceArrayConstant> {
         return array_size;
     }
 
+    ASR::expr_t* get_ArrayConstant_size(ASR::ArrayConstant_t* x) {
+        ASR::ttype_t* int_type = ASRUtils::TYPE(ASR::make_Integer_t(al, x->base.base.loc, 4));
+        return make_ConstantWithType(make_IntegerConstant_t,
+                ASRUtils::get_fixed_size_of_array(x->m_type), int_type, x->base.base.loc);
+    }
+
+   void replace_ArrayConstructor(ASR::ArrayConstructor_t* x) {
+        const Location& loc = x->base.base.loc;
+        ASR::expr_t* result_var_copy = result_var;
+        bool is_result_var_fixed_size = false;
+        if (result_var != nullptr &&
+            resultvar2value.find(result_var) != resultvar2value.end() &&
+            resultvar2value[result_var] == &(x->base)) {
+            is_result_var_fixed_size = ASRUtils::is_fixed_size_array(ASRUtils::expr_type(result_var));
+        }
+        ASR::ttype_t* result_type_ = nullptr;
+        bool is_allocatable = false;
+        ASR::expr_t* array_constructor = get_ArrayConstructor_size(x, is_allocatable);
+        Vec<ASR::dimension_t> dims;
+        dims.reserve(al, 1);
+        ASR::dimension_t dim;
+        dim.loc = loc;
+        dim.m_start = ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, loc, 1,
+                        ASRUtils::type_get_past_pointer(
+                            ASRUtils::type_get_past_allocatable(
+                                ASRUtils::expr_type(array_constructor)))));
+        dim.m_length = array_constructor;
+        dims.push_back(al, dim);
+        remove_original_statement = false;
+        if( is_result_var_fixed_size ) {
+            result_type_ = ASRUtils::expr_type(result_var);
+            is_allocatable = false;
+        } else {
+            if( is_allocatable ) {
+                result_type_ = ASRUtils::TYPE(ASR::make_Allocatable_t(al, x->m_type->base.loc,
+                    ASRUtils::type_get_past_allocatable(
+                        ASRUtils::duplicate_type_with_empty_dims(al, x->m_type))));
+            } else {
+                result_type_ = ASRUtils::duplicate_type(al,
+                    ASRUtils::type_get_past_allocatable(x->m_type), &dims);
+            }
+        }
+        result_var = PassUtils::create_var(result_counter, "_array_constructor_",
+                        loc, result_type_, al, current_scope);
+        result_counter += 1;
+        *current_expr = result_var;
+
+        Vec<ASR::alloc_arg_t> alloc_args;
+        alloc_args.reserve(al, 1);
+        ASR::alloc_arg_t arg;
+        arg.m_len_expr = nullptr;
+        arg.m_type = nullptr;
+        arg.m_dims = dims.p;
+        arg.n_dims = dims.size();
+        if( is_allocatable ) {
+            arg.loc = result_var->base.loc;
+            arg.m_a = result_var;
+            alloc_args.push_back(al, arg);
+            Vec<ASR::expr_t*> to_be_deallocated;
+            to_be_deallocated.reserve(al, alloc_args.size());
+            for( size_t i = 0; i < alloc_args.size(); i++ ) {
+                to_be_deallocated.push_back(al, alloc_args.p[i].m_a);
+            }
+            pass_result.push_back(al, ASRUtils::STMT(ASR::make_ExplicitDeallocate_t(
+                al, loc, to_be_deallocated.p, to_be_deallocated.size())));
+            ASR::stmt_t* allocate_stmt = ASRUtils::STMT(ASR::make_Allocate_t(
+                al, loc, alloc_args.p, alloc_args.size(), nullptr, nullptr, nullptr));
+            pass_result.push_back(al, allocate_stmt);
+        }
+        if ( allocate_target && realloc_lhs ) {
+            allocate_target = false;
+            arg.loc = result_var_copy->base.loc;
+            arg.m_a = result_var_copy;
+            alloc_args.push_back(al, arg);
+            Vec<ASR::expr_t*> to_be_deallocated;
+            to_be_deallocated.reserve(al, alloc_args.size());
+            for( size_t i = 0; i < alloc_args.size(); i++ ) {
+                to_be_deallocated.push_back(al, alloc_args.p[i].m_a);
+            }
+            pass_result.push_back(al, ASRUtils::STMT(ASR::make_ExplicitDeallocate_t(
+                al, loc, to_be_deallocated.p, to_be_deallocated.size())));
+            ASR::stmt_t* allocate_stmt = ASRUtils::STMT(ASR::make_Allocate_t(
+                al, loc, alloc_args.p, alloc_args.size(), nullptr, nullptr, nullptr));
+            pass_result.push_back(al, allocate_stmt);
+        }
+        LCOMPILERS_ASSERT(result_var != nullptr);
+        Vec<ASR::stmt_t*>* result_vec = &pass_result;
+        PassUtils::ReplacerUtils::replace_ArrayConstructor(x, this,
+            remove_original_statement, result_vec);
+        result_var = result_var_copy;
+    }
+
     void replace_ArrayConstant(ASR::ArrayConstant_t* x) {
         const Location& loc = x->base.base.loc;
         ASR::expr_t* result_var_copy = result_var;
@@ -212,7 +305,7 @@ class ReplaceArrayConstant: public ASR::BaseExprReplacer<ReplaceArrayConstant> {
         }
         ASR::ttype_t* result_type_ = nullptr;
         bool is_allocatable = false;
-        ASR::expr_t* array_constant_size = get_ArrayConstant_size(x, is_allocatable);
+        ASR::expr_t* array_constant_size = get_ArrayConstant_size(x);
         Vec<ASR::dimension_t> dims;
         dims.reserve(al, 1);
         ASR::dimension_t dim;
@@ -427,7 +520,7 @@ class ArrayConstantVisitor : public ASR::CallReplacerOnExpressionsVisitor<ArrayC
             dim.push_back(al, d);
 
             ASR::ttype_t* array_type = ASRUtils::TYPE(ASR::make_Array_t(al, value->base.loc, ASRUtils::expr_type(value), dim.p, dim.size(), ASR::array_physical_typeType::FixedSizeArray));
-            ASR::asr_t* array_constant = ASR::make_ArrayConstant_t(al, value->base.loc,
+            ASR::asr_t* array_constant = ASRUtils::make_ArrayConstructor_t_util(al, value->base.loc,
                                         args.p, args.n, array_type, ASR::arraystorageType::ColMajor);
             return array_constant;
         }
@@ -508,7 +601,21 @@ class ArrayConstantVisitor : public ASR::CallReplacerOnExpressionsVisitor<ArrayC
             }
         }
 
+        void visit_FileRead(const ASR::FileRead_t &x) {
+            if (x.m_overloaded) {
+                this->visit_stmt(*x.m_overloaded);
+                remove_original_statement = false;
+                return;
+            }
+        }
+
         void visit_FileWrite(const ASR::FileWrite_t &x) {
+            if (x.m_overloaded) {
+                this->visit_stmt(*x.m_overloaded);
+                remove_original_statement = false;
+                return;
+            }
+
             /*
                 integer :: i
                 write(*,*) (i, i=1, 10)

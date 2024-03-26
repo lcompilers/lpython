@@ -304,7 +304,7 @@ void get_calls_to_global_init_and_stmts(Allocator &al, const Location &loc, Symb
             ASR::accessType::Public));
         scope->add_symbol(g_func_name, es);
         tmp_vec.push_back(ASRUtils::make_SubroutineCall_t_util(al, loc,
-            es, g_func, nullptr, 0, nullptr, nullptr, false));
+            es, g_func, nullptr, 0, nullptr, nullptr, false, false));
     }
 
     g_func_name = mod_name + "global_stmts";
@@ -317,7 +317,7 @@ void get_calls_to_global_init_and_stmts(Allocator &al, const Location &loc, Symb
             ASR::accessType::Public));
         scope->add_symbol(g_func_name, es);
         tmp_vec.push_back(ASRUtils::make_SubroutineCall_t_util(al, loc,
-            es, g_func, nullptr, 0, nullptr, nullptr, false));
+            es, g_func, nullptr, 0, nullptr, nullptr, false, false));
     }
 }
 
@@ -1038,6 +1038,7 @@ public:
 
     ASR::asr_t* make_dummy_assignment(ASR::expr_t* expr) {
         ASR::ttype_t* type = ASRUtils::expr_type(expr);
+        LCOMPILERS_ASSERT(type != nullptr);
         std::string dummy_ret_name = current_scope->get_unique_name("__lcompilers_dummy", false);
         SetChar variable_dependencies_vec;
         variable_dependencies_vec.reserve(al, 1);
@@ -1233,7 +1234,7 @@ public:
                 }
 
                 return ASRUtils::make_SubroutineCall_t_util(al, loc, stemp,
-                    s_generic, args_new.p, args_new.size(), nullptr, nullptr, false);
+                    s_generic, args_new.p, args_new.size(), nullptr, nullptr, false, false);
             }
         } else if(ASR::is_a<ASR::StructType_t>(*s)) {
             ASR::StructType_t* StructType = ASR::down_cast<ASR::StructType_t>(s);
@@ -1903,8 +1904,8 @@ public:
         // See integration_tests/test_bool_binop.py for its significance.
         if(!is_assign && ASRUtils::is_logical(*left_type) && ASRUtils::is_logical(*right_type) ) {
             ASR::ttype_t* dest_type = ASRUtils::TYPE(ASR::make_Integer_t(al, left_type->base.loc, 4));
-            left = CastingUtil::perform_casting(left, left_type, dest_type, al, left->base.loc);
-            right = CastingUtil::perform_casting(right, right_type, dest_type, al, right->base.loc);
+            left = CastingUtil::perform_casting(left, dest_type, al, left->base.loc);
+            right = CastingUtil::perform_casting(right, dest_type, al, right->base.loc);
             return ;
         }
 
@@ -1915,8 +1916,7 @@ public:
         if( casted_expression_signal == 2 ) {
             return ;
         }
-        src_expr = CastingUtil::perform_casting(src_expr, src_type,
-                                                dest_type, al, src_expr->base.loc);
+        src_expr = CastingUtil::perform_casting(src_expr, dest_type, al, src_expr->base.loc);
         if( casted_expression_signal == 0 ) {
             left = src_expr;
             right = dest_expr;
@@ -1938,8 +1938,7 @@ public:
         if( ASRUtils::check_equal_type(src_type, dest_type) ) {
             return ;
         }
-        src_expr = CastingUtil::perform_casting(src_expr, src_type,
-                                                dest_type, al, loc);
+        src_expr = CastingUtil::perform_casting(src_expr, dest_type, al, loc);
     }
 
     void make_BinOp_helper(ASR::expr_t *left, ASR::expr_t *right,
@@ -2186,23 +2185,23 @@ public:
             ASRUtils::create_intrinsic_function create_function;
             switch (op) {
                 case (ASR::binopType::Add): {
-                    create_function = ASRUtils::IntrinsicScalarFunctionRegistry::get_create_function("SymbolicAdd");
+                    create_function = ASRUtils::IntrinsicElementalFunctionRegistry::get_create_function("SymbolicAdd");
                     break;
                 }
                 case (ASR::binopType::Sub): {
-                    create_function = ASRUtils::IntrinsicScalarFunctionRegistry::get_create_function("SymbolicSub");
+                    create_function = ASRUtils::IntrinsicElementalFunctionRegistry::get_create_function("SymbolicSub");
                     break;
                 }
                 case (ASR::binopType::Mul): {
-                    create_function = ASRUtils::IntrinsicScalarFunctionRegistry::get_create_function("SymbolicMul");
+                    create_function = ASRUtils::IntrinsicElementalFunctionRegistry::get_create_function("SymbolicMul");
                     break;
                 }
                 case (ASR::binopType::Div): {
-                    create_function = ASRUtils::IntrinsicScalarFunctionRegistry::get_create_function("SymbolicDiv");
+                    create_function = ASRUtils::IntrinsicElementalFunctionRegistry::get_create_function("SymbolicDiv");
                     break;
                 }
                 case (ASR::binopType::Pow): {
-                    create_function = ASRUtils::IntrinsicScalarFunctionRegistry::get_create_function("SymbolicPow");
+                    create_function = ASRUtils::IntrinsicElementalFunctionRegistry::get_create_function("SymbolicPow");
                     break;
                 }
                 default: {
@@ -2210,9 +2209,7 @@ public:
                     break;
                 }
             }
-            tmp = create_function(al, loc, args_with_symbolic, [&](const std::string& msg, const Location& loc) {
-                throw SemanticError(msg, loc);
-                });
+            tmp = create_function(al, loc, args_with_symbolic, diag);
             return;
         } else {
             std::string ltype = ASRUtils::type_to_str_python(ASRUtils::expr_type(left));
@@ -3234,14 +3231,13 @@ public:
             ASR::symbol_t *s = current_scope->resolve_symbol(name);
             LCOMPILERS_ASSERT(s);
             tmp = ASR::make_Var_t(al, x.base.base.loc, s);
-        } else if (ASRUtils::IntrinsicScalarFunctionRegistry::is_intrinsic_function(name) &&
+        } else if (ASRUtils::IntrinsicElementalFunctionRegistry::is_intrinsic_function(name) &&
                    (not_cpython_builtin.find(name) == not_cpython_builtin.end() ||
                    imported_functions.find(name) != imported_functions.end() )) {
                     ASRUtils::create_intrinsic_function create_func =
-                        ASRUtils::IntrinsicScalarFunctionRegistry::get_create_function(name);
+                        ASRUtils::IntrinsicElementalFunctionRegistry::get_create_function(name);
                     Vec<ASR::expr_t*> args_;
-                    tmp = create_func(al, x.base.base.loc, args_, [&](const std::string &msg, const Location &loc) {
-                    throw SemanticError(msg, loc); });
+                    tmp = create_func(al, x.base.base.loc, args_, diag);
         } else {
             throw SemanticError("Variable '" + name + "' not declared",
                 x.base.base.loc);
@@ -3333,8 +3329,8 @@ public:
         ASR::ttype_t *dest_type = left_operand_type;
 
         if (!ASRUtils::check_equal_type(left_operand_type, right_operand_type)) {
-            throw SemanticError("Type mismatch: '" + ASRUtils::type_to_str_python(left_operand_type) 
-                                + "' and '" + ASRUtils::type_to_str_python(right_operand_type) 
+            throw SemanticError("Type mismatch: '" + ASRUtils::type_to_str_python(left_operand_type)
+                                + "' and '" + ASRUtils::type_to_str_python(right_operand_type)
                                 + "'. Both operands must be of the same type.", x.base.base.loc);
         }
         // Reference: https://docs.python.org/3/reference/expressions.html#boolean-operations
@@ -3474,10 +3470,8 @@ public:
             args.push_back(al, left);
             args.push_back(al, right);
             ASRUtils::create_intrinsic_function create_func =
-                        ASRUtils::IntrinsicScalarFunctionRegistry::get_create_function(op_name);
-            tmp = create_func(al, x.base.base.loc, args,
-                            [&](const std::string &msg, const Location &loc) {
-                                throw SemanticError(msg, loc); });
+                        ASRUtils::IntrinsicElementalFunctionRegistry::get_create_function(op_name);
+            tmp = create_func(al, x.base.base.loc, args, diag);
             return;
         }
 
@@ -3911,7 +3905,7 @@ public:
                         ASR::expr_t *dim_size = ASR::down_cast<ASR::Array_t>(type)->m_dims[idx].m_length;
                         ASR::expr_t *idx_expr = ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, loc, idx + 1, int_type));
                         ASR::expr_t *size_expr = ASRUtils::EXPR(ASRUtils::make_ArraySize_t_util(al, loc, value, idx_expr, int_type, dim_size, false));
-                        index = ASRUtils::EXPR(ASR::make_IntegerBinOp_t(al, loc, 
+                        index = ASRUtils::EXPR(ASR::make_IntegerBinOp_t(al, loc,
                             size_expr, ASR::binopType::Add, neg_idx, int_type, nullptr));
                     }
                 }
@@ -6853,9 +6847,7 @@ public:
             */
             Vec<ASR::expr_t*> args_; args_.reserve(al, args.n);
             ASRUtils::visit_expr_list(al, args, args_);
-            tmp = ASRUtils::Partition::create_partition(al, loc, args_, s_var,
-                [&](const std::string &msg, const Location &loc) {
-                throw SemanticError(msg, loc); });
+            tmp = ASRUtils::Partition::create_partition(al, loc, args_, s_var, diag);
             return;
         } else if(attr_name == "count") {
             if(args.size() != 1) {
@@ -7230,9 +7222,7 @@ public:
                 loc, 1, s_var.size(), nullptr));
             ASR::expr_t *str = ASRUtils::EXPR(ASR::make_StringConstant_t(al,
                 loc, s2c(al, s_var), char_type));
-            tmp = ASRUtils::Partition::create_partition(al, loc, args_, str,
-                [&](const std::string &msg, const Location &loc) {
-                throw SemanticError(msg, loc); });
+            tmp = ASRUtils::Partition::create_partition(al, loc, args_, str, diag);
             return;
         } else if (attr_name.size() > 2 && attr_name[0] == 'i' && attr_name[1] == 's') {
             /*
@@ -7345,7 +7335,7 @@ we will have to use something else.
             } else if (attr_name == "isalpha") {
                 /*
                     * Specification -
-                    Return True if all characters in the string are alphabets, 
+                    Return True if all characters in the string are alphabets,
                     and there is at least one character in the string.
                 */
                 bool is_alpha = (s_var.size() != 0);
@@ -7361,7 +7351,7 @@ we will have to use something else.
             } else if (attr_name == "isalnum") {
                 /*
                     * Specification -
-                    Return True if all characters in the string are alphabets or numbers, 
+                    Return True if all characters in the string are alphabets or numbers,
                     and there is at least one character in the string.
                 */
                 bool is_alnum = (s_var.size() != 0);
@@ -7377,7 +7367,7 @@ we will have to use something else.
             } else if (attr_name == "isnumeric") {
                 /*
                     * Specification -
-                    Return True if all characters in the string are numbers, 
+                    Return True if all characters in the string are numbers,
                     and there is at least one character in the string.
                 */
                 bool is_numeric = (s_var.size() != 0);
@@ -7393,7 +7383,7 @@ we will have to use something else.
             } else if (attr_name == "istitle") {
                 /*
                     * Specification -
-                    Returns True if all words in the string are in title case, 
+                    Returns True if all words in the string are in title case,
                     and there is at least one character in the string.
                 */
                 bool is_title = (s_var.size() != 0);
@@ -7457,15 +7447,13 @@ we will have to use something else.
                 if (symbolic_attributes.find(call_name) != symbolic_attributes.end() &&
                     symbolic_constants.find(mod_name) != symbolic_constants.end()){
                         ASRUtils::create_intrinsic_function create_func;
-                        create_func = ASRUtils::IntrinsicScalarFunctionRegistry::get_create_function(mod_name);
+                        create_func = ASRUtils::IntrinsicElementalFunctionRegistry::get_create_function(mod_name);
                         Vec<ASR::expr_t*> eles; eles.reserve(al, args.size());
                         Vec<ASR::expr_t*> args_; args_.reserve(al, 1);
                         for (size_t i=0; i<args.size(); i++) {
                             eles.push_back(al, args[i].m_value);
                         }
-                        tmp = create_func(al, at->base.base.loc, args_,
-                            [&](const std::string &msg, const Location &loc) {
-                            throw SemanticError(msg, loc); });
+                        tmp = create_func(al, at->base.base.loc, args_, diag);
                         handle_symbolic_attribute(ASRUtils::EXPR(tmp), call_name, loc, eles);
                         return;
                 }
@@ -7687,13 +7675,13 @@ we will have to use something else.
                 imported_functions[call_name] == "sympy"){
                 intrinsic_name = "Symbolic" + std::string(1, std::toupper(call_name[0])) + call_name.substr(1);
             }
-            if ((ASRUtils::IntrinsicScalarFunctionRegistry::is_intrinsic_function(intrinsic_name) ||
+            if ((ASRUtils::IntrinsicElementalFunctionRegistry::is_intrinsic_function(intrinsic_name) ||
                 ASRUtils::IntrinsicArrayFunctionRegistry::is_intrinsic_function(intrinsic_name)) &&
                 (not_cpython_builtin.find(call_name) == not_cpython_builtin.end() ||
                 imported_functions.find(call_name) != imported_functions.end() )) {
                 ASRUtils::create_intrinsic_function create_func;
-                if (ASRUtils::IntrinsicScalarFunctionRegistry::is_intrinsic_function(intrinsic_name)) {
-                    create_func = ASRUtils::IntrinsicScalarFunctionRegistry::get_create_function(intrinsic_name);
+                if (ASRUtils::IntrinsicElementalFunctionRegistry::is_intrinsic_function(intrinsic_name)) {
+                    create_func = ASRUtils::IntrinsicElementalFunctionRegistry::get_create_function(intrinsic_name);
                 } else {
                     create_func = ASRUtils::IntrinsicArrayFunctionRegistry::get_create_function(intrinsic_name);
                 }
@@ -7704,9 +7692,7 @@ we will have to use something else.
                     throw SemanticError("Function '" + call_name + "' does not accept vector values",
                         x.base.base.loc);
                 }
-                tmp = create_func(al, x.base.base.loc, args_,
-                    [&](const std::string &msg, const Location &loc) {
-                    throw SemanticError(msg, loc); });
+                tmp = create_func(al, x.base.base.loc, args_, diag);
                 return ;
             } else if (intrinsic_procedures.is_intrinsic(call_name)) {
                 s = resolve_intrinsic_function(x.base.base.loc, call_name);
@@ -7789,11 +7775,9 @@ we will have to use something else.
             } else if( call_name == "reserve" ) {
                 parse_args(x, args);
                 ASRUtils::create_intrinsic_function create_func =
-                    ASRUtils::IntrinsicScalarFunctionRegistry::get_create_function("reserve");
+                    ASRUtils::IntrinsicElementalFunctionRegistry::get_create_function("list.reserve");
                 Vec<ASR::expr_t*> args_exprs = ASRUtils::call_arg2expr(al, args);
-                tmp = create_func(al, x.base.base.loc, args_exprs,
-                    [&](const std::string &msg, const Location &loc) {
-                    throw SemanticError(msg, loc); });
+                tmp = create_func(al, x.base.base.loc, args_exprs, diag);
                 return ;
             } else if (call_name == "size") {
                 parse_args(x, args);
@@ -7866,7 +7850,7 @@ we will have to use something else.
                 } else {
                     Vec<ASR::expr_t*> arr_args;
                     arr_args.reserve(al, 0);
-                    tmp = ASRUtils::make_ArrayConstant_t_util(al, x.base.base.loc,
+                    tmp = ASRUtils::make_ArrayConstructor_t_util(al, x.base.base.loc,
                         arr_args.p, arr_args.size(), type, ASR::arraystorageType::RowMajor);
                 }
                 return;
@@ -8025,10 +8009,10 @@ we will have to use something else.
                     type = ASRUtils::make_Array_t_util(al, x.base.base.loc, type, dims.p, dims.size(),
                         ASR::abiType::Source, false, ASR::array_physical_typeType::PointerToDataArray, true);
                     for( size_t i = 0; i < n_args; i++ ) {
-                        m_args[i] = CastingUtil::perform_casting(m_args[i], ASRUtils::expr_type(m_args[i]),
-                                        ASRUtils::type_get_past_array(type), al, x.base.base.loc);
+                        m_args[i] = CastingUtil::perform_casting(m_args[i], ASRUtils::type_get_past_array(type),
+                            al, x.base.base.loc);
                     }
-                    tmp = ASR::make_ArrayConstant_t(al, x.base.base.loc, m_args, n_args, type, ASR::arraystorageType::RowMajor);
+                    tmp = ASRUtils::make_ArrayConstructor_t_util(al, x.base.base.loc, m_args, n_args, type, ASR::arraystorageType::RowMajor);
                 } else {
                     throw SemanticError("array accepts only list for now, got " +
                                         ASRUtils::type_to_str(type) + " type.", x.base.base.loc);

@@ -3,3 +3,7 @@ semantic error: The type 'i128' is undeclared.
   |
 2 |     i: i128
   |        ^^^^ 
+
+
+Note: Please report unclear or confusing messages as bugs at
+https://github.com/lcompilers/lpython/issues.

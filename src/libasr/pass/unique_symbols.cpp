@@ -9,6 +9,7 @@
 #include <set>
 #include<unordered_set>
 
+
 extern std::string lcompilers_unique_ID;
 
 /*
@@ -54,15 +55,20 @@ class SymbolRenameVisitor: public ASR::BaseWalkVisitor<SymbolRenameVisitor> {
 
     SymbolRenameVisitor(bool mm, bool gm, bool im, bool am, bool bcm, bool fm, bool cm) :
     module_name_mangling(mm), global_symbols_mangling(gm), intrinsic_symbols_mangling(im),
-    all_symbols_mangling(am), bindc_mangling(bcm), fortran_mangling(fm) , c_mangling(cm){}
+    all_symbols_mangling(am), bindc_mangling(bcm), fortran_mangling(fm), c_mangling(cm) {}
 
-    
+
     const std::unordered_set<std::string> reserved_keywords_c = {
-        "_Alignas", "_Alignof", "_Atomic", "_Bool", "_Complex", "_Generic", "_Imaginary", "_Noreturn", "_Static_assert", "_Thread_local", "auto", "break", "case", "char", "_Bool", "const", "continue", "default", "do", "double", "else", "enum", "extern", "float", "for", "goto", "if", "int", "long", "register", "return", "short", "signed", "sizeof", "static", "struct", "switch", "typedef", "union", "unsigned", "void", "volatile", "while"
+         "_Alignas", "_Alignof", "_Atomic", "_Bool", "_Complex", "_Generic",
+         "_Imaginary", "_Noreturn", "_Static_assert", "_Thread_local", "auto",
+         "break", "case", "char", "_Bool", "const", "continue", "default", "do",
+         "double", "else", "enum", "extern", "float", "for", "goto", "if", "int",
+         "long", "register", "return", "short", "signed", "sizeof", "static",
+         "struct", "switch", "typedef", "union", "unsigned", "void", "volatile", "while"
     };
 
-//TODO: Implement other backends mangling when refactoring the pass infrastructure    
-    void mangle_c(ASR::symbol_t* sym, const std::string& name){        
+    //TODO: Implement other backends mangling when refactoring the pass infrastructure
+    void mangle_c(ASR::symbol_t* sym, const std::string& name){
         if (reserved_keywords_c.find(name) != reserved_keywords_c.end()) {
             sym_to_renamed[sym] = "_xx_"+std::string(name)+"_xx_";
         }
@@ -115,8 +121,7 @@ class SymbolRenameVisitor: public ASR::BaseWalkVisitor<SymbolRenameVisitor> {
         if (all_symbols_mangling || module_name_mangling || should_mangle) {
             sym_to_renamed[sym] = update_name(x.m_name);
         }
-        if ((x.m_intrinsic && intrinsic_symbols_mangling) ||
-                (global_symbols_mangling && startswith(x.m_name, "_global_symbols"))) {
+        if ((global_symbols_mangling && startswith(x.m_name, "_global_symbols"))) {
             should_mangle = true;
         }
         for (auto &a : x.m_symtab->get_scope()) {
@@ -160,11 +165,15 @@ class SymbolRenameVisitor: public ASR::BaseWalkVisitor<SymbolRenameVisitor> {
                     sym_to_renamed[sym] = current_scope->parent->get_unique_name(
                         "f" + std::string(x.m_name));
                 }
-            } 
+            }
+            if ( c_mangling ) {
+                ASR::symbol_t *sym = ASR::down_cast<ASR::symbol_t>((ASR::asr_t*)&x);
+                mangle_c(sym , std::string(x.m_name));
+            }
         }
-        if ( c_mangling ) {
+        if (intrinsic_symbols_mangling && startswith(x.m_name, "_lcompilers_")) {
             ASR::symbol_t *sym = ASR::down_cast<ASR::symbol_t>((ASR::asr_t*)&x);
-            mangle_c(sym , std::string(x.m_name));
+            sym_to_renamed[sym] = update_name(x.m_name);
         }
         for (auto &a : x.m_symtab->get_scope()) {
             bool nested_function = is_nested_function(a.second);
@@ -195,7 +204,6 @@ class SymbolRenameVisitor: public ASR::BaseWalkVisitor<SymbolRenameVisitor> {
                     std::string(x.m_name));
             }
         }
-        
         if ( c_mangling ) {
             mangle_c(sym , std::string(x.m_name));
         }

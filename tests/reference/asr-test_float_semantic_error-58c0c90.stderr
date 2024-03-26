@@ -3,3 +3,7 @@ semantic error: float type is not supported yet.
   |
 4 |     pi: float = 3.14
   |         ^^^^^ Hint: Use f32 or f64 for now. 
+
+
+Note: Please report unclear or confusing messages as bugs at
+https://github.com/lcompilers/lpython/issues.

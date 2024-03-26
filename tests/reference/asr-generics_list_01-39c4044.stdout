@@ -136,7 +136,7 @@
                                     add_integer
                                     div_integer]
                                     [(Var 17 x)]
-                                    [(=
+                                    [(Assignment
                                         (Var 17 k)
                                         (ListLen
                                             (Var 17 x)
@@ -153,7 +153,7 @@
                                             (Logical 4)
                                             ()
                                         )
-                                        [(=
+                                        [(Assignment
                                             (Var 17 _lpython_return_variable)
                                             (RealConstant
                                                 0.000000
@@ -164,7 +164,7 @@
                                         (Return)]
                                         []
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 17 res)
                                         (FunctionCall
                                             2 empty_integer
@@ -193,7 +193,7 @@
                                             ()
                                         )
                                         (IntegerConstant 1 (Integer 4)))
-                                        [(=
+                                        [(Assignment
                                             (Var 17 res)
                                             (FunctionCall
                                                 2 add_integer
@@ -213,7 +213,7 @@
                                         )]
                                         []
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 17 _lpython_return_variable)
                                         (FunctionCall
                                             2 div_integer
@@ -344,7 +344,7 @@
                                     add_float
                                     div_float]
                                     [(Var 18 x)]
-                                    [(=
+                                    [(Assignment
                                         (Var 18 k)
                                         (ListLen
                                             (Var 18 x)
@@ -361,7 +361,7 @@
                                             (Logical 4)
                                             ()
                                         )
-                                        [(=
+                                        [(Assignment
                                             (Var 18 _lpython_return_variable)
                                             (RealConstant
                                                 0.000000
@@ -372,7 +372,7 @@
                                         (Return)]
                                         []
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 18 res)
                                         (FunctionCall
                                             2 empty_float
@@ -401,7 +401,7 @@
                                             ()
                                         )
                                         (IntegerConstant 1 (Integer 4)))
-                                        [(=
+                                        [(Assignment
                                             (Var 18 res)
                                             (FunctionCall
                                                 2 add_float
@@ -421,7 +421,7 @@
                                         )]
                                         []
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 18 _lpython_return_variable)
                                         (FunctionCall
                                             2 div_float
@@ -552,7 +552,7 @@
                                     add_string
                                     div_string]
                                     [(Var 19 x)]
-                                    [(=
+                                    [(Assignment
                                         (Var 19 k)
                                         (ListLen
                                             (Var 19 x)
@@ -569,7 +569,7 @@
                                             (Logical 4)
                                             ()
                                         )
-                                        [(=
+                                        [(Assignment
                                             (Var 19 _lpython_return_variable)
                                             (RealConstant
                                                 0.000000
@@ -580,7 +580,7 @@
                                         (Return)]
                                         []
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 19 res)
                                         (FunctionCall
                                             2 empty_string
@@ -609,7 +609,7 @@
                                             ()
                                         )
                                         (IntegerConstant 1 (Integer 4)))
-                                        [(=
+                                        [(Assignment
                                             (Var 19 res)
                                             (FunctionCall
                                                 2 add_string
@@ -629,7 +629,7 @@
                                         )]
                                         []
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 19 _lpython_return_variable)
                                         (FunctionCall
                                             2 div_string
@@ -921,7 +921,7 @@
                                     []
                                     [(Var 10 x)
                                     (Var 10 y)]
-                                    [(=
+                                    [(Assignment
                                         (Var 10 _lpython_return_variable)
                                         (RealBinOp
                                             (Var 10 x)
@@ -1012,7 +1012,7 @@
                                     []
                                     [(Var 7 x)
                                     (Var 7 y)]
-                                    [(=
+                                    [(Assignment
                                         (Var 7 _lpython_return_variable)
                                         (IntegerBinOp
                                             (Var 7 x)
@@ -1103,7 +1103,7 @@
                                     []
                                     [(Var 13 x)
                                     (Var 13 y)]
-                                    [(=
+                                    [(Assignment
                                         (Var 13 _lpython_return_variable)
                                         (StringConcat
                                             (Var 13 x)
@@ -1277,7 +1277,7 @@
                                     []
                                     [(Var 11 x)
                                     (Var 11 k)]
-                                    [(=
+                                    [(Assignment
                                         (Var 11 _lpython_return_variable)
                                         (RealBinOp
                                             (Var 11 x)
@@ -1373,7 +1373,7 @@
                                     []
                                     [(Var 8 x)
                                     (Var 8 k)]
-                                    [(=
+                                    [(Assignment
                                         (Var 8 _lpython_return_variable)
                                         (RealBinOp
                                             (Cast
@@ -1474,7 +1474,7 @@
                                     []
                                     [(Var 14 x)
                                     (Var 14 k)]
-                                    [(=
+                                    [(Assignment
                                         (Var 14 _lpython_return_variable)
                                         (RealConstant
                                             0.000000
@@ -1544,7 +1544,7 @@
                                     )
                                     []
                                     [(Var 9 x)]
-                                    [(=
+                                    [(Assignment
                                         (Var 9 _lpython_return_variable)
                                         (RealConstant
                                             0.000000
@@ -1614,7 +1614,7 @@
                                     )
                                     []
                                     [(Var 6 x)]
-                                    [(=
+                                    [(Assignment
                                         (Var 6 _lpython_return_variable)
                                         (IntegerConstant 0 (Integer 4))
                                         ()
@@ -1681,7 +1681,7 @@
                                     )
                                     []
                                     [(Var 12 x)]
-                                    [(=
+                                    [(Assignment
                                         (Var 12 _lpython_return_variable)
                                         (StringConstant
                                             ""
@@ -1813,7 +1813,7 @@
                                     add
                                     div]
                                     [(Var 15 x)]
-                                    [(=
+                                    [(Assignment
                                         (Var 15 k)
                                         (ListLen
                                             (Var 15 x)
@@ -1830,7 +1830,7 @@
                                             (Logical 4)
                                             ()
                                         )
-                                        [(=
+                                        [(Assignment
                                             (Var 15 _lpython_return_variable)
                                             (RealConstant
                                                 0.000000
@@ -1841,7 +1841,7 @@
                                         (Return)]
                                         []
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 15 res)
                                         (FunctionCall
                                             2 zero
@@ -1874,7 +1874,7 @@
                                             ()
                                         )
                                         (IntegerConstant 1 (Integer 4)))
-                                        [(=
+                                        [(Assignment
                                             (Var 15 res)
                                             (FunctionCall
                                                 2 add
@@ -1898,7 +1898,7 @@
                                         )]
                                         []
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 15 _lpython_return_variable)
                                         (FunctionCall
                                             2 div

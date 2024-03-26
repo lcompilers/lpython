@@ -90,8 +90,7 @@ public:
 
         pass_result.push_back(al, init_stmt);
         ASR::stmt_t* unrolled_whileloop = ASRUtils::STMT(ASR::make_WhileLoop_t(al, x.base.base.loc,
-                                                            whileloop->m_name, whileloop->m_test, unrolled_loop.p, unrolled_loop.size(),
-                                                            nullptr, 0));
+            whileloop->m_name, whileloop->m_test, unrolled_loop.p, unrolled_loop.size(), x.m_orelse, x.n_orelse));
         pass_result.push_back(al, unrolled_whileloop);
         for( int64_t i = 0; i < remaining_part; i++ ) {
             for( size_t i = 0; i < whileloop->n_body; i++ ) {

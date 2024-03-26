@@ -3,3 +3,7 @@ semantic error: Type mismatch in get's key value, the types must be compatible
   |
 5 |     x = y.get(1)
   |               ^ type mismatch (found: 'i32', expected: 'str')
+
+
+Note: Please report unclear or confusing messages as bugs at
+https://github.com/lcompilers/lpython/issues.

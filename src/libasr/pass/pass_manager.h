@@ -31,6 +31,7 @@
 #include <libasr/pass/replace_div_to_mul.h>
 #include <libasr/pass/replace_symbolic.h>
 #include <libasr/pass/replace_intrinsic_function.h>
+#include <libasr/pass/replace_intrinsic_subroutine.h>
 #include <libasr/pass/replace_fma.h>
 #include <libasr/pass/loop_unroll.h>
 #include <libasr/pass/replace_sign_from_value.h>
@@ -51,6 +52,8 @@
 #include <libasr/pass/unique_symbols.h>
 #include <libasr/pass/insert_deallocate.h>
 #include <libasr/pass/replace_print_struct_type.h>
+#include <libasr/pass/promote_allocatable_to_nonallocatable.h>
+#include <libasr/pass/replace_function_call_in_declaration.h>
 #include <libasr/codegen/asr_to_fortran.h>
 #include <libasr/asr_verify.h>
 #include <libasr/pickle.h>
@@ -80,6 +83,7 @@ namespace LCompilers {
             {"array_op", &pass_replace_array_op},
             {"symbolic", &pass_replace_symbolic},
             {"intrinsic_function", &pass_replace_intrinsic_function},
+            {"intrinsic_subroutine", &pass_replace_intrinsic_subroutine},
             {"arr_slice", &pass_replace_arr_slice},
             {"print_arr", &pass_replace_print_arr},
             {"print_list_tuple", &pass_replace_print_list_tuple},
@@ -103,9 +107,11 @@ namespace LCompilers {
             {"init_expr", &pass_replace_init_expr},
             {"nested_vars", &pass_nested_vars},
             {"where", &pass_replace_where},
+            {"function_call_in_declaration", &pass_replace_function_call_in_declaration},
             {"print_struct_type", &pass_replace_print_struct_type},
             {"unique_symbols", &pass_unique_symbols},
-            {"insert_deallocate", &pass_insert_deallocate}
+            {"insert_deallocate", &pass_insert_deallocate},
+            {"promote_allocatable_to_nonallocatable", &pass_promote_allocatable_to_nonallocatable}
         };
 
         bool apply_default_passes;
@@ -202,15 +208,18 @@ namespace LCompilers {
             _passes = {
                 "nested_vars",
                 "global_stmts",
+                "transform_optional_argument_functions",
                 "init_expr",
                 "implied_do_loops",
                 "class_constructor",
                 "pass_list_expr",
                 "where",
+                "function_call_in_declaration",
                 "subroutine_from_function",
                 "array_op",
                 "symbolic",
                 "intrinsic_function",
+                "intrinsic_subroutine",
                 "subroutine_from_function",
                 "array_op",
                 "pass_array_by_data",
@@ -225,23 +234,25 @@ namespace LCompilers {
                 "select_case",
                 "inline_function_calls",
                 "unused_functions",
-                "transform_optional_argument_functions",
                 "unique_symbols",
-                "insert_deallocate"
+                "insert_deallocate",
             };
 
             _with_optimization_passes = {
                 "nested_vars",
                 "global_stmts",
+                "transform_optional_argument_functions",
                 "init_expr",
                 "implied_do_loops",
                 "class_constructor",
                 "pass_list_expr",
                 "where",
+                "function_call_in_declaration",
                 "subroutine_from_function",
                 "array_op",
                 "symbolic",
                 "intrinsic_function",
+                "intrinsic_subroutine",
                 "subroutine_from_function",
                 "array_op",
                 "pass_array_by_data",
@@ -261,10 +272,10 @@ namespace LCompilers {
                 "sign_from_value",
                 "div_to_mul",
                 "fma",
-                "transform_optional_argument_functions",
                 "inline_function_calls",
                 "unique_symbols",
-                "insert_deallocate"
+                "insert_deallocate",
+                "promote_allocatable_to_nonallocatable"
             };
 
             // These are re-write passes which are already handled

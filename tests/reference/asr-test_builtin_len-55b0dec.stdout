@@ -242,7 +242,7 @@
                                     )
                                     []
                                     []
-                                    [(=
+                                    [(Assignment
                                         (Var 3 s)
                                         (StringConstant
                                             "abcd"
@@ -264,7 +264,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 s)
                                         (StringConstant
                                             ""
@@ -326,7 +326,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 l)
                                         (ListConstant
                                             [(IntegerConstant 1 (Integer 4))
@@ -353,7 +353,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 l2)
                                         (ListConstant
                                             [(RealConstant
@@ -396,7 +396,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 l3)
                                         (ListConstant
                                             []
@@ -452,7 +452,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 list_len)
                                         (ListLen
                                             (ListConstant
@@ -483,7 +483,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 t)
                                         (TupleConstant
                                             [(IntegerConstant 1 (Integer 4))
@@ -517,7 +517,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 t2)
                                         (TupleConstant
                                             [(RealConstant
@@ -564,7 +564,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 t3)
                                         (TupleLen
                                             (TupleConstant
@@ -596,7 +596,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 tmp)
                                         (ListLen
                                             (Var 3 l)

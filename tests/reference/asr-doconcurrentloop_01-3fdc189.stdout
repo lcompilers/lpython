@@ -177,7 +177,7 @@
                                     )
                                     [triad]
                                     []
-                                    [(=
+                                    [(Assignment
                                         (Var 4 scalar)
                                         (Cast
                                             (RealConstant
@@ -193,7 +193,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 4 nsize)
                                         (ArraySize
                                             (Var 4 a)
@@ -214,7 +214,7 @@
                                             ()
                                         )
                                         (IntegerConstant 1 (Integer 4)))
-                                        [(=
+                                        [(Assignment
                                             (ArrayItem
                                                 (Var 4 a)
                                                 [(()
@@ -238,7 +238,7 @@
                                             )
                                             ()
                                         )
-                                        (=
+                                        (Assignment
                                             (ArrayItem
                                                 (Var 4 b)
                                                 [(()
@@ -474,7 +474,7 @@
                                     (Var 3 b)
                                     (Var 3 scalar)
                                     (Var 3 c)]
-                                    [(=
+                                    [(Assignment
                                         (Var 3 N)
                                         (ArraySize
                                             (Var 3 a)
@@ -495,7 +495,7 @@
                                             ()
                                         )
                                         (IntegerConstant 1 (Integer 4)))
-                                        [(=
+                                        [(Assignment
                                             (ArrayItem
                                                 (Var 3 c)
                                                 [(()
