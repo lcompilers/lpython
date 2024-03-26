@@ -10,7 +10,7 @@ from compiler_tester.tester import color, fg, log, run_test, style, tester_main
 
 
 def single_test(test, verbose, no_llvm, skip_run_with_dbg, skip_cpptranslate, update_reference,
-                no_color, specific_backends=None, excluded_backends=None):
+                verify_hash, no_color, specific_backends=None, excluded_backends=None):
     filename = test["filename"]
     def is_included(backend):
          return test.get(backend, False) \
