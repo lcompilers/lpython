@@ -1,5 +1,6 @@
 passes = [
         "replace_arr_slice",
+        "replace_function_call_in_declaration",
         "replace_array_op",
         "replace_class_constructor",
         "dead_code_removal",
@@ -33,7 +34,8 @@ passes = [
         "update_array_dim_intrinsic_calls",
         "replace_where",
         "unique_symbols",
-        "insert_deallocate"
+        "insert_deallocate",
+        "promote_allocatable_to_nonallocatable"
 ]
 
 

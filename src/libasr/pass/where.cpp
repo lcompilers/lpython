@@ -96,7 +96,7 @@ public:
         BinOpReplacement(make_RealBinOp_t)
     }
 
-    void replace_IntrinsicScalarFunction(ASR::IntrinsicScalarFunction_t* x) {
+    void replace_IntrinsicElementalFunction(ASR::IntrinsicElementalFunction_t* x) {
         Vec<ASR::expr_t*> args;
         args.reserve(al, x->n_args);
         for (size_t i=0; i<x->n_args; i++) {
@@ -107,7 +107,7 @@ public:
         }
         ASR::ttype_t* type = ASRUtils::expr_type(args[0]);
         ASR::expr_t* new_expr = ASRUtils::EXPR(
-            ASRUtils::make_IntrinsicScalarFunction_t_util(al, x->base.base.loc,
+            ASRUtils::make_IntrinsicElementalFunction_t_util(al, x->base.base.loc,
             x->m_intrinsic_id, args.p, x->n_args, x->m_overload_id, type, x->m_value));
         *current_expr = new_expr;
     }
@@ -279,7 +279,7 @@ public:
             real_cmp = ASR::down_cast<ASR::RealCompare_t>(test);
             left = real_cmp->m_left;
         } else {
-            throw LCompilersException("Unsupported type");
+            throw LCompilersException("Unsupported type, " + std::to_string(test->type));
         }
 
         // Construct a do loop

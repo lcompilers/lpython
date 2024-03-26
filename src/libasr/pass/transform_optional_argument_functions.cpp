@@ -5,6 +5,7 @@
 #include <libasr/asr_verify.h>
 #include <libasr/pass/transform_optional_argument_functions.h>
 #include <libasr/pass/pass_utils.h>
+#include <libasr/pass/intrinsic_function_registry.h>
 
 #include <vector>
 #include <string>
@@ -24,7 +25,7 @@ class ReplacePresentCalls: public ASR::BaseExprReplacer<ReplacePresentCalls> {
 
     public:
 
-    ReplacePresentCalls(Allocator& al_, ASR::Function_t* f_) : al(al_), f(f_)
+    ReplacePresentCalls(Allocator& al_, ASR::Function_t* f_) : al{al_}, f{f_}
     {}
 
     void replace_FunctionCall(ASR::FunctionCall_t* x) {
@@ -333,6 +334,17 @@ bool fill_new_args(Vec<ASR::call_arg_t>& new_args, Allocator& al,
                     size_t k;
                     bool k_found = false;
                     for( k = 0; k < owning_function->n_args; k++ ) {
+                        ASR::expr_t* original_expr = nullptr;
+                        if (ASR::is_a<ASR::ArrayPhysicalCast_t>(*x.m_args[i].m_value)) {
+                            ASR::ArrayPhysicalCast_t *x_array_cast = ASR::down_cast<ASR::ArrayPhysicalCast_t>(x.m_args[i].m_value);
+                            original_expr = x_array_cast->m_arg;
+                        }
+                        if( original_expr && ASR::is_a<ASR::Var_t>(*original_expr) && ASR::down_cast<ASR::Var_t>(owning_function->m_args[k])->m_v ==
+                            ASR::down_cast<ASR::Var_t>(original_expr)->m_v ) {
+                            k_found = true;
+                            break ;
+                        }
+
                         if( ASR::is_a<ASR::Var_t>(*x.m_args[i].m_value) && ASR::down_cast<ASR::Var_t>(owning_function->m_args[k])->m_v ==
                             ASR::down_cast<ASR::Var_t>(x.m_args[i].m_value)->m_v ) {
                             k_found = true;
@@ -354,6 +366,15 @@ bool fill_new_args(Vec<ASR::call_arg_t>& new_args, Allocator& al,
             }
             ASR::call_arg_t present_arg;
             present_arg.loc = x.m_args[i].loc;
+            if( x.m_args[i].m_value &&
+                ASRUtils::is_allocatable(x.m_args[i].m_value) &&
+                !ASRUtils::is_allocatable(func_arg_j->m_type) ) {
+                ASR::expr_t* is_allocated = ASRUtils::EXPR(ASR::make_IntrinsicImpureFunction_t(
+                    al, x.m_args[i].loc, static_cast<int64_t>(ASRUtils::IntrinsicImpureFunctions::Allocated),
+                    &x.m_args[i].m_value, 1, 0, logical_t, nullptr));
+                is_present = ASRUtils::EXPR(ASR::make_LogicalBinOp_t(al, x.m_args[i].loc,
+                    is_allocated, ASR::logicalbinopType::And, is_present, logical_t, nullptr));
+            }
             present_arg.m_value = is_present;
             new_args.push_back(al, present_arg);
             j++;
@@ -440,7 +461,7 @@ class ReplaceSubroutineCallsWithOptionalArgumentsVisitor : public PassUtils::Pas
             pass_result.push_back(al, ASRUtils::STMT(ASRUtils::make_SubroutineCall_t_util(al,
                                     x.base.base.loc, x.m_name, x.m_original_name,
                                     new_args.p, new_args.size(), x.m_dt,
-                                    nullptr, false)));
+                                    nullptr, false, ASRUtils::get_class_proc_nopass_val(x.m_name))));
         }
 };
 

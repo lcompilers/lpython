@@ -31,6 +31,7 @@ set(SRC
 
     pass/nested_vars.cpp
     pass/where.cpp
+    pass/function_call_in_declaration.cpp
     pass/param_to_const.cpp
     pass/do_loops.cpp
     pass/for_all.cpp
@@ -53,6 +54,7 @@ set(SRC
     pass/div_to_mul.cpp
     pass/replace_symbolic.cpp
     pass/intrinsic_function.cpp
+    pass/intrinsic_subroutine.cpp
     pass/fma.cpp
     pass/loop_vectorise.cpp
     pass/sign_from_value.cpp
@@ -66,6 +68,7 @@ set(SRC
     pass/pass_compare.cpp
     pass/unique_symbols.cpp
     pass/insert_deallocate.cpp
+    pass/promote_allocatable_to_nonallocatable.cpp
 
     asr_verify.cpp
     asr_utils.cpp
@@ -113,3 +116,10 @@ endif()
 if (WITH_LLVM)
     target_link_libraries(asr p::llvm)
 endif()
+
+# Install the dwarf_convert.py and dat_convert.py
+install(
+    FILES dwarf_convert.py dat_convert.py
+    PERMISSIONS OWNER_EXECUTE OWNER_READ
+    DESTINATION ${CMAKE_INSTALL_PREFIX}/share/lfortran
+)
