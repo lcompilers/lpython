@@ -1143,8 +1143,8 @@ public:
                 visit_expr_list(pos_args, n_pos_args, kwargs, n_kwargs,
                                 args, rt_subs, func, loc);
             }
-        	if((n_pos_args+ n_kwargs) < func->n_args && (args.size() < func->n_args) ){
-                for (size_t def_arg = (n_pos_args+ n_kwargs); def_arg < func->n_args; def_arg++){
+        	if(args.size() < func->n_args){
+                for (size_t def_arg = args.size(); def_arg < func->n_args; def_arg++){
                     ASR::symbol_t* sym = ASR::down_cast<ASR::Var_t>(func->m_args[def_arg])->m_v;
                     ASR::Variable_t* var = ASR::down_cast<ASR::Variable_t>(sym);
                     if (var->m_value == nullptr) {
