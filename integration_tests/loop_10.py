@@ -49,9 +49,53 @@ def nested_loop_for_for():
         return
     assert False
 
+def nested_loop_for_while():
+    i: i32
+    j: i32 = 10
+    for i in range(2):
+        print("outer: " + str(i))
+        while j < 20:
+            print("  inner: " + str(j))
+            break
+    else:
+        print("no break in outer loop")
+        return
+    assert False
+
+def nested_loop_while_for():
+    i: i32 = 0
+    j: i32
+    while i < 2:
+        print("outer: " + str(i))
+        i += 1
+        for j in range(10, 20):
+            print("  inner: " + str(j))
+            break
+    else:
+        print("no break in outer loop")
+        return
+    assert False
+
+def nested_loop_while_while():
+    i: i32 = 0
+    j: i32 = 10
+    while i < 2:
+        print("outer: " + str(i))
+        i += 1
+        while j < 20:
+            print("  inner: " + str(j))
+            break
+    else:
+        print("no break in outer loop")
+        return
+    assert False
+
 
 with_break_for()
 with_break_while()
 no_break_for()
 break_in_if_for()
 nested_loop_for_for()
+nested_loop_for_while()
+nested_loop_while_for()
+nested_loop_while_while()
