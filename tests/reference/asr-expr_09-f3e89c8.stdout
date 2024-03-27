@@ -112,22 +112,22 @@
                                     )
                                     []
                                     []
-                                    [(=
+                                    [(Assignment
                                         (Var 3 i1)
                                         (IntegerConstant 10 (Integer 4))
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 i2)
                                         (IntegerConstant 4 (Integer 4))
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 i1)
                                         (IntegerConstant 3 (Integer 4))
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 i2)
                                         (IntegerConstant 5 (Integer 4))
                                         ()
@@ -255,7 +255,7 @@
                                     )
                                     []
                                     []
-                                    [(=
+                                    [(Assignment
                                         (TupleConstant
                                             [(Var 5 a)
                                             (Var 5 b)]
@@ -274,7 +274,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 5 c)
                                         (TupleConstant
                                             [(IntegerConstant 2 (Integer 4))
@@ -549,12 +549,12 @@
                                     )
                                     []
                                     []
-                                    [(=
+                                    [(Assignment
                                         (Var 4 g)
                                         (IntegerConstant 5 (Integer 4))
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 4 d)
                                         (RealBinOp
                                             (Cast
@@ -573,7 +573,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 4 e)
                                         (RealBinOp
                                             (Cast
@@ -592,17 +592,17 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 4 a)
                                         (IntegerConstant 10 (Integer 4))
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 4 b)
                                         (IntegerConstant 10 (Integer 4))
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 4 c)
                                         (IntegerConstant 10 (Integer 4))
                                         ()
@@ -637,7 +637,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 4 x)
                                         (RealConstant
                                             23.000000
@@ -645,7 +645,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 4 y)
                                         (RealConstant
                                             23.000000
@@ -655,7 +655,7 @@
                                     )
                                     (Assert
                                         (RealCompare
-                                            (IntrinsicScalarFunction
+                                            (IntrinsicElementalFunction
                                                 Abs
                                                 [(RealBinOp
                                                     (Var 4 x)
@@ -683,7 +683,7 @@
                                     )
                                     (Assert
                                         (RealCompare
-                                            (IntrinsicScalarFunction
+                                            (IntrinsicElementalFunction
                                                 Abs
                                                 [(RealBinOp
                                                     (Var 4 y)
@@ -711,7 +711,7 @@
                                     )
                                     (Assert
                                         (RealCompare
-                                            (IntrinsicScalarFunction
+                                            (IntrinsicElementalFunction
                                                 Abs
                                                 [(RealBinOp
                                                     (Var 4 e)
@@ -739,7 +739,7 @@
                                     )
                                     (Assert
                                         (RealCompare
-                                            (IntrinsicScalarFunction
+                                            (IntrinsicElementalFunction
                                                 Abs
                                                 [(RealBinOp
                                                     (Var 4 d)
@@ -765,7 +765,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 4 k)
                                         (ListConstant
                                             []
@@ -775,7 +775,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 4 g)
                                         (IntegerConstant 0 (Integer 4))
                                         ()
@@ -819,13 +819,14 @@
                                                 ()
                                             )
                                         )]
+                                        []
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 4 i)
                                         (Var 4 k)
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 4 j)
                                         (Var 4 k)
                                         ()
@@ -844,7 +845,7 @@
                                         (IntegerConstant 1 (Integer 4)))
                                         [(Assert
                                             (RealCompare
-                                                (IntrinsicScalarFunction
+                                                (IntrinsicElementalFunction
                                                     Abs
                                                     [(RealBinOp
                                                         (ListItem
@@ -879,7 +880,7 @@
                                         )
                                         (Assert
                                             (RealCompare
-                                                (IntrinsicScalarFunction
+                                                (IntrinsicElementalFunction
                                                     Abs
                                                     [(RealBinOp
                                                         (ListItem
@@ -914,7 +915,7 @@
                                         )
                                         (Assert
                                             (RealCompare
-                                                (IntrinsicScalarFunction
+                                                (IntrinsicElementalFunction
                                                     Abs
                                                     [(RealBinOp
                                                         (RealBinOp
@@ -965,6 +966,7 @@
                                             )
                                             ()
                                         )]
+                                        []
                                     )]
                                     ()
                                     Public

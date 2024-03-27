@@ -184,7 +184,7 @@
                                     )
                                     []
                                     []
-                                    [(=
+                                    [(Assignment
                                         (Var 3 x)
                                         (Cast
                                             (FunctionCall
@@ -210,7 +210,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 eps)
                                         (RealConstant
                                             0.000000
@@ -220,11 +220,11 @@
                                     )
                                     (Assert
                                         (RealCompare
-                                            (IntrinsicScalarFunction
+                                            (IntrinsicElementalFunction
                                                 Abs
                                                 [(RealBinOp
                                                     (Cast
-                                                        (IntrinsicScalarFunction
+                                                        (IntrinsicElementalFunction
                                                             Abs
                                                             [(Var 3 x)]
                                                             0
@@ -254,7 +254,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 y)
                                         (FunctionCall
                                             3 complex@__lpython_overloaded_9__complex
@@ -273,10 +273,10 @@
                                     )
                                     (Assert
                                         (RealCompare
-                                            (IntrinsicScalarFunction
+                                            (IntrinsicElementalFunction
                                                 Abs
                                                 [(RealBinOp
-                                                    (IntrinsicScalarFunction
+                                                    (IntrinsicElementalFunction
                                                         Abs
                                                         [(Var 3 y)]
                                                         0
@@ -379,7 +379,7 @@
                                     )
                                     []
                                     []
-                                    [(=
+                                    [(Assignment
                                         (Var 4 x)
                                         (Cast
                                             (ComplexBinOp
@@ -416,7 +416,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 4 y)
                                         (Cast
                                             (ComplexBinOp
@@ -453,7 +453,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 4 z)
                                         (ComplexBinOp
                                             (Var 4 x)
@@ -464,7 +464,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 4 z)
                                         (ComplexBinOp
                                             (Var 4 x)
@@ -475,7 +475,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 4 z)
                                         (ComplexBinOp
                                             (Var 4 x)
@@ -486,7 +486,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 4 z)
                                         (ComplexBinOp
                                             (Var 4 x)
@@ -574,7 +574,7 @@
                                     )
                                     []
                                     []
-                                    [(=
+                                    [(Assignment
                                         (Var 5 x)
                                         (ComplexBinOp
                                             (Cast
@@ -602,7 +602,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 5 y)
                                         (ComplexBinOp
                                             (Cast
@@ -630,7 +630,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 5 z)
                                         (ComplexBinOp
                                             (Var 5 x)
@@ -641,7 +641,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 5 z)
                                         (ComplexBinOp
                                             (Var 5 x)
@@ -652,7 +652,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 5 z)
                                         (ComplexBinOp
                                             (Var 5 x)
@@ -663,7 +663,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 5 z)
                                         (ComplexBinOp
                                             (Var 5 x)

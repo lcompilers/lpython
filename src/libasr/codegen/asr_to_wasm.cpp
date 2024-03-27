@@ -2434,12 +2434,12 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
         if (m_func_name_idx_map.find(hash) != m_func_name_idx_map.end()) {
             m_wa.emit_call(m_func_name_idx_map[hash].index);
         } else {
-            if (strcmp(fn->m_name, "c_caimag") == 0) {
+            if (strcmp(fn->m_name, "_lfortran_caimag") == 0) {
                 LCOMPILERS_ASSERT(x.n_args == 1);
                 m_wa.emit_global_set(m_compiler_globals[tmp_reg_f32]);
                 m_wa.emit_drop();
                 m_wa.emit_global_get(m_compiler_globals[tmp_reg_f32]);
-            } else if (strcmp(fn->m_name, "c_zaimag") == 0) {
+            } else if (strcmp(fn->m_name, "_lfortran_zaimag") == 0) {
                 m_wa.emit_global_set(m_compiler_globals[tmp_reg_f64]);
                 m_wa.emit_drop();
                 m_wa.emit_global_get(m_compiler_globals[tmp_reg_f64]);
@@ -3195,6 +3195,10 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
             m_wa.emit_i32_const(1);  // non-zero exit code
             wasm_exit();
         });
+    }
+
+    void visit_TypeInquiry(const ASR::TypeInquiry_t &x) {
+        this->visit_expr(*x.m_value);
     }
 };
 

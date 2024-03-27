@@ -3,3 +3,7 @@ semantic error: Only those local variables that can be reduced to compile-time c
    |
 20 |     C: i16[nk] = empty(nk, dtype=int16)
    |            ^^ 
+
+
+Note: Please report unclear or confusing messages as bugs at
+https://github.com/lcompilers/lpython/issues.

@@ -89,7 +89,7 @@
                                         []
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 5 c)
                                         (FunctionCall
                                             2 test_pow_1
@@ -167,7 +167,7 @@
                                     )
                                     []
                                     []
-                                    [(=
+                                    [(Assignment
                                         (Var 3 a)
                                         (Cast
                                             (FunctionCall
@@ -303,7 +303,7 @@
                                     []
                                     [(Var 4 a)
                                     (Var 4 b)]
-                                    [(=
+                                    [(Assignment
                                         (Var 4 res)
                                         (Cast
                                             (FunctionCall
@@ -321,7 +321,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 4 _lpython_return_variable)
                                         (Var 4 res)
                                         ()

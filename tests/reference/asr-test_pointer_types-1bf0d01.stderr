@@ -3,3 +3,7 @@ semantic error: Casting not supported for different pointer types. Received targ
   |
 8 |     yptr1 = pointer(y)
   |     ^^^^^^^^^^^^^^^^^^ 
+
+
+Note: Please report unclear or confusing messages as bugs at
+https://github.com/lcompilers/lpython/issues.

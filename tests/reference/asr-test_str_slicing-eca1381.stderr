@@ -3,3 +3,7 @@ semantic error: slice indices must be integers or None
   |
 4 |     print(s[1:2.2])
   |               ^^^ 
+
+
+Note: Please report unclear or confusing messages as bugs at
+https://github.com/lcompilers/lpython/issues.

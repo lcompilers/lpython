@@ -187,6 +187,7 @@ extsrc/
 tmp/
 tmpdebug/
 gentests/
+inst/
 
 ## Ninja
 build.ninja

@@ -10,7 +10,7 @@
                             __main__global_stmts:
                                 (Function
                                     (SymbolTable
-                                        8
+                                        6
                                         {
                                             
                                         })
@@ -38,166 +38,6 @@
                                         ()
                                     )]
                                     ()
-                                    Public
-                                    .false.
-                                    .false.
-                                    ()
-                                ),
-                            _lfortran_bgt32:
-                                (Function
-                                    (SymbolTable
-                                        5
-                                        {
-                                            _lpython_return_variable:
-                                                (Variable
-                                                    5
-                                                    _lpython_return_variable
-                                                    []
-                                                    ReturnVar
-                                                    ()
-                                                    ()
-                                                    Default
-                                                    (Integer 4)
-                                                    ()
-                                                    BindC
-                                                    Public
-                                                    Required
-                                                    .false.
-                                                ),
-                                            i:
-                                                (Variable
-                                                    5
-                                                    i
-                                                    []
-                                                    In
-                                                    ()
-                                                    ()
-                                                    Default
-                                                    (Integer 4)
-                                                    ()
-                                                    BindC
-                                                    Public
-                                                    Required
-                                                    .true.
-                                                ),
-                                            j:
-                                                (Variable
-                                                    5
-                                                    j
-                                                    []
-                                                    In
-                                                    ()
-                                                    ()
-                                                    Default
-                                                    (Integer 4)
-                                                    ()
-                                                    BindC
-                                                    Public
-                                                    Required
-                                                    .true.
-                                                )
-                                        })
-                                    _lfortran_bgt32
-                                    (FunctionType
-                                        [(Integer 4)
-                                        (Integer 4)]
-                                        (Integer 4)
-                                        BindC
-                                        Interface
-                                        ()
-                                        .false.
-                                        .false.
-                                        .false.
-                                        .false.
-                                        .false.
-                                        []
-                                        .false.
-                                    )
-                                    []
-                                    [(Var 5 i)
-                                    (Var 5 j)]
-                                    []
-                                    (Var 5 _lpython_return_variable)
-                                    Public
-                                    .false.
-                                    .false.
-                                    ()
-                                ),
-                            _lfortran_bgt64:
-                                (Function
-                                    (SymbolTable
-                                        6
-                                        {
-                                            _lpython_return_variable:
-                                                (Variable
-                                                    6
-                                                    _lpython_return_variable
-                                                    []
-                                                    ReturnVar
-                                                    ()
-                                                    ()
-                                                    Default
-                                                    (Integer 4)
-                                                    ()
-                                                    BindC
-                                                    Public
-                                                    Required
-                                                    .false.
-                                                ),
-                                            i:
-                                                (Variable
-                                                    6
-                                                    i
-                                                    []
-                                                    In
-                                                    ()
-                                                    ()
-                                                    Default
-                                                    (Integer 8)
-                                                    ()
-                                                    BindC
-                                                    Public
-                                                    Required
-                                                    .true.
-                                                ),
-                                            j:
-                                                (Variable
-                                                    6
-                                                    j
-                                                    []
-                                                    In
-                                                    ()
-                                                    ()
-                                                    Default
-                                                    (Integer 8)
-                                                    ()
-                                                    BindC
-                                                    Public
-                                                    Required
-                                                    .true.
-                                                )
-                                        })
-                                    _lfortran_bgt64
-                                    (FunctionType
-                                        [(Integer 8)
-                                        (Integer 8)]
-                                        (Integer 4)
-                                        BindC
-                                        Interface
-                                        ()
-                                        .false.
-                                        .false.
-                                        .false.
-                                        .false.
-                                        .false.
-                                        []
-                                        .false.
-                                    )
-                                    []
-                                    [(Var 6 i)
-                                    (Var 6 j)]
-                                    []
-                                    (Var 6 _lpython_return_variable)
                                     Public
                                     .false.
                                     .false.
@@ -330,11 +170,11 @@
                             test_c_callbacks:
                                 (Function
                                     (SymbolTable
-                                        7
+                                        5
                                         {
                                             pi:
                                                 (Variable
-                                                    7
+                                                    5
                                                     pi
                                                     []
                                                     Local
@@ -365,12 +205,10 @@
                                         .false.
                                     )
                                     [_lfortran_dsin
-                                    _lfortran_ssin
-                                    _lfortran_bgt32
-                                    _lfortran_bgt64]
+                                    _lfortran_ssin]
                                     []
-                                    [(=
-                                        (Var 7 pi)
+                                    [(Assignment
+                                        (Var 5 pi)
                                         (RealConstant
                                             3.141593
                                             (Real 8)
@@ -379,13 +217,13 @@
                                     )
                                     (Assert
                                         (RealCompare
-                                            (IntrinsicScalarFunction
+                                            (IntrinsicElementalFunction
                                                 Abs
                                                 [(RealBinOp
                                                     (FunctionCall
                                                         2 _lfortran_dsin
                                                         ()
-                                                        [((Var 7 pi))]
+                                                        [((Var 5 pi))]
                                                         (Real 8)
                                                         ()
                                                         ()
@@ -414,14 +252,14 @@
                                     )
                                     (Assert
                                         (RealCompare
-                                            (IntrinsicScalarFunction
+                                            (IntrinsicElementalFunction
                                                 Abs
                                                 [(RealBinOp
                                                     (FunctionCall
                                                         2 _lfortran_dsin
                                                         ()
                                                         [((RealBinOp
-                                                            (Var 7 pi)
+                                                            (Var 5 pi)
                                                             Div
                                                             (RealConstant
                                                                 2.000000
@@ -458,14 +296,14 @@
                                     )
                                     (Assert
                                         (RealCompare
-                                            (IntrinsicScalarFunction
+                                            (IntrinsicElementalFunction
                                                 Abs
                                                 [(RealBinOp
                                                     (FunctionCall
                                                         2 _lfortran_ssin
                                                         ()
                                                         [((Cast
-                                                            (Var 7 pi)
+                                                            (Var 5 pi)
                                                             RealToReal
                                                             (Real 4)
                                                             ()
@@ -514,7 +352,7 @@
                                     )
                                     (Assert
                                         (RealCompare
-                                            (IntrinsicScalarFunction
+                                            (IntrinsicElementalFunction
                                                 Abs
                                                 [(RealBinOp
                                                     (FunctionCall
@@ -522,7 +360,7 @@
                                                         ()
                                                         [((Cast
                                                             (RealBinOp
-                                                                (Var 7 pi)
+                                                                (Var 5 pi)
                                                                 Div
                                                                 (RealConstant
                                                                     2.000000
@@ -576,98 +414,6 @@
                                             ()
                                         )
                                         ()
-                                    )
-                                    (Assert
-                                        (IntegerCompare
-                                            (FunctionCall
-                                                2 _lfortran_bgt32
-                                                ()
-                                                [((IntegerConstant 3 (Integer 4)))
-                                                ((IntegerConstant 4 (Integer 4)))]
-                                                (Integer 4)
-                                                ()
-                                                ()
-                                            )
-                                            Eq
-                                            (IntegerConstant 0 (Integer 4))
-                                            (Logical 4)
-                                            ()
-                                        )
-                                        ()
-                                    )
-                                    (Assert
-                                        (IntegerCompare
-                                            (FunctionCall
-                                                2 _lfortran_bgt32
-                                                ()
-                                                [((IntegerConstant 4 (Integer 4)))
-                                                ((IntegerConstant 3 (Integer 4)))]
-                                                (Integer 4)
-                                                ()
-                                                ()
-                                            )
-                                            Eq
-                                            (IntegerConstant 1 (Integer 4))
-                                            (Logical 4)
-                                            ()
-                                        )
-                                        ()
-                                    )
-                                    (Assert
-                                        (IntegerCompare
-                                            (FunctionCall
-                                                2 _lfortran_bgt64
-                                                ()
-                                                [((Cast
-                                                    (IntegerConstant 3 (Integer 4))
-                                                    IntegerToInteger
-                                                    (Integer 8)
-                                                    (IntegerConstant 3 (Integer 8))
-                                                ))
-                                                ((Cast
-                                                    (IntegerConstant 4 (Integer 4))
-                                                    IntegerToInteger
-                                                    (Integer 8)
-                                                    (IntegerConstant 4 (Integer 8))
-                                                ))]
-                                                (Integer 4)
-                                                ()
-                                                ()
-                                            )
-                                            Eq
-                                            (IntegerConstant 0 (Integer 4))
-                                            (Logical 4)
-                                            ()
-                                        )
-                                        ()
-                                    )
-                                    (Assert
-                                        (IntegerCompare
-                                            (FunctionCall
-                                                2 _lfortran_bgt64
-                                                ()
-                                                [((Cast
-                                                    (IntegerConstant 4 (Integer 4))
-                                                    IntegerToInteger
-                                                    (Integer 8)
-                                                    (IntegerConstant 4 (Integer 8))
-                                                ))
-                                                ((Cast
-                                                    (IntegerConstant 3 (Integer 4))
-                                                    IntegerToInteger
-                                                    (Integer 8)
-                                                    (IntegerConstant 3 (Integer 8))
-                                                ))]
-                                                (Integer 4)
-                                                ()
-                                                ()
-                                            )
-                                            Eq
-                                            (IntegerConstant 1 (Integer 4))
-                                            (Logical 4)
-                                            ()
-                                        )
-                                        ()
                                     )]
                                     ()
                                     Public
@@ -684,11 +430,11 @@
             main_program:
                 (Program
                     (SymbolTable
-                        9
+                        7
                         {
                             __main__global_stmts:
                                 (ExternalSymbol
-                                    9
+                                    7
                                     __main__global_stmts
                                     2 __main__global_stmts
                                     __main__
@@ -700,7 +446,7 @@
                     main_program
                     [__main__]
                     [(SubroutineCall
-                        9 __main__global_stmts
+                        7 __main__global_stmts
                         2 __main__global_stmts
                         []
                         ()

@@ -7,3 +7,7 @@ semantic error: Struct member functions are not supported
   |
 8 |            print(self._len)
   | ...^^^^^^^^^^^^^^^^^^^^^^^^ 
+
+
+Note: Please report unclear or confusing messages as bugs at
+https://github.com/lcompilers/lpython/issues.

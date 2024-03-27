@@ -104,7 +104,7 @@
                                     )
                                     []
                                     []
-                                    [(=
+                                    [(Assignment
                                         (Var 3 s)
                                         (StringConstant
                                             "abc"
@@ -112,7 +112,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 s)
                                         (StringItem
                                             (Var 3 s)
@@ -128,7 +128,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 s)
                                         (StringSection
                                             (Var 3 s)
@@ -140,7 +140,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 s)
                                         (StringSection
                                             (Var 3 s)
@@ -152,7 +152,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 s)
                                         (StringSection
                                             (Var 3 s)
@@ -168,7 +168,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 s)
                                         (StringSection
                                             (Var 3 s)
@@ -180,7 +180,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 s)
                                         (StringSection
                                             (Var 3 s)
@@ -192,7 +192,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 s)
                                         (StringSection
                                             (Var 3 s)
@@ -208,7 +208,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 s)
                                         (StringSection
                                             (Var 3 s)
@@ -224,7 +224,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 s)
                                         (StringSection
                                             (Var 3 s)
@@ -248,7 +248,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 s)
                                         (StringSection
                                             (Var 3 s)
@@ -260,7 +260,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 i)
                                         (ArrayItem
                                             (Var 3 A)
@@ -273,7 +273,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 B)
                                         (ArraySection
                                             (Var 3 A)
@@ -290,7 +290,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 B)
                                         (ArraySection
                                             (Var 3 A)

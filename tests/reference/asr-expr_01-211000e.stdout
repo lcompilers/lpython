@@ -130,7 +130,7 @@
                                     )
                                     []
                                     []
-                                    [(=
+                                    [(Assignment
                                         (Var 3 x)
                                         (IntegerBinOp
                                             (IntegerBinOp

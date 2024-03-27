@@ -3,3 +3,7 @@ semantic error: invalid literal for int() with base 10: '3abc'
   |
 2 |     print(int('3abc'))
   |               ^^^^^^ 
+
+
+Note: Please report unclear or confusing messages as bugs at
+https://github.com/lcompilers/lpython/issues.

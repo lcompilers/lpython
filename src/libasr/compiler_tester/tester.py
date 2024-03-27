@@ -255,9 +255,27 @@ def do_update_reference(jo, jr, do):
             f_r = os.path.join(os.path.dirname(jr), do[f])
             shutil.copyfile(f_o, f_r)
 
+def do_verify_reference_hash(jr, dr, s):
+    for f in ["outfile", "stdout", "stderr"]:
+        if dr[f]:
+            f_r = os.path.join(os.path.dirname(jr), dr[f])
+            temp = unl_loop_del(open(f_r, "rb").read())
+            f_r_hash = hashlib.sha224(temp).hexdigest()
+            if (f_r_hash != dr[f + "_hash"]):
+                # This string builds up the error message.
+                # Print test name in red in the beginning.
+                # More information is added afterwards.
+                full_err_str = f"\n{(color(fg.red)+color(style.bold))}{s}{color(fg.reset)+color(style.reset)}\n"
+                full_err_str += "The generated hash for the reference file and its committed hash are different\n"
+                full_err_str += "Reference File: " + f_r + "\n"
+                full_err_str += "Reference Json File: " + jr + "\n"
+                full_err_str += "Reference File Hash Expected: " + f_r_hash + "\n"
+                full_err_str += "Reference File Hash Found: " + dr[f + "_hash"] + "\n"
+                raise RunException("Verifying reference hash failed." +
+                    full_err_str)
 
 def run_test(testname, basename, cmd, infile, update_reference=False,
-             extra_args=None):
+            verify_hash=False, extra_args=None):
     """
     Runs the test `cmd` and compare against reference results.
 
@@ -273,6 +291,9 @@ def run_test(testname, basename, cmd, infile, update_reference=False,
     infile ............. optional input file. If present, it will check that
                          it exists and hash it.
     update_reference ... if True, it will copy the output into the reference
+                         directory as reference results, overwriting old ones
+    verify_hash ...... if True, it will check the hash in the committed
+                         json file and the hash for the committed references
                          directory as reference results, overwriting old ones
     extra_args ......... Extra arguments to append to the command that are not
                          part of the hash
@@ -303,6 +324,11 @@ def run_test(testname, basename, cmd, infile, update_reference=False,
             f"The reference json file '{jr}' for {testname} does not exist")
 
     dr = json.load(open(jr))
+
+    if verify_hash:
+        do_verify_reference_hash(jr, dr, s)
+        return
+
     if do != dr:
         # This string builds up the error message. Print test name in red in the beginning.
         # More information is added afterwards.
@@ -336,10 +362,12 @@ def run_test(testname, basename, cmd, infile, update_reference=False,
         log.debug(s + " " + check())
 
 
-def tester_main(compiler, single_test):
+def tester_main(compiler, single_test, is_lcompilers_executable_installed=False):
     parser = argparse.ArgumentParser(description=f"{compiler} Test Suite")
     parser.add_argument("-u", "--update", action="store_true",
                         help="update all reference results")
+    parser.add_argument("-vh", "--verify-hash", action="store_true",
+                        help="Verify all reference hashes")
     parser.add_argument("-l", "--list", action="store_true",
                         help="list all tests")
     parser.add_argument("-t", "--test",
@@ -368,6 +396,7 @@ def tester_main(compiler, single_test):
                     help="Turn off colored tests output")
     args = parser.parse_args()
     update_reference = args.update
+    verify_hash = args.verify_hash
     list_tests = args.list
     specific_tests = list(
         itertools.chain.from_iterable(
@@ -387,8 +416,9 @@ def tester_main(compiler, single_test):
     no_color = args.no_color
 
     # So that the tests find the `lcompiler` executable
-    os.environ["PATH"] = os.path.join(SRC_DIR, "bin") \
-        + os.pathsep + os.environ["PATH"]
+    if not is_lcompilers_executable_installed:
+        os.environ["PATH"] = os.path.join(SRC_DIR, "bin") \
+            + os.pathsep + os.environ["PATH"]
     test_data = toml.load(open(os.path.join(ROOT_DIR, "tests", "tests.toml")))
     filtered_tests = test_data["test"]
     if specific_tests:
@@ -409,6 +439,7 @@ def tester_main(compiler, single_test):
         if 'extrafiles' in test:
             single_test(test,
                 update_reference=update_reference,
+                verify_hash=verify_hash,
                 specific_backends=specific_backends,
                 excluded_backends=excluded_backends,
                 verbose=verbose,
@@ -422,6 +453,7 @@ def tester_main(compiler, single_test):
         for test in filtered_tests:
             single_test(test,
                         update_reference=update_reference,
+                        verify_hash=verify_hash,
                         specific_backends=specific_backends,
                         excluded_backends=excluded_backends,
                         verbose=verbose,
@@ -434,6 +466,7 @@ def tester_main(compiler, single_test):
         single_tester_partial_args = partial(
             single_test,
             update_reference=update_reference,
+            verify_hash=verify_hash,
             specific_backends=specific_backends,
             excluded_backends=excluded_backends,
             verbose=verbose,
@@ -451,6 +484,13 @@ def tester_main(compiler, single_test):
 
     if update_reference:
         log.info("Test references updated.")
+    elif verify_hash:
+        if no_color:
+            log.info("Test references hash verfied.")
+        else:
+            log.info(
+                f"{(color(fg.green) + color(style.bold))}Test references hash verfied."
+                f"{color(fg.reset) + color(style.reset)}")
     else:
         if no_color:
             log.info("TESTS PASSED")

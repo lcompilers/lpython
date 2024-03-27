@@ -3,3 +3,7 @@ semantic error: Intent annotation 'In' cannot be used here
   |
 3 | def main0(x: In[In[i32]]):
   |                 ^^^^^^^ 
+
+
+Note: Please report unclear or confusing messages as bugs at
+https://github.com/lcompilers/lpython/issues.

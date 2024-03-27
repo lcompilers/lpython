@@ -128,7 +128,7 @@
                                     )
                                     []
                                     []
-                                    [(=
+                                    [(Assignment
                                         (Var 3 s)
                                         (StringConstant
                                             "lpython"
@@ -136,7 +136,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 x)
                                         (FunctionCall
                                             3 list
@@ -150,7 +150,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 y)
                                         (ListConstant
                                             [(StringConstant
@@ -171,7 +171,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 x)
                                         (FunctionCall
                                             3 list
@@ -185,7 +185,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 x)
                                         (ListConstant
                                             []
@@ -195,7 +195,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 x)
                                         (FunctionCall
                                             3 list
@@ -219,7 +219,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 x)
                                         (FunctionCall
                                             3 list

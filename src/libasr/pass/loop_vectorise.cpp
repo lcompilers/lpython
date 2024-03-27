@@ -175,7 +175,7 @@ public:
 
         ASR::stmt_t* vectorised_loop = ASRUtils::STMT(ASR::make_DoLoop_t(al, x.base.base.loc,
                                             x.m_name, vectorised_loop_head, vectorised_loop_body.p,
-                                            vectorised_loop_body.size()));
+                                            vectorised_loop_body.size(), nullptr, 0));
         pass_result.push_back(al, vectorised_loop);
     }
 

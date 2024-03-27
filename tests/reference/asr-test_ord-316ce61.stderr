@@ -3,3 +3,7 @@ semantic error: ord() is only supported for `str` of length 1
   |
 3 |     i = ord('ab')
   |             ^^^^ 
+
+
+Note: Please report unclear or confusing messages as bugs at
+https://github.com/lcompilers/lpython/issues.

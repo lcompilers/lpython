@@ -379,7 +379,7 @@ public:
         s = r;
     }
 
-    void visit_IntrinsicScalarFunction(const ASR::IntrinsicScalarFunction_t &x) {
+    void visit_IntrinsicElementalFunction(const ASR::IntrinsicElementalFunction_t &x) {
         std::string out;
         switch (x.m_intrinsic_id) {
             SET_INTRINSIC_NAME(Abs, "abs");

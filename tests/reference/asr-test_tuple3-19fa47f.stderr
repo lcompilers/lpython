@@ -3,3 +3,7 @@ semantic error: Tuple index out of bounds
   |
 3 |     print(t[-4])
   |           ^^^^^ 
+
+
+Note: Please report unclear or confusing messages as bugs at
+https://github.com/lcompilers/lpython/issues.

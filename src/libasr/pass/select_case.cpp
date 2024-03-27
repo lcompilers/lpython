@@ -150,6 +150,69 @@ Vec<ASR::stmt_t*> replace_selectcase(Allocator &al, const ASR::Select_t &select_
     return body;
 }
 
+void case_to_if_with_fall_through(Allocator& al, const ASR::Select_t& x,
+    ASR::expr_t* a_test, Vec<ASR::stmt_t*>& body, SymbolTable* scope) {
+    body.reserve(al, x.n_body + 1);
+    const Location& loc = x.base.base.loc;
+    ASR::symbol_t* case_found_sym = ASR::down_cast<ASR::symbol_t>(ASR::make_Variable_t(
+        al, loc, scope, s2c(al, scope->get_unique_name("case_found")), nullptr, 0,
+        ASR::intentType::Local, nullptr, nullptr, ASR::storage_typeType::Default,
+        ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4)), nullptr, ASR::abiType::Source,
+        ASR::accessType::Public, ASR::presenceType::Required, false));
+    scope->add_symbol(scope->get_unique_name("case_found"), case_found_sym);
+    ASR::expr_t* true_asr = ASRUtils::EXPR(ASR::make_LogicalConstant_t(al, loc, true,
+        ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4))));
+    ASR::expr_t* false_asr = ASRUtils::EXPR(ASR::make_LogicalConstant_t(al, loc, false,
+        ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4))));
+    ASR::expr_t* case_found = ASRUtils::EXPR(ASR::make_Var_t(al, loc, case_found_sym));
+    body.push_back(al, ASRUtils::STMT(ASR::make_Assignment_t(al, loc, case_found, false_asr, nullptr)));
+    int label_id = ASRUtils::LabelGenerator::get_instance()->get_unique_label();
+    for( size_t idx = 0; idx < x.n_body; idx++ ) {
+        ASR::case_stmt_t* case_body = x.m_body[idx];
+        switch(case_body->type) {
+            case ASR::case_stmtType::CaseStmt: {
+                ASR::CaseStmt_t* Case_Stmt = ASR::down_cast<ASR::CaseStmt_t>(case_body);
+                ASR::expr_t* test_expr = gen_test_expr_CaseStmt(al, loc, Case_Stmt, a_test);
+                test_expr = ASRUtils::EXPR(ASR::make_LogicalBinOp_t(al, loc, test_expr,
+                    ASR::logicalbinopType::Or, case_found, ASRUtils::expr_type(case_found), nullptr));
+                Vec<ASR::stmt_t*> case_body; case_body.reserve(al, Case_Stmt->n_body);
+                case_body.from_pointer_n(Case_Stmt->m_body, Case_Stmt->n_body);
+                case_body.push_back(al, ASRUtils::STMT(ASR::make_Assignment_t(
+                        al, loc, case_found, true_asr, nullptr)));
+                if( !Case_Stmt->m_fall_through ) {
+                    case_body.push_back(al, ASRUtils::STMT(ASR::make_GoTo_t(al, loc,
+                        label_id, s2c(al, scope->get_unique_name("switch_case_label")))));
+                }
+                body.push_back(al, ASRUtils::STMT(ASR::make_If_t(al, loc,
+                    test_expr, case_body.p, case_body.size(), nullptr, 0)));
+                break;
+            }
+            case ASR::case_stmtType::CaseStmt_Range: {
+                LCOMPILERS_ASSERT(false);
+                break;
+            }
+        }
+    }
+    for( size_t id = 0; id < x.n_default; id++ ) {
+        body.push_back(al, x.m_default[id]);
+    }
+    SymbolTable* block_symbol_table = al.make_new<SymbolTable>(scope);
+    ASR::symbol_t* empty_block = ASR::down_cast<ASR::symbol_t>(ASR::make_Block_t(
+        al, loc, block_symbol_table, s2c(al, scope->get_unique_name("switch_case_label")),
+        nullptr, 0));
+    scope->add_symbol(scope->get_unique_name("switch_case_label"), empty_block);
+    body.push_back(al, ASRUtils::STMT(ASR::make_BlockCall_t(al, loc, label_id, empty_block)));
+}
+
+Vec<ASR::stmt_t*> replace_selectcase_with_fall_through(
+    Allocator &al, const ASR::Select_t &select_case,
+    SymbolTable* scope) {
+    ASR::expr_t *a = select_case.m_test;
+    Vec<ASR::stmt_t*> body;
+    case_to_if_with_fall_through(al, select_case, a, body, scope);
+    return body;
+}
+
 class SelectCaseVisitor : public PassUtils::PassVisitor<SelectCaseVisitor>
 {
 
@@ -165,7 +228,11 @@ public:
     }
 
     void visit_Select(const ASR::Select_t &x) {
-        pass_result = replace_selectcase(al, x);
+        if( x.m_enable_fall_through ) {
+            pass_result = replace_selectcase_with_fall_through(al, x, current_scope);
+        } else {
+            pass_result = replace_selectcase(al, x);
+        }
     }
 };
 

@@ -108,7 +108,7 @@
                                     )
                                     []
                                     [(Var 222 xf32)]
-                                    [(=
+                                    [(Assignment
                                         (Var 222 _lpython_return_variable)
                                         (ArrayItem
                                             (Var 222 xf32)
@@ -197,7 +197,7 @@
                                     )
                                     []
                                     [(Var 223 xf64)]
-                                    [(=
+                                    [(Assignment
                                         (Var 223 _lpython_return_variable)
                                         (ArrayItem
                                             (Var 223 xf64)
@@ -289,7 +289,7 @@
                                     )
                                     []
                                     [(Var 220 xi32)]
-                                    [(=
+                                    [(Assignment
                                         (Var 220 _lpython_return_variable)
                                         (ArrayItem
                                             (Var 220 xi32)
@@ -385,7 +385,7 @@
                                     )
                                     []
                                     [(Var 221 xi64)]
-                                    [(=
+                                    [(Assignment
                                         (Var 221 _lpython_return_variable)
                                         (ArrayItem
                                             (Var 221 xi64)
@@ -581,9 +581,9 @@
                                     accept_multidim_f32_array
                                     accept_multidim_f64_array]
                                     []
-                                    [(=
+                                    [(Assignment
                                         (Var 224 ai32)
-                                        (ArrayConstant
+                                        (ArrayConstructor
                                             []
                                             (Array
                                                 (Integer 4)
@@ -593,13 +593,14 @@
                                                 (IntegerConstant 3 (Integer 4)))]
                                                 FixedSizeArray
                                             )
+                                            ()
                                             RowMajor
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 224 ai64)
-                                        (ArrayConstant
+                                        (ArrayConstructor
                                             []
                                             (Array
                                                 (Integer 8)
@@ -611,13 +612,14 @@
                                                 (IntegerConstant 10 (Integer 4)))]
                                                 FixedSizeArray
                                             )
+                                            ()
                                             RowMajor
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 224 af32)
-                                        (ArrayConstant
+                                        (ArrayConstructor
                                             []
                                             (Array
                                                 (Real 4)
@@ -625,13 +627,14 @@
                                                 (IntegerConstant 3 (Integer 4)))]
                                                 FixedSizeArray
                                             )
+                                            ()
                                             RowMajor
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 224 af64)
-                                        (ArrayConstant
+                                        (ArrayConstructor
                                             []
                                             (Array
                                                 (Real 8)
@@ -641,13 +644,14 @@
                                                 (IntegerConstant 4 (Integer 4)))]
                                                 FixedSizeArray
                                             )
+                                            ()
                                             RowMajor
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 224 ac32)
-                                        (ArrayConstant
+                                        (ArrayConstructor
                                             []
                                             (Array
                                                 (Complex 4)
@@ -659,13 +663,14 @@
                                                 (IntegerConstant 99 (Integer 4)))]
                                                 FixedSizeArray
                                             )
+                                            ()
                                             RowMajor
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 224 ac64)
-                                        (ArrayConstant
+                                        (ArrayConstructor
                                             []
                                             (Array
                                                 (Complex 8)
@@ -679,6 +684,7 @@
                                                 (IntegerConstant 16 (Integer 4)))]
                                                 FixedSizeArray
                                             )
+                                            ()
                                             RowMajor
                                         )
                                         ()

@@ -135,7 +135,7 @@
                                     )
                                     []
                                     []
-                                    [(=
+                                    [(Assignment
                                         (Var 4 s)
                                         (StructTypeConstructor
                                             2 S

@@ -228,7 +228,7 @@
                                     )
                                     [f]
                                     []
-                                    [(=
+                                    [(Assignment
                                         (Var 5 x)
                                         (StructTypeConstructor
                                             2 A
@@ -252,7 +252,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 5 xp)
                                         (GetPointer
                                             (Var 5 x)
@@ -303,7 +303,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (StructInstanceMember
                                             (Var 5 xp)
                                             3 x
@@ -313,7 +313,7 @@
                                         (IntegerConstant 5 (Integer 4))
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (StructInstanceMember
                                             (Var 5 xp)
                                             3 y

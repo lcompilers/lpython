@@ -100,7 +100,7 @@
                                     test_return_2
                                     test_return_3]
                                     []
-                                    [(=
+                                    [(Assignment
                                         (Var 6 i)
                                         (FunctionCall
                                             2 test_return_1
@@ -112,7 +112,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 6 s)
                                         (FunctionCall
                                             2 test_return_2
@@ -124,7 +124,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 6 i)
                                         (FunctionCall
                                             2 test_return_3
@@ -213,12 +213,12 @@
                                     )
                                     []
                                     [(Var 3 a)]
-                                    [(=
+                                    [(Assignment
                                         (Var 3 x)
                                         (IntegerConstant 5 (Integer 4))
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 _lpython_return_variable)
                                         (Var 3 x)
                                         ()
@@ -301,7 +301,7 @@
                                     )
                                     []
                                     [(Var 4 a)]
-                                    [(=
+                                    [(Assignment
                                         (Var 4 x)
                                         (StringConstant
                                             "test"
@@ -309,7 +309,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 4 _lpython_return_variable)
                                         (Var 4 x)
                                         ()
@@ -376,7 +376,7 @@
                                     )
                                     []
                                     [(Var 5 a)]
-                                    [(=
+                                    [(Assignment
                                         (Var 5 _lpython_return_variable)
                                         (Var 5 a)
                                         ()

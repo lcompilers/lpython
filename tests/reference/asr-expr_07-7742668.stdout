@@ -89,7 +89,7 @@
                                     )
                                     []
                                     []
-                                    [(=
+                                    [(Assignment
                                         (Var 5 var)
                                         (LogicalConstant
                                             .true.
@@ -131,7 +131,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 5 var)
                                         (LogicalConstant
                                             .false.
@@ -261,22 +261,22 @@
                                     )
                                     [g]
                                     []
-                                    [(=
+                                    [(Assignment
                                         (Var 4 a)
                                         (IntegerConstant 5 (Integer 4))
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 4 x)
                                         (IntegerConstant 3 (Integer 4))
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 4 x)
                                         (IntegerConstant 5 (Integer 4))
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 4 b)
                                         (IntegerBinOp
                                             (Var 4 x)

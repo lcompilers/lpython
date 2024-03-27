@@ -92,7 +92,7 @@
                                     )
                                     []
                                     []
-                                    [(=
+                                    [(Assignment
                                         (Var 3 i)
                                         (IntegerConstant 5 (Integer 4))
                                         ()
@@ -117,7 +117,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 i)
                                         (IntegerConstant 64 (Integer 4))
                                         ()
@@ -142,7 +142,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 i)
                                         (IntegerUnaryMinus
                                             (IntegerConstant 534 (Integer 4))

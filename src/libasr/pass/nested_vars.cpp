@@ -420,7 +420,7 @@ class ReplaceNestedVisitor: public ASR::CallReplacerOnExpressionsVisitor<Replace
         }
         ASR::FunctionCall_t& xx = const_cast<ASR::FunctionCall_t&>(x);
         ASRUtils::Call_t_body(al, xx.m_name, xx.m_args, xx.n_args, x.m_dt,
-            nullptr, false);
+            nullptr, false, false);
     }
 
     void visit_SubroutineCall(const ASR::SubroutineCall_t &x) {
@@ -441,7 +441,7 @@ class ReplaceNestedVisitor: public ASR::CallReplacerOnExpressionsVisitor<Replace
 
         ASR::SubroutineCall_t& xx = const_cast<ASR::SubroutineCall_t&>(x);
         ASRUtils::Call_t_body(al, xx.m_name, xx.m_args, xx.n_args, x.m_dt,
-            nullptr, false);
+            nullptr, false, ASRUtils::get_class_proc_nopass_val(x.m_name));
     }
 
     void visit_Array(const ASR::Array_t& /*x*/) {
@@ -506,13 +506,13 @@ public:
                             std::string sym_name = ASRUtils::symbol_name(sym_);
                             sym_ = current_scope->get_symbol(sym_name);
                             if( !sym_ ) {
+                                ASR::symbol_t *s = ASRUtils::symbol_get_past_external(sym);
                                 ASR::asr_t *fn = ASR::make_ExternalSymbol_t(
                                     al, t->base.loc,
                                     /* a_symtab */ current_scope,
                                     /* a_name */ s2c(al, current_scope->get_unique_name(sym_name, false)),
-                                    ASRUtils::symbol_get_past_external(sym),
-                                    ASRUtils::symbol_name(ASRUtils::get_asr_owner(ASRUtils::symbol_get_past_external(sym))),
-                                    nullptr, 0, s2c(al, sym_name), ASR::accessType::Public
+                                    s, ASRUtils::symbol_name(ASRUtils::get_asr_owner(s)),
+                                    nullptr, 0, ASRUtils::symbol_name(s), ASR::accessType::Public
                                 );
                                 sym_ = ASR::down_cast<ASR::symbol_t>(fn);
                                 current_scope->add_symbol(sym_name, sym_);

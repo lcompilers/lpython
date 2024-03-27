@@ -3,3 +3,7 @@ semantic error: Intent annotation 'InOut' cannot be used here
   |
 6 |     lexer : InOut[LasrLexer] = LasrLexer(5)
   |             ^^^^^^^^^^^^^^^^ 
+
+
+Note: Please report unclear or confusing messages as bugs at
+https://github.com/lcompilers/lpython/issues.

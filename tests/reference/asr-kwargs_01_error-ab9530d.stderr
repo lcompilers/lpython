@@ -3,3 +3,7 @@ semantic error: func01() got multiple values for argument 'a'
    |
 11 |     func01(arg1, a=int(8))
    |     ^^^^^^^^^^^^^^^^^^^^^^ 
+
+
+Note: Please report unclear or confusing messages as bugs at
+https://github.com/lcompilers/lpython/issues.

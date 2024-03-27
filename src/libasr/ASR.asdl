@@ -1,177 +1,30 @@
 -- Abstract Semantic Representation (ASR) definition
 
--- The aim of ASR is to represent all semantics in a non-redundant way, and that
--- has all the semantic information available locally, so that the backend can
--- do a single pass over ASR and have all the information at hand to generate
--- code.
---
--- ASR is always semantically valid Fortran code. It is as far from the original
--- Fortran language code as possible (i.e. everything is explicitly figured out,
--- all semantic information gathered and readily available locally from each ASR
--- node), while ensuring no semantic information was lost (no lowering was
--- done), so one can still generate Fortran code from ASR that will be logically
--- equivalent to the original code.
---
--- ASR can be used to do Fortran level transformations (such as optimizations).
-
--- ASDL's builtin types are:
---   * identifier
---   * int (signed integers of infinite precision)
---   * string
--- We extend these by:
---   * bool (.true. / .false.)
---   * float (floating point number of infinite precision)
---   * symbol_table (scoped Symbol Table implementation)
---   * node (any ASR node)
---
--- Note: `symbol_table` contains `identifier` -> `symbol` mappings.
+-- Documenations are available at:
+-- https://github.com/lfortran/lfortran/tree/main/doc/src/asr/asr.md
 
 module ASR {
 
 unit
     = TranslationUnit(symbol_table symtab, node* items)
 
--- # Documentation for the symbol type
-
--- Each symbol has either `symtab` (local symbol table) or `parent_symtab`
--- (where this symbol is stored). One can get to parent_symtab via symtab, so
--- only one is present.
-
--- Each symbol has a `name` for easy lookup of the name of the symbol when only
--- having a pointer to it.
-
--- abi=Source means the symbol's implementation is included (full ASR),
--- otherwise it is external (interface ASR, such as procedure interface).
-
--- SubroutineCall/FunctionCall store the actual final resolved subroutine or
--- function (`name` member). They also store the original symbol
--- (`original_name`), which can be one of: null, GenericProcedure or
--- ExternalSymbol.
-
--- When a module is compiled, it is parsed into full ASR, an object file is
--- produced, the full ASR (abi=Source, "body" is non-empty) is transformed into
--- interface ASR (abi=LFortran, "body" is empty). Both interface and full ASR
--- is saved into the mod file.
-
--- When a module is used, it is first looked up in the symbol table (as either
--- full or interface ASR) and used if it is present. Otherwise a mod file is
--- found on the disk, loaded (as either full or interface ASR for LFortran's
--- mod file, depending on LFortran's compiler options; or for GFortran's mod
--- file the corresponding interface ASR is constructed with abi=GFortran) and
--- used. After the ASR is loaded, the symbols that are used are represented as
--- ExternalSymbols in the current scope of the symbol table.
-
--- ExternalSymbol represents symbols that cannot be looked up in the current
--- scoped symbol table. As an example, if a variable is defined in a module,
--- but used in a nested subroutine, that is not an external symbol
--- because it can be resolved in the current symbol table (nested subroutine)
--- by following the parents. However if a symbol is used from a different
--- module, then it is an external symbol, because usual symbol resolution by
--- going to the parents will not find the definition. The `module_name` member
--- is the name of the module the symbol is in, the `scope_names` is a list of
--- names if the symbol is in a nested symbol table. For example if it is a
--- local variable in a function `f` that is nested in function `g`, then
--- `scope_names=[g, f]`.
-
--- REPL: each cell is parsed into full ASR, compiled + executed, the full ASR
--- is transformed into interface ASR (abi=LFortran) and kept in the symbol
--- table. A new cell starts with an empty symbol table, whose parent symbol
--- table is the previous cell. That allows function / declaration shadowing.
-
-
 symbol
-    = Program(symbol_table symtab, identifier name, identifier* dependencies,
-        stmt* body)
-    | Module(symbol_table symtab, identifier name, identifier* dependencies,
-        bool loaded_from_mod, bool intrinsic)
-    | Function(symbol_table symtab, identifier name, ttype function_signature,
-        identifier* dependencies, expr* args, stmt* body, expr? return_var,
-        access access, bool deterministic, bool side_effect_free, string? module_file)
-    | GenericProcedure(symbol_table parent_symtab, identifier name,
-        symbol* procs, access access)
-    | CustomOperator(symbol_table parent_symtab, identifier name,
-        symbol* procs, access access)
-    | ExternalSymbol(symbol_table parent_symtab, identifier name,
-        symbol external, identifier module_name, identifier* scope_names,
-        identifier original_name, access access)
-    | StructType(symbol_table symtab, identifier name, identifier* dependencies,
-        identifier* members, abi abi, access access, bool is_packed, bool is_abstract,
-        call_arg* initializers, expr? alignment, symbol? parent)
-    | EnumType(symbol_table symtab, identifier name, identifier* dependencies,
-        identifier* members, abi abi, access access, enumtype enum_value_type,
-        ttype type, symbol? parent)
-    | UnionType(symbol_table symtab, identifier name, identifier* dependencies,
-        identifier* members, abi abi, access access, call_arg* initializers, symbol? parent)
-    | Variable(symbol_table parent_symtab, identifier name, identifier* dependencies,
-        intent intent, expr? symbolic_value, expr? value, storage_type storage,
-        ttype type, symbol? type_declaration,
-        abi abi, access access, presence presence, bool value_attr)
+    = Program(symbol_table symtab, identifier name, identifier* dependencies, stmt* body)
+    | Module(symbol_table symtab, identifier name, identifier* dependencies, bool loaded_from_mod, bool intrinsic)
+    | Function(symbol_table symtab, identifier name, ttype function_signature, identifier* dependencies, expr* args, stmt* body, expr? return_var, access access, bool deterministic, bool side_effect_free, string? module_file)
+    | GenericProcedure(symbol_table parent_symtab, identifier name, symbol* procs, access access)
+    | CustomOperator(symbol_table parent_symtab, identifier name, symbol* procs, access access)
+    | ExternalSymbol(symbol_table parent_symtab, identifier name, symbol external, identifier module_name, identifier* scope_names, identifier original_name, access access)
+    | StructType(symbol_table symtab, identifier name, identifier* dependencies, identifier* members, abi abi, access access, bool is_packed, bool is_abstract, call_arg* initializers, expr? alignment, symbol? parent)
+    | EnumType(symbol_table symtab, identifier name, identifier* dependencies, identifier* members, abi abi, access access, enumtype enum_value_type, ttype type, symbol? parent)
+    | UnionType(symbol_table symtab, identifier name, identifier* dependencies, identifier* members, abi abi, access access, call_arg* initializers, symbol? parent)
+    | Variable(symbol_table parent_symtab, identifier name, identifier* dependencies, intent intent, expr? symbolic_value, expr? value, storage_type storage, ttype type, symbol? type_declaration, abi abi, access access, presence presence, bool value_attr)
     | ClassType(symbol_table symtab, identifier name, abi abi, access access)
-    | ClassProcedure(symbol_table parent_symtab, identifier name, identifier? self_argument,
-        identifier proc_name, symbol proc, abi abi, bool is_deferred)
+    | ClassProcedure(symbol_table parent_symtab, identifier name, identifier? self_argument, identifier proc_name, symbol proc, abi abi, bool is_deferred, bool is_nopass)
     | AssociateBlock(symbol_table symtab, identifier name, stmt* body)
     | Block(symbol_table symtab, identifier name, stmt* body)
-    | Requirement(symbol_table symtab, identifier name, identifier* args,
-        require_instantiation* requires)
-    | Template(symbol_table symtab, identifier name, identifier* args,
-        require_instantiation* requires)
-
-storage_type = Default | Save | Parameter
-access = Public | Private
-intent = Local | In | Out | InOut | ReturnVar | Unspecified
-deftype = Implementation | Interface
-presence = Required | Optional
-
--- # Documentation for the ABI type
-
--- External Yes: the symbol's implementation is not part of ASR, the
--- symbol is just an interface (e.g., subroutine/function interface, or variable
--- marked as external, not allocated by this ASR).
-
--- External No:  the symbol's implementation is part of ASR (e.g.,
--- subroutine/function body is included, variables must be allocated).
-
--- abi=Source: The symbol's implementation is included in ASR, the backend is
--- free to use any ABI it wants (it might also decide to inline or eliminate
--- the code in optimizations).
-
--- abi=LFortranModule/GFortranModule/BindC: the symbol's implementation is
--- stored as machine code in some object file that must be linked in. It
--- uses the specified ABI (one of LFortran module, GFortran module or C ABI).
--- An interface that uses `iso_c_binding` and `bind(c)` is represented using
--- abi=BindC.
-
--- abi=BindPython: the symbol's implementation is
--- stored in text format in the user source code file.
--- The symbol is executed using the CPython interpreter.
--- LPython manages the conversion of arguments to be passed to such symbols
--- and also converts the return values from such symbols.
-
--- abi=BindJS: the symbol's implementation is
--- available with Javascript.
--- This abi type is to be mainly used with the WASM Backend.
-
--- abi=Interactive: the symbol's implementation has been provided by the
--- previous REPL execution (e.g., if LLVM backend is used for the interactive
--- mode, the previous execution generated machine code for this symbol's
--- implementation that was loaded into memory). Note: this option might be
--- converted/eliminated to just use LFortran ABI in the future.
-
--- abi=Intrinsic: the symbol's implementation is implicitly provided by the
--- language itself as an intrinsic function. That means the backend is free to
--- implement it in any way it wants. The function does not have a body, it is
--- just an interface.
-
-abi                   -- External     ABI
-    = Source          --   No         Unspecified
-    | LFortranModule  --   Yes        LFortran
-    | GFortranModule  --   Yes        GFortran
-    | BindC           --   Yes        C
-    | BindPython      --   Yes        Python
-    | BindJS          --   Yes        Javascript
-    | Interactive     --   Yes        Unspecified
-    | Intrinsic       --   Yes        Unspecified
-
+    | Requirement(symbol_table symtab, identifier name, identifier* args, require_instantiation* requires)
+    | Template(symbol_table symtab, identifier name, identifier* args, require_instantiation* requires)
 
 stmt
     = Allocate(alloc_arg* args, expr? stat, expr? errmsg, expr? source)
@@ -180,46 +33,33 @@ stmt
     | Assignment(expr target, expr value, stmt? overloaded)
     | Associate(expr target, expr value)
     | Cycle(identifier? stmt_name)
-    -- deallocates if allocated otherwise throws a runtime error
     | ExplicitDeallocate(expr* vars)
-    -- deallocates if allocated otherwise does nothing
     | ImplicitDeallocate(expr* vars)
     | DoConcurrentLoop(do_loop_head head, stmt* body)
-    | DoLoop(identifier? name, do_loop_head head, stmt* body)
+    | DoLoop(identifier? name, do_loop_head head, stmt* body, stmt* orelse)
     | ErrorStop(expr? code)
     | Exit(identifier? stmt_name)
     | ForAllSingle(do_loop_head head, stmt assign_stmt)
-        -- GoTo points to a GoToTarget with the corresponding target_id within
-        -- the same procedure. We currently use `int` IDs to link GoTo with
-        -- GoToTarget to avoid issues with serialization.
     | GoTo(int target_id, identifier name)
-        -- An empty statement, a target of zero or more GoTo statements
-        -- the `id` is only unique within a procedure
     | GoToTarget(int id, identifier name)
     | If(expr test, stmt* body, stmt* orelse)
     | IfArithmetic(expr test, int lt_label, int eq_label, int gt_label)
     | Print(expr* values, expr? separator, expr? end)
     | FileOpen(int label, expr? newunit, expr? filename, expr? status, expr? form)
     | FileClose(int label, expr? unit, expr? iostat, expr? iomsg, expr? err, expr? status)
-    | FileRead(int label, expr? unit, expr? fmt, expr? iomsg, expr? iostat, expr? id, expr* values)
+    | FileRead(int label, expr? unit, expr? fmt, expr? iomsg, expr? iostat, expr? size, expr? id, expr* values, stmt? overloaded)
     | FileBackspace(int label, expr? unit, expr? iostat, expr? err)
     | FileRewind(int label, expr? unit, expr? iostat, expr? err)
-    | FileInquire(int label, expr? unit, expr? file, expr? iostat, expr? err,
-              expr? exist, expr? opened, expr? number, expr? named,
-              expr? name, expr? access, expr? sequential, expr? direct,
-              expr? form, expr? formatted, expr? unformatted, expr? recl,
-              expr? nextrec, expr? blank, expr? position, expr? action,
-              expr? read, expr? write, expr? readwrite, expr? delim,
-              expr? pad, expr? flen, expr? blocksize, expr? convert,
-              expr? carriagecontrol, expr? iolength)
-    | FileWrite(int label, expr? unit, expr? iomsg, expr? iostat, expr? id, expr* values, expr? separator, expr? end)
+    | FileInquire(int label, expr? unit, expr? file, expr? iostat, expr? err, expr? exist, expr? opened, expr? number, expr? named, expr? name, expr? access, expr? sequential, expr? direct, expr? form, expr? formatted, expr? unformatted, expr? recl, expr? nextrec, expr? blank, expr? position, expr? action, expr? read, expr? write, expr? readwrite, expr? delim, expr? pad, expr? flen, expr? blocksize, expr? convert, expr? carriagecontrol, expr? iolength)
+    | FileWrite(int label, expr? unit, expr? iomsg, expr? iostat, expr? id, expr* values, expr? separator, expr? end, stmt? overloaded)
     | Return()
-    | Select(expr test, case_stmt* body, stmt* default)
+    | Select(expr test, case_stmt* body, stmt* default, bool enable_fall_through)
     | Stop(expr? code)
     | Assert(expr test, expr? msg)
     | SubroutineCall(symbol name, symbol? original_name, call_arg* args, expr? dt)
+    | IntrinsicImpureSubroutine(int intrinsic_id, expr* args, int overload_id)
     | Where(expr test, stmt* body, stmt* orelse)
-    | WhileLoop(identifier? name, expr test, stmt* body)
+    | WhileLoop(identifier? name, expr test, stmt* body, stmt* orelse)
     | Nullify(symbol* vars)
     | Flush(int label, expr unit, expr? err, expr? iomsg, expr? iostat)
     | ListAppend(expr a, expr ele)
@@ -235,25 +75,19 @@ stmt
     | DictInsert(expr a, expr key, expr value)
     | Expr(expr expression)
 
-
 expr
     = IfExp(expr test, expr body, expr orelse, ttype type, expr? value)
-        -- Such as: (x, y+z), (3.0, 2.0) generally not known at compile time
     | ComplexConstructor(expr re, expr im, ttype type, expr? value)
     | NamedExpr(expr target, expr value, ttype type)
-    | FunctionCall(symbol name, symbol? original_name, call_arg* args,
-            ttype type, expr? value, expr? dt)
-    | IntrinsicScalarFunction(int intrinsic_id, expr* args, int overload_id,
-            ttype? type, expr? value)
-    | IntrinsicArrayFunction(int arr_intrinsic_id, expr* args, int overload_id,
-            ttype? type, expr? value)
-    | IntrinsicImpureFunction(int impure_intrinsic_id, expr* args, int overload_id,
-            ttype? type, expr? value)
+    | FunctionCall(symbol name, symbol? original_name, call_arg* args, ttype type, expr? value, expr? dt)
+    | IntrinsicElementalFunction(int intrinsic_id, expr* args, int overload_id, ttype? type, expr? value)
+    | IntrinsicArrayFunction(int arr_intrinsic_id, expr* args, int overload_id, ttype? type, expr? value)
+    | IntrinsicImpureFunction(int impure_intrinsic_id, expr* args, int overload_id, ttype? type, expr? value)
+    | TypeInquiry(int inquiry_id, ttype arg_type, expr? arg, ttype type, expr value)
     | StructTypeConstructor(symbol dt_sym, call_arg* args, ttype type, expr? value)
     | EnumTypeConstructor(symbol dt_sym, expr* args, ttype type, expr? value)
     | UnionTypeConstructor(symbol dt_sym, expr* args, ttype type, expr? value)
-    | ImpliedDoLoop(expr* values, expr var, expr start, expr end,
-                    expr? increment, ttype type, expr? value)
+    | ImpliedDoLoop(expr* values, expr var, expr start, expr end, expr? increment, ttype type, expr? value)
     | IntegerConstant(int n, ttype type)
     | IntegerBOZ(int v, integerboz intboz_type, ttype? type)
     | IntegerBitNot(expr arg, ttype type, expr? value)
@@ -278,21 +112,17 @@ expr
     | LogicalNot(expr arg, ttype type, expr? value)
     | LogicalCompare(expr left, cmpop op, expr right, ttype type, expr? value)
     | LogicalBinOp(expr left, logicalbinop op, expr right, ttype type, expr? value)
-
     | ListConstant(expr* args, ttype type)
     | ListLen(expr arg, ttype type, expr? value)
     | ListConcat(expr left, expr right, ttype type, expr? value)
     | ListCompare(expr left, cmpop op, expr right, ttype type, expr? value)
     | ListCount(expr arg, expr ele, ttype type, expr? value)
-
     | SetConstant(expr* elements, ttype type)
     | SetLen(expr arg, ttype type, expr? value)
-
     | TupleConstant(expr* elements, ttype type)
     | TupleLen(expr arg, ttype type, expr value)
     | TupleCompare(expr left, cmpop op, expr right, ttype type, expr? value)
     | TupleConcat(expr left, expr right, ttype type, expr? value)
-
     | StringConstant(string s, ttype type)
     | StringConcat(expr left, expr right, ttype type, expr? value)
     | StringRepeat(expr left, expr right, ttype type, expr? value)
@@ -303,28 +133,23 @@ expr
     | StringOrd(expr arg, ttype type, expr? value)
     | StringChr(expr arg, ttype type, expr? value)
     | StringFormat(expr fmt, expr* args, string_format_kind kind, ttype type, expr? value)
-
     | CPtrCompare(expr left, cmpop op, expr right, ttype type, expr? value)
     | SymbolicCompare(expr left, cmpop op, expr right, ttype type, expr? value)
-
     | DictConstant(expr* keys, expr* values, ttype type)
     | DictLen(expr arg, ttype type, expr? value)
-
     | Var(symbol v)
-    | FunctionParam(int param_number, ttype type, expr? value) --- used in types
-
+    | FunctionParam(int param_number, ttype type, expr? value)
+    | ArrayConstructor(expr* args, ttype type, expr? value, arraystorage storage_format)
     | ArrayConstant(expr* args, ttype type, arraystorage storage_format)
     | ArrayItem(expr v, array_index* args, ttype type, arraystorage storage_format, expr? value)
     | ArraySection(expr v, array_index* args, ttype type, expr? value)
     | ArraySize(expr v, expr? dim, ttype type, expr? value)
-    | ArrayBound(expr v, expr? dim, ttype type, arraybound bound,
-                 expr? value)
+    | ArrayBound(expr v, expr? dim, ttype type, arraybound bound, expr? value)
     | ArrayTranspose(expr matrix, ttype type, expr? value)
     | ArrayPack(expr array, expr mask, expr? vector, ttype type, expr? value)
     | ArrayReshape(expr array, expr shape, ttype type, expr? value)
     | ArrayAll(expr mask, expr? dim, ttype type, expr? value)
     | ArrayBroadcast(expr array, expr shape, ttype type, expr? value)
-
     | BitCast(expr source, expr mold, expr? size, ttype type, expr? value)
     | StructInstanceMember(expr v, symbol m, ttype type, expr? value)
     | StructStaticMember(expr v, symbol m, ttype type, expr? value)
@@ -335,21 +160,8 @@ expr
     | OverloadedCompare(expr left, cmpop op, expr right, ttype type, expr? value, expr overloaded)
     | OverloadedBinOp(expr left, binop op, expr right, ttype type, expr? value, expr overloaded)
     | OverloadedUnaryMinus(expr arg, ttype type, expr? value, expr overloaded)
-    -- This Cast changes the value (the bits) of the `arg`:
+    | OverloadedStringConcat(expr left, expr right, ttype type, expr? value, expr overloaded)
     | Cast(expr arg, cast_kind kind, ttype type, expr? value)
-    -- This ArrayPhysicalCast we only change the physical type, the logical type does not change
-    -- Note: the "new" physical type here will also be part of the "type" member
-    -- This allow to represent any combination, but we'll only support a few, at least we need:
-    -- Maybe it's easier to add an enumeration here:
-    -- Descriptor -> Pointer
-    -- Pointer -> Descriptor
-
-    -- CompileTimeFixedSizeArray -> Pointer
-    -- CompileTimeFixedSizeArray -> Descriptor
-    -- Descriptor -> NumPy
-    -- NumPy -> Descriptor
-    -- ISODescriptor -> Descriptor
-    -- Descriptor -> ISODescriptor
     | ArrayPhysicalCast(expr arg, array_physical_type old, array_physical_type new, ttype type, expr? value)
     | ComplexRe(expr arg, ttype type, expr? value)
     | ComplexIm(expr arg, ttype type, expr? value)
@@ -366,33 +178,10 @@ expr
     | IntegerBitLen(expr a, ttype type, expr? value)
     | Ichar(expr arg, ttype type, expr? value)
     | Iachar(expr arg, ttype type, expr? value)
-
     | SizeOfType(ttype arg, ttype type, expr? value)
-
     | PointerNullConstant(ttype type)
     | PointerAssociated(expr ptr, expr? tgt, ttype type, expr? value)
-
-    | IntrinsicFunctionSqrt(expr arg, ttype type, expr? value)
-
-
--- `len` in Character:
--- >=0 ... the length of the string, known at compile time
---  -1 ... character(*), i.e., inferred at runtime
---  -2 ... character(:), allocatable (possibly we might use -1 for that also)
---  -3 ... character(n+3), i.e., a runtime expression stored in `len_expr`
-
--- kind: The `kind` member selects the kind of a given type. We currently
--- support the following:
--- Integer kinds: 1 (i8), 2 (i16), 4 (i32), 8 (i64)
--- Real kinds: 4 (f32), 8 (f64)
--- Complex kinds: 4 (c32), 8 (c64)
--- Character kinds: 1 (utf8 string)
--- Logical kinds: 1, 2, 4: (boolean represented by 1, 2, 4 bytes; the default
---     kind is 4, just like the default integer kind, consistent with Python
---     and Fortran: in Python "Booleans in Python are implemented as a subclass
---     of integers", in Fortran the "default logical kind has the same storage
---     size as the default integer"; we currently use kind=4 as default
---     integer, so we also use kind=4 for the default logical.)
+    | RealSqrt(expr arg, ttype type, expr? value)
 
 ttype
     = Integer(int kind)
@@ -416,96 +205,34 @@ ttype
     | SymbolicExpression()
     | TypeParameter(identifier param)
     | Array(ttype type, dimension* dims, array_physical_type physical_type)
-    | FunctionType(ttype* arg_types, ttype? return_var_type,
-        abi abi, deftype deftype, string? bindc_name, bool elemental,
-        bool pure, bool module, bool inline, bool static,
-        symbol* restrictions, bool is_restriction)
+    | FunctionType(ttype* arg_types, ttype? return_var_type, abi abi, deftype deftype, string? bindc_name, bool elemental, bool pure, bool module, bool inline, bool static, symbol* restrictions, bool is_restriction)
 
--- TODO: prefix the enumerators here, improve the names
-array_physical_type
-    = DescriptorArray
-    | PointerToDataArray
-    | UnboundedPointerToDataArray
-    | FixedSizeArray
-    | NumPyArray
-    | ISODescriptorArray
-    | SIMDArray
-
-binop = Add | Sub | Mul | Div | Pow | BitAnd | BitOr | BitXor | BitLShift | BitRShift
-
-logicalbinop = And | Or | Xor | NEqv | Eqv
-
-cmpop = Eq | NotEq | Lt | LtE | Gt | GtE
-
-integerboz = Binary | Hex | Octal
-
-arraybound = LBound | UBound
-
-arraystorage = RowMajor | ColMajor
-
-cast_kind
-    = RealToInteger
-    | IntegerToReal
-    | LogicalToReal
-    | RealToReal
-    | IntegerToInteger
-    | RealToComplex
-    | IntegerToComplex
-    | IntegerToLogical
-    | RealToLogical
-    | CharacterToLogical
-    | CharacterToInteger
-    | CharacterToList
-    | ComplexToLogical
-    | ComplexToComplex
-    | ComplexToReal
-    | ComplexToInteger
-    | LogicalToInteger
-    | RealToCharacter
-    | IntegerToCharacter
-    | LogicalToCharacter
-    | UnsignedIntegerToInteger
-    | UnsignedIntegerToUnsignedInteger
-    | UnsignedIntegerToReal
-    | UnsignedIntegerToLogical
-    | IntegerToUnsignedInteger
-    | RealToUnsignedInteger
-    | CPtrToUnsignedInteger
-    | UnsignedIntegerToCPtr
-    | IntegerToSymbolicExpression
-
+cast_kind = RealToInteger | IntegerToReal | LogicalToReal | RealToReal | IntegerToInteger | RealToComplex | IntegerToComplex | IntegerToLogical | RealToLogical | CharacterToLogical | CharacterToInteger | CharacterToList | ComplexToLogical | ComplexToComplex | ComplexToReal | ComplexToInteger | LogicalToInteger | RealToCharacter | IntegerToCharacter | LogicalToCharacter | UnsignedIntegerToInteger | UnsignedIntegerToUnsignedInteger | UnsignedIntegerToReal | UnsignedIntegerToLogical | IntegerToUnsignedInteger | RealToUnsignedInteger | CPtrToUnsignedInteger | UnsignedIntegerToCPtr | IntegerToSymbolicExpression | ListToArray
+storage_type = Default | Save | Parameter
+access = Public | Private
+intent = Local | In | Out | InOut | ReturnVar | Unspecified
+deftype = Implementation | Interface
+presence = Required | Optional
+abi = Source | LFortranModule | GFortranModule | BindC | BindPython | BindJS | Interactive | Intrinsic
 dimension = (expr? start, expr? length)
-
 alloc_arg = (expr a, dimension* dims, expr? len_expr, ttype? type)
-
 attribute = Attribute(identifier name, attribute_arg *args)
-
 attribute_arg = (identifier arg)
-
 call_arg = (expr? value)
-
 tbind = Bind(string lang, string name)
-
 array_index = (expr? left, expr? right, expr? step)
-
 do_loop_head = (expr? v, expr? start, expr? end, expr? increment)
-
-case_stmt = CaseStmt(expr* test, stmt* body) | CaseStmt_Range(expr? start, expr? end, stmt* body)
-
-type_stmt
-    = TypeStmtName(symbol sym, stmt* body)
-    | ClassStmt(symbol sym, stmt* body)
-    | TypeStmtType(ttype type, stmt* body)
-
+case_stmt = CaseStmt(expr* test, stmt* body, bool fall_through) | CaseStmt_Range(expr? start, expr? end, stmt* body)
+type_stmt = TypeStmtName(symbol sym, stmt* body) | ClassStmt(symbol sym, stmt* body) | TypeStmtType(ttype type, stmt* body)
 enumtype = IntegerConsecutiveFromZero | IntegerUnique | IntegerNotUnique | NonInteger
-
 require_instantiation = Require(identifier name, identifier* args)
-
-string_format_kind
-    = FormatFortran        -- "(f8.3,i4.2)", a, b
-    | FormatC              -- "%f: %d", a, b
-    | FormatPythonPercent  -- "%f: %d" % (a, b)
-    | FormatPythonFString  -- f"{a}: {b}"
-    | FormatPythonFormat   -- "{}: {}".format(a, b)
+array_physical_type = DescriptorArray | PointerToDataArray | UnboundedPointerToDataArray | FixedSizeArray | CharacterArraySinglePointer | NumPyArray | ISODescriptorArray | SIMDArray
+binop = Add | Sub | Mul | Div | Pow | BitAnd | BitOr | BitXor | BitLShift | BitRShift
+logicalbinop = And | Or | Xor | NEqv | Eqv
+cmpop = Eq | NotEq | Lt | LtE | Gt | GtE
+integerboz = Binary | Hex | Octal
+arraybound = LBound | UBound
+arraystorage = RowMajor | ColMajor
+string_format_kind = FormatFortran | FormatC | FormatPythonPercent | FormatPythonFString | FormatPythonFormat
 
 }

@@ -6,3 +6,7 @@ semantic error: Type mismatch in procedure call; the types must be compatible
    |
  9 |     a : i8[4] = empty(4, dtype=int8)
    |         ^^^^^ type mismatch (passed argument type is list[i8] but required type is i8[4])
+
+
+Note: Please report unclear or confusing messages as bugs at
+https://github.com/lcompilers/lpython/issues.

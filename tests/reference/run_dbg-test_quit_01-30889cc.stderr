@@ -4,4 +4,4 @@
     test()
   File "tests/runtime_errors/test_quit_01.py", line 2
     quit(10)
-STOP
+STOP 10

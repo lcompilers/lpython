@@ -6,3 +6,7 @@ semantic error: Type mismatch in procedure call; the types must be compatible
   |
 5 |     cptr_member: CPtr
   |                  ^^^^ type mismatch (passed argument type is i32 but required type is CPtr)
+
+
+Note: Please report unclear or confusing messages as bugs at
+https://github.com/lcompilers/lpython/issues.

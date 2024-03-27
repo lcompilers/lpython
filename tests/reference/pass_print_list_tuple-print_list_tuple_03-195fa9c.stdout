@@ -125,7 +125,7 @@
                                     )
                                     []
                                     []
-                                    [(=
+                                    [(Assignment
                                         (Var 3 x)
                                         (DictConstant
                                             [(IntegerConstant 1 (Integer 4))
@@ -156,7 +156,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 y)
                                         (DictConstant
                                             [(IntegerConstant 1 (Integer 4))
@@ -457,6 +457,7 @@
                                             )]
                                             []
                                         )]
+                                        []
                                     )
                                     (Print
                                         [(StringConstant

@@ -203,7 +203,7 @@
                                     )
                                     []
                                     [(Var 4 a)]
-                                    [(=
+                                    [(Assignment
                                         (Var 4 a1)
                                         (StructTypeConstructor
                                             2 A
@@ -227,7 +227,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 4 a2)
                                         (GetPointer
                                             (Var 4 a1)
@@ -254,7 +254,7 @@
                                         ()
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 4 x)
                                         (StructInstanceMember
                                             (Var 4 a2)
@@ -264,7 +264,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 4 y)
                                         (StructInstanceMember
                                             (Var 4 a2)
@@ -347,7 +347,7 @@
                                     )
                                     [f]
                                     []
-                                    [(=
+                                    [(Assignment
                                         (Var 5 b)
                                         (PointerNullConstant
                                             (CPtr)

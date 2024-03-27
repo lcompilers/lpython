@@ -36,7 +36,7 @@ def test_list_reverse():
         l3.reverse()
         assert l3 == l4
         j += 0.1
-    
+
     l5 = ["abcd", "efgh", "ijkl"]
     for s in l5:
         l6.reverse()
@@ -44,7 +44,7 @@ def test_list_reverse():
         l7.append(s)
         l6.reverse()
         assert l6 == l7
-    
+
     l8 = [[1, 2], [3, 4, 5], [6, 7, 8, 9], [10]]
     l8.reverse()
     assert l8 == [[10], [6, 7, 8, 9], [3, 4, 5], [1, 2]]

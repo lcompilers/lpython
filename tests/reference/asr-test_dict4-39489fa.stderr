@@ -3,3 +3,7 @@ semantic error: Type mismatch in annotation-assignment, the types must be compat
   |
 2 |     d: dict[i32, i32] = {1: "a", 2: "b"}
   |     ^                   ^^^^^^^^^^^^^^^^ type mismatch ('dict[i32, i32]' and 'dict[i32, str]')
+
+
+Note: Please report unclear or confusing messages as bugs at
+https://github.com/lcompilers/lpython/issues.

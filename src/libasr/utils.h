@@ -28,6 +28,8 @@ struct PassOptions {
     std::filesystem::path mod_files_dir;
     std::vector<std::filesystem::path> include_dirs;
 
+    int default_integer_kind = 4;
+
     std::string run_fun; // for global_stmts pass
     // TODO: Convert to std::filesystem::path (also change find_and_load_module())
     std::string runtime_library_dir;
@@ -55,6 +57,7 @@ struct PassOptions {
     bool visualize = false;
     bool tree = false;
     bool with_intrinsic_mods = false;
+    bool c_mangling = false;
 };
 
 struct CompilerOptions {
@@ -68,10 +71,15 @@ struct CompilerOptions {
     bool c_preprocessor = false;
     std::vector<std::string> c_preprocessor_defines;
     bool prescan = true;
+    bool disable_main = false;
     bool symtab_only = false;
     bool show_stacktrace = false;
     bool use_colors = true;
     bool indent = true;
+    bool json = false;
+    bool tree = false;
+    bool visualize = false;
+    bool fast = false;
     bool openmp = false;
     bool generate_object_code = false;
     bool no_warnings = false;

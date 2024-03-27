@@ -3,3 +3,7 @@ semantic error: Constant variable x is not initialised at declaration.
   |
 4 |     x: Const[i32]
   |     ^^^^^^^^^^^^^ 
+
+
+Note: Please report unclear or confusing messages as bugs at
+https://github.com/lcompilers/lpython/issues.

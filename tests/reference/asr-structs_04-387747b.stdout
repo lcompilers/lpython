@@ -395,7 +395,7 @@
                                     )
                                     [f]
                                     []
-                                    [(=
+                                    [(Assignment
                                         (Var 6 a1)
                                         (StructTypeConstructor
                                             2 A
@@ -419,7 +419,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 6 a2)
                                         (StructTypeConstructor
                                             2 A
@@ -443,7 +443,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 6 b)
                                         (StructTypeConstructor
                                             2 B
@@ -456,7 +456,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (StructInstanceMember
                                             (Var 6 b)
                                             4 a
@@ -468,7 +468,7 @@
                                         (Var 6 a2)
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (StructInstanceMember
                                             (Var 6 b)
                                             4 z
@@ -478,7 +478,7 @@
                                         (IntegerConstant 1 (Integer 4))
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (StructInstanceMember
                                             (StructInstanceMember
                                                 (Var 6 b)
@@ -495,7 +495,7 @@
                                         (IntegerConstant 2 (Integer 4))
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (StructInstanceMember
                                             (StructInstanceMember
                                                 (Var 6 b)

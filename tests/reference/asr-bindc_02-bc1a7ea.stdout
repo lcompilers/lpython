@@ -156,16 +156,16 @@
                                     )
                                     []
                                     []
-                                    [(=
+                                    [(Assignment
                                         (Var 220 yq)
                                         (PointerNullConstant
                                             (CPtr)
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 220 y)
-                                        (ArrayConstant
+                                        (ArrayConstructor
                                             []
                                             (Array
                                                 (Integer 2)
@@ -173,11 +173,12 @@
                                                 (IntegerConstant 2 (Integer 4)))]
                                                 FixedSizeArray
                                             )
+                                            ()
                                             RowMajor
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (ArrayItem
                                             (Var 220 y)
                                             [(()
@@ -195,7 +196,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (ArrayItem
                                             (Var 220 y)
                                             [(()
@@ -213,7 +214,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 220 yptr1)
                                         (GetPointer
                                             (Var 220 y)

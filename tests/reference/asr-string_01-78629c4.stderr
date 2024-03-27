@@ -3,3 +3,7 @@ semantic error: Type mismatch in index, expected a single integer or slice
   |
 3 |     print(x[2, 5])
   |             ^^^^ type mismatch (found: 'tuple[i32, i32]', expected: 'i32' or slice)
+
+
+Note: Please report unclear or confusing messages as bugs at
+https://github.com/lcompilers/lpython/issues.

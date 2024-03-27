@@ -243,6 +243,28 @@ public:
         current_symtab = parent_symtab;
     }
 
+    void visit_Requirement(const Requirement_t &x) {
+        SymbolTable *parent_symtab = current_symtab;
+        current_symtab = x.m_symtab;
+        x.m_symtab->parent = parent_symtab;
+        x.m_symtab->asr_owner = (asr_t*)&x;
+        for (auto &a : x.m_symtab->get_scope()) {
+            this->visit_symbol(*a.second);
+        }
+        current_symtab = parent_symtab;
+    }
+
+    void visit_Template(const Template_t &x) {
+        SymbolTable *parent_symtab = current_symtab;
+        current_symtab = x.m_symtab;
+        x.m_symtab->parent = parent_symtab;
+        x.m_symtab->asr_owner = (asr_t*)&x;
+        for (auto &a : x.m_symtab->get_scope()) {
+            this->visit_symbol(*a.second);
+        }
+        current_symtab = parent_symtab;
+    }
+
 };
 
 class FixExternalSymbolsVisitor : public BaseWalkVisitor<FixExternalSymbolsVisitor>
@@ -341,6 +363,10 @@ public:
                         x.n_scope_names, x.m_scope_names);
             } else if( ASR::is_a<ASR::EnumType_t>(*m_sym) ) {
                 EnumType_t *m = down_cast<EnumType_t>(m_sym);
+                sym = m->m_symtab->find_scoped_symbol(original_name,
+                        x.n_scope_names, x.m_scope_names);
+            } else if( ASR::is_a<ASR::Function_t>(*m_sym) ) {
+                Function_t *m = down_cast<Function_t>(m_sym);
                 sym = m->m_symtab->find_scoped_symbol(original_name,
                         x.n_scope_names, x.m_scope_names);
             }

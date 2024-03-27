@@ -263,7 +263,7 @@
                                     )
                                     []
                                     []
-                                    [(=
+                                    [(Assignment
                                         (Var 3 a1)
                                         (TupleConstant
                                             [(IntegerConstant 1 (Integer 4))
@@ -277,7 +277,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 a1)
                                         (TupleConstant
                                             [(IntegerUnaryMinus
@@ -303,7 +303,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 a2)
                                         (TupleConstant
                                             [(StringConstant
@@ -326,7 +326,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 float_mem)
                                         (Cast
                                             (RealConstant
@@ -342,7 +342,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 a3)
                                         (TupleConstant
                                             [(IntegerUnaryMinus
@@ -369,7 +369,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 a4)
                                         (TupleConstant
                                             [(TupleConstant
@@ -407,7 +407,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 float_mem1)
                                         (Cast
                                             (RealConstant
@@ -423,7 +423,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 float_mem2)
                                         (Cast
                                             (RealConstant
@@ -439,7 +439,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 a5)
                                         (TupleConstant
                                             [(TupleConstant
@@ -486,7 +486,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 b0)
                                         (TupleItem
                                             (Var 3 a1)
@@ -496,7 +496,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (TupleConstant
                                             [(Var 3 b0)
                                             (Var 3 b1)]
@@ -525,7 +525,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 a11)
                                         (TupleConstant
                                             [(IntegerConstant 1 (Integer 4))
@@ -537,7 +537,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 b11)
                                         (TupleConstant
                                             [(IntegerConstant 1 (Integer 4))

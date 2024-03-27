@@ -3,3 +3,7 @@ semantic error: Inconsistent type variable for the function call
    |
 12 | print(f(1,"a"))
    |       ^^^^^^^^ 
+
+
+Note: Please report unclear or confusing messages as bugs at
+https://github.com/lcompilers/lpython/issues.

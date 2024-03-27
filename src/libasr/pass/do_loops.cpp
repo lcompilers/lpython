@@ -43,6 +43,12 @@ public:
     void visit_DoLoop(const ASR::DoLoop_t &x) {
         pass_result = PassUtils::replace_doloop(al, x, -1, use_loop_variable_after_loop);
     }
+
+    void visit_DoConcurrentLoop(const ASR::DoConcurrentLoop_t &x) {
+        ASR::asr_t* do_loop = ASR::make_DoLoop_t(al, x.base.base.loc, s2c(al, ""), x.m_head, x.m_body, x.n_body, nullptr, 0);
+        const ASR::DoLoop_t &do_loop_ref = (const ASR::DoLoop_t&)(*do_loop);
+        pass_result = PassUtils::replace_doloop(al, do_loop_ref, -1, use_loop_variable_after_loop);
+    }
 };
 
 void pass_replace_do_loops(Allocator &al, ASR::TranslationUnit_t &unit,

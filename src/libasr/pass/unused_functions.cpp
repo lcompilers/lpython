@@ -45,6 +45,7 @@ public:
         for (size_t i=0; i<x.n_body; i++) {
             visit_stmt(*x.m_body[i]);
         }
+        visit_ttype(*x.m_function_signature);
     }
 
     void visit_GenericProcedure(const ASR::GenericProcedure_t &x) {
@@ -145,11 +146,15 @@ public:
             std::string name = f->m_name;
             uint64_t h = get_hash((ASR::asr_t*)f);
             fn_used[h] = name;
+            h = get_hash((ASR::asr_t*)x.m_v);
+            fn_used[h] = name;
         }
         if (ASR::is_a<ASR::GenericProcedure_t>(*s)) {
             ASR::GenericProcedure_t *g = ASR::down_cast<ASR::GenericProcedure_t>(s);
             std::string name = g->m_name;
             uint64_t h = get_hash((ASR::asr_t*)g);
+            fn_used[h] = name;
+            h = get_hash((ASR::asr_t*)x.m_v);
             fn_used[h] = name;
         }
     }
@@ -231,7 +236,8 @@ public:
         std::vector<std::string> to_be_erased;
         for (auto it = symtab->get_scope().begin(); it != symtab->get_scope().end(); ++it) {
             uint64_t h = get_hash((ASR::asr_t*)it->second);
-            if (symtab->parent && fn_unused.find(h) != fn_unused.end()) {
+            if ((symtab->parent || (!symtab->parent && startswith(it->first, "_lcompilers_")))
+                    && fn_unused.find(h) != fn_unused.end()) {
                 to_be_erased.push_back(it->first);
             } else {
                 this->visit_symbol(*it->second);

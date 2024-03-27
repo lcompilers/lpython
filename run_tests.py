@@ -10,7 +10,7 @@ from compiler_tester.tester import color, fg, log, run_test, style, tester_main
 
 
 def single_test(test, verbose, no_llvm, skip_run_with_dbg, skip_cpptranslate, update_reference,
-                no_color, specific_backends=None, excluded_backends=None):
+                verify_hash, no_color, specific_backends=None, excluded_backends=None):
     filename = test["filename"]
     def is_included(backend):
          return test.get(backend, False) \
@@ -39,7 +39,7 @@ def single_test(test, verbose, no_llvm, skip_run_with_dbg, skip_cpptranslate, up
                            "dead_code_removal", "loop_vectorise", "print_list_tuple",
                            "class_constructor"]
 
-    if pass_ and (pass_ not in ["do_loops", "global_stmts"] and
+    if pass_ and (pass_ not in ["do_loops", "global_stmts", "while_else"] and
                   pass_ not in optimization_passes):
         raise Exception(f"Unknown pass: {pass_}")
     if no_color:

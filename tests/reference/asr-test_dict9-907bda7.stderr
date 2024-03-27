@@ -3,3 +3,7 @@ semantic error: 'dict' key type cannot be float/complex because resolving collis
   |
 4 |     d: dict[f32, f64] = {}
   |        ^^^^^^^^^^^^^^ 
+
+
+Note: Please report unclear or confusing messages as bugs at
+https://github.com/lcompilers/lpython/issues.

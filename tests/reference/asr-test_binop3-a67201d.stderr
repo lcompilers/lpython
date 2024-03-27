@@ -3,3 +3,7 @@ semantic error: Type mismatch in binary operator; the types must be compatible
   |
 5 |     y = complex(5)+100
   |         ^^^^^^^^^^ ^^^ type mismatch (c32 and i32)
+
+
+Note: Please report unclear or confusing messages as bugs at
+https://github.com/lcompilers/lpython/issues.

@@ -10,7 +10,7 @@
 #include <limits.h>
 #include <ctype.h>
 
-#if defined(_MSC_VER)
+#if defined(_WIN32)
 #  include <winsock2.h>
 #  include <io.h>
 #  define ftruncate _chsize_s
@@ -116,7 +116,7 @@ LFORTRAN_API void _lfortran_init_random_seed(unsigned seed)
 LFORTRAN_API void _lfortran_init_random_clock()
 {
     unsigned int count;
-#if defined(_MSC_VER)
+#if defined(_WIN32)
     count = (unsigned int)clock();
 #else
     struct timespec ts;
@@ -171,10 +171,10 @@ char* append_to_string(char* str, const char* append) {
     return str;
 }
 
-void handle_integer(char* format, int val, char** result) {
+void handle_integer(char* format, int64_t val, char** result) {
     int width = 0, min_width = 0;
     char* dot_pos = strchr(format, '.');
-    int len = (val == 0) ? 1 : (int)log10(abs(val)) + 1;
+    int len = (val == 0) ? 1 : (int)log10(llabs(val)) + 1;
     int sign_width = (val < 0) ? 1 : 0;
     if (dot_pos != NULL) {
         dot_pos++;
@@ -207,8 +207,7 @@ void handle_integer(char* format, int val, char** result) {
             for (int i = 0; i < (min_width - len - sign_width); i++) {
                 *result = append_to_string(*result, "0");
             }
-        }
-        else {
+        } else {
             for (int i = 0; i < (width - len - sign_width); i++) {
                 *result = append_to_string(*result, " ");
             }
@@ -217,12 +216,24 @@ void handle_integer(char* format, int val, char** result) {
             }
         }
         char str[20];
-        sprintf(str, "%d", abs(val));
+        sprintf(str, "%lld", llabs(val));
         *result = append_to_string(*result, str);
     } else {
         for (int i = 0; i < width; i++) {
             *result = append_to_string(*result, "*");
         }
+    }
+}
+
+void handle_logical(char* format, bool val, char** result) {
+    int width = atoi(format + 1);
+    for (int i = 0; i < width - 1; i++) {
+        *result = append_to_string(*result, " ");
+    }
+    if (val) {
+        *result = append_to_string(*result, "T");
+    } else {
+        *result = append_to_string(*result, "F");
     }
 }
 
@@ -297,44 +308,64 @@ void handle_float(char* format, double val, char** result) {
 }
 
 void handle_decimal(char* format, double val, int scale, char** result, char* c) {
+    // Consider an example: write(*, "(es10.2)") 1.123e+10
+    // format = "es10.2", val = 11230000128.00, scale = 0, c = "E"
     int width = 0, decimal_digits = 0;
-    int64_t integer_part = (int64_t)val;
     int sign_width = (val < 0) ? 1 : 0;
-    int integer_length = (integer_part == 0) ? 1 : (int)log10(llabs(integer_part)) + 1;
+    // sign_width = 0
+    double integer_part = trunc(val);
+    int integer_length = (integer_part == 0) ? 1 : (int)log10(fabs(integer_part)) + 1;
+    // integer_part = 11230000128, integer_length = 11
 
     char *num_pos = format ,*dot_pos = strchr(format, '.');
     decimal_digits = atoi(++dot_pos);
     while(!isdigit(*num_pos)) num_pos++;
     width = atoi(num_pos);
+    // width = 10, decimal_digits = 2
 
-    char val_str[64];
+    char val_str[128];
     // TODO: This will work for up to `E65.60` but will fail for:
     // print "(E67.62)", 1.23456789101112e-62_8
     sprintf(val_str, "%.*lf", (60-integer_length), val);
+    // val_str = "11230000128.00..."
 
     int i = strlen(val_str) - 1;
     while (val_str[i] == '0') {
         val_str[i] = '\0';
         i--;
     }
+    // val_str = "11230000128."
+
+    int exp = 2;
+    char* exp_loc = strchr(num_pos, 'e');
+    if (exp_loc != NULL) {
+        exp = atoi(++exp_loc);
+    }
+    // exp = 2;
 
     char* ptr = strchr(val_str, '.');
     if (ptr != NULL) {
         memmove(ptr, ptr + 1, strlen(ptr));
     }
+    // val_str = "11230000128"
 
     if (val < 0) {
+        // removes `-` (negative) sign
         memmove(val_str, val_str + 1, strlen(val_str));
     }
 
     int decimal = 1;
     while (val_str[0] == '0') {
+        // Used for the case: 1.123e-10
         memmove(val_str, val_str + 1, strlen(val_str));
         decimal--;
+        // loop end: decimal = -9
     }
-    if (format[1] == 'S') {
+    if (tolower(format[1]) == 's') {
         scale = 1;
         decimal--;
+        // decimal = 0,   case:  1.123e+10
+        // decimal = -10, case:  1.123e-10
     }
 
     if (dot_pos != NULL) {
@@ -361,6 +392,7 @@ void handle_decimal(char* format, double val, int scale, char** result, char* c)
 
     char formatted_value[64] = "";
     int spaces = width - sign_width - decimal_digits - 6;
+    // spaces = 2
     if (scale > 1) {
         decimal_digits -= scale - 1;
     }
@@ -369,6 +401,7 @@ void handle_decimal(char* format, double val, int scale, char** result, char* c)
     }
 
     if (sign_width == 1) {
+        // adds `-` (negative) sign
         strcat(formatted_value, "-");
     }
     if (scale <= 0) {
@@ -391,13 +424,16 @@ void handle_decimal(char* format, double val, int scale, char** result, char* c)
         char* temp = substring(val_str, 0, scale);
         strcat(formatted_value, temp);
         strcat(formatted_value, ".");
+        // formatted_value = "  1."
         char* new_str = substring(val_str, scale, strlen(val_str));
+        // new_str = "1230000128" case:  1.123e+10
         int zeros = 0;
         if (decimal_digits < strlen(new_str) && decimal_digits + scale <= 15) {
             new_str[15] = '\0';
             zeros = strspn(new_str, "0");
             long long t = (long long)round((long double)atoll(new_str) / (long long) pow(10, (strlen(new_str) - decimal_digits)));
             sprintf(new_str, "%lld", t);
+            // new_str = 12
             int index = zeros;
             while(index--) {
                 memmove(new_str + 1, new_str, strlen(new_str)+1);
@@ -406,20 +442,24 @@ void handle_decimal(char* format, double val, int scale, char** result, char* c)
         }
         new_str[decimal_digits] = '\0';
         strcat(formatted_value, new_str);
+        // formatted_value = "  1.12"
         free(new_str);
         free(temp);
     }
 
     strcat(formatted_value, c);
+    // formatted_value = "  1.12E"
 
     char exponent[12];
     if (atoi(num_pos) == 0) {
         sprintf(exponent, "%+02d", (integer_length > 0 && integer_part != 0 ? integer_length - scale : decimal));
     } else {
-        sprintf(exponent, "%+03d", (integer_length > 0 && integer_part != 0 ? integer_length - scale : decimal));
+        sprintf(exponent, "%+0*d", exp+1, (integer_length > 0 && integer_part != 0 ? integer_length - scale : decimal));
+        // exponent = "+10"
     }
 
     strcat(formatted_value, exponent);
+    // formatted_value = "  1.12E+10"
 
     if (strlen(formatted_value) == width + 1 && scale <= 0) {
         char* ptr = strchr(formatted_value, '0');
@@ -434,6 +474,7 @@ void handle_decimal(char* format, double val, int scale, char** result, char* c)
         }
     } else {
         *result = append_to_string(*result, formatted_value);
+        // result = "  1.12E+10"
     }
 }
 
@@ -453,6 +494,9 @@ char** parse_fortran_format(char* format, int *count, int *item_start) {
             case ',' :
                 break;
             case '/' :
+                format_values_2[format_values_count++] = substring(format, index, index+1);
+                break;
+            case '*' :
                 format_values_2[format_values_count++] = substring(format, index, index+1);
                 break;
             case '"' :
@@ -482,11 +526,20 @@ char** parse_fortran_format(char* format, int *count, int *item_start) {
             case 'd' :
             case 'e' :
             case 'f' :
+            case 'l' :
                 start = index++;
+                bool dot = false;
                 if(tolower(format[index]) == 's') index++;
                 while (isdigit(format[index])) index++;
-                if (format[index] == '.') index++;
+                if (format[index] == '.') {
+                    dot = true;
+                    index++;
+                }
                 while (isdigit(format[index])) index++;
+                if (dot && tolower(format[index]) == 'e') {
+                    index++;
+                    while (isdigit(format[index])) index++;
+                }
                 format_values_2[format_values_count++] = substring(format, start, index);
                 index--;
                 break;
@@ -497,12 +550,11 @@ char** parse_fortran_format(char* format, int *count, int *item_start) {
                 *item_start = format_values_count;
                 break;
             default :
-                if (isdigit(format[index]) && tolower(format[index+1]) == 'p') {
+                if (
+                    (format[index] == '-' && isdigit(format[index + 1]) && tolower(format[index + 2]) == 'p')
+                    || ((isdigit(format[index])) && tolower(format[index + 1]) == 'p')) {
                     start = index;
-                    if (index > 0 && format[index-1] == '-') {
-                        start = index - 1;
-                    }
-                    index = index + 1;
+                    index = index + 1 + (format[index] == '-');
                     format_values_2[format_values_count++] = substring(format, start, index + 1);
                 } else if (isdigit(format[index])) {
                     start = index;
@@ -530,6 +582,9 @@ char** parse_fortran_format(char* format, int *count, int *item_start) {
                         }
                         index--;
                     }
+                } else if (format[index] != ' ') {
+                    fprintf(stderr, "Unsupported or unrecognized `%c` in format string\n", format[index]);
+                    exit(1);
                 }
         }
         index++;
@@ -548,13 +603,14 @@ LFORTRAN_API char* _lcompilers_string_format_fortran(int count, const char* form
     modified_input_string[len] = '\0';
     if (format[0] == '(' && format[len-1] == ')') {
         memmove(modified_input_string, modified_input_string + 1, strlen(modified_input_string));
-        modified_input_string[len-1] = '\0';
+        modified_input_string[len-2] = '\0';
     }
     int format_values_count = 0,item_start_idx=0;
     char** format_values = parse_fortran_format(modified_input_string,&format_values_count,&item_start_idx);
     char* result = (char*)malloc(sizeof(char));
     result[0] = '\0';
     int item_start = 0;
+    bool array = false;
     while (1) {
         int scale = 0;
         for (int i = item_start; i < format_values_count; i++) {
@@ -588,6 +644,8 @@ LFORTRAN_API char* _lcompilers_string_format_fortran(int count, const char* form
 
             if (value[0] == '/') {
                 result = append_to_string(result, "\n");
+            } else if (value[0] == '*') {
+                array = true;
             } else if (isdigit(value[0]) && tolower(value[1]) == 'p') {
                 // Scale Factor nP
                 scale = atoi(&value[0]);
@@ -627,7 +685,7 @@ LFORTRAN_API char* _lcompilers_string_format_fortran(int count, const char* form
                 // Integer Editing ( I[w[.m]] )
                 if ( count == 0 ) break;
                 count--;
-                int val = va_arg(args, int);
+                int64_t val = va_arg(args, int64_t);
                 handle_integer(value, val, &result);
             } else if (tolower(value[0]) == 'd') {
                 // D Editing (D[w[.d]])
@@ -647,13 +705,23 @@ LFORTRAN_API char* _lcompilers_string_format_fortran(int count, const char* form
                 count--;
                 double val = va_arg(args, double);
                 handle_float(value, val, &result);
+            } else if (tolower(value[0]) == 'l') {
+                if ( count == 0 ) break;
+                count--;
+                char* val_str = va_arg(args, char*);
+                bool val = (strcmp(val_str, "True") == 0);
+                handle_logical(value, val, &result);
             } else if (strlen(value) != 0) {
+                if ( count == 0 ) break;
+                count--;
                 printf("Printing support is not available for %s format.\n",value);
             }
 
         }
         if ( count > 0 ) {
-            result = append_to_string(result, "\n");
+            if (!array) {
+                result = append_to_string(result, "\n");
+            }
             item_start = item_start_idx;
         } else {
             break;
@@ -805,16 +873,6 @@ LFORTRAN_API double_complex_t _lfortran_zsqrt(double_complex_t x)
 
 // aimag -----------------------------------------------------------------------
 
-LFORTRAN_API float _lfortran_caimag(float_complex_t x)
-{
-    return cimagf(x);
-}
-
-LFORTRAN_API double _lfortran_zaimag(double_complex_t x)
-{
-    return cimag(x);
-}
-
 LFORTRAN_API void _lfortran_complex_aimag_32(struct _lfortran_complex_32 *x, float *res)
 {
     *res = x->im;
@@ -857,6 +915,14 @@ LFORTRAN_API float _lfortran_slog(float x)
 LFORTRAN_API double _lfortran_dlog(double x)
 {
     return log(x);
+}
+
+LFORTRAN_API bool _lfortran_rsp_is_nan(float x) {
+    return isnan(x);
+}
+
+LFORTRAN_API bool _lfortran_rdp_is_nan(double x) {
+    return isnan(x);
 }
 
 LFORTRAN_API float_complex_t _lfortran_clog(float_complex_t x)
@@ -927,6 +993,622 @@ LFORTRAN_API float _lfortran_slog_gamma(float x)
 LFORTRAN_API double _lfortran_dlog_gamma(double x)
 {
     return lgamma(x);
+}
+
+// besselj0 --------------------------------------------------------------------
+
+/**
+* Ported from implementation done at:
+* https://github.com/stdlib-js/stdlib/blob/develop/lib/node_modules/%40stdlib/math/base/special/besselj0/lib/main.js
+*
+* All credits to the original authors of the implementation.
+*/
+
+/**
+* Evaluates a rational function (i.e., the ratio of two polynomials described by the coefficients stored in \\(P\\) and \\(Q\\)).
+*
+* ## Notes
+*
+* -   Coefficients should be sorted in ascending degree.
+* -   The implementation uses [Horner's rule][horners-method] for efficient computation.
+*
+* [horners-method]: https://en.wikipedia.org/wiki/Horner%27s_method
+*
+* @param x    value at which to evaluate the rational function
+* @return     evaluated rational function
+*/
+static double besselj0_rational_p1q1( const double x ) {
+	double ax;
+	double ix;
+	double s1;
+	double s2;
+	if ( x == 0.0 ) {
+		return -0.17291506903064494;
+	}
+	if ( x < 0.0 ) {
+		ax = -x;
+	} else {
+		ax = x;
+	}
+	if ( ax <= 1.0 ) {
+		s1 = -412986685009.9087 + (x * (27282507878.60594 + (x * (-621407004.2354012 + (x * (6630299.79048338 + (x * (-36629.81465510709 + (x * (103.44222815443189 + (x * -0.12117036164593528)))))))))));
+		s2 = 2388378799633.229 + (x * (26328198300.85965 + (x * (139850973.72263435 + (x * (456126.9622421994 + (x * (936.1402239233771 + (x * (1.0 + (x * 0.0)))))))))));
+	} else {
+		ix = 1.0 / x;
+		s1 = -0.12117036164593528 + (ix * (103.44222815443189 + (ix * (-36629.81465510709 + (ix * (6630299.79048338 + (ix * (-621407004.2354012 + (ix * (27282507878.60594 + (ix * -412986685009.9087)))))))))));
+		s2 = 0.0 + (ix * (1.0 + (ix * (936.1402239233771 + (ix * (456126.9622421994 + (ix * (139850973.72263435 + (ix * (26328198300.85965 + (ix * 2388378799633.229)))))))))));
+	}
+	return s1 / s2;
+}
+
+/**
+* Evaluates a rational function (i.e., the ratio of two polynomials described by the coefficients stored in \\(P\\) and \\(Q\\)).
+*
+* ## Notes
+*
+* -   Coefficients should be sorted in ascending degree.
+* -   The implementation uses [Horner's rule][horners-method] for efficient computation.
+*
+* [horners-method]: https://en.wikipedia.org/wiki/Horner%27s_method
+*
+* @param x    value at which to evaluate the rational function
+* @return     evaluated rational function
+*/
+static double besselj0_rational_p2q2( const double x ) {
+	double ax;
+	double ix;
+	double s1;
+	double s2;
+	if ( x == 0.0 ) {
+		return 0.005119512965174424;
+	}
+	if ( x < 0.0 ) {
+		ax = -x;
+	} else {
+		ax = x;
+	}
+	if ( ax <= 1.0 ) {
+		s1 = -1831.9397969392085 + (x * (-12254.07816137899 + (x * (-7287.970246446462 + (x * (10341.910641583727 + (x * (11725.046279757104 + (x * (4417.670702532509 + (x * (743.2119668062425 + (x * 48.5917033559165)))))))))))));
+		s2 = -357834.78026152303 + (x * (245991.0226258631 + (x * (-84055.06259116957 + (x * (18680.99000835919 + (x * (-2945.876654550934 + (x * (333.07310774649073 + (x * (-25.258076240801554 + (x * 1.0)))))))))))));
+	} else {
+		ix = 1.0 / x;
+		s1 = 48.5917033559165 + (ix * (743.2119668062425 + (ix * (4417.670702532509 + (ix * (11725.046279757104 + (ix * (10341.910641583727 + (ix * (-7287.970246446462 + (ix * (-12254.07816137899 + (ix * -1831.9397969392085)))))))))))));
+		s2 = 1.0 + (ix * (-25.258076240801554 + (ix * (333.07310774649073 + (ix * (-2945.876654550934 + (ix * (18680.99000835919 + (ix * (-84055.06259116957 + (ix * (245991.0226258631 + (ix * -357834.78026152303)))))))))))));
+	}
+	return s1 / s2;
+}
+
+/**
+* Evaluates a rational function (i.e., the ratio of two polynomials described by the coefficients stored in \\(P\\) and \\(Q\\)).
+*
+* ## Notes
+*
+* -   Coefficients should be sorted in ascending degree.
+* -   The implementation uses [Horner's rule][horners-method] for efficient computation.
+*
+* [horners-method]: https://en.wikipedia.org/wiki/Horner%27s_method
+*
+* @param x    value at which to evaluate the rational function
+* @return     evaluated rational function
+*/
+static double besselj0_rational_pcqc( const double x ) {
+	double ax;
+	double ix;
+	double s1;
+	double s2;
+	if ( x == 0.0 ) {
+		return 1.0;
+	}
+	if ( x < 0.0 ) {
+		ax = -x;
+	} else {
+		ax = x;
+	}
+	if ( ax <= 1.0 ) {
+		s1 = 22779.090197304686 + (x * (41345.38663958076 + (x * (21170.523380864943 + (x * (3480.648644324927 + (x * (153.76201909008356 + (x * 0.8896154842421046)))))))));
+		s2 = 22779.090197304686 + (x * (41370.41249551042 + (x * (21215.350561880117 + (x * (3502.8735138235606 + (x * (157.11159858080893 + (x * 1.0)))))))));
+	} else {
+		ix = 1.0 / x;
+		s1 = 0.8896154842421046 + (ix * (153.76201909008356 + (ix * (3480.648644324927 + (ix * (21170.523380864943 + (ix * (41345.38663958076 + (ix * 22779.090197304686)))))))));
+		s2 = 1.0 + (ix * (157.11159858080893 + (ix * (3502.8735138235606 + (ix * (21215.350561880117 + (ix * (41370.41249551042 + (ix * 22779.090197304686)))))))));
+	}
+	return s1 / s2;
+}
+
+/**
+* Evaluates a rational function (i.e., the ratio of two polynomials described by the coefficients stored in \\(P\\) and \\(Q\\)).
+*
+* ## Notes
+*
+* -   Coefficients should be sorted in ascending degree.
+* -   The implementation uses [Horner's rule][horners-method] for efficient computation.
+*
+* [horners-method]: https://en.wikipedia.org/wiki/Horner%27s_method
+*
+* @param x    value at which to evaluate the rational function
+* @return     evaluated rational function
+*/
+static double besselj0_rational_psqs( const double x ) {
+	double ax;
+	double ix;
+	double s1;
+	double s2;
+	if ( x == 0.0 ) {
+		return -0.015625;
+	}
+	if ( x < 0.0 ) {
+		ax = -x;
+	} else {
+		ax = x;
+	}
+	if ( ax <= 1.0 ) {
+		s1 = -89.22660020080009 + (x * (-185.91953644342993 + (x * (-111.83429920482737 + (x * (-22.300261666214197 + (x * (-1.244102674583564 + (x * -0.008803330304868075)))))))));
+		s2 = 5710.502412851206 + (x * (11951.131543434614 + (x * (7264.278016921102 + (x * (1488.7231232283757 + (x * (90.59376959499312 + (x * 1.0)))))))));
+	} else {
+		ix = 1.0 / x;
+		s1 = -0.008803330304868075 + (ix * (-1.244102674583564 + (ix * (-22.300261666214197 + (ix * (-111.83429920482737 + (ix * (-185.91953644342993 + (ix * -89.22660020080009)))))))));
+		s2 = 1.0 + (ix * (90.59376959499312 + (ix * (1488.7231232283757 + (ix * (7264.278016921102 + (ix * (11951.131543434614 + (ix * 5710.502412851206)))))))));
+	}
+	return s1 / s2;
+}
+
+LFORTRAN_API double _lfortran_dbesselj0( double x ) {
+	double rc;
+	double rs;
+    double si;
+    double co;
+	double y2;
+	double r;
+	double y;
+	double f;
+
+	double ONE_DIV_SQRT_PI = 0.5641895835477563;
+	double x1 = 2.4048255576957727686e+00;
+	double x2 = 5.5200781102863106496e+00;
+	double x11 = 6.160e+02;
+	double x12 = -1.42444230422723137837e-03;
+	double x21 = 1.4130e+03;
+	double x22 = 5.46860286310649596604e-04;
+
+	if ( x < 0 ) {
+		x = -x;
+	}
+	if ( x == HUGE_VAL ) {
+		return 0.0;
+	}
+	if ( x == 0 ) {
+		return 1.0;
+	}
+	if ( x <= 4.0 ) {
+		y = x * x;
+		r = besselj0_rational_p1q1( y );
+		f = ( x+x1 ) * ( (x - (x11/256.0)) - x12 );
+		return f * r;
+	}
+	if ( x <= 8.0 ) {
+		y = 1.0 - ( ( x*x )/64.0 );
+		r = besselj0_rational_p2q2( y );
+		f = ( x+x2 ) * ( (x - (x21/256.0)) - x22 );
+		return f * r;
+	}
+	y = 8.0 / x;
+	y2 = y * y;
+	rc = besselj0_rational_pcqc( y2 );
+	rs = besselj0_rational_psqs( y2 );
+	f = ONE_DIV_SQRT_PI / sqrt(x);
+
+    // __sincos(x, &si, &co);
+    si = sin(x);
+    co = cos(x);
+    return f * ( ( rc * (co+si) ) - ( (y*rs) * (si-co) ) );
+}
+
+LFORTRAN_API float _lfortran_sbesselj0( float x ) {
+    return (float)_lfortran_dbesselj0((double)x);
+}
+
+// besselj1 --------------------------------------------------------------------
+
+/**
+* Ported from implementation done at:
+* https://github.com/stdlib-js/stdlib/blob/develop/lib/node_modules/%40stdlib/math/base/special/besselj1/lib/main.js
+*
+* All credits to the original authors of the implementation.
+*/
+
+/**
+* Evaluates a rational function (i.e., the ratio of two polynomials described by the coefficients stored in \\(P\\) and \\(Q\\)).
+*
+* ## Notes
+*
+* -   Coefficients should be sorted in ascending degree.
+* -   The implementation uses [Horner's rule][horners-method] for efficient computation.
+*
+* [horners-method]: https://en.wikipedia.org/wiki/Horner%27s_method
+*
+* @param x    value at which to evaluate the rational function
+* @return     evaluated rational function
+*/
+static double besselj1_rational_p1q1( const double x ) {
+	double ax;
+	double ix;
+	double s1;
+	double s2;
+	if ( x == 0.0 ) {
+		return -0.03405537391318949;
+	}
+	if ( x < 0.0 ) {
+		ax = -x;
+	} else {
+		ax = x;
+	}
+	if ( ax <= 1.0 ) {
+		s1 = -142585098013.66644 + (x * (6678104126.14924 + (x * (-115486967.64841276 + (x * (980629.0409895825 + (x * (-4461.579298277507 + (x * (10.650724020080236 + (x * -0.010767857011487301)))))))))));
+		s2 = 4186860446082.0176 + (x * (42091902282.58013 + (x * (202283751.40097034 + (x * (591176.1449417479 + (x * (1074.227223951738 + (x * (1.0 + (x * 0.0)))))))))));
+	} else {
+		ix = 1.0 / x;
+		s1 = -0.010767857011487301 + (ix * (10.650724020080236 + (ix * (-4461.579298277507 + (ix * (980629.0409895825 + (ix * (-115486967.64841276 + (ix * (6678104126.14924 + (ix * -142585098013.66644)))))))))));
+		s2 = 0.0 + (ix * (1.0 + (ix * (1074.227223951738 + (ix * (591176.1449417479 + (ix * (202283751.40097034 + (ix * (42091902282.58013 + (ix * 4186860446082.0176)))))))))));
+	}
+	return s1 / s2;
+}
+
+/**
+* Evaluates a rational function (i.e., the ratio of two polynomials described by the coefficients stored in \\(P\\) and \\(Q\\)).
+*
+* ## Notes
+*
+* -   Coefficients should be sorted in ascending degree.
+* -   The implementation uses [Horner's rule][horners-method] for efficient computation.
+*
+* [horners-method]: https://en.wikipedia.org/wiki/Horner%27s_method
+*
+* @param x    value at which to evaluate the rational function
+* @return     evaluated rational function
+*/
+static double besselj1_rational_p2q2( const double x ) {
+	double ax;
+	double ix;
+	double s1;
+	double s2;
+	if ( x == 0.0 ) {
+		return -0.010158790774176108;
+	}
+	if ( x < 0.0 ) {
+		ax = -x;
+	} else {
+		ax = x;
+	}
+	if ( ax <= 1.0 ) {
+		s1 = -17527881995806512.0 + (x * (1660853173129901.8 + (x * (-36658018905416.664 + (x * (355806656709.1062 + (x * (-1811393126.9860668 + (x * (5079326.614801118 + (x * (-7502.334222078161 + (x * 4.6179191852758255)))))))))))));
+		s2 = 1725390588844768000.0 + (x * (17128800897135812.0 + (x * (84899346165481.42 + (x * (276227772862.44086 + (x * (648725028.9959639 + (x * (1126712.5065029138 + (x * (1388.6978985861358 + (x * 1.0)))))))))))));
+	} else {
+		ix = 1.0 / x;
+		s1 = 4.6179191852758255 + (ix * (-7502.334222078161 + (ix * (5079326.614801118 + (ix * (-1811393126.9860668 + (ix * (355806656709.1062 + (ix * (-36658018905416.664 + (ix * (1660853173129901.8 + (ix * -17527881995806512.0)))))))))))));
+		s2 = 1.0 + (ix * (1388.6978985861358 + (ix * (1126712.5065029138 + (ix * (648725028.9959639 + (ix * (276227772862.44086 + (ix * (84899346165481.42 + (ix * (17128800897135812.0 + (ix * 1725390588844768000.0)))))))))))));
+	}
+	return s1 / s2;
+}
+
+/**
+* Evaluates a rational function (i.e., the ratio of two polynomials described by the coefficients stored in \\(P\\) and \\(Q\\)).
+*
+* ## Notes
+*
+* -   Coefficients should be sorted in ascending degree.
+* -   The implementation uses [Horner's rule][horners-method] for efficient computation.
+*
+* [horners-method]: https://en.wikipedia.org/wiki/Horner%27s_method
+*
+* @param x    value at which to evaluate the rational function
+* @return     evaluated rational function
+*/
+static double besselj1_rational_pcqc( const double x ) {
+	double ax;
+	double ix;
+	double s1;
+	double s2;
+	if ( x == 0.0 ) {
+		return 1.0;
+	}
+	if ( x < 0.0 ) {
+		ax = -x;
+	} else {
+		ax = x;
+	}
+	if ( ax <= 1.0 ) {
+		s1 = -4435757.816794128 + (x * (-9942246.505077641 + (x * (-6603373.248364939 + (x * (-1523529.3511811374 + (x * (-109824.05543459347 + (x * (-1611.6166443246102 + (x * 0.0)))))))))));
+		s2 = -4435757.816794128 + (x * (-9934124.389934586 + (x * (-6585339.4797230875 + (x * (-1511809.5066341609 + (x * (-107263.8599110382 + (x * (-1455.0094401904962 + (x * 1.0)))))))))));
+	} else {
+		ix = 1.0 / x;
+		s1 = 0.0 + (ix * (-1611.6166443246102 + (ix * (-109824.05543459347 + (ix * (-1523529.3511811374 + (ix * (-6603373.248364939 + (ix * (-9942246.505077641 + (ix * -4435757.816794128)))))))))));
+		s2 = 1.0 + (ix * (-1455.0094401904962 + (ix * (-107263.8599110382 + (ix * (-1511809.5066341609 + (ix * (-6585339.4797230875 + (ix * (-9934124.389934586 + (ix * -4435757.816794128)))))))))));
+	}
+	return s1 / s2;
+}
+
+/**
+* Evaluates a rational function (i.e., the ratio of two polynomials described by the coefficients stored in \\(P\\) and \\(Q\\)).
+*
+* ## Notes
+*
+* -   Coefficients should be sorted in ascending degree.
+* -   The implementation uses [Horner's rule][horners-method] for efficient computation.
+*
+* [horners-method]: https://en.wikipedia.org/wiki/Horner%27s_method
+*
+* @param x    value at which to evaluate the rational function
+* @return     evaluated rational function
+*/
+static double besselj1_rational_psqs( const double x ) {
+	double ax;
+	double ix;
+	double s1;
+	double s2;
+	if ( x == 0.0 ) {
+		return 0.046875;
+	}
+	if ( x < 0.0 ) {
+		ax = -x;
+	} else {
+		ax = x;
+	}
+	if ( ax <= 1.0 ) {
+		s1 = 33220.913409857225 + (x * (85145.1606753357 + (x * (66178.83658127084 + (x * (18494.262873223866 + (x * (1706.375429020768 + (x * (35.26513384663603 + (x * 0.0)))))))))));
+		s2 = 708712.8194102874 + (x * (1819458.0422439973 + (x * (1419460.669603721 + (x * (400294.43582266977 + (x * (37890.2297457722 + (x * (863.8367769604992 + (x * 1.0)))))))))));
+	} else {
+		ix = 1.0 / x;
+		s1 = 0.0 + (ix * (35.26513384663603 + (ix * (1706.375429020768 + (ix * (18494.262873223866 + (ix * (66178.83658127084 + (ix * (85145.1606753357 + (ix * 33220.913409857225)))))))))));
+		s2 = 1.0 + (ix * (863.8367769604992 + (ix * (37890.2297457722 + (ix * (400294.43582266977 + (ix * (1419460.669603721 + (ix * (1819458.0422439973 + (ix * 708712.8194102874)))))))))));
+	}
+	return s1 / s2;
+}
+
+LFORTRAN_API double _lfortran_dbesselj1( double x ) {
+    double value;
+	double rc;
+	double rs;
+    double si;
+    double co;
+	double y2;
+	double r;
+	double y;
+	double f;
+    double w;
+
+    double SQRT_PI = 1.7724538509055160;
+    double x1 = 3.8317059702075123156e+00;
+    double x2 = 7.0155866698156187535e+00;
+    double x11 = 9.810e+02;
+    double x12 = -3.2527979248768438556e-04;
+    double x21 = 1.7960e+03;
+    double x22 = -3.8330184381246462950e-05;
+
+    w = fabs( x );
+    if ( x == 0.0 ) {
+		return 0.0;
+	}
+	if ( w == HUGE_VAL ) {
+		return 0.0;
+	}
+    if ( w <= 4.0 ) {
+		y = x * x;
+        r = besselj1_rational_p1q1( y );
+        f = w * ( w+x1 ) * ( ( w - (x11/256.0) ) - x12 );
+		value = f * r;
+    } else if ( w <= 8.0 ) {
+        y = x * x;
+        r = besselj1_rational_p2q2( y );
+        f = w * ( w+x2 ) * ( ( w - (x21/256.0) ) - x22 );
+        value = f * r;
+    } else {
+        y = 8.0 / w;
+		y2 = y * y;
+        rc = besselj1_rational_pcqc( y2 );
+        rs = besselj1_rational_psqs( y2 );
+        f = 1.0 / ( sqrt(w) * SQRT_PI );
+
+        // __sincos(w, &si, &co);
+        si = sin(w);
+        co = cos(w);
+        value = f * ( ( rc * (si-co) ) + ( (y*rs) * (si+co) ) );
+    }
+    if ( x < 0.0 ) {
+        value = -1.0 * value;
+    }
+    return value;
+}
+
+LFORTRAN_API float _lfortran_sbesselj1( float x ) {
+    return (float)_lfortran_dbesselj1((double)x);
+}
+
+static double bessely0_rational_p1q1( double x ) {
+	double ax;
+	double s1;
+	double s2;
+	if ( x == 0.0 ) {
+		return 0.18214429522164177;
+	}
+	if ( x < 0.0 ) {
+		ax = -x;
+	} else {
+		ax = x;
+	}
+	if ( ax <= 1.0 ) {
+		s1 = 107235387820.03177 + (x * (-8371625545.12605 + (x * (204222743.5737662 + (x * (-2128754.84744018 + (x * (10102.532948020907 + (x * -18.402381979244993)))))))));
+		s2 = 588738657389.9703 + (x * (8161718777.729036 + (x * (55662956.624278255 + (x * (238893.93209447255 + (x * (664.7598668924019 + (x * 1.0)))))))));
+	} else {
+		x = 1.0 / x;
+		s1 = -18.402381979244993 + (x * (10102.532948020907 + (x * (-2128754.84744018 + (x * (204222743.5737662 + (x * (-8371625545.12605 + (x * 107235387820.03177)))))))));
+		s2 = 1.0 + (x * (664.7598668924019 + (x * (238893.93209447255 + (x * (55662956.624278255 + (x * (8161718777.729036 + (x * 588738657389.9703)))))))));
+	}
+	return s1 / s2;
+}
+
+static double bessely0_rational_p2q2( double x ) {
+	double ax;
+	double s1;
+	double s2;
+	if ( x == 0.0 ) {
+		return -0.051200622130023854;
+	}
+	if ( x < 0.0 ) {
+		ax = -x;
+	} else {
+		ax = x;
+	}
+	if ( ax <= 1.0 ) {
+		s1 = -22213976967566.19 + (x * (-551074352067.2264 + (x * (43600098638.60306 + (x * (-695904393.9461962 + (x * (4690528.861167863 + (x * (-14566.865832663636 + (x * 17.427031242901595)))))))))));
+		s2 = 433861465807072.6 + (x * (5426682441941.234 + (x * (34015103849.97124 + (x * (139602027.7098683 + (x * (406699.82352539554 + (x * (830.3085761207029 + (x * 1.0)))))))))));
+	} else {
+		x = 1.0 / x;
+		s1 = 17.427031242901595 + (x * (-14566.865832663636 + (x * (4690528.861167863 + (x * (-695904393.9461962 + (x * (43600098638.60306 + (x * (-551074352067.2264 + (x * -22213976967566.19)))))))))));
+		s2 = 1.0 + (x * (830.3085761207029 + (x * (406699.82352539554 + (x * (139602027.7098683 + (x * (34015103849.97124 + (x * (5426682441941.234 + (x * 433861465807072.6)))))))))));
+	}
+	return s1 / s2;
+}
+
+static double bessely0_rational_p3q3( double x ) {
+	double ax;
+	double s1;
+	double s2;
+	if ( x == 0.0 ) {
+		return -0.023356489432789604;
+	}
+	if ( x < 0.0 ) {
+		ax = -x;
+	} else {
+		ax = x;
+	}
+	if ( ax <= 1.0 ) {
+		s1 = -8072872690515021.0 + (x * (670166418691732.4 + (x * (-128299123640.88687 + (x * (-193630512667.72083 + (x * (2195882717.0518103 + (x * (-10085539.923498211 + (x * (21363.5341693139 + (x * -17.439661319197498)))))))))))));
+		s2 = 345637246288464600.0 + (x * (3927242556964031.0 + (x * (22598377924042.9 + (x * (86926121104.20982 + (x * (247272194.75672302 + (x * (539247.3920976806 + (x * (879.0336216812844 + (x * 1.0)))))))))))));
+	} else {
+		x = 1.0 / x;
+		s1 = -17.439661319197498 + (x * (21363.5341693139 + (x * (-10085539.923498211 + (x * (2195882717.0518103 + (x * (-193630512667.72083 + (x * (-128299123640.88687 + (x * (670166418691732.4 + (x * -8072872690515021.0)))))))))))));
+		s2 = 1.0 + (x * (879.0336216812844 + (x * (539247.3920976806 + (x * (247272194.75672302 + (x * (86926121104.20982 + (x * (22598377924042.9 + (x * (3927242556964031.0 + (x * 345637246288464600.0)))))))))))));
+	}
+	return s1 / s2;
+}
+
+static double bessely0_rational_pcqc( double x ) {
+	double ax;
+	double s1;
+	double s2;
+	if ( x == 0.0 ) {
+		return 1.0;
+	}
+	if ( x < 0.0 ) {
+		ax = -x;
+	} else {
+		ax = x;
+	}
+	if ( ax <= 1.0 ) {
+		s1 = 22779.090197304686 + (x * (41345.38663958076 + (x * (21170.523380864943 + (x * (3480.648644324927 + (x * (153.76201909008356 + (x * 0.8896154842421046))))))))); // eslint-disable-line max-len
+		s2 = 22779.090197304686 + (x * (41370.41249551042 + (x * (21215.350561880117 + (x * (3502.8735138235606 + (x * (157.11159858080893 + (x * 1.0))))))))); // eslint-disable-line max-len
+	} else {
+		x = 1.0 / x;
+		s1 = 0.8896154842421046 + (x * (153.76201909008356 + (x * (3480.648644324927 + (x * (21170.523380864943 + (x * (41345.38663958076 + (x * 22779.090197304686))))))))); // eslint-disable-line max-len
+		s2 = 1.0 + (x * (157.11159858080893 + (x * (3502.8735138235606 + (x * (21215.350561880117 + (x * (41370.41249551042 + (x * 22779.090197304686))))))))); // eslint-disable-line max-len
+	}
+	return s1 / s2;
+}
+
+static double bessely0_rational_psqs( double x ) {
+	double ax;
+	double s1;
+	double s2;
+	if ( x == 0.0 ) {
+		return -0.015625;
+	}
+	if ( x < 0.0 ) {
+		ax = -x;
+	} else {
+		ax = x;
+	}
+	if ( ax <= 1.0 ) {
+		s1 = -89.22660020080009 + (x * (-185.91953644342993 + (x * (-111.83429920482737 + (x * (-22.300261666214197 + (x * (-1.244102674583564 + (x * -0.008803330304868075))))))))); // eslint-disable-line max-len
+		s2 = 5710.502412851206 + (x * (11951.131543434614 + (x * (7264.278016921102 + (x * (1488.7231232283757 + (x * (90.59376959499312 + (x * 1.0))))))))); // eslint-disable-line max-len
+	} else {
+		x = 1.0 / x;
+		s1 = -0.008803330304868075 + (x * (-1.244102674583564 + (x * (-22.300261666214197 + (x * (-111.83429920482737 + (x * (-185.91953644342993 + (x * -89.22660020080009))))))))); // eslint-disable-line max-len
+		s2 = 1.0 + (x * (90.59376959499312 + (x * (1488.7231232283757 + (x * (7264.278016921102 + (x * (11951.131543434614 + (x * 5710.502412851206))))))))); // eslint-disable-line max-len
+	}
+	return s1 / s2;
+}
+
+LFORTRAN_API double _lfortran_dbessely0( double x ) {
+
+    double PI = 3.14159265358979323846;
+    double SQRT_PI = 1.7724538509055160273;
+    double ONE_DIV_SQRT_PI = 1.0 / SQRT_PI;
+    double TWO_DIV_PI = 2.0 / PI;
+
+    double x1 = 8.9357696627916752158e-01;
+    double x2 = 3.9576784193148578684e+00;
+    double x3 = 7.0860510603017726976e+00;
+    double x11 = 2.280e+02;
+    double x12 = 2.9519662791675215849e-03;
+    double x21 = 1.0130e+03;
+    double x22 = 6.4716931485786837568e-04;
+    double x31 = 1.8140e+03;
+    double x32 = 1.1356030177269762362e-04;
+
+    double rc;
+	double rs;
+	double y2;
+	double r;
+	double y;
+	double z;
+	double f;
+    double si;
+    double co;
+
+	if ( x < 0.0 ) {
+		return nan("1");
+	}
+	if ( x == 0.0 ) {
+		return -1*HUGE_VAL;
+	}
+	if ( x == HUGE_VAL ) {
+		return 0.0;
+	}
+	if ( x <= 3.0 ) {
+		y = x * x;
+		z = ( _lfortran_dlog(x/x1) * _lfortran_dbesselj0(x) ) * TWO_DIV_PI;
+		r = bessely0_rational_p1q1( y );
+		f = ( x+x1 ) * ( ( x - (x11/256.0) ) - x12 );
+		return z + ( f*r );
+	}
+    if ( x <= 5.5 ) {
+		y = x * x;
+		z = ( _lfortran_dlog(x/x1) * _lfortran_dbesselj0(x) ) * TWO_DIV_PI;
+		r = bessely0_rational_p2q2( y );
+		f = ( x+x2 ) * ( (x - (x21/256.0)) - x22 );
+		return z + ( f*r );
+	}
+	if ( x <= 8.0 ) {
+		y = x * x;
+		z = ( _lfortran_dlog(x/x1) * _lfortran_dbesselj0(x) ) * TWO_DIV_PI;
+		r = bessely0_rational_p3q3( y );
+		f = ( x+x3 ) * ( (x - (x31/256.0)) - x32 );
+		return z + ( f*r );
+	}
+	y = 8.0 / x;
+	y2 = y * y;
+	rc = bessely0_rational_pcqc( y2 );
+	rs = bessely0_rational_psqs( y2 );
+	f = ONE_DIV_SQRT_PI / sqrt( x );
+
+    // __sincos(w, &si, &co);
+    si = sin(x);
+    co = cos(x);
+    return f * ( ( rc * (si-co) ) + ( (y*rs) * (si+co) ) );
+}
+
+LFORTRAN_API float _lfortran_sbessely0( float x ) {
+    return (float)_lfortran_dbessely0((double)x);
 }
 
 // sin -------------------------------------------------------------------------
@@ -1287,9 +1969,13 @@ LFORTRAN_API void _lfortran_strcpy(char** x, char *y, int8_t free_target)
         if (*x) {
             free((void *)*x);
         }
+        // *x = (char*) malloc((strlen(y) + 1) * sizeof(char));
+        // _lfortran_string_init(strlen(y) + 1, *x);
     }
-    *x = (char*) malloc((strlen(y) + 1) * sizeof(char));
-    _lfortran_string_init(strlen(y) + 1, *x);
+    // if( *x == NULL ) {
+        *x = (char*) malloc((strlen(y) + 1) * sizeof(char));
+        _lfortran_string_init(strlen(y) + 1, *x);
+    // }
     for (size_t i = 0; i < strlen(*x); i++) {
         if (i < strlen(y)) {
             x[0][i] = y[i];
@@ -1594,8 +2280,10 @@ LFORTRAN_API char* _lfortran_str_slice_assign(char* s, char *r, int32_t idx1, in
     }
     if (idx1 == idx2 ||
         (step > 0 && (idx1 > idx2 || idx1 >= s_len)) ||
-        (step < 0 && (idx1 < idx2 || idx2 >= s_len-1)))
-        return "";
+        (step < 0 && (idx1 < idx2 || idx2 >= s_len-1))) {
+        return s;
+    }
+
     char* dest_char = (char*)malloc(s_len);
     strcpy(dest_char, s);
     int s_i = idx1, d_i = 0;
@@ -1672,82 +2360,6 @@ LFORTRAN_API void _lfortran_string_init(int size_plus_one, char *s) {
 
 // bit  ------------------------------------------------------------------------
 
-LFORTRAN_API int32_t _lfortran_iand32(int32_t x, int32_t y) {
-    return x & y;
-}
-
-LFORTRAN_API int64_t _lfortran_iand64(int64_t x, int64_t y) {
-    return x & y;
-}
-
-LFORTRAN_API int32_t _lfortran_not32(int32_t x) {
-    return ~ x;
-}
-
-LFORTRAN_API int64_t _lfortran_not64(int64_t x) {
-    return ~ x;
-}
-
-LFORTRAN_API int32_t _lfortran_ior32(int32_t x, int32_t y) {
-    return x | y;
-}
-
-LFORTRAN_API int64_t _lfortran_ior64(int64_t x, int64_t y) {
-    return x | y;
-}
-
-LFORTRAN_API int32_t _lfortran_ieor32(int32_t x, int32_t y) {
-    return x ^ y;
-}
-
-LFORTRAN_API int64_t _lfortran_ieor64(int64_t x, int64_t y) {
-    return x ^ y;
-}
-
-LFORTRAN_API int32_t _lfortran_ibclr32(int32_t i, int pos) {
-    return i & ~(1 << pos);
-}
-
-LFORTRAN_API int64_t _lfortran_ibclr64(int64_t i, int pos) {
-    return i & ~(1LL << pos);
-}
-
-LFORTRAN_API int32_t _lfortran_ibset32(int32_t i, int pos) {
-    return i | (1 << pos);
-}
-
-LFORTRAN_API int64_t _lfortran_ibset64(int64_t i, int pos) {
-    return i | (1LL << pos);
-}
-
-LFORTRAN_API int32_t _lfortran_btest32(int32_t i, int pos) {
-    return i & (1 << pos);
-}
-
-LFORTRAN_API int64_t _lfortran_btest64(int64_t i, int pos) {
-    return i & (1LL << pos);
-}
-
-LFORTRAN_API int32_t _lfortran_ishft32(int32_t i, int32_t shift) {
-    if(shift > 0) {
-        return i << shift;
-    } else if(shift < 0) {
-        return i >> abs(shift);
-    } else {
-        return i;
-    }
-}
-
-LFORTRAN_API int64_t _lfortran_ishft64(int64_t i, int64_t shift) {
-    if(shift > 0) {
-        return i << shift;
-    } else if(shift < 0) {
-        return i >> llabs(shift);
-    } else {
-        return i;
-    }
-}
-
 LFORTRAN_API int32_t _lfortran_mvbits32(int32_t from, int32_t frompos,
                                         int32_t len, int32_t to, int32_t topos) {
     uint32_t all_ones = ~0;
@@ -1776,46 +2388,6 @@ LFORTRAN_API int64_t _lfortran_mvbits64(int64_t from, int32_t frompos,
     return (~all_ones & uto) | ufrom;
 }
 
-LFORTRAN_API int32_t _lfortran_bgt32(int32_t i, int32_t j) {
-    uint32_t ui = i, uj = j;
-    return ui > uj;
-}
-
-LFORTRAN_API int32_t _lfortran_bgt64(int64_t i, int64_t j) {
-    uint64_t ui = i, uj = j;
-    return ui > uj;
-}
-
-LFORTRAN_API int32_t _lfortran_bge32(int32_t i, int32_t j) {
-    uint32_t ui = i, uj = j;
-    return ui >= uj;
-}
-
-LFORTRAN_API int32_t _lfortran_bge64(int64_t i, int64_t j) {
-    uint64_t ui = i, uj = j;
-    return ui >= uj;
-}
-
-LFORTRAN_API int32_t _lfortran_ble32(int32_t i, int32_t j) {
-    uint32_t ui = i, uj = j;
-    return ui <= uj;
-}
-
-LFORTRAN_API int32_t _lfortran_ble64(int64_t i, int64_t j) {
-    uint64_t ui = i, uj = j;
-    return ui <= uj;
-}
-
-LFORTRAN_API int32_t _lfortran_blt32(int32_t i, int32_t j) {
-    uint32_t ui = i, uj = j;
-    return ui < uj;
-}
-
-LFORTRAN_API int32_t _lfortran_blt64(int64_t i, int64_t j) {
-    uint64_t ui = i, uj = j;
-    return ui < uj;
-}
-
 LFORTRAN_API int32_t _lfortran_ibits32(int32_t i, int32_t pos, int32_t len) {
     uint32_t ui = i;
     return ((ui << (BITS_32 - pos - len)) >> (BITS_32 - len));
@@ -1836,13 +2408,13 @@ LFORTRAN_API void _lfortran_cpu_time(double *t) {
 
 LFORTRAN_API void _lfortran_i32sys_clock(
         int32_t *count, int32_t *rate, int32_t *max) {
-#if defined(_MSC_VER) || defined(__MACH__)
+#if defined(_WIN32)
         *count = - INT_MAX;
         *rate = 0;
         *max = 0;
 #else
     struct timespec ts;
-    if(clock_gettime(CLOCK_MONOTONIC, &ts) == -1) {
+    if(clock_gettime(CLOCK_MONOTONIC, &ts) == 0) {
         *count = (int32_t)(ts.tv_nsec / 1000000) + ((int32_t)ts.tv_sec * 1000);
         *rate = 1e3; // milliseconds
         *max = INT_MAX;
@@ -1856,13 +2428,43 @@ LFORTRAN_API void _lfortran_i32sys_clock(
 
 LFORTRAN_API void _lfortran_i64sys_clock(
         uint64_t *count, int64_t *rate, int64_t *max) {
-#if defined(_MSC_VER) || defined(__MACH__)
+#if defined(_WIN32)
         *count = - INT_MAX;
         *rate = 0;
         *max = 0;
 #else
     struct timespec ts;
-    if(clock_gettime(CLOCK_MONOTONIC, &ts) == -1) {
+    if(clock_gettime(CLOCK_MONOTONIC, &ts) == 0) {
+        *count = (uint64_t)(ts.tv_nsec) + ((uint64_t)ts.tv_sec * 1000000000);
+        // FIXME: Rate can be in microseconds or nanoseconds depending on
+        //          resolution of the underlying platform clock.
+        *rate = 1e9; // nanoseconds
+        *max = LLONG_MAX;
+    } else {
+        *count = - LLONG_MAX;
+        *rate = 0;
+        *max = 0;
+    }
+#endif
+}
+
+LFORTRAN_API void _lfortran_i64r64sys_clock(
+        uint64_t *count, double *rate, int64_t *max) {
+double ratev;
+int64_t maxv;
+if( rate == NULL ) {
+    rate = &ratev;
+}
+if( max == NULL ) {
+    max = &maxv;
+}
+#if defined(_WIN32)
+        *count = - INT_MAX;
+        *rate = 0;
+        *max = 0;
+#else
+    struct timespec ts;
+    if(clock_gettime(CLOCK_MONOTONIC, &ts) == 0) {
         *count = (uint64_t)(ts.tv_nsec) + ((uint64_t)ts.tv_sec * 1000000000);
         // FIXME: Rate can be in microseconds or nanoseconds depending on
         //          resolution of the underlying platform clock.
@@ -1878,7 +2480,7 @@ LFORTRAN_API void _lfortran_i64sys_clock(
 
 LFORTRAN_API double _lfortran_time()
 {
-#if defined(_MSC_VER)
+#if defined(_WIN32)
     FILETIME ft;
     ULARGE_INTEGER uli;
     GetSystemTimeAsFileTime(&ft);
@@ -1894,12 +2496,12 @@ LFORTRAN_API double _lfortran_time()
 #endif
 }
 
-LFORTRAN_API void _lfortran_sp_rand_num(float *x) {
-    *x = rand() / (float) RAND_MAX;
+LFORTRAN_API float _lfortran_sp_rand_num() {
+    return rand() / (float) RAND_MAX;
 }
 
-LFORTRAN_API void _lfortran_dp_rand_num(double *x) {
-    *x = rand() / (double) RAND_MAX;
+LFORTRAN_API double _lfortran_dp_rand_num() {
+    return rand() / (double) RAND_MAX;
 }
 
 LFORTRAN_API int64_t _lpython_open(char *path, char *flags)
@@ -2378,7 +2980,7 @@ LFORTRAN_API void _lfortran_read_double(double *p, int32_t unit_num)
     }
 }
 
-LFORTRAN_API void _lfortran_formatted_read(int32_t unit_num, int32_t* iostat, char* fmt, int32_t no_of_args, ...)
+LFORTRAN_API void _lfortran_formatted_read(int32_t unit_num, int32_t* iostat, int32_t* chunk, char* fmt, int32_t no_of_args, ...)
 {
     if (!streql(fmt, "(a)")) {
         printf("Only (a) supported as fmt currently");
@@ -2411,11 +3013,21 @@ LFORTRAN_API void _lfortran_formatted_read(int32_t unit_num, int32_t* iostat, ch
     }
 
     *iostat = !(fgets(*arg, n+1, filep) == *arg);
-    (*arg)[strcspn(*arg, "\n")] = 0;
+    if (streql(*arg, "\n")) {
+        *iostat = -2;
+    }
+    int len = strcspn(*arg, "\n");
+    *chunk = len;
+    (*arg)[len] = 0;
     va_end(args);
 }
 
 LFORTRAN_API void _lfortran_empty_read(int32_t unit_num, int32_t* iostat) {
+    if (unit_num == -1) {
+        // Read from stdin
+        return;
+    }
+
     bool unit_file_bin;
     FILE* fp = get_file_pointer_from_unit(unit_num, &unit_file_bin);
     if (!fp) {
@@ -2453,7 +3065,7 @@ LFORTRAN_API char* _lpython_read(int64_t fd, int64_t n)
     return c;
 }
 
-LFORTRAN_API void _lfortran_file_write(int32_t unit_num, const char *format, ...)
+LFORTRAN_API void _lfortran_file_write(int32_t unit_num, int32_t* iostat, const char *format, ...)
 {
     bool unit_file_bin;
     FILE* filep = get_file_pointer_from_unit(unit_num, &unit_file_bin);
@@ -2470,9 +3082,10 @@ LFORTRAN_API void _lfortran_file_write(int32_t unit_num, const char *format, ...
     va_end(args);
 
     (void)!ftruncate(fileno(filep), ftell(filep));
+    *iostat = 0;
 }
 
-LFORTRAN_API void _lfortran_string_write(char **str, const char *format, ...) {
+LFORTRAN_API void _lfortran_string_write(char **str, int32_t* iostat, const char *format, ...) {
     va_list args;
     va_start(args, format);
     char *s = (char *) malloc(strlen(*str)*sizeof(char));
@@ -2480,6 +3093,11 @@ LFORTRAN_API void _lfortran_string_write(char **str, const char *format, ...) {
     _lfortran_strcpy(str, s, 0);
     free(s);
     va_end(args);
+    *iostat = 0;
+}
+
+LFORTRAN_API void _lfortran_string_read(char *str, char *format, int *i) {
+    sscanf(str, format, i);
 }
 
 LFORTRAN_API void _lpython_close(int64_t fd)
@@ -2544,6 +3162,13 @@ LFORTRAN_API char *_lpython_get_argv(int32_t index) {
 }
 
 // << Command line arguments << ------------------------------------------------
+
+// Initial setup
+LFORTRAN_API void _lpython_call_initial_functions(int32_t argc_1, char *argv_1[]) {
+    _lpython_set_argv(argc_1, argv_1);
+    _lfortran_init_random_clock();
+}
+// << Initial setup << ---------------------------------------------------------
 
 // >> Runtime Stacktrace >> ----------------------------------------------------
 #ifdef HAVE_RUNTIME_STACKTRACE

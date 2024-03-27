@@ -3,3 +3,7 @@ semantic error: Target type specified in c_p_pointer must have deferred shape.
   |
 6 |     A: Pointer[i16[:]] = c_p_pointer(b, i16[n * k], array([k * n]))
   |                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
+
+
+Note: Please report unclear or confusing messages as bugs at
+https://github.com/lcompilers/lpython/issues.

@@ -3,3 +3,7 @@ semantic error: Division is not supported for string type
   |
 6 |     print(a/b)
   |           ^ ^ string not supported in division
+
+
+Note: Please report unclear or confusing messages as bugs at
+https://github.com/lcompilers/lpython/issues.

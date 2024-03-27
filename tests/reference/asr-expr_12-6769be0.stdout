@@ -327,7 +327,7 @@
                                     []
                                     [(Var 3 x)
                                     (Var 3 y)]
-                                    [(=
+                                    [(Assignment
                                         (ArrayItem
                                             (Var 3 y)
                                             [(()
@@ -345,7 +345,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (ArrayItem
                                             (Var 3 y)
                                             [(()
@@ -363,7 +363,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 x)
                                         (GetPointer
                                             (Var 3 y)

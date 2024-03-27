@@ -114,7 +114,7 @@
                                     )
                                     []
                                     []
-                                    [(=
+                                    [(Assignment
                                         (Var 3 p)
                                         (PointerNullConstant
                                             (CPtr)
