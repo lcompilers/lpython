@@ -51,6 +51,7 @@ enum class IntrinsicElementalFunctions : int64_t {
     FlipSign,
     Mod,
     Trailz,
+    Modulo,
     BesselJ0,
     BesselJ1,
     BesselY0,
@@ -2806,6 +2807,7 @@ namespace Maskr {
         scope->add_symbol(fn_name, f_sym);
         return b.Call(f_sym, new_args, return_type, nullptr);
     }
+
 }  // namespace Maskr
 
 namespace Trailz {
@@ -2866,6 +2868,70 @@ namespace Trailz {
     }
 
 } // namespace Trailz
+
+namespace Modulo {
+
+    static ASR::expr_t *eval_Modulo(Allocator &al, const Location &loc,
+            ASR::ttype_t* t1, Vec<ASR::expr_t*> &args, diag::Diagnostics& /*diag*/) {
+
+        if (is_integer(*ASRUtils::expr_type(args[0])) && is_integer(*ASRUtils::expr_type(args[1]))) {
+            int64_t a = ASR::down_cast<ASR::IntegerConstant_t>(args[0])->m_n;
+            int64_t b = ASR::down_cast<ASR::IntegerConstant_t>(args[1])->m_n;
+            if ( a*b >= 0 ) {
+                return make_ConstantWithType(make_IntegerConstant_t, a % b, t1, loc);
+            } else {
+                return make_ConstantWithType(make_IntegerConstant_t, a % b + b, t1, loc);
+            }
+        } else if (is_real(*ASRUtils::expr_type(args[0])) && is_real(*ASRUtils::expr_type(args[1]))) {
+            double a = ASR::down_cast<ASR::RealConstant_t>(args[0])->m_r;
+            double b = ASR::down_cast<ASR::RealConstant_t>(args[1])->m_r;
+            if ( a*b > 0 ) {
+                return make_ConstantWithType(make_RealConstant_t, std::fmod(a, b), t1, loc);
+            } else {
+                return make_ConstantWithType(make_RealConstant_t, std::fmod(a, b) + b, t1, loc);
+            }
+        }
+        return nullptr;
+    }
+
+    static inline ASR::expr_t* instantiate_Modulo(Allocator &al, const Location &loc,
+            SymbolTable *scope, Vec<ASR::ttype_t*>& arg_types, ASR::ttype_t *return_type,
+            Vec<ASR::call_arg_t>& new_args, int64_t /*overload_id*/) {
+        declare_basic_variables("_lcompilers_optimization_modulo_" + type_to_str_python(arg_types[0]));
+        fill_func_arg("a", arg_types[0]);
+        fill_func_arg("p", arg_types[1]);
+        auto result = declare(fn_name, return_type, ReturnVar);
+        /*
+        function modulo(a, p) result(d)
+            if ( a*p >= 0 ) then
+                d = mod(a, p)
+            else
+                d = mod(a, p) + p
+            end if
+        end function
+        */
+
+        if (is_real(*arg_types[0])) {
+            body.push_back(al, b.If(b.fGtE(b.r_tMul(args[0], args[1], arg_types[0]), b.f(0.0, arg_types[0])), {
+                b.Assignment(result, Mod::MOD(b, args[0], args[1], scope))
+            }, {
+                b.Assignment(result, b.r_tAdd(Mod::MOD(b, args[0], args[1], scope), args[1], arg_types[0]))
+            }));
+        } else {
+            body.push_back(al, b.If(b.iGtE(b.i_tMul(args[0], args[1], arg_types[0]), b.i(0, arg_types[0])), {
+                b.Assignment(result, Mod::MOD(b, args[0], args[1], scope))
+            }, {
+                b.Assignment(result, b.i_tAdd(Mod::MOD(b, args[0], args[1], scope), args[1], arg_types[0]))
+            }));
+        }
+
+        ASR::symbol_t *f_sym = make_ASR_Function_t(fn_name, fn_symtab, dep, args,
+            body, result, ASR::abiType::Source, ASR::deftypeType::Implementation, nullptr);
+        scope->add_symbol(fn_name, f_sym);
+        return b.Call(f_sym, new_args, return_type, nullptr);
+    }
+
+}  // namespace Modulo
 
 namespace BesselJ0 {
 

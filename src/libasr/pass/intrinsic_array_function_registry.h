@@ -1826,6 +1826,8 @@ namespace Count {
             dim_ = args[1];
             kind = args[2];
         }
+        ASR::dimension_t* array_dims = nullptr;
+        int array_rank = extract_dimensions_from_ttype(ASRUtils::expr_type(args[0]), array_dims);
 
         ASR::ttype_t* mask_type = ASRUtils::expr_type(mask);
         if ( dim_ != nullptr ) {
@@ -1837,6 +1839,9 @@ namespace Count {
             }
 
             overload_id = id_mask_dim;
+        }
+        if (array_rank == 1) {
+            overload_id = id_mask;
         }
         if ( kind != nullptr) {
             size_t kind_rank = ASRUtils::extract_n_dims_from_ttype(ASRUtils::expr_type(kind));
@@ -1881,7 +1886,7 @@ namespace Count {
 
         Vec<ASR::expr_t*> arr_intrinsic_args; arr_intrinsic_args.reserve(al, 1);
         arr_intrinsic_args.push_back(al, mask);
-        if( dim_ ) {
+        if( dim_ && array_rank != 1 ) {
             arr_intrinsic_args.push_back(al, dim_);
         }
         return make_IntrinsicArrayFunction_t_util(al, loc,

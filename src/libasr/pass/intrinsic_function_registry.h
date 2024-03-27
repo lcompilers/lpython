@@ -52,6 +52,7 @@ inline std::string get_intrinsic_name(int x) {
         INTRINSIC_NAME_CASE(FloorDiv)
         INTRINSIC_NAME_CASE(Mod)
         INTRINSIC_NAME_CASE(Trailz)
+        INTRINSIC_NAME_CASE(Modulo)
         INTRINSIC_NAME_CASE(BesselJ0)
         INTRINSIC_NAME_CASE(BesselJ1)
         INTRINSIC_NAME_CASE(BesselY0)
@@ -228,6 +229,8 @@ namespace IntrinsicElementalFunctionRegistry {
             {&Mod::instantiate_Mod, &Mod::verify_args}},
         {static_cast<int64_t>(IntrinsicElementalFunctions::Trailz),
             {&Trailz::instantiate_Trailz, &Trailz::verify_args}},
+        {static_cast<int64_t>(IntrinsicElementalFunctions::Modulo),
+            {&Modulo::instantiate_Modulo, &Modulo::verify_args}},
         {static_cast<int64_t>(IntrinsicElementalFunctions::BesselJ0),
             {&BesselJ0::instantiate_BesselJ0, &BesselJ0::verify_args}},
         {static_cast<int64_t>(IntrinsicElementalFunctions::BesselJ1),
@@ -513,6 +516,8 @@ namespace IntrinsicElementalFunctionRegistry {
             "mod"},
         {static_cast<int64_t>(IntrinsicElementalFunctions::Trailz),
             "trailz"},
+        {static_cast<int64_t>(IntrinsicElementalFunctions::Modulo),
+            "modulo"},
         {static_cast<int64_t>(IntrinsicElementalFunctions::BesselJ0),
             "bessel_j0"},
         {static_cast<int64_t>(IntrinsicElementalFunctions::BesselY0),
@@ -764,6 +769,7 @@ namespace IntrinsicElementalFunctionRegistry {
                 {"floordiv", {&FloorDiv::create_FloorDiv, &FloorDiv::eval_FloorDiv}},
                 {"mod", {&Mod::create_Mod, &Mod::eval_Mod}},
                 {"trailz", {&Trailz::create_Trailz, &Trailz::eval_Trailz}},
+                {"modulo", {&Modulo::create_Modulo, &Modulo::eval_Modulo}},
                 {"bessel_j0", {&BesselJ0::create_BesselJ0, &BesselJ0::eval_BesselJ0}},
                 {"bessel_j1", {&BesselJ1::create_BesselJ1, &BesselJ1::eval_BesselJ1}},
                 {"bessel_y0", {&BesselY0::create_BesselY0, &BesselY0::eval_BesselY0}},

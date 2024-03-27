@@ -271,6 +271,51 @@ namespace Trailz {
     }
 }
 
+namespace Modulo {
+
+    static inline void verify_args(const ASR::IntrinsicElementalFunction_t& x, diag::Diagnostics& diagnostics) {
+        if (x.n_args == 2)  {
+            ASRUtils::require_impl(x.m_overload_id == 0, "Overload Id for Modulo expected to be 0, found " + std::to_string(x.m_overload_id), x.base.base.loc, diagnostics);
+            ASR::ttype_t *arg_type0 = ASRUtils::type_get_past_const(ASRUtils::expr_type(x.m_args[0]));
+            ASR::ttype_t *arg_type1 = ASRUtils::type_get_past_const(ASRUtils::expr_type(x.m_args[1]));
+            ASRUtils::require_impl((is_integer(*arg_type0) && is_integer(*arg_type1)) || (is_real(*arg_type0) && is_real(*arg_type1)), "Unexpected args, Modulo expects (int, int) or (real, real) as arguments", x.base.base.loc, diagnostics);
+        }
+        else {
+            ASRUtils::require_impl(false, "Unexpected number of args, Modulo takes 2 arguments, found " + std::to_string(x.n_args), x.base.base.loc, diagnostics);
+        }
+    }
+
+    static inline ASR::asr_t* create_Modulo(Allocator& al, const Location& loc, Vec<ASR::expr_t*>& args, diag::Diagnostics& diag) {
+        if (args.size() == 2)  {
+            ASR::ttype_t *arg_type0 = ASRUtils::type_get_past_const(ASRUtils::expr_type(args[0]));
+            ASR::ttype_t *arg_type1 = ASRUtils::type_get_past_const(ASRUtils::expr_type(args[1]));
+            if(!((is_integer(*arg_type0) && is_integer(*arg_type1)) || (is_real(*arg_type0) && is_real(*arg_type1)))) {
+                append_error(diag, "Unexpected args, Modulo expects (int, int) or (real, real) as arguments", loc);
+                return nullptr;
+            }
+        }
+        else {
+            append_error(diag, "Unexpected number of args, Modulo takes 2 arguments, found " + std::to_string(args.size()), loc);
+            return nullptr;
+        }
+        ASRUtils::ExprStmtDuplicator expr_duplicator(al);
+        expr_duplicator.allow_procedure_calls = true;
+        ASR::ttype_t* type_ = expr_duplicator.duplicate_ttype(expr_type(args[0]));
+        ASR::ttype_t *return_type = type_;
+        ASR::expr_t *m_value = nullptr;
+        Vec<ASR::expr_t*> m_args; m_args.reserve(al, 2);
+        m_args.push_back(al, args[0]);
+        m_args.push_back(al, args[1]);
+        if (all_args_evaluated(m_args)) {
+            Vec<ASR::expr_t*> args_values; args_values.reserve(al, 2);
+            args_values.push_back(al, expr_value(m_args[0]));
+            args_values.push_back(al, expr_value(m_args[1]));
+            m_value = eval_Modulo(al, loc, return_type, args_values, diag);
+        }
+        return ASR::make_IntrinsicElementalFunction_t(al, loc, static_cast<int64_t>(IntrinsicElementalFunctions::Modulo), m_args.p, m_args.n, 0, return_type, m_value);
+    }
+}
+
 namespace BesselJ0 {
 
     static inline void verify_args(const ASR::IntrinsicElementalFunction_t& x, diag::Diagnostics& diagnostics) {

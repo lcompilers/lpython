@@ -212,6 +212,27 @@ class FixArrayPhysicalCast: public ASR::BaseExprReplacer<FixArrayPhysicalCast> {
             x->m_args = function_call->m_args;
             x->n_args = function_call->n_args;
         }
+
+        void replace_ArrayReshape(ASR::ArrayReshape_t* x) {
+            ASR::BaseExprReplacer<FixArrayPhysicalCast>::replace_ArrayReshape(x);
+            if( ASRUtils::extract_physical_type(ASRUtils::expr_type(x->m_array)) ==
+                ASR::array_physical_typeType::FixedSizeArray &&
+                ASRUtils::extract_physical_type(x->m_type) !=
+                ASR::array_physical_typeType::FixedSizeArray ) {
+                size_t n_dims = ASRUtils::extract_n_dims_from_ttype(x->m_type);
+                Vec<ASR::dimension_t> empty_dims; empty_dims.reserve(al, n_dims);
+                for( size_t i = 0; i < n_dims; i++ ) {
+                    ASR::dimension_t empty_dim;
+                    empty_dim.loc = x->base.base.loc;
+                    empty_dim.m_start = nullptr;
+                    empty_dim.m_length = nullptr;
+                    empty_dims.push_back(al, empty_dim);
+                }
+                x->m_type = ASRUtils::TYPE(ASR::make_Array_t(al, x->base.base.loc,
+                    ASRUtils::extract_type(x->m_type), empty_dims.p, empty_dims.size(),
+                    ASR::array_physical_typeType::FixedSizeArray));
+            }
+        }
 };
 
 class FixArrayPhysicalCastVisitor: public ASR::CallReplacerOnExpressionsVisitor<FixArrayPhysicalCastVisitor> {

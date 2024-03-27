@@ -1157,6 +1157,9 @@ PyMODINIT_FUNC PyInit_lpython_module_)" + fn_name + R"((void) {
                         + "' not implemented");
             }
         } else {
+            if (fn_name == "main") {
+                fn_name = "_xx_lcompilers_changed_main_xx";
+            }
             src = fn_name + "(" + construct_call_args(fn, x.n_args, x.m_args) + ")";
         }
         last_expr_precedence = 2;

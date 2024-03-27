@@ -539,6 +539,35 @@ namespace LCompilers {
                     }
                     current_scope = parent_symtab;
                 }
+            // TODO: Uncomment the following in LFortran
+            /*
+                template <typename T>
+                void visit_UserDefinedType(const T& x) {
+                    T& xx = const_cast<T&>(x);
+                    SetChar vec; vec.reserve(al, 1);
+                    for( auto itr: x.m_symtab->get_scope() ) {
+                        ASR::ttype_t* type = ASRUtils::extract_type(
+                            ASRUtils::symbol_type(itr.second));
+                        if( ASR::is_a<ASR::Struct_t>(*type) ) {
+                            ASR::Struct_t* struct_t = ASR::down_cast<ASR::Struct_t>(type);
+                            vec.push_back(al, ASRUtils::symbol_name(struct_t->m_derived_type));
+                        } else if( ASR::is_a<ASR::Enum_t>(*type) ) {
+                            ASR::Enum_t* enum_t = ASR::down_cast<ASR::Enum_t>(type);
+                            vec.push_back(al, ASRUtils::symbol_name(enum_t->m_enum_type));
+                        }
+                    }
+                    xx.m_dependencies = vec.p;
+                    xx.n_dependencies = vec.size();
+                }
+
+                void visit_StructType(const ASR::StructType_t& x) {
+                    visit_UserDefinedType(x);
+                }
+
+                void visit_UnionType(const ASR::UnionType_t& x) {
+                    visit_UserDefinedType(x);
+                }
+            */
         };
 
     namespace ReplacerUtils {

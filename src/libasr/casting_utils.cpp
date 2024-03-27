@@ -84,6 +84,9 @@ namespace LCompilers::CastingUtil {
         }
 
         int casted_expr_signal = 2;
+        // TODO: Uncomment the following
+        // ASR::ttypeType left_Type = ASRUtils::extract_type(left_type)->type,
+        //     right_Type = ASRUtils::extract_type(right_type)->type;
         ASR::ttypeType left_Type = left_type->type, right_Type = right_type->type;
         int left_kind = ASRUtils::extract_kind_from_ttype_t(left_type);
         int right_kind = ASRUtils::extract_kind_from_ttype_t(right_type);
@@ -121,6 +124,9 @@ namespace LCompilers::CastingUtil {
         if( ASR::is_a<ASR::Const_t>(*src) ) {
             src = ASRUtils::get_contained_type(src);
         }
+        // TODO: Uncomment the following
+        // ASR::ttypeType src_type = ASRUtils::extract_type(src)->type;
+        // ASR::ttypeType dest_type = ASRUtils::extract_type(dest)->type;
         ASR::ttypeType src_type = src->type;
         ASR::ttypeType dest_type = dest->type;
         ASR::cast_kindType cast_kind;
