@@ -2013,6 +2013,12 @@ static inline bool is_pointer(ASR::ttype_t *x) {
 }
 
 static inline bool is_integer(ASR::ttype_t &x) {
+    // return ASR::is_a<ASR::Integer_t>(
+    //     *type_get_past_const(
+    //         type_get_past_array(
+    //         type_get_past_allocatable(
+    //             type_get_past_pointer(
+    //                 type_get_past_const(&x))))));
     return ASR::is_a<ASR::Integer_t>(
         *type_get_past_const(
             type_get_past_array(
@@ -2028,6 +2034,11 @@ static inline bool is_unsigned_integer(ASR::ttype_t &x) {
 }
 
 static inline bool is_real(ASR::ttype_t &x) {
+    // return ASR::is_a<ASR::Real_t>(
+    //     *type_get_past_const(
+    //         type_get_past_array(
+    //             type_get_past_allocatable(
+    //                 type_get_past_pointer(&x)))));
     return ASR::is_a<ASR::Real_t>(
         *type_get_past_array(
             type_get_past_allocatable(
@@ -2196,6 +2207,10 @@ inline size_t extract_dimensions_from_ttype(ASR::ttype_t *x,
 }
 
 static inline ASR::ttype_t *extract_type(ASR::ttype_t *type) {
+    // return type_get_past_const(
+    //             type_get_past_array(
+    //                 type_get_past_allocatable(
+    //                     type_get_past_pointer(type))));
     return type_get_past_array(
             type_get_past_allocatable(
                 type_get_past_pointer(type)));
@@ -3035,6 +3050,12 @@ inline bool types_equal(ASR::ttype_t *a, ASR::ttype_t *b,
     if( a == nullptr && b == nullptr ) {
         return true;
     }
+    // a = ASRUtils::type_get_past_const(
+    //         ASRUtils::type_get_past_allocatable(
+    //             ASRUtils::type_get_past_pointer(a)));
+    // b = ASRUtils::type_get_past_const(
+    //         ASRUtils::type_get_past_allocatable(
+    //             ASRUtils::type_get_past_pointer(b)));
     a = ASRUtils::type_get_past_allocatable(ASRUtils::type_get_past_pointer(a));
     b = ASRUtils::type_get_past_allocatable(ASRUtils::type_get_past_pointer(b));
     if( !check_for_dimensions ) {

@@ -290,7 +290,8 @@ class ReplaceFunctionCallReturningArray: public ASR::BaseExprReplacer<ReplaceFun
                 result_var_ = PassUtils::create_var(result_counter,
                     std::string(ASRUtils::symbol_name(x->m_name)) + "_res",
                     x->base.base.loc, x->m_type, al, current_scope);
-                if (func2intrinsicid[x_m_name] == ASRUtils::IntrinsicArrayFunctions::Sum) {
+                if (ASRUtils::is_allocatable(ASRUtils::expr_type(result_var_)) &&
+                    func2intrinsicid[x_m_name] == ASRUtils::IntrinsicArrayFunctions::Sum) {
                     PassUtils::allocate_res_var(al, x, new_args, result_var_, pass_result, {0, 0, 1});
                 }
             } else {
@@ -347,7 +348,7 @@ class ReplaceFunctionCallReturningArray: public ASR::BaseExprReplacer<ReplaceFun
                 alloc_arg.n_dims = alloc_dims.size();
                 alloc_args.push_back(al, alloc_arg);
 
-                ASR::stmt_t* allocate_stmt = ASRUtils::STMT(ASR::make_Allocate_t(al, 
+                ASR::stmt_t* allocate_stmt = ASRUtils::STMT(ASR::make_Allocate_t(al,
                                         x->base.base.loc, alloc_args.p, alloc_args.n, nullptr, nullptr, nullptr));
                 pass_result.push_back(al, allocate_stmt);
             }
