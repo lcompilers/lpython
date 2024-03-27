@@ -776,6 +776,7 @@ RUN(NAME test_pkg_lpconvexhull  LABELS cpython llvm c NOFAST)
 
 RUN(NAME generics_01         LABELS cpython llvm c)
 RUN(NAME generics_02         LABELS cpython llvm c)
+RUN(NAME def_func_01         LABELS cpython llvm c)
 RUN(NAME generics_array_01   LABELS cpython llvm c)
 RUN(NAME generics_array_02   LABELS cpython llvm c)
 RUN(NAME generics_array_03   LABELS cpython llvm c)
