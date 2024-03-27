@@ -3,3 +3,7 @@ semantic error: Type mismatch in shorthand operator, the types must be compatibl
   |
 6 |         sum += data[i]
   |         ^^^    ^^^^^^^ type mismatch ('f64' and 'i32')
+
+
+Note: Please report unclear or confusing messages as bugs at
+https://github.com/lcompilers/lpython/issues.

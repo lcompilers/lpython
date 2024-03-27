@@ -3,3 +3,7 @@ semantic error: Type mismatch in comparison operator, the types must be compatib
   |
 6 |     print(i16(x) > f32(y))
   |           ^^^^^^   ^^^^^^ type mismatch ('i16' and 'f32')
+
+
+Note: Please report unclear or confusing messages as bugs at
+https://github.com/lcompilers/lpython/issues.

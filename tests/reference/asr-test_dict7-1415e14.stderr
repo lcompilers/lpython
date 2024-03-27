@@ -3,3 +3,7 @@ semantic error: unhashable type in dict: 'slice'
   |
 4 |     print(d[1:2])
   |           ^^^^^^ 
+
+
+Note: Please report unclear or confusing messages as bugs at
+https://github.com/lcompilers/lpython/issues.

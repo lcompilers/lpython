@@ -13,6 +13,8 @@ python src/libasr/asdl_cpp.py grammar/Python.asdl src/lpython/python_ast.h
 python src/libasr/asdl_cpp.py src/libasr/ASR.asdl src/libasr/asr.h
 # Generate a wasm_visitor.h from src/libasr/wasm_instructions.txt (C++)
 python src/libasr/wasm_instructions_visitor.py
+# Generate the intrinsic_function_registry_util.h (C++)
+python src/libasr/intrinsic_func_registry_util_gen.py
 
 # Generate the tokenizer and parser
 (cd src/lpython/parser && re2c -W -b tokenizer.re -o tokenizer.cpp)

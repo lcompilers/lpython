@@ -1,0 +1,9 @@
+semantic error: The type 'Optional' is undeclared.
+ --> tests/errors/test_optional.py:1:39
+  |
+1 | def match(pat : str, string : str) -> Optional[list[str] | str]:
+  |                                       ^^^^^^^^^^^^^^^^^^^^^^^^^ 
+
+
+Note: Please report unclear or confusing messages as bugs at
+https://github.com/lcompilers/lpython/issues.

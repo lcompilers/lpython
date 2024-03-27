@@ -3,3 +3,7 @@ semantic error: cannot reverse a const list
   |
 7 |     CONST_INTEGER_LIST.reverse()
   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
+
+
+Note: Please report unclear or confusing messages as bugs at
+https://github.com/lcompilers/lpython/issues.

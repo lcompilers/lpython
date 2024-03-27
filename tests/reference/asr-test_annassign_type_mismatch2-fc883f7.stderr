@@ -3,3 +3,7 @@ semantic error: Type mismatch in annotation-assignment, the types must be compat
   |
 4 |     x: f64[5] = [1.0, 2.0, 3.0, 4.0, 5.0]
   |     ^           ^^^^^^^^^^^^^^^^^^^^^^^^^ type mismatch ('f64[5]' and 'list[f64]')
+
+
+Note: Please report unclear or confusing messages as bugs at
+https://github.com/lcompilers/lpython/issues.

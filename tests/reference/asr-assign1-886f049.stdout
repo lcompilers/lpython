@@ -78,12 +78,12 @@
                                     )
                                     []
                                     []
-                                    [(=
+                                    [(Assignment
                                         (Var 3 r)
                                         (IntegerConstant 0 (Integer 4))
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 r)
                                         (IntegerBinOp
                                             (Var 3 r)
@@ -94,12 +94,12 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 s)
                                         (IntegerConstant 5 (Integer 4))
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 r)
                                         (IntegerBinOp
                                             (Var 3 r)
@@ -110,7 +110,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 r)
                                         (IntegerBinOp
                                             (Var 3 r)
@@ -121,12 +121,12 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 s)
                                         (IntegerConstant 10 (Integer 4))
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 r)
                                         (RealBinOp
                                             (Cast
@@ -147,7 +147,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 a)
                                         (StringConstant
                                             ""
@@ -155,7 +155,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 a)
                                         (StringConcat
                                             (Var 3 a)

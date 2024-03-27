@@ -1217,7 +1217,6 @@ R"(    // Initialise Numpy
             We need to generate:
             a = {1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0};
         */
-        CHECK_FAST_C(compiler_options, x)
         size_t size = ASRUtils::get_fixed_size_of_array(x.m_type);
         std::string array_const_str = "{";
         for( size_t i = 0; i < size; i++ ) {
@@ -1279,12 +1278,21 @@ R"(    // Initialise Numpy
         visit_expr(*x.m_dim);
         std::string idx = src;
         if( x.m_bound == ASR::arrayboundType::LBound ) {
-            src = "((" + result_type + ")" + var_name + "->dims[" + idx + "-1].lower_bound)";
+            if (ASRUtils::is_simd_array(x.m_v)) {
+                src = "0";
+            } else {
+                src = "((" + result_type + ")" + var_name + "->dims[" + idx + "-1].lower_bound)";
+            }
         } else if( x.m_bound == ASR::arrayboundType::UBound ) {
-            std::string lower_bound = var_name + "->dims[" + idx + "-1].lower_bound";
-            std::string length = var_name + "->dims[" + idx + "-1].length";
-            std::string upper_bound = length + " + " + lower_bound + " - 1";
-            src = "((" + result_type + ") " + upper_bound + ")";
+            if (ASRUtils::is_simd_array(x.m_v)) {
+                int64_t size = ASRUtils::get_fixed_size_of_array(ASRUtils::expr_type(x.m_v));
+                src = std::to_string(size - 1);
+            } else {
+                std::string lower_bound = var_name + "->dims[" + idx + "-1].lower_bound";
+                std::string length = var_name + "->dims[" + idx + "-1].length";
+                std::string upper_bound = length + " + " + lower_bound + " - 1";
+                src = "((" + result_type + ") " + upper_bound + ")";
+            }
         }
     }
 
@@ -1317,26 +1325,30 @@ R"(    // Initialise Numpy
         int n_dims = ASRUtils::extract_dimensions_from_ttype(x_mv_type, m_dims);
         bool is_data_only_array = ASRUtils::is_fixed_size_array(m_dims, n_dims) &&
                                   ASR::is_a<ASR::StructType_t>(*ASRUtils::get_asr_owner(x.m_v));
-        if( is_data_only_array ) {
+        if( is_data_only_array || ASRUtils::is_simd_array(x.m_v)) {
             std::string index = "";
             std::string out = array;
             out += "[";
             for (size_t i=0; i<x.n_args; i++) {
-                std::string current_index = "";
                 if (x.m_args[i].m_right) {
                     this->visit_expr(*x.m_args[i].m_right);
                 } else {
                     src = "/* FIXME right index */";
                 }
 
-                current_index += src;
-                for( size_t j = 0; j < i; j++ ) {
-                    int64_t dim_size = 0;
-                    ASRUtils::extract_value(m_dims[j].m_length, dim_size);
-                    std::string length = std::to_string(dim_size);
-                    current_index += " * " + length;
+                if (ASRUtils::is_simd_array(x.m_v)) {
+                    index += src;
+                } else {
+                    std::string current_index = "";
+                    current_index += src;
+                    for( size_t j = 0; j < i; j++ ) {
+                        int64_t dim_size = 0;
+                        ASRUtils::extract_value(m_dims[j].m_length, dim_size);
+                        std::string length = std::to_string(dim_size);
+                        current_index += " * " + length;
+                    }
+                    index += current_index;
                 }
-                index += current_index;
                 if (i < x.n_args - 1) {
                     index += " + ";
                 }

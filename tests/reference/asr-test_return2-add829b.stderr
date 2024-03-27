@@ -3,3 +3,7 @@ semantic error: Return type of function is not defined
   |
 4 |     return x
   |     ^^^^^^^^ 
+
+
+Note: Please report unclear or confusing messages as bugs at
+https://github.com/lcompilers/lpython/issues.

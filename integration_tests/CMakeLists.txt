@@ -435,6 +435,7 @@ RUN(NAME array_expr_06            LABELS cpython llvm c)
 RUN(NAME array_expr_07            LABELS cpython llvm c)
 RUN(NAME array_expr_08            LABELS cpython llvm c)
 RUN(NAME array_expr_09            LABELS cpython llvm c)
+RUN(NAME array_expr_10            LABELS cpython llvm c)
 RUN(NAME array_size_01            LABELS cpython llvm c)
 RUN(NAME array_size_02            LABELS cpython llvm c)
 RUN(NAME array_01            LABELS cpython llvm wasm c)
@@ -470,6 +471,7 @@ RUN(NAME print_float         LABELS cpython llvm c wasm wasm_x64)
 RUN(NAME print_list_tuple_01    LABELS cpython llvm c NOFAST)
 RUN(NAME print_list_tuple_02    LABELS cpython llvm c NOFAST)
 RUN(NAME print_list_tuple_03    LABELS cpython llvm c NOFAST)
+RUN(NAME test_list_item_mixed_print    LABELS cpython llvm c NOFAST)
 
 # CPython and LLVM
 RUN(NAME const_01            LABELS cpython llvm c wasm)
@@ -516,6 +518,8 @@ RUN(NAME loop_05             LABELS cpython llvm c)
 RUN(NAME loop_06             LABELS cpython llvm c NOFAST)
 RUN(NAME loop_07             LABELS cpython llvm c)
 RUN(NAME loop_08             LABELS cpython llvm c)
+RUN(NAME loop_09             LABELS cpython llvm)
+RUN(NAME loop_10             LABELS cpython llvm)
 RUN(NAME if_01               LABELS cpython llvm c wasm wasm_x86 wasm_x64)
 RUN(NAME if_02               LABELS cpython llvm c wasm wasm_x86 wasm_x64)
 RUN(NAME if_03    FAIL       LABELS cpython llvm c NOFAST)
@@ -815,6 +819,8 @@ RUN(NAME callback_02       LABELS cpython llvm c)
 RUN(NAME callback_03       LABELS cpython llvm c)
 
 RUN(NAME lambda_01         LABELS cpython llvm)
+
+RUN(NAME c_mangling        LABELS cpython llvm c)
 
 # callback_04 is to test emulation. So just run with cpython
 RUN(NAME callback_04       IMPORT_PATH .. LABELS cpython)

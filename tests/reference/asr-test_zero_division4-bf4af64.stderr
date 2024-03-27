@@ -3,3 +3,7 @@ semantic error: division by zero is not allowed
   |
 5 |     print(f/0.0)
   |             ^^^ division by zero
+
+
+Note: Please report unclear or confusing messages as bugs at
+https://github.com/lcompilers/lpython/issues.

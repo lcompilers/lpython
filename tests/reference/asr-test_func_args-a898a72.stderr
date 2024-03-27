@@ -3,3 +3,7 @@ semantic error: Number of arguments does not match in the function call
    |
 11 |     ans = fib(35, 10)
    |           ^^^^^^^^^^^ (found: '2', expected: '1')
+
+
+Note: Please report unclear or confusing messages as bugs at
+https://github.com/lcompilers/lpython/issues.

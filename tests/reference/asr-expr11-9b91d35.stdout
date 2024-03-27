@@ -46,7 +46,7 @@
                                     )
                                     []
                                     []
-                                    [(=
+                                    [(Assignment
                                         (Var 3 s)
                                         (StringRepeat
                                             (StringConstant
@@ -62,7 +62,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 s)
                                         (StringRepeat
                                             (StringConstant
@@ -82,7 +82,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 s)
                                         (StringRepeat
                                             (StringConstant
@@ -98,7 +98,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 s)
                                         (StringRepeat
                                             (StringConstant
@@ -114,7 +114,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 s)
                                         (StringRepeat
                                             (StringConstant
@@ -134,7 +134,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 s)
                                         (StringRepeat
                                             (StringRepeat
