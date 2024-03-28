@@ -108,6 +108,7 @@ enum class IntrinsicElementalFunctions : int64_t {
     DictValues,
     SetAdd,
     SetRemove,
+    SetDiscard,
     Max,
     Min,
     Radix,
@@ -4911,6 +4912,57 @@ static inline ASR::asr_t* create_SetRemove(Allocator& al, const Location& loc,
     return ASR::make_Expr_t(al, loc,
             ASRUtils::EXPR(ASR::make_IntrinsicElementalFunction_t(al, loc,
             static_cast<int64_t>(IntrinsicElementalFunctions::SetRemove),
+            args.p, args.size(), 0, nullptr, compile_time_value)));
+}
+
+} // namespace SetRemove
+
+namespace SetDiscard {
+
+static inline void verify_args(const ASR::IntrinsicElementalFunction_t& x, diag::Diagnostics& diagnostics) {
+    ASRUtils::require_impl(x.n_args == 2, "Call to set.discard must have exactly one argument",
+        x.base.base.loc, diagnostics);
+    ASRUtils::require_impl(ASR::is_a<ASR::Set_t>(*ASRUtils::expr_type(x.m_args[0])),
+        "First argument to set.discard must be of set type",
+        x.base.base.loc, diagnostics);
+    ASRUtils::require_impl(ASRUtils::check_equal_type(ASRUtils::expr_type(x.m_args[1]),
+            ASRUtils::get_contained_type(ASRUtils::expr_type(x.m_args[0]))),
+        "Second argument to set.discard must be of same type as set's element type",
+        x.base.base.loc, diagnostics);
+    ASRUtils::require_impl(x.m_type == nullptr,
+        "Return type of set.discard must be empty",
+        x.base.base.loc, diagnostics);
+}
+
+static inline ASR::expr_t *eval_set_discard(Allocator &/*al*/,
+    const Location &/*loc*/, ASR::ttype_t *, Vec<ASR::expr_t*>& /*args*/, diag::Diagnostics& /*diag*/) {
+    // TODO: To be implemented for SetConstant expression
+    return nullptr;
+}
+
+static inline ASR::asr_t* create_SetDiscard(Allocator& al, const Location& loc,
+    Vec<ASR::expr_t*>& args,
+    diag::Diagnostics& diag) {
+    if (args.size() != 2) {
+        append_error(diag, "Call to set.discard must have exactly one argument", loc);
+        return nullptr;
+    }
+    if (!ASRUtils::check_equal_type(ASRUtils::expr_type(args[1]),
+        ASRUtils::get_contained_type(ASRUtils::expr_type(args[0])))) {
+        append_error(diag, "Argument to set.discard must be of same type as set's "
+            "element type", loc);
+        return nullptr;
+    }
+
+    Vec<ASR::expr_t*> arg_values;
+    arg_values.reserve(al, args.size());
+    for( size_t i = 0; i < args.size(); i++ ) {
+        arg_values.push_back(al, ASRUtils::expr_value(args[i]));
+    }
+    ASR::expr_t* compile_time_value = eval_set_discard(al, loc, nullptr, arg_values, diag);
+    return ASR::make_Expr_t(al, loc,
+            ASRUtils::EXPR(ASR::make_IntrinsicElementalFunction_t(al, loc,
+            static_cast<int64_t>(IntrinsicElementalFunctions::SetDiscard),
             args.p, args.size(), 0, nullptr, compile_time_value)));
 }
 

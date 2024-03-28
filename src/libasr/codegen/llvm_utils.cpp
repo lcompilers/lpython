@@ -6415,7 +6415,7 @@ namespace LCompilers {
 
     void LLVMSetLinearProbing::resolve_collision_for_read_with_bound_check(
         llvm::Value* set, llvm::Value* el_hash, llvm::Value* el,
-        llvm::Module& module, ASR::ttype_t* el_asr_type) {
+        llvm::Module& module, ASR::ttype_t* el_asr_type, bool throw_key_error) {
 
         /**
          * C++ equivalent:
@@ -6467,14 +6467,16 @@ namespace LCompilers {
             llvm_utils->create_if_else(is_el_matching, [=]() {
                 LLVM::CreateStore(*builder, el_hash, pos_ptr);
             }, [&]() {
-                std::string message = "The set does not contain the specified element";
-                llvm::Value *fmt_ptr = builder->CreateGlobalStringPtr("KeyError: %s\n");
-                llvm::Value *fmt_ptr2 = builder->CreateGlobalStringPtr(message);
-                print_error(context, module, *builder, {fmt_ptr, fmt_ptr2});
-                int exit_code_int = 1;
-                llvm::Value *exit_code = llvm::ConstantInt::get(context,
-                        llvm::APInt(32, exit_code_int));
-                exit(context, module, *builder, exit_code);
+                if (throw_key_error) {
+                    std::string message = "The set does not contain the specified element";
+                    llvm::Value *fmt_ptr = builder->CreateGlobalStringPtr("KeyError: %s\n");
+                    llvm::Value *fmt_ptr2 = builder->CreateGlobalStringPtr(message);
+                    print_error(context, module, *builder, {fmt_ptr, fmt_ptr2});
+                    int exit_code_int = 1;
+                    llvm::Value *exit_code = llvm::ConstantInt::get(context,
+                            llvm::APInt(32, exit_code_int));
+                    exit(context, module, *builder, exit_code);
+                }
             });
         }
         builder->CreateBr(mergeBB);
@@ -6491,20 +6493,22 @@ namespace LCompilers {
                     LLVM::is_llvm_struct(el_asr_type)), module, el_asr_type);
 
         llvm_utils->create_if_else(is_el_matching, []() {}, [&]() {
-            std::string message = "The set does not contain the specified element";
-            llvm::Value *fmt_ptr = builder->CreateGlobalStringPtr("KeyError: %s\n");
-            llvm::Value *fmt_ptr2 = builder->CreateGlobalStringPtr(message);
-            print_error(context, module, *builder, {fmt_ptr, fmt_ptr2});
-            int exit_code_int = 1;
-            llvm::Value *exit_code = llvm::ConstantInt::get(context,
-                    llvm::APInt(32, exit_code_int));
-            exit(context, module, *builder, exit_code);
+            if (throw_key_error) {
+                std::string message = "The set does not contain the specified element";
+                llvm::Value *fmt_ptr = builder->CreateGlobalStringPtr("KeyError: %s\n");
+                llvm::Value *fmt_ptr2 = builder->CreateGlobalStringPtr(message);
+                print_error(context, module, *builder, {fmt_ptr, fmt_ptr2});
+                int exit_code_int = 1;
+                llvm::Value *exit_code = llvm::ConstantInt::get(context,
+                        llvm::APInt(32, exit_code_int));
+                exit(context, module, *builder, exit_code);
+            }
         });
     }
 
     void LLVMSetSeparateChaining::resolve_collision_for_read_with_bound_check(
         llvm::Value* set, llvm::Value* el_hash, llvm::Value* el,
-        llvm::Module& module, ASR::ttype_t* el_asr_type) {
+        llvm::Module& module, ASR::ttype_t* el_asr_type, bool throw_key_error) {
         /**
          * C++ equivalent:
          *
@@ -6532,20 +6536,22 @@ namespace LCompilers {
         );
 
         llvm_utils->create_if_else(does_el_exist, []() {}, [&]() {
-            std::string message = "The set does not contain the specified element";
-            llvm::Value *fmt_ptr = builder->CreateGlobalStringPtr("KeyError: %s\n");
-            llvm::Value *fmt_ptr2 = builder->CreateGlobalStringPtr(message);
-            print_error(context, module, *builder, {fmt_ptr, fmt_ptr2});
-            int exit_code_int = 1;
-            llvm::Value *exit_code = llvm::ConstantInt::get(context,
-                    llvm::APInt(32, exit_code_int));
-            exit(context, module, *builder, exit_code);
+            if (throw_key_error) {
+                std::string message = "The set does not contain the specified element";
+                llvm::Value *fmt_ptr = builder->CreateGlobalStringPtr("KeyError: %s\n");
+                llvm::Value *fmt_ptr2 = builder->CreateGlobalStringPtr(message);
+                print_error(context, module, *builder, {fmt_ptr, fmt_ptr2});
+                int exit_code_int = 1;
+                llvm::Value *exit_code = llvm::ConstantInt::get(context,
+                        llvm::APInt(32, exit_code_int));
+                exit(context, module, *builder, exit_code);
+            }
         });
     }
 
     void LLVMSetLinearProbing::remove_item(
         llvm::Value* set, llvm::Value* el,
-        llvm::Module& module, ASR::ttype_t* el_asr_type) {
+        llvm::Module& module, ASR::ttype_t* el_asr_type, bool throw_key_error) {
         /**
          * C++ equivalent:
          *
@@ -6555,7 +6561,7 @@ namespace LCompilers {
          */
         llvm::Value* current_capacity = LLVM::CreateLoad(*builder, get_pointer_to_capacity(set));
         llvm::Value* el_hash = get_el_hash(current_capacity, el, el_asr_type, module);
-        this->resolve_collision_for_read_with_bound_check(set, el_hash, el, module, el_asr_type);
+        this->resolve_collision_for_read_with_bound_check(set, el_hash, el, module, el_asr_type, throw_key_error);
         llvm::Value* pos = LLVM::CreateLoad(*builder, pos_ptr);
         llvm::Value* el_mask = LLVM::CreateLoad(*builder, get_pointer_to_mask(set));
         llvm::Value* el_mask_i = llvm_utils->create_ptr_gep(el_mask, pos);
@@ -6571,7 +6577,7 @@ namespace LCompilers {
 
     void LLVMSetSeparateChaining::remove_item(
         llvm::Value* set, llvm::Value* el,
-        llvm::Module& module, ASR::ttype_t* el_asr_type) {
+        llvm::Module& module, ASR::ttype_t* el_asr_type, bool throw_key_error) {
         /**
          * C++ equivalent:
          *
@@ -6593,7 +6599,7 @@ namespace LCompilers {
 
         llvm::Value* current_capacity = LLVM::CreateLoad(*builder, get_pointer_to_capacity(set));
         llvm::Value* el_hash = get_el_hash(current_capacity, el, el_asr_type, module);
-        this->resolve_collision_for_read_with_bound_check(set, el_hash, el, module, el_asr_type);
+        this->resolve_collision_for_read_with_bound_check(set, el_hash, el, module, el_asr_type, throw_key_error);
         llvm::Value* prev = LLVM::CreateLoad(*builder, chain_itr_prev);
         llvm::Value* found = LLVM::CreateLoad(*builder, chain_itr);
 
