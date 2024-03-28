@@ -33,6 +33,7 @@ struct AttributeHandler {
             {"set@pop", &eval_set_pop},
             {"set@add", &eval_set_add},
             {"set@remove", &eval_set_remove},
+            {"set@discard", &eval_set_discard},
             {"dict@get", &eval_dict_get},
             {"dict@pop", &eval_dict_pop},
             {"dict@keys", &eval_dict_keys},
@@ -41,7 +42,7 @@ struct AttributeHandler {
 
         modify_attr_set = {"list@append", "list@remove",
             "list@reverse", "list@clear", "list@insert", "list@pop",
-            "set@pop", "set@add", "set@remove", "dict@pop"};
+            "set@pop", "set@add", "set@remove", "set@discard", "dict@pop"};
 
         symbolic_attribute_map = {
             {"diff", &eval_symbolic_diff},
@@ -334,6 +335,19 @@ struct AttributeHandler {
         }
         ASRUtils::create_intrinsic_function create_function =
             ASRUtils::IntrinsicElementalFunctionRegistry::get_create_function("set.remove");
+        return create_function(al, loc, args_with_set, diag);
+    }
+
+    static ASR::asr_t* eval_set_discard(ASR::expr_t *s, Allocator &al, const Location &loc,
+            Vec<ASR::expr_t*> &args, diag::Diagnostics &diag) {
+        Vec<ASR::expr_t*> args_with_set;
+        args_with_set.reserve(al, args.size() + 1);
+        args_with_set.push_back(al, s);
+        for(size_t i = 0; i < args.size(); i++) {
+            args_with_set.push_back(al, args[i]);
+        }
+        ASRUtils::create_intrinsic_function create_function =
+            ASRUtils::IntrinsicElementalFunctionRegistry::get_create_function("set.discard");
         return create_function(al, loc, args_with_set, diag);
     }
 

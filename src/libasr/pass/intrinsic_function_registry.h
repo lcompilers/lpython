@@ -110,6 +110,7 @@ inline std::string get_intrinsic_name(int x) {
         INTRINSIC_NAME_CASE(DictValues)
         INTRINSIC_NAME_CASE(SetAdd)
         INTRINSIC_NAME_CASE(SetRemove)
+        INTRINSIC_NAME_CASE(SetDiscard)
         INTRINSIC_NAME_CASE(Max)
         INTRINSIC_NAME_CASE(Min)
         INTRINSIC_NAME_CASE(Sign)
@@ -343,6 +344,8 @@ namespace IntrinsicElementalFunctionRegistry {
             {nullptr, &SetAdd::verify_args}},
         {static_cast<int64_t>(IntrinsicElementalFunctions::SetRemove),
             {nullptr, &SetRemove::verify_args}},
+        {static_cast<int64_t>(IntrinsicElementalFunctions::SetDiscard),
+            {nullptr, &SetDiscard::verify_args}},
         {static_cast<int64_t>(IntrinsicElementalFunctions::Max),
             {&Max::instantiate_Max, &Max::verify_args}},
         {static_cast<int64_t>(IntrinsicElementalFunctions::Min),
@@ -630,6 +633,8 @@ namespace IntrinsicElementalFunctionRegistry {
             "set.add"},
         {static_cast<int64_t>(IntrinsicElementalFunctions::SetRemove),
             "set.remove"},
+        {static_cast<int64_t>(IntrinsicElementalFunctions::SetDiscard),
+            "set.discard"},
         {static_cast<int64_t>(IntrinsicElementalFunctions::Max),
             "max"},
         {static_cast<int64_t>(IntrinsicElementalFunctions::Min),
@@ -823,6 +828,7 @@ namespace IntrinsicElementalFunctionRegistry {
                 {"dict.values", {&DictValues::create_DictValues, &DictValues::eval_dict_values}},
                 {"set.add", {&SetAdd::create_SetAdd, &SetAdd::eval_set_add}},
                 {"set.remove", {&SetRemove::create_SetRemove, &SetRemove::eval_set_remove}},
+                {"set.discard", {&SetDiscard::create_SetDiscard, &SetDiscard::eval_set_discard}},
                 {"max0", {&Max::create_Max, &Max::eval_Max}},
                 {"adjustl", {&Adjustl::create_Adjustl, &Adjustl::eval_Adjustl}},
                 {"adjustr", {&Adjustr::create_Adjustr, &Adjustr::eval_Adjustr}},

@@ -1905,7 +1905,7 @@ public:
         llvm_utils->set_api->write_item(pset, el, module.get(), asr_el_type, name2memidx);
     }
 
-    void generate_SetRemove(ASR::expr_t* m_arg, ASR::expr_t* m_ele) {
+    void generate_SetRemove(ASR::expr_t* m_arg, ASR::expr_t* m_ele, bool throw_key_error) {
         ASR::Set_t* set_type = ASR::down_cast<ASR::Set_t>(
                                     ASRUtils::expr_type(m_arg));
         ASR::ttype_t* asr_el_type = ASRUtils::get_contained_type(ASRUtils::expr_type(m_arg));
@@ -1919,7 +1919,7 @@ public:
         ptr_loads = ptr_loads_copy;
         llvm::Value *el = tmp;
         llvm_utils->set_set_api(set_type);
-        llvm_utils->set_api->remove_item(pset, el, *module, asr_el_type);
+        llvm_utils->set_api->remove_item(pset, el, *module, asr_el_type, throw_key_error);
     }
 
     void visit_IntrinsicElementalFunction(const ASR::IntrinsicElementalFunction_t& x) {
@@ -1986,7 +1986,11 @@ public:
                 break;
             }
             case ASRUtils::IntrinsicElementalFunctions::SetRemove: {
-                generate_SetRemove(x.m_args[0], x.m_args[1]);
+                generate_SetRemove(x.m_args[0], x.m_args[1], true);
+                break;
+            }
+            case ASRUtils::IntrinsicElementalFunctions::SetDiscard: {
+                generate_SetRemove(x.m_args[0], x.m_args[1], false);
                 break;
             }
             case ASRUtils::IntrinsicElementalFunctions::Exp: {
