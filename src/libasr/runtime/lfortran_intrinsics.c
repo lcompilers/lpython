@@ -1976,12 +1976,14 @@ LFORTRAN_API void _lfortran_strcpy(char** x, char *y, int8_t free_target)
         *x = (char*) malloc((strlen(y) + 1) * sizeof(char));
         _lfortran_string_init(strlen(y) + 1, *x);
     // }
-    for (size_t i = 0; i < strlen(*x); i++) {
-        if (i < strlen(y)) {
-            x[0][i] = y[i];
-        } else {
-            x[0][i] = ' ';
-        }
+    size_t y_len = strlen(y);
+    size_t x_len = strlen(*x);
+    size_t i = 0;
+    for (; i < x_len && i < y_len; i++) {
+        x[0][i] = y[i];
+    }
+    for (; i < x_len; i++) {
+        x[0][i] = ' ';
     }
 }
 
