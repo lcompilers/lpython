@@ -135,7 +135,7 @@ void get_local_address(StacktraceItem &item)
       // happen if the stacktrace is somehow corrupted. In that case, we simply
       // abort here.
       std::cout << "The stack address was not found in any shared library or the main program, the stack is probably corrupted. Aborting." << std::endl;
-      abort();
+      exit(1);
     }
 #else
 #ifdef HAVE_LFORTRAN_MACHO
@@ -179,7 +179,7 @@ void get_local_address(StacktraceItem &item)
         }
     }
     std::cout << "The stack address was not found in any shared library or the main program, the stack is probably corrupted. Aborting." << std::endl;
-    abort();
+    exit(1);
 #else
     item.local_pc=0;
 #endif // HAVE_LFORTRAN_MACHO
