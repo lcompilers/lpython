@@ -90,6 +90,20 @@ def nested_loop_while_while():
         return
     assert False
 
+def nested_loop_else():
+    i: i32
+    j: i32
+    for i in range(2):
+        print("outer: " + str(i))
+        for j in range(10, 12):
+            print("  inner: " + str(j))
+        else:
+            print("no break in inner loop")
+    else:
+        print("no break in outer loop")
+        return
+    assert False
+
 
 with_break_for()
 with_break_while()
@@ -99,3 +113,4 @@ nested_loop_for_for()
 nested_loop_for_while()
 nested_loop_while_for()
 nested_loop_while_while()
+nested_loop_else()
