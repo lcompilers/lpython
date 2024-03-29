@@ -2583,7 +2583,7 @@ namespace Input {
     static inline ASR::asr_t* create_Input(Allocator& al, const Location& loc,
             Vec<ASR::expr_t*>& args,
             const std::function<void (const std::string &, const Location &)> err) {
-        if (args.n != 1) {
+        if (args.n > 1) {
             err("input() takes 0 or 1 argument", loc);
         }
         const std::string EMPTY_STRING = "";
