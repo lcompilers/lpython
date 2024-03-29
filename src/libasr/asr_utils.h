@@ -1965,6 +1965,18 @@ bool use_overloaded_file_read_write(std::string &read_write, Vec<ASR::expr_t*> a
 
 void set_intrinsic(ASR::symbol_t* sym);
 
+static inline bool is_const(ASR::expr_t *x) {
+    if (ASR::is_a<ASR::Var_t>(*x)) {
+        ASR::Var_t* v = ASR::down_cast<ASR::Var_t>(x);
+        ASR::symbol_t* sym = ASRUtils::symbol_get_past_external(v->m_v);
+        if (sym && ASR::is_a<ASR::Variable_t>(*sym)) {
+            ASR::Variable_t* var = ASR::down_cast<ASR::Variable_t>(sym);
+            return var->m_storage == ASR::storage_typeType::Parameter;
+        }
+    }
+    return false;
+}
+
 static inline bool is_pointer(ASR::ttype_t *x) {
     return ASR::is_a<ASR::Pointer_t>(*x);
 }
