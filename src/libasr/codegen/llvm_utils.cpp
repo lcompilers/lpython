@@ -692,13 +692,6 @@ namespace LCompilers {
                 handle_llvm_pointers2()
                 break;
             }
-            case (ASR::ttypeType::Const) : {
-                ASR::ttype_t *t2 = ASRUtils::get_contained_type(asr_type);
-                type = get_arg_type_from_ttype_t(t2, nullptr, m_abi, arg_m_abi,
-                            m_storage, arg_m_value_attr, n_dims, a_kind,
-                            is_array_type, arg_intent, module, get_pointer);
-                break;
-            }
             case (ASR::ttypeType::Real) : {
                 ASR::Real_t* v_type = ASR::down_cast<ASR::Real_t>(asr_type);
                 a_kind = v_type->m_kind;
@@ -1016,10 +1009,6 @@ namespace LCompilers {
                 case (ASR::ttypeType::CPtr) :
                     return_type = llvm::Type::getVoidTy(context)->getPointerTo();
                     break;
-                case (ASR::ttypeType::Const) : {
-                    return_type = get_type_from_ttype_t_util(ASRUtils::get_contained_type(return_var_type0), module);
-                    break;
-                }
                 case (ASR::ttypeType::Pointer) : {
                     return_type = get_type_from_ttype_t_util(ASRUtils::get_contained_type(return_var_type0), module)->getPointerTo();
                     break;
@@ -1218,10 +1207,6 @@ namespace LCompilers {
                 case (ASR::ttypeType::CPtr) :
                     return_type = llvm::Type::getVoidTy(context)->getPointerTo();
                     break;
-                case (ASR::ttypeType::Const) : {
-                    return_type = get_type_from_ttype_t_util(ASRUtils::get_contained_type(return_var_type0), module);
-                    break;
-                }
                 case (ASR::ttypeType::Pointer) : {
                     return_type = get_type_from_ttype_t_util(ASRUtils::get_contained_type(return_var_type0), module)->getPointerTo();
                     break;
@@ -1524,12 +1509,6 @@ namespace LCompilers {
             case (ASR::ttypeType::Enum) : {
                 llvm_type = llvm::Type::getInt32Ty(context);
                 break ;
-            }
-            case (ASR::ttypeType::Const) : {
-                llvm_type = get_type_from_ttype_t(ASRUtils::get_contained_type(asr_type),
-                    nullptr, m_storage, is_array_type, is_malloc_array_type, is_list,
-                    m_dims, n_dims, a_kind, module, m_abi);
-                break;
             }
             case (ASR::ttypeType::FunctionType) : {
                 if( type_declaration ) {

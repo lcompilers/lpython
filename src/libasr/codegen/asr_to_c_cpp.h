@@ -311,7 +311,7 @@ R"(#include <stdio.h>
                 ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(var_sym);
                 std::string decl = self().convert_variable_decl(*v);
                 decl = check_tmp_buffer() + decl;
-                bool used_define_for_const = (ASR::is_a<ASR::Const_t>(*v->m_type) &&
+                bool used_define_for_const = (v->m_storage == ASR::storage_typeType::Parameter &&
                         v->m_intent == ASRUtils::intent_local);
                 if (used_define_for_const) {
                     contains += decl + "\n";
@@ -496,10 +496,6 @@ R"(#include <stdio.h>
         } else if (ASR::is_a<ASR::Tuple_t>(*return_var->m_type)) {
             ASR::Tuple_t* tup_type = ASR::down_cast<ASR::Tuple_t>(return_var->m_type);
             sub = c_ds_api->get_tuple_type(tup_type) + " ";
-        } else if (ASR::is_a<ASR::Const_t>(*return_var->m_type)) {
-            ASR::Const_t* const_type = ASR::down_cast<ASR::Const_t>(return_var->m_type);
-            std::string const_type_str = CUtils::get_c_type_from_ttype_t(const_type->m_type);
-            sub = "const " + const_type_str + " ";
         } else if (ASR::is_a<ASR::Pointer_t>(*return_var->m_type)) {
             ASR::Pointer_t* ptr_type = ASR::down_cast<ASR::Pointer_t>(return_var->m_type);
             std::string pointer_type_str = CUtils::get_c_type_from_ttype_t(ptr_type->m_type);
@@ -721,8 +717,6 @@ R"(#include <stdio.h>
                 }
             } case ASR::ttypeType::Logical : {
                 return "p";
-            } case ASR::ttypeType::Const : {
-                return get_type_format(ASR::down_cast<ASR::Const_t>(type)->m_type);
             } case ASR::ttypeType::Array : {
                 return "O";
             } default: {
@@ -1252,10 +1246,6 @@ PyMODINIT_FUNC PyInit_lpython_module_)" + fn_name + R"((void) {
     void visit_Assignment(const ASR::Assignment_t &x) {
         std::string target;
         ASR::ttype_t* m_target_type = ASRUtils::expr_type(x.m_target);
-        if( ASR::is_a<ASR::Const_t>(*m_target_type) ) {
-            src = "";
-            return ;
-        }
         ASR::ttype_t* m_value_type = ASRUtils::expr_type(x.m_value);
         bool is_target_list = ASR::is_a<ASR::List_t>(*m_target_type);
         bool is_value_list = ASR::is_a<ASR::List_t>(*m_value_type);
