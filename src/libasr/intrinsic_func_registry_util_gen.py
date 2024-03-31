@@ -38,6 +38,12 @@ intrinsic_funcs_args = {
             "ret_type_arg_idx": 0
         },
     ],
+    "Modulo": [
+        {
+            "args": [("int", "int"), ("real", "real")],
+            "ret_type_arg_idx": 0
+        },
+    ],
     "BesselJ0": [
         {
             "args": [("real",)],
@@ -551,7 +557,7 @@ indent = "    "
 def compute_arg_types(indent, no_of_args, args_arr):
     global src
     for i in range(no_of_args):
-        src += indent + f"ASR::ttype_t *arg_type{i} = ASRUtils::type_get_past_const(ASRUtils::expr_type({args_arr}[{i}]));\n"
+        src += indent + f"ASR::ttype_t *arg_type{i} = ASRUtils::expr_type({args_arr}[{i}]);\n"
 
 def compute_arg_condition(no_of_args, args_lists):
     condition = []

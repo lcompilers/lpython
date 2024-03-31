@@ -51,6 +51,7 @@ enum class IntrinsicElementalFunctions : int64_t {
     FlipSign,
     Mod,
     Trailz,
+    Modulo,
     BesselJ0,
     BesselJ1,
     BesselY0,
@@ -107,6 +108,7 @@ enum class IntrinsicElementalFunctions : int64_t {
     DictValues,
     SetAdd,
     SetRemove,
+    SetDiscard,
     Max,
     Min,
     Radix,
@@ -2486,8 +2488,6 @@ namespace FloorDiv {
             ASR::ttype_t* t1, Vec<ASR::expr_t*> &args, diag::Diagnostics& diag) {
         ASR::ttype_t *type1 = ASRUtils::expr_type(args[0]);
         ASR::ttype_t *type2 = ASRUtils::expr_type(args[1]);
-        type1 = ASRUtils::type_get_past_const(type1);
-        type2 = ASRUtils::type_get_past_const(type2);
         bool is_real1 = is_real(*type1);
         bool is_real2 = is_real(*type2);
         bool is_int1 = is_integer(*type1);
@@ -2806,6 +2806,7 @@ namespace Maskr {
         scope->add_symbol(fn_name, f_sym);
         return b.Call(f_sym, new_args, return_type, nullptr);
     }
+
 }  // namespace Maskr
 
 namespace Trailz {
@@ -2866,6 +2867,70 @@ namespace Trailz {
     }
 
 } // namespace Trailz
+
+namespace Modulo {
+
+    static ASR::expr_t *eval_Modulo(Allocator &al, const Location &loc,
+            ASR::ttype_t* t1, Vec<ASR::expr_t*> &args, diag::Diagnostics& /*diag*/) {
+
+        if (is_integer(*ASRUtils::expr_type(args[0])) && is_integer(*ASRUtils::expr_type(args[1]))) {
+            int64_t a = ASR::down_cast<ASR::IntegerConstant_t>(args[0])->m_n;
+            int64_t b = ASR::down_cast<ASR::IntegerConstant_t>(args[1])->m_n;
+            if ( a*b >= 0 ) {
+                return make_ConstantWithType(make_IntegerConstant_t, a % b, t1, loc);
+            } else {
+                return make_ConstantWithType(make_IntegerConstant_t, a % b + b, t1, loc);
+            }
+        } else if (is_real(*ASRUtils::expr_type(args[0])) && is_real(*ASRUtils::expr_type(args[1]))) {
+            double a = ASR::down_cast<ASR::RealConstant_t>(args[0])->m_r;
+            double b = ASR::down_cast<ASR::RealConstant_t>(args[1])->m_r;
+            if ( a*b > 0 ) {
+                return make_ConstantWithType(make_RealConstant_t, std::fmod(a, b), t1, loc);
+            } else {
+                return make_ConstantWithType(make_RealConstant_t, std::fmod(a, b) + b, t1, loc);
+            }
+        }
+        return nullptr;
+    }
+
+    static inline ASR::expr_t* instantiate_Modulo(Allocator &al, const Location &loc,
+            SymbolTable *scope, Vec<ASR::ttype_t*>& arg_types, ASR::ttype_t *return_type,
+            Vec<ASR::call_arg_t>& new_args, int64_t /*overload_id*/) {
+        declare_basic_variables("_lcompilers_optimization_modulo_" + type_to_str_python(arg_types[0]));
+        fill_func_arg("a", arg_types[0]);
+        fill_func_arg("p", arg_types[1]);
+        auto result = declare(fn_name, return_type, ReturnVar);
+        /*
+        function modulo(a, p) result(d)
+            if ( a*p >= 0 ) then
+                d = mod(a, p)
+            else
+                d = mod(a, p) + p
+            end if
+        end function
+        */
+
+        if (is_real(*arg_types[0])) {
+            body.push_back(al, b.If(b.fGtE(b.r_tMul(args[0], args[1], arg_types[0]), b.f(0.0, arg_types[0])), {
+                b.Assignment(result, Mod::MOD(b, args[0], args[1], scope))
+            }, {
+                b.Assignment(result, b.r_tAdd(Mod::MOD(b, args[0], args[1], scope), args[1], arg_types[0]))
+            }));
+        } else {
+            body.push_back(al, b.If(b.iGtE(b.i_tMul(args[0], args[1], arg_types[0]), b.i(0, arg_types[0])), {
+                b.Assignment(result, Mod::MOD(b, args[0], args[1], scope))
+            }, {
+                b.Assignment(result, b.i_tAdd(Mod::MOD(b, args[0], args[1], scope), args[1], arg_types[0]))
+            }));
+        }
+
+        ASR::symbol_t *f_sym = make_ASR_Function_t(fn_name, fn_symtab, dep, args,
+            body, result, ASR::abiType::Source, ASR::deftypeType::Implementation, nullptr);
+        scope->add_symbol(fn_name, f_sym);
+        return b.Call(f_sym, new_args, return_type, nullptr);
+    }
+
+}  // namespace Modulo
 
 namespace BesselJ0 {
 
@@ -4499,7 +4564,7 @@ namespace ListIndex {
 static inline void verify_args(const ASR::IntrinsicElementalFunction_t& x, diag::Diagnostics& diagnostics) {
     ASRUtils::require_impl(x.n_args <= 4, "Call to list.index must have at most four arguments",
         x.base.base.loc, diagnostics);
-    ASR::ttype_t* arg0_type = ASRUtils::type_get_past_const(ASRUtils::expr_type(x.m_args[0]));
+    ASR::ttype_t* arg0_type = ASRUtils::expr_type(x.m_args[0]);
     ASRUtils::require_impl(ASR::is_a<ASR::List_t>(*arg0_type) &&
         ASRUtils::check_equal_type(ASRUtils::expr_type(x.m_args[1]), ASRUtils::get_contained_type(arg0_type)),
         "First argument to list.index must be of list type and "
@@ -4535,7 +4600,7 @@ static inline ASR::asr_t* create_ListIndex(Allocator& al, const Location& loc,
     int64_t overload_id = 0;
     ASR::expr_t* list_expr = args[0];
     ASR::ttype_t *type = ASRUtils::expr_type(list_expr);
-    ASR::ttype_t *list_type = ASR::down_cast<ASR::List_t>(ASRUtils::type_get_past_const(type))->m_type;
+    ASR::ttype_t *list_type = ASR::down_cast<ASR::List_t>(type)->m_type;
     ASR::ttype_t *ele_type = ASRUtils::expr_type(args[1]);
     if (!ASRUtils::check_equal_type(ele_type, list_type)) {
         std::string fnd = ASRUtils::get_type_code(ele_type);
@@ -4845,6 +4910,57 @@ static inline ASR::asr_t* create_SetRemove(Allocator& al, const Location& loc,
     return ASR::make_Expr_t(al, loc,
             ASRUtils::EXPR(ASR::make_IntrinsicElementalFunction_t(al, loc,
             static_cast<int64_t>(IntrinsicElementalFunctions::SetRemove),
+            args.p, args.size(), 0, nullptr, compile_time_value)));
+}
+
+} // namespace SetRemove
+
+namespace SetDiscard {
+
+static inline void verify_args(const ASR::IntrinsicElementalFunction_t& x, diag::Diagnostics& diagnostics) {
+    ASRUtils::require_impl(x.n_args == 2, "Call to set.discard must have exactly one argument",
+        x.base.base.loc, diagnostics);
+    ASRUtils::require_impl(ASR::is_a<ASR::Set_t>(*ASRUtils::expr_type(x.m_args[0])),
+        "First argument to set.discard must be of set type",
+        x.base.base.loc, diagnostics);
+    ASRUtils::require_impl(ASRUtils::check_equal_type(ASRUtils::expr_type(x.m_args[1]),
+            ASRUtils::get_contained_type(ASRUtils::expr_type(x.m_args[0]))),
+        "Second argument to set.discard must be of same type as set's element type",
+        x.base.base.loc, diagnostics);
+    ASRUtils::require_impl(x.m_type == nullptr,
+        "Return type of set.discard must be empty",
+        x.base.base.loc, diagnostics);
+}
+
+static inline ASR::expr_t *eval_set_discard(Allocator &/*al*/,
+    const Location &/*loc*/, ASR::ttype_t *, Vec<ASR::expr_t*>& /*args*/, diag::Diagnostics& /*diag*/) {
+    // TODO: To be implemented for SetConstant expression
+    return nullptr;
+}
+
+static inline ASR::asr_t* create_SetDiscard(Allocator& al, const Location& loc,
+    Vec<ASR::expr_t*>& args,
+    diag::Diagnostics& diag) {
+    if (args.size() != 2) {
+        append_error(diag, "Call to set.discard must have exactly one argument", loc);
+        return nullptr;
+    }
+    if (!ASRUtils::check_equal_type(ASRUtils::expr_type(args[1]),
+        ASRUtils::get_contained_type(ASRUtils::expr_type(args[0])))) {
+        append_error(diag, "Argument to set.discard must be of same type as set's "
+            "element type", loc);
+        return nullptr;
+    }
+
+    Vec<ASR::expr_t*> arg_values;
+    arg_values.reserve(al, args.size());
+    for( size_t i = 0; i < args.size(); i++ ) {
+        arg_values.push_back(al, ASRUtils::expr_value(args[i]));
+    }
+    ASR::expr_t* compile_time_value = eval_set_discard(al, loc, nullptr, arg_values, diag);
+    return ASR::make_Expr_t(al, loc,
+            ASRUtils::EXPR(ASR::make_IntrinsicElementalFunction_t(al, loc,
+            static_cast<int64_t>(IntrinsicElementalFunctions::SetDiscard),
             args.p, args.size(), 0, nullptr, compile_time_value)));
 }
 

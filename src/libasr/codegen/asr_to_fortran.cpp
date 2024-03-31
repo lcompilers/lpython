@@ -1267,6 +1267,7 @@ public:
             SET_INTRINSIC_NAME(StringContainsSet, "verify");
             SET_INTRINSIC_NAME(StringFindSet, "scan");
             SET_INTRINSIC_NAME(SubstrIndex, "index");
+            SET_INTRINSIC_NAME(Modulo, "modulo");
             default : {
                 throw LCompilersException("IntrinsicElementalFunction: `"
                     + ASRUtils::get_intrinsic_name(x.m_intrinsic_id)

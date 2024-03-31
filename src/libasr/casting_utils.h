@@ -2,8 +2,6 @@
 #define LFORTRAN_CASTING_UTILS_H
 
 
-#include <functional>
-
 #include <libasr/asr.h>
 
 namespace LCompilers::CastingUtil {
