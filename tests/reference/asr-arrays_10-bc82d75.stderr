@@ -3,7 +3,3 @@ semantic error: Only those local variables that can be reduced to compile-time c
   |
 9 |     x: i64[100, 120, 200] = empty([q, p, r], dtype=int64)
   |                                    ^ 
-
-
-Note: Please report unclear or confusing messages as bugs at
-https://github.com/lcompilers/lpython/issues.

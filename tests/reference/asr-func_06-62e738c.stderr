@@ -6,7 +6,3 @@ semantic error: Parameter is already declared
   |
 1 | def init_X(m:i32, n: i32, b: CPtr, m: i32) -> None:
   |                                    ^^^^^^ redeclaration
-
-
-Note: Please report unclear or confusing messages as bugs at
-https://github.com/lcompilers/lpython/issues.

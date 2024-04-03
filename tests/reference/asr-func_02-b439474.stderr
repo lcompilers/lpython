@@ -3,7 +3,3 @@ semantic error: Assignment to an input function parameter `n` is not allowed
   |
 4 |     n = 5
   |     ^ Hint: create a new local variable with a different name
-
-
-Note: Please report unclear or confusing messages as bugs at
-https://github.com/lcompilers/lpython/issues.

@@ -3,7 +3,3 @@ semantic error: S() got multiple values for argument 'x'
   |
 9 |     s: S = S(24, x=2)
   |                  ^^^ 
-
-
-Note: Please report unclear or confusing messages as bugs at
-https://github.com/lcompilers/lpython/issues.

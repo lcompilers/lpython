@@ -3,7 +3,3 @@ semantic error: Type mismatch in annotation-assignment, the types must be compat
   |
 6 |     x: f32[5, 4] = empty([5, 4], dtype=complex64)
   |     ^              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ type mismatch ('f32[5,4]' and 'c32[5,4]')
-
-
-Note: Please report unclear or confusing messages as bugs at
-https://github.com/lcompilers/lpython/issues.

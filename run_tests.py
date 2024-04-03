@@ -56,7 +56,7 @@ def single_test(test, verbose, no_llvm, skip_run_with_dbg, skip_cpptranslate, up
             "lpython --no-color --show-tokens {infile} -o {outfile}",
             filename,
             update_reference,
-            extra_args)
+            extra_args=extra_args)
 
     if ast:
         run_test(
@@ -65,7 +65,7 @@ def single_test(test, verbose, no_llvm, skip_run_with_dbg, skip_cpptranslate, up
             "lpython --show-ast --no-color {infile} -o {outfile}",
             filename,
             update_reference,
-            extra_args)
+            extra_args=extra_args)
 
     if ast_new:
         run_test(
@@ -74,7 +74,7 @@ def single_test(test, verbose, no_llvm, skip_run_with_dbg, skip_cpptranslate, up
             "lpython --show-ast --new-parser --no-color {infile} -o {outfile}",
             filename,
             update_reference,
-            extra_args)
+            extra_args=extra_args)
 
     if asr:
         run_test(
@@ -83,7 +83,7 @@ def single_test(test, verbose, no_llvm, skip_run_with_dbg, skip_cpptranslate, up
             "lpython --show-asr --no-color {infile} -o {outfile}",
             filename,
             update_reference,
-            extra_args)
+            extra_args=extra_args)
 
     if asr_json:
         run_test(
@@ -92,7 +92,7 @@ def single_test(test, verbose, no_llvm, skip_run_with_dbg, skip_cpptranslate, up
             "lpython --show-asr --json --no-color {infile} -o {outfile}",
             filename,
             update_reference,
-            extra_args)
+            extra_args=extra_args)
 
     if pass_ is not None:
         cmd = "lpython "
@@ -103,7 +103,7 @@ def single_test(test, verbose, no_llvm, skip_run_with_dbg, skip_cpptranslate, up
         cmd += "--pass=" + pass_ + \
             " --show-asr --no-color {infile} -o {outfile}"
         run_test(filename, "pass_{}".format(pass_), cmd,
-                 filename, update_reference, extra_args)
+                 filename, update_reference, extra_args=extra_args)
 
     if no_llvm:
         log.info(f"{filename} * llvm   SKIPPED as requested")
@@ -115,7 +115,7 @@ def single_test(test, verbose, no_llvm, skip_run_with_dbg, skip_cpptranslate, up
                 "lpython --no-color --show-llvm {infile} -o {outfile}",
                 filename,
                 update_reference,
-                extra_args)
+                extra_args=extra_args)
         if llvm_dbg:
             run_test(
                 filename,
@@ -124,31 +124,31 @@ def single_test(test, verbose, no_llvm, skip_run_with_dbg, skip_cpptranslate, up
                     "{infile} -o {outfile}",
                 filename,
                 update_reference,
-                extra_args)
+                extra_args=extra_args)
 
     if cpp:
         run_test(filename, "cpp", "lpython --no-color --show-cpp {infile}",
-                 filename, update_reference, extra_args)
+                 filename, update_reference, extra_args=extra_args)
 
     if c:
         if disable_main:
             run_test(filename, "c", "lpython --no-color --disable-main --show-c {infile}",
-                 filename, update_reference, extra_args)
+                 filename, update_reference, extra_args=extra_args)
         else:
             run_test(filename, "c", "lpython --no-color --show-c {infile}",
-                 filename, update_reference, extra_args)
+                 filename, update_reference, extra_args=extra_args)
 
     if python:
        run_test(filename, "python", "lpython --no-color --show-python {infile}",
-            filename, update_reference, extra_args)
+            filename, update_reference, extra_args=extra_args)
 
     if wat:
         run_test(filename, "wat", "lpython --no-color --show-wat {infile}",
-                 filename, update_reference, extra_args)
+                 filename, update_reference, extra_args=extra_args)
 
     if run:
         run_test(filename, "runtime", "lpython {infile}",
-                 filename, update_reference, extra_args)
+                 filename, update_reference, extra_args=extra_args)
 
     if run_with_dbg:
         if skip_run_with_dbg:
@@ -157,7 +157,7 @@ def single_test(test, verbose, no_llvm, skip_run_with_dbg, skip_cpptranslate, up
             run_test(
                 filename, "run_dbg",
                 "lpython {infile} -g --debug-with-line-column --no-color",
-                filename, update_reference, extra_args)
+                filename, update_reference, extra_args=extra_args)
 
 if __name__ == "__main__":
     tester_main("LPython", single_test)

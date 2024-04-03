@@ -3,7 +3,3 @@ semantic error: Type mismatch in index, expected a single integer or slice
   |
 4 |     print(s[1.2])
   |             ^^^ type mismatch (found: 'f64', expected: 'i32' or slice)
-
-
-Note: Please report unclear or confusing messages as bugs at
-https://github.com/lcompilers/lpython/issues.

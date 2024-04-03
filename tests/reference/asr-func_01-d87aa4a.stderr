@@ -7,7 +7,3 @@ semantic error: Function f is already defined
    |
 10 |        print(i + 2)
    | ...^^^^^^^^^^^^^^^^ 
-
-
-Note: Please report unclear or confusing messages as bugs at
-https://github.com/lcompilers/lpython/issues.

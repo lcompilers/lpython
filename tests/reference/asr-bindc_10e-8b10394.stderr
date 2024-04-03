@@ -12,7 +12,3 @@ semantic error: The struct in c_p_pointer must be C interoperable
    |
  7 |        b: i64
    | ...~~~~~~~~~~ help: add the @ccallable decorator to this struct to make it C interoperable
-
-
-Note: Please report unclear or confusing messages as bugs at
-https://github.com/lcompilers/lpython/issues.

@@ -7,7 +7,3 @@ semantic error: The `async` keyword is currently not supported
   |
 2 |        print("done")
   | ...^^^^^^^^^^^^^^^^^ 
-
-
-Note: Please report unclear or confusing messages as bugs at
-https://github.com/lcompilers/lpython/issues.

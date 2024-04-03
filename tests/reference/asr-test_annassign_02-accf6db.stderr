@@ -3,7 +3,3 @@ semantic error: The type 'Pattern' is undeclared.
   |
 2 |     hex_pat : Pattern[str] = r'-?0[xX]+'
   |               ^^^^^^^^^^^^ 
-
-
-Note: Please report unclear or confusing messages as bugs at
-https://github.com/lcompilers/lpython/issues.

@@ -3,7 +3,3 @@ semantic error: Type mismatch in pop's key value, the types must be compatible
   |
 5 |     res = d.pop("a")
   |                 ^^^ type mismatch (found: 'str', expected: 'i32')
-
-
-Note: Please report unclear or confusing messages as bugs at
-https://github.com/lcompilers/lpython/issues.

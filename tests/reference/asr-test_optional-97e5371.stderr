@@ -3,7 +3,3 @@ semantic error: The type 'Optional' is undeclared.
   |
 1 | def match(pat : str, string : str) -> Optional[list[str] | str]:
   |                                       ^^^^^^^^^^^^^^^^^^^^^^^^^ 
-
-
-Note: Please report unclear or confusing messages as bugs at
-https://github.com/lcompilers/lpython/issues.

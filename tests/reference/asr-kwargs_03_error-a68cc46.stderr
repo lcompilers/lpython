@@ -3,7 +3,3 @@ semantic error: Function func01 doesn't have an argument named 'd'
    |
 11 |     func01(arg1, d=int(8))
    |     ^^^^^^^^^^^^^^^^^^^^^^ 
-
-
-Note: Please report unclear or confusing messages as bugs at
-https://github.com/lcompilers/lpython/issues.

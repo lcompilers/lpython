@@ -3,7 +3,3 @@ semantic error: Simple Type i32 cannot be intent InOut/Out
   |
 3 | def f(n: InOut[i32]):
   |       ^^^^^^^^^^^^^ 
-
-
-Note: Please report unclear or confusing messages as bugs at
-https://github.com/lcompilers/lpython/issues.

@@ -3,7 +3,3 @@ semantic error: Separator is expected to be of string type
   |
 2 |     print("a", "b", sep=2)
   |                         ^ Expected string, found: integer
-
-
-Note: Please report unclear or confusing messages as bugs at
-https://github.com/lcompilers/lpython/issues.

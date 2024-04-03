@@ -3,7 +3,3 @@ semantic error: Not enough arguments to S(), expected 2
   |
 9 |     s: S = S(y=2)
   |            ^^^^^^ 
-
-
-Note: Please report unclear or confusing messages as bugs at
-https://github.com/lcompilers/lpython/issues.

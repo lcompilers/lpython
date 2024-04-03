@@ -7,7 +7,3 @@ semantic error: Enumerations with non-integer or non-unique integer values canno
   |
 8 |        BLUE: i32 = 2
   | ...^^^^^^^^^^^^^^^^^ 
-
-
-Note: Please report unclear or confusing messages as bugs at
-https://github.com/lcompilers/lpython/issues.

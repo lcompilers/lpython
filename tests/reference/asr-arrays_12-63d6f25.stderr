@@ -3,7 +3,3 @@ semantic error: Type mismatch in annotation-assignment, the types must be compat
   |
 5 | x: i16[5] = empty([5], dtype=int32)
   | ^           ^^^^^^^^^^^^^^^^^^^^^^^ type mismatch ('i16[5]' and 'i32[5]')
-
-
-Note: Please report unclear or confusing messages as bugs at
-https://github.com/lcompilers/lpython/issues.

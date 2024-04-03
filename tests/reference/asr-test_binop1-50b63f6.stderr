@@ -3,7 +3,3 @@ semantic error: Type mismatch in binary operator; the types must be compatible
   |
 6 |     print(x+s)
   |           ^ ^ type mismatch (i32 and str)
-
-
-Note: Please report unclear or confusing messages as bugs at
-https://github.com/lcompilers/lpython/issues.
