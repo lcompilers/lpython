@@ -361,13 +361,15 @@ public:
         ASR::expr_t* target = x.m_target;
         if( ASR::is_a<ASR::Var_t>(*target) ) {
             ASR::Var_t* target_Var = ASR::down_cast<ASR::Var_t>(target);
+            bool is_target_const = false;
             ASR::ttype_t* target_type = nullptr;
-            if( ASR::is_a<ASR::Variable_t>(*target_Var->m_v) ||
-                (ASR::is_a<ASR::ExternalSymbol_t>(*target_Var->m_v) &&
-                 ASR::down_cast<ASR::ExternalSymbol_t>(target_Var->m_v)->m_external) ) {
-                target_type = ASRUtils::expr_type(target);
+            ASR::symbol_t* target_sym = ASRUtils::symbol_get_past_external(target_Var->m_v);
+            if( target_sym && ASR::is_a<ASR::Variable_t>(*target_sym) ) {
+                ASR::Variable_t* var = ASR::down_cast<ASR::Variable_t>(target_sym);
+                target_type = var->m_type;
+                is_target_const = var->m_storage == ASR::storage_typeType::Parameter;
             }
-            if( target_type && ASR::is_a<ASR::Const_t>(*target_type) ) {
+            if( is_target_const ) {
                 std::string variable_name = ASRUtils::symbol_name(target_Var->m_v);
                 require(const_assigned.find(std::make_pair(current_symtab->counter,
                     variable_name)) == const_assigned.end(),
@@ -525,6 +527,8 @@ public:
                 ASR::is_a<ASR::CustomOperator_t>(*a.second) ) {
                 continue ;
             }
+            // TODO: Uncomment the following line
+            // ASR::ttype_t* var_type = ASRUtils::extract_type(ASRUtils::symbol_type(a.second));
             ASR::ttype_t* var_type = ASRUtils::type_get_past_pointer(ASRUtils::symbol_type(a.second));
             char* aggregate_type_name = nullptr;
             ASR::symbol_t* sym = nullptr;
@@ -1161,14 +1165,14 @@ public:
     void visit_dimension(const dimension_t &x) {
         if (x.m_start) {
             require_with_loc(ASRUtils::is_integer(
-                *ASRUtils::type_get_past_const(ASRUtils::expr_type(x.m_start))),
+                *ASRUtils::expr_type(x.m_start)),
                 "Start dimension must be a signed integer", x.loc);
             visit_expr(*x.m_start);
         }
 
         if (x.m_length) {
             require_with_loc(ASRUtils::is_integer(
-                *ASRUtils::type_get_past_const(ASRUtils::expr_type(x.m_length))),
+                *ASRUtils::expr_type(x.m_length)),
                 "Length dimension must be a signed integer", x.loc);
             visit_expr(*x.m_length);
         }

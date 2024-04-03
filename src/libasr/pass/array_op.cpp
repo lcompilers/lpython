@@ -1017,6 +1017,9 @@ class ReplaceArrayOp: public ASR::BaseExprReplacer<ReplaceArrayOp> {
 
 
     void replace_Cast(ASR::Cast_t* x) {
+        if( x->m_kind == ASR::cast_kindType::ListToArray ) {
+            return ;
+        }
         const Location& loc = x->base.base.loc;
         ASR::Cast_t* x_ = x;
         if( ASR::is_a<ASR::ArrayReshape_t>(*x->m_arg) ) {
