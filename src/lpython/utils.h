@@ -8,6 +8,9 @@
 #if (defined (__linux__)) or (defined (__APPLE__))
 #include <dlfcn.h>
 #elif (defined (WIN32))
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif // NOMINMAX
 #include <windows.h>
 #endif
 #endif
