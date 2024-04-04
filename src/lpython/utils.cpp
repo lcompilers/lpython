@@ -126,6 +126,8 @@ bool path_exists(std::string path) {
     }
 }
 
+#ifdef HAVE_LFORTRAN_LLVM
+
 void open_cpython_library(DynamicLibrary &l) {
     std::string conda_prefix = std::getenv("CONDA_PREFIX");
 #if defined (__linux__)
@@ -173,6 +175,8 @@ void close_symengine_library(DynamicLibrary &l) {
     l.l = nullptr;
 #endif
 }
+
+#endif
 
 // Decodes the exit status code of the process (in Unix)
 // See `WEXITSTATUS` for more information.
