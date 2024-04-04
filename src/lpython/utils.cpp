@@ -3,6 +3,8 @@
 #define NOMINMAX
 #endif // NOMINMAX
 #include <windows.h>
+#else
+#include <dlfcn.h>
 #endif
 
 #include <fstream>

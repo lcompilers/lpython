@@ -4,17 +4,6 @@
 #include <string>
 #include <libasr/utils.h>
 
-#ifdef HAVE_LFORTRAN_LLVM
-#if (defined (__linux__)) or (defined (__APPLE__))
-#include <dlfcn.h>
-#elif (defined (WIN32))
-#ifndef NOMINMAX
-#define NOMINMAX
-#endif // NOMINMAX
-#include <windows.h>
-#endif
-#endif
-
 namespace LCompilers::LPython {
 
 void get_executable_path(std::string &executable_path, int &dirname_length);
@@ -24,12 +13,10 @@ bool is_directory(std::string path);
 bool path_exists(std::string path);
 
 #ifdef HAVE_LFORTRAN_LLVM
-union DynamicLibrary {
-#if (defined (__linux__)) or (defined (__APPLE__))
+struct DynamicLibrary {
     void *l;
-#elif (defined (WIN32))
-    HINSTANCE l;
-#endif
+
+    DynamicLibrary(): l(nullptr) {}
 };
 
 void open_cpython_library(DynamicLibrary &l);
