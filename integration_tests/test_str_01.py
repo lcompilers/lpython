@@ -59,6 +59,7 @@ def test_str_repeat():
     assert a*2*3 == "XyzXyzXyzXyzXyzXyz"
     assert 3*a*3 == "XyzXyzXyzXyzXyzXyzXyzXyzXyz"
     assert a*-1 == ""
+    assert len(a*(10**6)) == (3 * 10 ** 6)
 
 def test_str_join():
     a: str
