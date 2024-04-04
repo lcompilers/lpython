@@ -149,7 +149,7 @@ void close_cpython_library(DynamicLibrary &l) {
     dlclose(l.l);
     l.l = nullptr;
 #else
-    FreeLibrary(l.l);
+    FreeLibrary((HMODULE)l.l);
     l.l = nullptr;
 #endif
 }
@@ -173,7 +173,7 @@ void close_symengine_library(DynamicLibrary &l) {
     dlclose(l.l);
     l.l = nullptr;
 #else
-    FreeLibrary(l.l);
+    FreeLibrary((HMODULE)l.l);
     l.l = nullptr;
 #endif
 }
