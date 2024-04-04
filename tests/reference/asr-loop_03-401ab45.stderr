@@ -3,7 +3,3 @@ semantic error: Assignment to loop variable `i` is not allowed
   |
 5 |         i=i*10
   |         ^ 
-
-
-Note: Please report unclear or confusing messages as bugs at
-https://github.com/lcompilers/lpython/issues.

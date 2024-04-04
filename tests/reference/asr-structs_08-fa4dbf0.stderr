@@ -3,7 +3,3 @@ semantic error: Struct constructor has more arguments than the number of struct 
    |
 13 |     test_dude3 : StringIO = StringIO(integer_asr, 3, 5, 2)
    |                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
-
-
-Note: Please report unclear or confusing messages as bugs at
-https://github.com/lcompilers/lpython/issues.

@@ -3,7 +3,3 @@ semantic error: Unary operator '-' not supported for type struct A
   |
 9 |     print(-a)
   |           ^^ 
-
-
-Note: Please report unclear or confusing messages as bugs at
-https://github.com/lcompilers/lpython/issues.

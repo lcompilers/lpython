@@ -9,7 +9,3 @@ style suggestion: Could have used '**' instead of 'pow'
   |
 8 |     res = i32(pow(a, b))
   |               ^^^^^^^^^ '**' could be used instead
-
-
-Note: Please report unclear or confusing messages as bugs at
-https://github.com/lcompilers/lpython/issues.

@@ -9,7 +9,3 @@ semantic error: Arguments do not match for any generic procedure, pow
    |
 12 |     print(pow(a, b, c, d))
    |           ^^^^^^^^^^^^^^^ 
-
-
-Note: Please report unclear or confusing messages as bugs at
-https://github.com/lcompilers/lpython/issues.

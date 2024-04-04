@@ -3,7 +3,3 @@ semantic error: read not present in StringIO dataclass
    |
 13 |     bytes_read: i32 = fd.read()
    |                       ^^^^^^^^^ 
-
-
-Note: Please report unclear or confusing messages as bugs at
-https://github.com/lcompilers/lpython/issues.

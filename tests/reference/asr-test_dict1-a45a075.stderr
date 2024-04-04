@@ -3,7 +3,3 @@ semantic error: Key type should be 'i32' instead of 'str'
   |
 5 |     z = x["a"]
   |           ^^^ 
-
-
-Note: Please report unclear or confusing messages as bugs at
-https://github.com/lcompilers/lpython/issues.

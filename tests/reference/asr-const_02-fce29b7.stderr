@@ -3,7 +3,3 @@ semantic error: Targets with Const[i32] type cannot be re-assigned.
   |
 5 |     x = 5
   |     ^ 
-
-
-Note: Please report unclear or confusing messages as bugs at
-https://github.com/lcompilers/lpython/issues.

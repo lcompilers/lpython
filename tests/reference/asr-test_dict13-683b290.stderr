@@ -3,7 +3,3 @@ semantic error: 'dict' key type cannot be float/complex because resolving collis
   |
 2 |     print({complex(0.0, 1.0): 1.1}) # constant dict with complex value as key
   |           ^^^^^^^^^^^^^^^^^^^^^^^^ 
-
-
-Note: Please report unclear or confusing messages as bugs at
-https://github.com/lcompilers/lpython/issues.

@@ -3,7 +3,3 @@ semantic error: The type 'Optional' is undeclared.
   |
 2 |     a: Optional[i32] = 5
   |        ^^^^^^^^^^^^^ 
-
-
-Note: Please report unclear or confusing messages as bugs at
-https://github.com/lcompilers/lpython/issues.

@@ -3,7 +3,3 @@ semantic error: Type mismatch in assignment, the types must be compatible
   |
 6 |     x = y
   |     ^   ^ type mismatch ('list[list[i32]]' and 'list[list[str]]')
-
-
-Note: Please report unclear or confusing messages as bugs at
-https://github.com/lcompilers/lpython/issues.

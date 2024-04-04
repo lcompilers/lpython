@@ -3,7 +3,3 @@ semantic error: Type mismatch in assignment, the types must be compatible
   |
 6 |     a = b
   |     ^   ^ type mismatch ('list[i32]' and 'set[i32]')
-
-
-Note: Please report unclear or confusing messages as bugs at
-https://github.com/lcompilers/lpython/issues.

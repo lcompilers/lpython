@@ -3,7 +3,3 @@ semantic error: Assignment to an input function parameter `x` is not allowed
   |
 2 |     x = 2
   |     ^ Hint: create a new local variable with a different name
-
-
-Note: Please report unclear or confusing messages as bugs at
-https://github.com/lcompilers/lpython/issues.

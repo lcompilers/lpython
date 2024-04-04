@@ -3,7 +3,3 @@ semantic error: 'set' object is not subscriptable
   |
 7 |     a = s[0]
   |         ^^^^ 
-
-
-Note: Please report unclear or confusing messages as bugs at
-https://github.com/lcompilers/lpython/issues.

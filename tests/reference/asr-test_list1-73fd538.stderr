@@ -3,7 +3,3 @@ semantic error: Type mismatch in 'remove', the types must be compatible
   |
 6 |     a.remove('error')
   |              ^^^^^^^ type mismatch (found: 'str', expected: 'i32')
-
-
-Note: Please report unclear or confusing messages as bugs at
-https://github.com/lcompilers/lpython/issues.

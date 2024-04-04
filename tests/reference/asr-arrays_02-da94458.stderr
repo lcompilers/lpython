@@ -3,7 +3,3 @@ semantic error: The truth value of an array with more than one element is ambigu
    |
 28 | assert r1.a == t1.a
    |        ^^^^^^^^^^^^ 
-
-
-Note: Please report unclear or confusing messages as bugs at
-https://github.com/lcompilers/lpython/issues.

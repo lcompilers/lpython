@@ -3,7 +3,3 @@ semantic error: str.capitalize() takes no arguments
   |
 4 |     s = s.capitalize(23)
   |         ^^^^^^^^^^^^^^^^ 
-
-
-Note: Please report unclear or confusing messages as bugs at
-https://github.com/lcompilers/lpython/issues.

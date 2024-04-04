@@ -3,7 +3,3 @@ semantic error: str.join() takes type list only
   |
 6 |     res:str = x.join(p)
   |               ^^^^^^^^^ 
-
-
-Note: Please report unclear or confusing messages as bugs at
-https://github.com/lcompilers/lpython/issues.
