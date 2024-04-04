@@ -3,12 +3,6 @@
 #include <stdlib.h>
 #include <cstdlib>
 
-#if (defined (__linux__)) or (defined (__APPLE__))
-#include <dlfcn.h>
-#elif (defined (WIN32))
-#include <windows.h>
-#endif
-
 #define CLI11_HAS_FILESYSTEM 0
 #include <bin/CLI11.hpp>
 
@@ -894,41 +888,13 @@ int compile_python_using_llvm(
     std::unique_ptr<LCompilers::LLVMModule> m = std::move(res.result);
 
     if (to_jit) {
-#if (defined (__linux__)) or (defined (__APPLE__))
-        void *cpython_lib = nullptr;
-        void *symengine_lib = nullptr;
-#else
-        HINSTANCE cpython_lib = nullptr;
-        HINSTANCE symengine_lib = nullptr;
-#endif
-        if (compiler_options.enable_cpython) {
-            std::string conda_prefix = std::getenv("CONDA_PREFIX");
-#if defined (__linux__)
-            cpython_lib = dlopen((conda_prefix + "/lib/libpython3.so").c_str(), RTLD_DEEPBIND | RTLD_GLOBAL | RTLD_NOW);
-#elif defined (__APPLE__)
-            cpython_lib = dlopen((conda_prefix + "/lib/libpython3.dylib").c_str(), RTLD_DEEPBIND | RTLD_GLOBAL | RTLD_NOW);
-#else
-            cpython_lib = LoadLibrary((conda_prefix + "\\python3.dll").c_str());
-#endif
-            if (!cpython_lib) {
-                std::cerr << "Could not load \"python3\" library\n";
-                return 1;
-            }
-        }
-        if (compiler_options.enable_symengine) {
-            std::string conda_prefix = std::getenv("CONDA_PREFIX");
-#if defined (__linux__)
-            symengine_lib = dlopen((conda_prefix + "/lib/libsymengine.so").c_str(), RTLD_DEEPBIND | RTLD_GLOBAL | RTLD_NOW);
-#elif defined (__APPLE__)
-            symengine_lib = dlopen((conda_prefix + "/lib/libsymengine.dylib").c_str(), RTLD_DEEPBIND | RTLD_GLOBAL | RTLD_NOW);
-#else
-            symengine_lib = LoadLibrary((conda_prefix + "\\Library\\bin\\symengine-0.11.dll").c_str());
-#endif
-            if (!symengine_lib) {
-                std::cerr << "Could not load \"symengine\" library\n";
-                return 1;
-            }
-        }
+        LCompilers::LPython::DynamicLibrary cpython_lib;
+        LCompilers::LPython::DynamicLibrary symengine_lib;
+
+        if (compiler_options.enable_cpython)
+            LCompilers::LPython::open_cpython_library(cpython_lib);
+        if (compiler_options.enable_symengine)
+            LCompilers::LPython::open_symengine_library(symengine_lib);
 
         auto llvm_start = std::chrono::high_resolution_clock::now();
 
@@ -945,17 +911,10 @@ int compile_python_using_llvm(
         if (call_stmts)
             e.voidfn("__module___main_____main__global_stmts");
 
-#if (defined (__linux__)) or (defined (__APPLE__))
-        if (cpython_lib)
-            dlclose(cpython_lib);
-        if (symengine_lib)
-            dlclose(symengine_lib);
-#else
-        if (cpython_lib)
-            FreeLibrary(cpython_lib);
-        if (symengine_lib)
-            FreeLibrary(symengine_lib);
-#endif
+        if (compiler_options.enable_cpython)
+            LCompilers::LPython::close_cpython_library(cpython_lib);
+        if (compiler_options.enable_symengine)
+            LCompilers::LPython::close_symengine_library(symengine_lib);
 
         auto llvm_end = std::chrono::high_resolution_clock::now();
         times.push_back(std::make_pair("LLVM JIT execution", std::chrono::duration<double, std::milli>(llvm_end - llvm_start).count()));
