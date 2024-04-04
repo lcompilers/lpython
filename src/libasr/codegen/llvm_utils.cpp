@@ -2120,17 +2120,15 @@ namespace LCompilers {
             throw LCompilersException("list for " + type_code + " not declared yet.");
         }
         int32_t type_size = std::get<1>(typecode2listtype[type_code]);
-        llvm::Value* arg_size = llvm::ConstantInt::get(context,
-                                    llvm::APInt(32, type_size * initial_capacity));
-
-        llvm::Value* list_data = LLVM::lfortran_malloc(context, module, *builder,
-                                                       arg_size);
+        llvm::Value* llvm_type_size = llvm::ConstantInt::get(context, llvm::APInt(32, type_size));
+        llvm::Value* current_capacity = llvm::ConstantInt::get(context, llvm::APInt(32, initial_capacity));
+        llvm::Value* list_data = LLVM::lfortran_calloc(context, module, *builder,
+                                                       current_capacity, llvm_type_size);
         llvm::Type* el_type = std::get<2>(typecode2listtype[type_code]);
         list_data = builder->CreateBitCast(list_data, el_type->getPointerTo());
         llvm::Value* list_data_ptr = get_pointer_to_list_data(list);
         builder->CreateStore(list_data, list_data_ptr);
         llvm::Value* current_end_point = llvm::ConstantInt::get(context, llvm::APInt(32, n));
-        llvm::Value* current_capacity = llvm::ConstantInt::get(context, llvm::APInt(32, initial_capacity));
         builder->CreateStore(current_end_point, get_pointer_to_current_end_point(list));
         builder->CreateStore(current_capacity, get_pointer_to_current_capacity(list));
     }
@@ -2143,8 +2141,8 @@ namespace LCompilers {
         }
         int32_t type_size = std::get<1>(typecode2listtype[type_code]);
         llvm::Value* llvm_type_size = llvm::ConstantInt::get(context, llvm::APInt(32, type_size));
-        llvm::Value* arg_size = builder->CreateMul(llvm_type_size, initial_capacity);
-        llvm::Value* list_data = LLVM::lfortran_malloc(context, module, *builder, arg_size);
+        llvm::Value* list_data = LLVM::lfortran_calloc(context, module, *builder,
+                                                        initial_capacity, llvm_type_size);
 
         llvm::Type* el_type = std::get<2>(typecode2listtype[type_code]);
         list_data = builder->CreateBitCast(list_data, el_type->getPointerTo());
@@ -2288,10 +2286,9 @@ namespace LCompilers {
         builder->CreateStore(src_capacity, dest_capacity_ptr);
         llvm::Value* src_data = LLVM::CreateLoad(*builder, get_pointer_to_list_data(src));
         int32_t type_size = std::get<1>(typecode2listtype[src_type_code]);
-        llvm::Value* arg_size = builder->CreateMul(llvm::ConstantInt::get(context,
-                                                   llvm::APInt(32, type_size)), src_capacity);
-        llvm::Value* copy_data = LLVM::lfortran_malloc(context, *module, *builder,
-                                                       arg_size);
+        llvm::Value* llvm_type_size = llvm::ConstantInt::get(context, llvm::APInt(32, type_size));
+        llvm::Value* copy_data = LLVM::lfortran_calloc(context, *module, *builder,
+                                                       src_capacity, llvm_type_size);
         llvm::Type* el_type = std::get<2>(typecode2listtype[src_type_code]);
         copy_data = builder->CreateBitCast(copy_data, el_type->getPointerTo());
 
@@ -2346,6 +2343,8 @@ namespace LCompilers {
             // end
             llvm_utils->start_new_block(loopend);
         } else {
+            llvm::Value* arg_size = builder->CreateMul(llvm::ConstantInt::get(context,
+                                                   llvm::APInt(32, type_size)), src_capacity);
             builder->CreateMemCpy(copy_data, llvm::MaybeAlign(), src_data,
                                   llvm::MaybeAlign(), arg_size);
             builder->CreateStore(copy_data, get_pointer_to_list_data(dest));
