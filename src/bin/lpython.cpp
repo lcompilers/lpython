@@ -1789,12 +1789,18 @@ int main(int argc, char *argv[])
 
         // TODO: for now we ignore the other filenames, only handle
         // the first:
-        std::string arg_file = arg_files[0];
-        if (CLI::NonexistentPath(arg_file).empty()){
-            std::cerr << "The input file does not exist: " << arg_file << std::endl;
-            return 1;
+        try {
+            std::string arg_file = arg_files[0];
+            if (CLI::NonexistentPath(arg_file).empty()) {
+                std::cerr << "Error: The input file does not exist: " << arg_file << std::endl;
+                return 1; 
+            }
+            return 0; 
+        } 
+        catch (const std::exception& e) {    
+            std::cerr << "Error: " << e.what() << std::endl;
+            return 1; 
         }
-
         std::string outfile;
         std::string basename;
         basename = remove_extension(arg_file);
