@@ -125,7 +125,7 @@
                                     )
                                     []
                                     []
-                                    [(=
+                                    [(Assignment
                                         (Var 4 b)
                                         (IntegerBinOp
                                             (Cast
@@ -162,7 +162,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 4 b)
                                         (IntegerBinOp
                                             (Cast
@@ -199,7 +199,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 4 b)
                                         (IntegerBinOp
                                             (Cast
@@ -240,7 +240,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 4 b)
                                         (IntegerBinOp
                                             (Cast
@@ -277,7 +277,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 4 b)
                                         (IntegerBinOp
                                             (Cast
@@ -314,7 +314,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 4 b)
                                         (IntegerBinOp
                                             (Cast
@@ -351,7 +351,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 4 b)
                                         (IntegerBinOp
                                             (Cast
@@ -388,7 +388,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 4 b)
                                         (IntegerBinOp
                                             (Cast
@@ -425,7 +425,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 4 b)
                                         (IntegerBinOp
                                             (IntegerBinOp
@@ -495,7 +495,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 4 b)
                                         (IntegerBinOp
                                             (IntegerBinOp
@@ -651,7 +651,7 @@
                                     )
                                     []
                                     []
-                                    [(=
+                                    [(Assignment
                                         (Var 3 f)
                                         (RealConstant
                                             5.678000
@@ -659,7 +659,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 i)
                                         (IntegerConstant 4 (Integer 4))
                                         ()
@@ -702,7 +702,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 i2)
                                         (Cast
                                             (RealConstant
@@ -776,7 +776,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 f)
                                         (RealUnaryMinus
                                             (RealConstant

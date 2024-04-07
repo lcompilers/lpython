@@ -527,10 +527,6 @@ class CCPPDSUtils {
                     ASR::ttype_t* enum_underlying_type = ASRUtils::get_contained_type(t);
                     return get_print_type(enum_underlying_type, deref_ptr);
                 }
-                case ASR::ttypeType::Const: {
-                    ASR::ttype_t* const_underlying_type = ASRUtils::get_contained_type(t);
-                    return get_print_type(const_underlying_type, deref_ptr);
-                }
                 default : throw LCompilersException("Not implemented");
             }
         }

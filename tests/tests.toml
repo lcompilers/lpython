@@ -462,6 +462,10 @@ filename = "../integration_tests/print_04.py"
 llvm = true
 
 [[test]]
+filename = "../integration_tests/test_list_item_mixed_print.py"
+run = true
+
+[[test]]
 filename = "../integration_tests/generics_01.py"
 asr = true
 
@@ -1387,3 +1391,7 @@ run_with_dbg = true
 [[test]]
 filename = "runtime_errors/test_raise_01.py"
 run_with_dbg = true
+
+[[test]]
+filename = "errors/test_optional.py"
+asr = true

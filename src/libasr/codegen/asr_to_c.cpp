@@ -275,11 +275,6 @@ public:
         ASR::dimension_t* m_dims = nullptr;
         size_t n_dims = ASRUtils::extract_dimensions_from_ttype(v.m_type, m_dims);
         ASR::ttype_t* v_m_type = v.m_type;
-        if (ASR::is_a<ASR::Const_t>(*v_m_type)) {
-            if( is_array ) {
-                v_m_type = ASR::down_cast<ASR::Const_t>(v_m_type)->m_type;
-            }
-        }
         v_m_type = ASRUtils::type_get_past_array(ASRUtils::type_get_past_allocatable(v_m_type));
         if (ASRUtils::is_pointer(v_m_type)) {
             ASR::ttype_t *t2 = ASR::down_cast<ASR::Pointer_t>(v_m_type)->m_type;
@@ -400,7 +395,13 @@ public:
         } else {
             std::string dims;
             use_ref = use_ref && !is_array;
-            if (ASRUtils::is_integer(*v_m_type)) {
+            if (v.m_storage == ASR::storage_typeType::Parameter) {
+                convert_variable_decl_util(v, is_array, declare_as_constant, use_ref, dummy,
+                    force_declare, force_declare_name, n_dims, m_dims, v_m_type, dims, sub);
+                if (v.m_intent != ASR::intentType::ReturnVar) {
+                    sub = "const " + sub;
+                }
+            } else if (ASRUtils::is_integer(*v_m_type)) {
                 headers.insert("inttypes.h");
                 convert_variable_decl_util(v, is_array, declare_as_constant, use_ref, dummy,
                     force_declare, force_declare_name, n_dims, m_dims, v_m_type, dims, sub);
@@ -546,11 +547,6 @@ public:
                 ASR::Enum_t* enum_ = ASR::down_cast<ASR::Enum_t>(v_m_type);
                 ASR::EnumType_t* enum_type = ASR::down_cast<ASR::EnumType_t>(enum_->m_enum_type);
                 sub = format_type_c("", "enum " + std::string(enum_type->m_name), v.m_name, false, false);
-            } else if (ASR::is_a<ASR::Const_t>(*v_m_type)) {
-                std::string const_underlying_type = CUtils::get_c_type_from_ttype_t(
-                    ASRUtils::type_get_past_const(v_m_type));
-                sub = format_type_c("", "const " + const_underlying_type,
-                                    v.m_name, false, false);
             } else if (ASR::is_a<ASR::TypeParameter_t>(*v_m_type)) {
                 // Ignore type variables
                 return "";
@@ -565,7 +561,7 @@ public:
             }
             if (dims.size() == 0 && v.m_symbolic_value && !do_not_initialize) {
                 ASR::expr_t* init_expr = v.m_symbolic_value;
-                if( !ASR::is_a<ASR::Const_t>(*v.m_type) ) {
+                if( v.m_storage != ASR::storage_typeType::Parameter ) {
                     for( size_t i = 0; i < v.n_dependencies; i++ ) {
                         std::string variable_name = v.m_dependencies[i];
                         ASR::symbol_t* dep_sym = current_scope->resolve_symbol(variable_name);
@@ -1217,7 +1213,6 @@ R"(    // Initialise Numpy
             We need to generate:
             a = {1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0};
         */
-        CHECK_FAST_C(compiler_options, x)
         size_t size = ASRUtils::get_fixed_size_of_array(x.m_type);
         std::string array_const_str = "{";
         for( size_t i = 0; i < size; i++ ) {
@@ -1279,12 +1274,21 @@ R"(    // Initialise Numpy
         visit_expr(*x.m_dim);
         std::string idx = src;
         if( x.m_bound == ASR::arrayboundType::LBound ) {
-            src = "((" + result_type + ")" + var_name + "->dims[" + idx + "-1].lower_bound)";
+            if (ASRUtils::is_simd_array(x.m_v)) {
+                src = "0";
+            } else {
+                src = "((" + result_type + ")" + var_name + "->dims[" + idx + "-1].lower_bound)";
+            }
         } else if( x.m_bound == ASR::arrayboundType::UBound ) {
-            std::string lower_bound = var_name + "->dims[" + idx + "-1].lower_bound";
-            std::string length = var_name + "->dims[" + idx + "-1].length";
-            std::string upper_bound = length + " + " + lower_bound + " - 1";
-            src = "((" + result_type + ") " + upper_bound + ")";
+            if (ASRUtils::is_simd_array(x.m_v)) {
+                int64_t size = ASRUtils::get_fixed_size_of_array(ASRUtils::expr_type(x.m_v));
+                src = std::to_string(size - 1);
+            } else {
+                std::string lower_bound = var_name + "->dims[" + idx + "-1].lower_bound";
+                std::string length = var_name + "->dims[" + idx + "-1].length";
+                std::string upper_bound = length + " + " + lower_bound + " - 1";
+                src = "((" + result_type + ") " + upper_bound + ")";
+            }
         }
     }
 
@@ -1317,26 +1321,30 @@ R"(    // Initialise Numpy
         int n_dims = ASRUtils::extract_dimensions_from_ttype(x_mv_type, m_dims);
         bool is_data_only_array = ASRUtils::is_fixed_size_array(m_dims, n_dims) &&
                                   ASR::is_a<ASR::StructType_t>(*ASRUtils::get_asr_owner(x.m_v));
-        if( is_data_only_array ) {
+        if( is_data_only_array || ASRUtils::is_simd_array(x.m_v)) {
             std::string index = "";
             std::string out = array;
             out += "[";
             for (size_t i=0; i<x.n_args; i++) {
-                std::string current_index = "";
                 if (x.m_args[i].m_right) {
                     this->visit_expr(*x.m_args[i].m_right);
                 } else {
                     src = "/* FIXME right index */";
                 }
 
-                current_index += src;
-                for( size_t j = 0; j < i; j++ ) {
-                    int64_t dim_size = 0;
-                    ASRUtils::extract_value(m_dims[j].m_length, dim_size);
-                    std::string length = std::to_string(dim_size);
-                    current_index += " * " + length;
+                if (ASRUtils::is_simd_array(x.m_v)) {
+                    index += src;
+                } else {
+                    std::string current_index = "";
+                    current_index += src;
+                    for( size_t j = 0; j < i; j++ ) {
+                        int64_t dim_size = 0;
+                        ASRUtils::extract_value(m_dims[j].m_length, dim_size);
+                        std::string length = std::to_string(dim_size);
+                        current_index += " * " + length;
+                    }
+                    index += current_index;
                 }
-                index += current_index;
                 if (i < x.n_args - 1) {
                     index += " + ";
                 }
@@ -1355,7 +1363,7 @@ R"(    // Initialise Numpy
         }
 
         ASR::ttype_t* x_mv_type_ = ASRUtils::type_get_past_allocatable(
-                ASRUtils::type_get_past_pointer(ASRUtils::type_get_past_const(x_mv_type)));
+                ASRUtils::type_get_past_pointer(x_mv_type));
         LCOMPILERS_ASSERT(ASR::is_a<ASR::Array_t>(*x_mv_type_));
         ASR::Array_t* array_t = ASR::down_cast<ASR::Array_t>(x_mv_type_);
         std::vector<std::string> diminfo;

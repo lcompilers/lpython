@@ -1,0 +1,13 @@
+{
+    "basename": "asr-test_optional-97e5371",
+    "cmd": "lpython --show-asr --no-color {infile} -o {outfile}",
+    "infile": "tests/errors/test_optional.py",
+    "infile_hash": "2532c73de47afb82c9d1d9fa335d3b274e7c79a14007353639958a45",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": null,
+    "stdout_hash": null,
+    "stderr": "asr-test_optional-97e5371.stderr",
+    "stderr_hash": "b9cc75eb200847db5d4d39d9f511959ebf22faad68cf0096c7a2b68c",
+    "returncode": 2
+}

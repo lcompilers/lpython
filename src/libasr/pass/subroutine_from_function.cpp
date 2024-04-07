@@ -175,7 +175,7 @@ class ReplaceFunctionCallWithSubroutineCall:
                 is_return_var_handled = fn->m_return_var == nullptr;
             }
             if (is_return_var_handled) {
-                ASR::ttype_t* result_var_type = x->m_type;
+                ASR::ttype_t* result_var_type = ASRUtils::duplicate_type(al, x->m_type);
                 bool is_allocatable = false;
                 bool is_func_call_allocatable = false;
                 bool is_result_var_allocatable = false;
@@ -302,8 +302,22 @@ class ReplaceFunctionCallWithSubroutineCall:
                 s_args.push_back(al, result_arg);
                 ASR::stmt_t* subrout_call = ASRUtils::STMT(ASRUtils::make_SubroutineCall_t_util(al, loc,
                                                 x->m_name, nullptr, s_args.p, s_args.size(), nullptr,
-                                                nullptr, false));
+                                                nullptr, false, false));
                 pass_result.push_back(al, subrout_call);
+            }
+        }
+
+        void replace_ArrayPhysicalCast(ASR::ArrayPhysicalCast_t* x) {
+            ASR::BaseExprReplacer<ReplaceFunctionCallWithSubroutineCall>::replace_ArrayPhysicalCast(x);
+            if( (x->m_old == x->m_new &&
+                x->m_old != ASR::array_physical_typeType::DescriptorArray) ||
+                (x->m_old == x->m_new && x->m_old == ASR::array_physical_typeType::DescriptorArray &&
+                (ASR::is_a<ASR::Allocatable_t>(*ASRUtils::expr_type(x->m_arg)) ||
+                ASR::is_a<ASR::Pointer_t>(*ASRUtils::expr_type(x->m_arg)))) ||
+                x->m_old != ASRUtils::extract_physical_type(ASRUtils::expr_type(x->m_arg)) ) {
+                *current_expr = x->m_arg;
+            } else {
+                x->m_old = ASRUtils::extract_physical_type(ASRUtils::expr_type(x->m_arg));
             }
         }
 
@@ -365,7 +379,8 @@ class ReplaceFunctionCallWithSubroutineCallVisitor:
         void visit_Assignment(const ASR::Assignment_t &x) {
             if( (ASR::is_a<ASR::Pointer_t>(*ASRUtils::expr_type(x.m_target)) &&
                 ASR::is_a<ASR::GetPointer_t>(*x.m_value)) ||
-                (ASR::is_a<ASR::ArrayConstant_t>(*x.m_value))) {
+                (ASR::is_a<ASR::ArrayConstant_t>(*x.m_value) ||
+                ASR::is_a<ASR::ArrayConstructor_t>(*x.m_value)) ) {
                 return ;
             }
 

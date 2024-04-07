@@ -653,9 +653,8 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
 
         using namespace wasm;
         uint32_t global_var_idx = UINT_MAX;
-        ASR::ttype_t* ttype = ASRUtils::type_get_past_const(v->m_type);
-        ASR::ttype_t* v_m_type = ASRUtils::type_get_past_array(ttype);
-        int kind = ASRUtils::extract_kind_from_ttype_t(ttype);
+        ASR::ttype_t* v_m_type = ASRUtils::type_get_past_array(v->m_type);
+        int kind = ASRUtils::extract_kind_from_ttype_t(v->m_type);
         switch (v_m_type->type){
             case ASR::ttypeType::Integer: {
                 uint64_t init_val = 0;
@@ -881,7 +880,6 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
             }
         } else {
             ASR::ttype_t* ttype = v->m_type;
-            ttype = ASRUtils::type_get_past_const(ttype);
             if (ASRUtils::is_integer(*ttype)) {
                 ASR::Integer_t *v_int =
                     ASR::down_cast<ASR::Integer_t>(ASRUtils::type_get_past_array(ttype));
@@ -2148,7 +2146,6 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
         const ASR::symbol_t *s = ASRUtils::symbol_get_past_external(x.m_v);
         auto v = ASR::down_cast<ASR::Variable_t>(s);
         ASR::ttype_t* ttype = ASRUtils::type_get_past_array(v->m_type);
-        ttype = ASRUtils::type_get_past_const(ttype);
         switch (ttype->type) {
             case ASR::ttypeType::Integer:
             case ASR::ttypeType::Logical:
@@ -2434,12 +2431,12 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
         if (m_func_name_idx_map.find(hash) != m_func_name_idx_map.end()) {
             m_wa.emit_call(m_func_name_idx_map[hash].index);
         } else {
-            if (strcmp(fn->m_name, "c_caimag") == 0) {
+            if (strcmp(fn->m_name, "_lfortran_caimag") == 0) {
                 LCOMPILERS_ASSERT(x.n_args == 1);
                 m_wa.emit_global_set(m_compiler_globals[tmp_reg_f32]);
                 m_wa.emit_drop();
                 m_wa.emit_global_get(m_compiler_globals[tmp_reg_f32]);
-            } else if (strcmp(fn->m_name, "c_zaimag") == 0) {
+            } else if (strcmp(fn->m_name, "_lfortran_zaimag") == 0) {
                 m_wa.emit_global_set(m_compiler_globals[tmp_reg_f64]);
                 m_wa.emit_drop();
                 m_wa.emit_global_get(m_compiler_globals[tmp_reg_f64]);
@@ -2957,7 +2954,6 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
             }
             ASR::expr_t *v = x.m_values[i];
             ASR::ttype_t *t = ASRUtils::expr_type(v);
-            t = ASRUtils::type_get_past_const(t);
             int a_kind = ASRUtils::extract_kind_from_ttype_t(t);
 
             if (ASRUtils::is_integer(*t) || ASRUtils::is_logical(*t)) {
@@ -3195,6 +3191,10 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
             m_wa.emit_i32_const(1);  // non-zero exit code
             wasm_exit();
         });
+    }
+
+    void visit_TypeInquiry(const ASR::TypeInquiry_t &x) {
+        this->visit_expr(*x.m_value);
     }
 };
 

@@ -24,6 +24,8 @@
 #include <libasr/string_utils.h>
 #include <libasr/pass/unused_functions.h>
 #include <libasr/pass/intrinsic_function_registry.h>
+#include <libasr/pass/intrinsic_subroutine_registry.h>
+
 
 #include <map>
 #include <tuple>
@@ -93,6 +95,11 @@ private:
 public:
     diag::Diagnostics &diag;
     Platform platform;
+    // `src` acts as a buffer that accumulates the generated C/C++ source code
+    // as the visitor traverses all the ASR nodes of a program. Each visitor method
+    // uses `src` to return the result, and the caller visitor uses `src` as the
+    // value of the callee visitors it calls. The C/C++ complete source code
+    // is then recursively constructed using `src`.
     std::string src;
     std::string current_body;
     CompilerOptions &compiler_options;
@@ -304,7 +311,7 @@ R"(#include <stdio.h>
                 ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(var_sym);
                 std::string decl = self().convert_variable_decl(*v);
                 decl = check_tmp_buffer() + decl;
-                bool used_define_for_const = (ASR::is_a<ASR::Const_t>(*v->m_type) &&
+                bool used_define_for_const = (v->m_storage == ASR::storage_typeType::Parameter &&
                         v->m_intent == ASRUtils::intent_local);
                 if (used_define_for_const) {
                     contains += decl + "\n";
@@ -489,10 +496,6 @@ R"(#include <stdio.h>
         } else if (ASR::is_a<ASR::Tuple_t>(*return_var->m_type)) {
             ASR::Tuple_t* tup_type = ASR::down_cast<ASR::Tuple_t>(return_var->m_type);
             sub = c_ds_api->get_tuple_type(tup_type) + " ";
-        } else if (ASR::is_a<ASR::Const_t>(*return_var->m_type)) {
-            ASR::Const_t* const_type = ASR::down_cast<ASR::Const_t>(return_var->m_type);
-            std::string const_type_str = CUtils::get_c_type_from_ttype_t(const_type->m_type);
-            sub = "const " + const_type_str + " ";
         } else if (ASR::is_a<ASR::Pointer_t>(*return_var->m_type)) {
             ASR::Pointer_t* ptr_type = ASR::down_cast<ASR::Pointer_t>(return_var->m_type);
             std::string pointer_type_str = CUtils::get_c_type_from_ttype_t(ptr_type->m_type);
@@ -714,8 +717,6 @@ R"(#include <stdio.h>
                 }
             } case ASR::ttypeType::Logical : {
                 return "p";
-            } case ASR::ttypeType::Const : {
-                return get_type_format(ASR::down_cast<ASR::Const_t>(type)->m_type);
             } case ASR::ttypeType::Array : {
                 return "O";
             } default: {
@@ -1150,6 +1151,9 @@ PyMODINIT_FUNC PyInit_lpython_module_)" + fn_name + R"((void) {
                         + "' not implemented");
             }
         } else {
+            if (fn_name == "main") {
+                fn_name = "_xx_lcompilers_changed_main_xx";
+            }
             src = fn_name + "(" + construct_call_args(fn, x.n_args, x.m_args) + ")";
         }
         last_expr_precedence = 2;
@@ -1242,10 +1246,6 @@ PyMODINIT_FUNC PyInit_lpython_module_)" + fn_name + R"((void) {
     void visit_Assignment(const ASR::Assignment_t &x) {
         std::string target;
         ASR::ttype_t* m_target_type = ASRUtils::expr_type(x.m_target);
-        if( ASR::is_a<ASR::Const_t>(*m_target_type) ) {
-            src = "";
-            return ;
-        }
         ASR::ttype_t* m_value_type = ASRUtils::expr_type(x.m_value);
         bool is_target_list = ASR::is_a<ASR::List_t>(*m_target_type);
         bool is_value_list = ASR::is_a<ASR::List_t>(*m_value_type);
@@ -2544,14 +2544,8 @@ PyMODINIT_FUNC PyInit_lpython_module_)" + fn_name + R"((void) {
         src += ASRUtils::binop_to_str_python(x.m_op);
         if (right_precedence == 3) {
             src += "(" + right + ")";
-        } else if (x.m_op == ASR::binopType::Sub || x.m_op == ASR::binopType::Div) {
-            if (right_precedence < last_expr_precedence) {
-                src += right;
-            } else {
-                src += "(" + right + ")";
-            }
         } else {
-            if (right_precedence <= last_expr_precedence) {
+            if (right_precedence < last_expr_precedence) {
                 src += right;
             } else {
                 src += "(" + right + ")";
@@ -3031,16 +3025,20 @@ PyMODINIT_FUNC PyInit_lpython_module_)" + fn_name + R"((void) {
     }
 
     #define SET_INTRINSIC_NAME(X, func_name)                                    \
-        case (static_cast<int64_t>(ASRUtils::IntrinsicScalarFunctions::X)) : {  \
+        case (static_cast<int64_t>(ASRUtils::IntrinsicElementalFunctions::X)) : {  \
             out += func_name; break;                                            \
         }
 
-    void visit_IntrinsicScalarFunction(const ASR::IntrinsicScalarFunction_t &x) {
+    #define SET_INTRINSIC_SUBROUTINE_NAME(X, func_name)                                    \
+        case (static_cast<int64_t>(ASRUtils::IntrinsicImpureSubroutines::X)) : {  \
+            out += func_name; break;                                            \
+        }
+
+    void visit_IntrinsicElementalFunction(const ASR::IntrinsicElementalFunction_t &x) {
         CHECK_FAST_C_CPP(compiler_options, x);
         std::string out;
         std::string indent(4, ' ');
         switch (x.m_intrinsic_id) {
-            SET_INTRINSIC_NAME(ObjectType, "type");
             SET_INTRINSIC_NAME(Sin, "sin");
             SET_INTRINSIC_NAME(Cos, "cos");
             SET_INTRINSIC_NAME(Tan, "tan");
@@ -3057,8 +3055,22 @@ PyMODINIT_FUNC PyInit_lpython_module_)" + fn_name + R"((void) {
             SET_INTRINSIC_NAME(Trunc, "trunc");
             SET_INTRINSIC_NAME(Fix, "fix");
             SET_INTRINSIC_NAME(FloorDiv, "floordiv");
+            SET_INTRINSIC_NAME(Char, "char");
+            SET_INTRINSIC_NAME(StringContainsSet, "verify");
+            SET_INTRINSIC_NAME(StringFindSet, "scan");
+            SET_INTRINSIC_NAME(SubstrIndex, "index");
+            case (static_cast<int64_t>(ASRUtils::IntrinsicElementalFunctions::FMA)) : {
+                this->visit_expr(*x.m_args[0]);
+                std::string a = src;
+                this->visit_expr(*x.m_args[1]);
+                std::string b = src;
+                this->visit_expr(*x.m_args[2]);
+                std::string c = src;
+                src = a +" + "+ b +"*"+ c;
+                return;
+            }
             default : {
-                throw LCompilersException("IntrinsicScalarFunction: `"
+                throw LCompilersException("IntrinsicElementalFunction: `"
                     + ASRUtils::get_intrinsic_name(x.m_intrinsic_id)
                     + "` is not implemented");
             }
@@ -3069,7 +3081,11 @@ PyMODINIT_FUNC PyInit_lpython_module_)" + fn_name + R"((void) {
         src = out;
     }
 
-    void visit_IntrinsicFunctionSqrt(const ASR::IntrinsicFunctionSqrt_t &x) {
+    void visit_TypeInquiry(const ASR::TypeInquiry_t &x) {
+        this->visit_expr(*x.m_value);
+    }
+
+    void visit_RealSqrt(const ASR::RealSqrt_t &x) {
         std::string out = "sqrt";
         headers.insert("math.h");
         this->visit_expr(*x.m_arg);

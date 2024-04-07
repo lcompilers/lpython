@@ -33,6 +33,7 @@ struct AttributeHandler {
             {"set@pop", &eval_set_pop},
             {"set@add", &eval_set_add},
             {"set@remove", &eval_set_remove},
+            {"set@discard", &eval_set_discard},
             {"dict@get", &eval_dict_get},
             {"dict@pop", &eval_dict_pop},
             {"dict@keys", &eval_dict_keys},
@@ -41,7 +42,7 @@ struct AttributeHandler {
 
         modify_attr_set = {"list@append", "list@remove",
             "list@reverse", "list@clear", "list@insert", "list@pop",
-            "set@pop", "set@add", "set@remove", "dict@pop"};
+            "set@pop", "set@add", "set@remove", "set@discard", "dict@pop"};
 
         symbolic_attribute_map = {
             {"diff", &eval_symbolic_diff},
@@ -67,7 +68,7 @@ struct AttributeHandler {
 
     ASR::asr_t* get_attribute(ASR::expr_t *e, std::string attr_name,
             Allocator &al, const Location &loc, Vec<ASR::expr_t*> &args, diag::Diagnostics &diag) {
-        ASR::ttype_t *type = ASRUtils::type_get_past_const(ASRUtils::expr_type(e));
+        ASR::ttype_t *type = ASRUtils::expr_type(e);
         std::string class_name = get_type_name(type);
         if (class_name == "") {
             throw SemanticError("Type name is not implemented yet.", loc);
@@ -124,7 +125,7 @@ struct AttributeHandler {
 
     static ASR::asr_t* eval_list_append(ASR::expr_t *s, Allocator &al, const Location &loc,
             Vec<ASR::expr_t*> &args, diag::Diagnostics &diag) {
-        if (ASR::is_a<ASR::Const_t>(*ASRUtils::expr_type(s))) {
+        if (ASRUtils::is_const(s)) {
             throw SemanticError("cannot append element to a const list", loc);
         }
         if (args.size() != 1) {
@@ -151,7 +152,7 @@ struct AttributeHandler {
 
     static ASR::asr_t* eval_list_remove(ASR::expr_t *s, Allocator &al, const Location &loc,
             Vec<ASR::expr_t*> &args, diag::Diagnostics &diag) {
-        if (ASR::is_a<ASR::Const_t>(*ASRUtils::expr_type(s))) {
+        if (ASRUtils::is_const(s)) {
             throw SemanticError("cannot remove element from a const list", loc);
         }
         if (args.size() != 1) {
@@ -182,7 +183,7 @@ struct AttributeHandler {
             throw SemanticError("count() takes exactly one argument",
                 loc);
         }
-        ASR::ttype_t *type = ASRUtils::type_get_past_const(ASRUtils::expr_type(s));
+        ASR::ttype_t *type = ASRUtils::expr_type(s);
         ASR::ttype_t *list_type = ASR::down_cast<ASR::List_t>(type)->m_type;
         ASR::ttype_t *ele_type = ASRUtils::expr_type(args[0]);
         if (!ASRUtils::check_equal_type(ele_type, list_type)) {
@@ -202,7 +203,7 @@ struct AttributeHandler {
     }
 
     static ASR::asr_t* eval_list_index(ASR::expr_t *s, Allocator &al, const Location &loc,
-            Vec<ASR::expr_t*> &args, diag::Diagnostics &/*diag*/) {
+            Vec<ASR::expr_t*> &args, diag::Diagnostics &diag) {
         Vec<ASR::expr_t*> args_with_list;
         args_with_list.reserve(al, args.size() + 1);
         args_with_list.push_back(al, s);
@@ -210,14 +211,13 @@ struct AttributeHandler {
             args_with_list.push_back(al, args[i]);
         }
         ASRUtils::create_intrinsic_function create_function =
-            ASRUtils::IntrinsicScalarFunctionRegistry::get_create_function("list.index");
-        return create_function(al, loc, args_with_list, [&](const std::string &msg, const Location &loc)
-                                { throw SemanticError(msg, loc); });
+            ASRUtils::IntrinsicElementalFunctionRegistry::get_create_function("list.index");
+        return create_function(al, loc, args_with_list, diag);
     }
 
     static ASR::asr_t* eval_list_reverse(ASR::expr_t *s, Allocator &al, const Location &loc,
-            Vec<ASR::expr_t*> &args, diag::Diagnostics &/*diag*/) {
-        if (ASR::is_a<ASR::Const_t>(*ASRUtils::expr_type(s))) {
+            Vec<ASR::expr_t*> &args, diag::Diagnostics &diag) {
+        if (ASRUtils::is_const(s)) {
             throw SemanticError("cannot reverse a const list", loc);
         }
         Vec<ASR::expr_t*> args_with_list;
@@ -227,14 +227,13 @@ struct AttributeHandler {
             args_with_list.push_back(al, args[i]);
         }
         ASRUtils::create_intrinsic_function create_function =
-            ASRUtils::IntrinsicScalarFunctionRegistry::get_create_function("list.reverse");
-        return create_function(al, loc, args_with_list, [&](const std::string &msg, const Location &loc)
-                                { throw SemanticError(msg, loc); });
+            ASRUtils::IntrinsicElementalFunctionRegistry::get_create_function("list.reverse");
+        return create_function(al, loc, args_with_list, diag);
     }
 
     static ASR::asr_t* eval_list_pop(ASR::expr_t *s, Allocator &al, const Location &loc,
-            Vec<ASR::expr_t*> &args, diag::Diagnostics &/*diag*/) {
-        if (ASR::is_a<ASR::Const_t>(*ASRUtils::expr_type(s))) {
+            Vec<ASR::expr_t*> &args, diag::Diagnostics &diag) {
+        if (ASRUtils::is_const(s)) {
             throw SemanticError("cannot pop element from a const list", loc);
         }
         Vec<ASR::expr_t*> args_with_list;
@@ -244,16 +243,15 @@ struct AttributeHandler {
             args_with_list.push_back(al, args[i]);
         }
         ASRUtils::create_intrinsic_function create_function =
-            ASRUtils::IntrinsicScalarFunctionRegistry::get_create_function("list.pop");
-        return create_function(al, loc, args_with_list, [&](const std::string &msg, const Location &loc)
-                                { throw SemanticError(msg, loc); });
+            ASRUtils::IntrinsicElementalFunctionRegistry::get_create_function("list.pop");
+        return create_function(al, loc, args_with_list, diag);
     }
 
     static ASR::asr_t* eval_list_insert(ASR::expr_t *s, Allocator &al, const Location &loc,
             Vec<ASR::expr_t*> &args, diag::Diagnostics &diag) {
-            if (ASR::is_a<ASR::Const_t>(*ASRUtils::expr_type(s))) {
+            if (ASRUtils::is_const(s)) {
                 throw SemanticError("cannot insert element in a const list", loc);
-            }    
+            }
             if (args.size() != 2) {
                 throw SemanticError("insert() takes exactly two arguments",
                         loc);
@@ -285,7 +283,7 @@ struct AttributeHandler {
 
     static ASR::asr_t* eval_list_clear(ASR::expr_t *s, Allocator &al,
         const Location &loc, Vec<ASR::expr_t*> &args, diag::Diagnostics & diag) {
-            if (ASR::is_a<ASR::Const_t>(*ASRUtils::expr_type(s))) {
+            if (ASRUtils::is_const(s)) {
                 throw SemanticError("cannot clear elements from a const list", loc);
             }
             if (args.size() != 0) {
@@ -315,7 +313,7 @@ struct AttributeHandler {
     }
 
     static ASR::asr_t* eval_set_add(ASR::expr_t *s, Allocator &al, const Location &loc,
-            Vec<ASR::expr_t*> &args, diag::Diagnostics &/*diag*/) {
+            Vec<ASR::expr_t*> &args, diag::Diagnostics &diag) {
         Vec<ASR::expr_t*> args_with_set;
         args_with_set.reserve(al, args.size() + 1);
         args_with_set.push_back(al, s);
@@ -323,13 +321,12 @@ struct AttributeHandler {
             args_with_set.push_back(al, args[i]);
         }
         ASRUtils::create_intrinsic_function create_function =
-            ASRUtils::IntrinsicScalarFunctionRegistry::get_create_function("set.add");
-        return create_function(al, loc, args_with_set, [&](const std::string &msg, const Location &loc)
-                                { throw SemanticError(msg, loc); });
+            ASRUtils::IntrinsicElementalFunctionRegistry::get_create_function("set.add");
+        return create_function(al, loc, args_with_set, diag);
     }
 
     static ASR::asr_t* eval_set_remove(ASR::expr_t *s, Allocator &al, const Location &loc,
-            Vec<ASR::expr_t*> &args, diag::Diagnostics &/*diag*/) {
+            Vec<ASR::expr_t*> &args, diag::Diagnostics &diag) {
         Vec<ASR::expr_t*> args_with_set;
         args_with_set.reserve(al, args.size() + 1);
         args_with_set.push_back(al, s);
@@ -337,9 +334,21 @@ struct AttributeHandler {
             args_with_set.push_back(al, args[i]);
         }
         ASRUtils::create_intrinsic_function create_function =
-            ASRUtils::IntrinsicScalarFunctionRegistry::get_create_function("set.remove");
-        return create_function(al, loc, args_with_set, [&](const std::string &msg, const Location &loc)
-                                { throw SemanticError(msg, loc); });
+            ASRUtils::IntrinsicElementalFunctionRegistry::get_create_function("set.remove");
+        return create_function(al, loc, args_with_set, diag);
+    }
+
+    static ASR::asr_t* eval_set_discard(ASR::expr_t *s, Allocator &al, const Location &loc,
+            Vec<ASR::expr_t*> &args, diag::Diagnostics &diag) {
+        Vec<ASR::expr_t*> args_with_set;
+        args_with_set.reserve(al, args.size() + 1);
+        args_with_set.push_back(al, s);
+        for(size_t i = 0; i < args.size(); i++) {
+            args_with_set.push_back(al, args[i]);
+        }
+        ASRUtils::create_intrinsic_function create_function =
+            ASRUtils::IntrinsicElementalFunctionRegistry::get_create_function("set.discard");
+        return create_function(al, loc, args_with_set, diag);
     }
 
     static ASR::asr_t* eval_dict_get(ASR::expr_t *s, Allocator &al, const Location &loc,
@@ -409,7 +418,7 @@ struct AttributeHandler {
     }
 
     static ASR::asr_t* eval_dict_keys(ASR::expr_t *s, Allocator &al, const Location &loc,
-            Vec<ASR::expr_t*> &args, diag::Diagnostics &/*diag*/) {
+            Vec<ASR::expr_t*> &args, diag::Diagnostics &diag) {
         Vec<ASR::expr_t*> args_with_dict;
         args_with_dict.reserve(al, args.size() + 1);
         args_with_dict.push_back(al, s);
@@ -417,13 +426,12 @@ struct AttributeHandler {
             args_with_dict.push_back(al, args[i]);
         }
         ASRUtils::create_intrinsic_function create_function =
-            ASRUtils::IntrinsicScalarFunctionRegistry::get_create_function("dict.keys");
-        return create_function(al, loc, args_with_dict, [&](const std::string &msg, const Location &loc)
-                                { throw SemanticError(msg, loc); });
+            ASRUtils::IntrinsicElementalFunctionRegistry::get_create_function("dict.keys");
+        return create_function(al, loc, args_with_dict, diag);
     }
 
     static ASR::asr_t* eval_dict_values(ASR::expr_t *s, Allocator &al, const Location &loc,
-            Vec<ASR::expr_t*> &args, diag::Diagnostics &/*diag*/) {
+            Vec<ASR::expr_t*> &args, diag::Diagnostics &diag) {
         Vec<ASR::expr_t*> args_with_dict;
         args_with_dict.reserve(al, args.size() + 1);
         args_with_dict.push_back(al, s);
@@ -431,13 +439,12 @@ struct AttributeHandler {
             args_with_dict.push_back(al, args[i]);
         }
         ASRUtils::create_intrinsic_function create_function =
-            ASRUtils::IntrinsicScalarFunctionRegistry::get_create_function("dict.values");
-        return create_function(al, loc, args_with_dict, [&](const std::string &msg, const Location &loc)
-                                { throw SemanticError(msg, loc); });
+            ASRUtils::IntrinsicElementalFunctionRegistry::get_create_function("dict.values");
+        return create_function(al, loc, args_with_dict, diag);
     }
 
     static ASR::asr_t* eval_symbolic_diff(ASR::expr_t *s, Allocator &al, const Location &loc,
-            Vec<ASR::expr_t*> &args, diag::Diagnostics &/*diag*/) {
+            Vec<ASR::expr_t*> &args, diag::Diagnostics &diag) {
         Vec<ASR::expr_t*> args_with_list;
         args_with_list.reserve(al, args.size() + 1);
         args_with_list.push_back(al, s);
@@ -445,13 +452,12 @@ struct AttributeHandler {
             args_with_list.push_back(al, args[i]);
         }
         ASRUtils::create_intrinsic_function create_function =
-            ASRUtils::IntrinsicScalarFunctionRegistry::get_create_function("diff");
-        return create_function(al, loc, args_with_list, [&](const std::string &msg, const Location &loc)
-                                { throw SemanticError(msg, loc); });
+            ASRUtils::IntrinsicElementalFunctionRegistry::get_create_function("diff");
+        return create_function(al, loc, args_with_list, diag);
     }
 
     static ASR::asr_t* eval_symbolic_expand(ASR::expr_t *s, Allocator &al, const Location &loc,
-            Vec<ASR::expr_t*> &args, diag::Diagnostics &/*diag*/) {
+            Vec<ASR::expr_t*> &args, diag::Diagnostics &diag) {
         Vec<ASR::expr_t*> args_with_list;
         args_with_list.reserve(al, args.size() + 1);
         args_with_list.push_back(al, s);
@@ -459,13 +465,12 @@ struct AttributeHandler {
             args_with_list.push_back(al, args[i]);
         }
         ASRUtils::create_intrinsic_function create_function =
-            ASRUtils::IntrinsicScalarFunctionRegistry::get_create_function("expand");
-        return create_function(al, loc, args_with_list, [&](const std::string &msg, const Location &loc)
-                                { throw SemanticError(msg, loc); });
+            ASRUtils::IntrinsicElementalFunctionRegistry::get_create_function("expand");
+        return create_function(al, loc, args_with_list, diag);
     }
 
     static ASR::asr_t* eval_symbolic_has_symbol(ASR::expr_t *s, Allocator &al, const Location &loc,
-            Vec<ASR::expr_t*> &args, diag::Diagnostics &/*diag*/) {
+            Vec<ASR::expr_t*> &args, diag::Diagnostics &diag) {
         Vec<ASR::expr_t*> args_with_list;
         args_with_list.reserve(al, args.size() + 1);
         args_with_list.push_back(al, s);
@@ -473,13 +478,12 @@ struct AttributeHandler {
             args_with_list.push_back(al, args[i]);
         }
         ASRUtils::create_intrinsic_function create_function =
-            ASRUtils::IntrinsicScalarFunctionRegistry::get_create_function("has");
-        return create_function(al, loc, args_with_list, [&](const std::string &msg, const Location &loc)
-                                { throw SemanticError(msg, loc); });
+            ASRUtils::IntrinsicElementalFunctionRegistry::get_create_function("has");
+        return create_function(al, loc, args_with_list, diag);
     }
 
     static ASR::asr_t* eval_symbolic_is_Add(ASR::expr_t *s, Allocator &al, const Location &loc,
-            Vec<ASR::expr_t*> &args, diag::Diagnostics &/*diag*/) {
+            Vec<ASR::expr_t*> &args, diag::Diagnostics &diag) {
         Vec<ASR::expr_t*> args_with_list;
         args_with_list.reserve(al, args.size() + 1);
         args_with_list.push_back(al, s);
@@ -487,13 +491,12 @@ struct AttributeHandler {
             args_with_list.push_back(al, args[i]);
         }
         ASRUtils::create_intrinsic_function create_function =
-            ASRUtils::IntrinsicScalarFunctionRegistry::get_create_function("AddQ");
-        return create_function(al, loc, args_with_list, [&](const std::string &msg, const Location &loc)
-                                { throw SemanticError(msg, loc); });
+            ASRUtils::IntrinsicElementalFunctionRegistry::get_create_function("AddQ");
+        return create_function(al, loc, args_with_list, diag);
     }
 
     static ASR::asr_t* eval_symbolic_is_Mul(ASR::expr_t *s, Allocator &al, const Location &loc,
-            Vec<ASR::expr_t*> &args, diag::Diagnostics &/*diag*/) {
+            Vec<ASR::expr_t*> &args, diag::Diagnostics &diag) {
         Vec<ASR::expr_t*> args_with_list;
         args_with_list.reserve(al, args.size() + 1);
         args_with_list.push_back(al, s);
@@ -501,13 +504,12 @@ struct AttributeHandler {
             args_with_list.push_back(al, args[i]);
         }
         ASRUtils::create_intrinsic_function create_function =
-            ASRUtils::IntrinsicScalarFunctionRegistry::get_create_function("MulQ");
-        return create_function(al, loc, args_with_list, [&](const std::string &msg, const Location &loc)
-                                { throw SemanticError(msg, loc); });
+            ASRUtils::IntrinsicElementalFunctionRegistry::get_create_function("MulQ");
+        return create_function(al, loc, args_with_list, diag);
     }
 
     static ASR::asr_t* eval_symbolic_is_Pow(ASR::expr_t *s, Allocator &al, const Location &loc,
-            Vec<ASR::expr_t*> &args, diag::Diagnostics &/*diag*/) {
+            Vec<ASR::expr_t*> &args, diag::Diagnostics &diag) {
         Vec<ASR::expr_t*> args_with_list;
         args_with_list.reserve(al, args.size() + 1);
         args_with_list.push_back(al, s);
@@ -515,13 +517,12 @@ struct AttributeHandler {
             args_with_list.push_back(al, args[i]);
         }
         ASRUtils::create_intrinsic_function create_function =
-            ASRUtils::IntrinsicScalarFunctionRegistry::get_create_function("PowQ");
-        return create_function(al, loc, args_with_list, [&](const std::string &msg, const Location &loc)
-                                { throw SemanticError(msg, loc); });
+            ASRUtils::IntrinsicElementalFunctionRegistry::get_create_function("PowQ");
+        return create_function(al, loc, args_with_list, diag);
     }
 
     static ASR::asr_t* eval_symbolic_is_log(ASR::expr_t *s, Allocator &al, const Location &loc,
-            Vec<ASR::expr_t*> &args, diag::Diagnostics &/*diag*/) {
+            Vec<ASR::expr_t*> &args, diag::Diagnostics &diag) {
         Vec<ASR::expr_t*> args_with_list;
         args_with_list.reserve(al, args.size() + 1);
         args_with_list.push_back(al, s);
@@ -529,13 +530,12 @@ struct AttributeHandler {
             args_with_list.push_back(al, args[i]);
         }
         ASRUtils::create_intrinsic_function create_function =
-            ASRUtils::IntrinsicScalarFunctionRegistry::get_create_function("LogQ");
-        return create_function(al, loc, args_with_list, [&](const std::string &msg, const Location &loc)
-                                { throw SemanticError(msg, loc); });
+            ASRUtils::IntrinsicElementalFunctionRegistry::get_create_function("LogQ");
+        return create_function(al, loc, args_with_list, diag);
     }
 
     static ASR::asr_t* eval_symbolic_is_sin(ASR::expr_t *s, Allocator &al, const Location &loc,
-            Vec<ASR::expr_t*> &args, diag::Diagnostics &/*diag*/) {
+            Vec<ASR::expr_t*> &args, diag::Diagnostics &diag) {
         Vec<ASR::expr_t*> args_with_list;
         args_with_list.reserve(al, args.size() + 1);
         args_with_list.push_back(al, s);
@@ -543,13 +543,12 @@ struct AttributeHandler {
             args_with_list.push_back(al, args[i]);
         }
         ASRUtils::create_intrinsic_function create_function =
-            ASRUtils::IntrinsicScalarFunctionRegistry::get_create_function("SinQ");
-        return create_function(al, loc, args_with_list, [&](const std::string &msg, const Location &loc)
-                                { throw SemanticError(msg, loc); });
+            ASRUtils::IntrinsicElementalFunctionRegistry::get_create_function("SinQ");
+        return create_function(al, loc, args_with_list, diag);
     }
 
     static ASR::asr_t* eval_symbolic_get_argument(ASR::expr_t *s, Allocator &al, const Location &loc,
-            Vec<ASR::expr_t*> &args, diag::Diagnostics &/*diag*/) {
+            Vec<ASR::expr_t*> &args, diag::Diagnostics &diag) {
         Vec<ASR::expr_t*> args_with_list;
         args_with_list.reserve(al, args.size() + 1);
         args_with_list.push_back(al, s);
@@ -557,9 +556,8 @@ struct AttributeHandler {
             args_with_list.push_back(al, args[i]);
         }
         ASRUtils::create_intrinsic_function create_function =
-            ASRUtils::IntrinsicScalarFunctionRegistry::get_create_function("GetArgument");
-        return create_function(al, loc, args_with_list, [&](const std::string &msg, const Location &loc)
-                                { throw SemanticError(msg, loc); });
+            ASRUtils::IntrinsicElementalFunctionRegistry::get_create_function("GetArgument");
+        return create_function(al, loc, args_with_list, diag);
     }
 
 }; // AttributeHandler

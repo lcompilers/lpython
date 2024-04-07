@@ -1173,7 +1173,7 @@ public:
         src += indent + "exit(1)\n";
     }
 
-    void visit_IntrinsicFunctionSqrt(const ASR::IntrinsicFunctionSqrt_t &x) {
+    void visit_RealSqrt(const ASR::RealSqrt_t &x) {
         /*
         if (x.m_value) {
             this->visit_expr(*x.m_value);
@@ -1237,7 +1237,7 @@ public:
 
     void visit_DoConcurrentLoop(const ASR::DoConcurrentLoop_t& x)
     {
-        const ASR::DoLoop_t do_loop = ASR::DoLoop_t{ x.base, nullptr, x.m_head, x.m_body, x.n_body };
+        const ASR::DoLoop_t do_loop = ASR::DoLoop_t{ x.base, nullptr, x.m_head, x.m_body, x.n_body, nullptr, 0 };
         visit_DoLoop(do_loop, true);
     }
 
@@ -1881,7 +1881,7 @@ public:
         src = out;
     }
 
-    void visit_IntrinsicScalarFunction(const ASR::IntrinsicScalarFunction_t &x) {
+    void visit_IntrinsicElementalFunction(const ASR::IntrinsicElementalFunction_t &x) {
         std::string out;
         LCOMPILERS_ASSERT(x.n_args == 1);
         visit_expr(*x.m_args[0]);
@@ -1901,6 +1901,11 @@ public:
             SET_INTRINSIC_NAME(Expm1, "expm1");
             SET_INTRINSIC_NAME(Trunc, "trunc");
             SET_INTRINSIC_NAME(Fix, "fix");
+            SET_INTRINSIC_NAME(Kind, "kind");
+            SET_INTRINSIC_NAME(StringContainsSet, "verify");
+            SET_INTRINSIC_NAME(StringFindSet, "scan");
+            SET_INTRINSIC_NAME(SubstrIndex, "index");
+            SET_INTRINSIC_NAME(Modulo, "modulo");
             default : {
                 throw LCompilersException("IntrinsicFunction: `"
                     + ASRUtils::get_intrinsic_name(x.m_intrinsic_id)
