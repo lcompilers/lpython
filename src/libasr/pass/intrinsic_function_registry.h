@@ -19,6 +19,7 @@ namespace ASRUtils {
 inline std::string get_intrinsic_name(int x) {
     switch (x) {
         INTRINSIC_NAME_CASE(ObjectType)
+        INTRINSIC_NAME_CASE(Reversed)
         INTRINSIC_NAME_CASE(Kind)
         INTRINSIC_NAME_CASE(Rank)
         INTRINSIC_NAME_CASE(Sin)
@@ -172,6 +173,8 @@ namespace IntrinsicElementalFunctionRegistry {
                    verify_function>>& intrinsic_function_by_id_db = {
         {static_cast<int64_t>(IntrinsicElementalFunctions::ObjectType),
             {nullptr, &ObjectType::verify_args}},
+        {static_cast<int64_t>(IntrinsicElementalFunctions::Reversed),
+            {nullptr, &Reversed::verify_args}},
         {static_cast<int64_t>(IntrinsicElementalFunctions::Gamma),
             {&Gamma::instantiate_Gamma, &UnaryIntrinsicFunction::verify_args}},
         {static_cast<int64_t>(IntrinsicElementalFunctions::Log10),
@@ -459,6 +462,8 @@ namespace IntrinsicElementalFunctionRegistry {
     static const std::map<int64_t, std::string>& intrinsic_function_id_to_name = {
         {static_cast<int64_t>(IntrinsicElementalFunctions::ObjectType),
             "type"},
+        {static_cast<int64_t>(IntrinsicElementalFunctions::Reversed),
+            "reversed"},
         {static_cast<int64_t>(IntrinsicElementalFunctions::Gamma),
             "gamma"},
         {static_cast<int64_t>(IntrinsicElementalFunctions::Log),
@@ -744,6 +749,7 @@ namespace IntrinsicElementalFunctionRegistry {
         std::tuple<create_intrinsic_function,
                     eval_intrinsic_function>>& intrinsic_function_by_name_db = {
                 {"type", {&ObjectType::create_ObjectType, &ObjectType::eval_ObjectType}},
+                {"reversed", {&Reversed::create_Reversed, &Reversed::eval_Reversed}},
                 {"gamma", {&Gamma::create_Gamma, &Gamma::eval_Gamma}},
                 {"log", {&Log::create_Log, &Log::eval_Log}},
                 {"log10", {&Log10::create_Log10, &Log10::eval_Log10}},

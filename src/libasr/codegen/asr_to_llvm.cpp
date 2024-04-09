@@ -1792,7 +1792,7 @@ public:
         tmp = builder->CreateFSub(exp, one);
     }
 
-    void generate_ListReverse(ASR::expr_t* m_arg) {
+    void generate_ListReverse(ASR::expr_t* m_arg, bool is_intrinsic_function) {
         ASR::ttype_t* asr_el_type = ASRUtils::get_contained_type(ASRUtils::expr_type(m_arg));
         int64_t ptr_loads_copy = ptr_loads;
         ptr_loads = 0;
@@ -1802,6 +1802,8 @@ public:
         ptr_loads = !LLVM::is_llvm_struct(asr_el_type);
         ptr_loads = ptr_loads_copy;
         list_api->reverse(plist, *module);
+
+        if (is_intrinsic_function) tmp = plist;
     }
 
     void generate_ListPop_0(ASR::expr_t* m_arg) {
@@ -1954,8 +1956,12 @@ public:
                 generate_ListIndex(m_arg, m_ele, m_start, m_end);
                 break ;
             }
+            case ASRUtils::IntrinsicElementalFunctions::Reversed: {
+                generate_ListReverse(x.m_args[0], true);
+                break;
+            }
             case ASRUtils::IntrinsicElementalFunctions::ListReverse: {
-                generate_ListReverse(x.m_args[0]);
+                generate_ListReverse(x.m_args[0], false);
                 break;
             }
             case ASRUtils::IntrinsicElementalFunctions::ListPop: {
