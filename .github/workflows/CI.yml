@@ -493,3 +493,32 @@ jobs:
         run: |
             cd integration_tests
             ./run_tests.py -b cpython c_py
+
+  upload_tarball:
+    name: Upload Tarball
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: mamba-org/setup-micromamba@v1
+        with:
+          environment-file: ci/environment_linux.yml
+          create-args: >-
+            python=3.10
+
+      - name: Create Source Tarball
+        shell: bash -e -l {0}
+        run: |
+          ./build0.sh
+          lpython_version=$(<version)
+          ci/create_source_tarball.sh $lpython_version
+
+      - name: Upload Tarball to Release
+        if: ${{ startsWith(github.ref, 'refs/tags/v') }}
+        shell: bash -e -l {0}
+        run: |
+          ci/upload_tarball_to_release.sh
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
