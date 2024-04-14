@@ -6881,7 +6881,7 @@ public:
                 fn_args.push_back(al, value);
             }
         } else if(attr_name == "center") {
-            if (args.size() != 1 || args.size() != 2) {
+            if (args.size() != 1 && args.size() != 2) {
                 throw SemanticError("str.center() takes one or two argument",
                     loc);
             }
