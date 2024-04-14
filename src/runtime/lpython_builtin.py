@@ -1085,6 +1085,65 @@ def _lpython_str_isspace(s: str) -> bool:
             return False
     return True
 
+@overload
+def _lpython_str_center(s: str, width: i32, fillchar: str) -> str:
+    """
+    Return centered in a string of length width. 
+    Padding is done using the specified fillchar (default is an ASCII space). 
+    The original string is returned if width is less than or equal to len(s).
+    """
+    if(len(fillchar) != 1):
+        raise TypeError("The fill character must be exactly one character long")
+    if(width <= len(s)):
+        return s
+    width -= len(s)
+    result: str = ""
+    left_padding: i32
+    if width/2 > f64(i32(width/2)):
+        left_padding = i32(width/2) + 1
+    else:
+        left_padding = i32(width/2)
+    i: i32 
+    for i in range(left_padding):
+        result += fillchar
+    right_padding: i32 = width - left_padding
+    result += s
+    for i in range(right_padding):
+        result += fillchar
+    return result
+
+@overload
+def _lpython_str_center(s: str, width: i32) -> str:
+    return _lpython_str_center(s, width, ' ')
+
+@overload
+def _lpython_str_expandtabs(s: str, tabsize: i32) -> str:
+    """
+    Return a copy of the string where all tab characters are replaced 
+    by one or more spaces, depending on the current column and the given tab size.
+    """
+    col: i32 = 0
+    result: str = ""
+    c: str
+    for c in s:
+        if c == '\t':
+            if tabsize > 0:
+                i: i32
+                for i in range(tabsize-(col % tabsize)):
+                    result += ' '
+            col = 0
+        elif (c == '\n') | (c == '\r'):
+            result += c
+            col = 0
+        else:
+            result += c
+            col += 1
+    return result
+
+@overload
+def _lpython_str_expandtabs(s: str) -> str:
+    return _lpython_str_expandtabs(s, 8)
+
 def list(s: str) -> list[str]:
     l: list[str] = []
     i: i32
