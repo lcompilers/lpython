@@ -62,7 +62,7 @@
                                     )
                                     []
                                     []
-                                    [(Assignment
+                                    [(=
                                         (Var 3 a)
                                         (LogicalConstant
                                             .false.
@@ -70,7 +70,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 3 b)
                                         (LogicalConstant
                                             .true.
@@ -78,7 +78,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 3 a)
                                         (LogicalBinOp
                                             (Var 3 a)
@@ -89,7 +89,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 3 b)
                                         (LogicalBinOp
                                             (Var 3 a)
@@ -103,7 +103,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 3 a)
                                         (LogicalBinOp
                                             (Var 3 a)
@@ -114,7 +114,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 3 a)
                                         (LogicalBinOp
                                             (Var 3 a)
@@ -131,7 +131,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 3 a)
                                         (LogicalBinOp
                                             (Var 3 a)
@@ -148,7 +148,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 3 a)
                                         (LogicalBinOp
                                             (Var 3 b)

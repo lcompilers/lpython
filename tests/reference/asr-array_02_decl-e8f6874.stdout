@@ -10,7 +10,7 @@
                             __main__global_stmts:
                                 (Function
                                     (SymbolTable
-                                        225
+                                        233
                                         {
                                             
                                         })
@@ -46,11 +46,11 @@
                             accept_multidim_f32_array:
                                 (Function
                                     (SymbolTable
-                                        222
+                                        230
                                         {
                                             _lpython_return_variable:
                                                 (Variable
-                                                    222
+                                                    230
                                                     _lpython_return_variable
                                                     []
                                                     ReturnVar
@@ -66,7 +66,7 @@
                                                 ),
                                             xf32:
                                                 (Variable
-                                                    222
+                                                    230
                                                     xf32
                                                     []
                                                     InOut
@@ -107,11 +107,11 @@
                                         .false.
                                     )
                                     []
-                                    [(Var 222 xf32)]
-                                    [(Assignment
-                                        (Var 222 _lpython_return_variable)
+                                    [(Var 230 xf32)]
+                                    [(=
+                                        (Var 230 _lpython_return_variable)
                                         (ArrayItem
-                                            (Var 222 xf32)
+                                            (Var 230 xf32)
                                             [(()
                                             (IntegerConstant 0 (Integer 4))
                                             ())]
@@ -122,7 +122,7 @@
                                         ()
                                     )
                                     (Return)]
-                                    (Var 222 _lpython_return_variable)
+                                    (Var 230 _lpython_return_variable)
                                     Public
                                     .false.
                                     .false.
@@ -131,11 +131,11 @@
                             accept_multidim_f64_array:
                                 (Function
                                     (SymbolTable
-                                        223
+                                        231
                                         {
                                             _lpython_return_variable:
                                                 (Variable
-                                                    223
+                                                    231
                                                     _lpython_return_variable
                                                     []
                                                     ReturnVar
@@ -151,7 +151,7 @@
                                                 ),
                                             xf64:
                                                 (Variable
-                                                    223
+                                                    231
                                                     xf64
                                                     []
                                                     InOut
@@ -196,11 +196,11 @@
                                         .false.
                                     )
                                     []
-                                    [(Var 223 xf64)]
-                                    [(Assignment
-                                        (Var 223 _lpython_return_variable)
+                                    [(Var 231 xf64)]
+                                    [(=
+                                        (Var 231 _lpython_return_variable)
                                         (ArrayItem
-                                            (Var 223 xf64)
+                                            (Var 231 xf64)
                                             [(()
                                             (IntegerConstant 0 (Integer 4))
                                             ())
@@ -214,7 +214,7 @@
                                         ()
                                     )
                                     (Return)]
-                                    (Var 223 _lpython_return_variable)
+                                    (Var 231 _lpython_return_variable)
                                     Public
                                     .false.
                                     .false.
@@ -223,11 +223,11 @@
                             accept_multidim_i32_array:
                                 (Function
                                     (SymbolTable
-                                        220
+                                        228
                                         {
                                             _lpython_return_variable:
                                                 (Variable
-                                                    220
+                                                    228
                                                     _lpython_return_variable
                                                     []
                                                     ReturnVar
@@ -243,7 +243,7 @@
                                                 ),
                                             xi32:
                                                 (Variable
-                                                    220
+                                                    228
                                                     xi32
                                                     []
                                                     InOut
@@ -288,11 +288,11 @@
                                         .false.
                                     )
                                     []
-                                    [(Var 220 xi32)]
-                                    [(Assignment
-                                        (Var 220 _lpython_return_variable)
+                                    [(Var 228 xi32)]
+                                    [(=
+                                        (Var 228 _lpython_return_variable)
                                         (ArrayItem
-                                            (Var 220 xi32)
+                                            (Var 228 xi32)
                                             [(()
                                             (IntegerConstant 0 (Integer 4))
                                             ())
@@ -306,7 +306,7 @@
                                         ()
                                     )
                                     (Return)]
-                                    (Var 220 _lpython_return_variable)
+                                    (Var 228 _lpython_return_variable)
                                     Public
                                     .false.
                                     .false.
@@ -315,11 +315,11 @@
                             accept_multidim_i64_array:
                                 (Function
                                     (SymbolTable
-                                        221
+                                        229
                                         {
                                             _lpython_return_variable:
                                                 (Variable
-                                                    221
+                                                    229
                                                     _lpython_return_variable
                                                     []
                                                     ReturnVar
@@ -335,7 +335,7 @@
                                                 ),
                                             xi64:
                                                 (Variable
-                                                    221
+                                                    229
                                                     xi64
                                                     []
                                                     InOut
@@ -384,11 +384,11 @@
                                         .false.
                                     )
                                     []
-                                    [(Var 221 xi64)]
-                                    [(Assignment
-                                        (Var 221 _lpython_return_variable)
+                                    [(Var 229 xi64)]
+                                    [(=
+                                        (Var 229 _lpython_return_variable)
                                         (ArrayItem
-                                            (Var 221 xi64)
+                                            (Var 229 xi64)
                                             [(()
                                             (IntegerConstant 9 (Integer 4))
                                             ())
@@ -405,7 +405,7 @@
                                         ()
                                     )
                                     (Return)]
-                                    (Var 221 _lpython_return_variable)
+                                    (Var 229 _lpython_return_variable)
                                     Public
                                     .false.
                                     .false.
@@ -414,11 +414,11 @@
                             declare_arrays:
                                 (Function
                                     (SymbolTable
-                                        224
+                                        232
                                         {
                                             ac32:
                                                 (Variable
-                                                    224
+                                                    232
                                                     ac32
                                                     []
                                                     Local
@@ -443,7 +443,7 @@
                                                 ),
                                             ac64:
                                                 (Variable
-                                                    224
+                                                    232
                                                     ac64
                                                     []
                                                     Local
@@ -470,7 +470,7 @@
                                                 ),
                                             af32:
                                                 (Variable
-                                                    224
+                                                    232
                                                     af32
                                                     []
                                                     Local
@@ -491,7 +491,7 @@
                                                 ),
                                             af64:
                                                 (Variable
-                                                    224
+                                                    232
                                                     af64
                                                     []
                                                     Local
@@ -514,7 +514,7 @@
                                                 ),
                                             ai32:
                                                 (Variable
-                                                    224
+                                                    232
                                                     ai32
                                                     []
                                                     Local
@@ -537,7 +537,7 @@
                                                 ),
                                             ai64:
                                                 (Variable
-                                                    224
+                                                    232
                                                     ai64
                                                     []
                                                     Local
@@ -581,9 +581,9 @@
                                     accept_multidim_f32_array
                                     accept_multidim_f64_array]
                                     []
-                                    [(Assignment
-                                        (Var 224 ai32)
-                                        (ArrayConstructor
+                                    [(=
+                                        (Var 232 ai32)
+                                        (ArrayConstant
                                             []
                                             (Array
                                                 (Integer 4)
@@ -593,14 +593,13 @@
                                                 (IntegerConstant 3 (Integer 4)))]
                                                 FixedSizeArray
                                             )
-                                            ()
                                             RowMajor
                                         )
                                         ()
                                     )
-                                    (Assignment
-                                        (Var 224 ai64)
-                                        (ArrayConstructor
+                                    (=
+                                        (Var 232 ai64)
+                                        (ArrayConstant
                                             []
                                             (Array
                                                 (Integer 8)
@@ -612,14 +611,13 @@
                                                 (IntegerConstant 10 (Integer 4)))]
                                                 FixedSizeArray
                                             )
-                                            ()
                                             RowMajor
                                         )
                                         ()
                                     )
-                                    (Assignment
-                                        (Var 224 af32)
-                                        (ArrayConstructor
+                                    (=
+                                        (Var 232 af32)
+                                        (ArrayConstant
                                             []
                                             (Array
                                                 (Real 4)
@@ -627,14 +625,13 @@
                                                 (IntegerConstant 3 (Integer 4)))]
                                                 FixedSizeArray
                                             )
-                                            ()
                                             RowMajor
                                         )
                                         ()
                                     )
-                                    (Assignment
-                                        (Var 224 af64)
-                                        (ArrayConstructor
+                                    (=
+                                        (Var 232 af64)
+                                        (ArrayConstant
                                             []
                                             (Array
                                                 (Real 8)
@@ -644,14 +641,13 @@
                                                 (IntegerConstant 4 (Integer 4)))]
                                                 FixedSizeArray
                                             )
-                                            ()
                                             RowMajor
                                         )
                                         ()
                                     )
-                                    (Assignment
-                                        (Var 224 ac32)
-                                        (ArrayConstructor
+                                    (=
+                                        (Var 232 ac32)
+                                        (ArrayConstant
                                             []
                                             (Array
                                                 (Complex 4)
@@ -663,14 +659,13 @@
                                                 (IntegerConstant 99 (Integer 4)))]
                                                 FixedSizeArray
                                             )
-                                            ()
                                             RowMajor
                                         )
                                         ()
                                     )
-                                    (Assignment
-                                        (Var 224 ac64)
-                                        (ArrayConstructor
+                                    (=
+                                        (Var 232 ac64)
+                                        (ArrayConstant
                                             []
                                             (Array
                                                 (Complex 8)
@@ -684,7 +679,6 @@
                                                 (IntegerConstant 16 (Integer 4)))]
                                                 FixedSizeArray
                                             )
-                                            ()
                                             RowMajor
                                         )
                                         ()
@@ -694,7 +688,7 @@
                                             2 accept_multidim_i32_array
                                             ()
                                             [((ArrayPhysicalCast
-                                                (Var 224 ai32)
+                                                (Var 232 ai32)
                                                 FixedSizeArray
                                                 DescriptorArray
                                                 (Array
@@ -719,7 +713,7 @@
                                             2 accept_multidim_i64_array
                                             ()
                                             [((ArrayPhysicalCast
-                                                (Var 224 ai64)
+                                                (Var 232 ai64)
                                                 FixedSizeArray
                                                 DescriptorArray
                                                 (Array
@@ -746,7 +740,7 @@
                                             2 accept_multidim_f32_array
                                             ()
                                             [((ArrayPhysicalCast
-                                                (Var 224 af32)
+                                                (Var 232 af32)
                                                 FixedSizeArray
                                                 DescriptorArray
                                                 (Array
@@ -769,7 +763,7 @@
                                             2 accept_multidim_f64_array
                                             ()
                                             [((ArrayPhysicalCast
-                                                (Var 224 af64)
+                                                (Var 232 af64)
                                                 FixedSizeArray
                                                 DescriptorArray
                                                 (Array
@@ -806,11 +800,11 @@
             main_program:
                 (Program
                     (SymbolTable
-                        226
+                        234
                         {
                             __main__global_stmts:
                                 (ExternalSymbol
-                                    226
+                                    234
                                     __main__global_stmts
                                     2 __main__global_stmts
                                     __main__
@@ -822,7 +816,7 @@
                     main_program
                     [__main__]
                     [(SubroutineCall
-                        226 __main__global_stmts
+                        234 __main__global_stmts
                         2 __main__global_stmts
                         []
                         ()

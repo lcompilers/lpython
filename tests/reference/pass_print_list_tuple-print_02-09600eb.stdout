@@ -499,7 +499,7 @@
                                     )
                                     []
                                     []
-                                    [(Assignment
+                                    [(=
                                         (Var 3 a)
                                         (ListConstant
                                             [(StringConstant
@@ -520,7 +520,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 3 b)
                                         (ListConstant
                                             [(IntegerConstant 1 (Integer 4))
@@ -533,7 +533,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 3 c)
                                         (ListConstant
                                             [(RealConstant
@@ -562,7 +562,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 3 d)
                                         (ListConstant
                                             []
@@ -657,7 +657,6 @@
                                             )]
                                             []
                                         )]
-                                        []
                                     )
                                     (Print
                                         [(StringConstant
@@ -744,7 +743,6 @@
                                             )]
                                             []
                                         )]
-                                        []
                                     )
                                     (Print
                                         [(StringConstant
@@ -831,7 +829,6 @@
                                             )]
                                             []
                                         )]
-                                        []
                                     )
                                     (Print
                                         [(StringConstant
@@ -918,7 +915,6 @@
                                             )]
                                             []
                                         )]
-                                        []
                                     )
                                     (Print
                                         [(StringConstant
@@ -1013,7 +1009,6 @@
                                             )]
                                             []
                                         )]
-                                        []
                                     )
                                     (Print
                                         [(StringConstant
@@ -1111,7 +1106,6 @@
                                             )]
                                             []
                                         )]
-                                        []
                                     )
                                     (Print
                                         [(StringConstant
@@ -1201,7 +1195,6 @@
                                             )]
                                             []
                                         )]
-                                        []
                                     )
                                     (Print
                                         [(StringConstant
@@ -1291,7 +1284,6 @@
                                             )]
                                             []
                                         )]
-                                        []
                                     )
                                     (Print
                                         [(StringConstant
@@ -1381,7 +1373,6 @@
                                             )]
                                             []
                                         )]
-                                        []
                                     )
                                     (Print
                                         [(StringConstant
@@ -1476,7 +1467,6 @@
                                             )]
                                             []
                                         )]
-                                        []
                                     )
                                     (Print
                                         [(StringConstant
@@ -1574,7 +1564,6 @@
                                             )]
                                             []
                                         )]
-                                        []
                                     )
                                     (Print
                                         [(StringConstant
@@ -1672,7 +1661,6 @@
                                             )]
                                             []
                                         )]
-                                        []
                                     )
                                     (Print
                                         [(StringConstant
@@ -1762,7 +1750,6 @@
                                             )]
                                             []
                                         )]
-                                        []
                                     )
                                     (Print
                                         [(StringConstant
@@ -1863,7 +1850,6 @@
                                             )]
                                             []
                                         )]
-                                        []
                                     )
                                     (Print
                                         [(StringConstant
@@ -1986,7 +1972,6 @@
                                             )]
                                             []
                                         )]
-                                        []
                                     )
                                     (Print
                                         [(StringConstant
@@ -2165,7 +2150,6 @@
                                             )]
                                             []
                                         )]
-                                        []
                                     )
                                     (Print
                                         [(StringConstant
@@ -2276,7 +2260,6 @@
                                             )]
                                             []
                                         )]
-                                        []
                                     )
                                     (Print
                                         [(StringConstant
@@ -2374,7 +2357,6 @@
                                             )]
                                             []
                                         )]
-                                        []
                                     )
                                     (Print
                                         [(StringConstant
@@ -2464,7 +2446,6 @@
                                             )]
                                             []
                                         )]
-                                        []
                                     )
                                     (Print
                                         [(StringConstant
@@ -2783,7 +2764,7 @@
                                     )
                                     []
                                     []
-                                    [(Assignment
+                                    [(=
                                         (Var 4 w)
                                         (ListConstant
                                             [(ListConstant
@@ -2872,7 +2853,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 4 x)
                                         (ListConstant
                                             [(ListConstant
@@ -2959,7 +2940,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 4 y)
                                         (ListConstant
                                             [(ListConstant
@@ -3010,7 +2991,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 4 z)
                                         (ListConstant
                                             [(ListConstant
@@ -3443,7 +3424,6 @@
                                                             )]
                                                             []
                                                         )]
-                                                        []
                                                     )
                                                     (Print
                                                         [(StringConstant
@@ -3523,7 +3503,6 @@
                                                         )]
                                                         []
                                                     )]
-                                                    []
                                                 )
                                                 (Print
                                                     [(StringConstant
@@ -3594,7 +3573,6 @@
                                                     )]
                                                     []
                                                 )]
-                                                []
                                             )
                                             (Print
                                                 [(StringConstant
@@ -3654,7 +3632,6 @@
                                                 )]
                                                 []
                                             )]
-                                            []
                                         )
                                         (Print
                                             [(StringConstant
@@ -3701,7 +3678,6 @@
                                             )]
                                             []
                                         )]
-                                        []
                                     )
                                     (Print
                                         [(StringConstant
@@ -3899,7 +3875,6 @@
                                                     )]
                                                     []
                                                 )]
-                                                []
                                             )
                                             (Print
                                                 [(StringConstant
@@ -3955,7 +3930,6 @@
                                                 )]
                                                 []
                                             )]
-                                            []
                                         )
                                         (Print
                                             [(StringConstant
@@ -4002,7 +3976,6 @@
                                             )]
                                             []
                                         )]
-                                        []
                                     )
                                     (Print
                                         [(StringConstant
@@ -4137,7 +4110,6 @@
                                                 )]
                                                 []
                                             )]
-                                            []
                                         )
                                         (Print
                                             [(StringConstant
@@ -4184,7 +4156,6 @@
                                             )]
                                             []
                                         )]
-                                        []
                                     )
                                     (Print
                                         [(StringConstant
@@ -4327,7 +4298,6 @@
                                                 )]
                                                 []
                                             )]
-                                            []
                                         )
                                         (Print
                                             [(StringConstant
@@ -4374,7 +4344,6 @@
                                             )]
                                             []
                                         )]
-                                        []
                                     )
                                     (Print
                                         [(StringConstant
@@ -4623,7 +4592,7 @@
                                     )
                                     []
                                     []
-                                    [(Assignment
+                                    [(=
                                         (Var 6 p)
                                         (ListConstant
                                             [(ListConstant
@@ -4784,7 +4753,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 6 q)
                                         (ListConstant
                                             [(ListConstant
@@ -5607,7 +5576,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 6 r)
                                         (ListConstant
                                             [(ListConstant
@@ -6405,7 +6374,6 @@
                                                 )]
                                                 []
                                             )]
-                                            []
                                         )
                                         (Print
                                             [(StringConstant
@@ -6452,7 +6420,6 @@
                                             )]
                                             []
                                         )]
-                                        []
                                     )
                                     (Print
                                         [(StringConstant
@@ -6732,7 +6699,6 @@
                                                         )]
                                                         []
                                                     )]
-                                                    []
                                                 )
                                                 (Print
                                                     [(StringConstant
@@ -6799,7 +6765,6 @@
                                                     )]
                                                     []
                                                 )]
-                                                []
                                             )
                                             (Print
                                                 [(StringConstant
@@ -6857,7 +6822,6 @@
                                                 )]
                                                 []
                                             )]
-                                            []
                                         )
                                         (Print
                                             [(StringConstant
@@ -6904,7 +6868,6 @@
                                             )]
                                             []
                                         )]
-                                        []
                                     )
                                     (Print
                                         [(StringConstant
@@ -7110,7 +7073,6 @@
                                                     )]
                                                     []
                                                 )]
-                                                []
                                             )
                                             (Print
                                                 [(StringConstant
@@ -7166,7 +7128,6 @@
                                                 )]
                                                 []
                                             )]
-                                            []
                                         )
                                         (Print
                                             [(StringConstant
@@ -7213,7 +7174,6 @@
                                             )]
                                             []
                                         )]
-                                        []
                                     )
                                     (Print
                                         [(StringConstant
@@ -7468,7 +7428,7 @@
                                     )
                                     []
                                     []
-                                    [(Assignment
+                                    [(=
                                         (Var 5 a)
                                         (ListConstant
                                             [(TupleConstant
@@ -7504,7 +7464,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 5 c)
                                         (ListConstant
                                             [(ListConstant
@@ -7578,7 +7538,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 5 b1)
                                         (ListConstant
                                             [(StringConstant
@@ -7607,7 +7567,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 5 b2)
                                         (ListConstant
                                             [(IntegerConstant 10 (Integer 4))
@@ -7620,7 +7580,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 5 b)
                                         (TupleConstant
                                             [(Var 5 b1)
@@ -7786,7 +7746,6 @@
                                             )]
                                             []
                                         )]
-                                        []
                                     )
                                     (Print
                                         [(StringConstant
@@ -7916,7 +7875,6 @@
                                             )]
                                             []
                                         )]
-                                        []
                                     )
                                     (Print
                                         [(StringConstant
@@ -8041,7 +7999,6 @@
                                             )]
                                             []
                                         )]
-                                        []
                                     )
                                     (Print
                                         [(StringConstant
@@ -8312,7 +8269,6 @@
                                                 )]
                                                 []
                                             )]
-                                            []
                                         )
                                         (Print
                                             [(StringConstant
@@ -8359,7 +8315,6 @@
                                             )]
                                             []
                                         )]
-                                        []
                                     )
                                     (Print
                                         [(StringConstant
@@ -8457,7 +8412,6 @@
                                             )]
                                             []
                                         )]
-                                        []
                                     )
                                     (Print
                                         [(StringConstant
@@ -8547,7 +8501,6 @@
                                             )]
                                             []
                                         )]
-                                        []
                                     )
                                     (Print
                                         [(StringConstant

@@ -98,7 +98,7 @@
                                     [add_integer]
                                     [(Var 7 x)
                                     (Var 7 y)]
-                                    [(Assignment
+                                    [(=
                                         (Var 7 _lpython_return_variable)
                                         (FunctionCall
                                             2 add_integer
@@ -191,7 +191,7 @@
                                     [add_string]
                                     [(Var 8 x)
                                     (Var 8 y)]
-                                    [(Assignment
+                                    [(=
                                         (Var 8 _lpython_return_variable)
                                         (FunctionCall
                                             2 add_string
@@ -458,7 +458,7 @@
                                     []
                                     [(Var 4 x)
                                     (Var 4 y)]
-                                    [(Assignment
+                                    [(=
                                         (Var 4 _lpython_return_variable)
                                         (IntegerBinOp
                                             (Var 4 x)
@@ -549,7 +549,7 @@
                                     []
                                     [(Var 5 x)
                                     (Var 5 y)]
-                                    [(Assignment
+                                    [(=
                                         (Var 5 _lpython_return_variable)
                                         (StringConcat
                                             (Var 5 x)
@@ -651,7 +651,7 @@
                                     [add]
                                     [(Var 6 x)
                                     (Var 6 y)]
-                                    [(Assignment
+                                    [(=
                                         (Var 6 _lpython_return_variable)
                                         (FunctionCall
                                             2 add

@@ -98,7 +98,7 @@
                                     )
                                     [test]
                                     []
-                                    [(Assignment
+                                    [(=
                                         (Var 4 a)
                                         (FunctionCall
                                             2 test
@@ -111,7 +111,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 4 _lpython_return_variable)
                                         (Var 4 a)
                                         ()
@@ -162,7 +162,7 @@
                                     )
                                     [check]
                                     []
-                                    [(Assignment
+                                    [(=
                                         (Var 5 x)
                                         (FunctionCall
                                             2 check
@@ -253,7 +253,7 @@
                                     []
                                     [(Var 3 a)
                                     (Var 3 b)]
-                                    [(Assignment
+                                    [(=
                                         (Var 3 _lpython_return_variable)
                                         (IntegerBinOp
                                             (Var 3 a)

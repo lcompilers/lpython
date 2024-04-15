@@ -158,7 +158,7 @@
                                     )
                                     []
                                     []
-                                    [(Assignment
+                                    [(=
                                         (Var 3 a)
                                         (ListConstant
                                             [(IntegerConstant 1 (Integer 4))
@@ -170,7 +170,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 3 a)
                                         (ListConstant
                                             [(IntegerUnaryMinus
@@ -194,7 +194,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 3 b)
                                         (ListConstant
                                             [(StringConstant
@@ -215,7 +215,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 3 c)
                                         (ListConstant
                                             [(ListConstant
@@ -242,7 +242,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 3 d)
                                         (ListItem
                                             (Var 3 a)
@@ -252,7 +252,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 3 e)
                                         (ListConstant
                                             [(ListConstant
@@ -306,7 +306,7 @@
                                         (IntegerConstant 2 (Integer 4))
                                         (IntegerConstant 13 (Integer 4))
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 3 a)
                                         (ListSection
                                             (Var 3 a)
@@ -320,9 +320,9 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 3 d)
-                                        (IntrinsicElementalFunction
+                                        (IntrinsicScalarFunction
                                             ListPop
                                             [(Var 3 a)]
                                             0
@@ -331,9 +331,9 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 3 d)
-                                        (IntrinsicElementalFunction
+                                        (IntrinsicScalarFunction
                                             ListPop
                                             [(Var 3 a)
                                             (IntegerConstant 2 (Integer 4))]
@@ -343,7 +343,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 3 a)
                                         (ListConcat
                                             (Var 3 a)
@@ -361,7 +361,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 3 a)
                                         (ListConcat
                                             (ListConstant
@@ -379,7 +379,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 3 a11)
                                         (ListConstant
                                             [(IntegerConstant 1 (Integer 4))
@@ -390,7 +390,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 3 b11)
                                         (ListConstant
                                             [(IntegerConstant 3 (Integer 4))

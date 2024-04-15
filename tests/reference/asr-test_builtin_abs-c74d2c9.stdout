@@ -178,7 +178,7 @@
                                     )
                                     []
                                     []
-                                    [(Assignment
+                                    [(=
                                         (Var 3 x)
                                         (RealConstant
                                             5.500000
@@ -188,7 +188,7 @@
                                     )
                                     (Assert
                                         (RealCompare
-                                            (IntrinsicElementalFunction
+                                            (IntrinsicScalarFunction
                                                 Abs
                                                 [(Var 3 x)]
                                                 0
@@ -205,7 +205,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 3 x)
                                         (RealUnaryMinus
                                             (RealConstant
@@ -222,7 +222,7 @@
                                     )
                                     (Assert
                                         (RealCompare
-                                            (IntrinsicElementalFunction
+                                            (IntrinsicScalarFunction
                                                 Abs
                                                 [(Var 3 x)]
                                                 0
@@ -241,7 +241,7 @@
                                     )
                                     (Assert
                                         (RealCompare
-                                            (IntrinsicElementalFunction
+                                            (IntrinsicScalarFunction
                                                 Abs
                                                 [(RealConstant
                                                     5.500000
@@ -269,7 +269,7 @@
                                     )
                                     (Assert
                                         (RealCompare
-                                            (IntrinsicElementalFunction
+                                            (IntrinsicScalarFunction
                                                 Abs
                                                 [(RealUnaryMinus
                                                     (RealConstant
@@ -302,7 +302,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 3 x2)
                                         (RealUnaryMinus
                                             (Cast
@@ -327,7 +327,7 @@
                                     )
                                     (Assert
                                         (RealCompare
-                                            (IntrinsicElementalFunction
+                                            (IntrinsicScalarFunction
                                                 Abs
                                                 [(Var 3 x2)]
                                                 0
@@ -352,7 +352,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 3 i)
                                         (IntegerUnaryMinus
                                             (IntegerConstant 5 (Integer 4))
@@ -363,7 +363,7 @@
                                     )
                                     (Assert
                                         (IntegerCompare
-                                            (IntrinsicElementalFunction
+                                            (IntrinsicScalarFunction
                                                 Abs
                                                 [(Var 3 i)]
                                                 0
@@ -379,7 +379,7 @@
                                     )
                                     (Assert
                                         (IntegerCompare
-                                            (IntrinsicElementalFunction
+                                            (IntrinsicScalarFunction
                                                 Abs
                                                 [(IntegerUnaryMinus
                                                     (IntegerConstant 1 (Integer 4))
@@ -400,7 +400,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 3 i2)
                                         (IntegerUnaryMinus
                                             (Cast
@@ -416,7 +416,7 @@
                                     )
                                     (Assert
                                         (IntegerCompare
-                                            (IntrinsicElementalFunction
+                                            (IntrinsicScalarFunction
                                                 Abs
                                                 [(Var 3 i2)]
                                                 0
@@ -435,7 +435,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 3 i3)
                                         (IntegerUnaryMinus
                                             (Cast
@@ -451,7 +451,7 @@
                                     )
                                     (Assert
                                         (IntegerCompare
-                                            (IntrinsicElementalFunction
+                                            (IntrinsicScalarFunction
                                                 Abs
                                                 [(Var 3 i3)]
                                                 0
@@ -470,7 +470,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 3 i4)
                                         (IntegerUnaryMinus
                                             (Cast
@@ -486,7 +486,7 @@
                                     )
                                     (Assert
                                         (IntegerCompare
-                                            (IntrinsicElementalFunction
+                                            (IntrinsicScalarFunction
                                                 Abs
                                                 [(Var 3 i4)]
                                                 0
@@ -505,7 +505,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 3 b)
                                         (LogicalConstant
                                             .true.
@@ -515,7 +515,7 @@
                                     )
                                     (Assert
                                         (IntegerCompare
-                                            (IntrinsicElementalFunction
+                                            (IntrinsicScalarFunction
                                                 Abs
                                                 [(Cast
                                                     (Var 3 b)
@@ -534,7 +534,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 3 b)
                                         (LogicalConstant
                                             .false.
@@ -544,7 +544,7 @@
                                     )
                                     (Assert
                                         (IntegerCompare
-                                            (IntrinsicElementalFunction
+                                            (IntrinsicScalarFunction
                                                 Abs
                                                 [(Cast
                                                     (Var 3 b)

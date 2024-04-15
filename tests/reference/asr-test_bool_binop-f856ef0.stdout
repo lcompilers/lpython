@@ -130,7 +130,7 @@
                                     )
                                     []
                                     []
-                                    [(Assignment
+                                    [(=
                                         (Var 3 i)
                                         (IntegerBinOp
                                             (Cast
@@ -167,7 +167,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 3 i)
                                         (IntegerBinOp
                                             (Cast
@@ -204,7 +204,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 3 i)
                                         (IntegerBinOp
                                             (Cast
@@ -241,10 +241,10 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 3 i)
                                         (Cast
-                                            (IntrinsicElementalFunction
+                                            (IntrinsicScalarFunction
                                                 FloorDiv
                                                 [(LogicalConstant
                                                     .true.
@@ -277,10 +277,10 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 3 i)
                                         (Cast
-                                            (IntrinsicElementalFunction
+                                            (IntrinsicScalarFunction
                                                 FloorDiv
                                                 [(LogicalConstant
                                                     .false.
@@ -313,7 +313,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 3 i)
                                         (IntegerBinOp
                                             (Cast
@@ -350,7 +350,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 3 b1)
                                         (LogicalConstant
                                             .false.
@@ -358,7 +358,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 3 b2)
                                         (LogicalConstant
                                             .true.
@@ -366,7 +366,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 3 f)
                                         (RealBinOp
                                             (Cast

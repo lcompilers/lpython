@@ -354,17 +354,17 @@
                                     )
                                     []
                                     []
-                                    [(Assignment
+                                    [(=
                                         (Var 3 a1)
                                         (IntegerConstant 1 (Integer 4))
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 3 a2)
                                         (IntegerConstant 9 (Integer 4))
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 3 a3)
                                         (RealBinOp
                                             (Cast
@@ -387,7 +387,7 @@
                                     )
                                     (Assert
                                         (RealCompare
-                                            (IntrinsicElementalFunction
+                                            (IntrinsicScalarFunction
                                                 Abs
                                                 [(RealBinOp
                                                     (Var 3 a3)
@@ -413,7 +413,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 3 b1)
                                         (Cast
                                             (IntegerConstant 2 (Integer 4))
@@ -423,7 +423,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 3 b2)
                                         (Cast
                                             (IntegerConstant 10 (Integer 4))
@@ -433,7 +433,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 3 b3)
                                         (RealBinOp
                                             (Cast
@@ -456,7 +456,7 @@
                                     )
                                     (Assert
                                         (RealCompare
-                                            (IntrinsicElementalFunction
+                                            (IntrinsicScalarFunction
                                                 Abs
                                                 [(RealBinOp
                                                     (Var 3 b3)
@@ -482,7 +482,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 3 c1)
                                         (Cast
                                             (RealConstant
@@ -498,7 +498,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 3 c2)
                                         (Cast
                                             (RealConstant
@@ -514,7 +514,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 3 c3)
                                         (RealBinOp
                                             (Var 3 c2)
@@ -527,7 +527,7 @@
                                     )
                                     (Assert
                                         (RealCompare
-                                            (IntrinsicElementalFunction
+                                            (IntrinsicScalarFunction
                                                 Abs
                                                 [(RealBinOp
                                                     (Var 3 c3)
@@ -569,7 +569,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 3 d1)
                                         (RealConstant
                                             4.000000
@@ -577,7 +577,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 3 d2)
                                         (RealConstant
                                             12.000000
@@ -585,7 +585,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 3 d3)
                                         (RealBinOp
                                             (Var 3 d2)
@@ -598,7 +598,7 @@
                                     )
                                     (Assert
                                         (RealCompare
-                                            (IntrinsicElementalFunction
+                                            (IntrinsicScalarFunction
                                                 Abs
                                                 [(RealBinOp
                                                     (Var 3 d3)
@@ -624,7 +624,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 3 e1)
                                         (ComplexBinOp
                                             (Cast
@@ -661,7 +661,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 3 e2)
                                         (ComplexBinOp
                                             (Cast
@@ -698,7 +698,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 3 e3)
                                         (ComplexBinOp
                                             (Var 3 e2)
@@ -711,7 +711,7 @@
                                     )
                                     (Assert
                                         (RealCompare
-                                            (IntrinsicElementalFunction
+                                            (IntrinsicScalarFunction
                                                 Abs
                                                 [(ComplexBinOp
                                                     (ComplexBinOp
@@ -773,7 +773,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 3 f1)
                                         (ComplexBinOp
                                             (Cast
@@ -801,7 +801,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 3 f2)
                                         (ComplexBinOp
                                             (Cast
@@ -829,7 +829,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 3 f3)
                                         (ComplexBinOp
                                             (Var 3 f2)
@@ -842,7 +842,7 @@
                                     )
                                     (Assert
                                         (RealCompare
-                                            (IntrinsicElementalFunction
+                                            (IntrinsicScalarFunction
                                                 Abs
                                                 [(ComplexBinOp
                                                     (ComplexBinOp

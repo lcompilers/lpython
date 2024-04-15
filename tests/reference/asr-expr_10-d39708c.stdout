@@ -82,7 +82,7 @@
                                     )
                                     []
                                     []
-                                    [(Assignment
+                                    [(=
                                         (Var 3 _lpython_return_variable)
                                         (IntegerConstant 5 (Integer 4))
                                         ()
@@ -216,7 +216,7 @@
                                     [g
                                     gsubrout]
                                     []
-                                    [(Assignment
+                                    [(=
                                         (Var 5 i)
                                         (FunctionCall
                                             2 g
@@ -228,7 +228,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 5 j)
                                         (FunctionCall
                                             2 g
@@ -240,7 +240,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 5 __lcompilers_dummy)
                                         (FunctionCall
                                             2 g

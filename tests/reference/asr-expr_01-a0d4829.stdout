@@ -116,7 +116,7 @@
                                     []
                                     [(Var 3 x)
                                     (Var 3 y)]
-                                    [(Assignment
+                                    [(=
                                         (Var 3 _lpython_return_variable)
                                         (IntegerBinOp
                                             (Var 3 x)
@@ -207,7 +207,7 @@
                                     []
                                     [(Var 4 x)
                                     (Var 4 y)]
-                                    [(Assignment
+                                    [(=
                                         (Var 4 _lpython_return_variable)
                                         (IntegerBinOp
                                             (Var 4 x)
@@ -297,7 +297,7 @@
                                     [add
                                     and_op]
                                     []
-                                    [(Assignment
+                                    [(=
                                         (Var 5 x)
                                         (IntegerBinOp
                                             (IntegerBinOp
@@ -314,7 +314,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 5 y)
                                         (IntegerBinOp
                                             (FunctionCall
@@ -353,7 +353,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 5 z)
                                         (FunctionCall
                                             2 and_op

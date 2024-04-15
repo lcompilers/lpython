@@ -182,7 +182,7 @@
                                     )
                                     []
                                     [(Var 3 x)]
-                                    [(Assignment
+                                    [(=
                                         (Var 3 _lpython_return_variable)
                                         (IntegerBinOp
                                             (Var 3 x)
@@ -255,7 +255,7 @@
                                     )
                                     []
                                     [(Var 4 x)]
-                                    [(Assignment
+                                    [(=
                                         (Var 4 _lpython_return_variable)
                                         (IntegerBinOp
                                             (Var 4 x)
@@ -329,7 +329,7 @@
                                     [f
                                     f2]
                                     [(Var 5 x)]
-                                    [(Assignment
+                                    [(=
                                         (Var 5 _lpython_return_variable)
                                         (IntegerBinOp
                                             (FunctionCall
@@ -509,7 +509,7 @@
                                     []
                                     [(Var 6 func)
                                     (Var 6 arg)]
-                                    [(Assignment
+                                    [(=
                                         (Var 6 ret)
                                         (FunctionCall
                                             6 func
@@ -521,7 +521,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 6 _lpython_return_variable)
                                         (Var 6 ret)
                                         ()

@@ -1,4 +1,4 @@
-semantic error: cannot clear elements from a const list
+semantic error: Type name is not implemented yet.
  --> tests/errors/test_const_list_clear.py:7:5
   |
 7 |     CONST_INTEGER_LIST.clear()

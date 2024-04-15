@@ -40,12 +40,12 @@ declare void @_lfortran_printf(i8*, ...)
 
 define i32 @main(i32 %0, i8** %1) !dbg !22 {
 .entry:
-  call void @_lpython_call_initial_functions(i32 %0, i8** %1), !dbg !25
+  call void @_lpython_set_argv(i32 %0, i8** %1), !dbg !25
   call void @__module___main_____main__global_stmts(), !dbg !25
   ret i32 0, !dbg !25
 }
 
-declare void @_lpython_call_initial_functions(i32, i8**)
+declare void @_lpython_set_argv(i32, i8**)
 
 attributes #0 = { nounwind readnone speculatable willreturn }
 

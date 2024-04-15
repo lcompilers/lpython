@@ -10,7 +10,7 @@
                             __main__global_stmts:
                                 (Function
                                     (SymbolTable
-                                        223
+                                        231
                                         {
                                             
                                         })
@@ -46,7 +46,7 @@
                             check:
                                 (Function
                                     (SymbolTable
-                                        222
+                                        230
                                         {
                                             
                                         })
@@ -89,11 +89,11 @@
                             test_array_01:
                                 (Function
                                     (SymbolTable
-                                        220
+                                        228
                                         {
                                             eps:
                                                 (Variable
-                                                    220
+                                                    228
                                                     eps
                                                     []
                                                     Local
@@ -109,7 +109,7 @@
                                                 ),
                                             x:
                                                 (Variable
-                                                    220
+                                                    228
                                                     x
                                                     []
                                                     Local
@@ -146,8 +146,8 @@
                                     )
                                     []
                                     []
-                                    [(Assignment
-                                        (Var 220 x)
+                                    [(=
+                                        (Var 228 x)
                                         (ArrayConstant
                                             [(RealConstant
                                                 1.000000
@@ -171,8 +171,8 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
-                                        (Var 220 eps)
+                                    (=
+                                        (Var 228 eps)
                                         (RealConstant
                                             0.000000
                                             (Real 8)
@@ -181,11 +181,11 @@
                                     )
                                     (Assert
                                         (RealCompare
-                                            (IntrinsicElementalFunction
+                                            (IntrinsicScalarFunction
                                                 Abs
                                                 [(RealBinOp
                                                     (ArrayItem
-                                                        (Var 220 x)
+                                                        (Var 228 x)
                                                         [(()
                                                         (IntegerConstant 0 (Integer 4))
                                                         ())]
@@ -206,7 +206,7 @@
                                                 ()
                                             )
                                             Lt
-                                            (Var 220 eps)
+                                            (Var 228 eps)
                                             (Logical 4)
                                             ()
                                         )
@@ -214,11 +214,11 @@
                                     )
                                     (Assert
                                         (RealCompare
-                                            (IntrinsicElementalFunction
+                                            (IntrinsicScalarFunction
                                                 Abs
                                                 [(RealBinOp
                                                     (ArrayItem
-                                                        (Var 220 x)
+                                                        (Var 228 x)
                                                         [(()
                                                         (IntegerConstant 1 (Integer 4))
                                                         ())]
@@ -239,7 +239,7 @@
                                                 ()
                                             )
                                             Lt
-                                            (Var 220 eps)
+                                            (Var 228 eps)
                                             (Logical 4)
                                             ()
                                         )
@@ -247,11 +247,11 @@
                                     )
                                     (Assert
                                         (RealCompare
-                                            (IntrinsicElementalFunction
+                                            (IntrinsicScalarFunction
                                                 Abs
                                                 [(RealBinOp
                                                     (ArrayItem
-                                                        (Var 220 x)
+                                                        (Var 228 x)
                                                         [(()
                                                         (IntegerConstant 2 (Integer 4))
                                                         ())]
@@ -272,7 +272,7 @@
                                                 ()
                                             )
                                             Lt
-                                            (Var 220 eps)
+                                            (Var 228 eps)
                                             (Logical 4)
                                             ()
                                         )
@@ -287,11 +287,11 @@
                             test_array_02:
                                 (Function
                                     (SymbolTable
-                                        221
+                                        229
                                         {
                                             eps:
                                                 (Variable
-                                                    221
+                                                    229
                                                     eps
                                                     []
                                                     Local
@@ -307,7 +307,7 @@
                                                 ),
                                             x:
                                                 (Variable
-                                                    221
+                                                    229
                                                     x
                                                     []
                                                     Local
@@ -344,8 +344,8 @@
                                     )
                                     []
                                     []
-                                    [(Assignment
-                                        (Var 221 x)
+                                    [(=
+                                        (Var 229 x)
                                         (ArrayConstant
                                             [(IntegerConstant 1 (Integer 4))
                                             (IntegerConstant 2 (Integer 4))
@@ -360,8 +360,8 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
-                                        (Var 221 eps)
+                                    (=
+                                        (Var 229 eps)
                                         (RealConstant
                                             0.000000
                                             (Real 8)
@@ -371,11 +371,11 @@
                                     (Assert
                                         (RealCompare
                                             (Cast
-                                                (IntrinsicElementalFunction
+                                                (IntrinsicScalarFunction
                                                     Abs
                                                     [(IntegerBinOp
                                                         (ArrayItem
-                                                            (Var 221 x)
+                                                            (Var 229 x)
                                                             [(()
                                                             (IntegerConstant 0 (Integer 4))
                                                             ())]
@@ -397,7 +397,7 @@
                                                 ()
                                             )
                                             Lt
-                                            (Var 221 eps)
+                                            (Var 229 eps)
                                             (Logical 4)
                                             ()
                                         )
@@ -406,11 +406,11 @@
                                     (Assert
                                         (RealCompare
                                             (Cast
-                                                (IntrinsicElementalFunction
+                                                (IntrinsicScalarFunction
                                                     Abs
                                                     [(IntegerBinOp
                                                         (ArrayItem
-                                                            (Var 221 x)
+                                                            (Var 229 x)
                                                             [(()
                                                             (IntegerConstant 1 (Integer 4))
                                                             ())]
@@ -432,7 +432,7 @@
                                                 ()
                                             )
                                             Lt
-                                            (Var 221 eps)
+                                            (Var 229 eps)
                                             (Logical 4)
                                             ()
                                         )
@@ -441,11 +441,11 @@
                                     (Assert
                                         (RealCompare
                                             (Cast
-                                                (IntrinsicElementalFunction
+                                                (IntrinsicScalarFunction
                                                     Abs
                                                     [(IntegerBinOp
                                                         (ArrayItem
-                                                            (Var 221 x)
+                                                            (Var 229 x)
                                                             [(()
                                                             (IntegerConstant 2 (Integer 4))
                                                             ())]
@@ -467,7 +467,7 @@
                                                 ()
                                             )
                                             Lt
-                                            (Var 221 eps)
+                                            (Var 229 eps)
                                             (Logical 4)
                                             ()
                                         )
@@ -490,11 +490,11 @@
             main_program:
                 (Program
                     (SymbolTable
-                        224
+                        232
                         {
                             __main__global_stmts:
                                 (ExternalSymbol
-                                    224
+                                    232
                                     __main__global_stmts
                                     2 __main__global_stmts
                                     __main__
@@ -506,7 +506,7 @@
                     main_program
                     [__main__]
                     [(SubroutineCall
-                        224 __main__global_stmts
+                        232 __main__global_stmts
                         2 __main__global_stmts
                         []
                         ()

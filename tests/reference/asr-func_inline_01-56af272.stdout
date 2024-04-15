@@ -111,7 +111,7 @@
                                             (Logical 4)
                                             ()
                                         )
-                                        [(Assignment
+                                        [(=
                                             (Var 3 _lpython_return_variable)
                                             (Var 3 n)
                                             ()
@@ -119,7 +119,7 @@
                                         (Return)]
                                         []
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 3 _lpython_return_variable)
                                         (IntegerBinOp
                                             (FunctionCall
@@ -228,7 +228,7 @@
                                     )
                                     [fib]
                                     []
-                                    [(Assignment
+                                    [(=
                                         (Var 4 x)
                                         (Cast
                                             (IntegerConstant 40 (Integer 4))
@@ -238,7 +238,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 4 ans)
                                         (FunctionCall
                                             2 fib

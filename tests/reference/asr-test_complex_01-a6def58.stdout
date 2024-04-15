@@ -10,7 +10,7 @@
                             __main__global_stmts:
                                 (Function
                                     (SymbolTable
-                                        140
+                                        148
                                         {
                                             
                                         })
@@ -361,7 +361,7 @@
                                     )
                                     []
                                     []
-                                    [(Assignment
+                                    [(=
                                         (Var 4 x)
                                         (FunctionCall
                                             4 complex@__lpython_overloaded_5__complex
@@ -384,7 +384,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 4 eps)
                                         (RealConstant
                                             0.000000
@@ -394,7 +394,7 @@
                                     )
                                     (Assert
                                         (RealCompare
-                                            (IntrinsicElementalFunction
+                                            (IntrinsicScalarFunction
                                                 Abs
                                                 [(RealBinOp
                                                     (ComplexRe
@@ -423,7 +423,7 @@
                                     )
                                     (Assert
                                         (RealCompare
-                                            (IntrinsicElementalFunction
+                                            (IntrinsicScalarFunction
                                                 Abs
                                                 [(RealBinOp
                                                     (ComplexIm
@@ -450,7 +450,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 4 x)
                                         (FunctionCall
                                             4 complex@__lpython_overloaded_9__complex
@@ -473,7 +473,7 @@
                                     )
                                     (Assert
                                         (RealCompare
-                                            (IntrinsicElementalFunction
+                                            (IntrinsicScalarFunction
                                                 Abs
                                                 [(RealBinOp
                                                     (ComplexRe
@@ -509,7 +509,7 @@
                                     )
                                     (Assert
                                         (RealCompare
-                                            (IntrinsicElementalFunction
+                                            (IntrinsicScalarFunction
                                                 Abs
                                                 [(RealBinOp
                                                     (ComplexIm
@@ -536,7 +536,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 4 x)
                                         (FunctionCall
                                             4 complex@__lpython_overloaded_13__complex
@@ -558,7 +558,7 @@
                                     )
                                     (Assert
                                         (RealCompare
-                                            (IntrinsicElementalFunction
+                                            (IntrinsicScalarFunction
                                                 Abs
                                                 [(RealBinOp
                                                     (ComplexRe
@@ -587,7 +587,7 @@
                                     )
                                     (Assert
                                         (RealCompare
-                                            (IntrinsicElementalFunction
+                                            (IntrinsicScalarFunction
                                                 Abs
                                                 [(RealBinOp
                                                     (ComplexIm
@@ -614,7 +614,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 4 x)
                                         (FunctionCall
                                             4 complex@__lpython_overloaded_14__complex
@@ -636,7 +636,7 @@
                                     )
                                     (Assert
                                         (RealCompare
-                                            (IntrinsicElementalFunction
+                                            (IntrinsicScalarFunction
                                                 Abs
                                                 [(RealBinOp
                                                     (ComplexRe
@@ -665,7 +665,7 @@
                                     )
                                     (Assert
                                         (RealCompare
-                                            (IntrinsicElementalFunction
+                                            (IntrinsicScalarFunction
                                                 Abs
                                                 [(RealBinOp
                                                     (ComplexIm
@@ -692,7 +692,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 4 a)
                                         (RealConstant
                                             534.600000
@@ -700,7 +700,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 4 x)
                                         (FunctionCall
                                             4 complex@__lpython_overloaded_5__complex
@@ -719,7 +719,7 @@
                                     )
                                     (Assert
                                         (RealCompare
-                                            (IntrinsicElementalFunction
+                                            (IntrinsicScalarFunction
                                                 Abs
                                                 [(RealBinOp
                                                     (ComplexRe
@@ -748,7 +748,7 @@
                                     )
                                     (Assert
                                         (RealCompare
-                                            (IntrinsicElementalFunction
+                                            (IntrinsicScalarFunction
                                                 Abs
                                                 [(RealBinOp
                                                     (ComplexIm
@@ -782,7 +782,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 4 a2)
                                         (RealUnaryMinus
                                             (Cast
@@ -805,7 +805,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 4 a3)
                                         (Cast
                                             (RealConstant
@@ -821,7 +821,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 4 x2)
                                         (FunctionCall
                                             4 complex@__lpython_overloaded_6__complex
@@ -837,7 +837,7 @@
                                     (Assert
                                         (RealCompare
                                             (Cast
-                                                (IntrinsicElementalFunction
+                                                (IntrinsicScalarFunction
                                                     Abs
                                                     [(RealBinOp
                                                         (ComplexIm
@@ -876,7 +876,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 4 i1)
                                         (IntegerUnaryMinus
                                             (IntegerConstant 5 (Integer 4))
@@ -885,7 +885,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 4 i2)
                                         (IntegerUnaryMinus
                                             (Cast
@@ -899,7 +899,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 4 x)
                                         (FunctionCall
                                             4 complex@__lpython_overloaded_7__complex
@@ -912,7 +912,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 4 x)
                                         (FunctionCall
                                             4 complex@__lpython_overloaded_8__complex
@@ -925,7 +925,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 4 x)
                                         (FunctionCall
                                             4 complex@__lpython_overloaded_11__complex
@@ -938,7 +938,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 4 x)
                                         (FunctionCall
                                             4 complex@__lpython_overloaded_9__complex
@@ -955,7 +955,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 4 x)
                                         (FunctionCall
                                             4 complex@__lpython_overloaded_10__complex
@@ -976,7 +976,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 4 x)
                                         (FunctionCall
                                             4 complex@__lpython_overloaded_12__complex
@@ -1090,7 +1090,7 @@
                                     )
                                     []
                                     []
-                                    [(Assignment
+                                    [(=
                                         (Var 6 c)
                                         (Cast
                                             (FunctionCall
@@ -1116,7 +1116,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 6 b)
                                         (LogicalNot
                                             (Cast
@@ -1138,7 +1138,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 6 c2)
                                         (FunctionCall
                                             6 complex@__lpython_overloaded_9__complex
@@ -1155,7 +1155,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 6 b)
                                         (LogicalNot
                                             (Cast
@@ -1290,7 +1290,7 @@
                                     )
                                     []
                                     []
-                                    [(Assignment
+                                    [(=
                                         (Var 5 c)
                                         (Cast
                                             (FunctionCall
@@ -1319,7 +1319,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 5 _c)
                                         (ComplexUnaryMinus
                                             (Var 5 c)
@@ -1330,7 +1330,7 @@
                                     )
                                     (Assert
                                         (RealCompare
-                                            (IntrinsicElementalFunction
+                                            (IntrinsicScalarFunction
                                                 Abs
                                                 [(RealBinOp
                                                     (Cast
@@ -1374,7 +1374,7 @@
                                     )
                                     (Assert
                                         (RealCompare
-                                            (IntrinsicElementalFunction
+                                            (IntrinsicScalarFunction
                                                 Abs
                                                 [(RealBinOp
                                                     (Cast
@@ -1416,7 +1416,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 5 _c)
                                         (Cast
                                             (FunctionCall
@@ -1446,7 +1446,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 5 _c)
                                         (ComplexUnaryMinus
                                             (Var 5 _c)
@@ -1457,7 +1457,7 @@
                                     )
                                     (Assert
                                         (RealCompare
-                                            (IntrinsicElementalFunction
+                                            (IntrinsicScalarFunction
                                                 Abs
                                                 [(RealBinOp
                                                     (Cast
@@ -1501,7 +1501,7 @@
                                     )
                                     (Assert
                                         (RealCompare
-                                            (IntrinsicElementalFunction
+                                            (IntrinsicScalarFunction
                                                 Abs
                                                 [(RealBinOp
                                                     (Cast
@@ -1536,7 +1536,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 5 c2)
                                         (FunctionCall
                                             5 complex@__lpython_overloaded_5__complex
@@ -1573,7 +1573,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 5 c2)
                                         (ComplexUnaryMinus
                                             (Var 5 c2)
@@ -1584,7 +1584,7 @@
                                     )
                                     (Assert
                                         (RealCompare
-                                            (IntrinsicElementalFunction
+                                            (IntrinsicScalarFunction
                                                 Abs
                                                 [(RealBinOp
                                                     (ComplexRe
@@ -1616,7 +1616,7 @@
                                     )
                                     (Assert
                                         (RealCompare
-                                            (IntrinsicElementalFunction
+                                            (IntrinsicScalarFunction
                                                 Abs
                                                 [(RealBinOp
                                                     (ComplexIm
@@ -1646,7 +1646,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 5 c2)
                                         (ComplexBinOp
                                             (Cast
@@ -1674,7 +1674,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 5 c2)
                                         (ComplexUnaryMinus
                                             (Var 5 c2)
@@ -1685,7 +1685,7 @@
                                     )
                                     (Assert
                                         (RealCompare
-                                            (IntrinsicElementalFunction
+                                            (IntrinsicScalarFunction
                                                 Abs
                                                 [(RealBinOp
                                                     (ComplexRe
@@ -1724,7 +1724,7 @@
                                     )
                                     (Assert
                                         (RealCompare
-                                            (IntrinsicElementalFunction
+                                            (IntrinsicScalarFunction
                                                 Abs
                                                 [(RealBinOp
                                                     (ComplexIm
@@ -1854,7 +1854,7 @@
                                     )
                                     []
                                     []
-                                    [(Assignment
+                                    [(=
                                         (Var 3 x)
                                         (ComplexBinOp
                                             (Cast
@@ -1882,7 +1882,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 3 eps)
                                         (RealConstant
                                             0.000000
@@ -1890,7 +1890,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 3 a)
                                         (ComplexRe
                                             (Var 3 x)
@@ -1899,7 +1899,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 3 b)
                                         (ComplexIm
                                             (Var 3 x)
@@ -1910,7 +1910,7 @@
                                     )
                                     (Assert
                                         (RealCompare
-                                            (IntrinsicElementalFunction
+                                            (IntrinsicScalarFunction
                                                 Abs
                                                 [(RealBinOp
                                                     (Var 3 a)
@@ -1935,7 +1935,7 @@
                                     )
                                     (Assert
                                         (RealCompare
-                                            (IntrinsicElementalFunction
+                                            (IntrinsicScalarFunction
                                                 Abs
                                                 [(RealBinOp
                                                     (Var 3 b)
@@ -1975,11 +1975,11 @@
             main_program:
                 (Program
                     (SymbolTable
-                        141
+                        149
                         {
                             __main__global_stmts:
                                 (ExternalSymbol
-                                    141
+                                    149
                                     __main__global_stmts
                                     2 __main__global_stmts
                                     __main__
@@ -1991,7 +1991,7 @@
                     main_program
                     [__main__]
                     [(SubroutineCall
-                        141 __main__global_stmts
+                        149 __main__global_stmts
                         2 __main__global_stmts
                         []
                         ()

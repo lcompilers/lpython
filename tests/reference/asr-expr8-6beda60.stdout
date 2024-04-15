@@ -94,7 +94,7 @@
                                     )
                                     []
                                     []
-                                    [(Assignment
+                                    [(=
                                         (Var 3 x)
                                         (IntegerBinOp
                                             (IntegerConstant 2 (Integer 4))
@@ -105,7 +105,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 3 x2)
                                         (Cast
                                             (RealBinOp
@@ -133,7 +133,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 3 x)
                                         (IntegerBinOp
                                             (IntegerConstant 54 (Integer 4))
@@ -144,7 +144,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 3 x2)
                                         (Cast
                                             (RealBinOp
@@ -184,7 +184,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 3 x2)
                                         (Cast
                                             (RealBinOp
@@ -212,7 +212,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 3 x2)
                                         (Cast
                                             (RealBinOp
@@ -240,7 +240,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 3 x)
                                         (IntegerBinOp
                                             (Cast
@@ -267,7 +267,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 3 x)
                                         (IntegerBinOp
                                             (Cast
@@ -294,7 +294,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 3 x)
                                         (IntegerBinOp
                                             (Cast
@@ -321,7 +321,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 3 x)
                                         (IntegerBinOp
                                             (Cast
@@ -348,7 +348,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 3 b1)
                                         (LogicalConstant
                                             .true.
@@ -356,7 +356,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 3 b2)
                                         (LogicalConstant
                                             .false.
@@ -364,10 +364,10 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 3 x)
                                         (Cast
-                                            (IntrinsicElementalFunction
+                                            (IntrinsicScalarFunction
                                                 FloorDiv
                                                 [(Var 3 b1)
                                                 (Var 3 b1)]
@@ -381,7 +381,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 3 x)
                                         (IntegerBinOp
                                             (Cast

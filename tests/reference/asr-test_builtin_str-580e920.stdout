@@ -167,7 +167,7 @@
                                     )
                                     []
                                     []
-                                    [(Assignment
+                                    [(=
                                         (Var 4 x)
                                         (IntegerConstant 123 (Integer 4))
                                         ()
@@ -190,7 +190,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 4 x)
                                         (IntegerConstant 12345 (Integer 4))
                                         ()
@@ -213,7 +213,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 4 x)
                                         (IntegerUnaryMinus
                                             (IntegerConstant 12 (Integer 4))
@@ -240,7 +240,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 4 x)
                                         (IntegerUnaryMinus
                                             (IntegerConstant 121212 (Integer 4))
@@ -267,7 +267,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 4 xx)
                                         (Cast
                                             (RealConstant
@@ -301,7 +301,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 4 yy)
                                         (RealConstant
                                             12.322234
@@ -327,7 +327,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 4 bool_t)
                                         (LogicalConstant
                                             .true.
@@ -353,7 +353,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 4 bool_t)
                                         (LogicalConstant
                                             .false.
@@ -379,7 +379,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 4 str_t)
                                         (StringConstant
                                             "just a str"
@@ -522,7 +522,7 @@
                                     )
                                     []
                                     []
-                                    [(Assignment
+                                    [(=
                                         (Var 6 s)
                                         (StringConstant
                                             "abcde"
@@ -530,7 +530,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 6 d)
                                         (StringConstant
                                             "edcba"
@@ -538,12 +538,12 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 6 i)
                                         (IntegerConstant 0 (Integer 4))
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 6 __tmp_assign_for_loop)
                                         (StringSection
                                             (Var 6 s)
@@ -575,7 +575,7 @@
                                             ()
                                         )
                                         (IntegerConstant 1 (Integer 4)))
-                                        [(Assignment
+                                        [(=
                                             (Var 6 c)
                                             (StringItem
                                                 (Var 6 __tmp_assign_for_loop)
@@ -617,7 +617,7 @@
                                             )
                                             ()
                                         )
-                                        (Assignment
+                                        (=
                                             (Var 6 i)
                                             (IntegerBinOp
                                                 (Var 6 i)
@@ -628,7 +628,6 @@
                                             )
                                             ()
                                         )]
-                                        []
                                     )]
                                     ()
                                     Public
@@ -675,7 +674,7 @@
                                     )
                                     []
                                     []
-                                    [(Assignment
+                                    [(=
                                         (Var 3 s)
                                         (Cast
                                             (IntegerConstant 356 (Integer 4))
@@ -701,7 +700,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 3 s)
                                         (Cast
                                             (IntegerUnaryMinus
@@ -1018,7 +1017,7 @@
                                     )
                                     []
                                     []
-                                    [(Assignment
+                                    [(=
                                         (Var 5 s)
                                         (StringConstant
                                             "abcdefghijk"
@@ -1026,17 +1025,17 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 5 start)
                                         (IntegerConstant 1 (Integer 4))
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 5 end)
                                         (IntegerConstant 4 (Integer 4))
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 5 step)
                                         (IntegerConstant 1 (Integer 4))
                                         ()

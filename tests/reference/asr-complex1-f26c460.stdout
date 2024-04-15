@@ -78,7 +78,7 @@
                                     )
                                     []
                                     []
-                                    [(Assignment
+                                    [(=
                                         (Var 4 x)
                                         (ComplexBinOp
                                             (Cast
@@ -106,7 +106,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 4 y)
                                         (ComplexBinOp
                                             (Cast
@@ -134,7 +134,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 4 z)
                                         (Cast
                                             (ComplexBinOp
@@ -150,7 +150,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 4 z)
                                         (Cast
                                             (ComplexBinOp
@@ -166,7 +166,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 4 z)
                                         (Cast
                                             (ComplexBinOp
@@ -370,7 +370,7 @@
                                     )
                                     []
                                     []
-                                    [(Assignment
+                                    [(=
                                         (Var 3 c)
                                         (Cast
                                             (FunctionCall
@@ -395,7 +395,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 3 c)
                                         (Cast
                                             (FunctionCall
@@ -423,7 +423,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 3 c)
                                         (Cast
                                             (FunctionCall
@@ -455,7 +455,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 3 c)
                                         (FunctionCall
                                             3 complex@__lpython_overloaded_2__complex
@@ -471,7 +471,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 3 c1)
                                         (Cast
                                             (FunctionCall
@@ -497,7 +497,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 3 c2)
                                         (Cast
                                             (FunctionCall
@@ -526,7 +526,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 3 c3)
                                         (FunctionCall
                                             3 complex@__lpython_overloaded_5__complex
@@ -549,7 +549,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 3 b)
                                         (ComplexCompare
                                             (Var 3 c1)
@@ -560,7 +560,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 3 b)
                                         (ComplexCompare
                                             (Cast
@@ -576,7 +576,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 3 c)
                                         (ComplexBinOp
                                             (Var 3 c1)
@@ -587,7 +587,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 3 c)
                                         (ComplexBinOp
                                             (Var 3 c2)
@@ -598,7 +598,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 3 c)
                                         (ComplexBinOp
                                             (Var 3 c1)
@@ -609,7 +609,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 3 c)
                                         (Cast
                                             (ComplexBinOp
@@ -663,7 +663,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 3 c)
                                         (Cast
                                             (ComplexBinOp
@@ -711,7 +711,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 3 c)
                                         (Cast
                                             (ComplexBinOp
@@ -776,7 +776,7 @@
             main_program:
                 (Program
                     (SymbolTable
-                        137
+                        145
                         {
                             
                         })

@@ -31,7 +31,7 @@
                                     )
                                     []
                                     []
-                                    [(Assignment
+                                    [(=
                                         (Var 2 i)
                                         (IntegerConstant 5 (Integer 4))
                                         ()

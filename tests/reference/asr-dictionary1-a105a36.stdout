@@ -140,7 +140,7 @@
                                     )
                                     []
                                     []
-                                    [(Assignment
+                                    [(=
                                         (Var 3 x)
                                         (DictConstant
                                             [(IntegerConstant 1 (Integer 4))
@@ -154,7 +154,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 3 y)
                                         (DictConstant
                                             [(StringConstant
@@ -182,7 +182,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 3 z)
                                         (DictItem
                                             (Var 3 y)
@@ -196,7 +196,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 3 z)
                                         (DictItem
                                             (Var 3 y)
@@ -210,7 +210,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 3 z)
                                         (DictItem
                                             (Var 3 x)
@@ -285,7 +285,7 @@
                                     )
                                     []
                                     []
-                                    [(Assignment
+                                    [(=
                                         (Var 5 y)
                                         (DictConstant
                                             [(StringConstant
@@ -313,7 +313,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 5 x)
                                         (DictItem
                                             (Var 5 y)
@@ -327,7 +327,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 5 x)
                                         (DictItem
                                             (Var 5 y)
@@ -389,7 +389,7 @@
                                     )
                                     []
                                     []
-                                    [(Assignment
+                                    [(=
                                         (Var 4 y)
                                         (DictConstant
                                             [(StringConstant
@@ -493,7 +493,7 @@
                                     )
                                     []
                                     []
-                                    [(Assignment
+                                    [(=
                                         (Var 6 y)
                                         (DictConstant
                                             [(StringConstant
@@ -513,7 +513,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 6 x)
                                         (DictPop
                                             (Var 6 y)

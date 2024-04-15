@@ -46,7 +46,7 @@
                                     )
                                     []
                                     []
-                                    [(Assignment
+                                    [(=
                                         (Var 3 s)
                                         (StringConcat
                                             (StringConstant
@@ -65,7 +65,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 3 s)
                                         (StringConcat
                                             (StringConstant
@@ -84,7 +84,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 3 s)
                                         (StringConcat
                                             (StringConcat

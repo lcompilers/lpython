@@ -130,12 +130,12 @@
                                     )
                                     []
                                     []
-                                    [(Assignment
+                                    [(=
                                         (Var 3 i)
                                         (IntegerConstant 34 (Integer 4))
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 3 f)
                                         (Cast
                                             (RealConstant
@@ -212,7 +212,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 3 i)
                                         (IntegerUnaryMinus
                                             (IntegerConstant 4235 (Integer 4))
@@ -431,7 +431,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 3 b)
                                         (LogicalConstant
                                             .true.
@@ -439,7 +439,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 3 f2)
                                         (Cast
                                             (Var 3 b)
@@ -462,7 +462,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 3 b)
                                         (LogicalConstant
                                             .false.

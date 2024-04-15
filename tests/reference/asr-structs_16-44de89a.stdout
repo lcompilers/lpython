@@ -213,7 +213,7 @@
                                     )
                                     []
                                     []
-                                    [(Assignment
+                                    [(=
                                         (Var 5 bd)
                                         (UnionTypeConstructor
                                             5 A_B
@@ -225,7 +225,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (UnionInstanceMember
                                             (Var 5 bd)
                                             4 x
@@ -235,7 +235,7 @@
                                         (IntegerConstant 1 (Integer 4))
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 5 ad)
                                         (StructTypeConstructor
                                             2 A

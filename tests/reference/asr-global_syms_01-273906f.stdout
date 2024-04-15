@@ -31,7 +31,7 @@
                                     )
                                     [test_global_symbols]
                                     []
-                                    [(Assignment
+                                    [(=
                                         (Var 2 x)
                                         (ListConstant
                                             [(IntegerConstant 1 (Integer 4))
@@ -42,7 +42,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 2 i)
                                         (ListItem
                                             (Var 2 x)

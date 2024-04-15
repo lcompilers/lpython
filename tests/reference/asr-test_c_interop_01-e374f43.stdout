@@ -207,7 +207,7 @@
                                     [_lfortran_dsin
                                     _lfortran_ssin]
                                     []
-                                    [(Assignment
+                                    [(=
                                         (Var 5 pi)
                                         (RealConstant
                                             3.141593
@@ -217,7 +217,7 @@
                                     )
                                     (Assert
                                         (RealCompare
-                                            (IntrinsicElementalFunction
+                                            (IntrinsicScalarFunction
                                                 Abs
                                                 [(RealBinOp
                                                     (FunctionCall
@@ -252,7 +252,7 @@
                                     )
                                     (Assert
                                         (RealCompare
-                                            (IntrinsicElementalFunction
+                                            (IntrinsicScalarFunction
                                                 Abs
                                                 [(RealBinOp
                                                     (FunctionCall
@@ -296,7 +296,7 @@
                                     )
                                     (Assert
                                         (RealCompare
-                                            (IntrinsicElementalFunction
+                                            (IntrinsicScalarFunction
                                                 Abs
                                                 [(RealBinOp
                                                     (FunctionCall
@@ -352,7 +352,7 @@
                                     )
                                     (Assert
                                         (RealCompare
-                                            (IntrinsicElementalFunction
+                                            (IntrinsicScalarFunction
                                                 Abs
                                                 [(RealBinOp
                                                     (FunctionCall

@@ -10,7 +10,7 @@
                             __main__global_stmts:
                                 (Function
                                     (SymbolTable
-                                        136
+                                        144
                                         {
                                             
                                         })
@@ -258,7 +258,7 @@
                                     )
                                     []
                                     []
-                                    [(Assignment
+                                    [(=
                                         (Var 3 f)
                                         (RealConstant
                                             5.678000
@@ -283,7 +283,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 3 f)
                                         (RealUnaryMinus
                                             (RealConstant
@@ -319,7 +319,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 3 f)
                                         (RealConstant
                                             44.340000
@@ -344,7 +344,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 3 f)
                                         (RealConstant
                                             0.500000
@@ -369,7 +369,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 3 f)
                                         (RealUnaryMinus
                                             (RealConstant
@@ -405,7 +405,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 3 f)
                                         (RealConstant
                                             1.500000
@@ -609,7 +609,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 3 f2)
                                         (Cast
                                             (RealConstant
@@ -642,7 +642,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 3 i)
                                         (IntegerUnaryMinus
                                             (IntegerConstant 5 (Integer 4))
@@ -692,7 +692,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 3 i2)
                                         (Cast
                                             (IntegerConstant 7 (Integer 4))
@@ -724,7 +724,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 3 i3)
                                         (Cast
                                             (IntegerUnaryMinus
@@ -764,7 +764,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 3 i4)
                                         (Cast
                                             (IntegerConstant 0 (Integer 4))
@@ -796,7 +796,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 3 b)
                                         (LogicalConstant
                                             .true.
@@ -821,7 +821,7 @@
                                         )
                                         ()
                                     )
-                                    (Assignment
+                                    (=
                                         (Var 3 b)
                                         (LogicalConstant
                                             .false.
@@ -886,11 +886,11 @@
             main_program:
                 (Program
                     (SymbolTable
-                        137
+                        145
                         {
                             __main__global_stmts:
                                 (ExternalSymbol
-                                    137
+                                    145
                                     __main__global_stmts
                                     2 __main__global_stmts
                                     __main__
@@ -902,7 +902,7 @@
                     main_program
                     [__main__]
                     [(SubroutineCall
-                        137 __main__global_stmts
+                        145 __main__global_stmts
                         2 __main__global_stmts
                         []
                         ()
