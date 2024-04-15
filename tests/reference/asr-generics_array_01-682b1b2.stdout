@@ -108,7 +108,7 @@
                                     []
                                     [(Var 230 lst)
                                     (Var 230 i)]
-                                    [(=
+                                    [(Assignment
                                         (ArrayItem
                                             (Var 230 lst)
                                             [(()
@@ -121,7 +121,7 @@
                                         (Var 230 i)
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 230 _lpython_return_variable)
                                         (ArrayItem
                                             (Var 230 lst)
@@ -272,7 +272,7 @@
                                     []
                                     [(Var 228 lst)
                                     (Var 228 i)]
-                                    [(=
+                                    [(Assignment
                                         (ArrayItem
                                             (Var 228 lst)
                                             [(()
@@ -287,7 +287,7 @@
                                         (Var 228 i)
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 228 _lpython_return_variable)
                                         (ArrayItem
                                             (Var 228 lst)
@@ -369,9 +369,9 @@
                                     )
                                     [__asr_generic_f_0]
                                     []
-                                    [(=
+                                    [(Assignment
                                         (Var 229 array)
-                                        (ArrayConstant
+                                        (ArrayConstructor
                                             []
                                             (Array
                                                 (Integer 4)
@@ -379,11 +379,12 @@
                                                 (IntegerConstant 1 (Integer 4)))]
                                                 FixedSizeArray
                                             )
+                                            ()
                                             RowMajor
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 229 x)
                                         (IntegerConstant 69 (Integer 4))
                                         ()

@@ -146,7 +146,7 @@
                                     )
                                     []
                                     []
-                                    [(=
+                                    [(Assignment
                                         (Var 228 x)
                                         (ArrayConstant
                                             [(RealConstant
@@ -171,7 +171,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 228 eps)
                                         (RealConstant
                                             0.000000
@@ -181,7 +181,7 @@
                                     )
                                     (Assert
                                         (RealCompare
-                                            (IntrinsicScalarFunction
+                                            (IntrinsicElementalFunction
                                                 Abs
                                                 [(RealBinOp
                                                     (ArrayItem
@@ -214,7 +214,7 @@
                                     )
                                     (Assert
                                         (RealCompare
-                                            (IntrinsicScalarFunction
+                                            (IntrinsicElementalFunction
                                                 Abs
                                                 [(RealBinOp
                                                     (ArrayItem
@@ -247,7 +247,7 @@
                                     )
                                     (Assert
                                         (RealCompare
-                                            (IntrinsicScalarFunction
+                                            (IntrinsicElementalFunction
                                                 Abs
                                                 [(RealBinOp
                                                     (ArrayItem
@@ -344,7 +344,7 @@
                                     )
                                     []
                                     []
-                                    [(=
+                                    [(Assignment
                                         (Var 229 x)
                                         (ArrayConstant
                                             [(IntegerConstant 1 (Integer 4))
@@ -360,7 +360,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 229 eps)
                                         (RealConstant
                                             0.000000
@@ -371,7 +371,7 @@
                                     (Assert
                                         (RealCompare
                                             (Cast
-                                                (IntrinsicScalarFunction
+                                                (IntrinsicElementalFunction
                                                     Abs
                                                     [(IntegerBinOp
                                                         (ArrayItem
@@ -406,7 +406,7 @@
                                     (Assert
                                         (RealCompare
                                             (Cast
-                                                (IntrinsicScalarFunction
+                                                (IntrinsicElementalFunction
                                                     Abs
                                                     [(IntegerBinOp
                                                         (ArrayItem
@@ -441,7 +441,7 @@
                                     (Assert
                                         (RealCompare
                                             (Cast
-                                                (IntrinsicScalarFunction
+                                                (IntrinsicElementalFunction
                                                     Abs
                                                     [(IntegerBinOp
                                                         (ArrayItem

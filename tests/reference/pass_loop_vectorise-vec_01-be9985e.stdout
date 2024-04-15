@@ -271,7 +271,7 @@
                                                     (Var 234 arg3)
                                                     (Var 234 arg4)
                                                     (Var 234 arg5)]
-                                                    [(=
+                                                    [(Assignment
                                                         (Var 234 __1_k)
                                                         (IntegerBinOp
                                                             (Var 234 arg2)
@@ -297,7 +297,7 @@
                                                             (Logical 4)
                                                             ()
                                                         )
-                                                        [(=
+                                                        [(Assignment
                                                             (Var 234 __1_k)
                                                             (IntegerBinOp
                                                                 (Var 234 __1_k)
@@ -308,7 +308,7 @@
                                                             )
                                                             ()
                                                         )
-                                                        (=
+                                                        (Assignment
                                                             (ArrayItem
                                                                 (Var 234 arg0)
                                                                 [(()
@@ -329,6 +329,7 @@
                                                             )
                                                             ()
                                                         )]
+                                                        []
                                                     )]
                                                     ()
                                                     Public
@@ -354,9 +355,9 @@
                                     )
                                     []
                                     []
-                                    [(=
+                                    [(Assignment
                                         (Var 228 a)
-                                        (ArrayConstant
+                                        (ArrayConstructor
                                             []
                                             (Array
                                                 (Real 8)
@@ -364,13 +365,14 @@
                                                 (IntegerConstant 9216 (Integer 4)))]
                                                 FixedSizeArray
                                             )
+                                            ()
                                             RowMajor
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 228 b)
-                                        (ArrayConstant
+                                        (ArrayConstructor
                                             []
                                             (Array
                                                 (Real 8)
@@ -378,6 +380,7 @@
                                                 (IntegerConstant 9216 (Integer 4)))]
                                                 FixedSizeArray
                                             )
+                                            ()
                                             RowMajor
                                         )
                                         ()
@@ -394,7 +397,7 @@
                                             (IntegerConstant 9215 (Integer 4))
                                         )
                                         (IntegerConstant 1 (Integer 4)))
-                                        [(=
+                                        [(Assignment
                                             (ArrayItem
                                                 (Var 228 b)
                                                 [(()
@@ -410,6 +413,7 @@
                                             )
                                             ()
                                         )]
+                                        []
                                     )
                                     (DoLoop
                                         ()
@@ -446,6 +450,7 @@
                                             ((IntegerConstant 8 (Integer 4)))]
                                             ()
                                         )]
+                                        []
                                     )
                                     (DoLoop
                                         ()
@@ -480,6 +485,7 @@
                                             )
                                             ()
                                         )]
+                                        []
                                     )]
                                     ()
                                     Public

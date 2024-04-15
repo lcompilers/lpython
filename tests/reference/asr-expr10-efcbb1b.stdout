@@ -172,12 +172,12 @@
                                     )
                                     []
                                     []
-                                    [(=
+                                    [(Assignment
                                         (Var 3 a)
                                         (IntegerConstant 4 (Integer 4))
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 a)
                                         (IntegerUnaryMinus
                                             (IntegerConstant 500 (Integer 4))
@@ -186,7 +186,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 a)
                                         (IntegerBitNot
                                             (IntegerConstant 5 (Integer 4))
@@ -195,7 +195,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 b)
                                         (LogicalNot
                                             (Cast
@@ -215,7 +215,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 b)
                                         (LogicalNot
                                             (Cast
@@ -239,7 +239,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 b)
                                         (LogicalNot
                                             (Cast
@@ -259,7 +259,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 f)
                                         (RealConstant
                                             1.000000
@@ -267,7 +267,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 f)
                                         (RealUnaryMinus
                                             (Cast
@@ -290,7 +290,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 b1)
                                         (LogicalConstant
                                             .true.
@@ -298,7 +298,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 b2)
                                         (LogicalNot
                                             (LogicalConstant
@@ -313,7 +313,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 b3)
                                         (LogicalNot
                                             (Var 3 b2)
@@ -322,12 +322,12 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 a)
                                         (IntegerConstant 1 (Integer 4))
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 a)
                                         (IntegerUnaryMinus
                                             (Cast
@@ -344,7 +344,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 a)
                                         (IntegerBitNot
                                             (Cast
@@ -361,7 +361,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 c)
                                         (ComplexConstant
                                             1.000000
@@ -370,7 +370,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 c)
                                         (ComplexUnaryMinus
                                             (Cast
@@ -407,7 +407,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 b1)
                                         (LogicalConstant
                                             .false.
@@ -415,7 +415,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 b2)
                                         (LogicalConstant
                                             .true.

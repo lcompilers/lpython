@@ -283,7 +283,7 @@
                                     )
                                     []
                                     [(Var 229 d)]
-                                    [(=
+                                    [(Assignment
                                         (Var 229 eps)
                                         (RealConstant
                                             0.000000
@@ -291,9 +291,9 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 229 b)
-                                        (ArrayConstant
+                                        (ArrayConstructor
                                             []
                                             (Array
                                                 (Real 8)
@@ -301,6 +301,7 @@
                                                 (IntegerConstant 256 (Integer 4)))]
                                                 FixedSizeArray
                                             )
+                                            ()
                                             RowMajor
                                         )
                                         ()
@@ -317,9 +318,9 @@
                                             (IntegerConstant 255 (Integer 4))
                                         )
                                         (IntegerConstant 1 (Integer 4)))
-                                        [(=
+                                        [(Assignment
                                             (Var 229 i)
-                                            (IntrinsicScalarFunction
+                                            (IntrinsicElementalFunction
                                                 FloorDiv
                                                 [(Var 229 k)
                                                 (IntegerConstant 16 (Integer 4))]
@@ -329,7 +330,7 @@
                                             )
                                             ()
                                         )
-                                        (=
+                                        (Assignment
                                             (Var 229 j)
                                             (IntegerBinOp
                                                 (Var 229 k)
@@ -346,7 +347,7 @@
                                             )
                                             ()
                                         )
-                                        (=
+                                        (Assignment
                                             (ArrayItem
                                                 (Var 229 b)
                                                 [(()
@@ -379,10 +380,11 @@
                                             )
                                             ()
                                         )]
+                                        []
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 229 a)
-                                        (ArrayConstant
+                                        (ArrayConstructor
                                             []
                                             (Array
                                                 (Real 8)
@@ -392,13 +394,14 @@
                                                 (IntegerConstant 16 (Integer 4)))]
                                                 FixedSizeArray
                                             )
+                                            ()
                                             RowMajor
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 229 newshape)
-                                        (ArrayConstant
+                                        (ArrayConstructor
                                             []
                                             (Array
                                                 (Integer 4)
@@ -406,11 +409,12 @@
                                                 (IntegerConstant 2 (Integer 4)))]
                                                 FixedSizeArray
                                             )
+                                            ()
                                             RowMajor
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (ArrayItem
                                             (Var 229 newshape)
                                             [(()
@@ -423,7 +427,7 @@
                                         (IntegerConstant 16 (Integer 4))
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (ArrayItem
                                             (Var 229 newshape)
                                             [(()
@@ -436,7 +440,7 @@
                                         (IntegerConstant 16 (Integer 4))
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 229 a)
                                         (ArrayReshape
                                             (Var 229 b)
@@ -488,7 +492,7 @@
                                             (IntegerConstant 1 (Integer 4)))
                                             [(Assert
                                                 (RealCompare
-                                                    (IntrinsicScalarFunction
+                                                    (IntrinsicElementalFunction
                                                         Abs
                                                         [(RealBinOp
                                                             (RealBinOp
@@ -539,11 +543,13 @@
                                                 )
                                                 ()
                                             )]
+                                            []
                                         )]
+                                        []
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 229 c)
-                                        (ArrayConstant
+                                        (ArrayConstructor
                                             []
                                             (Array
                                                 (Real 8)
@@ -555,13 +561,14 @@
                                                 (IntegerConstant 16 (Integer 4)))]
                                                 FixedSizeArray
                                             )
+                                            ()
                                             RowMajor
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 229 newshape1)
-                                        (ArrayConstant
+                                        (ArrayConstructor
                                             []
                                             (Array
                                                 (Integer 4)
@@ -569,11 +576,12 @@
                                                 (IntegerConstant 3 (Integer 4)))]
                                                 FixedSizeArray
                                             )
+                                            ()
                                             RowMajor
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (ArrayItem
                                             (Var 229 newshape1)
                                             [(()
@@ -586,7 +594,7 @@
                                         (IntegerConstant 16 (Integer 4))
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (ArrayItem
                                             (Var 229 newshape1)
                                             [(()
@@ -599,7 +607,7 @@
                                         (IntegerConstant 16 (Integer 4))
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (ArrayItem
                                             (Var 229 newshape1)
                                             [(()
@@ -612,7 +620,7 @@
                                         (IntegerConstant 16 (Integer 4))
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 229 c)
                                         (ArrayReshape
                                             (Var 229 d)
@@ -676,7 +684,7 @@
                                                 (IntegerConstant 1 (Integer 4)))
                                                 [(Assert
                                                     (RealCompare
-                                                        (IntrinsicScalarFunction
+                                                        (IntrinsicElementalFunction
                                                             Abs
                                                             [(RealBinOp
                                                                 (RealBinOp
@@ -736,8 +744,11 @@
                                                     )
                                                     ()
                                                 )]
+                                                []
                                             )]
+                                            []
                                         )]
+                                        []
                                     )]
                                     ()
                                     Public
@@ -987,7 +998,7 @@
                                     )
                                     []
                                     [(Var 228 a)]
-                                    [(=
+                                    [(Assignment
                                         (Var 228 eps)
                                         (RealConstant
                                             0.000000
@@ -995,9 +1006,9 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 228 b)
-                                        (ArrayConstant
+                                        (ArrayConstructor
                                             []
                                             (Array
                                                 (Real 8)
@@ -1005,13 +1016,14 @@
                                                 (IntegerConstant 256 (Integer 4)))]
                                                 FixedSizeArray
                                             )
+                                            ()
                                             RowMajor
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 228 newshape)
-                                        (ArrayConstant
+                                        (ArrayConstructor
                                             []
                                             (Array
                                                 (Integer 4)
@@ -1019,11 +1031,12 @@
                                                 (IntegerConstant 1 (Integer 4)))]
                                                 FixedSizeArray
                                             )
+                                            ()
                                             RowMajor
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (ArrayItem
                                             (Var 228 newshape)
                                             [(()
@@ -1036,7 +1049,7 @@
                                         (IntegerConstant 256 (Integer 4))
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 228 b)
                                         (ArrayReshape
                                             (Var 228 a)
@@ -1074,9 +1087,9 @@
                                             (IntegerConstant 255 (Integer 4))
                                         )
                                         (IntegerConstant 1 (Integer 4)))
-                                        [(=
+                                        [(Assignment
                                             (Var 228 i)
-                                            (IntrinsicScalarFunction
+                                            (IntrinsicElementalFunction
                                                 FloorDiv
                                                 [(Var 228 k)
                                                 (IntegerConstant 16 (Integer 4))]
@@ -1086,7 +1099,7 @@
                                             )
                                             ()
                                         )
-                                        (=
+                                        (Assignment
                                             (Var 228 j)
                                             (IntegerBinOp
                                                 (Var 228 k)
@@ -1105,7 +1118,7 @@
                                         )
                                         (Assert
                                             (RealCompare
-                                                (IntrinsicScalarFunction
+                                                (IntrinsicElementalFunction
                                                     Abs
                                                     [(RealBinOp
                                                         (RealBinOp
@@ -1153,10 +1166,11 @@
                                             )
                                             ()
                                         )]
+                                        []
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 228 c)
-                                        (ArrayConstant
+                                        (ArrayConstructor
                                             []
                                             (Array
                                                 (Real 8)
@@ -1168,13 +1182,14 @@
                                                 (IntegerConstant 16 (Integer 4)))]
                                                 FixedSizeArray
                                             )
+                                            ()
                                             RowMajor
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 228 c)
-                                        (ArrayConstant
+                                        (ArrayConstructor
                                             []
                                             (Array
                                                 (Real 8)
@@ -1186,6 +1201,7 @@
                                                 (IntegerConstant 16 (Integer 4)))]
                                                 FixedSizeArray
                                             )
+                                            ()
                                             RowMajor
                                         )
                                         ()
@@ -1226,7 +1242,7 @@
                                                     (IntegerConstant 15 (Integer 4))
                                                 )
                                                 (IntegerConstant 1 (Integer 4)))
-                                                [(=
+                                                [(Assignment
                                                     (ArrayItem
                                                         (Var 228 c)
                                                         [(()
@@ -1271,12 +1287,15 @@
                                                     )
                                                     ()
                                                 )]
+                                                []
                                             )]
+                                            []
                                         )]
+                                        []
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 228 d)
-                                        (ArrayConstant
+                                        (ArrayConstructor
                                             []
                                             (Array
                                                 (Real 8)
@@ -1284,13 +1303,14 @@
                                                 (IntegerConstant 4096 (Integer 4)))]
                                                 FixedSizeArray
                                             )
+                                            ()
                                             RowMajor
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 228 newshape1)
-                                        (ArrayConstant
+                                        (ArrayConstructor
                                             []
                                             (Array
                                                 (Integer 4)
@@ -1298,11 +1318,12 @@
                                                 (IntegerConstant 1 (Integer 4)))]
                                                 FixedSizeArray
                                             )
+                                            ()
                                             RowMajor
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (ArrayItem
                                             (Var 228 newshape1)
                                             [(()
@@ -1315,7 +1336,7 @@
                                         (IntegerConstant 4096 (Integer 4))
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 228 d)
                                         (ArrayReshape
                                             (Var 228 c)
@@ -1353,7 +1374,7 @@
                                             (IntegerConstant 4095 (Integer 4))
                                         )
                                         (IntegerConstant 1 (Integer 4)))
-                                        [(=
+                                        [(Assignment
                                             (Var 228 i)
                                             (Cast
                                                 (RealBinOp
@@ -1382,9 +1403,9 @@
                                             )
                                             ()
                                         )
-                                        (=
+                                        (Assignment
                                             (Var 228 j)
-                                            (IntrinsicScalarFunction
+                                            (IntrinsicElementalFunction
                                                 FloorDiv
                                                 [(IntegerBinOp
                                                     (Var 228 l)
@@ -1406,7 +1427,7 @@
                                             )
                                             ()
                                         )
-                                        (=
+                                        (Assignment
                                             (Var 228 k)
                                             (IntegerBinOp
                                                 (IntegerBinOp
@@ -1437,7 +1458,7 @@
                                         )
                                         (Assert
                                             (RealCompare
-                                                (IntrinsicScalarFunction
+                                                (IntrinsicElementalFunction
                                                     Abs
                                                     [(RealBinOp
                                                         (RealBinOp
@@ -1491,6 +1512,7 @@
                                             )
                                             ()
                                         )]
+                                        []
                                     )]
                                     ()
                                     Public
@@ -1630,9 +1652,9 @@
                                     [test_nd_to_1d
                                     test_1d_to_nd]
                                     []
-                                    [(=
+                                    [(Assignment
                                         (Var 230 a)
-                                        (ArrayConstant
+                                        (ArrayConstructor
                                             []
                                             (Array
                                                 (Real 8)
@@ -1642,6 +1664,7 @@
                                                 (IntegerConstant 16 (Integer 4)))]
                                                 FixedSizeArray
                                             )
+                                            ()
                                             RowMajor
                                         )
                                         ()
@@ -1670,7 +1693,7 @@
                                                 (IntegerConstant 15 (Integer 4))
                                             )
                                             (IntegerConstant 1 (Integer 4)))
-                                            [(=
+                                            [(Assignment
                                                 (ArrayItem
                                                     (Var 230 a)
                                                     [(()
@@ -1706,7 +1729,9 @@
                                                 )
                                                 ()
                                             )]
+                                            []
                                         )]
+                                        []
                                     )
                                     (SubroutineCall
                                         2 test_nd_to_1d
@@ -1727,9 +1752,9 @@
                                         ))]
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 230 d)
-                                        (ArrayConstant
+                                        (ArrayConstructor
                                             []
                                             (Array
                                                 (Real 8)
@@ -1737,6 +1762,7 @@
                                                 (IntegerConstant 4096 (Integer 4)))]
                                                 FixedSizeArray
                                             )
+                                            ()
                                             RowMajor
                                         )
                                         ()
@@ -1753,7 +1779,7 @@
                                             (IntegerConstant 4095 (Integer 4))
                                         )
                                         (IntegerConstant 1 (Integer 4)))
-                                        [(=
+                                        [(Assignment
                                             (Var 230 i)
                                             (Cast
                                                 (RealBinOp
@@ -1782,9 +1808,9 @@
                                             )
                                             ()
                                         )
-                                        (=
+                                        (Assignment
                                             (Var 230 j)
-                                            (IntrinsicScalarFunction
+                                            (IntrinsicElementalFunction
                                                 FloorDiv
                                                 [(IntegerBinOp
                                                     (Var 230 l)
@@ -1806,7 +1832,7 @@
                                             )
                                             ()
                                         )
-                                        (=
+                                        (Assignment
                                             (Var 230 k)
                                             (IntegerBinOp
                                                 (IntegerBinOp
@@ -1835,7 +1861,7 @@
                                             )
                                             ()
                                         )
-                                        (=
+                                        (Assignment
                                             (ArrayItem
                                                 (Var 230 d)
                                                 [(()
@@ -1874,6 +1900,7 @@
                                             )
                                             ()
                                         )]
+                                        []
                                     )
                                     (SubroutineCall
                                         2 test_1d_to_nd

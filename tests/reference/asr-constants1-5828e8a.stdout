@@ -82,9 +82,9 @@
                                     )
                                     []
                                     []
-                                    [(=
+                                    [(Assignment
                                         (Var 5 a)
-                                        (IntrinsicScalarFunction
+                                        (IntrinsicElementalFunction
                                             Abs
                                             [(IntegerConstant 5 (Integer 4))]
                                             0
@@ -93,9 +93,9 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 5 a)
-                                        (IntrinsicScalarFunction
+                                        (IntrinsicElementalFunction
                                             Abs
                                             [(IntegerUnaryMinus
                                                 (IntegerConstant 500 (Integer 4))
@@ -108,9 +108,9 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 5 a)
-                                        (IntrinsicScalarFunction
+                                        (IntrinsicElementalFunction
                                             Abs
                                             [(Cast
                                                 (LogicalConstant
@@ -127,9 +127,9 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 5 a)
-                                        (IntrinsicScalarFunction
+                                        (IntrinsicElementalFunction
                                             Abs
                                             [(Cast
                                                 (LogicalConstant
@@ -146,10 +146,10 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 5 b)
                                         (Cast
-                                            (IntrinsicScalarFunction
+                                            (IntrinsicElementalFunction
                                                 Abs
                                                 [(RealConstant
                                                     3.450000
@@ -171,10 +171,10 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 5 b)
                                         (Cast
-                                            (IntrinsicScalarFunction
+                                            (IntrinsicElementalFunction
                                                 Abs
                                                 [(RealUnaryMinus
                                                     (RealConstant
@@ -203,10 +203,10 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 5 b)
                                         (Cast
-                                            (IntrinsicScalarFunction
+                                            (IntrinsicElementalFunction
                                                 Abs
                                                 [(FunctionCall
                                                     5 complex@__lpython_overloaded_5__complex
@@ -308,7 +308,7 @@
                                     )
                                     []
                                     []
-                                    [(=
+                                    [(Assignment
                                         (Var 7 a)
                                         (Cast
                                             (IntegerConstant 0 (Integer 4))
@@ -321,7 +321,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 7 a)
                                         (Cast
                                             (IntegerUnaryMinus
@@ -338,7 +338,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 7 a)
                                         (Cast
                                             (StringConstant
@@ -354,7 +354,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 7 a)
                                         (Cast
                                             (FunctionCall
@@ -392,7 +392,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 7 a)
                                         (Cast
                                             (StringConstant
@@ -408,7 +408,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 7 a)
                                         (Cast
                                             (RealConstant
@@ -512,7 +512,7 @@
                                     )
                                     []
                                     []
-                                    [(=
+                                    [(Assignment
                                         (Var 3 b)
                                         (FunctionCall
                                             3 bin
@@ -527,7 +527,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 b)
                                         (FunctionCall
                                             3 bin
@@ -542,7 +542,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 b)
                                         (FunctionCall
                                             3 bin
@@ -561,7 +561,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 b)
                                         (FunctionCall
                                             3 oct
@@ -576,7 +576,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 b)
                                         (FunctionCall
                                             3 oct
@@ -591,7 +591,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 b)
                                         (FunctionCall
                                             3 oct
@@ -610,7 +610,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 b)
                                         (FunctionCall
                                             3 hex
@@ -625,7 +625,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 b)
                                         (FunctionCall
                                             3 hex
@@ -640,7 +640,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 b)
                                         (FunctionCall
                                             3 hex
@@ -720,12 +720,12 @@
                                     )
                                     []
                                     []
-                                    [(=
+                                    [(Assignment
                                         (Var 9 b)
                                         (IntegerConstant 2 (Integer 4))
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 9 a)
                                         (LogicalConstant
                                             .true.
@@ -746,7 +746,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 9 a)
                                         (LogicalConstant
                                             .false.
@@ -767,7 +767,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 9 a)
                                         (LogicalConstant
                                             .false.
@@ -846,7 +846,7 @@
                                     )
                                     []
                                     []
-                                    [(=
+                                    [(Assignment
                                         (Var 12 a)
                                         (FunctionCall
                                             12 divmod
@@ -869,7 +869,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 12 a)
                                         (FunctionCall
                                             12 divmod
@@ -896,7 +896,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 12 a)
                                         (FunctionCall
                                             12 divmod
@@ -919,7 +919,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 12 a)
                                         (FunctionCall
                                             12 divmod
@@ -942,7 +942,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 12 a)
                                         (FunctionCall
                                             12 divmod
@@ -1010,7 +1010,7 @@
                                     )
                                     []
                                     []
-                                    [(=
+                                    [(Assignment
                                         (Var 11 a)
                                         (RealConstant
                                             0.000000
@@ -1018,7 +1018,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 11 a)
                                         (RealConstant
                                             4.560000
@@ -1026,7 +1026,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 11 a)
                                         (Cast
                                             (IntegerConstant 5 (Integer 4))
@@ -1039,7 +1039,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 11 a)
                                         (Cast
                                             (IntegerUnaryMinus
@@ -1056,7 +1056,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 11 a)
                                         (Cast
                                             (LogicalConstant
@@ -1072,7 +1072,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 11 a)
                                         (Cast
                                             (LogicalConstant
@@ -1133,12 +1133,12 @@
                                     )
                                     []
                                     []
-                                    [(=
+                                    [(Assignment
                                         (Var 10 a)
                                         (IntegerConstant 0 (Integer 8))
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 10 a)
                                         (Cast
                                             (RealConstant
@@ -1151,7 +1151,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 10 a)
                                         (Cast
                                             (IntegerConstant 5 (Integer 4))
@@ -1161,7 +1161,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 10 a)
                                         (Cast
                                             (RealUnaryMinus
@@ -1181,7 +1181,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 10 a)
                                         (Cast
                                             (LogicalConstant
@@ -1194,7 +1194,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 10 a)
                                         (Cast
                                             (LogicalConstant
@@ -1207,7 +1207,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 10 a)
                                         (IntegerConstant 5346 (Integer 8))
                                         ()
@@ -1275,7 +1275,7 @@
                                     )
                                     []
                                     []
-                                    [(=
+                                    [(Assignment
                                         (Var 6 a)
                                         (StringLen
                                             (StringConstant
@@ -1287,7 +1287,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 6 a)
                                         (StringLen
                                             (StringConstant
@@ -1299,7 +1299,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 6 a)
                                         (StringLen
                                             (StringConstant
@@ -1311,7 +1311,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 6 a)
                                         (TupleLen
                                             (TupleConstant
@@ -1329,7 +1329,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 6 a)
                                         (TupleLen
                                             (TupleConstant
@@ -1386,7 +1386,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 6 a)
                                         (ListLen
                                             (ListConstant
@@ -1402,7 +1402,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 6 a)
                                         (ListLen
                                             (ListConstant
@@ -1457,7 +1457,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 6 a)
                                         (SetLen
                                             (SetConstant
@@ -1473,7 +1473,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 6 a)
                                         (DictLen
                                             (DictConstant
@@ -1502,7 +1502,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 6 l)
                                         (ListConstant
                                             [(IntegerConstant 1 (Integer 4))
@@ -1515,7 +1515,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 6 a)
                                         (ListLen
                                             (Var 6 l)
@@ -1528,7 +1528,7 @@
                                         (Var 6 l)
                                         (IntegerConstant 5 (Integer 4))
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 6 a)
                                         (ListLen
                                             (Var 6 l)
@@ -1598,7 +1598,7 @@
                                     )
                                     []
                                     []
-                                    [(=
+                                    [(Assignment
                                         (Var 4 a)
                                         (StringOrd
                                             (StringConstant
@@ -1610,7 +1610,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 4 s)
                                         (StringChr
                                             (IntegerConstant 43 (Integer 4))
@@ -1667,7 +1667,7 @@
                                     )
                                     []
                                     []
-                                    [(=
+                                    [(Assignment
                                         (Var 8 s)
                                         (StringConstant
                                             ""
@@ -1675,7 +1675,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 8 s)
                                         (Cast
                                             (IntegerConstant 5 (Integer 4))
@@ -1688,7 +1688,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 8 s)
                                         (Cast
                                             (IntegerUnaryMinus
@@ -1705,7 +1705,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 8 s)
                                         (Cast
                                             (RealConstant
@@ -1721,7 +1721,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 8 s)
                                         (Cast
                                             (LogicalConstant
@@ -1737,7 +1737,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 8 s)
                                         (Cast
                                             (LogicalConstant
@@ -1753,7 +1753,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 8 s)
                                         (StringConstant
                                             "5346"
