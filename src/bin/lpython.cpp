@@ -891,10 +891,12 @@ int compile_python_using_llvm(
         LCompilers::LPython::DynamicLibrary cpython_lib;
         LCompilers::LPython::DynamicLibrary symengine_lib;
 
-        if (compiler_options.enable_cpython)
+        if (compiler_options.enable_cpython) {
             LCompilers::LPython::open_cpython_library(cpython_lib);
-        if (compiler_options.enable_symengine)
+        }
+        if (compiler_options.enable_symengine) {
             LCompilers::LPython::open_symengine_library(symengine_lib);
+        }
 
         auto llvm_start = std::chrono::high_resolution_clock::now();
 
