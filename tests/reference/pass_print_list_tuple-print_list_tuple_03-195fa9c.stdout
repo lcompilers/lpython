@@ -64,6 +64,24 @@
                                                     Required
                                                     .false.
                                                 ),
+                                            __list_var:
+                                                (Variable
+                                                    3
+                                                    __list_var
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (List
+                                                        (Integer 4)
+                                                    )
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                ),
                                             x:
                                                 (Variable
                                                     3
@@ -356,6 +374,19 @@
                                             (Character 1 1 ())
                                         )
                                     )
+                                    (Assignment
+                                        (Var 3 __list_var)
+                                        (DictItem
+                                            (Var 3 y)
+                                            (IntegerConstant 1 (Integer 4))
+                                            ()
+                                            (List
+                                                (Integer 4)
+                                            )
+                                            ()
+                                        )
+                                        ()
+                                    )
                                     (Print
                                         [(StringConstant
                                             "["
@@ -373,15 +404,7 @@
                                         (IntegerConstant 0 (Integer 4))
                                         (IntegerBinOp
                                             (ListLen
-                                                (DictItem
-                                                    (Var 3 y)
-                                                    (IntegerConstant 1 (Integer 4))
-                                                    ()
-                                                    (List
-                                                        (Integer 4)
-                                                    )
-                                                    ()
-                                                )
+                                                (Var 3 __list_var)
                                                 (Integer 4)
                                                 ()
                                             )
@@ -421,15 +444,7 @@
                                                 Lt
                                                 (IntegerBinOp
                                                     (ListLen
-                                                        (DictItem
-                                                            (Var 3 y)
-                                                            (IntegerConstant 1 (Integer 4))
-                                                            ()
-                                                            (List
-                                                                (Integer 4)
-                                                            )
-                                                            ()
-                                                        )
+                                                        (Var 3 __list_var)
                                                         (Integer 4)
                                                         ()
                                                     )
