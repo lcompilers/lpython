@@ -1961,9 +1961,10 @@ int main(int argc, char *argv[])
             int err = 0;
             if (to_jit) {
 #ifdef HAVE_LFORTRAN_LLVM
-                if (backend != Backend::llvm)
+                if (backend != Backend::llvm) {
                     std::cerr << "JIT option is only available with LLVM backend" << std::endl;
-
+                    return 1;
+                }
                 compiler_options.emit_debug_info = false;
                 compiler_options.emit_debug_line_column = false;
                 compiler_options.generate_object_code = false;
@@ -1972,6 +1973,7 @@ int main(int argc, char *argv[])
 #else
                 std::cerr << "Just-In-Time Compilation of Python files requires the LLVM backend to be enabled."
                              " Recompile with `WITH_LLVM=yes`." << std::endl;
+                return 1;
 #endif
         }
             if (backend == Backend::x86) {
