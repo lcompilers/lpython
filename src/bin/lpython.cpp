@@ -902,21 +902,27 @@ int compile_python_using_llvm(
 
         bool call_init = false;
         bool call_stmts = false;
-        if (m->get_return_type("__module___main_____main__global_init") == "void")
+        if (m->get_return_type("__module___main_____main__global_init") == "void") {
             call_init = true;
-        if (m->get_return_type("__module___main_____main__global_stmts") == "void")
+        }
+        if (m->get_return_type("__module___main_____main__global_stmts") == "void") {
             call_stmts = true;
+        }
 
         e.add_module(std::move(m));
-        if (call_init)
+        if (call_init) {
             e.voidfn("__module___main_____main__global_init");
-        if (call_stmts)
+        }
+        if (call_stmts) {
             e.voidfn("__module___main_____main__global_stmts");
+        }
 
-        if (compiler_options.enable_cpython)
+        if (compiler_options.enable_cpython) {
             LCompilers::LPython::close_cpython_library(cpython_lib);
-        if (compiler_options.enable_symengine)
+        }
+        if (compiler_options.enable_symengine) {
             LCompilers::LPython::close_symengine_library(symengine_lib);
+        }
 
         auto llvm_end = std::chrono::high_resolution_clock::now();
         times.push_back(std::make_pair("LLVM JIT execution", std::chrono::duration<double, std::milli>(llvm_end - llvm_start).count()));
