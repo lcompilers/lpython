@@ -127,7 +127,7 @@ class PrintListTupleVisitor
             ASR::make_Assignment_t(al, loc, list_var, list_expr, nullptr));
 
         ASR::expr_t *list_item = ASRUtils::EXPR(
-            ASR::make_ListItem_t(al, loc, list_expr,
+            ASR::make_ListItem_t(al, loc, list_var,
                                     list_iter_var, listC->m_type, nullptr));
         ASR::expr_t *list_len = ASRUtils::EXPR(ASR::make_ListLen_t(
             al, loc, list_var, int_type, nullptr));

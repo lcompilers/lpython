@@ -40,5 +40,6 @@ def main0():
     assert len(x) == 0
     test_issue_1882()
     test_iterate_over_string()
+    test_issue_2639()
 
 main0()
