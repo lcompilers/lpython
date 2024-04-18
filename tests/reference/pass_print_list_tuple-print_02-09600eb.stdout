@@ -952,7 +952,7 @@
                                                 (Character 1 1 ())
                                             )
                                             (ListItem
-                                                (Var 3 a)
+                                                (Var 3 __list_var)
                                                 (Var 3 __list_iterator)
                                                 (Character 1 -2 ())
                                                 ()
@@ -1048,7 +1048,7 @@
                                         (IntegerConstant 1 (Integer 4)))
                                         [(Print
                                             [(ListItem
-                                                (Var 3 b)
+                                                (Var 3 __list_var1)
                                                 (Var 3 __list_iterator1)
                                                 (Integer 4)
                                                 ()
@@ -1140,7 +1140,7 @@
                                         (IntegerConstant 1 (Integer 4)))
                                         [(Print
                                             [(ListItem
-                                                (Var 3 c)
+                                                (Var 3 __list_var2)
                                                 (Var 3 __list_iterator2)
                                                 (Real 8)
                                                 ()
@@ -1232,7 +1232,7 @@
                                         (IntegerConstant 1 (Integer 4)))
                                         [(Print
                                             [(ListItem
-                                                (Var 3 d)
+                                                (Var 3 __list_var3)
                                                 (Var 3 __list_iterator3)
                                                 (Integer 4)
                                                 ()
@@ -1328,7 +1328,7 @@
                                                 (Character 1 1 ())
                                             )
                                             (ListItem
-                                                (Var 3 a)
+                                                (Var 3 __list_var4)
                                                 (Var 3 __list_iterator4)
                                                 (Character 1 -2 ())
                                                 ()
@@ -1431,7 +1431,7 @@
                                                 (Character 1 1 ())
                                             )
                                             (ListItem
-                                                (Var 3 a)
+                                                (Var 3 __list_var5)
                                                 (Var 3 __list_iterator5)
                                                 (Character 1 -2 ())
                                                 ()
@@ -1530,7 +1530,7 @@
                                         (IntegerConstant 1 (Integer 4)))
                                         [(Print
                                             [(ListItem
-                                                (Var 3 b)
+                                                (Var 3 __list_var6)
                                                 (Var 3 __list_iterator6)
                                                 (Integer 4)
                                                 ()
@@ -1625,7 +1625,7 @@
                                         (IntegerConstant 1 (Integer 4)))
                                         [(Print
                                             [(ListItem
-                                                (Var 3 c)
+                                                (Var 3 __list_var7)
                                                 (Var 3 __list_iterator7)
                                                 (Real 8)
                                                 ()
@@ -1720,7 +1720,7 @@
                                         (IntegerConstant 1 (Integer 4)))
                                         [(Print
                                             [(ListItem
-                                                (Var 3 d)
+                                                (Var 3 __list_var8)
                                                 (Var 3 __list_iterator8)
                                                 (Integer 4)
                                                 ()
@@ -1816,7 +1816,7 @@
                                                 (Character 1 1 ())
                                             )
                                             (ListItem
-                                                (Var 3 a)
+                                                (Var 3 __list_var9)
                                                 (Var 3 __list_iterator9)
                                                 (Character 1 -2 ())
                                                 ()
@@ -1919,7 +1919,7 @@
                                                 (Character 1 1 ())
                                             )
                                             (ListItem
-                                                (Var 3 a)
+                                                (Var 3 __list_var10)
                                                 (Var 3 __list_iterator10)
                                                 (Character 1 -2 ())
                                                 ()
@@ -2026,7 +2026,7 @@
                                         (IntegerConstant 1 (Integer 4)))
                                         [(Print
                                             [(ListItem
-                                                (Var 3 b)
+                                                (Var 3 __list_var11)
                                                 (Var 3 __list_iterator11)
                                                 (Integer 4)
                                                 ()
@@ -2121,7 +2121,7 @@
                                         (IntegerConstant 1 (Integer 4)))
                                         [(Print
                                             [(ListItem
-                                                (Var 3 c)
+                                                (Var 3 __list_var12)
                                                 (Var 3 __list_iterator12)
                                                 (Real 8)
                                                 ()
@@ -2227,7 +2227,7 @@
                                         (IntegerConstant 1 (Integer 4)))
                                         [(Print
                                             [(ListItem
-                                                (Var 3 d)
+                                                (Var 3 __list_var13)
                                                 (Var 3 __list_iterator13)
                                                 (Integer 4)
                                                 ()
@@ -2331,19 +2331,7 @@
                                         (IntegerConstant 1 (Integer 4)))
                                         [(Print
                                             [(ListItem
-                                                (ListConstant
-                                                    [(IntegerUnaryMinus
-                                                        (IntegerConstant 3 (Integer 4))
-                                                        (Integer 4)
-                                                        (IntegerConstant -3 (Integer 4))
-                                                    )
-                                                    (IntegerConstant 2 (Integer 4))
-                                                    (IntegerConstant 1 (Integer 4))
-                                                    (IntegerConstant 0 (Integer 4))]
-                                                    (List
-                                                        (Integer 4)
-                                                    )
-                                                )
+                                                (Var 3 __list_var14)
                                                 (Var 3 __list_iterator14)
                                                 (Integer 4)
                                                 ()
@@ -2467,35 +2455,7 @@
                                                 (Character 1 1 ())
                                             )
                                             (ListItem
-                                                (ListConstant
-                                                    [(StringConstant
-                                                        "a"
-                                                        (Character 1 1 ())
-                                                    )
-                                                    (StringConstant
-                                                        "b"
-                                                        (Character 1 1 ())
-                                                    )
-                                                    (StringConstant
-                                                        "c"
-                                                        (Character 1 1 ())
-                                                    )
-                                                    (StringConstant
-                                                        "d"
-                                                        (Character 1 1 ())
-                                                    )
-                                                    (StringConstant
-                                                        "e"
-                                                        (Character 1 1 ())
-                                                    )
-                                                    (StringConstant
-                                                        "f"
-                                                        (Character 1 1 ())
-                                                    )]
-                                                    (List
-                                                        (Character 1 1 ())
-                                                    )
-                                                )
+                                                (Var 3 __list_var15)
                                                 (Var 3 __list_iterator15)
                                                 (Character 1 1 ())
                                                 ()
@@ -2599,15 +2559,7 @@
                                         (IntegerConstant 1 (Integer 4)))
                                         [(Print
                                             [(ListItem
-                                                (ListConstant
-                                                    [(IntegerConstant 1 (Integer 4))
-                                                    (IntegerConstant 2 (Integer 4))
-                                                    (IntegerConstant 3 (Integer 4))
-                                                    (IntegerConstant 4 (Integer 4))]
-                                                    (List
-                                                        (Integer 4)
-                                                    )
-                                                )
+                                                (Var 3 __list_var16)
                                                 (Var 3 __list_iterator16)
                                                 (Integer 4)
                                                 ()
@@ -2706,7 +2658,7 @@
                                                 (Character 1 1 ())
                                             )
                                             (ListItem
-                                                (Var 3 a)
+                                                (Var 3 __list_var17)
                                                 (Var 3 __list_iterator17)
                                                 (Character 1 -2 ())
                                                 ()
@@ -2805,7 +2757,7 @@
                                         (IntegerConstant 1 (Integer 4)))
                                         [(Print
                                             [(ListItem
-                                                (Var 3 c)
+                                                (Var 3 __list_var18)
                                                 (Var 3 __list_iterator18)
                                                 (Real 8)
                                                 ()
@@ -3738,7 +3690,7 @@
                                         [(Assignment
                                             (Var 4 __list_var1)
                                             (ListItem
-                                                (Var 4 w)
+                                                (Var 4 __list_var)
                                                 (Var 4 __list_iterator)
                                                 (List
                                                     (List
@@ -3783,20 +3735,7 @@
                                             [(Assignment
                                                 (Var 4 __list_var2)
                                                 (ListItem
-                                                    (ListItem
-                                                        (Var 4 w)
-                                                        (Var 4 __list_iterator)
-                                                        (List
-                                                            (List
-                                                                (List
-                                                                    (List
-                                                                        (Real 8)
-                                                                    )
-                                                                )
-                                                            )
-                                                        )
-                                                        ()
-                                                    )
+                                                    (Var 4 __list_var1)
                                                     (Var 4 __list_iterator1)
                                                     (List
                                                         (List
@@ -3839,31 +3778,7 @@
                                                 [(Assignment
                                                     (Var 4 __list_var3)
                                                     (ListItem
-                                                        (ListItem
-                                                            (ListItem
-                                                                (Var 4 w)
-                                                                (Var 4 __list_iterator)
-                                                                (List
-                                                                    (List
-                                                                        (List
-                                                                            (List
-                                                                                (Real 8)
-                                                                            )
-                                                                        )
-                                                                    )
-                                                                )
-                                                                ()
-                                                            )
-                                                            (Var 4 __list_iterator1)
-                                                            (List
-                                                                (List
-                                                                    (List
-                                                                        (Real 8)
-                                                                    )
-                                                                )
-                                                            )
-                                                            ()
-                                                        )
+                                                        (Var 4 __list_var2)
                                                         (Var 4 __list_iterator2)
                                                         (List
                                                             (List
@@ -3904,40 +3819,7 @@
                                                     [(Assignment
                                                         (Var 4 __list_var4)
                                                         (ListItem
-                                                            (ListItem
-                                                                (ListItem
-                                                                    (ListItem
-                                                                        (Var 4 w)
-                                                                        (Var 4 __list_iterator)
-                                                                        (List
-                                                                            (List
-                                                                                (List
-                                                                                    (List
-                                                                                        (Real 8)
-                                                                                    )
-                                                                                )
-                                                                            )
-                                                                        )
-                                                                        ()
-                                                                    )
-                                                                    (Var 4 __list_iterator1)
-                                                                    (List
-                                                                        (List
-                                                                            (List
-                                                                                (Real 8)
-                                                                            )
-                                                                        )
-                                                                    )
-                                                                    ()
-                                                                )
-                                                                (Var 4 __list_iterator2)
-                                                                (List
-                                                                    (List
-                                                                        (Real 8)
-                                                                    )
-                                                                )
-                                                                ()
-                                                            )
+                                                            (Var 4 __list_var3)
                                                             (Var 4 __list_iterator3)
                                                             (List
                                                                 (Real 8)
@@ -3975,47 +3857,7 @@
                                                         (IntegerConstant 1 (Integer 4)))
                                                         [(Print
                                                             [(ListItem
-                                                                (ListItem
-                                                                    (ListItem
-                                                                        (ListItem
-                                                                            (ListItem
-                                                                                (Var 4 w)
-                                                                                (Var 4 __list_iterator)
-                                                                                (List
-                                                                                    (List
-                                                                                        (List
-                                                                                            (List
-                                                                                                (Real 8)
-                                                                                            )
-                                                                                        )
-                                                                                    )
-                                                                                )
-                                                                                ()
-                                                                            )
-                                                                            (Var 4 __list_iterator1)
-                                                                            (List
-                                                                                (List
-                                                                                    (List
-                                                                                        (Real 8)
-                                                                                    )
-                                                                                )
-                                                                            )
-                                                                            ()
-                                                                        )
-                                                                        (Var 4 __list_iterator2)
-                                                                        (List
-                                                                            (List
-                                                                                (Real 8)
-                                                                            )
-                                                                        )
-                                                                        ()
-                                                                    )
-                                                                    (Var 4 __list_iterator3)
-                                                                    (List
-                                                                        (Real 8)
-                                                                    )
-                                                                    ()
-                                                                )
+                                                                (Var 4 __list_var4)
                                                                 (Var 4 __list_iterator4)
                                                                 (Real 8)
                                                                 ()
@@ -4296,7 +4138,7 @@
                                         [(Assignment
                                             (Var 4 __list_var6)
                                             (ListItem
-                                                (Var 4 x)
+                                                (Var 4 __list_var5)
                                                 (Var 4 __list_iterator5)
                                                 (List
                                                     (List
@@ -4337,16 +4179,7 @@
                                             [(Assignment
                                                 (Var 4 __list_var7)
                                                 (ListItem
-                                                    (ListItem
-                                                        (Var 4 x)
-                                                        (Var 4 __list_iterator5)
-                                                        (List
-                                                            (List
-                                                                (Integer 4)
-                                                            )
-                                                        )
-                                                        ()
-                                                    )
+                                                    (Var 4 __list_var6)
                                                     (Var 4 __list_iterator6)
                                                     (List
                                                         (Integer 4)
@@ -4384,23 +4217,7 @@
                                                 (IntegerConstant 1 (Integer 4)))
                                                 [(Print
                                                     [(ListItem
-                                                        (ListItem
-                                                            (ListItem
-                                                                (Var 4 x)
-                                                                (Var 4 __list_iterator5)
-                                                                (List
-                                                                    (List
-                                                                        (Integer 4)
-                                                                    )
-                                                                )
-                                                                ()
-                                                            )
-                                                            (Var 4 __list_iterator6)
-                                                            (List
-                                                                (Integer 4)
-                                                            )
-                                                            ()
-                                                        )
+                                                        (Var 4 __list_var7)
                                                         (Var 4 __list_iterator7)
                                                         (Integer 4)
                                                         ()
@@ -4587,7 +4404,7 @@
                                         [(Assignment
                                             (Var 4 __list_var9)
                                             (ListItem
-                                                (Var 4 y)
+                                                (Var 4 __list_var8)
                                                 (Var 4 __list_iterator8)
                                                 (List
                                                     (Real 8)
@@ -4625,14 +4442,7 @@
                                             (IntegerConstant 1 (Integer 4)))
                                             [(Print
                                                 [(ListItem
-                                                    (ListItem
-                                                        (Var 4 y)
-                                                        (Var 4 __list_iterator8)
-                                                        (List
-                                                            (Real 8)
-                                                        )
-                                                        ()
-                                                    )
+                                                    (Var 4 __list_var9)
                                                     (Var 4 __list_iterator9)
                                                     (Real 8)
                                                     ()
@@ -4772,7 +4582,7 @@
                                         [(Assignment
                                             (Var 4 __list_var11)
                                             (ListItem
-                                                (Var 4 z)
+                                                (Var 4 __list_var10)
                                                 (Var 4 __list_iterator10)
                                                 (List
                                                     (Character 1 -2 ())
@@ -4814,14 +4624,7 @@
                                                     (Character 1 1 ())
                                                 )
                                                 (ListItem
-                                                    (ListItem
-                                                        (Var 4 z)
-                                                        (Var 4 __list_iterator10)
-                                                        (List
-                                                            (Character 1 -2 ())
-                                                        )
-                                                        ()
-                                                    )
+                                                    (Var 4 __list_var11)
                                                     (Var 4 __list_iterator11)
                                                     (Character 1 -2 ())
                                                     ()
@@ -7043,7 +6846,7 @@
                                         [(Assignment
                                             (Var 6 __list_var1)
                                             (ListItem
-                                                (Var 6 p)
+                                                (Var 6 __list_var)
                                                 (Var 6 __list_iterator)
                                                 (List
                                                     (Integer 4)
@@ -7081,14 +6884,7 @@
                                             (IntegerConstant 1 (Integer 4)))
                                             [(Print
                                                 [(ListItem
-                                                    (ListItem
-                                                        (Var 6 p)
-                                                        (Var 6 __list_iterator)
-                                                        (List
-                                                            (Integer 4)
-                                                        )
-                                                        ()
-                                                    )
+                                                    (Var 6 __list_var1)
                                                     (Var 6 __list_iterator1)
                                                     (Integer 4)
                                                     ()
@@ -7228,7 +7024,7 @@
                                         [(Assignment
                                             (Var 6 __list_var3)
                                             (ListItem
-                                                (Var 6 q)
+                                                (Var 6 __list_var2)
                                                 (Var 6 __list_iterator2)
                                                 (List
                                                     (List
@@ -7271,18 +7067,7 @@
                                             [(Assignment
                                                 (Var 6 __list_var4)
                                                 (ListItem
-                                                    (ListItem
-                                                        (Var 6 q)
-                                                        (Var 6 __list_iterator2)
-                                                        (List
-                                                            (List
-                                                                (List
-                                                                    (Real 8)
-                                                                )
-                                                            )
-                                                        )
-                                                        ()
-                                                    )
+                                                    (Var 6 __list_var3)
                                                     (Var 6 __list_iterator3)
                                                     (List
                                                         (List
@@ -7323,27 +7108,7 @@
                                                 [(Assignment
                                                     (Var 6 __list_var5)
                                                     (ListItem
-                                                        (ListItem
-                                                            (ListItem
-                                                                (Var 6 q)
-                                                                (Var 6 __list_iterator2)
-                                                                (List
-                                                                    (List
-                                                                        (List
-                                                                            (Real 8)
-                                                                        )
-                                                                    )
-                                                                )
-                                                                ()
-                                                            )
-                                                            (Var 6 __list_iterator3)
-                                                            (List
-                                                                (List
-                                                                    (Real 8)
-                                                                )
-                                                            )
-                                                            ()
-                                                        )
+                                                        (Var 6 __list_var4)
                                                         (Var 6 __list_iterator4)
                                                         (List
                                                             (Real 8)
@@ -7381,34 +7146,7 @@
                                                     (IntegerConstant 1 (Integer 4)))
                                                     [(Print
                                                         [(ListItem
-                                                            (ListItem
-                                                                (ListItem
-                                                                    (ListItem
-                                                                        (Var 6 q)
-                                                                        (Var 6 __list_iterator2)
-                                                                        (List
-                                                                            (List
-                                                                                (List
-                                                                                    (Real 8)
-                                                                                )
-                                                                            )
-                                                                        )
-                                                                        ()
-                                                                    )
-                                                                    (Var 6 __list_iterator3)
-                                                                    (List
-                                                                        (List
-                                                                            (Real 8)
-                                                                        )
-                                                                    )
-                                                                    ()
-                                                                )
-                                                                (Var 6 __list_iterator4)
-                                                                (List
-                                                                    (Real 8)
-                                                                )
-                                                                ()
-                                                            )
+                                                            (Var 6 __list_var5)
                                                             (Var 6 __list_iterator5)
                                                             (Real 8)
                                                             ()
@@ -7642,7 +7380,7 @@
                                         [(Assignment
                                             (Var 6 __list_var7)
                                             (ListItem
-                                                (Var 6 r)
+                                                (Var 6 __list_var6)
                                                 (Var 6 __list_iterator6)
                                                 (List
                                                     (List
@@ -7683,16 +7421,7 @@
                                             [(Assignment
                                                 (Var 6 __list_var8)
                                                 (ListItem
-                                                    (ListItem
-                                                        (Var 6 r)
-                                                        (Var 6 __list_iterator6)
-                                                        (List
-                                                            (List
-                                                                (Character 1 -2 ())
-                                                            )
-                                                        )
-                                                        ()
-                                                    )
+                                                    (Var 6 __list_var7)
                                                     (Var 6 __list_iterator7)
                                                     (List
                                                         (Character 1 -2 ())
@@ -7734,23 +7463,7 @@
                                                         (Character 1 1 ())
                                                     )
                                                     (ListItem
-                                                        (ListItem
-                                                            (ListItem
-                                                                (Var 6 r)
-                                                                (Var 6 __list_iterator6)
-                                                                (List
-                                                                    (List
-                                                                        (Character 1 -2 ())
-                                                                    )
-                                                                )
-                                                                ()
-                                                            )
-                                                            (Var 6 __list_iterator7)
-                                                            (List
-                                                                (Character 1 -2 ())
-                                                            )
-                                                            ()
-                                                        )
+                                                        (Var 6 __list_var8)
                                                         (Var 6 __list_iterator8)
                                                         (Character 1 -2 ())
                                                         ()
@@ -8507,7 +8220,7 @@
                                         (Print
                                             [(TupleItem
                                                 (ListItem
-                                                    (Var 5 a)
+                                                    (Var 5 __list_var)
                                                     (Var 5 __list_iterator)
                                                     (Tuple
                                                         [(Integer 4)
@@ -8545,7 +8258,7 @@
                                         (Print
                                             [(TupleItem
                                                 (ListItem
-                                                    (Var 5 a)
+                                                    (Var 5 __list_var)
                                                     (Var 5 __list_iterator)
                                                     (Tuple
                                                         [(Integer 4)
@@ -8680,14 +8393,7 @@
                                                 (Character 1 1 ())
                                             )
                                             (ListItem
-                                                (TupleItem
-                                                    (Var 5 b)
-                                                    (IntegerConstant 0 (Integer 4))
-                                                    (List
-                                                        (Character 1 -2 ())
-                                                    )
-                                                    ()
-                                                )
+                                                (Var 5 __list_var1)
                                                 (Var 5 __list_iterator1)
                                                 (Character 1 -2 ())
                                                 ()
@@ -8807,14 +8513,7 @@
                                         (IntegerConstant 1 (Integer 4)))
                                         [(Print
                                             [(ListItem
-                                                (TupleItem
-                                                    (Var 5 b)
-                                                    (IntegerConstant 1 (Integer 4))
-                                                    (List
-                                                        (Integer 4)
-                                                    )
-                                                    ()
-                                                )
+                                                (Var 5 __list_var2)
                                                 (Var 5 __list_iterator2)
                                                 (Integer 4)
                                                 ()
@@ -8948,7 +8647,7 @@
                                         [(Assignment
                                             (Var 5 __list_var4)
                                             (ListItem
-                                                (Var 5 c)
+                                                (Var 5 __list_var3)
                                                 (Var 5 __list_iterator3)
                                                 (List
                                                     (Tuple
@@ -9001,17 +8700,7 @@
                                             (Print
                                                 [(TupleItem
                                                     (ListItem
-                                                        (ListItem
-                                                            (Var 5 c)
-                                                            (Var 5 __list_iterator3)
-                                                            (List
-                                                                (Tuple
-                                                                    [(Integer 4)
-                                                                    (Character 1 -2 ())]
-                                                                )
-                                                            )
-                                                            ()
-                                                        )
+                                                        (Var 5 __list_var4)
                                                         (Var 5 __list_iterator4)
                                                         (Tuple
                                                             [(Integer 4)
@@ -9053,17 +8742,7 @@
                                                 )
                                                 (TupleItem
                                                     (ListItem
-                                                        (ListItem
-                                                            (Var 5 c)
-                                                            (Var 5 __list_iterator3)
-                                                            (List
-                                                                (Tuple
-                                                                    [(Integer 4)
-                                                                    (Character 1 -2 ())]
-                                                                )
-                                                            )
-                                                            ()
-                                                        )
+                                                        (Var 5 __list_var4)
                                                         (Var 5 __list_iterator4)
                                                         (Tuple
                                                             [(Integer 4)
@@ -9231,7 +8910,7 @@
                                                 (Character 1 1 ())
                                             )
                                             (ListItem
-                                                (Var 5 b1)
+                                                (Var 5 __list_var5)
                                                 (Var 5 __list_iterator5)
                                                 (Character 1 -2 ())
                                                 ()
@@ -9330,7 +9009,7 @@
                                         (IntegerConstant 1 (Integer 4)))
                                         [(Print
                                             [(ListItem
-                                                (Var 5 b2)
+                                                (Var 5 __list_var6)
                                                 (Var 5 __list_iterator6)
                                                 (Integer 4)
                                                 ()
