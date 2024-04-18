@@ -634,6 +634,7 @@ RUN(NAME test_builtin_sum    LABELS cpython llvm c)
 RUN(NAME test_math1          LABELS cpython llvm c)
 RUN(NAME test_math_02        LABELS cpython llvm NOFAST)
 RUN(NAME test_math_03        LABELS llvm)               #1595: TODO: Test using CPython (3.11 recommended)
+RUN(NAME test_math_04        LABELS llvm)               #TODO: Test using CPython (as above)
 RUN(NAME test_pass_compare   LABELS cpython llvm c)
 RUN(NAME test_c_interop_01   LABELS cpython llvm c)
 RUN(NAME test_c_interop_02   LABELS cpython llvm c
