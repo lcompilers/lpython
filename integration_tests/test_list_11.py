@@ -1,5 +1,12 @@
 from lpython import i32
 
+l: list[i32] = [1, 2]
+
+def add_item(i: i32) -> list[i32]:
+    l.append(i)
+    return l
+
+
 def return_empty_list_of_tuples() -> list[i32]:
     return []
 
@@ -20,12 +27,6 @@ def test_iterate_over_string():
         i+=1
 
 def test_issue_2639():
-    l: list[i32] = [1, 2]
-
-    def add_item(i: i32) -> list[i32]:
-        l.append(i)
-        return l
-
     print(add_item(3))
 
     assert len(l) == 3
