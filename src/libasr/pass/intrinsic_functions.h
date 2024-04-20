@@ -19,6 +19,7 @@ the code size.
 
 enum class IntrinsicElementalFunctions : int64_t {
     ObjectType,
+    Reversed,
     Kind, // if kind is reordered, update `extract_kind` in `asr_utils.h`
     Rank,
     Sin,
@@ -567,6 +568,47 @@ namespace ObjectType {
     }
 
 } // namespace ObjectType
+
+namespace Reversed {
+
+    static inline void verify_args(const ASR::IntrinsicElementalFunction_t& x, diag::Diagnostics& diagnostics) {
+        ASRUtils::require_impl(x.n_args == 1, "Call to reversed() must have atleast one argument",
+            x.base.base.loc, diagnostics);
+        ASR::ttype_t* arg_type = ASRUtils::expr_type(x.m_args[0]);
+        ASRUtils::require_impl(ASR::is_a<ASR::List_t>(*arg_type),
+            "Argument to reversed() must be of list type.",
+            x.base.base.loc, diagnostics);
+    }
+
+    static inline ASR::expr_t *eval_Reversed(Allocator &/*al*/,
+        const Location &/*loc*/, ASR::ttype_t */*t*/, Vec<ASR::expr_t*>& /*args*/, diag::Diagnostics& /*diag*/) {
+        // TODO: To be implemented for ListConstant expression
+        return nullptr;
+    }
+
+
+    static inline ASR::asr_t* create_Reversed(Allocator& al, const Location& loc,
+        Vec<ASR::expr_t*>& args,
+        diag::Diagnostics& diag) {
+        if (!ASR::is_a<ASR::List_t>(*ASRUtils::expr_type(args[0]))) {
+            append_error(diag,
+                "reversed() currently only accepts an object of type `list`", loc);
+            return nullptr;
+        }
+        
+        Vec<ASR::expr_t*> arg_values;
+        arg_values.reserve(al, args.size());
+        for( size_t i = 0; i < args.size(); i++ ) {
+            arg_values.push_back(al, ASRUtils::expr_value(args[i]));
+        }
+        ASR::ttype_t *to_type = ASRUtils::expr_type(args[0]);
+        ASR::expr_t* compile_time_value = eval_Reversed(al, loc, to_type, arg_values, diag);
+        return ASR::make_IntrinsicElementalFunction_t(al, loc,
+            static_cast<int64_t>(IntrinsicElementalFunctions::Reversed),
+            args.p, args.n, 0, to_type, compile_time_value);
+    }
+
+} // namespace Reversed
 
 namespace Fix {
     static inline ASR::expr_t *eval_Fix(Allocator &al, const Location &loc,
