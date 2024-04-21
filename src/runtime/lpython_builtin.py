@@ -1122,6 +1122,8 @@ def _lpython_str_expandtabs(s: str, tabsize: i32) -> str:
     Return a copy of the string where all tab characters are replaced 
     by one or more spaces, depending on the current column and the given tab size.
     """
+    if len(s) == 0:
+        return s
     col: i32 = 0
     result: str = ""
     c: str
