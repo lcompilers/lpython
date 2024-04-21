@@ -311,7 +311,7 @@ public:
         loop_body.push_back(al, _tmp);
 
         _tmp = ASRUtils::STMT(ASR::make_WhileLoop_t(
-            al, loc, nullptr, loop_test, loop_body.p, loop_body.n));
+            al, loc, nullptr, loop_test, loop_body.p, loop_body.n, nullptr, 0));
         body.push_back(al, _tmp);
     }
 

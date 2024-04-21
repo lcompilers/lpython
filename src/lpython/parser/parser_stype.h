@@ -113,8 +113,8 @@ static_assert(std::is_trivial<YYSTYPE>::value);
 // YYSTYPE must be at least as big, but it should not be bigger, otherwise it
 // would reduce performance.
 // A temporary fix for PowerPC 32-bit, where the following assert fails with (16 == 12).
-#ifndef __ppc__
-static_assert(sizeof(YYSTYPE) == sizeof(Vec<LPython::AST::ast_t*>));
+#if !defined(HAVE_BUILD_TO_WASM) && !defined(__ppc__)
+static_assert(sizeof(YYSTYPE) == sizeof(Vec<AST::ast_t*>));
 #endif
 
 static_assert(std::is_standard_layout<Location>::value);

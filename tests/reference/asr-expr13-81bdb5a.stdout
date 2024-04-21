@@ -76,7 +76,7 @@
                                     )
                                     []
                                     []
-                                    [(=
+                                    [(Assignment
                                         (Var 3 a)
                                         (IntegerCompare
                                             (IntegerConstant 5 (Integer 4))
@@ -90,7 +90,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 a)
                                         (IntegerCompare
                                             (IntegerConstant 5 (Integer 4))
@@ -104,7 +104,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 a)
                                         (IntegerCompare
                                             (IntegerConstant 5 (Integer 4))
@@ -118,7 +118,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 a)
                                         (RealCompare
                                             (RealConstant
@@ -138,7 +138,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 a)
                                         (RealCompare
                                             (RealConstant
@@ -158,7 +158,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 a)
                                         (RealCompare
                                             (RealConstant
@@ -178,7 +178,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 a)
                                         (ComplexCompare
                                             (FunctionCall
@@ -222,7 +222,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 a)
                                         (StringCompare
                                             (StringConstant
@@ -242,7 +242,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 a)
                                         (StringCompare
                                             (StringConstant
@@ -262,7 +262,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 a)
                                         (StringCompare
                                             (StringConstant
@@ -282,7 +282,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 a)
                                         (StringCompare
                                             (StringConstant
@@ -302,7 +302,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 a)
                                         (StringCompare
                                             (StringConstant
@@ -322,7 +322,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 a)
                                         (StringCompare
                                             (StringConstant
@@ -342,7 +342,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 a)
                                         (StringCompare
                                             (StringConstant
@@ -362,7 +362,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 a)
                                         (LogicalCompare
                                             (LogicalConstant
@@ -382,7 +382,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 a)
                                         (LogicalCompare
                                             (LogicalConstant
@@ -402,7 +402,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 a)
                                         (LogicalCompare
                                             (LogicalConstant
@@ -422,7 +422,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (Var 3 a)
                                         (LogicalCompare
                                             (LogicalConstant

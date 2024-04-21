@@ -92,7 +92,7 @@
                                     )
                                     []
                                     []
-                                    [(=
+                                    [(Assignment
                                         (Var 7 x)
                                         (IntegerBinOp
                                             (IntegerBinOp

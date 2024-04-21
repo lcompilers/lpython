@@ -5,6 +5,7 @@
 #include <libasr/asr_verify.h>
 #include <libasr/pass/replace_flip_sign.h>
 #include <libasr/pass/pass_utils.h>
+#include <libasr/pass/intrinsic_function_registry.h>
 
 #include <vector>
 #include <utility>

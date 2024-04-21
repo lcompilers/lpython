@@ -40,13 +40,13 @@ class ReplaceIntrinsicFunctions: public ASR::BaseExprReplacer<ReplaceIntrinsicFu
         al(al_), global_scope(global_scope_), func2intrinsicid(func2intrinsicid_) {}
 
 
-    void replace_IntrinsicScalarFunction(ASR::IntrinsicScalarFunction_t* x) {
+    void replace_IntrinsicElementalFunction(ASR::IntrinsicElementalFunction_t* x) {
         if (x->m_value) {
             *current_expr = x->m_value;
             return;
         }
         Vec<ASR::call_arg_t> new_args; new_args.reserve(al, x->n_args);
-        // Replace any IntrinsicScalarFunctions in the argument first:
+        // Replace any IntrinsicElementalFunctions in the argument first:
         for( size_t i = 0; i < x->n_args; i++ ) {
             ASR::expr_t** current_expr_copy_ = current_expr;
             current_expr = &(x->m_args[i]);
@@ -64,7 +64,7 @@ class ReplaceIntrinsicFunctions: public ASR::BaseExprReplacer<ReplaceIntrinsicFu
         // We could maintain a mapping of type -> id and look it up.
 
         ASRUtils::impl_function instantiate_function =
-            ASRUtils::IntrinsicScalarFunctionRegistry::get_instantiate_function(x->m_intrinsic_id);
+            ASRUtils::IntrinsicElementalFunctionRegistry::get_instantiate_function(x->m_intrinsic_id);
         if( instantiate_function == nullptr ) {
             return ;
         }
@@ -83,6 +83,7 @@ class ReplaceIntrinsicFunctions: public ASR::BaseExprReplacer<ReplaceIntrinsicFu
             *current_expr = x->m_value;
             return;
         }
+        replace_ttype(x->m_type);
         Vec<ASR::call_arg_t> new_args; new_args.reserve(al, x->n_args);
         // Replace any IntrinsicArrayFunctions in the argument first:
         for( size_t i = 0; i < x->n_args; i++ ) {
@@ -122,7 +123,6 @@ class ReplaceIntrinsicFunctions: public ASR::BaseExprReplacer<ReplaceIntrinsicFu
             func2intrinsicid[call_sym] = (ASRUtils::IntrinsicArrayFunctions) x->m_arr_intrinsic_id;
         }
     }
-
 };
 
 /*
@@ -287,8 +287,13 @@ class ReplaceFunctionCallReturningArray: public ASR::BaseExprReplacer<ReplaceFun
         if( dim_index == 1 ) {
             ASR::expr_t* dim = x->m_args[dim_index].m_value;
             if( !ASRUtils::is_value_constant(ASRUtils::expr_value(dim)) ) {
-                // Possibly can be replaced by calling "get_result_var_for_runtime_dim"
-                throw LCompilersException("Runtime values for dim argument is not supported yet.");
+                result_var_ = PassUtils::create_var(result_counter,
+                    std::string(ASRUtils::symbol_name(x->m_name)) + "_res",
+                    x->base.base.loc, x->m_type, al, current_scope);
+                if (ASRUtils::is_allocatable(ASRUtils::expr_type(result_var_)) &&
+                    func2intrinsicid[x_m_name] == ASRUtils::IntrinsicArrayFunctions::Sum) {
+                    PassUtils::allocate_res_var(al, x, new_args, result_var_, pass_result, {0, 0, 1});
+                }
             } else {
                 int constant_dim;
                 if (ASRUtils::extract_value(ASRUtils::expr_value(dim), constant_dim)) {
@@ -300,9 +305,53 @@ class ReplaceFunctionCallReturningArray: public ASR::BaseExprReplacer<ReplaceFun
                 }
             }
         } else if ( dim_index == 2 ) {
+            ASR::expr_t* func_call_count = nullptr;
+            if (func2intrinsicid[x_m_name] == ASRUtils::IntrinsicArrayFunctions::Pack) {
+                ASR::Function_t* pack = ASR::down_cast<ASR::Function_t>(ASRUtils::symbol_get_past_external(x->m_name));
+                ASR::symbol_t* res = pack->m_symtab->resolve_symbol("result");
+                if (res) {
+                    ASR::Variable_t* res_var = ASR::down_cast<ASR::Variable_t>(res);
+                    ASR::Array_t* res_arr = ASR::down_cast<ASR::Array_t>(res_var->m_type);
+                    if (ASR::is_a<ASR::FunctionCall_t>(*res_arr->m_dims[0].m_length)) {
+                        ASRUtils::ExprStmtDuplicator expr_stmt_duplicator(al);
+                        func_call_count = res_arr->m_dims[0].m_length;
+                        func_call_count = expr_stmt_duplicator.duplicate_expr(func_call_count);
+
+                        ASR::FunctionCall_t* func_call = ASR::down_cast<ASR::FunctionCall_t>(func_call_count);
+                        if (ASR::is_a<ASR::ArrayPhysicalCast_t>(*func_call->m_args[0].m_value)) {
+                            ASR::ArrayPhysicalCast_t *array_cast = ASR::down_cast<ASR::ArrayPhysicalCast_t>(func_call->m_args[0].m_value);
+                            array_cast->m_arg = ASR::down_cast<ASR::ArrayPhysicalCast_t>(new_args[1].m_value)->m_arg;
+                            array_cast->m_old = ASRUtils::extract_physical_type(ASRUtils::expr_type(array_cast->m_arg));
+                            array_cast->m_type = ASRUtils::duplicate_type(al, ASRUtils::expr_type(array_cast->m_arg), nullptr,
+                                                ASR::array_physical_typeType::DescriptorArray, true);
+
+                            func_call->m_args[0].m_value = ASRUtils::EXPR((ASR::asr_t*) array_cast);
+                        }
+                    }
+                }
+            }
             result_var_ = PassUtils::create_var(result_counter,
                 std::string(ASRUtils::symbol_name(x->m_name)) + "_res",
                 x->base.base.loc, x->m_type, al, current_scope);
+            if (func_call_count) {
+                // allocate result array
+                Vec<ASR::alloc_arg_t> alloc_args; alloc_args.reserve(al, 1);
+                Vec<ASR::dimension_t> alloc_dims; alloc_dims.reserve(al, 2);
+                ASR::alloc_arg_t alloc_arg; alloc_arg.loc = x->base.base.loc;
+                ASR::dimension_t dim; dim.loc = x->base.base.loc;
+                dim.m_start = ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, x->base.base.loc, 1,
+                    ASRUtils::TYPE(ASR::make_Integer_t(al, x->base.base.loc, 4))));
+                dim.m_length = func_call_count;
+                alloc_dims.push_back(al, dim);
+                alloc_arg.m_a = result_var_; alloc_arg.m_len_expr = nullptr;
+                alloc_arg.m_type = nullptr; alloc_arg.m_dims = alloc_dims.p;
+                alloc_arg.n_dims = alloc_dims.size();
+                alloc_args.push_back(al, alloc_arg);
+
+                ASR::stmt_t* allocate_stmt = ASRUtils::STMT(ASR::make_Allocate_t(al,
+                                        x->base.base.loc, alloc_args.p, alloc_args.n, nullptr, nullptr, nullptr));
+                pass_result.push_back(al, allocate_stmt);
+            }
         } else {
             LCOMPILERS_ASSERT(false);
         }
@@ -314,7 +363,7 @@ class ReplaceFunctionCallReturningArray: public ASR::BaseExprReplacer<ReplaceFun
         new_args.push_back(al, new_arg);
         pass_result.push_back(al, ASRUtils::STMT(ASRUtils::make_SubroutineCall_t_util(
             al, x->base.base.loc, x->m_name, x->m_original_name, new_args.p,
-            new_args.size(), x->m_dt, nullptr, false)));
+            new_args.size(), x->m_dt, nullptr, false, false)));
 
         *current_expr = new_args.p[new_args.size() - 1].m_value;
     }

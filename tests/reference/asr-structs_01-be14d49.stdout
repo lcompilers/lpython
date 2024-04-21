@@ -137,7 +137,7 @@
                                     )
                                     []
                                     [(Var 5 a)]
-                                    [(=
+                                    [(Assignment
                                         (StructInstanceMember
                                             (Var 5 a)
                                             3 x
@@ -158,7 +158,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (StructInstanceMember
                                             (Var 5 a)
                                             3 y
@@ -304,7 +304,7 @@
                                     [f
                                     change_struct]
                                     []
-                                    [(=
+                                    [(Assignment
                                         (Var 6 x)
                                         (StructTypeConstructor
                                             2 A
@@ -372,7 +372,7 @@
                                         )
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (StructInstanceMember
                                             (Var 6 x)
                                             3 x
@@ -382,7 +382,7 @@
                                         (IntegerConstant 5 (Integer 4))
                                         ()
                                     )
-                                    (=
+                                    (Assignment
                                         (StructInstanceMember
                                             (Var 6 x)
                                             3 y

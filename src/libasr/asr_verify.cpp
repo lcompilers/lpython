@@ -51,6 +51,8 @@ private:
     std::set<std::pair<uint64_t, std::string>> const_assigned;
 
     bool symbol_visited;
+    bool _return_var_or_intent_out = false;
+    bool _processing_dims = false;
 
 public:
     VerifyVisitor(bool check_external, diag::Diagnostics &diagnostics) : check_external{check_external},
@@ -120,6 +122,20 @@ public:
             }
         }
         current_symtab = nullptr;
+    }
+
+    void visit_Select(const Select_t& x) {
+        bool fall_through = false;
+        for( size_t i = 0; i < x.n_body; i++ ) {
+            if( ASR::is_a<ASR::CaseStmt_t>(*x.m_body[i]) ) {
+                ASR::CaseStmt_t* case_stmt_t = ASR::down_cast<ASR::CaseStmt_t>(x.m_body[i]);
+                fall_through = fall_through || case_stmt_t->m_fall_through;
+            }
+        }
+        require(fall_through == x.m_enable_fall_through,
+            "Select_t::m_enable_fall_through should be " +
+            std::to_string(x.m_enable_fall_through));
+        BaseWalkVisitor<VerifyVisitor>::visit_Select(x);
     }
 
     // --------------------------------------------------------
@@ -345,13 +361,15 @@ public:
         ASR::expr_t* target = x.m_target;
         if( ASR::is_a<ASR::Var_t>(*target) ) {
             ASR::Var_t* target_Var = ASR::down_cast<ASR::Var_t>(target);
+            bool is_target_const = false;
             ASR::ttype_t* target_type = nullptr;
-            if( ASR::is_a<ASR::Variable_t>(*target_Var->m_v) ||
-                (ASR::is_a<ASR::ExternalSymbol_t>(*target_Var->m_v) &&
-                 ASR::down_cast<ASR::ExternalSymbol_t>(target_Var->m_v)->m_external) ) {
-                target_type = ASRUtils::expr_type(target);
+            ASR::symbol_t* target_sym = ASRUtils::symbol_get_past_external(target_Var->m_v);
+            if( target_sym && ASR::is_a<ASR::Variable_t>(*target_sym) ) {
+                ASR::Variable_t* var = ASR::down_cast<ASR::Variable_t>(target_sym);
+                target_type = var->m_type;
+                is_target_const = var->m_storage == ASR::storage_typeType::Parameter;
             }
-            if( target_type && ASR::is_a<ASR::Const_t>(*target_type) ) {
+            if( is_target_const ) {
                 std::string variable_name = ASRUtils::symbol_name(target_Var->m_v);
                 require(const_assigned.find(std::make_pair(current_symtab->counter,
                     variable_name)) == const_assigned.end(),
@@ -426,6 +444,7 @@ public:
             LCOMPILERS_ASSERT(a.second);
             this->visit_symbol(*a.second);
         }
+        visit_ttype(*x.m_function_signature);
         for (size_t i=0; i<x.n_args; i++) {
             LCOMPILERS_ASSERT(x.m_args[i]);
             visit_expr(*x.m_args[i]);
@@ -508,6 +527,8 @@ public:
                 ASR::is_a<ASR::CustomOperator_t>(*a.second) ) {
                 continue ;
             }
+            // TODO: Uncomment the following line
+            // ASR::ttype_t* var_type = ASRUtils::extract_type(ASRUtils::symbol_type(a.second));
             ASR::ttype_t* var_type = ASRUtils::type_get_past_pointer(ASRUtils::symbol_type(a.second));
             char* aggregate_type_name = nullptr;
             ASR::symbol_t* sym = nullptr;
@@ -656,7 +677,11 @@ public:
             visit_expr(*x.m_symbolic_value);
         if (x.m_value)
              visit_expr(*x.m_value);
+        _return_var_or_intent_out = x.m_intent == ASR::intentType::Out ||
+                                    x.m_intent == ASR::intentType::InOut ||
+                                    x.m_intent == ASR::intentType::ReturnVar;
         visit_ttype(*x.m_type);
+        _return_var_or_intent_out = false;
 
         verify_unique_dependencies(x.m_dependencies, x.n_dependencies,
                                    x.m_name, x.base.base.loc);
@@ -691,6 +716,7 @@ public:
             ASR::Module_t *m = ASRUtils::get_sym_module(x.m_external);
             ASR::StructType_t* sm = nullptr;
             ASR::EnumType_t* em = nullptr;
+            ASR::UnionType_t* um = nullptr;
             ASR::Function_t* fm = nullptr;
             bool is_valid_owner = false;
             is_valid_owner = m != nullptr && ((ASR::symbol_t*) m == ASRUtils::get_asr_owner(x.m_external));
@@ -699,13 +725,17 @@ public:
                 ASR::symbol_t* asr_owner_sym = ASRUtils::get_asr_owner(x.m_external);
                 is_valid_owner = (ASR::is_a<ASR::StructType_t>(*asr_owner_sym) ||
                                   ASR::is_a<ASR::EnumType_t>(*asr_owner_sym) ||
-                                  ASR::is_a<ASR::Function_t>(*asr_owner_sym));
+                                  ASR::is_a<ASR::Function_t>(*asr_owner_sym) ||
+                                  ASR::is_a<ASR::UnionType_t>(*asr_owner_sym));
                 if( ASR::is_a<ASR::StructType_t>(*asr_owner_sym) ) {
                     sm = ASR::down_cast<ASR::StructType_t>(asr_owner_sym);
                     asr_owner_name = sm->m_name;
                 } else if( ASR::is_a<ASR::EnumType_t>(*asr_owner_sym) ) {
                     em = ASR::down_cast<ASR::EnumType_t>(asr_owner_sym);
                     asr_owner_name = em->m_name;
+                } else if( ASR::is_a<ASR::UnionType_t>(*asr_owner_sym) ) {
+                    um = ASR::down_cast<ASR::UnionType_t>(asr_owner_sym);
+                    asr_owner_name = um->m_name;
                 } else if( ASR::is_a<ASR::Function_t>(*asr_owner_sym) ) {
                     fm = ASR::down_cast<ASR::Function_t>(asr_owner_sym);
                     asr_owner_name = fm->m_name;
@@ -734,6 +764,8 @@ public:
                 s = em->m_symtab->resolve_symbol(std::string(x.m_original_name));
             } else if( fm ) {
                 s = fm->m_symtab->resolve_symbol(std::string(x.m_original_name));
+            } else if( um ) {
+                s = um->m_symtab->resolve_symbol(std::string(x.m_original_name));
             }
             require(s != nullptr,
                 "ExternalSymbol::m_original_name ('"
@@ -889,7 +921,7 @@ public:
         }
 
         SymbolTable* temp_scope = current_symtab;
-        
+
         if (asr_owner_sym && temp_scope->get_counter() != ASRUtils::symbol_parent_symtab(x.m_name)->get_counter() &&
             !ASR::is_a<ASR::ExternalSymbol_t>(*x.m_name) && !ASR::is_a<ASR::Variable_t>(*x.m_name)) {
             if (ASR::is_a<ASR::AssociateBlock_t>(*asr_owner_sym) || ASR::is_a<ASR::Block_t>(*asr_owner_sym)) {
@@ -899,7 +931,7 @@ public:
                 }
             } else {
                 function_dependencies.push_back(std::string(ASRUtils::symbol_name(x.m_name)));
-            }    
+            }
         }
 
         if( ASR::is_a<ASR::ExternalSymbol_t>(*x.m_name) ) {
@@ -910,6 +942,12 @@ public:
         }
 
         verify_args(x);
+    }
+
+    void visit_AssociateBlockCall(const AssociateBlockCall_t &x) {
+        require(symtab_in_scope(current_symtab, x.m_m),
+            "AssociateBlockCall::m_name '" + std::string(symbol_name(x.m_m)) +
+                "' cannot point outside of its symbol table");
     }
 
     SymbolTable *get_dt_symtab(ASR::symbol_t *dt) {
@@ -1007,16 +1045,16 @@ public:
         }
     }
 
-    void visit_IntrinsicScalarFunction(const ASR::IntrinsicScalarFunction_t& x) {
+    void visit_IntrinsicElementalFunction(const ASR::IntrinsicElementalFunction_t& x) {
         if( !check_external ) {
-            BaseWalkVisitor<VerifyVisitor>::visit_IntrinsicScalarFunction(x);
+            BaseWalkVisitor<VerifyVisitor>::visit_IntrinsicElementalFunction(x);
             return ;
         }
-        ASRUtils::verify_function verify_ = ASRUtils::IntrinsicScalarFunctionRegistry
+        ASRUtils::verify_function verify_ = ASRUtils::IntrinsicElementalFunctionRegistry
             ::get_verify_function(x.m_intrinsic_id);
         LCOMPILERS_ASSERT(verify_ != nullptr);
         verify_(x, diagnostics);
-        BaseWalkVisitor<VerifyVisitor>::visit_IntrinsicScalarFunction(x);
+        BaseWalkVisitor<VerifyVisitor>::visit_IntrinsicElementalFunction(x);
     }
 
     void visit_IntrinsicArrayFunction(const ASR::IntrinsicArrayFunction_t& x) {
@@ -1040,7 +1078,7 @@ public:
         }
 
         SymbolTable* temp_scope = current_symtab;
-        
+
         if (asr_owner_sym && temp_scope->get_counter() != ASRUtils::symbol_parent_symtab(x.m_name)->get_counter() &&
             !ASR::is_a<ASR::ExternalSymbol_t>(*x.m_name) && !ASR::is_a<ASR::Variable_t>(*x.m_name)) {
             if (ASR::is_a<ASR::AssociateBlock_t>(*asr_owner_sym) || ASR::is_a<ASR::Block_t>(*asr_owner_sym)) {
@@ -1050,7 +1088,12 @@ public:
                 }
             } else {
                 function_dependencies.push_back(std::string(ASRUtils::symbol_name(x.m_name)));
-            }    
+            }
+        }
+        if (_return_var_or_intent_out  && _processing_dims &&
+            temp_scope->get_counter() != ASRUtils::symbol_parent_symtab(x.m_name)->get_counter() &&
+            !ASR::is_a<ASR::ExternalSymbol_t>(*x.m_name)) {
+            function_dependencies.push_back(std::string(ASRUtils::symbol_name(x.m_name)));
         }
 
         if( ASR::is_a<ASR::ExternalSymbol_t>(*x.m_name) ) {
@@ -1097,23 +1140,39 @@ public:
             symbol_owner);
     }
 
+    void visit_ArrayConstructor(const ArrayConstructor_t& x) {
+        require(ASRUtils::is_array(x.m_type),
+            "Type of ArrayConstructor must be an array");
+        BaseWalkVisitor<VerifyVisitor>::visit_ArrayConstructor(x);
+    }
+
     void visit_ArrayConstant(const ArrayConstant_t& x) {
         require(ASRUtils::is_array(x.m_type),
             "Type of ArrayConstant must be an array");
-        BaseWalkVisitor<VerifyVisitor>::visit_ArrayConstant(x);
+
+        for (size_t i = 0; i < x.n_args; i++) {
+            require(!ASR::is_a<ASR::ArrayConstant_t>(*x.m_args[i]),
+                "ArrayConstant cannot have ArrayConstant as its elements");
+            ASR::expr_t* arg_value = ASRUtils::expr_value(x.m_args[i]);
+            require(
+                ASRUtils::is_value_constant(arg_value),
+                "ArrayConstant must have constant values");
+        }
+
+        visit_ttype(*x.m_type);
     }
 
     void visit_dimension(const dimension_t &x) {
         if (x.m_start) {
             require_with_loc(ASRUtils::is_integer(
-                *ASRUtils::type_get_past_const(ASRUtils::expr_type(x.m_start))),
+                *ASRUtils::expr_type(x.m_start)),
                 "Start dimension must be a signed integer", x.loc);
             visit_expr(*x.m_start);
         }
 
         if (x.m_length) {
             require_with_loc(ASRUtils::is_integer(
-                *ASRUtils::type_get_past_const(ASRUtils::expr_type(x.m_length))),
+                *ASRUtils::expr_type(x.m_length)),
                 "Length dimension must be a signed integer", x.loc);
             visit_expr(*x.m_length);
         }
@@ -1125,9 +1184,11 @@ public:
         visit_ttype(*x.m_type);
         require(x.n_dims != 0, "Array type cannot have 0 dimensions.")
         require(!ASR::is_a<ASR::Array_t>(*x.m_type), "Array type cannot be nested.")
+        _processing_dims = true;
         for (size_t i = 0; i < x.n_dims; i++) {
             visit_dimension(x.m_dims[i]);
         }
+        _processing_dims = false;
     }
 
     void visit_Pointer(const Pointer_t &x) {
