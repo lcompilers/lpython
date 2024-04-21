@@ -1,10 +1,13 @@
 def capitalize():
     s: str
     s = "tom and jerry"
+    print(s.capitalize())
     assert s.capitalize() == "Tom and jerry"
     s = "12wddd"
+    print(s)
     assert s.capitalize() == s
     s = " tom and jerry"
+    print(s.capitalize())
     assert s.capitalize() == s
     assert "empty string" .capitalize() == "Empty string"
     assert "".capitalize() == ""
@@ -76,14 +79,17 @@ def count():
     sub: str
     s = "ABC ABCDAB ABCDABCDABDE"
     sub = "ABC"
+    print(s.count(sub), s.count("ABC"))
     assert s.count(sub) == 4
     assert s.count("ABC") == 4
 
     sub = "AB"
+    print(s.count(sub), s.count("AB"))
     assert s.count(sub) == 6
     assert s.count("AB") == 6
 
     sub = "ABC"
+    print("ABC ABCDAB ABCDABCDABDE".count(sub), "ABC ABCDAB ABCDABCDABDE".count("ABC"))
     assert "ABC ABCDAB ABCDABCDABDE".count(sub) == 4
     assert "ABC ABCDAB ABCDABCDABDE".count("ABC") == 4
 
