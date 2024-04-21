@@ -9315,17 +9315,11 @@ public:
                     llvm::Function *fn = module->getFunction("_lpython_get_argc");
                     if(!fn) {
                         llvm::FunctionType *function_type = llvm::FunctionType::get(
-                            llvm::Type::getVoidTy(context), {
-                                llvm::Type::getInt32Ty(context)->getPointerTo()
-                            }, false);
+                            llvm::Type::getInt32Ty(context), {}, false);
                         fn = llvm::Function::Create(function_type,
                             llvm::Function::ExternalLinkage, "_lpython_get_argc", *module);
                     }
-                    llvm::AllocaInst *result = builder->CreateAlloca(
-                                llvm::Type::getInt32Ty(context), nullptr);
-                    std::vector<llvm::Value*> args = {result};
-                    builder->CreateCall(fn, args);
-                    tmp = CreateLoad(result);
+                    tmp = builder->CreateCall(fn, {});
                     return;
                 } else if (func_name == "achar") {
                     // TODO: make achar just StringChr

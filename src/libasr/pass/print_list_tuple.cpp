@@ -114,11 +114,23 @@ class PrintListTupleVisitor
                 list_iter_var_name, al, current_scope, int_type);
         }
 
+        std::string list_var_name;
+        ASR::expr_t *list_var;
+        {
+            list_var_name = 
+                current_scope->get_unique_name("__list_var", false);
+            list_var = PassUtils::create_auxiliary_variable(loc,
+                list_var_name, al, current_scope, ASRUtils::expr_type(list_expr));
+        }
+
+        ASR::stmt_t *assign_stmt = ASRUtils::STMT(
+            ASR::make_Assignment_t(al, loc, list_var, list_expr, nullptr));
+
         ASR::expr_t *list_item = ASRUtils::EXPR(
-            ASR::make_ListItem_t(al, loc, list_expr,
+            ASR::make_ListItem_t(al, loc, list_var,
                                     list_iter_var, listC->m_type, nullptr));
         ASR::expr_t *list_len = ASRUtils::EXPR(ASR::make_ListLen_t(
-            al, loc, list_expr, int_type, nullptr));
+            al, loc, list_var, int_type, nullptr));
         ASR::expr_t *constant_one = ASRUtils::EXPR(
             ASR::make_IntegerConstant_t(al, loc, 1, int_type));
         ASR::expr_t *list_len_minus_one =
@@ -199,6 +211,7 @@ class PrintListTupleVisitor
             al, loc, nullptr, loop_head, loop_body.p, loop_body.size(), nullptr, 0));
 
         {
+            print_pass_result_tmp.push_back(al, assign_stmt);
             print_pass_result_tmp.push_back(al, print_open_bracket);
             print_pass_result_tmp.push_back(al, loop);
             print_pass_result_tmp.push_back(al, print_close_bracket);
