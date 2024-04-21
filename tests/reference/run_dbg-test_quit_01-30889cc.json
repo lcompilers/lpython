@@ -8,6 +8,6 @@
     "stdout": null,
     "stdout_hash": null,
     "stderr": "run_dbg-test_quit_01-30889cc.stderr",
-    "stderr_hash": "dce4cd6899a19fe199a58705262bb58136ba2ade62f775af76c56a21",
-    "returncode": 1
+    "stderr_hash": "56a8b2a9b2ee213cbfab4c18870ed93ddbfaa37e421f171155d06d4f",
+    "returncode": 10
 }

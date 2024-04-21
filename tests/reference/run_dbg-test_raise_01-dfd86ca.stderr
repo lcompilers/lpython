@@ -1,1 +1,7 @@
-semantic error: The `runtime stacktrace` is not enabled. To get the stacktraces, re-build LPython with `-DWITH_RUNTIME_STACKTRACE=yes`
+  File "tests/runtime_errors/test_raise_01.py", line 1
+    def test():
+  File "tests/runtime_errors/test_raise_01.py", line 4
+    test()
+  File "tests/runtime_errors/test_raise_01.py", line 2
+    raise
+ERROR STOP
