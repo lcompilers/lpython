@@ -1132,7 +1132,7 @@ def _lpython_str_expandtabs(s: str, tabsize: i32) -> str:
                 for i in range(tabsize-(col % tabsize)):
                     result += ' '
             col = 0
-        elif (c == '\n') | (c == '\r'):
+        elif c == '\n' or c == '\r':
             result += c
             col = 0
         else:
