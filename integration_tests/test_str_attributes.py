@@ -473,22 +473,29 @@ def is_numeric():
     assert "ab2%3".isnumeric() == False
 
 def center():
-    assert "test".center(8,'*') == "**test**"
-    assert "test".center(11) == "    test   "
-    assert "test".center(2) == "test"
-    assert "test".center(4) == "test"
-    assert "test".center(9,'/') == "///test//"
+    s: str = "test"
+    assert s.center(8,'*') == "**test**"
+    assert s.center(11) == "    test   "
+    assert s.center(2) == "test"
+    assert s.center(4) == "test"
+    assert s.center(9,'/') == "///test//"
 
 def expandtabs():
-    assert '01\t012\t0123\t01234'.expandtabs() == "01      012     0123    01234"
-    assert '01\t012\t0123\t01234'.expandtabs(4) == "01  012 0123    01234"
-    assert '01\t012\t0123\t01234'.expandtabs(-1) == "01012012301234"
-    assert '\t'.expandtabs() == "        "
-    assert ''.expandtabs() == ""
-    assert '\tThis\ris\na\ttest'.expandtabs(4) == "    This\ris\na   test"
-    assert '\t\t\t'.expandtabs(2) == "      "
-    assert 'test\ttest'.expandtabs(0) == "testtest"
-    assert 'test\ttest'.expandtabs(-5) == "testtest"
+    s: str = '01\t012\t0123\t01234'
+    assert s.expandtabs() == "01      012     0123    01234"
+    assert s.expandtabs(4) == "01  012 0123    01234"
+    assert s.expandtabs(-1) == "01012012301234"
+    s = '\t'
+    assert s.expandtabs() == "        "
+    s = ''
+    assert s.expandtabs() == ""
+    s = '\tThis\ris\na\ttest'
+    assert s.expandtabs(4) == "    This\ris\na   test"
+    s = '\t\t\t'
+    assert s.expandtabs(2) == "      "
+    s = 'test\ttest'
+    assert s.expandtabs(0) == "testtest"
+    assert s.expandtabs(-5) == "testtest"
 
 def check():
     capitalize()
