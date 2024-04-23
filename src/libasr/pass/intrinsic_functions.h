@@ -4681,6 +4681,9 @@ static inline ASR::expr_t *eval_list_pop(Allocator &/*al*/,
         if (args.n == 1) {
             return clist->m_args[clist->n_args - 1];
         } else {
+            if (args[1] == nullptr) {
+                return nullptr;
+            }
             return clist->m_args[ASR::down_cast<ASR::IntegerConstant_t>(ASRUtils::expr_value(args[1]))->m_n];
         }
 
