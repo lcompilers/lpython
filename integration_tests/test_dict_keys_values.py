@@ -50,5 +50,27 @@ def test_dict_keys_values():
                 key_count += 1
                 assert v2_copy[j] == d2[str(i)]
         assert key_count == 1
+    
+    # dict.values on dict constant
+    assert len({1: "a"}.values()) == 1
+    print({1: "a"}.values())
+
+    assert len({"a": 1, "b": 2, "c": 3}.values()) == 3
+    print({"a": 1, "b": 2, "c": 3}.values())
+
+    assert len({1: [1, 2, 3], 2: [4, 5, 6], 3: [7, 8, 9]}.values()) == 3
+    print({1: [1, 2, 3], 2: [4, 5, 6], 3: [7, 8, 9]}.values())
+
+    assert len({(1, 2): "a", (3, 4): "b", (5, 6): "c"}.values()) == 3
+    print({(1, 2): "a", (3, 4): "b", (5, 6): "c"}.values())
+
+    k_1: list[list[i32]] = {"list1": [1, 2, 3], "list2": [4, 5, 6], "list3": [7, 8, 9]}.values()
+    assert len(k_1) == 3
+    print(k_1)
+
+    k_2: list[str] = {(1, 2): "a", (3, 4): "b", (5, 6): "c"}.values()
+    assert len(k_2) == 3
+print(k_2)
+
 
 test_dict_keys_values()
