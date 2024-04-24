@@ -430,8 +430,8 @@ jobs:
         shell: bash -e -l {0}
         run: |
             cd integration_tests
-            ./run_tests.py -b c_sym cpython_sym llvm_sym
-            ./run_tests.py -b c_sym cpython_sym llvm_sym -f
+            ./run_tests.py -b c_sym cpython_sym llvm_sym llvm_jit
+            ./run_tests.py -b c_sym cpython_sym llvm_sym llvm_jit -f
 
   integration_tests_cpython:
     name: Run Integration tests with Python ${{ matrix.python-version }}
