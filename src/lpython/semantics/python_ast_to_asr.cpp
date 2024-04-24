@@ -6096,6 +6096,11 @@ public:
             ASR::expr_t *key = ASRUtils::EXPR(tmp);
             if (key_type == nullptr) {
                 key_type = ASRUtils::expr_type(key);
+                if (ASR::is_a<ASR::List_t>(*key_type)
+                    || ASR::is_a<ASR::Dict_t>(*key_type)
+                    || ASR::is_a<ASR::Set_t>(*key_type)) {
+                        throw SemanticError("unhashable type: '" + ASRUtils::type_to_str(key_type) + "'", key->base.loc);
+                }
             } else {
                 if (!ASRUtils::check_equal_type(ASRUtils::expr_type(key), key_type)) {
                     throw SemanticError("All dictionary keys must be of the same type",
