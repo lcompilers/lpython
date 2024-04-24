@@ -70,7 +70,6 @@ def test_dict_keys_values():
 
     k_2: list[str] = {(1, 2): "a", (3, 4): "b", (5, 6): "c"}.values()
     assert len(k_2) == 3
-print(k_2)
-
+    
 
 test_dict_keys_values()
