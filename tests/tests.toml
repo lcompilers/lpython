@@ -1022,6 +1022,18 @@ filename = "errors/test_dict1.py"
 asr = true
 
 [[test]]
+filename = "errors/test_dict_key1.py"
+asr = true
+
+[[test]]
+filename = "errors/test_dict_key2.py"
+asr = true
+
+[[test]]
+filename = "errors/test_dict_key3.py"
+asr = true
+
+[[test]]
 filename = "errors/test_dict8.py"
 asr = true
 
