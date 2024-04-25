@@ -1,5 +1,5 @@
 semantic error: unhashable type: 'set'
  --> tests/errors/test_set_object3.py:4:30
   |
-4 |     my_set: set[set[str]] = {{1, 2}, {3, 4}}
+4 |     my_set: set[set[i32]] = {{1, 2}, {3, 4}}
   |                              ^^^^^^ 
