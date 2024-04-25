@@ -1098,11 +1098,7 @@ def _lpython_str_center(s: str, width: i32, fillchar: str) -> str:
         return s
     width -= len(s)
     result: str = ""
-    left_padding: i32
-    if width/2 > f64(i32(width/2)):
-        left_padding = i32(width/2) + 1
-    else:
-        left_padding = i32(width/2)
+    left_padding: i32 = i32(width/2) + _mod(width,2)
     i: i32 
     for i in range(left_padding):
         result += fillchar
