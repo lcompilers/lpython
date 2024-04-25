@@ -1,0 +1,13 @@
+{
+    "basename": "asr-test_set_object1-d9bd2e1",
+    "cmd": "lpython --show-asr --no-color {infile} -o {outfile}",
+    "infile": "tests/errors/test_set_object1.py",
+    "infile_hash": "9450d7ca46f30271944800137d28413648bafdbeb7f0a7ac0906c832",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": null,
+    "stdout_hash": null,
+    "stderr": "asr-test_set_object1-d9bd2e1.stderr",
+    "stderr_hash": "41b650d67f9f8a83d7e4035b6ee06b5bc79a7c87fa1f7f3c57987b26",
+    "returncode": 2
+}
