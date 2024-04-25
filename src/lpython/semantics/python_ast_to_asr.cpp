@@ -1590,6 +1590,15 @@ public:
         }
     }
 
+    bool is_hashable(ASR::ttype_t* object_type) {
+        if (ASR::is_a<ASR::List_t>(*object_type)
+            || ASR::is_a<ASR::Dict_t>(*object_type)
+            || ASR::is_a<ASR::Set_t>(*object_type)) {
+                return false;
+            }
+        return true;
+    }
+
     AST::expr_t* get_var_intent_and_annotation(AST::expr_t *annotation, ASR::intentType &intent) {
         if (AST::is_a<AST::Subscript_t>(*annotation)) {
             AST::Subscript_t *s = AST::down_cast<AST::Subscript_t>(annotation);
@@ -6096,10 +6105,9 @@ public:
             ASR::expr_t *key = ASRUtils::EXPR(tmp);
             if (key_type == nullptr) {
                 key_type = ASRUtils::expr_type(key);
-                if (ASR::is_a<ASR::List_t>(*key_type)
-                    || ASR::is_a<ASR::Dict_t>(*key_type)
-                    || ASR::is_a<ASR::Set_t>(*key_type)) {
-                        throw SemanticError("unhashable type: '" + ASRUtils::type_to_str(key_type) + "'", key->base.loc);
+                if (!is_hashable(key_type)) {
+                    throw SemanticError("unhashable type: '" + ASRUtils::type_to_str(key_type) + "'",
+                                        key->base.loc);
                 }
             } else {
                 if (!ASRUtils::check_equal_type(ASRUtils::expr_type(key), key_type)) {
@@ -6570,6 +6578,10 @@ public:
             ASR::expr_t *value = ASRUtils::EXPR(tmp);
             if (type == nullptr) {
                 type = ASRUtils::expr_type(value);
+                if (!is_hashable(type)) {
+                    throw SemanticError("unhashable type: '" + ASRUtils::type_to_str(type) + "'",
+                                        type->base.loc);
+                }
             } else {
                 if (!ASRUtils::check_equal_type(ASRUtils::expr_type(value), type)) {
                     throw SemanticError("All Set values must be of the same type for now",
