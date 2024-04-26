@@ -4673,7 +4673,7 @@ static inline void verify_args(const ASR::IntrinsicElementalFunction_t& x, diag:
 
 static inline ASR::expr_t *eval_list_pop(Allocator &/*al*/,
     const Location &/*loc*/, ASR::ttype_t */*t*/, Vec<ASR::expr_t*>& args, diag::Diagnostics& /*diag*/) {
-        if (args[0] == nullptr) {
+        if (args.n == 0 || args[0] == nullptr) {
             return nullptr;
         }
         ASR::ListConstant_t* clist = ASR::down_cast<ASR::ListConstant_t>(args[0]);
