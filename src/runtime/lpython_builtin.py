@@ -1094,9 +1094,10 @@ def _lpython_str_center(s: str, width: i32, fillchar: str) -> str:
     """
     if(len(fillchar) != 1):
         raise TypeError("The fill character must be exactly one character long")
-    if(width <= len(s)):
+    str_len: i32 = len(s)
+    if width <= str_len:
         return s
-    width -= len(s)
+    width -= str_len
     result: str = ""
     left_padding: i32 = i32(width/2) + _mod(width,2)
     i: i32 
