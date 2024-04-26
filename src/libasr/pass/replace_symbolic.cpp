@@ -850,9 +850,9 @@ public:
                     print_tmp.push_back(val);
                 }
             } 
-            // else {
-            //     print_tmp.push_back(x.m_values[i]);
-            // }
+            else {
+                print_tmp.push_back(x.m_values[i]);
+            }
         }
         if (!print_tmp.empty()) {
             Vec<ASR::expr_t*> tmp_vec;
