@@ -7,6 +7,7 @@ def test_intrinsic_function_mixed_print():
     print("1 is located at:", my_list.index(1))
     my_list.append(2)
     print("2 is present", my_list.count(2), "times")
+    print(my_list.pop(), my_list)
 
     # dict and dict methods
     my_dict: dict[str, i32] = {"first": 1, "second": 2, "third": 3}

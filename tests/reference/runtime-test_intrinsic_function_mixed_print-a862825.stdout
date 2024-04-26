@@ -1,5 +1,6 @@
 5
 0
 2 is present 2 times
+2
 ['second', 'third', 'first']
 Value of 'third': 3
