@@ -10,7 +10,7 @@ on:
     branches:
       - main
 env:
-  MACOSX_DEPLOYMENT_TARGET: 12.0
+  MACOSX_DEPLOYMENT_TARGET: 14.0
 
 jobs:
   Build:
