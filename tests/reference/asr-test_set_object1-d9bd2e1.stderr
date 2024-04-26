@@ -1,5 +1,5 @@
-semantic error: unhashable type: 'list'
- --> tests/errors/test_set_object1.py:4:31
+semantic error: Unhashable type: 'list'
+ --> tests/errors/test_set_object1.py:4:17
   |
 4 |     my_set: set[list[i32]] = {[1, 2], [3, 4]}
-  |                               ^^^^^^ 
+  |                 ^^^^^^^^^ Mutable type 'list' cannot be stored in a set.
