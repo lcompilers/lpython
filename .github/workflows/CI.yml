@@ -10,7 +10,7 @@ on:
     branches:
       - main
 env:
-  MACOSX_DEPLOYMENT_TARGET: 12.0
+  MACOSX_DEPLOYMENT_TARGET: 14.0
 
 jobs:
   Build:
@@ -37,6 +37,7 @@ jobs:
 
       - uses: conda-incubator/setup-miniconda@v2
         with:
+          miniconda-version: "latest"
           auto-update-conda: true
           environment-file: ci/environment.yml
           python-version: ${{ matrix.python-version }}
@@ -50,7 +51,7 @@ jobs:
       - name: Install Linux / macOS Conda Packages
         if: contains(matrix.os, 'ubuntu') || contains(matrix.os, 'macos')
         shell: bash -e -l {0}
-        run: conda install bison=3.4
+        run: conda install bison=3.4 nodejs=18
 
       - name: Conda info
         shell: bash -e -l {0}
@@ -86,7 +87,7 @@ jobs:
         if: contains(matrix.os, 'windows')
         shell: cmd
         run: |
-            set CONDA_INSTALL_LOCN=C:\\Miniconda
+            set CONDA_INSTALL_LOCN=C:\\Miniconda3
             call %CONDA_INSTALL_LOCN%\Scripts\activate.bat
             call conda activate test
             set LFORTRAN_CMAKE_GENERATOR=Ninja
@@ -106,7 +107,7 @@ jobs:
         if: contains(matrix.os, 'windows')
         shell: cmd
         run: |
-            set CONDA_INSTALL_LOCN=C:\\Miniconda
+            set CONDA_INSTALL_LOCN=C:\\Miniconda3
             call %CONDA_INSTALL_LOCN%\Scripts\activate.bat
             call conda activate test
             set LFORTRAN_CMAKE_GENERATOR=Ninja
