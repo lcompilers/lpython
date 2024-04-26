@@ -74,13 +74,13 @@ struct AttributeHandler {
             throw SemanticError("Type name is not implemented yet.", loc);
         }
         std::string key = class_name + "@" + attr_name;
-        // if (modify_attr_set.find(key) != modify_attr_set.end()) {
-        //     ASR::Variable_t* v = ASRUtils::EXPR2VAR(e);
-        //     if (v->m_intent == ASRUtils::intent_in) {
-        //         throw SemanticError("Modifying input function parameter `"
-        //                     + std::string(v->m_name) + "` is not allowed", loc);
-        //     }
-        // }
+        if (modify_attr_set.find(key) != modify_attr_set.end()) {
+            ASR::Variable_t* v = ASRUtils::EXPR2VAR(e);
+            if (v->m_intent == ASRUtils::intent_in) {
+                throw SemanticError("Modifying input function parameter `"
+                            + std::string(v->m_name) + "` is not allowed", loc);
+            }
+        }
         auto search = attribute_map.find(key);
         if (search != attribute_map.end()) {
             attribute_eval_callback cb = search->second;
