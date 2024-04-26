@@ -6902,7 +6902,7 @@ public:
             fn_args.push_back(al, str);
             fn_args.push_back(al, value);
 
-            if(args.size()==2){
+            if(args.size() == 2){
                 ASR::expr_t *arg_value = args[1].m_value;
                 ASR::ttype_t *arg_value_type = ASRUtils::expr_type(arg_value);
                 if (!ASRUtils::is_character(*arg_value_type)) {
