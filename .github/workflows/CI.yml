@@ -87,7 +87,7 @@ jobs:
         if: contains(matrix.os, 'windows')
         shell: cmd
         run: |
-            set CONDA_INSTALL_LOCN=C:\\Miniconda
+            set CONDA_INSTALL_LOCN=C:\\Miniconda3
             call %CONDA_INSTALL_LOCN%\Scripts\activate.bat
             call conda activate test
             set LFORTRAN_CMAKE_GENERATOR=Ninja
@@ -107,7 +107,7 @@ jobs:
         if: contains(matrix.os, 'windows')
         shell: cmd
         run: |
-            set CONDA_INSTALL_LOCN=C:\\Miniconda
+            set CONDA_INSTALL_LOCN=C:\\Miniconda3
             call %CONDA_INSTALL_LOCN%\Scripts\activate.bat
             call conda activate test
             set LFORTRAN_CMAKE_GENERATOR=Ninja
