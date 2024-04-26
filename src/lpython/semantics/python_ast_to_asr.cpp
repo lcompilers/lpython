@@ -7600,7 +7600,7 @@ we will have to use something else.
         } else if (AST::is_a<AST::List_t>(*at->m_value)) {
             AST::List_t* clist = AST::down_cast<AST::List_t>(at->m_value);
             visit_List(*clist);
-            if (!tmp) {
+            if (tmp == nullptr) {
                 throw SemanticError("cannot call " + std::string(at->m_attr) + " on an empty list" , loc);
             }
             ASR::expr_t* list_expr = ASR::down_cast<ASR::expr_t>(tmp);
