@@ -792,13 +792,17 @@ int emit_llvm(const std::string &infile,
     return 0;
 }
 
-int compile_python_to_object_file(
+/*
+    Compiles python to object file, if `to_jit` is false
+    otherwise execute python code using llvm JIT
+*/
+int compile_python_using_llvm(
         const std::string &infile,
         const std::string &outfile,
         const std::string &runtime_library_dir,
         LCompilers::PassManager& pass_manager,
         CompilerOptions &compiler_options,
-        bool time_report, bool arg_c=false)
+        bool time_report, bool arg_c=false, bool to_jit=false)
 {
     Allocator al(4*1024);
     LCompilers::diag::Diagnostics diagnostics;
@@ -869,7 +873,6 @@ int compile_python_to_object_file(
     }
     LCompilers::PythonCompiler fe(compiler_options);
     LCompilers::LLVMEvaluator e(compiler_options.target);
-    std::unique_ptr<LCompilers::LLVMModule> m;
     auto asr_to_llvm_start = std::chrono::high_resolution_clock::now();
     LCompilers::Result<std::unique_ptr<LCompilers::LLVMModule>>
         res = fe.get_llvm3(*asr, pass_manager, diagnostics, infile);
@@ -882,12 +885,55 @@ int compile_python_to_object_file(
         print_time_report(times, time_report);
         return 3;
     }
-    m = std::move(res.result);
-    auto llvm_start = std::chrono::high_resolution_clock::now();
-    e.save_object_file(*(m->m_m), outfile);
-    auto llvm_end = std::chrono::high_resolution_clock::now();
-    times.push_back(std::make_pair("LLVM to binary", std::chrono::duration<double, std::milli>(llvm_end - llvm_start).count()));
-    print_time_report(times, time_report);
+    std::unique_ptr<LCompilers::LLVMModule> m = std::move(res.result);
+
+    if (to_jit) {
+        LCompilers::LPython::DynamicLibrary cpython_lib;
+        LCompilers::LPython::DynamicLibrary symengine_lib;
+
+        if (compiler_options.enable_cpython) {
+            LCompilers::LPython::open_cpython_library(cpython_lib);
+        }
+        if (compiler_options.enable_symengine) {
+            LCompilers::LPython::open_symengine_library(symengine_lib);
+        }
+
+        auto llvm_start = std::chrono::high_resolution_clock::now();
+
+        bool call_init = false;
+        bool call_stmts = false;
+        if (m->get_return_type("__module___main_____main__global_init") == "void") {
+            call_init = true;
+        }
+        if (m->get_return_type("__module___main_____main__global_stmts") == "void") {
+            call_stmts = true;
+        }
+
+        e.add_module(std::move(m));
+        if (call_init) {
+            e.voidfn("__module___main_____main__global_init");
+        }
+        if (call_stmts) {
+            e.voidfn("__module___main_____main__global_stmts");
+        }
+
+        if (compiler_options.enable_cpython) {
+            LCompilers::LPython::close_cpython_library(cpython_lib);
+        }
+        if (compiler_options.enable_symengine) {
+            LCompilers::LPython::close_symengine_library(symengine_lib);
+        }
+
+        auto llvm_end = std::chrono::high_resolution_clock::now();
+        times.push_back(std::make_pair("LLVM JIT execution", std::chrono::duration<double, std::milli>(llvm_end - llvm_start).count()));
+        print_time_report(times, time_report);
+    } else {
+        auto llvm_start = std::chrono::high_resolution_clock::now();
+        e.save_object_file(*(m->m_m), outfile);
+        auto llvm_end = std::chrono::high_resolution_clock::now();
+        times.push_back(std::make_pair("LLVM to binary", std::chrono::duration<double, std::milli>(llvm_end - llvm_start).count()));
+        print_time_report(times, time_report);
+    }
     return 0;
 }
 
@@ -1560,6 +1606,7 @@ int main(int argc, char *argv[])
         bool print_rtl_header_dir = false;
         bool print_rtl_dir = false;
         bool separate_compilation = false;
+        bool to_jit = false;
 
         std::string arg_fmt_file;
         // int arg_fmt_indent = 4;
@@ -1593,6 +1640,7 @@ int main(int argc, char *argv[])
         app.add_option("-I", compiler_options.import_paths, "Specify the paths"
             "to look for the module")->allow_extra_args(false);
         // app.add_option("-J", arg_J, "Where to save mod files");
+        app.add_flag("--jit", to_jit, "Execute the program using just-in-time (JIT) compiler");
         app.add_flag("-g", compiler_options.emit_debug_info, "Compile with debugging information");
         app.add_flag("--debug-with-line-column", compiler_options.emit_debug_line_column,
             "Convert the linear location info into line + column in the debugging information");
@@ -1894,10 +1942,10 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (arg_c) {
+        if (arg_c && !to_jit) {
             if (backend == Backend::llvm) {
 #ifdef HAVE_LFORTRAN_LLVM
-                return compile_python_to_object_file(arg_file, outfile, runtime_library_dir, lpython_pass_manager, compiler_options, time_report,
+                return compile_python_using_llvm(arg_file, outfile, runtime_library_dir, lpython_pass_manager, compiler_options, time_report,
                                                      arg_c);
 #else
                 std::cerr << "The -c option requires the LLVM backend to be enabled. Recompile with `WITH_LLVM=yes`." << std::endl;
@@ -1911,6 +1959,23 @@ int main(int argc, char *argv[])
         if (endswith(arg_file, ".py"))
         {
             int err = 0;
+            if (to_jit) {
+#ifdef HAVE_LFORTRAN_LLVM
+                if (backend != Backend::llvm) {
+                    std::cerr << "JIT option is only available with LLVM backend" << std::endl;
+                    return 1;
+                }
+                compiler_options.emit_debug_info = false;
+                compiler_options.emit_debug_line_column = false;
+                compiler_options.generate_object_code = false;
+                return compile_python_using_llvm(arg_file, "", runtime_library_dir,
+                        lpython_pass_manager, compiler_options, time_report, false, true);
+#else
+                std::cerr << "Just-In-Time Compilation of Python files requires the LLVM backend to be enabled."
+                             " Recompile with `WITH_LLVM=yes`." << std::endl;
+                return 1;
+#endif
+        }
             if (backend == Backend::x86) {
                 err = compile_to_binary_x86(arg_file, outfile,
                         runtime_library_dir, compiler_options, time_report);
@@ -1931,7 +1996,7 @@ int main(int argc, char *argv[])
             } else if (backend == Backend::llvm) {
 #ifdef HAVE_LFORTRAN_LLVM
                 std::string tmp_o = outfile + ".tmp.o";
-                err = compile_python_to_object_file(arg_file, tmp_o, runtime_library_dir,
+                err = compile_python_using_llvm(arg_file, tmp_o, runtime_library_dir,
                     lpython_pass_manager, compiler_options, time_report);
                 if (err != 0) return err;
                 err = link_executable({tmp_o}, outfile, runtime_library_dir,

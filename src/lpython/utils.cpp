@@ -3,6 +3,8 @@
 #define NOMINMAX
 #endif // NOMINMAX
 #include <windows.h>
+#else
+#include <dlfcn.h>
 #endif
 
 #include <fstream>
@@ -125,6 +127,58 @@ bool path_exists(std::string path) {
         return false;
     }
 }
+
+#ifdef HAVE_LFORTRAN_LLVM
+
+void open_cpython_library(DynamicLibrary &l) {
+    std::string conda_prefix = std::getenv("CONDA_PREFIX");
+#if defined (__linux__)
+    l.l = dlopen((conda_prefix + "/lib/libpython3.so").c_str(), RTLD_DEEPBIND | RTLD_GLOBAL | RTLD_NOW);
+#elif defined (__APPLE__)
+    l.l = dlopen((conda_prefix + "/lib/libpython3.dylib").c_str(), RTLD_GLOBAL | RTLD_NOW);
+#else
+    l.l = LoadLibrary((conda_prefix + "\\python3.dll").c_str());
+#endif
+
+    if (l.l == nullptr)
+        throw "Could not open CPython library";
+}
+
+void close_cpython_library(DynamicLibrary &l) {
+#if (defined (__linux__)) or (defined (__APPLE__))
+    dlclose(l.l);
+    l.l = nullptr;
+#else
+    FreeLibrary((HMODULE)l.l);
+    l.l = nullptr;
+#endif
+}
+
+void open_symengine_library(DynamicLibrary &l) {
+    std::string conda_prefix = std::getenv("CONDA_PREFIX");
+#if defined (__linux__)
+    l.l = dlopen((conda_prefix + "/lib/libsymengine.so").c_str(), RTLD_DEEPBIND | RTLD_GLOBAL | RTLD_NOW);
+#elif defined (__APPLE__)
+    l.l = dlopen((conda_prefix + "/lib/libsymengine.dylib").c_str(), RTLD_GLOBAL | RTLD_NOW);
+#else
+    l.l = LoadLibrary((conda_prefix + "\\Library\\bin\\symengine-0.11.dll").c_str());
+#endif
+
+    if (l.l == nullptr)
+        throw "Could not open SymEngine library";
+}
+
+void close_symengine_library(DynamicLibrary &l) {
+#if (defined (__linux__)) or (defined (__APPLE__))
+    dlclose(l.l);
+    l.l = nullptr;
+#else
+    FreeLibrary((HMODULE)l.l);
+    l.l = nullptr;
+#endif
+}
+
+#endif
 
 // Decodes the exit status code of the process (in Unix)
 // See `WEXITSTATUS` for more information.
