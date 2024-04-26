@@ -6921,7 +6921,7 @@ public:
             str.m_value = s_var;
             fn_args.push_back(al, str);
 
-            if(args.size()==1){
+            if(args.size() == 1){
                 ASR::expr_t *arg_value = args[0].m_value;
                 ASR::ttype_t *arg_value_type = ASRUtils::expr_type(arg_value);
                 if (!ASRUtils::is_integer(*arg_value_type)) {
