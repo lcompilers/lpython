@@ -7986,7 +7986,7 @@ public:
                         && ASRUtils::is_character(*ASRUtils::expr_type(x.m_values[i - 1])))) {
                     args.push_back(sep);
                 } else {
-                    sep_no_space = sep_no_space != nullptr ? sep_no_space : builder->CreateGlobalStringPtr("");
+                    sep_no_space = sep_no_space != nullptr ? sep_no_space : builder->CreateGlobalStringPtr(" ");
                     args.push_back(sep_no_space);
                 }
             }
