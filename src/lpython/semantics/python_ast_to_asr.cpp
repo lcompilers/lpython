@@ -1710,6 +1710,17 @@ public:
                 if (AST::is_a<AST::Name_t>(*s->m_slice) || AST::is_a<AST::Subscript_t>(*s->m_slice)) {
                     ASR::ttype_t *type = ast_expr_to_asr_type(loc, *s->m_slice,
                         is_allocatable, is_const, raise_error, abi, is_argument);
+                    if (!is_hashable(type)) {
+                        diag.add(diag::Diagnostic(
+                            "Unhashable type: '" + ASRUtils::type_to_str(type) + "'",
+                            diag::Level::Error, diag::Stage::Semantic, {
+                                diag::Label("Mutable type '" + ASRUtils::type_to_str(type) 
+                                + "' cannot be stored in a set.",
+                                        {s->m_slice->base.loc})
+                            })
+                        );
+                        throw SemanticAbort();
+                    }
                     return ASRUtils::TYPE(ASR::make_Set_t(al, loc, type));
                 } else {
                     throw SemanticError("Only Name in Subscript supported for now in `set`"
@@ -1745,6 +1756,17 @@ public:
                     }
                     ASR::ttype_t *key_type = ast_expr_to_asr_type(loc, *t->m_elts[0],
                         is_allocatable, is_const, raise_error, abi, is_argument);
+                    if (!is_hashable(key_type)) {
+                        diag.add(diag::Diagnostic(
+                            "Unhashable type: '" + ASRUtils::type_to_str(key_type) + "'",
+                            diag::Level::Error, diag::Stage::Semantic, {
+                                diag::Label("Mutable type '" + ASRUtils::type_to_str(key_type) 
+                                + "' cannot become a key in dict. Hint: Use an immutable type for key.",
+                                        {t->m_elts[0]->base.loc})
+                            })
+                        );
+                        throw SemanticAbort();
+                    }
                     ASR::ttype_t *value_type = ast_expr_to_asr_type(loc, *t->m_elts[1],
                         is_allocatable, is_const, raise_error, abi, is_argument);
                     raise_error_when_dict_key_is_float_or_complex(key_type, loc);
@@ -3788,7 +3810,7 @@ public:
                     ai.m_step, type, nullptr);
                 return false;
             } else if (ASR::is_a<ASR::Dict_t>(*type)) {
-                throw SemanticError("unhashable type in dict: 'slice'", loc);
+                throw SemanticError("Unhashable type in dict: 'slice'", loc);
             }
         } else if(AST::is_a<AST::Tuple_t>(*m_slice) &&
                     ASRUtils::is_array(type)) {
@@ -6106,8 +6128,15 @@ public:
             if (key_type == nullptr) {
                 key_type = ASRUtils::expr_type(key);
                 if (!is_hashable(key_type)) {
-                    throw SemanticError("unhashable type: '" + ASRUtils::type_to_str(key_type) + "'",
-                                        key->base.loc);
+                    diag.add(diag::Diagnostic(
+                            "Unhashable type: '" + ASRUtils::type_to_str(key_type) + "'",
+                            diag::Level::Error, diag::Stage::Semantic, {
+                                diag::Label("Mutable type '" + ASRUtils::type_to_str(key_type) 
+                                + "' cannot become a key in dict. Hint: Use an immutable type for key.",
+                                        {key->base.loc})
+                            })
+                        );
+                        throw SemanticAbort();
                 }
             } else {
                 if (!ASRUtils::check_equal_type(ASRUtils::expr_type(key), key_type)) {
@@ -6579,8 +6608,15 @@ public:
             if (type == nullptr) {
                 type = ASRUtils::expr_type(value);
                 if (!is_hashable(type)) {
-                    throw SemanticError("unhashable type: '" + ASRUtils::type_to_str(type) + "'",
-                                        type->base.loc);
+                    diag.add(diag::Diagnostic(
+                            "Unhashable type: '" + ASRUtils::type_to_str(type) + "'",
+                            diag::Level::Error, diag::Stage::Semantic, {
+                                diag::Label("Mutable type '" + ASRUtils::type_to_str(type) 
+                                + "' cannot be stored in a set.",
+                                        {value->base.loc})
+                            })
+                        );
+                        throw SemanticAbort();
                 }
             } else {
                 if (!ASRUtils::check_equal_type(ASRUtils::expr_type(value), type)) {
