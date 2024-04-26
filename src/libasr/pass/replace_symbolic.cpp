@@ -849,8 +849,7 @@ public:
                 } else {
                     print_tmp.push_back(val);
                 }
-            } 
-            else {
+            } else {
                 print_tmp.push_back(x.m_values[i]);
             }
         }
