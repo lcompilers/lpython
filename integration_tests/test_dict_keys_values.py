@@ -72,4 +72,27 @@ def test_dict_keys_values():
     print(k_2)
     assert len(k_2) == 3
 
+
+    # dict.keys on dict constant
+    print({1: "a"}.keys())
+    assert len({1: "a"}.keys()) == 1
+
+    print({"a": 1, "b": 2, "c": 3}.keys())
+    assert len({"a": 1, "b": 2, "c": 3}.keys()) == 3
+
+    print({1: [1, 2, 3], 2: [4, 5, 6], 3: [7, 8, 9]}.keys())
+    assert len({1: [1, 2, 3], 2: [4, 5, 6], 3: [7, 8, 9]}.keys()) == 3
+
+    print({(1, 2): "a", (3, 4): "b", (5, 6): "c"}.keys())
+    assert len({(1, 2): "a", (3, 4): "b", (5, 6): "c"}.keys()) == 3
+
+    k_1: list[str] = {"list1": [1, 2, 3], "list2": [4, 5, 6], "list3": [7, 8, 9]}.keys()
+    print(k_1)
+    assert len(k_1) == 3
+
+    k_2: list[tuple[i32, i32]] = {(1, 2): "a", (3, 4): "b", (5, 6): "c"}.keys()
+    print(k_2)
+    assert len(k_2) == 3
+
+
 test_dict_keys_values()
