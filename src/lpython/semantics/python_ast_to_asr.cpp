@@ -6129,14 +6129,14 @@ public:
                 key_type = ASRUtils::expr_type(key);
                 if (!is_hashable(key_type)) {
                     diag.add(diag::Diagnostic(
-                            "Unhashable type: '" + ASRUtils::type_to_str(key_type) + "'",
-                            diag::Level::Error, diag::Stage::Semantic, {
-                                diag::Label("Mutable type '" + ASRUtils::type_to_str(key_type) 
-                                + "' cannot become a key in dict. Hint: Use an immutable type for key.",
-                                        {key->base.loc})
-                            })
-                        );
-                        throw SemanticAbort();
+                        "Unhashable type: '" + ASRUtils::type_to_str(key_type) + "'",
+                        diag::Level::Error, diag::Stage::Semantic, {
+                            diag::Label("Mutable type '" + ASRUtils::type_to_str(key_type) 
+                            + "' cannot become a key in dict. Hint: Use an immutable type for key.",
+                                    {key->base.loc})
+                        })
+                    );
+                    throw SemanticAbort();
                 }
             } else {
                 if (!ASRUtils::check_equal_type(ASRUtils::expr_type(key), key_type)) {
@@ -6609,14 +6609,14 @@ public:
                 type = ASRUtils::expr_type(value);
                 if (!is_hashable(type)) {
                     diag.add(diag::Diagnostic(
-                            "Unhashable type: '" + ASRUtils::type_to_str(type) + "'",
-                            diag::Level::Error, diag::Stage::Semantic, {
-                                diag::Label("Mutable type '" + ASRUtils::type_to_str(type) 
-                                + "' cannot be stored in a set.",
-                                        {value->base.loc})
-                            })
-                        );
-                        throw SemanticAbort();
+                        "Unhashable type: '" + ASRUtils::type_to_str(type) + "'",
+                        diag::Level::Error, diag::Stage::Semantic, {
+                            diag::Label("Mutable type '" + ASRUtils::type_to_str(type) 
+                            + "' cannot be stored in a set.",
+                                    {value->base.loc})
+                        })
+                    );
+                    throw SemanticAbort();
                 }
             } else {
                 if (!ASRUtils::check_equal_type(ASRUtils::expr_type(value), type)) {
