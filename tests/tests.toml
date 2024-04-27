@@ -466,6 +466,10 @@ filename = "../integration_tests/test_list_item_mixed_print.py"
 run = true
 
 [[test]]
+filename = "../integration_tests/test_intrinsic_function_mixed_print.py"
+run = true
+
+[[test]]
 filename = "../integration_tests/generics_01.py"
 asr = true
 
