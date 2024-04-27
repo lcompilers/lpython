@@ -7653,7 +7653,7 @@ we will have to use something else.
         } else if (AST::is_a<AST::Dict_t>(*at->m_value)) {
             AST::Dict_t* cdict = AST::down_cast<AST::Dict_t>(at->m_value);
             visit_Dict(*cdict);
-            if (!tmp) {
+            if (tmp == nullptr) {
                 throw SemanticError("cannot call " + std::string(at->m_attr) + " on an empty dict" , loc);
             }
             ASR::expr_t* dict_expr = ASR::down_cast<ASR::expr_t>(tmp);
