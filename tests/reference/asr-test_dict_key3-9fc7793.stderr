@@ -1,0 +1,5 @@
+semantic error: Unhashable type: 'set'
+ --> tests/errors/test_dict_key3.py:4:19
+  |
+4 |     my_dict: dict[set[str], str] = {{1, 2}: "first", {3, 4}: "second"}
+  |                   ^^^^^^^^ Mutable type 'set' cannot become a key in dict. Hint: Use an immutable type for key.
