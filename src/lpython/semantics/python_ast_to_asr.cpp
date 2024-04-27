@@ -7659,7 +7659,7 @@ we will have to use something else.
             ASR::expr_t* dict_expr = ASR::down_cast<ASR::expr_t>(tmp);
             Vec<ASR::expr_t*> eles;
             eles.reserve(al, args.size());
-            for (size_t i=0; i<args.size(); i++) {
+            for (size_t i = 0; i < args.size(); i++) {
                 eles.push_back(al, args[i].m_value);
             }
             handle_builtin_attribute(dict_expr, at->m_attr, loc, eles);
