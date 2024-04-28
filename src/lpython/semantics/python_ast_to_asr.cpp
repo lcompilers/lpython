@@ -5568,7 +5568,12 @@ public:
             ASR::asr_t* assign = ASR::make_Assignment_t(al, x.base.base.loc,
                             ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, tmp_assign_variable_sym)),
                             target, nullptr);
-            current_body->push_back(al, ASRUtils::STMT(assign));
+            if(current_body){
+                current_body->push_back(al, ASRUtils::STMT(assign));
+            }else{
+                global_init.reserve(al, x.n_body + 1);
+                global_init.push_back(al,assign);
+            }
             loop_end = for_iterable_helper(tmp_assign_name, x.base.base.loc, explicit_iter_name);
             for_iter_type = loop_end;
             LCOMPILERS_ASSERT(loop_end);
