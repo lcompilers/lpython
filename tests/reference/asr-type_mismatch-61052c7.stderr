@@ -3,7 +3,3 @@ semantic error: Type mismatch in shorthand operator, the types must be compatibl
   |
 8 |     a *= b
   |     ^    ^ type mismatch ('i32' and 'f32')
-
-
-Note: Please report unclear or confusing messages as bugs at
-https://github.com/lcompilers/lpython/issues.

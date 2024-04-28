@@ -3,7 +3,3 @@ semantic error: Type mismatch in assignment, the types must be compatible
   |
 3 |   t = (1, 2)
   |   ^   ^^^^^^ type mismatch ('tuple[i32, str]' and 'tuple[i32, i32]')
-
-
-Note: Please report unclear or confusing messages as bugs at
-https://github.com/lcompilers/lpython/issues.

@@ -3,7 +3,3 @@ semantic error: Assignment to an input function parameter `l` is not allowed
   |
 4 |     l[5] = 5
   |     ^ Use InOut[list[i32]] to allow assignment
-
-
-Note: Please report unclear or confusing messages as bugs at
-https://github.com/lcompilers/lpython/issues.

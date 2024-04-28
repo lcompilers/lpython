@@ -3,7 +3,3 @@ semantic error: 'f64' object cannot be interpreted as an integer
   |
 3 |     s = chr(973.2)
   |             ^^^^^ 
-
-
-Note: Please report unclear or confusing messages as bugs at
-https://github.com/lcompilers/lpython/issues.

@@ -6,7 +6,7 @@ import os
 
 # Initialization
 DEFAULT_THREADS_TO_USE = 8 # default no of threads is 8
-SUPPORTED_BACKENDS = ['llvm', 'c', 'wasm', 'cpython', 'x86', 'wasm_x86', 'wasm_x64', 'c_py', 'c_sym', 'cpython_sym', 'llvm_sym', 'llvm_py']
+SUPPORTED_BACKENDS = ['llvm', 'c', 'wasm', 'cpython', 'x86', 'wasm_x86', 'wasm_x64', 'c_py', 'c_sym', 'cpython_sym', 'llvm_sym', 'llvm_py', 'llvm_jit']
 BASE_DIR = os.path.dirname(os.path.realpath(__file__))
 LPYTHON_PATH = f"{BASE_DIR}/../src/bin"
 
@@ -62,7 +62,7 @@ def main():
     DEFAULT_THREADS_TO_USE = args.no_of_threads or DEFAULT_THREADS_TO_USE
     fast_tests = "yes" if args.fast else "no"
     for backend in args.backends:
-        python_libs_req = "yes" if backend in ["cpython", "c_py", "c_sym", "llvm_sym", 'llvm_py'] else "no"
+        python_libs_req = "yes" if backend in ["cpython", "c_py", "c_sym", "llvm_sym", 'llvm_py', 'llvm_jit'] else "no"
         test_backend(backend)
 
 

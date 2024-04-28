@@ -73,6 +73,8 @@ public:
         Creating a flag variable in case of a while-else loop
         Creates an if statement after the loop to check if the flag was changed
         */
+        ASR::WhileLoop_t &xx = const_cast<ASR::WhileLoop_t&>(x);
+        transform_stmts(xx.m_body, xx.n_body);
         if (x.n_orelse > 0) {
             Vec<ASR::stmt_t*> result;
             result.reserve(al, 3);

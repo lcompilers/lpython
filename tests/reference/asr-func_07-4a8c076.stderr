@@ -3,7 +3,3 @@ semantic error: Assignment to an input function parameter `this` is not allowed
    |
 12 |     this._len = len(this._buf)
    |     ^^^^ Use InOut[struct StringIO] to allow assignment
-
-
-Note: Please report unclear or confusing messages as bugs at
-https://github.com/lcompilers/lpython/issues.

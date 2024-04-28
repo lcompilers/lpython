@@ -3,7 +3,3 @@ semantic error: The result of the unary minus `-` operation is negative, thus ou
   |
 3 | i: u16 = -u16(5)
   |          ^^^^^^^ use -i32(u) for signed result
-
-
-Note: Please report unclear or confusing messages as bugs at
-https://github.com/lcompilers/lpython/issues.

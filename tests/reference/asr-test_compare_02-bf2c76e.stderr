@@ -3,7 +3,3 @@ semantic error: Type mismatch in comparison operator, the types must be compatib
   |
 6 |     print(x > y)
   |           ^   ^ type mismatch ('i32' and 'u32')
-
-
-Note: Please report unclear or confusing messages as bugs at
-https://github.com/lcompilers/lpython/issues.

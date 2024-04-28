@@ -7,7 +7,3 @@ semantic error: For loop increment type should be Integer.
   |
 4 |            print(i)
   | ...^^^^^^^^^^^^^^^^ 
-
-
-Note: Please report unclear or confusing messages as bugs at
-https://github.com/lcompilers/lpython/issues.

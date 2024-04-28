@@ -3,7 +3,3 @@ semantic error: Call to set.add must have exactly one argument
   |
 6 |     a.add(3, 4)
   |     ^^^^^^^^^^^ 
-
-
-Note: Please report unclear or confusing messages as bugs at
-https://github.com/lcompilers/lpython/issues.

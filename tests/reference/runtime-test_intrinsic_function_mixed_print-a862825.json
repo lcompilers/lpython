@@ -1,0 +1,13 @@
+{
+    "basename": "runtime-test_intrinsic_function_mixed_print-a862825",
+    "cmd": "lpython {infile}",
+    "infile": "tests/../integration_tests/test_intrinsic_function_mixed_print.py",
+    "infile_hash": "b0f779598e5d9868d183f1032fb3f87c131fedacf7848aaed6c4d238",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "runtime-test_intrinsic_function_mixed_print-a862825.stdout",
+    "stdout_hash": "a8d2083be043accf4ebe8c6a3e8a2427d492323b12d0c041ba79f10e",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}

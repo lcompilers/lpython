@@ -816,6 +816,8 @@ public:
                         ASR::expr_t* function_call = process_attributes(x.base.base.loc, val);
                         print_tmp.push_back(function_call);
                     }
+                } else {
+                    print_tmp.push_back(val);
                 }
             } else if (ASR::is_a<ASR::Cast_t>(*val)) {
                 ASR::Cast_t* cast_t = ASR::down_cast<ASR::Cast_t>(val);

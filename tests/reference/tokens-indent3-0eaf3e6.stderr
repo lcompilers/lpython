@@ -3,7 +3,3 @@ tokenizer error: Expected an indented block.
   |
 5 |     pass
   | ^^^^ 
-
-
-Note: Please report unclear or confusing messages as bugs at
-https://github.com/lcompilers/lpython/issues.

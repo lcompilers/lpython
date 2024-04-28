@@ -3,7 +3,3 @@ tokenizer error: Parentheses was never closed
   |
 6 | 
   | ^ 
-
-
-Note: Please report unclear or confusing messages as bugs at
-https://github.com/lcompilers/lpython/issues.

@@ -3,7 +3,3 @@ tokenizer error: Indentation should be of the same type (either tabs or spaces)
   |
 4 |  else:
   | ^ 
-
-
-Note: Please report unclear or confusing messages as bugs at
-https://github.com/lcompilers/lpython/issues.

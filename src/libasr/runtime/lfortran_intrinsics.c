@@ -1976,12 +1976,14 @@ LFORTRAN_API void _lfortran_strcpy(char** x, char *y, int8_t free_target)
         *x = (char*) malloc((strlen(y) + 1) * sizeof(char));
         _lfortran_string_init(strlen(y) + 1, *x);
     // }
-    for (size_t i = 0; i < strlen(*x); i++) {
-        if (i < strlen(y)) {
-            x[0][i] = y[i];
-        } else {
-            x[0][i] = ' ';
-        }
+    size_t y_len = strlen(y);
+    size_t x_len = strlen(*x);
+    size_t i = 0;
+    for (; i < x_len && i < y_len; i++) {
+        x[0][i] = y[i];
+    }
+    for (; i < x_len; i++) {
+        x[0][i] = ' ';
     }
 }
 
@@ -2129,7 +2131,6 @@ LFORTRAN_API int32_t _lpython_bit_length8(int64_t num)
 //repeat str for n time
 LFORTRAN_API void _lfortran_strrepeat(char** s, int32_t n, char** dest)
 {
-    int cntr = 0;
     char trmn = '\0';
     int s_len = strlen(*s);
     int trmn_size = sizeof(trmn);
@@ -2137,13 +2138,22 @@ LFORTRAN_API void _lfortran_strrepeat(char** s, int32_t n, char** dest)
     if (f_len < 0)
         f_len = 0;
     char* dest_char = (char*)malloc(f_len+trmn_size);
-    for (int i = 0; i < n; i++) {
-        for (int j = 0; j < s_len; j++) {
-            dest_char[cntr] = (*s)[j];
-            cntr++;
+
+    if (s_len == 1) {
+        memset(dest_char, *(*s), n);
+    } else {
+        memcpy(dest_char, *s, s_len);
+        int chars_copied = s_len;
+        int copy_length;
+        while (chars_copied < f_len) {
+            copy_length = (chars_copied <= f_len-chars_copied)
+                ? chars_copied : f_len-chars_copied;
+            memcpy(dest_char+chars_copied, dest_char, copy_length);
+            chars_copied += copy_length;
         }
     }
-    dest_char[cntr] = trmn;
+
+    dest_char[f_len] = trmn;
     *dest = &(dest_char[0]);
 }
 
