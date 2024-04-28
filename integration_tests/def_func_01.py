@@ -50,6 +50,7 @@ def test_all():
     print("test_06 is =>",test_06)
     assert test_06 == "Hi|||World"
 
+
     test_07 : str = even_positons(0)
     print("test_07 is =>",test_07)
     assert test_07 == "?X?X?X?X?X"
@@ -58,6 +59,13 @@ def test_all():
     print("test_08 is =>",test_08)
     assert test_08 == "WX?X?X?X?X"
 
+    test_09 :str = default_func(y = "++",z = "LPython")
+    print("test_09 is =>",test_09)
+    assert test_09 == "Hello++LPython"
+
+    test_10 :str = default_func("Welcome",z = "LPython")
+    print("test_10 is =>",test_10)
+    assert test_10 == "Welcome LPython"
 test_all()
 
 

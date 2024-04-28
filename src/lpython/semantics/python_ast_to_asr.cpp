@@ -659,7 +659,7 @@ public:
 
         // Fill the whole call_args_vec with nullptr
         // This is for error handling later on.
-        for( size_t i = 0; i < n_pos_args + n_kwargs; i++ ) {
+         for( size_t i = 0; i < call_args_vec.max; i++ ) {
             ASR::call_arg_t call_arg;
             Location loc;
             loc.first = loc.last = 1;
@@ -703,6 +703,21 @@ public:
             }
             call_args_vec.p[arg_pos].loc = expr->base.loc;
             call_args_vec.p[arg_pos].m_value = expr;
+        }
+        //Filling missing arguments with its default argument passed in function definition (if existed).
+        for(size_t i = 0; i < orig_func->n_args; i++ ){
+            if(call_args_vec.p[i].m_value == nullptr){
+                ASR::symbol_t* sym = ASR::down_cast<ASR::Var_t>(orig_func->m_args[i])->m_v;
+                std::string variable_name = ASR::down_cast<ASR::Variable_t>(sym)->m_name;
+                ASR::Variable_t* var = ASR::down_cast<ASR::Variable_t>(orig_func->m_symtab->get_symbol(variable_name));
+                if (var->m_symbolic_value == nullptr){
+                    call_args_vec.reserve(al, n_pos_args + n_kwargs); //deprecate Vec container, so it raise error later.
+                    break;
+                }
+                else{
+                    call_args_vec.p[i].m_value = var->m_symbolic_value;
+                }
+            }
         }
         return true;
     }
@@ -1139,21 +1154,22 @@ public:
         if (ASR::is_a<ASR::Function_t>(*s)) {
             ASR::Function_t *func = ASR::down_cast<ASR::Function_t>(s);
             if( n_kwargs > 0 && !is_generic_procedure ) {
-                args.reserve(al, n_pos_args + n_kwargs);
+                args.reserve(al, func->n_args);
                 visit_expr_list(pos_args, n_pos_args, kwargs, n_kwargs,
                                 args, rt_subs, func, loc);
             }
-        	if(args.size() < func->n_args){
+        	else if(args.size() < func->n_args){
                 for (size_t def_arg = args.size(); def_arg < func->n_args; def_arg++){
                     ASR::symbol_t* sym = ASR::down_cast<ASR::Var_t>(func->m_args[def_arg])->m_v;
-                    ASR::Variable_t* var = ASR::down_cast<ASR::Variable_t>(sym);
-                    if (var->m_value == nullptr) {
+                    std::string variable_name = ASR::down_cast<ASR::Variable_t>(sym)->m_name;
+                    ASR::Variable_t* var = ASR::down_cast<ASR::Variable_t>(func->m_symtab->get_symbol(variable_name));
+                    if(var->m_symbolic_value == nullptr) {
                         break;
                     }
                     ASR::call_arg_t call_arg;
-                    args.push_back(al,call_arg);
-                    args.p[def_arg].loc = ((var->m_value)->base).loc;
-                    args.p[def_arg].m_value = (var->m_value);
+                    call_arg.m_value = var->m_symbolic_value;
+                    call_arg.loc = (var->m_symbolic_value->base).loc;
+                    args.push_back(al,call_arg);       
                 }
             }
             if (ASRUtils::get_FunctionType(func)->m_is_restriction) {
@@ -4283,7 +4299,6 @@ public:
         }
         bool is_allocatable = false, is_const = false;
         size_t default_arg_index_start = x.m_args.n_args - x.m_args.n_defaults;
-
         for (size_t i=0; i<x.m_args.n_args; i++) {
             char *arg=x.m_args.m_args[i].m_arg;
             Location loc = x.m_args.m_args[i].loc;
@@ -4308,8 +4323,7 @@ public:
             if (i >= default_arg_index_start){
                 size_t default_arg_index = i - default_arg_index_start;
                 this->visit_expr(*(x.m_args.m_defaults[default_arg_index]));
-                value = ASRUtils::EXPR(tmp);
-                init_expr = value;                    
+                init_expr = ASRUtils::EXPR(tmp);
             }
             if (s_intent == ASRUtils::intent_unspecified) {
                 s_intent = ASRUtils::intent_in;
@@ -4329,7 +4343,7 @@ public:
             }
             ASR::accessType s_access = ASR::accessType::Public;
             ASR::presenceType s_presence = ASR::presenceType::Required;
-        if (i >= default_arg_index_start){                
+            if (i >= default_arg_index_start){                
             	s_presence = ASR::presenceType::Optional;
             }
             bool value_attr = false;
@@ -5191,38 +5205,6 @@ public:
         ASR::expr_t* assign_asr_target_copy = assign_asr_target;
         this->visit_expr(*x.m_targets[0]);
         assign_asr_target = ASRUtils::EXPR(tmp);
-        //Construction-While-Assigning Problem
-        AST::exprType value_type_ast = (x.m_value)->type;
-        AST::exprType objects_to_check[4] {AST::exprType::Set,AST::exprType::Dict, // just check these 4 for now.
-                                           AST::exprType::Tuple,AST::exprType::List};
-        for(AST::exprType &exp : objects_to_check){
-            if (exp == value_type_ast){
-                ASR::ttype_t *target_type = ASRUtils::expr_type(assign_asr_target);
-                try{
-                    this->visit_expr(*x.m_value);
-                }
-                catch (SemanticError &error){
-                    ASR::expr_t *value_ASR_after_down_cast = ASRUtils::EXPR(tmp);
-                    ASR::ttype_t *value_type = ASRUtils::expr_type(value_ASR_after_down_cast);
-                    if (!ASRUtils::check_equal_type(target_type, value_type)){
-                        std::string ltype = ASRUtils::type_to_str_python(target_type);
-                        std::string rtype = ASRUtils::type_to_str_python(value_type);
-                        diag.add(diag::Diagnostic(
-                                "Type mismatch in assignment, the types must be compatible",
-                                diag::Level::Error, diag::Stage::Semantic, {
-                                        diag::Label("type mismatch ('" + ltype + "' and '" + rtype + "')",
-                                                    {assign_asr_target->base.loc, value_ASR_after_down_cast->base.loc})
-                                })
-                        );
-                        throw SemanticAbort();
-                    }
-                }
-            }
-
-        }
-
-
-
         this->visit_expr(*x.m_value);
         assign_asr_target = assign_asr_target_copy;
         if (tmp) {
@@ -6685,9 +6667,6 @@ public:
                 }
             } else {
                 if (!ASRUtils::check_equal_type(ASRUtils::expr_type(value), type)) {
-                    //set the tmp to use it in the error message.
-                    ASR::ttype_t* set_type = ASRUtils::TYPE(ASR::make_Set_t(al, x.base.base.loc, type));
-                    tmp = ASR::make_SetConstant_t(al, x.base.base.loc, elements.p, elements.size(), set_type);
                     throw SemanticError("All Set values must be of the same type for now",
                                         x.base.base.loc);
                 }
