@@ -1157,8 +1157,7 @@ public:
                 args.reserve(al, func->n_args);
                 visit_expr_list(pos_args, n_pos_args, kwargs, n_kwargs,
                                 args, rt_subs, func, loc);
-            }
-        	else if(args.size() < func->n_args){
+            } else if (args.size() < func->n_args) {
                 for (size_t def_arg = args.size(); def_arg < func->n_args; def_arg++){
                     ASR::symbol_t* sym = ASR::down_cast<ASR::Var_t>(func->m_args[def_arg])->m_v;
                     std::string variable_name = ASR::down_cast<ASR::Variable_t>(sym)->m_name;
