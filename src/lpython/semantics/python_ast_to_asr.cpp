@@ -5340,10 +5340,6 @@ public:
                 this->visit_expr(*x.m_elts[i]);
                 expr = ASRUtils::EXPR(tmp);
                 if (!ASRUtils::check_equal_type(ASRUtils::expr_type(expr), type)) {
-                	//set the tmp to use it in the error message.(copied from the end of this function)              	
-        			ASR::ttype_t* list_type = ASRUtils::TYPE(ASR::make_List_t(al, x.base.base.loc, type));
-        			tmp = ASR::make_ListConstant_t(al, x.base.base.loc, list.p,
-            			list.size(), list_type);
                     throw SemanticError("All List elements must be of the same type for now",
                         x.base.base.loc);
                 }
@@ -6206,11 +6202,6 @@ public:
                 value_type = ASRUtils::expr_type(value);
             } else {
                 if (!ASRUtils::check_equal_type(ASRUtils::expr_type(value), value_type)) {
-                    //set the tmp to use it in the error message.(copied from the end of this function)
-        			 ASR::ttype_t* type = ASRUtils::TYPE(ASR::make_Dict_t(al, x.base.base.loc,
-                                             key_type, value_type));
-        			tmp = ASR::make_DictConstant_t(al, x.base.base.loc, keys.p, keys.size(),
-                                             values.p, values.size(), type);
                     throw SemanticError("All dictionary values must be of the same type",
                                         x.base.base.loc);
                 }
@@ -6675,9 +6666,6 @@ public:
                 }
             } else {
                 if (!ASRUtils::check_equal_type(ASRUtils::expr_type(value), type)) {
-                	//set the tmp to use it in the error message.(copied from the end of this function)              	
-                    ASR::ttype_t* set_type = ASRUtils::TYPE(ASR::make_Set_t(al, x.base.base.loc, type));
-                    tmp = ASR::make_SetConstant_t(al, x.base.base.loc, elements.p, elements.size(), set_type);
                     throw SemanticError("All Set values must be of the same type for now",
                                         x.base.base.loc);
                 }
