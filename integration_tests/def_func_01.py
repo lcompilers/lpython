@@ -14,17 +14,21 @@ def default_func(x : str ="Hello" ,y : str = " ", z : str = "World") ->str:
     return x + y + z
 
 
-def even_positons(iterator : i32 , to_add : str = "?")-> str:
+def even_positions(iterator : i32 , to_add : str = "?")-> str:
     if (iterator == 10): return ""
 
     if iterator%2 == 0 :
-        return to_add + even_positons(iterator+1,"X")
+        return to_add + even_positions(iterator+1,"X")
 
-    return to_add +even_positons(iterator+1)
+    return to_add +even_positions(iterator+1)
 
 
 
 def test_all():
+
+    test_00 : i32  = factorial_1(1)
+    print("test_00 is =>",test_00)
+    assert test_00 == 1
 
     test_01 : i32  = factorial_1(5,0)
     print("test_01 is =>",test_01)
@@ -51,11 +55,11 @@ def test_all():
     assert test_06 == "Hi|||World"
 
 
-    test_07 : str = even_positons(0)
+    test_07 : str = even_positions(0)
     print("test_07 is =>",test_07)
     assert test_07 == "?X?X?X?X?X"
 
-    test_08 : str = even_positons(0,"W")
+    test_08 : str = even_positions(0,"W")
     print("test_08 is =>",test_08)
     assert test_08 == "WX?X?X?X?X"
 
