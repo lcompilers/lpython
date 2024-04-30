@@ -5570,7 +5570,7 @@ public:
             ASR::asr_t* assign = ASR::make_Assignment_t(al, x.base.base.loc,
                             ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, tmp_assign_variable_sym)),
                             target, nullptr);
-            if (current_body) {
+            if (current_body != nullptr) {
                 current_body->push_back(al, ASRUtils::STMT(assign));
             } else {
                 global_init.push_back(al, assign);
