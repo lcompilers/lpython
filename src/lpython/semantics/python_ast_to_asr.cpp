@@ -704,7 +704,7 @@ public:
             call_args_vec.p[arg_pos].loc = expr->base.loc;
             call_args_vec.p[arg_pos].m_value = expr;
         }
-        //Filling missing arguments with its default argument passed in function definition (if existed).
+        // Filling missing arguments with their defaults passed in function definition (if present).
         for(size_t i = 0; i < orig_func->n_args; i++ ){
             if(call_args_vec.p[i].m_value == nullptr){
                 ASR::symbol_t* sym = ASR::down_cast<ASR::Var_t>(orig_func->m_args[i])->m_v;
