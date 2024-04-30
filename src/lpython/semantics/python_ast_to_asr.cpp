@@ -1590,6 +1590,15 @@ public:
         }
     }
 
+    bool is_hashable(ASR::ttype_t* object_type) {
+        if (ASR::is_a<ASR::List_t>(*object_type)
+            || ASR::is_a<ASR::Dict_t>(*object_type)
+            || ASR::is_a<ASR::Set_t>(*object_type)) {
+                return false;
+            }
+        return true;
+    }
+
     AST::expr_t* get_var_intent_and_annotation(AST::expr_t *annotation, ASR::intentType &intent) {
         if (AST::is_a<AST::Subscript_t>(*annotation)) {
             AST::Subscript_t *s = AST::down_cast<AST::Subscript_t>(annotation);
@@ -1701,6 +1710,17 @@ public:
                 if (AST::is_a<AST::Name_t>(*s->m_slice) || AST::is_a<AST::Subscript_t>(*s->m_slice)) {
                     ASR::ttype_t *type = ast_expr_to_asr_type(loc, *s->m_slice,
                         is_allocatable, is_const, raise_error, abi, is_argument);
+                    if (!is_hashable(type)) {
+                        diag.add(diag::Diagnostic(
+                            "Unhashable type: '" + ASRUtils::type_to_str(type) + "'",
+                            diag::Level::Error, diag::Stage::Semantic, {
+                                diag::Label("Mutable type '" + ASRUtils::type_to_str(type) 
+                                + "' cannot be stored in a set.",
+                                        {s->m_slice->base.loc})
+                            })
+                        );
+                        throw SemanticAbort();
+                    }
                     return ASRUtils::TYPE(ASR::make_Set_t(al, loc, type));
                 } else {
                     throw SemanticError("Only Name in Subscript supported for now in `set`"
@@ -1736,6 +1756,17 @@ public:
                     }
                     ASR::ttype_t *key_type = ast_expr_to_asr_type(loc, *t->m_elts[0],
                         is_allocatable, is_const, raise_error, abi, is_argument);
+                    if (!is_hashable(key_type)) {
+                        diag.add(diag::Diagnostic(
+                            "Unhashable type: '" + ASRUtils::type_to_str(key_type) + "'",
+                            diag::Level::Error, diag::Stage::Semantic, {
+                                diag::Label("Mutable type '" + ASRUtils::type_to_str(key_type) 
+                                + "' cannot become a key in dict. Hint: Use an immutable type for key.",
+                                        {t->m_elts[0]->base.loc})
+                            })
+                        );
+                        throw SemanticAbort();
+                    }
                     ASR::ttype_t *value_type = ast_expr_to_asr_type(loc, *t->m_elts[1],
                         is_allocatable, is_const, raise_error, abi, is_argument);
                     raise_error_when_dict_key_is_float_or_complex(key_type, loc);
@@ -3779,7 +3810,7 @@ public:
                     ai.m_step, type, nullptr);
                 return false;
             } else if (ASR::is_a<ASR::Dict_t>(*type)) {
-                throw SemanticError("unhashable type in dict: 'slice'", loc);
+                throw SemanticError("Unhashable type in dict: 'slice'", loc);
             }
         } else if(AST::is_a<AST::Tuple_t>(*m_slice) &&
                     ASRUtils::is_array(type)) {
@@ -6096,6 +6127,17 @@ public:
             ASR::expr_t *key = ASRUtils::EXPR(tmp);
             if (key_type == nullptr) {
                 key_type = ASRUtils::expr_type(key);
+                if (!is_hashable(key_type)) {
+                    diag.add(diag::Diagnostic(
+                        "Unhashable type: '" + ASRUtils::type_to_str(key_type) + "'",
+                        diag::Level::Error, diag::Stage::Semantic, {
+                            diag::Label("Mutable type '" + ASRUtils::type_to_str(key_type) 
+                            + "' cannot become a key in dict. Hint: Use an immutable type for key.",
+                                    {key->base.loc})
+                        })
+                    );
+                    throw SemanticAbort();
+                }
             } else {
                 if (!ASRUtils::check_equal_type(ASRUtils::expr_type(key), key_type)) {
                     throw SemanticError("All dictionary keys must be of the same type",
@@ -6565,6 +6607,17 @@ public:
             ASR::expr_t *value = ASRUtils::EXPR(tmp);
             if (type == nullptr) {
                 type = ASRUtils::expr_type(value);
+                if (!is_hashable(type)) {
+                    diag.add(diag::Diagnostic(
+                        "Unhashable type: '" + ASRUtils::type_to_str(type) + "'",
+                        diag::Level::Error, diag::Stage::Semantic, {
+                            diag::Label("Mutable type '" + ASRUtils::type_to_str(type) 
+                            + "' cannot be stored in a set.",
+                                    {value->base.loc})
+                        })
+                    );
+                    throw SemanticAbort();
+                }
             } else {
                 if (!ASRUtils::check_equal_type(ASRUtils::expr_type(value), type)) {
                     throw SemanticError("All Set values must be of the same type for now",
@@ -6878,6 +6931,59 @@ public:
                     throw SemanticError("str.replace() argument 3 must be int", loc);
                 }
                 value.m_value = args[2].m_value;
+                fn_args.push_back(al, value);
+            }
+        } else if(attr_name == "center") {
+            if (args.size() != 1 && args.size() != 2) {
+                throw SemanticError("str.center() takes one or two argument",
+                    loc);
+            }
+            ASR::expr_t *arg_value = args[0].m_value;
+            ASR::ttype_t *arg_value_type = ASRUtils::expr_type(arg_value);
+            if (!ASRUtils::is_integer(*arg_value_type)) {
+                throw SemanticError("str.center() argument 1 must be integer", loc);
+            }
+
+            fn_call_name = "_lpython_str_center";
+            ASR::call_arg_t str;
+            str.loc = loc;
+            str.m_value = s_var;
+
+            ASR::call_arg_t value;
+            value.loc = loc;
+            value.m_value = args[0].m_value;
+            fn_args.push_back(al, str);
+            fn_args.push_back(al, value);
+
+            if(args.size() == 2){
+                ASR::expr_t *arg_value = args[1].m_value;
+                ASR::ttype_t *arg_value_type = ASRUtils::expr_type(arg_value);
+                if (!ASRUtils::is_character(*arg_value_type)) {
+                    throw SemanticError("str.center() argument 2 must be str", loc);
+                }
+                value.m_value = args[1].m_value;
+                fn_args.push_back(al, value);
+            }
+        } else if(attr_name == "expandtabs") {
+            if(args.size() > 1) {
+                throw SemanticError("str.expandtabs() takes at most one argument.", loc);
+            }
+            fn_call_name = "_lpython_str_expandtabs";
+            ASR::call_arg_t str;
+            str.loc = loc;
+            str.m_value = s_var;
+            fn_args.push_back(al, str);
+
+            if(args.size() == 1){
+                ASR::expr_t *arg_value = args[0].m_value;
+                ASR::ttype_t *arg_value_type = ASRUtils::expr_type(arg_value);
+                if (!ASRUtils::is_integer(*arg_value_type)) {
+                    throw SemanticError("str.expandtabs() argument must be integer", loc);
+                }
+
+                ASR::call_arg_t value;
+                value.loc = loc;
+                value.m_value = args[0].m_value;
                 fn_args.push_back(al, value);
             }
         } else if(attr_name.size() > 2 && attr_name[0] == 'i' && attr_name[1] == 's') {
@@ -7544,6 +7650,20 @@ we will have to use something else.
                     }
                 }
             }
+        } else if (AST::is_a<AST::Dict_t>(*at->m_value)) {
+            AST::Dict_t* cdict = AST::down_cast<AST::Dict_t>(at->m_value);
+            visit_Dict(*cdict);
+            if (tmp == nullptr) {
+                throw SemanticError("cannot call " + std::string(at->m_attr) + " on an empty dict" , loc);
+            }
+            ASR::expr_t* dict_expr = ASR::down_cast<ASR::expr_t>(tmp);
+            Vec<ASR::expr_t*> eles;
+            eles.reserve(al, args.size());
+            for (size_t i = 0; i < args.size(); i++) {
+                eles.push_back(al, args[i].m_value);
+            }
+            handle_builtin_attribute(dict_expr, at->m_attr, loc, eles);
+            return;
         } else {
             throw SemanticError("Only Name type and constant integers supported in Call", loc);
         }

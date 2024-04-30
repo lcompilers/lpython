@@ -1,5 +1,5 @@
 from lpython import S
-from sympy import Symbol, log, E, Pow
+from sympy import Symbol, log, E, Pow, exp
 
 def mmrv(e: S, x: S) -> list[S]:
     empty_list : list[S] = []
@@ -13,22 +13,29 @@ def mmrv(e: S, x: S) -> list[S]:
         list2: list[S] = mmrv(arg0, x)
         return list2
     elif e.func == Pow:
-        if e.args[0] != E:
-            e1: S = S(1)
+        base: S = e.args[0]
+        exponent: S = e.args[1]
+        one: S = S(1)
+        if base != E:
+            newe_exponent: S = S(1)
             newe: S = e
             while newe.func == Pow:
-                b1: S = newe.args[0]
-                e1 = e1 * newe.args[1]
-                newe = b1
-            if b1 == S(1):
+                newe_base: S = newe.args[0]
+                newe_args1: S = newe.args[1]
+                newe_exponent = newe_exponent * newe_args1
+                newe = newe_base
+            if newe_base == one:
                 return empty_list
-            if not e1.has(x):
-                list3: list[S] = mmrv(b1, x)
+            if not newe_exponent.has(x):
+                list3: list[S] = mmrv(newe_base, x)
                 return list3
             else:
                 # TODO as noted in #2526
                 pass
         else:
+            if exponent.func == log:
+                list4: list[S] = mmrv(exponent.args[0], x)
+                return list4
             # TODO
             pass
     else:
@@ -62,5 +69,12 @@ def test_mrv():
     print(ele3)
     assert ele3 == x
     assert len(ans4) == 1
+
+    # Case 5
+    ans5: list[S] = mmrv(exp(log(x)), x)
+    ele4: S = ans5[0]
+    print(ele4)
+    assert ele4 == x
+    assert len(ans5) == 1
 
 test_mrv()

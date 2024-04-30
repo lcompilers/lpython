@@ -1,0 +1,5 @@
+semantic error: Unhashable type: 'list'
+ --> tests/errors/test_dict_key1.py:4:19
+  |
+4 |     my_dict: dict[list[i32], str] = {[1, 2]: "first", [3, 4]: "second"}
+  |                   ^^^^^^^^^ Mutable type 'list' cannot become a key in dict. Hint: Use an immutable type for key.

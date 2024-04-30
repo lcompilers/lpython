@@ -472,6 +472,31 @@ def is_numeric():
     assert "".isnumeric() == False
     assert "ab2%3".isnumeric() == False
 
+def center():
+    s: str = "test"
+    assert s.center(8,'*') == "**test**"
+    assert s.center(11) == "    test   "
+    assert s.center(2) == "test"
+    assert s.center(4) == "test"
+    assert s.center(9,'/') == "///test//"
+
+def expandtabs():
+    s: str = '01\t012\t0123\t01234'
+    assert s.expandtabs() == "01      012     0123    01234"
+    assert s.expandtabs(4) == "01  012 0123    01234"
+    assert s.expandtabs(-1) == "01012012301234"
+    s = '\t'
+    assert s.expandtabs() == "        "
+    s = ''
+    assert s.expandtabs() == ""
+    s = '\tThis\ris\na\ttest'
+    assert s.expandtabs(4) == "    This\ris\na   test"
+    s = '\t\t\t'
+    assert s.expandtabs(2) == "      "
+    s = 'test\ttest'
+    assert s.expandtabs(0) == "testtest"
+    assert s.expandtabs(-5) == "testtest"
+
 def check():
     capitalize()
     lower()
@@ -492,6 +517,8 @@ def check():
     is_space()
     is_alnum()
     is_numeric()
+    center()
+    expandtabs()
 
 
 check()
