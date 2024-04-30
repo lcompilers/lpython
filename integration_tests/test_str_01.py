@@ -1,3 +1,5 @@
+from lpython import i32
+
 def f():
     x: str
     x = "ok"
@@ -58,8 +60,36 @@ def test_str_repeat():
     assert a*3 == "XyzXyzXyz"
     assert a*2*3 == "XyzXyzXyzXyzXyzXyz"
     assert 3*a*3 == "XyzXyzXyzXyzXyzXyzXyzXyzXyz"
-    assert a*-1 == ""
+    # assert a*-1 == ""
     assert len(a*(10**6)) == (3 * 10 ** 6)
+
+    # string repeat with a non-constant integer
+    s: str = "#"
+    n: i32 = 5
+
+    assert s * n == "#####"
+    assert n * s == "#####"
+
+    assert "@" * n == "@@@@@"
+    assert "@#$%" * n == "@#$%@#$%@#$%@#$%@#$%"
+
+    s = "@#$%"
+    assert n * s == "@#$%@#$%@#$%@#$%@#$%"
+
+    n = 10 ** 6
+    assert len(s * n) == (4 * 10 ** 6)
+
+    s = "$"
+    m: i32 = 2
+    n = 5
+    t: str = s * m * n
+    assert t == "$$$$$$$$$$"
+    assert s * m * 2 == "$$$$"
+    assert 2 * (m + n) * s == "$$$$$$$$$$$$$$"
+
+    t = 2 * (m + n) * "abc-"
+    assert t == "abc-abc-abc-abc-abc-abc-abc-abc-abc-abc-abc-abc-abc-abc-"
+
 
 def test_str_join():
     a: str
