@@ -2140,7 +2140,7 @@ LFORTRAN_API void _lfortran_strrepeat(char** s, int32_t n, char** dest)
     char* dest_char = (char*)malloc(f_len+trmn_size);
 
     if (s_len == 1) {
-        memset(dest_char, *(*s), n);
+        memset(dest_char, *(*s), f_len);
     } else {
         memcpy(dest_char, *s, s_len);
         int chars_copied = s_len;
