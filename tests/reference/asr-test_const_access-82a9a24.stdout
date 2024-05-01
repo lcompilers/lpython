@@ -97,11 +97,9 @@
                                                         )
                                                     )
                                                     Parameter
-                                                    (Const
-                                                        (Dict
-                                                            (Character 1 -2 ())
-                                                            (Integer 4)
-                                                        )
+                                                    (Dict
+                                                        (Character 1 -2 ())
+                                                        (Integer 4)
                                                     )
                                                     ()
                                                     Source
@@ -136,10 +134,8 @@
                                                         )
                                                     )
                                                     Parameter
-                                                    (Const
-                                                        (List
-                                                            (Integer 4)
-                                                        )
+                                                    (List
+                                                        (Integer 4)
                                                     )
                                                     ()
                                                     Source
