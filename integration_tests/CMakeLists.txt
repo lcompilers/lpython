@@ -634,7 +634,6 @@ RUN(NAME test_math_02        LABELS cpython llvm llvm_jit NOFAST)
 RUN(NAME test_math_03        LABELS llvm llvm_jit)               #1595: TODO: Test using CPython (3.11 recommended)
 RUN(NAME test_pass_compare   LABELS cpython llvm llvm_jit c)
 RUN(NAME test_c_interop_01   LABELS cpython llvm llvm_jit c)
-
 RUN(NAME test_c_interop_02   LABELS cpython llvm c
         EXTRAFILES test_c_interop_02b.c)
 RUN(NAME test_c_interop_03   LABELS cpython llvm c
