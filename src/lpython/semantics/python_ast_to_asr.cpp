@@ -3840,7 +3840,6 @@ public:
                 throw SemanticAbort();
             }
             if (ASR::is_a<ASR::Dict_t>(*type)) {
-                this->visit_expr(*m_slice);
                 index = ASRUtils::EXPR(tmp);
                 ASR::ttype_t *key_type = ASR::down_cast<ASR::Dict_t>(type)->m_key_type;
                 if (!ASRUtils::check_equal_type(ASRUtils::expr_type(index), key_type)) {
