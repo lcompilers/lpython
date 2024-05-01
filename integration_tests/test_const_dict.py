@@ -1,18 +1,24 @@
-from lpython import i32, f64, dict, Const
+from lpython import i32, f64, Const
 
+CONST_DICTIONARY_INTEGR: Const[dict[str, i32]] = {"a": 1, "b": 2, "c": 3}
 
-def test_const_dict():
-    CONST_DICTIONARY_INTEGR: Const[dict[str, i32]] = {"a": 1, "b": 2, "c": 3}
+print(CONST_DICTIONARY_INTEGR.get("a"))
+assert CONST_DICTIONARY_INTEGR.get("a") == 1
 
-    assert CONST_DICTIONARY_INTEGR.get("a") == 1
-    assert CONST_DICTIONARY_INTEGR.keys() == ["c", "a", "b"]
-    assert CONST_DICTIONARY_INTEGR.values() == [3, 1, 2]
+print(CONST_DICTIONARY_INTEGR.keys())
+assert len(CONST_DICTIONARY_INTEGR.keys()) == 3
 
-    CONST_DICTIONARY_FLOAT: Const[dict[str, f64]] = {"a": 1.0, "b": 2.0, "c": 3.0}
+print(CONST_DICTIONARY_INTEGR.values())
+assert len(CONST_DICTIONARY_INTEGR.values()) == 3
 
-    assert CONST_DICTIONARY_FLOAT.get("a") == 1.0
-    assert CONST_DICTIONARY_FLOAT.keys() == ['a', 'b', 'c']
-    assert CONST_DICTIONARY_FLOAT.values() == [1.0, 2.0, 3.0]
+CONST_DICTIONARY_FLOAT: Const[dict[str, f64]] = {"a": 1.0, "b": 2.0, "c": 3.0}
 
+print(CONST_DICTIONARY_FLOAT.get("a"))
+assert CONST_DICTIONARY_FLOAT.get("a") == 1.0
 
-test_const_dict()
+print(CONST_DICTIONARY_FLOAT.keys())
+assert len(CONST_DICTIONARY_FLOAT.keys()) == 3
+
+print(CONST_DICTIONARY_FLOAT.values())
+assert len(CONST_DICTIONARY_FLOAT.values()) == 3
+

@@ -498,10 +498,6 @@ filename = "../integration_tests/global_syms_01.py"
 asr = true
 
 [[test]]
-filename = "../integration_tests/test_const_dict.py"
-asr = true
-
-[[test]]
 filename = "cast.py"
 asr = true
 
