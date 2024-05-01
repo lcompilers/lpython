@@ -1781,7 +1781,7 @@ public:
                 return ASRUtils::TYPE(ASR::make_Pointer_t(al, loc, type));
             } else if (var_annotation == "Const") {
                 ASR::ttype_t *type = ast_expr_to_asr_type(loc, *s->m_slice,
-                    is_allocatable, raise_error, abi, is_argument);
+                    is_allocatable, is_const, raise_error, abi, is_argument);
                 if (ASR::is_a<ASR::Tuple_t>(*type)) {
                     throw SemanticError("'Const' not required as tuples are already immutable", loc);
                 }
@@ -3770,7 +3770,6 @@ public:
         ai.m_left = nullptr;
         ai.m_right = nullptr;
         ai.m_step = nullptr;
-        type = ASRUtils::type_get_past_const(type);
         if (AST::is_a<AST::Slice_t>(*m_slice)) {
             AST::Slice_t *sl = AST::down_cast<AST::Slice_t>(m_slice);
             if (sl->m_lower != nullptr) {
