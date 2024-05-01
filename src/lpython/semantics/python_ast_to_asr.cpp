@@ -5516,9 +5516,7 @@ public:
                 loop_src_var_name = AST::down_cast<AST::Name_t>(sbt->m_value)->m_id;
                 visit_Subscript(*sbt);
                 ASR::expr_t *target = ASRUtils::EXPR(tmp);
-                ASR::symbol_t *loop_src_var_symbol = current_scope->resolve_symbol(loop_src_var_name);
-                ASR::ttype_t *loop_src_var_ttype = ASRUtils::symbol_type(loop_src_var_symbol);
-
+                ASR::ttype_t *loop_src_var_ttype = ASRUtils::expr_type(target);
                 // Create a temporary variable that will contain the evaluated value of Subscript
                 std::string tmp_assign_name = current_scope->get_unique_name("__tmp_assign_for_loop", false);
                 SetChar variable_dependencies_vec;
@@ -5536,7 +5534,11 @@ public:
                 ASR::asr_t* assign = ASR::make_Assignment_t(al, x.base.base.loc,
                                 ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, tmp_assign_variable_sym)),
                                 target, nullptr);
-                current_body->push_back(al, ASRUtils::STMT(assign));
+                if (current_body != nullptr) {
+                    current_body->push_back(al, ASRUtils::STMT(assign));
+                } else {
+                    global_init.push_back(al, assign);
+                }
                 loop_end = for_iterable_helper(tmp_assign_name, x.base.base.loc, explicit_iter_name);
                 for_iter_type = loop_end;
                 LCOMPILERS_ASSERT(loop_end);
@@ -5568,7 +5570,11 @@ public:
             ASR::asr_t* assign = ASR::make_Assignment_t(al, x.base.base.loc,
                             ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, tmp_assign_variable_sym)),
                             target, nullptr);
-            current_body->push_back(al, ASRUtils::STMT(assign));
+            if (current_body != nullptr) {
+                current_body->push_back(al, ASRUtils::STMT(assign));
+            } else {
+                global_init.push_back(al, assign);
+            }
             loop_end = for_iterable_helper(tmp_assign_name, x.base.base.loc, explicit_iter_name);
             for_iter_type = loop_end;
             LCOMPILERS_ASSERT(loop_end);
