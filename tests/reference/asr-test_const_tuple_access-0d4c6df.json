@@ -1,0 +1,13 @@
+{
+    "basename": "asr-test_const_tuple_access-0d4c6df",
+    "cmd": "lpython --show-asr --no-color {infile} -o {outfile}",
+    "infile": "tests/errors/test_const_tuple_access.py",
+    "infile_hash": "7812a4013cd5e558c05323cb3a1d85287359e9f1f98bc22e46c6152e",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": null,
+    "stdout_hash": null,
+    "stderr": "asr-test_const_tuple_access-0d4c6df.stderr",
+    "stderr_hash": "540d1fcd3312219511607039b3410b25cb58f2bbd00196441b880c44",
+    "returncode": 2
+}

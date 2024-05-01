@@ -153,10 +153,6 @@ llvm = true
 llvm_dbg = true
 
 [[test]]
-filename = "../integration_tests/test_const_access.py"
-asr = true
-
-[[test]]
 filename = "../integration_tests/array_01_decl.py"
 asr = true
 
