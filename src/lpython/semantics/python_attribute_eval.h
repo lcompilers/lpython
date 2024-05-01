@@ -395,6 +395,9 @@ struct AttributeHandler {
 
     static ASR::asr_t* eval_dict_pop(ASR::expr_t *s, Allocator &al, const Location &loc,
             Vec<ASR::expr_t*> &args, diag::Diagnostics &diag) {
+        if (ASRUtils::is_const(s)) {
+            throw SemanticError("cannot pop elements from a const dict", loc);
+        }
         if (args.size() != 1) {
             throw SemanticError("'pop' takes only one argument for now", loc);
         }
