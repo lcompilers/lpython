@@ -60,7 +60,8 @@ def test_str_repeat():
     assert a*3 == "XyzXyzXyz"
     assert a*2*3 == "XyzXyzXyzXyzXyzXyz"
     assert 3*a*3 == "XyzXyzXyzXyzXyzXyzXyzXyzXyz"
-    # assert a*-1 == ""
+    b: str = a * -1
+    assert b == ""
     assert len(a*(10**6)) == (3 * 10 ** 6)
 
     # string repeat with a non-constant integer
