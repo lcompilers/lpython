@@ -3825,7 +3825,6 @@ public:
             }
             return final_result;
         } else {
-            ASR::expr_t *index = nullptr;
             this->visit_expr(*m_slice);
             if (!ASR::is_a<ASR::Dict_t>(*type) &&
                     !ASRUtils::is_integer(*ASRUtils::expr_type(ASRUtils::EXPR(tmp)))) {
@@ -3839,6 +3838,7 @@ public:
                 );
                 throw SemanticAbort();
             }
+            ASR::expr_t *index = nullptr;
             if (ASR::is_a<ASR::Dict_t>(*type)) {
                 index = ASRUtils::EXPR(tmp);
                 ASR::ttype_t *key_type = ASR::down_cast<ASR::Dict_t>(type)->m_key_type;
