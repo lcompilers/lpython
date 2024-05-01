@@ -2104,7 +2104,7 @@ public:
             } else if ((left_is_int && ASRUtils::expr_value(left) == nullptr) 
                 || (right_is_int && ASRUtils::expr_value(right) == nullptr)) {
                 dest_type = ASRUtils::TYPE(ASR::make_Character_t(al,
-                            loc, 1, 1, nullptr));
+                            loc, 1, -1, nullptr));
             }
 
             if (ASRUtils::expr_value(left) != nullptr && ASRUtils::expr_value(right) != nullptr) {
