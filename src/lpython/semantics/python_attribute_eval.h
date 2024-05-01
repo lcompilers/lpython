@@ -75,10 +75,12 @@ struct AttributeHandler {
         }
         std::string key = class_name + "@" + attr_name;
         if (modify_attr_set.find(key) != modify_attr_set.end()) {
-            ASR::Variable_t* v = ASRUtils::EXPR2VAR(e);
-            if (v->m_intent == ASRUtils::intent_in) {
-                throw SemanticError("Modifying input function parameter `"
-                            + std::string(v->m_name) + "` is not allowed", loc);
+            if (ASR::is_a<ASR::Var_t>(*e)) {
+                ASR::Variable_t* v = ASRUtils::EXPR2VAR(e);
+                if (v->m_intent == ASRUtils::intent_in) {
+                    throw SemanticError("Modifying input function parameter `"
+                                + std::string(v->m_name) + "` is not allowed", loc);
+                }
             }
         }
         auto search = attribute_map.find(key);
