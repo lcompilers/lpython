@@ -7659,6 +7659,20 @@ we will have to use something else.
                     }
                 }
             }
+        } else if (AST::is_a<AST::List_t>(*at->m_value)) {
+            AST::List_t* clist = AST::down_cast<AST::List_t>(at->m_value);
+            visit_List(*clist);
+            if (tmp == nullptr) {
+                throw SemanticError("cannot call " + std::string(at->m_attr) + " on an empty list" , loc);
+            }
+            ASR::expr_t* list_expr = ASR::down_cast<ASR::expr_t>(tmp);
+            Vec<ASR::expr_t*> eles;
+            eles.reserve(al, args.size());
+            for (size_t i=0; i<args.size(); i++) {
+                eles.push_back(al, args[i].m_value);
+            }
+            handle_builtin_attribute(list_expr, at->m_attr, loc, eles);
+            return;
         } else if (AST::is_a<AST::Dict_t>(*at->m_value)) {
             AST::Dict_t* cdict = AST::down_cast<AST::Dict_t>(at->m_value);
             visit_Dict(*cdict);
