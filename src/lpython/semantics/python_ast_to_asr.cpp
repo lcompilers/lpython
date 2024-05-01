@@ -2101,8 +2101,7 @@ public:
                 dest_type = ASR::down_cast<ASR::ttype_t>(
                         ASR::make_Character_t(al, loc, right_type2->m_kind,
                         dest_len, nullptr));
-            } else if ((left_is_int && ASRUtils::expr_value(left) == nullptr) 
-                || (right_is_int && ASRUtils::expr_value(right) == nullptr)) {
+            } else {
                 dest_type = ASRUtils::TYPE(ASR::make_Character_t(al,
                             loc, 1, -1, nullptr));
             }
