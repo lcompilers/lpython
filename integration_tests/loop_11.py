@@ -6,7 +6,7 @@ i: i32
 for i in [1, 2, 3, 4]:
     print(i)
     sum += i
-print("sum = "+str(sum))
+print("sum = ",sum)
 assert sum == 10
 
 alphabets: str = ""
@@ -14,14 +14,15 @@ c: str
 for c in "abcde":
     print(c)
     alphabets += c
-print("alphabets = "+alphabets)
+print("alphabets = ",alphabets)
 assert alphabets == "abcde"
 
 alphabets = ""
 s : str = "abcde"
 for c in s[1:4]:
+    print(c)
     alphabets += c
-print("alphabets = "+alphabets)
+print("alphabets = ",alphabets)
 assert alphabets == "bcd"
 
 sum = 0
@@ -29,7 +30,7 @@ num_list : list[i32] = [1, 2, 3, 4]
 for i in num_list[1:3]:
     print(i)
     sum += i
-print("sum = "+str(sum))
+print("sum = ",sum)
 assert sum == 5
 
 sum = 0
@@ -37,5 +38,5 @@ nested_list : list[list[i32]] = [[1, 2, 3, 4]]
 for i in nested_list[0]:
     print(i)
     sum += i
-print("sum = "+str(sum))
+print("sum = ",sum)
 assert sum == 10
