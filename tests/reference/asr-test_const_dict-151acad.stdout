@@ -115,11 +115,9 @@
                                                         )
                                                     )
                                                     Parameter
-                                                    (Const
-                                                        (Dict
-                                                            (Character 1 -2 ())
-                                                            (Real 8)
-                                                        )
+                                                    (Dict
+                                                        (Character 1 -2 ())
+                                                        (Real 8)
                                                     )
                                                     ()
                                                     Source
@@ -176,11 +174,9 @@
                                                         )
                                                     )
                                                     Parameter
-                                                    (Const
-                                                        (Dict
-                                                            (Character 1 -2 ())
-                                                            (Integer 4)
-                                                        )
+                                                    (Dict
+                                                        (Character 1 -2 ())
+                                                        (Integer 4)
                                                     )
                                                     ()
                                                     Source
@@ -227,14 +223,30 @@
                                     )
                                     (Assert
                                         (ListCompare
-                                            (IntrinsicScalarFunction
+                                            (IntrinsicElementalFunction
                                                 DictKeys
                                                 [(Var 3 CONST_DICTIONARY_INTEGR)]
                                                 0
                                                 (List
                                                     (Character 1 -2 ())
                                                 )
-                                                ()
+                                                (ListConstant
+                                                    [(StringConstant
+                                                        "a"
+                                                        (Character 1 1 ())
+                                                    )
+                                                    (StringConstant
+                                                        "b"
+                                                        (Character 1 1 ())
+                                                    )
+                                                    (StringConstant
+                                                        "c"
+                                                        (Character 1 1 ())
+                                                    )]
+                                                    (List
+                                                        (Character 1 -2 ())
+                                                    )
+                                                )
                                             )
                                             Eq
                                             (ListConstant
@@ -261,14 +273,21 @@
                                     )
                                     (Assert
                                         (ListCompare
-                                            (IntrinsicScalarFunction
+                                            (IntrinsicElementalFunction
                                                 DictValues
                                                 [(Var 3 CONST_DICTIONARY_INTEGR)]
                                                 0
                                                 (List
                                                     (Integer 4)
                                                 )
-                                                ()
+                                                (ListConstant
+                                                    [(IntegerConstant 1 (Integer 4))
+                                                    (IntegerConstant 2 (Integer 4))
+                                                    (IntegerConstant 3 (Integer 4))]
+                                                    (List
+                                                        (Integer 4)
+                                                    )
+                                                )
                                             )
                                             Eq
                                             (ListConstant
@@ -308,27 +327,43 @@
                                     )
                                     (Assert
                                         (ListCompare
-                                            (IntrinsicScalarFunction
+                                            (IntrinsicElementalFunction
                                                 DictKeys
                                                 [(Var 3 CONST_DICTIONARY_FLOAT)]
                                                 0
                                                 (List
                                                     (Character 1 -2 ())
                                                 )
-                                                ()
+                                                (ListConstant
+                                                    [(StringConstant
+                                                        "a"
+                                                        (Character 1 1 ())
+                                                    )
+                                                    (StringConstant
+                                                        "b"
+                                                        (Character 1 1 ())
+                                                    )
+                                                    (StringConstant
+                                                        "c"
+                                                        (Character 1 1 ())
+                                                    )]
+                                                    (List
+                                                        (Character 1 -2 ())
+                                                    )
+                                                )
                                             )
                                             Eq
                                             (ListConstant
                                                 [(StringConstant
-                                                    "c"
-                                                    (Character 1 1 ())
-                                                )
-                                                (StringConstant
                                                     "a"
                                                     (Character 1 1 ())
                                                 )
                                                 (StringConstant
                                                     "b"
+                                                    (Character 1 1 ())
+                                                )
+                                                (StringConstant
+                                                    "c"
                                                     (Character 1 1 ())
                                                 )]
                                                 (List
@@ -342,27 +377,43 @@
                                     )
                                     (Assert
                                         (ListCompare
-                                            (IntrinsicScalarFunction
+                                            (IntrinsicElementalFunction
                                                 DictValues
                                                 [(Var 3 CONST_DICTIONARY_FLOAT)]
                                                 0
                                                 (List
                                                     (Real 8)
                                                 )
-                                                ()
+                                                (ListConstant
+                                                    [(RealConstant
+                                                        1.000000
+                                                        (Real 8)
+                                                    )
+                                                    (RealConstant
+                                                        2.000000
+                                                        (Real 8)
+                                                    )
+                                                    (RealConstant
+                                                        3.000000
+                                                        (Real 8)
+                                                    )]
+                                                    (List
+                                                        (Real 8)
+                                                    )
+                                                )
                                             )
                                             Eq
                                             (ListConstant
                                                 [(RealConstant
-                                                    3.000000
-                                                    (Real 8)
-                                                )
-                                                (RealConstant
                                                     1.000000
                                                     (Real 8)
                                                 )
                                                 (RealConstant
                                                     2.000000
+                                                    (Real 8)
+                                                )
+                                                (RealConstant
+                                                    3.000000
                                                     (Real 8)
                                                 )]
                                                 (List

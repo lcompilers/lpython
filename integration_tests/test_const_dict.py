@@ -11,8 +11,8 @@ def test_const_dict():
     CONST_DICTIONARY_FLOAT: Const[dict[str, f64]] = {"a": 1.0, "b": 2.0, "c": 3.0}
 
     assert CONST_DICTIONARY_FLOAT.get("a") == 1.0
-    assert CONST_DICTIONARY_FLOAT.keys() == ["c", "a", "b"]
-    assert CONST_DICTIONARY_FLOAT.values() == [3.0, 1.0, 2.0]
+    assert CONST_DICTIONARY_FLOAT.keys() == ['a', 'b', 'c']
+    assert CONST_DICTIONARY_FLOAT.values() == [1.0, 2.0, 3.0]
 
 
 test_const_dict()
