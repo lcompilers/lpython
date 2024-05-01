@@ -2079,7 +2079,7 @@ public:
         } else if ((right_is_int || left_is_int) && op == ASR::binopType::Mul) {
             // string repeat
             int64_t left_int = 0, right_int = 0, dest_len = 0;
-            if (right_is_int) {
+            if (right_is_int && ASRUtils::expr_value(right) != nullptr) {
                 ASR::Character_t *left_type2 = ASR::down_cast<ASR::Character_t>(
                     ASRUtils::type_get_past_array(left_type));
                 LCOMPILERS_ASSERT(ASRUtils::extract_n_dims_from_ttype(left_type) == 0);
@@ -2090,7 +2090,7 @@ public:
                 dest_type = ASR::down_cast<ASR::ttype_t>(
                         ASR::make_Character_t(al, loc, left_type2->m_kind,
                         dest_len, nullptr));
-            } else if (left_is_int) {
+            } else if (left_is_int && ASRUtils::expr_value(left) != nullptr) {
                 ASR::Character_t *right_type2 = ASR::down_cast<ASR::Character_t>(
                     ASRUtils::type_get_past_array(right_type));
                 LCOMPILERS_ASSERT(ASRUtils::extract_n_dims_from_ttype(right_type) == 0);
@@ -2101,6 +2101,9 @@ public:
                 dest_type = ASR::down_cast<ASR::ttype_t>(
                         ASR::make_Character_t(al, loc, right_type2->m_kind,
                         dest_len, nullptr));
+            } else {
+                dest_type = ASRUtils::TYPE(ASR::make_Character_t(al,
+                            loc, 1, -1, nullptr));
             }
 
             if (ASRUtils::expr_value(left) != nullptr && ASRUtils::expr_value(right) != nullptr) {
