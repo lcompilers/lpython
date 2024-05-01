@@ -1,5 +1,0 @@
-semantic error: 'Const' not required as tuples are already immutable
- --> tests/errors/test_const_tuple_access.py:5:18
-  |
-5 |     CONST_TUPLE: Const[tuple[str, str, str]] = ("hello", "LPython", "!")
-  |                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
