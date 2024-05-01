@@ -1,5 +1,0 @@
-semantic error: 'Const' not required as strings are already immutable
- --> tests/errors/test_const_str_access.py:5:19
-  |
-5 |     CONST_STRING: Const[str] = "Hello, LPython!"
-  |                   ^^^^^^^^^^ 

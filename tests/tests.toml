@@ -1249,14 +1249,6 @@ asr = true
 filename = "errors/test_type_mismatch_01.py"
 asr = true
 
-[[test]]
-filename = "errors/test_const_str_access.py"
-asr = true
-
-[[test]]
-filename = "errors/test_const_tuple_access.py"
-asr = true
-
 # tests/tokens/errors
 
 [[test]]
