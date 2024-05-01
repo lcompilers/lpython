@@ -470,6 +470,10 @@ filename = "../integration_tests/test_list_item_mixed_print.py"
 run = true
 
 [[test]]
+filename = "../integration_tests/test_intrinsic_function_mixed_print.py"
+run = true
+
+[[test]]
 filename = "../integration_tests/generics_01.py"
 asr = true
 
@@ -1023,6 +1027,54 @@ asr = true
 
 [[test]]
 filename = "errors/test_dict1.py"
+asr = true
+
+[[test]]
+filename = "errors/test_dict_key1.py"
+asr = true
+
+[[test]]
+filename = "errors/test_dict_key2.py"
+asr = true
+
+[[test]]
+filename = "errors/test_dict_key3.py"
+asr = true
+
+[[test]]
+filename = "errors/test_dict_key4.py"
+asr = true
+
+[[test]]
+filename = "errors/test_dict_key5.py"
+asr = true
+
+[[test]]
+filename = "errors/test_dict_key6.py"
+asr = true
+
+[[test]]
+filename = "errors/test_set_object1.py"
+asr = true
+
+[[test]]
+filename = "errors/test_set_object2.py"
+asr = true
+
+[[test]]
+filename = "errors/test_set_object3.py"
+asr = true
+
+[[test]]
+filename = "errors/test_set_object4.py"
+asr = true
+
+[[test]]
+filename = "errors/test_set_object5.py"
+asr = true
+
+[[test]]
+filename = "errors/test_set_object6.py"
 asr = true
 
 [[test]]

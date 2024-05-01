@@ -1,0 +1,5 @@
+semantic error: Unhashable type: 'dict'
+ --> tests/errors/test_dict_key2.py:4:19
+  |
+4 |     my_dict: dict[dict[i32, str], str] = {{1: "a", 2: "b"}: "first", {3: "c", 4: "d"}: "second"}
+  |                   ^^^^^^^^^^^^^^ Mutable type 'dict' cannot become a key in dict. Hint: Use an immutable type for key.
