@@ -4749,10 +4749,15 @@ static inline void verify_args(const ASR::IntrinsicElementalFunction_t& x, diag:
         x.base.base.loc, diagnostics);
 }
 
-static inline ASR::expr_t *eval_dict_keys(Allocator &/*al*/,
-    const Location &/*loc*/, ASR::ttype_t *, Vec<ASR::expr_t*>& /*args*/, diag::Diagnostics& /*diag*/) {
-    // TODO: To be implemented for DictConstant expression
-    return nullptr;
+static inline ASR::expr_t *eval_dict_keys(Allocator &al,
+    const Location &loc, ASR::ttype_t *t, Vec<ASR::expr_t*>& args, diag::Diagnostics& /*diag*/) {
+        if (args[0] == nullptr) {
+            return nullptr;
+        }
+        ASR::DictConstant_t* cdict = ASR::down_cast<ASR::DictConstant_t>(args[0]);
+
+        return ASRUtils::EXPR(ASR::make_ListConstant_t(al, loc,
+            cdict->m_keys, cdict->n_keys, t));
 }
 
 static inline ASR::asr_t* create_DictKeys(Allocator& al, const Location& loc,
@@ -4796,10 +4801,15 @@ static inline void verify_args(const ASR::IntrinsicElementalFunction_t& x, diag:
         x.base.base.loc, diagnostics);
 }
 
-static inline ASR::expr_t *eval_dict_values(Allocator &/*al*/,
-    const Location &/*loc*/, ASR::ttype_t *, Vec<ASR::expr_t*>& /*args*/, diag::Diagnostics& /*diag*/) {
-    // TODO: To be implemented for DictConstant expression
-    return nullptr;
+static inline ASR::expr_t *eval_dict_values(Allocator &al,
+    const Location &loc, ASR::ttype_t *t, Vec<ASR::expr_t*>& args, diag::Diagnostics& /*diag*/) {
+        if (args[0] == nullptr) {
+            return nullptr;
+        }
+        ASR::DictConstant_t* cdict = ASR::down_cast<ASR::DictConstant_t>(args[0]);
+
+        return ASRUtils::EXPR(ASR::make_ListConstant_t(al, loc,
+            cdict->m_values, cdict->n_values, t));
 }
 
 static inline ASR::asr_t* create_DictValues(Allocator& al, const Location& loc,
