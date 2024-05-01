@@ -1780,14 +1780,6 @@ public:
                     is_allocatable, is_const, raise_error, abi, is_argument);
                 return ASRUtils::TYPE(ASR::make_Pointer_t(al, loc, type));
             } else if (var_annotation == "Const") {
-                ASR::ttype_t *type = ast_expr_to_asr_type(loc, *s->m_slice,
-                    is_allocatable, is_const, raise_error, abi, is_argument);
-                if (ASR::is_a<ASR::Tuple_t>(*type)) {
-                    throw SemanticError("'Const' not required as tuples are already immutable", loc);
-                }
-                else if (ASR::is_a<ASR::Character_t>(*type)) {
-                    throw SemanticError("'Const' not required as strings are already immutable", loc);
-                }
                 is_const = true;
                 return ast_expr_to_asr_type(loc, *s->m_slice,
                     is_allocatable, is_const, raise_error, abi, is_argument);
