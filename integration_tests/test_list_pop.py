@@ -65,4 +65,32 @@ def test_list_pop():
         j += 1
     assert len(l2) == 0
 
+    # list.pop on list constant
+    print([1, 2, 3, 4, 5].pop())
+    assert [1, 2, 3, 4, 5].pop() == 5
+
+    print([1, 2, 3, 4, 5].pop(3))
+    assert [1, 2, 3, 4, 5].pop(3) == 4
+
+    index: i32 = 1
+    print([1, 2, 3, 4, 5].pop(index))
+    assert [1, 2, 3, 4, 5].pop(index) == 2
+
+    element_1: i32 = [1, 2, 3, 4, 5].pop()
+    print(element_1)
+    assert element_1 == 5
+
+    element_2: i32 = [1, 2, 3, 4, 5].pop(2)
+    print(element_2)
+    assert element_2 == 3
+
+    a: i32 = 5
+    b: i32 = 3
+
+    print([(1, 2), (3, 4), (5, 6)].pop(a//b)) 
+    assert [(1, 2), (3, 4), (5, 6)].pop(a//b) == (3, 4)
+
+    print([["a", "b"], ["c", "d"], ["e", "f"]].pop())
+    assert [["a", "b"], ["c", "d"], ["e", "f"]].pop() == ["e", "f"]
+
 test_list_pop()

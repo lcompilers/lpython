@@ -75,10 +75,12 @@ struct AttributeHandler {
         }
         std::string key = class_name + "@" + attr_name;
         if (modify_attr_set.find(key) != modify_attr_set.end()) {
-            ASR::Variable_t* v = ASRUtils::EXPR2VAR(e);
-            if (v->m_intent == ASRUtils::intent_in) {
-                throw SemanticError("Modifying input function parameter `"
-                            + std::string(v->m_name) + "` is not allowed", loc);
+            if (ASR::is_a<ASR::Var_t>(*e)) {
+                ASR::Variable_t* v = ASRUtils::EXPR2VAR(e);
+                if (v->m_intent == ASRUtils::intent_in) {
+                    throw SemanticError("Modifying input function parameter `"
+                                + std::string(v->m_name) + "` is not allowed", loc);
+                }
             }
         }
         auto search = attribute_map.find(key);
@@ -393,6 +395,9 @@ struct AttributeHandler {
 
     static ASR::asr_t* eval_dict_pop(ASR::expr_t *s, Allocator &al, const Location &loc,
             Vec<ASR::expr_t*> &args, diag::Diagnostics &diag) {
+        if (ASRUtils::is_const(s)) {
+            throw SemanticError("cannot pop elements from a const dict", loc);
+        }
         if (args.size() != 1) {
             throw SemanticError("'pop' takes only one argument for now", loc);
         }
