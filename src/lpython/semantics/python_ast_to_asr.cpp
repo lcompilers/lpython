@@ -659,7 +659,7 @@ public:
 
         // Fill the whole call_args_vec with nullptr
         // This is for error handling later on.
-         for( size_t i = 0; i < call_args_vec.max; i++ ) {
+         for( size_t i = 0; i < orig_func->n_args; i++ ) {
             ASR::call_arg_t call_arg;
             Location loc;
             loc.first = loc.last = 1;
@@ -707,17 +707,26 @@ public:
         // Filling missing arguments with their defaults passed in function definition (if present).
         for(size_t i = 0; i < orig_func->n_args; i++ ){
             if(call_args_vec.p[i].m_value == nullptr){
-                ASR::symbol_t* sym = ASR::down_cast<ASR::Var_t>(orig_func->m_args[i])->m_v;
-                std::string variable_name = ASR::down_cast<ASR::Variable_t>(sym)->m_name;
-                ASR::Variable_t* var = ASR::down_cast<ASR::Variable_t>(orig_func->m_symtab->get_symbol(variable_name));
+                ASR::Variable_t* var = ASRUtils::EXPR2VAR(orig_func->m_args[i]);
                 if (var->m_symbolic_value == nullptr){
-                    call_args_vec.reserve(al, n_pos_args + n_kwargs); //deprecate Vec container, so it raise error later.
-                    break;
+                    missed_args_names+="'" + (std::string) var->m_name + "' and ";
+                    missed_args_count++;
                 }
                 else{
                     call_args_vec.p[i].m_value = var->m_symbolic_value;
                 }
             }
+        }
+        if(missed_args_count > 0){
+            missed_args_names = missed_args_names.substr(0,missed_args_names.length() - 5);
+            diag.add(diag::Diagnostic(
+                "Number of arguments does not match in the function call",
+                diag::Level::Error, diag::Stage::Semantic, {
+                    diag::Label("missing " + std::to_string(missed_args_count) + " required arguments :" + missed_args_names,
+                        {call_loc})
+                })
+            );
+            throw SemanticAbort();
         }
         return true;
     }
@@ -1158,17 +1167,32 @@ public:
                 visit_expr_list(pos_args, n_pos_args, kwargs, n_kwargs,
                                 args, rt_subs, func, loc);
             } else if (args.size() < func->n_args) {
+                std::string missed_args_names =" ";
+                size_t missed_args_count =0;
                 for (size_t def_arg = args.size(); def_arg < func->n_args; def_arg++){
-                    ASR::symbol_t* sym = ASR::down_cast<ASR::Var_t>(func->m_args[def_arg])->m_v;
-                    std::string variable_name = ASR::down_cast<ASR::Variable_t>(sym)->m_name;
-                    ASR::Variable_t* var = ASR::down_cast<ASR::Variable_t>(func->m_symtab->get_symbol(variable_name));
+                    ASR::Variable_t* var = ASRUtils::EXPR2VAR(func->m_args[def_arg]);
                     if(var->m_symbolic_value == nullptr) {
-                        break;
+                        missed_args_names+= "'" + (std::string)var->m_name + "' and ";
+                        missed_args_count++;
                     }
-                    ASR::call_arg_t call_arg;
-                    call_arg.m_value = var->m_symbolic_value;
-                    call_arg.loc = (var->m_symbolic_value->base).loc;
-                    args.push_back(al,call_arg);       
+                    else{
+
+                        ASR::call_arg_t call_arg;
+                        call_arg.m_value = var->m_symbolic_value;
+                        call_arg.loc = (var->m_symbolic_value->base).loc;
+                        args.push_back(al,call_arg);       
+                    }
+                }
+                if(missed_args_count > 0){
+                    missed_args_names = missed_args_names.substr(0,missed_args_names.length() - 5);
+                    diag.add(diag::Diagnostic(
+                    "Number of arguments does not match in the function call",
+                    diag::Level::Error, diag::Stage::Semantic, {
+                        diag::Label("missing " + std::to_string(missed_args_count) + " required arguments :" + missed_args_names,
+                                {loc})
+                        })
+                    );
+                    throw SemanticAbort();
                 }
             }
             if (ASRUtils::get_FunctionType(func)->m_is_restriction) {
