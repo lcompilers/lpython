@@ -1443,3 +1443,27 @@ run_with_dbg = true
 [[test]]
 filename = "errors/test_optional.py"
 asr = true
+
+[[test]]
+filename = "errors/def_func_01.py"
+asr = true
+
+[[test]]
+filename = "errors/def_func_02.py"
+asr = true
+
+[[test]]
+filename = "errors/def_func_03.py"
+asr = true
+
+[[test]]
+filename = "errors/def_func_04.py"
+asr = true
+
+[[test]]
+filename = "errors/def_func_05.py"
+asr = true
+
+[[test]]
+filename = "errors/def_func_06.py"
+asr = true
