@@ -2,12 +2,12 @@
     "basename": "asr-def_func_01-1c7f4cd",
     "cmd": "lpython --show-asr --no-color {infile} -o {outfile}",
     "infile": "tests/errors/def_func_01.py",
-    "infile_hash": "61daf4e2823865c57c501d99dceee1553856e2e142e8d6276fcf5a35",
+    "infile_hash": "fda645ec7920824250cc2b5c28663061fe629b1dc341fc70ba3a691c",
     "outfile": null,
     "outfile_hash": null,
     "stdout": null,
     "stdout_hash": null,
     "stderr": "asr-def_func_01-1c7f4cd.stderr",
-    "stderr_hash": "0914547db8dc99e767e8817786e1c94c1bc72c695bd5ec6d810a9cdb",
+    "stderr_hash": "e96fc67b26c68ef0954595fb87bf261a1bfe6e9f55d83baf28e73032",
     "returncode": 2
 }
