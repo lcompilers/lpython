@@ -705,6 +705,8 @@ public:
             call_args_vec.p[arg_pos].m_value = expr;
         }
         // Filling missing arguments with their defaults passed in function definition (if present).
+        std::string missed_args_names;
+        size_t missed_args_count =0;
         for(size_t i = 0; i < orig_func->n_args; i++ ){
             if(call_args_vec.p[i].m_value == nullptr){
                 ASR::Variable_t* var = ASRUtils::EXPR2VAR(orig_func->m_args[i]);
@@ -6690,7 +6692,7 @@ public:
                 }
             } else {
                 if (!ASRUtils::check_equal_type(ASRUtils::expr_type(value), type)) {
-                	throw SemanticError("All Set values must be of the same type for now",
+                    throw SemanticError("All Set values must be of the same type for now",
                                         x.base.base.loc);
                 }
             }
