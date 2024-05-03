@@ -792,7 +792,6 @@ RUN(NAME test_str_attributes LABELS cpython llvm llvm_jit c)
 RUN(NAME kwargs_01           LABELS cpython llvm llvm_jit c NOFAST)
 RUN(NAME def_func_01         LABELS cpython llvm c)
 
-
 RUN(NAME func_inline_01 LABELS llvm llvm_jit c wasm)
 RUN(NAME func_inline_02 LABELS cpython llvm llvm_jit c)
 RUN(NAME func_static_01 LABELS cpython llvm llvm_jit c wasm)
