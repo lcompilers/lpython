@@ -713,8 +713,7 @@ public:
                 if (var->m_symbolic_value == nullptr){
                     missed_args_names+="'" + (std::string) var->m_name + "' and ";
                     missed_args_count++;
-                }
-                else{
+                } else {
                     call_args_vec.p[i].m_value = var->m_symbolic_value;
                 }
             }
@@ -1176,7 +1175,7 @@ public:
                     if(var->m_symbolic_value == nullptr) {
                         missed_args_names+= "'" + std::string(var->m_name) + "' and ";
                         missed_args_count++;
-                    } else{
+                    } else {
                         ASR::call_arg_t call_arg;
                         call_arg.m_value = var->m_symbolic_value;
                         call_arg.loc = (var->m_symbolic_value->base).loc;
