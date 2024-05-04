@@ -145,6 +145,7 @@ enum class IntrinsicElementalFunctions : int64_t {
     SymbolicPow,
     SymbolicPi,
     SymbolicE,
+    SymbolicInfinity,
     SymbolicInteger,
     SymbolicDiff,
     SymbolicExpand,
@@ -5672,6 +5673,7 @@ namespace X {                                                                   
 
 create_symbolic_constants_macro(SymbolicPi)
 create_symbolic_constants_macro(SymbolicE)
+create_symbolic_constants_macro(SymbolicInfinity)
 
 namespace SymbolicInteger {
 
