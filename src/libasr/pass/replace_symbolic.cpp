@@ -438,6 +438,7 @@ public:
             }
             BASIC_CONST(Pi, pi)
             BASIC_CONST(E, E)
+            BASIC_CONST(Infinity, infinity)
             BASIC_BINOP(Add, add)
             BASIC_BINOP(Sub, sub)
             BASIC_BINOP(Mul, mul)

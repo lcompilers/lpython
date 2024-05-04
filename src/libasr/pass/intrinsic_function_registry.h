@@ -144,6 +144,7 @@ inline std::string get_intrinsic_name(int x) {
         INTRINSIC_NAME_CASE(SymbolicPow)
         INTRINSIC_NAME_CASE(SymbolicPi)
         INTRINSIC_NAME_CASE(SymbolicE)
+        INTRINSIC_NAME_CASE(SymbolicInfinity)
         INTRINSIC_NAME_CASE(SymbolicInteger)
         INTRINSIC_NAME_CASE(SymbolicDiff)
         INTRINSIC_NAME_CASE(SymbolicExpand)
@@ -424,6 +425,8 @@ namespace IntrinsicElementalFunctionRegistry {
             {nullptr, &SymbolicPi::verify_args}},
         {static_cast<int64_t>(IntrinsicElementalFunctions::SymbolicE),
             {nullptr, &SymbolicE::verify_args}},
+        {static_cast<int64_t>(IntrinsicElementalFunctions::SymbolicInfinity),
+            {nullptr, &SymbolicInfinity::verify_args}},
         {static_cast<int64_t>(IntrinsicElementalFunctions::SymbolicInteger),
             {nullptr, &SymbolicInteger::verify_args}},
         {static_cast<int64_t>(IntrinsicElementalFunctions::SymbolicDiff),
@@ -707,6 +710,8 @@ namespace IntrinsicElementalFunctionRegistry {
             "pi"},
         {static_cast<int64_t>(IntrinsicElementalFunctions::SymbolicE),
             "E"},
+        {static_cast<int64_t>(IntrinsicElementalFunctions::SymbolicInfinity),
+            "oo"},
         {static_cast<int64_t>(IntrinsicElementalFunctions::SymbolicInteger),
             "SymbolicInteger"},
         {static_cast<int64_t>(IntrinsicElementalFunctions::SymbolicDiff),
@@ -870,6 +875,7 @@ namespace IntrinsicElementalFunctionRegistry {
                 {"SymbolicPow", {&SymbolicPow::create_SymbolicPow, &SymbolicPow::eval_SymbolicPow}},
                 {"pi", {&SymbolicPi::create_SymbolicPi, &SymbolicPi::eval_SymbolicPi}},
                 {"E", {&SymbolicE::create_SymbolicE, &SymbolicE::eval_SymbolicE}},
+                {"oo", {&SymbolicInfinity::create_SymbolicInfinity, &SymbolicInfinity::eval_SymbolicInfinity}},
                 {"SymbolicInteger", {&SymbolicInteger::create_SymbolicInteger, &SymbolicInteger::eval_SymbolicInteger}},
                 {"diff", {&SymbolicDiff::create_SymbolicDiff, &SymbolicDiff::eval_SymbolicDiff}},
                 {"expand", {&SymbolicExpand::create_SymbolicExpand, &SymbolicExpand::eval_SymbolicExpand}},
