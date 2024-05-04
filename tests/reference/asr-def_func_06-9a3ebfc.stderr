@@ -1,0 +1,5 @@
+semantic error: Number of arguments does not match in the function call
+ --> tests/errors/def_func_06.py:5:1
+  |
+5 | func_05(z=3)
+  | ^^^^^^^^^^^^ missing 2 required arguments :'x' and 'y'
