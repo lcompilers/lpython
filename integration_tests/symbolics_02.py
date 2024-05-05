@@ -98,5 +98,9 @@ def test_symbolic_operations():
     print(b4)
     assert(b4 == False)
 
+    # is_integer check
+    assert(pi1.is_integer == False)
+    assert(a.is_integer == True)
+    assert(c.is_integer == True)
 
 test_symbolic_operations()

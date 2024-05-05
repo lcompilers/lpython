@@ -15,6 +15,11 @@ __slots__ = ["i8", "i16", "i32", "i64", "u8", "u16", "u32", "u64", "f32", "f64",
 
 # data-types
 
+def get_sympy_S(x):
+    from sympy import S
+    return S(x)
+
+
 type_to_convert_func = {
     "i1": bool,
     "i8": int,
@@ -34,7 +39,7 @@ type_to_convert_func = {
     "Callable": lambda x: x,
     "Allocatable": lambda x: x,
     "Pointer": lambda x: x,
-    "S": lambda x: x,
+    "S": get_sympy_S,
 }
 
 class Type:
