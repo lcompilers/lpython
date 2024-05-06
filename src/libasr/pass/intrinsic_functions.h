@@ -540,6 +540,10 @@ namespace ObjectType {
                 object_type += "list"; break;
             } case ASR::ttypeType::Dict : {
                object_type += "dict"; break;
+            } case ASR::ttypeType::Set : {
+               object_type += "set"; break;
+            } case ASR::ttypeType::Tuple : {
+               object_type += "tuple"; break;
             } default: {
                 LCOMPILERS_ASSERT_MSG(false, "Unsupported type");
                 break;
