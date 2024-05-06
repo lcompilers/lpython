@@ -1,0 +1,13 @@
+{
+    "basename": "asr-def_func_05-6c33b29",
+    "cmd": "lpython --show-asr --no-color {infile} -o {outfile}",
+    "infile": "tests/errors/def_func_05.py",
+    "infile_hash": "bc8d5377ec564a4d5758653dea39d5c6237992a54ec33fdef88f63f2",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": null,
+    "stdout_hash": null,
+    "stderr": "asr-def_func_05-6c33b29.stderr",
+    "stderr_hash": "9dad35128e5da8dcc73f9c96bdb43ce15e3309d590bb794b14e3133c",
+    "returncode": 2
+}

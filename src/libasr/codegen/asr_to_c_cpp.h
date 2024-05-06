@@ -565,6 +565,7 @@ R"(#include <stdio.h>
                 if( is_c ) {
                     CDeclarationOptions c_decl_options;
                     c_decl_options.pre_initialise_derived_type = false;
+                    c_decl_options.do_not_initialize = true;
                     func += self().convert_variable_decl(*arg, &c_decl_options);
                 } else {
                     CPPDeclarationOptions cpp_decl_options;

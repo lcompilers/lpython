@@ -659,7 +659,7 @@ public:
 
         // Fill the whole call_args_vec with nullptr
         // This is for error handling later on.
-        for( size_t i = 0; i < n_pos_args + n_kwargs; i++ ) {
+         for( size_t i = 0; i < orig_func->n_args; i++ ) {
             ASR::call_arg_t call_arg;
             Location loc;
             loc.first = loc.last = 1;
@@ -703,6 +703,31 @@ public:
             }
             call_args_vec.p[arg_pos].loc = expr->base.loc;
             call_args_vec.p[arg_pos].m_value = expr;
+        }
+        // Filling missing arguments with their defaults passed in function definition (if present).
+        std::string missed_args_names;
+        size_t missed_args_count =0;
+        for(size_t i = 0; i < orig_func->n_args; i++ ){
+            if(call_args_vec.p[i].m_value == nullptr){
+                ASR::Variable_t* var = ASRUtils::EXPR2VAR(orig_func->m_args[i]);
+                if (var->m_symbolic_value == nullptr){
+                    missed_args_names+="'" + (std::string) var->m_name + "' and ";
+                    missed_args_count++;
+                } else {
+                    call_args_vec.p[i].m_value = var->m_symbolic_value;
+                }
+            }
+        }
+        if(missed_args_count > 0){
+            missed_args_names = missed_args_names.substr(0,missed_args_names.length() - 5);
+            diag.add(diag::Diagnostic(
+                "Number of arguments does not match in the function call",
+                diag::Level::Error, diag::Stage::Semantic, {
+                    diag::Label("missing " + std::to_string(missed_args_count) + " required arguments :" + missed_args_names,
+                        {call_loc})
+                })
+            );
+            throw SemanticAbort();
         }
         return true;
     }
@@ -1139,9 +1164,35 @@ public:
         if (ASR::is_a<ASR::Function_t>(*s)) {
             ASR::Function_t *func = ASR::down_cast<ASR::Function_t>(s);
             if( n_kwargs > 0 && !is_generic_procedure ) {
-                args.reserve(al, n_pos_args + n_kwargs);
+                args.reserve(al, func->n_args);
                 visit_expr_list(pos_args, n_pos_args, kwargs, n_kwargs,
                                 args, rt_subs, func, loc);
+            } else if (args.size() < func->n_args) {
+                std::string missed_args_names =" ";
+                size_t missed_args_count =0;
+                for (size_t def_arg = args.size(); def_arg < func->n_args; def_arg++){
+                    ASR::Variable_t* var = ASRUtils::EXPR2VAR(func->m_args[def_arg]);
+                    if(var->m_symbolic_value == nullptr) {
+                        missed_args_names+= "'" + std::string(var->m_name) + "' and ";
+                        missed_args_count++;
+                    } else {
+                        ASR::call_arg_t call_arg;
+                        call_arg.m_value = var->m_symbolic_value;
+                        call_arg.loc = (var->m_symbolic_value->base).loc;
+                        args.push_back(al,call_arg);       
+                    }
+                }
+                if(missed_args_count > 0){
+                    missed_args_names = missed_args_names.substr(0,missed_args_names.length() - 5);
+                    diag.add(diag::Diagnostic(
+                    "Number of arguments does not match in the function call",
+                    diag::Level::Error, diag::Stage::Semantic, {
+                        diag::Label("missing " + std::to_string(missed_args_count) + " required arguments :" + missed_args_names,
+                                {loc})
+                        })
+                    );
+                    throw SemanticAbort();
+                }
             }
             if (ASRUtils::get_FunctionType(func)->m_is_restriction) {
                 rt_vec.push_back(s);
@@ -3211,7 +3262,7 @@ public:
         std::string name = x.m_id;
         ASR::symbol_t *s = current_scope->resolve_symbol(name);
         std::set<std::string> not_cpython_builtin = {
-            "pi", "E"};
+            "pi", "E", "oo"};
         if (s) {
             tmp = ASR::make_Var_t(al, x.base.base.loc, s);
         } else if (name == "i32" || name == "i64" || name == "f32" ||
@@ -4269,6 +4320,7 @@ public:
             throw SemanticError("Function " + std::string(x.m_name) +  " is already defined", x.base.base.loc);
         }
         bool is_allocatable = false, is_const = false;
+        size_t default_arg_index_start = x.m_args.n_args - x.m_args.n_defaults;
         for (size_t i=0; i<x.m_args.n_args; i++) {
             char *arg=x.m_args.m_args[i].m_arg;
             Location loc = x.m_args.m_args[i].loc;
@@ -4290,6 +4342,11 @@ public:
             std::string arg_s = arg;
             ASR::expr_t *value = nullptr;
             ASR::expr_t *init_expr = nullptr;
+            if (i >= default_arg_index_start){
+                size_t default_arg_index = i - default_arg_index_start;
+                this->visit_expr(*(x.m_args.m_defaults[default_arg_index]));
+                init_expr = ASRUtils::EXPR(tmp);
+            }
             if (s_intent == ASRUtils::intent_unspecified) {
                 s_intent = ASRUtils::intent_in;
                 if (ASRUtils::is_array(arg_type)) {
@@ -4308,6 +4365,9 @@ public:
             }
             ASR::accessType s_access = ASR::accessType::Public;
             ASR::presenceType s_presence = ASR::presenceType::Required;
+            if (i >= default_arg_index_start){                
+            	s_presence = ASR::presenceType::Optional;
+            }
             bool value_attr = false;
             if (current_procedure_abi_type == ASR::abiType::BindC) {
                 value_attr = true;
@@ -7508,7 +7568,7 @@ we will have to use something else.
                     "diff", "expand", "has"
                 };
                 std::set<std::string> symbolic_constants = {
-                    "pi", "E"
+                    "pi", "E", "oo"
                 };
                 if (symbolic_attributes.find(call_name) != symbolic_attributes.end() &&
                     symbolic_constants.find(mod_name) != symbolic_constants.end()){
