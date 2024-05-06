@@ -279,6 +279,7 @@ public:
                 case LCompilers::ASRUtils::IntrinsicElementalFunctions::SymbolicPowQ:
                 case LCompilers::ASRUtils::IntrinsicElementalFunctions::SymbolicLogQ:
                 case LCompilers::ASRUtils::IntrinsicElementalFunctions::SymbolicSinQ:
+                case LCompilers::ASRUtils::IntrinsicElementalFunctions::SymbolicIsInteger:
                     return true;
                 default:
                     return false;
@@ -513,6 +514,7 @@ public:
                 BASIC_ATTR(PowQ, 17)
                 BASIC_ATTR(LogQ, 29)
                 BASIC_ATTR(SinQ, 35)
+                BASIC_ATTR(IsInteger, 0)
                 default: {
                     throw LCompilersException("IntrinsicFunction: `"
                         + ASRUtils::get_intrinsic_name(intrinsic_id)

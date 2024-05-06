@@ -48,6 +48,7 @@ struct AttributeHandler {
             {"diff", &eval_symbolic_diff},
             {"expand", &eval_symbolic_expand},
             {"has", &eval_symbolic_has_symbol},
+            {"is_integer", &eval_symbolic_is_integer}
         };
     }
 
@@ -559,6 +560,19 @@ struct AttributeHandler {
         }
         ASRUtils::create_intrinsic_function create_function =
             ASRUtils::IntrinsicElementalFunctionRegistry::get_create_function("GetArgument");
+        return create_function(al, loc, args_with_list, diag);
+    }
+
+    static ASR::asr_t* eval_symbolic_is_integer(ASR::expr_t *s, Allocator &al, const Location &loc,
+            Vec<ASR::expr_t*> &args, diag::Diagnostics &diag) {
+        Vec<ASR::expr_t*> args_with_list;
+        args_with_list.reserve(al, args.size() + 1);
+        args_with_list.push_back(al, s);
+        for(size_t i = 0; i < args.size(); i++) {
+            args_with_list.push_back(al, args[i]);
+        }
+        ASRUtils::create_intrinsic_function create_function =
+            ASRUtils::IntrinsicElementalFunctionRegistry::get_create_function("is_integer");
         return create_function(al, loc, args_with_list, diag);
     }
 

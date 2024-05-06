@@ -160,6 +160,7 @@ inline std::string get_intrinsic_name(int x) {
         INTRINSIC_NAME_CASE(SymbolicLogQ)
         INTRINSIC_NAME_CASE(SymbolicSinQ)
         INTRINSIC_NAME_CASE(SymbolicGetArgument)
+        INTRINSIC_NAME_CASE(SymbolicIsInteger)
         default : {
             throw LCompilersException("pickle: intrinsic_id not implemented");
         }
@@ -457,6 +458,8 @@ namespace IntrinsicElementalFunctionRegistry {
             {nullptr, &SymbolicSinQ::verify_args}},
         {static_cast<int64_t>(IntrinsicElementalFunctions::SymbolicGetArgument),
             {nullptr, &SymbolicGetArgument::verify_args}},
+        {static_cast<int64_t>(IntrinsicElementalFunctions::SymbolicIsInteger),
+            {nullptr, &SymbolicIsInteger::verify_args}},
     };
 
     static const std::map<int64_t, std::string>& intrinsic_function_id_to_name = {
@@ -742,6 +745,8 @@ namespace IntrinsicElementalFunctionRegistry {
             "SymbolicSinQ"},
         {static_cast<int64_t>(IntrinsicElementalFunctions::SymbolicGetArgument),
             "SymbolicGetArgument"},
+        {static_cast<int64_t>(IntrinsicElementalFunctions::SymbolicIsInteger),
+            "SymbolicIsInteger"},
     };
 
 
@@ -891,6 +896,7 @@ namespace IntrinsicElementalFunctionRegistry {
                 {"LogQ", {&SymbolicLogQ::create_SymbolicLogQ, &SymbolicLogQ::eval_SymbolicLogQ}},
                 {"SinQ", {&SymbolicSinQ::create_SymbolicSinQ, &SymbolicSinQ::eval_SymbolicSinQ}},
                 {"GetArgument", {&SymbolicGetArgument::create_SymbolicGetArgument, &SymbolicGetArgument::eval_SymbolicGetArgument}},
+                {"is_integer", {&SymbolicIsInteger::create_SymbolicIsInteger, &SymbolicIsInteger::eval_SymbolicIsInteger}},
     };
 
     static inline bool is_intrinsic_function(const std::string& name) {

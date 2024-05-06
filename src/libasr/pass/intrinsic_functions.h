@@ -161,6 +161,7 @@ enum class IntrinsicElementalFunctions : int64_t {
     SymbolicLogQ,
     SymbolicSinQ,
     SymbolicGetArgument,
+    SymbolicIsInteger,
     // ...
 };
 
@@ -5857,6 +5858,7 @@ create_symbolic_query_macro(SymbolicMulQ)
 create_symbolic_query_macro(SymbolicPowQ)
 create_symbolic_query_macro(SymbolicLogQ)
 create_symbolic_query_macro(SymbolicSinQ)
+create_symbolic_query_macro(SymbolicIsInteger)
 
 #define create_symbolic_unary_macro(X)                                                    \
 namespace X {                                                                             \
