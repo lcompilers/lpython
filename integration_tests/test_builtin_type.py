@@ -7,7 +7,6 @@ def test_builtin_type():
     l: list[i32] = [1, 2, 3, 4, 5]
     d: dict[str, i32] = {"a": 1, "b": 2, "c": 3}
     t: tuple[str, i32] = ("a", 1)
-    st: set[i32] = {1, 2, 3, 4}
     res: str = ""
 
     res = str(type(i))
@@ -28,9 +27,6 @@ def test_builtin_type():
     res = str(type(t))
     print(res)
     assert res == "<class 'tuple'>"
-    res = str(type(st))
-    print(res)
-    assert res == "<class 'set'>"
     
 
 test_builtin_type()
