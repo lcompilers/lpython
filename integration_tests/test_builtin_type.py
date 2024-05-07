@@ -6,6 +6,7 @@ def test_builtin_type():
     s: str = "Hello, LPython!"
     l: list[i32] = [1, 2, 3, 4, 5]
     d: dict[str, i32] = {"a": 1, "b": 2, "c": 3}
+    t: tuple[str, i32] = ("a", 1)
     res: str = ""
 
     res = str(type(i))
@@ -23,5 +24,9 @@ def test_builtin_type():
     res = str(type(d))
     print(res)
     assert res == "<class 'dict'>"
+    res = str(type(t))
+    print(res)
+    assert res == "<class 'tuple'>"
+    
 
 test_builtin_type()
