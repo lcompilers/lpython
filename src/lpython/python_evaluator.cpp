@@ -66,10 +66,10 @@ Result<PythonCompiler::EvalResult> PythonCompiler::evaluate(
     }
 
     // if (verbose) {
-        result.ast = LCompilers::LPython::pickle_python(*ast, true, true);
+        // result.ast = LCompilers::LPython::pickle_python(*ast, true, true);
     // }
 
-    std::cout << result.ast << std::endl;
+    // std::cout << result.ast << std::endl;
 
     // AST -> ASR
     Result<ASR::TranslationUnit_t*> res2 = get_asr3(*ast, diagnostics, lm);
@@ -82,10 +82,10 @@ Result<PythonCompiler::EvalResult> PythonCompiler::evaluate(
     }
 
     // if (verbose) {
-        result.asr = pickle(*asr, true, true, true);
+        // result.asr = pickle(*asr, true, true, true);
     // }
 
-    std::cout << result.asr << std::endl;
+    // std::cout << result.asr << std::endl;
 
     // ASR -> LLVM
     Result<std::unique_ptr<LLVMModule>> res3 = get_llvm3(*asr,
@@ -102,7 +102,7 @@ Result<PythonCompiler::EvalResult> PythonCompiler::evaluate(
     //     result.llvm_ir = m->str();
     // }
 
-    std::cout << m->str() << std::endl;
+    // std::cout << m->str() << std::endl;
 
     bool call_init = false;
     bool call_stmts = false;
