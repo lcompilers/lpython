@@ -1,6 +1,7 @@
 #ifndef LPYTHON_PARSER_PARSER_H
 #define LPYTHON_PARSER_PARSER_H
 
+#include "lpython/python_ast.h"
 #include <libasr/containers.h>
 #include <libasr/diagnostics.h>
 #include <lpython/parser/tokenizer.h>
@@ -32,6 +33,10 @@ public:
 
 // Parses Python code to AST
 Result<LPython::AST::Module_t*> parse(Allocator &al,
+    const std::string &s, uint32_t prev_loc,
+    diag::Diagnostics &diagnostics);
+
+Result<LPython::AST::ast_t*> parse_to_ast(Allocator &al,
     const std::string &s, uint32_t prev_loc,
     diag::Diagnostics &diagnostics);
 

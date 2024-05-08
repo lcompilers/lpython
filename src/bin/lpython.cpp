@@ -794,22 +794,24 @@ int emit_llvm(const std::string &infile,
 }
 
 int interactive_python_repl(
-        LCompilers::PassManager& pass_manager,
+        // LCompilers::PassManager& pass_manager,
         CompilerOptions &compiler_options,
-        bool time_report)
+        bool /*time_report*/)
 {
     Allocator al(4*1024);
-    
+    compiler_options.interactive = true;
+    LCompilers::PythonCompiler fe(compiler_options);
     LCompilers::diag::Diagnostics diagnostics;
-    LCompilers::LocationManager lm;    
+    LCompilers::LocationManager lm;
     std::vector<std::pair<std::string, double>> times;
-    std::string infile;
-
+    LCompilers::PythonCompiler::EvalResult r;
+    LCompilers::PassManager pass_manager;
+    pass_manager.use_default_passes();
+    
     std::string code_string;
     std::cout << ">>> ";
     size_t cell_count = 0;
     for (std::string input; std::getline(std::cin, input);) {
-
         if (input == "exit" || input == "quit") // exit condition
             return 0;
 
@@ -833,76 +835,100 @@ int interactive_python_repl(
         {
             cell_count++;
             LCompilers::LocationManager::FileLocations fl;
-            infile = "stdin" + std::to_string(cell_count);
-            fl.in_filename = infile;
+            fl.in_filename = "input";
+            std::ofstream out("input");
+            out << code_string;
             lm.files.push_back(fl);
             lm.init_simple(code_string);
             lm.file_ends.push_back(code_string.size());
         }
 
-        /* parse and run */
-        // parsing string to AST
-        auto parsing_start = std::chrono::high_resolution_clock::now();
-        // ???: change `parse_python_file` to `parse` or `parse_string`
-        LCompilers::Result<LCompilers::LPython::AST::Module_t*> r = LCompilers::LPython::parse(al, code_string, 0, diagnostics);
-        auto parsing_end = std::chrono::high_resolution_clock::now();
-        times.push_back(std::make_pair("Parsing", std::chrono::duration<double, std::milli>(parsing_end - parsing_start).count()));
-        std::cerr << diagnostics.render(lm, compiler_options);
-        if (!r.ok) {
-            LCOMPILERS_ASSERT(diagnostics.has_error())
-            print_time_report(times, time_report);
-            return 1;
-        }
-
-        // AST -> ASR
-        LCompilers::LPython::AST::ast_t* ast = (LCompilers::LPython::AST::ast_t*)r.result;
-        diagnostics.diagnostics.clear();
-        auto ast_to_asr_start = std::chrono::high_resolution_clock::now();
-        LCompilers::Result<LCompilers::ASR::TranslationUnit_t*>
-            r1 = LCompilers::LPython::python_ast_to_asr(al, lm, nullptr, *ast, diagnostics, compiler_options,
-                !(false && compiler_options.po.disable_main), "__main__", infile);
-
-        auto ast_to_asr_end = std::chrono::high_resolution_clock::now();
-        times.push_back(std::make_pair("AST to ASR", std::chrono::duration<double, std::milli>(ast_to_asr_end - ast_to_asr_start).count()));
-        std::cerr << diagnostics.render(lm, compiler_options);
-        if (!r1.ok) {
-            LCOMPILERS_ASSERT(diagnostics.has_error())
-            print_time_report(times, time_report);
-            return 2;
-        }
-        LCompilers::ASR::TranslationUnit_t* asr = r1.result;
-        diagnostics.diagnostics.clear();
-
-        LCompilers::PythonCompiler fe(compiler_options);
-        LCompilers::LLVMEvaluator e(compiler_options.target);
-        std::unique_ptr<LCompilers::LLVMModule> m;
-        auto asr_to_llvm_start = std::chrono::high_resolution_clock::now();
-        LCompilers::Result<std::unique_ptr<LCompilers::LLVMModule>>
-            res = fe.get_llvm3(*asr, pass_manager, diagnostics, infile);
-        auto asr_to_llvm_end = std::chrono::high_resolution_clock::now();
-        times.push_back(std::make_pair("ASR to LLVM", std::chrono::duration<double, std::milli>(asr_to_llvm_end - asr_to_llvm_start).count()));
-
-        std::cerr << diagnostics.render(lm, compiler_options);
-        if (!res.ok) {
-            LCOMPILERS_ASSERT(diagnostics.has_error())
-            print_time_report(times, time_report);
-            return 3;
-        }
-        m = std::move(res.result);
+        try {
+            auto evaluation_start_time = std::chrono::high_resolution_clock::now();
+            LCompilers::Result<LCompilers::PythonCompiler::EvalResult>
+            res = fe.evaluate(code_string, false, lm, pass_manager, diagnostics);
+            std::cerr << diagnostics.render(lm, compiler_options);
+            if (res.ok) {
+                r = res.result;
+            } else {
+                LCOMPILERS_ASSERT(diagnostics.has_error())
+                code_string = "";
+                std::cout << ">>> ";
+                continue;
+            }
+            
+            auto evaluation_end_time = std::chrono::high_resolution_clock::now();
+            times.push_back(std::make_pair("evalution " + std::to_string(cell_count), std::chrono::duration
+                <double, std::milli>(evaluation_start_time - evaluation_end_time).count()));
         
-        bool call_init = false;
-        bool call_stmts = false;
-        if (m->get_return_type("__module___main_____main__global_init") == "void")
-            call_init = true;
-        if (m->get_return_type("__module___main_____main__global_stmts") == "void")
-            call_stmts = true;
+        } catch (const LCompilers::LCompilersException &e) {
+            std::cerr << "Internal Compiler Error: Unhandled exception" << std::endl;
+            std::vector<LCompilers::StacktraceItem> d = e.stacktrace_addresses();
+            get_local_addresses(d);
+            get_local_info(d);
+            std::cerr << stacktrace2str(d, LCompilers::stacktrace_depth);
+            std::cerr << e.name() + ": " << e.msg() << std::endl;
 
-        e.add_module(std::move(m));
-        if (call_init)
-            e.voidfn("__module___main_____main__global_init");
-        if (call_stmts)
-            e.voidfn("__module___main_____main__global_stmts");
-        /* end parse and run */
+            code_string = "";
+            std::cout << ">>> ";
+            continue;
+        }
+
+        switch (r.type) {
+            case (LCompilers::PythonCompiler::EvalResult::integer4) : {
+                // if (verbose) std::cout << "Return type: integer" << std::endl;
+                // if (verbose) section("Result:");
+                std::cout << r.i32 << std::endl;
+                break;
+            }
+            case (LCompilers::PythonCompiler::EvalResult::integer8) : {
+                // if (verbose) std::cout << "Return type: integer(8)" << std::endl;
+                // if (verbose) section("Result:");
+                std::cout << r.i64 << std::endl;
+                break;
+            }
+            case (LCompilers::PythonCompiler::EvalResult::real4) : {
+                // if (verbose) std::cout << "Return type: real" << std::endl;
+                // if (verbose) section("Result:");
+                std::cout << std::setprecision(8) << r.f32 << std::endl;
+                break;
+            }
+            case (LCompilers::PythonCompiler::EvalResult::real8) : {
+                // if (verbose) std::cout << "Return type: real(8)" << std::endl;
+                // if (verbose) section("Result:");
+                std::cout << std::setprecision(17) << r.f64 << std::endl;
+                break;
+            }
+            case (LCompilers::PythonCompiler::EvalResult::complex4) : {
+                // if (verbose) std::cout << "Return type: complex" << std::endl;
+                // if (verbose) section("Result:");
+                std::cout << std::setprecision(8) << "(" << r.c32.re << ", " << r.c32.im << ")" << std::endl;
+                break;
+            }
+            case (LCompilers::PythonCompiler::EvalResult::complex8) : {
+                // if (verbose) std::cout << "Return type: complex(8)" << std::endl;
+                // if (verbose) section("Result:");
+                std::cout << std::setprecision(17) << "(" << r.c64.re << ", " << r.c64.im << ")" << std::endl;
+                break;
+            }
+            case (LCompilers::PythonCompiler::EvalResult::statement) : {
+                // if (verbose) {
+                //     std::cout << "Return type: none" << std::endl;
+                //     section("Result:");
+                //     std::cout << "(statement)" << std::endl;
+                // }
+                break;
+            }
+            case (LCompilers::PythonCompiler::EvalResult::none) : {
+                // if (verbose) {
+                //     std::cout << "Return type: none" << std::endl;
+                //     section("Result:");
+                //     std::cout << "(nothing to execute)" << std::endl;
+                // }
+                break;
+            }
+            default : throw LCompilers::LCompilersException("Return type not supported");
+        }
 
         code_string = "";
         std::cout << ">>> ";
@@ -1948,7 +1974,7 @@ int main(int argc, char *argv[])
             compiler_options.po.disable_main = true;
             compiler_options.emit_debug_line_column = false;
             compiler_options.generate_object_code = false;
-            return interactive_python_repl(lpython_pass_manager, compiler_options, time_report);
+            return interactive_python_repl(compiler_options, time_report);
         }
 
         // TODO: for now we ignore the other filenames, only handle

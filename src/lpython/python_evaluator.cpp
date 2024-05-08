@@ -1,10 +1,15 @@
+#include "libasr/asr_scopes.h"
+#include "lpython/python_ast.h"
 #include <iostream>
-#include <fstream>
 
 #include <lpython/python_evaluator.h>
+#include <lpython/semantics/python_ast_to_asr.h>
 #include <libasr/codegen/asr_to_cpp.h>
 #include <libasr/exception.h>
 #include <libasr/asr.h>
+#include <lpython/pickle.h>
+#include <lpython/parser/parser.h>
+#include <string>
 
 #ifdef HAVE_LFORTRAN_LLVM
 #include <libasr/codegen/evaluator.h>
@@ -28,13 +33,195 @@ PythonCompiler::PythonCompiler(CompilerOptions compiler_options)
     e{std::make_unique<LLVMEvaluator>()},
     eval_count{0},
 #endif
-    compiler_options{compiler_options}
-//    symbol_table{nullptr}
+    compiler_options{compiler_options},
+    symbol_table{nullptr}
 {
 }
 
 PythonCompiler::~PythonCompiler() = default;
 
+
+Result<PythonCompiler::EvalResult> PythonCompiler::evaluate(
+#ifdef HAVE_LFORTRAN_LLVM
+            const std::string &code_orig, bool /*verbose*/, LocationManager &lm,
+            LCompilers::PassManager& pass_manager, diag::Diagnostics &diagnostics
+#else
+            const std::string &/*code_orig*/, bool /*verbose*/,
+                LocationManager &/*lm*/, LCompilers::PassManager& /*pass_manager*/,
+                diag::Diagnostics &/*diagnostics*/
+#endif
+            )
+{
+#ifdef HAVE_LFORTRAN_LLVM
+    EvalResult result;
+    result.type = EvalResult::none;
+
+    // Src -> AST
+    Result<LCompilers::LPython::AST::ast_t*> res = get_ast2(code_orig, diagnostics);
+    LCompilers::LPython::AST::ast_t* ast;
+    if (res.ok) {
+        ast = res.result;
+    } else {
+        return res.error;
+    }
+
+    // if (verbose) {
+        result.ast = LCompilers::LPython::pickle_python(*ast, true, true);
+    // }
+
+    std::cout << result.ast << std::endl;
+
+    // AST -> ASR
+    Result<ASR::TranslationUnit_t*> res2 = get_asr3(*ast, diagnostics, lm);
+    ASR::TranslationUnit_t* asr;
+    if (res2.ok) {
+        asr = res2.result;
+    } else {
+        LCOMPILERS_ASSERT(diagnostics.has_error())
+        return res2.error;
+    }
+
+    // if (verbose) {
+        result.asr = pickle(*asr, true, true, true);
+    // }
+
+    std::cout << result.asr << std::endl;
+
+    // ASR -> LLVM
+    Result<std::unique_ptr<LLVMModule>> res3 = get_llvm3(*asr,
+        pass_manager, diagnostics, lm.files.back().in_filename);
+    std::unique_ptr<LCompilers::LLVMModule> m;
+    if (res3.ok) {
+        m = std::move(res3.result);
+    } else {
+        LCOMPILERS_ASSERT(diagnostics.has_error())
+        return res3.error;
+    }
+
+    // if (verbose) {
+    //     result.llvm_ir = m->str();
+    // }
+
+    std::cout << m->str() << std::endl;
+
+    bool call_init = false;
+    bool call_stmts = false;
+    std::string init_fn = "__module___main_____main____lpython_interactive_init_" + std::to_string(eval_count) + "__";
+    std::string stmts_fn = "__module___main_____main____lpython_interactive_stmts_" + std::to_string(eval_count) + "__";
+    if (m->get_return_type(init_fn) != "none") {
+        call_init = true;
+    }
+    if (m->get_return_type(stmts_fn) != "none") {
+        call_stmts = true;
+    }
+
+    e->add_module(std::move(m));
+    if (call_init) {
+        e->voidfn(init_fn);
+    }
+    if (call_stmts) {
+        e->voidfn(stmts_fn);
+    }
+
+    // TODO: remove init_fn and stmts_fn from asr
+    if (call_init) {
+        ASR::down_cast<ASR::Module_t>(symbol_table->resolve_symbol("__main__"))->m_symtab
+            ->erase_symbol("__main____lpython_interactive_init_" + std::to_string(eval_count) + "__");
+    }
+    if (call_stmts) {
+        ASR::down_cast<ASR::Module_t>(symbol_table->resolve_symbol("__main__"))->m_symtab
+            ->erase_symbol("__main____lpython_interactive_stmts_" + std::to_string(eval_count) + "__");
+    }
+
+    eval_count++;
+
+    // std::string return_type = m->get_return_type(run_fn);
+
+    // // LLVM -> Machine code -> Execution
+    // e->add_module(std::move(m));
+    // if (return_type == "integer4") {
+    //     int32_t r = e->int32fn(run_fn);
+    //     result.type = EvalResult::integer4;
+    //     result.i32 = r;
+    // } else if (return_type == "integer8") {
+    //     int64_t r = e->int64fn(run_fn);
+    //     result.type = EvalResult::integer8;
+    //     result.i64 = r;
+    // } else if (return_type == "real4") {
+    //     float r = e->floatfn(run_fn);
+    //     result.type = EvalResult::real4;
+    //     result.f32 = r;
+    // } else if (return_type == "real8") {
+    //     double r = e->doublefn(run_fn);
+    //     result.type = EvalResult::real8;
+    //     result.f64 = r;
+    // } else if (return_type == "complex4") {
+    //     std::complex<float> r = e->complex4fn(run_fn);
+    //     result.type = EvalResult::complex4;
+    //     result.c32.re = r.real();
+    //     result.c32.im = r.imag();
+    // } else if (return_type == "complex8") {
+    //     std::complex<double> r = e->complex8fn(run_fn);
+    //     result.type = EvalResult::complex8;
+    //     result.c64.re = r.real();
+    //     result.c64.im = r.imag();
+    // } else if (return_type == "void") {
+    //     e->voidfn(run_fn);
+    //     result.type = EvalResult::statement;
+    // } else if (return_type == "none") {
+    //     result.type = EvalResult::none;
+    // } else {
+    //     throw LCompilersException("PythonCompiler::evaluate(): Return type not supported");
+    // }
+    return result;
+#else
+    throw LCompilersException("LLVM is not enabled");
+#endif
+}
+
+Result<LCompilers::LPython::AST::ast_t*> PythonCompiler::get_ast2(
+            const std::string &code_orig, diag::Diagnostics &diagnostics)
+{
+    // Src -> AST
+    const std::string *code=&code_orig;
+    std::string tmp;
+    Result<LCompilers::LPython::AST::ast_t*>
+        res = LCompilers::LPython::parse_to_ast(al, *code, 0, diagnostics);
+    // Result<LCompilers::LPython::AST::Module_t*>
+    //     res = LCompilers::LPython::parse(al, *code, 0, diagnostics);
+    if (res.ok) {
+        return (LCompilers::LPython::AST::ast_t*)res.result;
+    } else {
+        LCOMPILERS_ASSERT(diagnostics.has_error())
+        return res.error;
+    }
+}
+
+Result<ASR::TranslationUnit_t*> PythonCompiler::get_asr3(
+    LCompilers::LPython::AST::ast_t &ast, diag::Diagnostics &diagnostics,
+    LocationManager &lm)
+{
+    ASR::TranslationUnit_t* asr;
+    // AST -> ASR
+    // Remove the old execution function if it exists
+    if (symbol_table) {
+        if (symbol_table->get_symbol(run_fn) != nullptr) {
+            symbol_table->erase_symbol(run_fn);
+        }
+        symbol_table->mark_all_variables_external(al);
+    }
+    auto res = LCompilers::LPython::python_ast_to_asr(al, lm, symbol_table, ast, diagnostics,
+        compiler_options, true, "__main__", "", false, true);
+    if (res.ok) {
+        asr = res.result;
+    } else {
+        LCOMPILERS_ASSERT(diagnostics.has_error())
+        return res.error;
+    }
+    if (!symbol_table) symbol_table = asr->m_symtab;
+
+    return asr;
+}
 
 Result<std::unique_ptr<LLVMModule>> PythonCompiler::get_llvm3(
 #ifdef HAVE_LFORTRAN_LLVM
@@ -47,8 +234,8 @@ Result<std::unique_ptr<LLVMModule>> PythonCompiler::get_llvm3(
     )
 {
 #ifdef HAVE_LFORTRAN_LLVM
-    eval_count++;
-    run_fn = "__lfortran_evaluate_" + std::to_string(eval_count);
+    // eval_count++;
+    // run_fn = "__lfortran_evaluate_" + std::to_string(eval_count);
 
     if (compiler_options.emit_debug_info) {
         if (!compiler_options.emit_debug_line_column) {
@@ -68,7 +255,7 @@ Result<std::unique_ptr<LLVMModule>> PythonCompiler::get_llvm3(
     Result<std::unique_ptr<LCompilers::LLVMModule>> res
         = asr_to_llvm(asr, diagnostics,
             e->get_context(), al, lpm, compiler_options,
-            run_fn, infile);
+            "", infile); // ??? What about run function
     if (res.ok) {
         m = std::move(res.result);
     } else {
