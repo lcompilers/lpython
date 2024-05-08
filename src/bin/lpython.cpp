@@ -847,11 +847,12 @@ int interactive_python_repl(
             auto evaluation_start_time = std::chrono::high_resolution_clock::now();
             LCompilers::Result<LCompilers::PythonCompiler::EvalResult>
             res = fe.evaluate(code_string, false, lm, pass_manager, diagnostics);
-            std::cerr << diagnostics.render(lm, compiler_options);
             if (res.ok) {
                 r = res.result;
             } else {
                 LCOMPILERS_ASSERT(diagnostics.has_error())
+                std::cerr << diagnostics.render(lm, compiler_options);
+                diagnostics.clear();
                 code_string = "";
                 std::cout << ">>> ";
                 continue;
