@@ -150,6 +150,9 @@ public:
             } case ASR::ttypeType::Logical : {
                 r = "bool";
                 break;
+            } case ASR::ttypeType::Dict : {
+                r = ASRUtils::type_to_str_python(t);
+                break;
             } default : {
                 throw LCompilersException("The type `"
                     + ASRUtils::type_to_str_python(t) + "` is not handled yet");
@@ -616,6 +619,29 @@ public:
             r += s;
         }
         r += "\n";
+        s = r;
+    }
+
+    void visit_DictConstant(const ASR::DictConstant_t &x) {
+        std::string r = "";
+        r += "{";
+        size_t i = 0;
+        while (i < x.n_keys - 1) {
+            visit_expr(*x.m_keys[i]);
+            r += s;
+            r += ": ";
+            visit_expr(*x.m_values[i]);
+            r += s; 
+            r += ", ";
+            i++;
+        }
+        visit_expr(*x.m_keys[i]);
+        r += s;
+        r += ": ";
+        visit_expr(*x.m_values[i]);
+        r += s;
+        r += "}";
+
         s = r;
     }
 
