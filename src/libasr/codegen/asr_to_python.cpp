@@ -129,44 +129,6 @@ public:
         }
     }
 
-    std::string get_type(const ASR::ttype_t *t) {
-        std::string r = "";
-        switch (t->type) {
-            case ASR::ttypeType::Integer : {
-                r += "i";
-                r += std::to_string(ASRUtils::extract_kind_from_ttype_t(t)*8);
-                break;
-            } case ASR::ttypeType::Real : {
-                r += "f";
-                r += std::to_string(ASRUtils::extract_kind_from_ttype_t(t)*8);
-                break;
-            } case ASR::ttypeType::Complex : {
-                r += "c";
-                r += std::to_string(ASRUtils::extract_kind_from_ttype_t(t)*8);
-                break;
-            } case ASR::ttypeType::Character : {
-                r = "str";
-                break;
-            } case ASR::ttypeType::Logical : {
-                r = "bool";
-                break;
-            } case ASR::ttypeType::List : {
-                r = ASRUtils::type_to_str_python(t);
-                break;
-            } case ASR::ttypeType::Tuple : {
-                r = ASRUtils::type_to_str_python(t);
-                break;
-            }case ASR::ttypeType::Set : {
-                r = ASRUtils::type_to_str_python(t);
-                break;
-            } default : {
-                throw LCompilersException("The type `"
-                    + ASRUtils::type_to_str_python(t) + "` is not handled yet");
-            }
-        }
-        return r;
-    }
-
     void visit_TranslationUnit(const ASR::TranslationUnit_t &x) {
         std::string r = "";
 
@@ -254,7 +216,7 @@ public:
         std::string r = indent;
         r += x.m_name;
         r += ": ";
-        r += get_type(x.m_type);
+        r += ASRUtils::type_to_str_python(x.m_type);
         r += "\n";
         s = r;
     }
