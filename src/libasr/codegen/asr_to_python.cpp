@@ -150,6 +150,15 @@ public:
             } case ASR::ttypeType::Logical : {
                 r = "bool";
                 break;
+            } case ASR::ttypeType::List : {
+                r = ASRUtils::type_to_str_python(t);
+                break;
+            } case ASR::ttypeType::Tuple : {
+                r = ASRUtils::type_to_str_python(t);
+                break;
+            }case ASR::ttypeType::Set : {
+                r = ASRUtils::type_to_str_python(t);
+                break;
             } default : {
                 throw LCompilersException("The type `"
                     + ASRUtils::type_to_str_python(t) + "` is not handled yet");
