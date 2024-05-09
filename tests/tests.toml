@@ -52,7 +52,7 @@ ast = true
 asr = true
 
 [[test]]
-filename = "data_structure_visitor.py"
+filename = "test_aggregate_constants.py"
 python = true
 
 [[test]]
