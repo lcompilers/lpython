@@ -103,4 +103,9 @@ def test_symbolic_operations():
     assert(a.is_integer == True)
     assert(c.is_integer == True)
 
+    # is_positive check
+    assert(a.is_positive == True)
+    assert(b.is_positive == False)
+    assert(c.is_positive == False)
+
 test_symbolic_operations()
