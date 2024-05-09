@@ -590,6 +590,25 @@ public:
         s = r;
     }
 
+    void visit_DictConstant(const ASR::DictConstant_t &x) {
+        LCOMPILERS_ASSERT(x.n_keys == x.n_values);
+        std::string r = "";
+        r += "{";
+        for (size_t i = 0; i < x.n_keys; i++) {
+            visit_expr(*x.m_keys[i]);
+            r += s;
+            r += ": ";
+            visit_expr(*x.m_values[i]);
+            r += s; 
+            if (i < x.n_keys - 1) {
+                r += ", ";
+            }
+        }
+        r += "}";
+
+        s = r;
+    }
+
     // An aggregate visitor for `ListConstant`, `TupleConstant` & `SetConstant`
     void visit_AggregateConstant(size_t n_args, ASR::expr_t** m_args,
             std::string opening_braces, std::string closing_braces) {
@@ -617,7 +636,6 @@ public:
     void visit_SetConstant(const ASR::SetConstant_t &x) {
         visit_AggregateConstant(x.n_elements, x.m_elements, "{", "}");
     }
-
 };
 
 Result<std::string> asr_to_python(Allocator& al, ASR::TranslationUnit_t &asr,

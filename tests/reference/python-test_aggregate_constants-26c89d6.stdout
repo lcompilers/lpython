@@ -13,6 +13,12 @@ def __main__global_init():
     my_second_set = {1.100000, 2.500000, 6.800000}
     my_third_set = {"a", "b", "a", "c"}
     my_fourth_set = {(1, "a"), (2, "b"), (3, "c")}
+    my_first_dict = {"a": 1, "b": 2, "c": 3}
+    my_second_dict = {1: 1.330000, 2: 2.330000, 3: 3.330000}
+    my_third_dict = {"a": "A", "b": "B", "c": "C"}
+    my_fourth_dict = {1: (1.200000, 4.500000), 2: (3.600000, 9.200000)}
+    my_fifth_dict = {"list1": [1, 2, 3], "list2": [4, 5, 6]}
+    my_sixth_dict = {"set1": {1, 2, 1}, "set2": {4, 1, 2}}
 def __main__global_stmts():
     print(my_first_list)
     print(my_second_list)
@@ -28,19 +34,31 @@ def __main__global_stmts():
     print(my_second_set)
     print(my_third_set)
     print(my_fourth_set)
+    print(my_first_dict)
+    print(my_second_dict)
+    print(my_third_dict)
+    print(my_fourth_dict)
+    print(my_fifth_dict)
+    print(my_sixth_dict)
     fn()
 def fn():
+    my_fifth_dict: dict[str, list[i32]]
     my_fifth_list: list[set[str]]
+    my_first_dict: dict[str, i32]
     my_first_list: list[i32]
     my_first_set: set[i32]
     my_first_tuple: tuple[i32, str, f64]
+    my_fourth_dict: dict[i32, tuple[f64, f64]]
     my_fourth_list: list[list[f64]]
     my_fourth_set: set[tuple[i32, str]]
     my_fourth_tuple: tuple[set[str], str]
+    my_second_dict: dict[i32, f64]
     my_second_list: list[str]
     my_second_set: set[f64]
     my_second_tuple: tuple[tuple[i32, str], str]
+    my_sixth_dict: dict[str, set[i32]]
     my_sixth_list: list[tuple[i32, str]]
+    my_third_dict: dict[str, str]
     my_third_list: list[list[i32]]
     my_third_set: set[str]
     my_third_tuple: tuple[list[str], str]
@@ -72,3 +90,15 @@ def fn():
     print(my_third_set)
     my_fourth_set = {(1, "a"), (2, "b"), (3, "c")}
     print(my_fourth_set)
+    my_first_dict = {"a": 1, "b": 2, "c": 3}
+    print(my_first_dict)
+    my_second_dict = {1: 1.330000, 2: 2.330000, 3: 3.330000}
+    print(my_second_dict)
+    my_third_dict = {"a": "A", "b": "B", "c": "C"}
+    print(my_third_dict)
+    my_fourth_dict = {1: (1.200000, 4.500000), 2: (3.600000, 9.200000)}
+    print(my_fourth_dict)
+    my_fifth_dict = {"list1": [1, 2, 3], "list2": [4, 5, 6]}
+    print(my_fifth_dict)
+    my_sixth_dict = {"set1": {1, 2, 1}, "set2": {4, 1, 2}}
+    print(my_sixth_dict)
