@@ -129,35 +129,6 @@ public:
         }
     }
 
-    std::string get_type(const ASR::ttype_t *t) {
-        std::string r = "";
-        switch (t->type) {
-            case ASR::ttypeType::Integer : {
-                r += "i";
-                r += std::to_string(ASRUtils::extract_kind_from_ttype_t(t)*8);
-                break;
-            } case ASR::ttypeType::Real : {
-                r += "f";
-                r += std::to_string(ASRUtils::extract_kind_from_ttype_t(t)*8);
-                break;
-            } case ASR::ttypeType::Complex : {
-                r += "c";
-                r += std::to_string(ASRUtils::extract_kind_from_ttype_t(t)*8);
-                break;
-            } case ASR::ttypeType::Character : {
-                r = "str";
-                break;
-            } case ASR::ttypeType::Logical : {
-                r = "bool";
-                break;
-            } default : {
-                throw LCompilersException("The type `"
-                    + ASRUtils::type_to_str_python(t) + "` is not handled yet");
-            }
-        }
-        return r;
-    }
-
     void visit_TranslationUnit(const ASR::TranslationUnit_t &x) {
         std::string r = "";
 
@@ -245,7 +216,7 @@ public:
         std::string r = indent;
         r += x.m_name;
         r += ": ";
-        r += get_type(x.m_type);
+        r += ASRUtils::type_to_str_python(x.m_type);
         r += "\n";
         s = r;
     }
@@ -638,6 +609,34 @@ public:
         s = r;
     }
 
+    // An aggregate visitor for `ListConstant`, `TupleConstant` & `SetConstant`
+    void visit_AggregateConstant(size_t n_args, ASR::expr_t** m_args,
+            std::string opening_braces, std::string closing_braces) {
+        std::string r = "";
+        r += opening_braces;
+        for (size_t i = 0; i < n_args; i++) {
+            this->visit_expr(*m_args[i]);
+            r.append(s);
+            if (i < n_args - 1) {
+                r.append(", ");
+            }
+        }
+        r += closing_braces;
+        s = r;
+    }
+
+    void visit_ListConstant(const ASR::ListConstant_t &x) {
+        visit_AggregateConstant(x.n_args, x.m_args, "[", "]");
+    }
+
+    void visit_TupleConstant(const ASR::TupleConstant_t &x) {
+        visit_AggregateConstant(x.n_elements, x.m_elements, "(", ")");
+    }
+
+    void visit_SetConstant(const ASR::SetConstant_t &x) {
+        visit_AggregateConstant(x.n_elements, x.m_elements, "{", "}");
+    }
+    
 };
 
 Result<std::string> asr_to_python(Allocator& al, ASR::TranslationUnit_t &asr,
