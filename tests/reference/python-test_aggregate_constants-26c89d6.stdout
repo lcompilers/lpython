@@ -1,0 +1,74 @@
+def __main__global_init():
+    my_first_list = [1, 2, 3, 4]
+    my_second_list = ["a", "b", "c", "d"]
+    my_third_list = [[1, 2], [3, 4], [5, 6]]
+    my_fourth_list = [[1.000000, 2.200000], [3.600000, 4.900000], [5.100000, 6.300000]]
+    my_fifth_list = [{"a", "b"}, {"c", "d"}]
+    my_sixth_list = [(1, "a"), (2, "b")]
+    my_first_tuple = (1, "hello", 2.400000)
+    my_second_tuple = ((1, "hello"), "world")
+    my_third_tuple = (["hello", "world"], "world")
+    my_fourth_tuple = ({"hello", "world"}, "world")
+    my_first_set = {1, 2, 3, 2, 4}
+    my_second_set = {1.100000, 2.500000, 6.800000}
+    my_third_set = {"a", "b", "a", "c"}
+    my_fourth_set = {(1, "a"), (2, "b"), (3, "c")}
+def __main__global_stmts():
+    print(my_first_list)
+    print(my_second_list)
+    print(my_third_list)
+    print(my_fourth_list)
+    print(my_fifth_list)
+    print(my_sixth_list)
+    print(my_first_tuple)
+    print(my_second_tuple)
+    print(my_third_tuple)
+    print(my_fourth_tuple)
+    print(my_first_set)
+    print(my_second_set)
+    print(my_third_set)
+    print(my_fourth_set)
+    fn()
+def fn():
+    my_fifth_list: list[set[str]]
+    my_first_list: list[i32]
+    my_first_set: set[i32]
+    my_first_tuple: tuple[i32, str, f64]
+    my_fourth_list: list[list[f64]]
+    my_fourth_set: set[tuple[i32, str]]
+    my_fourth_tuple: tuple[set[str], str]
+    my_second_list: list[str]
+    my_second_set: set[f64]
+    my_second_tuple: tuple[tuple[i32, str], str]
+    my_sixth_list: list[tuple[i32, str]]
+    my_third_list: list[list[i32]]
+    my_third_set: set[str]
+    my_third_tuple: tuple[list[str], str]
+    my_first_list = [1, 2, 3, 4]
+    print(my_first_list)
+    my_second_list = ["a", "b", "c", "d"]
+    print(my_second_list)
+    my_third_list = [[1, 2], [3, 4], [5, 6]]
+    print(my_third_list)
+    my_fourth_list = [[1.000000, 2.200000], [3.600000, 4.900000], [5.100000, 6.300000]]
+    print(my_fourth_list)
+    my_fifth_list = [{"a", "b"}, {"c", "d"}]
+    print(my_fifth_list)
+    my_sixth_list = [(1, "a"), (2, "b")]
+    print(my_sixth_list)
+    my_first_tuple = (1, "hello", 2.400000)
+    print(my_first_tuple)
+    my_second_tuple = ((1, "hello"), "world")
+    print(my_second_tuple)
+    my_third_tuple = (["hello", "world"], "world")
+    print(my_third_tuple)
+    my_fourth_tuple = ({"hello", "world"}, "world")
+    print(my_fourth_tuple)
+    my_first_set = {1, 2, 3, 2, 4}
+    print(my_first_set)
+    my_second_set = {1.100000, 2.500000, 6.800000}
+    print(my_second_set)
+    my_third_set = {"a", "b", "a", "c"}
+    print(my_third_set)
+    my_fourth_set = {(1, "a"), (2, "b"), (3, "c")}
+    print(my_fourth_set)
