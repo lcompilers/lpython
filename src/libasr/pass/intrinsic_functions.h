@@ -162,6 +162,7 @@ enum class IntrinsicElementalFunctions : int64_t {
     SymbolicSinQ,
     SymbolicGetArgument,
     SymbolicIsInteger,
+    SymbolicIsPositive,
     // ...
 };
 
@@ -542,6 +543,10 @@ namespace ObjectType {
                 object_type += "list"; break;
             } case ASR::ttypeType::Dict : {
                object_type += "dict"; break;
+            } case ASR::ttypeType::Set : {
+               object_type += "set"; break;
+            } case ASR::ttypeType::Tuple : {
+               object_type += "tuple"; break;
             } default: {
                 LCOMPILERS_ASSERT_MSG(false, "Unsupported type");
                 break;
@@ -5855,6 +5860,7 @@ create_symbolic_query_macro(SymbolicPowQ)
 create_symbolic_query_macro(SymbolicLogQ)
 create_symbolic_query_macro(SymbolicSinQ)
 create_symbolic_query_macro(SymbolicIsInteger)
+create_symbolic_query_macro(SymbolicIsPositive)
 
 #define create_symbolic_unary_macro(X)                                                    \
 namespace X {                                                                             \

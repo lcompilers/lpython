@@ -832,6 +832,7 @@ RUN(NAME callback_04       IMPORT_PATH .. LABELS cpython)
 RUN(NAME intrinsics_01     LABELS cpython llvm llvm_jit NOFAST) # any
 RUN(NAME intrinsics_02     LABELS cpython llvm llvm_jit c) # floordiv
 RUN(NAME test_builtin_type LABELS cpython llvm llvm_jit c) # type
+RUN(NAME test_builtin_type_set LABELS cpython llvm llvm_jit) # type (specifically for `set`)
 
 # lpython decorator
 RUN(NAME lpython_decorator_01    LABELS cpython)
