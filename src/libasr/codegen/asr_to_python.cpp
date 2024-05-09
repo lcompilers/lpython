@@ -620,23 +620,19 @@ public:
     }
 
     void visit_DictConstant(const ASR::DictConstant_t &x) {
+        LCOMPILERS_ASSERT(x.n_keys == x.n_values);
         std::string r = "";
         r += "{";
-        size_t i = 0;
-        while (i < x.n_keys - 1) {
+        for (size_t i = 0; i < x.n_keys; i++) {
             visit_expr(*x.m_keys[i]);
             r += s;
             r += ": ";
             visit_expr(*x.m_values[i]);
             r += s; 
-            r += ", ";
-            i++;
+            if (i < x.n_keys - 1) {
+                r += ", ";
+            }
         }
-        visit_expr(*x.m_keys[i]);
-        r += s;
-        r += ": ";
-        visit_expr(*x.m_values[i]);
-        r += s;
         r += "}";
 
         s = r;
