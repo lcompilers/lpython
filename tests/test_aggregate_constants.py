@@ -47,6 +47,25 @@ print(my_third_set)
 my_fourth_set: set[tuple[i32, str]] = {(1, "a"), (2, "b"), (3, "c")}
 print(my_fourth_set)
 
+# Dictionary
+my_first_dict: dict[str, i32] = {"a": 1, "b": 2, "c": 3}
+print(my_first_dict)
+
+my_second_dict: dict[i32, f64] = {1: 1.33, 2: 2.33, 3: 3.33}
+print(my_second_dict)
+
+my_third_dict: dict[str, str] = {"a": "A", "b": "B", "c": "C"}
+print(my_third_dict)
+
+my_fourth_dict: dict[i32, tuple[f64, f64]] = {1: (1.2, 4.5), 2: (3.6, 9.2)}
+print(my_fourth_dict)
+
+my_fifth_dict: dict[str, list[i32]] = {"list1": [1, 2, 3], "list2": [4, 5, 6]}
+print(my_fifth_dict)
+
+my_sixth_dict: dict[str, set[i32]] = {"set1": {1, 2, 1}, "set2": {4, 1, 2}}
+print(my_sixth_dict)
+
 # Test codegen for local scope
 def fn():
     # List
@@ -93,5 +112,24 @@ def fn():
 
     my_fourth_set: set[tuple[i32, str]] = {(1, "a"), (2, "b"), (3, "c")}
     print(my_fourth_set)
+
+    # Dictionary
+    my_first_dict: dict[str, i32] = {"a": 1, "b": 2, "c": 3}
+    print(my_first_dict)
+
+    my_second_dict: dict[i32, f64] = {1: 1.33, 2: 2.33, 3: 3.33}
+    print(my_second_dict)
+
+    my_third_dict: dict[str, str] = {"a": "A", "b": "B", "c": "C"}
+    print(my_third_dict)
+
+    my_fourth_dict: dict[i32, tuple[f64, f64]] = {1: (1.2, 4.5), 2: (3.6, 9.2)}
+    print(my_fourth_dict)
+
+    my_fifth_dict: dict[str, list[i32]] = {"list1": [1, 2, 3], "list2": [4, 5, 6]}
+    print(my_fifth_dict)
+
+    my_sixth_dict: dict[str, set[i32]] = {"set1": {1, 2, 1}, "set2": {4, 1, 2}}
+    print(my_sixth_dict)
 
 fn()

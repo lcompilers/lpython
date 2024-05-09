@@ -2,11 +2,11 @@
     "basename": "python-test_aggregate_constants-26c89d6",
     "cmd": "lpython --no-color --show-python {infile}",
     "infile": "tests/test_aggregate_constants.py",
-    "infile_hash": "e4f25c9787536c0ecc60a1d53b4bca5f250e2a4f3646b45565867e86",
+    "infile_hash": "6e225037304a9a1222b4c356b8cd1ffc5ed4a58bb7d6916c242c7b53",
     "outfile": null,
     "outfile_hash": null,
     "stdout": "python-test_aggregate_constants-26c89d6.stdout",
-    "stdout_hash": "813b11b4ee92df0eebccb3031a1b73355957795a72b487115093c3ce",
+    "stdout_hash": "3d5fa791404534643f6f2a096b2bc1561cf6c03a78d060b79df4f17b",
     "stderr": null,
     "stderr_hash": null,
     "returncode": 0
