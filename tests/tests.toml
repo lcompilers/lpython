@@ -52,6 +52,10 @@ ast = true
 asr = true
 
 [[test]]
+filename = "data_structure_visitor.py"
+python = true
+
+[[test]]
 filename = "expr1.py"
 ast = true
 asr = true

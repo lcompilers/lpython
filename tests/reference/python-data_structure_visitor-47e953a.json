@@ -1,0 +1,13 @@
+{
+    "basename": "python-data_structure_visitor-47e953a",
+    "cmd": "lpython --no-color --show-python {infile}",
+    "infile": "tests/data_structure_visitor.py",
+    "infile_hash": "e4f25c9787536c0ecc60a1d53b4bca5f250e2a4f3646b45565867e86",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "python-data_structure_visitor-47e953a.stdout",
+    "stdout_hash": "813b11b4ee92df0eebccb3031a1b73355957795a72b487115093c3ce",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}
