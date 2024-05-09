@@ -636,7 +636,6 @@ public:
     void visit_SetConstant(const ASR::SetConstant_t &x) {
         visit_AggregateConstant(x.n_elements, x.m_elements, "{", "}");
     }
-    
 };
 
 Result<std::string> asr_to_python(Allocator& al, ASR::TranslationUnit_t &asr,
