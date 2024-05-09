@@ -150,9 +150,6 @@ public:
             } case ASR::ttypeType::Logical : {
                 r = "bool";
                 break;
-            } case ASR::ttypeType::Dict : {
-                r = ASRUtils::type_to_str_python(t);
-                break;
             } default : {
                 throw LCompilersException("The type `"
                     + ASRUtils::type_to_str_python(t) + "` is not handled yet");
