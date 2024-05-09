@@ -268,6 +268,15 @@ public:
             ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4)));
     }
 
+    ASR::expr_t *basic_is_positive(const Location &loc, ASR::expr_t *value) {
+        ASR::symbol_t* basic_is_positive_sym = create_bindc_function(loc,
+            "number_is_positive", {ASRUtils::TYPE(ASR::make_CPtr_t(al, loc))},
+            ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4)));
+        return FunctionCall(loc, basic_is_positive_sym,
+            {handle_argument(al, loc, value)},
+            ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4)));
+    }
+
     static inline bool is_logical_intrinsic_symbolic(ASR::expr_t* expr) {
         if (ASR::is_a<ASR::IntrinsicElementalFunction_t>(*expr)) {
             ASR::IntrinsicElementalFunction_t* intrinsic_func = ASR::down_cast<ASR::IntrinsicElementalFunction_t>(expr);
@@ -280,6 +289,7 @@ public:
                 case LCompilers::ASRUtils::IntrinsicElementalFunctions::SymbolicLogQ:
                 case LCompilers::ASRUtils::IntrinsicElementalFunctions::SymbolicSinQ:
                 case LCompilers::ASRUtils::IntrinsicElementalFunctions::SymbolicIsInteger:
+                case LCompilers::ASRUtils::IntrinsicElementalFunctions::SymbolicIsPositive:
                     return true;
                 default:
                     return false;
@@ -506,6 +516,9 @@ public:
                 case LCompilers::ASRUtils::IntrinsicElementalFunctions::SymbolicHasSymbolQ: {
                     return basic_has_symbol(loc, intrinsic_func->m_args[0],
                         intrinsic_func->m_args[1]);
+                }
+                case LCompilers::ASRUtils::IntrinsicElementalFunctions::SymbolicIsPositive: {
+                    return basic_is_positive(loc, intrinsic_func->m_args[0]);
                 }
                 // (sym_name, n) where n = 16, 15, ... as the right value of the
                 // IntegerCompare node as it represents SYMENGINE_ADD through SYMENGINE_ENUM
