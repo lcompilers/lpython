@@ -150,6 +150,9 @@ public:
             } case ASR::ttypeType::Logical : {
                 r = "bool";
                 break;
+            } case ASR::ttypeType::Set : {
+                r = ASRUtils::type_to_str_python(t);
+                break;
             } default : {
                 throw LCompilersException("The type `"
                     + ASRUtils::type_to_str_python(t) + "` is not handled yet");
@@ -616,6 +619,23 @@ public:
             r += s;
         }
         r += "\n";
+        s = r;
+    }
+
+    void visit_SetConstant(const ASR::SetConstant_t &x) {
+        std::string r = "";
+        r += "{";
+        size_t i = 0;
+        while (i < x.n_elements - 1) {
+            visit_expr(*x.m_elements[i]);
+            r += s;
+            r += ", ";
+            i++;
+        }
+        visit_expr(*x.m_elements[i]);
+        r += s;
+        r += "}";
+
         s = r;
     }
 
