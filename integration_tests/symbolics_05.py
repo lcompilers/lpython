@@ -40,4 +40,12 @@ def test_operations():
     assert(c.args[0] == x)
     assert(d.args[0] == x)
 
+    # test subs
+    b1: S = b.subs(x, y)
+    b1 = b1.subs(z, y)
+    assert(a.subs(x, y) == S(4)*y**S(2))
+    assert(b1 == S(27)*y**S(3))
+    assert(c.subs(x, y) == sin(y))
+    assert(d.subs(x, z) == cos(z))
+
 test_operations()

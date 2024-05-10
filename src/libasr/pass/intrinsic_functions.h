@@ -149,6 +149,7 @@ enum class IntrinsicElementalFunctions : int64_t {
     SymbolicInteger,
     SymbolicDiff,
     SymbolicExpand,
+    SymbolicSubs,
     SymbolicSin,
     SymbolicCos,
     SymbolicLog,
@@ -5650,6 +5651,64 @@ create_symbolic_binary_macro(SymbolicMul)
 create_symbolic_binary_macro(SymbolicDiv)
 create_symbolic_binary_macro(SymbolicPow)
 create_symbolic_binary_macro(SymbolicDiff)
+
+#define create_symbolic_ternary_macro(X)                                                   \
+namespace X{                                                                               \
+    static inline void verify_args(const ASR::IntrinsicElementalFunction_t& x,             \
+            diag::Diagnostics& diagnostics) {                                              \
+        ASRUtils::require_impl(x.n_args == 3, "Intrinsic function `"#X"` accepts"          \
+            "exactly 3 arguments", x.base.base.loc, diagnostics);                          \
+                                                                                           \
+        ASR::ttype_t* arg1_type = ASRUtils::expr_type(x.m_args[0]);                        \
+        ASR::ttype_t* arg2_type = ASRUtils::expr_type(x.m_args[1]);                        \
+        ASR::ttype_t* arg3_type = ASRUtils::expr_type(x.m_args[2]);                        \
+                                                                                           \
+        ASRUtils::require_impl(ASR::is_a<ASR::SymbolicExpression_t>(*arg1_type) &&         \
+            ASR::is_a<ASR::SymbolicExpression_t>(*arg2_type) &&                            \
+            ASR::is_a<ASR::SymbolicExpression_t>(*arg3_type),                              \
+            "All arguments of `"#X"` must be of type SymbolicExpression",                  \
+            x.base.base.loc, diagnostics);                                                 \
+    }                                                                                      \
+                                                                                           \
+    static inline ASR::expr_t* eval_##X(Allocator &/*al*/, const Location &/*loc*/,        \
+            ASR::ttype_t *, Vec<ASR::expr_t*> &/*args*/, diag::Diagnostics& /*diag*/) {    \
+        /*TODO*/                                                                           \
+        return nullptr;                                                                    \
+    }                                                                                      \
+                                                                                           \
+    static inline ASR::asr_t* create_##X(Allocator& al, const Location& loc,               \
+            Vec<ASR::expr_t*>& args,                                                       \
+            diag::Diagnostics& diag) {                                                     \
+        if (args.size() != 3) {                                                            \
+            append_error(diag, "Intrinsic function `"#X"` accepts exactly 3 arguments",    \
+                loc);                                                                      \
+            return nullptr;                                                                \
+        }                                                                                  \
+                                                                                           \
+        for (size_t i = 0; i < args.size(); i++) {                                         \
+            ASR::ttype_t* argtype = ASRUtils::expr_type(args[i]);                          \
+            if(!ASR::is_a<ASR::SymbolicExpression_t>(*argtype)) {                          \
+                append_error(diag,                                                         \
+                    "Arguments of `"#X"` function must be of type SymbolicExpression",     \
+                    args[i]->base.loc);                                                    \
+                return nullptr;                                                            \
+            }                                                                              \
+        }                                                                                  \
+                                                                                           \
+        Vec<ASR::expr_t*> arg_values;                                                      \
+        arg_values.reserve(al, args.size());                                               \
+        for( size_t i = 0; i < args.size(); i++ ) {                                        \
+            arg_values.push_back(al, ASRUtils::expr_value(args[i]));                       \
+        }                                                                                  \
+        ASR::ttype_t *to_type = ASRUtils::TYPE(ASR::make_SymbolicExpression_t(al, loc));   \
+        ASR::expr_t* compile_time_value = eval_##X(al, loc, to_type, arg_values, diag);    \
+        return ASR::make_IntrinsicElementalFunction_t(al, loc,                             \
+                static_cast<int64_t>(IntrinsicElementalFunctions::X),                      \
+                args.p, args.size(), 0, to_type, compile_time_value);                      \
+    }                                                                                      \
+} // namespace X
+
+create_symbolic_ternary_macro(SymbolicSubs)
 
 #define create_symbolic_constants_macro(X)                                                \
 namespace X {                                                                             \
