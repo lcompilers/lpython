@@ -821,6 +821,7 @@ int interactive_python_repl(
             (input.rfind("else", 0) == 0) || 
             (input.rfind("elif", 0) == 0) || 
             (input.rfind("class", 0) == 0) ||
+            (input.rfind('@', 0) == 0) ||
             (input.rfind(' ', 0) == 0) ||
             (input.rfind('\t', 0) == 0)) {
             // start of a block
