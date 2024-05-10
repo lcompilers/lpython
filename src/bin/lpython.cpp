@@ -744,6 +744,11 @@ void print_time_report(std::vector<std::pair<std::string, double>> &times, bool 
 
 #ifdef HAVE_LFORTRAN_LLVM
 
+void section(const std::string &s)
+{
+    std::cout << color(LCompilers::style::bold) << color(LCompilers::fg::blue) << s << color(LCompilers::style::reset) << color(LCompilers::fg::reset) << std::endl;
+}
+
 int emit_llvm(const std::string &infile,
     const std::string &runtime_library_dir,
     LCompilers::PassManager& pass_manager,
@@ -794,9 +799,9 @@ int emit_llvm(const std::string &infile,
 }
 
 int interactive_python_repl(
-        // LCompilers::PassManager& pass_manager,
+        LCompilers::PassManager& pass_manager,
         CompilerOptions &compiler_options,
-        bool /*time_report*/)
+        bool verbose)
 {
     Allocator al(4*1024);
     compiler_options.interactive = true;
@@ -805,8 +810,6 @@ int interactive_python_repl(
     LCompilers::LocationManager lm;
     std::vector<std::pair<std::string, double>> times;
     LCompilers::PythonCompiler::EvalResult r;
-    LCompilers::PassManager pass_manager;
-    pass_manager.use_default_passes();
     
     std::string code_string;
     std::cout << ">>> ";
@@ -831,8 +834,6 @@ int interactive_python_repl(
         }
         code_string += input + "\n";
 
-        // std::cout << "code block: \n" << code_string;
-
         {
             cell_count++;
             LCompilers::LocationManager::FileLocations fl;
@@ -847,7 +848,7 @@ int interactive_python_repl(
         try {
             auto evaluation_start_time = std::chrono::high_resolution_clock::now();
             LCompilers::Result<LCompilers::PythonCompiler::EvalResult>
-            res = fe.evaluate(code_string, false, lm, pass_manager, diagnostics);
+            res = fe.evaluate(code_string, verbose, lm, pass_manager, diagnostics);
             if (res.ok) {
                 r = res.result;
             } else {
@@ -876,57 +877,66 @@ int interactive_python_repl(
             continue;
         }
 
+        if (verbose) {
+            section("AST:");
+            std::cout << r.ast << std::endl;
+            section("ASR:");
+            std::cout << r.asr << std::endl;
+            section("LLVM IR:");
+            std::cout << r.llvm_ir << std::endl;
+        }
+
         switch (r.type) {
             case (LCompilers::PythonCompiler::EvalResult::integer4) : {
-                // if (verbose) std::cout << "Return type: integer" << std::endl;
-                // if (verbose) section("Result:");
+                if (verbose) std::cout << "Return type: integer" << std::endl;
+                if (verbose) section("Result:");
                 std::cout << r.i32 << std::endl;
                 break;
             }
             case (LCompilers::PythonCompiler::EvalResult::integer8) : {
-                // if (verbose) std::cout << "Return type: integer(8)" << std::endl;
-                // if (verbose) section("Result:");
+                if (verbose) std::cout << "Return type: integer(8)" << std::endl;
+                if (verbose) section("Result:");
                 std::cout << r.i64 << std::endl;
                 break;
             }
             case (LCompilers::PythonCompiler::EvalResult::real4) : {
-                // if (verbose) std::cout << "Return type: real" << std::endl;
-                // if (verbose) section("Result:");
+                if (verbose) std::cout << "Return type: real" << std::endl;
+                if (verbose) section("Result:");
                 std::cout << std::setprecision(8) << r.f32 << std::endl;
                 break;
             }
             case (LCompilers::PythonCompiler::EvalResult::real8) : {
-                // if (verbose) std::cout << "Return type: real(8)" << std::endl;
-                // if (verbose) section("Result:");
+                if (verbose) std::cout << "Return type: real(8)" << std::endl;
+                if (verbose) section("Result:");
                 std::cout << std::setprecision(17) << r.f64 << std::endl;
                 break;
             }
             case (LCompilers::PythonCompiler::EvalResult::complex4) : {
-                // if (verbose) std::cout << "Return type: complex" << std::endl;
-                // if (verbose) section("Result:");
+                if (verbose) std::cout << "Return type: complex" << std::endl;
+                if (verbose) section("Result:");
                 std::cout << std::setprecision(8) << "(" << r.c32.re << ", " << r.c32.im << ")" << std::endl;
                 break;
             }
             case (LCompilers::PythonCompiler::EvalResult::complex8) : {
-                // if (verbose) std::cout << "Return type: complex(8)" << std::endl;
-                // if (verbose) section("Result:");
+                if (verbose) std::cout << "Return type: complex(8)" << std::endl;
+                if (verbose) section("Result:");
                 std::cout << std::setprecision(17) << "(" << r.c64.re << ", " << r.c64.im << ")" << std::endl;
                 break;
             }
             case (LCompilers::PythonCompiler::EvalResult::statement) : {
-                // if (verbose) {
-                //     std::cout << "Return type: none" << std::endl;
-                //     section("Result:");
-                //     std::cout << "(statement)" << std::endl;
-                // }
+                if (verbose) {
+                    std::cout << "Return type: none" << std::endl;
+                    section("Result:");
+                    std::cout << "(statement)" << std::endl;
+                }
                 break;
             }
             case (LCompilers::PythonCompiler::EvalResult::none) : {
-                // if (verbose) {
-                //     std::cout << "Return type: none" << std::endl;
-                //     section("Result:");
-                //     std::cout << "(nothing to execute)" << std::endl;
-                // }
+                if (verbose) {
+                    std::cout << "Return type: none" << std::endl;
+                    section("Result:");
+                    std::cout << "(nothing to execute)" << std::endl;
+                }
                 break;
             }
             default : throw LCompilers::LCompilersException("Return type not supported");
@@ -1976,7 +1986,7 @@ int main(int argc, char *argv[])
             compiler_options.po.disable_main = true;
             compiler_options.emit_debug_line_column = false;
             compiler_options.generate_object_code = false;
-            return interactive_python_repl(compiler_options, time_report);
+            return interactive_python_repl(lpython_pass_manager, compiler_options, arg_v);
         }
 
         // TODO: for now we ignore the other filenames, only handle

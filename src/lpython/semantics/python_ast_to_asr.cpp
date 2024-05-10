@@ -4162,15 +4162,10 @@ public:
         } else {
             ASR::Module_t* module_sym = 
                 ASR::down_cast<ASR::Module_t>(parent_scope->resolve_symbol(module_name));
-            current_scope = module_sym->m_symtab;
             LCOMPILERS_ASSERT(module_sym != nullptr);
+            current_scope = module_sym->m_symtab;
             for (size_t i=0; i<x.n_body; i++) {
                 visit_stmt(*x.m_body[i]);
-            }
-            module_sym->m_dependencies = current_module_dependencies.p;
-            module_sym->n_dependencies = current_module_dependencies.size();
-            if (!overload_defs.empty()) {
-                create_GenericProcedure(x.base.base.loc);
             }
         }
 
@@ -5010,7 +5005,8 @@ public:
     }
     
     void visit_Interactive(const AST::Interactive_t &x) {
-        static size_t interactive_execution_count = 0;
+        static size_t interactive_execution_count = 0; // ???: should this be a class member variable
+        // interactive_execution_count should be the same as eval_count in PythonCompiler
 
         ASR::TranslationUnit_t *unit = ASR::down_cast2<ASR::TranslationUnit_t>(asr);
         current_scope = unit->m_symtab;
