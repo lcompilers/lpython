@@ -7565,7 +7565,7 @@ we will have to use something else.
             } else {
                 st = current_scope->resolve_symbol(mod_name);
                 std::set<std::string> symbolic_attributes = {
-                    "diff", "expand", "has"
+                    "diff", "expand", "has", "subs"
                 };
                 std::set<std::string> symbolic_constants = {
                     "pi", "E", "oo"
@@ -7640,7 +7640,7 @@ we will have to use something else.
         } else if (AST::is_a<AST::BinOp_t>(*at->m_value)) {
             AST::BinOp_t* bop = AST::down_cast<AST::BinOp_t>(at->m_value);
             std::set<std::string> symbolic_attributes = {
-                "diff", "expand", "has"
+                "diff", "expand", "has", "subs"
             };
             if (symbolic_attributes.find(at->m_attr) != symbolic_attributes.end()){
                 switch (bop->m_op) {
@@ -7687,7 +7687,7 @@ we will have to use something else.
         } else if (AST::is_a<AST::Call_t>(*at->m_value)) {
             AST::Call_t* call = AST::down_cast<AST::Call_t>(at->m_value);
             std::set<std::string> symbolic_attributes = {
-                "diff", "expand", "has"
+                "diff", "expand", "has", "subs"
             };
             if (symbolic_attributes.find(at->m_attr) != symbolic_attributes.end()){
                 std::set<std::string> symbolic_functions = {
@@ -7819,7 +7819,7 @@ we will have to use something else.
         if (!s) {
             std::string intrinsic_name = call_name;
             std::set<std::string> not_cpython_builtin = {
-                "sin", "cos", "gamma", "tan", "asin", "acos", "atan", "sinh", "cosh", "tanh", "exp", "exp2", "expm1", "Symbol", "diff", "expand", "trunc", "fix",
+                "sin", "cos", "gamma", "tan", "asin", "acos", "atan", "sinh", "cosh", "tanh", "exp", "exp2", "expm1", "Symbol", "diff", "expand", "trunc", "fix", "subs",
                 "sum" // For sum called over lists
             };
             std::set<std::string> symbolic_functions = {

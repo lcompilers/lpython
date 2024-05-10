@@ -148,6 +148,7 @@ inline std::string get_intrinsic_name(int x) {
         INTRINSIC_NAME_CASE(SymbolicInteger)
         INTRINSIC_NAME_CASE(SymbolicDiff)
         INTRINSIC_NAME_CASE(SymbolicExpand)
+        INTRINSIC_NAME_CASE(SymbolicSubs)
         INTRINSIC_NAME_CASE(SymbolicSin)
         INTRINSIC_NAME_CASE(SymbolicCos)
         INTRINSIC_NAME_CASE(SymbolicLog)
@@ -435,6 +436,8 @@ namespace IntrinsicElementalFunctionRegistry {
             {nullptr, &SymbolicDiff::verify_args}},
         {static_cast<int64_t>(IntrinsicElementalFunctions::SymbolicExpand),
             {nullptr, &SymbolicExpand::verify_args}},
+        {static_cast<int64_t>(IntrinsicElementalFunctions::SymbolicSubs),
+            {nullptr, &SymbolicSubs::verify_args}},
         {static_cast<int64_t>(IntrinsicElementalFunctions::SymbolicSin),
             {nullptr, &SymbolicSin::verify_args}},
         {static_cast<int64_t>(IntrinsicElementalFunctions::SymbolicCos),
@@ -724,6 +727,8 @@ namespace IntrinsicElementalFunctionRegistry {
             "SymbolicDiff"},
         {static_cast<int64_t>(IntrinsicElementalFunctions::SymbolicExpand),
             "SymbolicExpand"},
+        {static_cast<int64_t>(IntrinsicElementalFunctions::SymbolicSubs),
+            "SymbolicSubs"},
         {static_cast<int64_t>(IntrinsicElementalFunctions::SymbolicSin),
             "SymbolicSin"},
         {static_cast<int64_t>(IntrinsicElementalFunctions::SymbolicCos),
@@ -889,6 +894,7 @@ namespace IntrinsicElementalFunctionRegistry {
                 {"SymbolicInteger", {&SymbolicInteger::create_SymbolicInteger, &SymbolicInteger::eval_SymbolicInteger}},
                 {"diff", {&SymbolicDiff::create_SymbolicDiff, &SymbolicDiff::eval_SymbolicDiff}},
                 {"expand", {&SymbolicExpand::create_SymbolicExpand, &SymbolicExpand::eval_SymbolicExpand}},
+                {"subs", {&SymbolicSubs::create_SymbolicSubs, &SymbolicSubs::eval_SymbolicSubs}},
                 {"SymbolicSin", {&SymbolicSin::create_SymbolicSin, &SymbolicSin::eval_SymbolicSin}},
                 {"SymbolicCos", {&SymbolicCos::create_SymbolicCos, &SymbolicCos::eval_SymbolicCos}},
                 {"SymbolicLog", {&SymbolicLog::create_SymbolicLog, &SymbolicLog::eval_SymbolicLog}},

@@ -57,6 +57,12 @@ public:
                 "basic_const_"#name, target));                                  \
             break; }
 
+    #define BASIC_TERNARYOP(SYM, name)                                          \
+        case LCompilers::ASRUtils::IntrinsicElementalFunctions::Symbolic##SYM: {  \
+            pass_result.push_back(al, basic_ternaryop(loc, "basic_"#name, target, \
+                    x->m_args[0], x->m_args[1], x->m_args[2]));                   \
+            break; }
+
     #define BASIC_BINOP(SYM, name)                                              \
         case LCompilers::ASRUtils::IntrinsicElementalFunctions::Symbolic##SYM: {   \
             pass_result.push_back(al, basic_binop(loc, "basic_"#name, target,   \
@@ -239,6 +245,16 @@ public:
         ASR::symbol_t* basic_const_sym = create_bindc_function(loc, fn_name,
             {ASRUtils::TYPE(ASR::make_CPtr_t(al, loc))});
         return SubroutineCall(loc, basic_const_sym, {value});
+    }
+
+    ASR::stmt_t *basic_ternaryop(const Location &loc, const std::string &fn_name,
+            ASR::expr_t* target, ASR::expr_t* op_01, ASR::expr_t* op_02, ASR::expr_t* op_03) {
+        ASR::ttype_t *cptr_type = ASRUtils::TYPE(ASR::make_CPtr_t(al, loc));
+        ASR::symbol_t* basic_ternaryop_sym = create_bindc_function(loc, fn_name,
+            {cptr_type, cptr_type, cptr_type, cptr_type});
+        return SubroutineCall(loc, basic_ternaryop_sym, {target,
+            handle_argument(al, loc, op_01), handle_argument(al, loc, op_02),
+            handle_argument(al, loc, op_03)});
     }
 
     ASR::stmt_t *basic_binop(const Location &loc, const std::string &fn_name,
@@ -462,6 +478,7 @@ public:
             BASIC_UNARYOP(Exp, exp)
             BASIC_UNARYOP(Abs, abs)
             BASIC_UNARYOP(Expand, expand)
+            BASIC_TERNARYOP(Subs, subs2)
             case LCompilers::ASRUtils::IntrinsicElementalFunctions::SymbolicGetArgument: {
                 // Define necessary function symbols
                 ASR::expr_t* value1 = handle_argument(al, loc, x->m_args[0]);
