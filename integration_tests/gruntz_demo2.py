@@ -143,23 +143,15 @@ def mrv(e, x):
 
     """
 
-    if not e.has(x):
-        return set()
     if e == x:
         return {x}
     if e.is_Mul or e.is_Add:
         a, b = e.as_two_terms()
+        ans1 = mrv(a, x)
+        ans2 = mrv(b, x)
         return mrv_max(mrv(a, x), mrv(b, x), x)
-    if e.func == exp:
-        if e.exp == x:
-            return {e}
-        if any(a.is_infinite for a in Mul.make_args(limitinf(e.exp, x))):
-            return mrv_max({e}, mrv(e.exp, x), x)
-        return mrv(e.exp, x)
     if e.is_Pow:
         return mrv(e.base, x)
-    if isinstance(e, log):
-        return mrv(e.args[0], x)
     if e.is_Function:
         return reduce(lambda a, b: mrv_max(a, b, x), (mrv(a, x) for a in e.args))
     raise NotImplementedError(f"Can't calculate the MRV of {e}.")
@@ -182,19 +174,6 @@ def mrv_max(f, g, x):
     if f & g:
         return f | g
 
-    a, b = map(next, map(iter, (f, g)))
-
-    # The log(exp(...)) must always be simplified here.
-    la = a.exp if a.is_Exp else log(a)
-    lb = b.exp if b.is_Exp else log(b)
-
-    c = limitinf(la/lb, x)
-    if c.is_zero:
-        return g
-    if c.is_infinite:
-        return f
-    return f | g
-
 def rewrite(e, x, w):
     r"""
     Rewrites the expression in terms of the MRV subexpression.
@@ -213,8 +192,7 @@ def rewrite(e, x, w):
     Returns
     =======
 
-    tuple
-        A pair: rewritten (in `w`) expression and `\log(w)`.
+    The rewritten expression
 
     Examples
     ========
@@ -225,14 +203,12 @@ def rewrite(e, x, w):
     """
 
     Omega = mrv(e, x)
-    if not Omega:
-        return e, None  # e really does not depend on x
 
     if x in Omega:
         # Moving up in the asymptotical scale:
         with evaluate(False):
-            e = e.xreplace({x: exp(x)})
-            Omega = {s.xreplace({x: exp(x)}) for s in Omega}
+            e = e.subs(x, exp(x))
+            Omega = {s.subs(x, exp(x)) for s in Omega}
 
     Omega = list(ordered(Omega, keys=lambda a: -len(mrv(a, x))))
 
@@ -249,9 +225,9 @@ def rewrite(e, x, w):
         c = limitinf(a.exp/g.exp, x)
         b = exp(a.exp - c*g.exp)*w**c  # exponential must never be expanded here
         with evaluate(False):
-            e = e.xreplace({a: b})
+            e = e.subs(a, b)
 
-    return e, -sig*g.exp
+    return e
 
 @cacheit
 def mrv_leadterm(e, x):
@@ -274,28 +250,9 @@ def mrv_leadterm(e, x):
 
     """
 
-    if not e.has(x):
-        return e, Integer(0)
-
-    # Rewrite to exp-log functions per Sec. 3.3 of thesis.
-    e = e.replace(lambda f: f.is_Pow and f.exp.has(x),
-                  lambda f: exp(log(f.base)*f.exp))
-    e = e.replace(lambda f: f.is_Mul and sum(a.func == exp for a in f.args) > 1,
-                  lambda f: Mul(exp(Add(*(a.exp for a in f.args if a.func == exp))),
-                                *(a for a in f.args if not a.func == exp)))
-
-    # The positive dummy, w, is used here so log(w*2) etc. will expand.
-    # TODO: For limits of complex functions, the algorithm would have to
-    # be improved, or just find limits of Re and Im components separately.
     w = Dummy('w', real=True, positive=True)
-    e, logw = rewrite(e, x, w)
-
-    c0, e0 = e.leadterm(w, logx=logw)
-    if c0.has(w):
-        raise NotImplementedError(f'Cannot compute leadterm({e}, {x}). '
-                                  'The coefficient should have been free of '
-                                  f'{w}, but got {c0}.')
-    return c0.subs(log(w), logw), e0
+    e = rewrite(e, x, w)
+    return e.leadterm(w)
 
 @cacheit
 def signinf(e, x):
@@ -312,15 +269,9 @@ def signinf(e, x):
     """
 
     if not e.has(x):
-        return sign(e).simplify()
+        return sign(e)
     if e == x or (e.is_Pow and signinf(e.base, x) == 1):
         return S(1)
-    if e.is_Mul:
-        a, b = e.as_two_terms()
-        return signinf(a, x)*signinf(b, x)
-
-    c0, _ = leadterm(e, x)
-    return signinf(c0, x)
 
 @cacheit
 def limitinf(e, x):
@@ -334,16 +285,14 @@ def limitinf(e, x):
     -1
 
     """
-    # Rewrite e in terms of tractable functions only:
-    e = e.rewrite('tractable', deep=True, limitvar=x)
 
     if not e.has(x):
-        return e.rewrite('intractable', deep=True)
+        return e
 
     c0, e0 = mrv_leadterm(e, x)
     sig = signinf(e0, x)
     if sig == 1:
-        return S(0)
+        return Integer(0)
     if sig == -1:
         return signinf(c0, x)*oo
     if sig == 0:
@@ -368,30 +317,16 @@ def gruntz(e, z, z0, dir="+"):
     file. It relies heavily on the series expansion. Most frequently, gruntz()
     is only used if the faster limit() function (which uses heuristics) fails.
     """
-    if not z.is_symbol:
-        raise NotImplementedError("Second argument must be a Symbol")
 
-    # convert all limits to the limit z->oo; sign of z is handled in limitinf
-    r = None
-    if z0 in (oo, I*oo):
-        e0 = e
-    elif z0 in (-oo, -I*oo):
-        e0 = e.subs(z, -z)
+    if str(dir) == "-":
+        e0 = e.subs(z, z0 - 1/z)
+    elif str(dir) == "+":
+        e0 = e.subs(z, z0 + 1/z)
     else:
-        if str(dir) == "-":
-            e0 = e.subs(z, z0 - 1/z)
-        elif str(dir) == "+":
-            e0 = e.subs(z, z0 + 1/z)
-        else:
-            raise NotImplementedError("dir must be '+' or '-'")
+        raise NotImplementedError("dir must be '+' or '-'")
 
     r = limitinf(e0, z)
-
-    # This is a bit of a heuristic for nice results... we always rewrite
-    # tractable functions in terms of familiar intractable ones.
-    # It might be nicer to rewrite the exactly to what they were initially,
-    # but that would take some work to implement.
-    return r.rewrite('intractable', deep=True)
+    return r
 
 # tests
 x = Symbol('x')
