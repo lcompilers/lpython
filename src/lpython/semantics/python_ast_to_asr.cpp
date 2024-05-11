@@ -4875,14 +4875,12 @@ public:
             tmp = nullptr;
             tmp_vec.clear();
             visit_stmt(*x.m_body[i]);
-            if (!global_init.empty()) {
-                for (auto t: global_init) {
-                    if (t) {
-                        items.push_back(al, t);
-                        global_init.erase(t);
-                    }
+            for (auto t: global_init) {
+                if (t) {
+                    items.push_back(al, t);
                 }
             }
+            global_init.n = 0;
             if (tmp) {
                 items.push_back(al, tmp);
             } else if (!tmp_vec.empty()) {
