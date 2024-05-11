@@ -290,25 +290,12 @@ ASR::Module_t* load_module(Allocator &al, SymbolTable *symtab,
 
 // Here, we call the global_initializer & global_statements to
 // initialize and execute the global symbols
-void get_calls_to_global_init_and_stmts(Allocator &al, const Location &loc, SymbolTable* scope,
+void get_calls_to_global_stmts(Allocator &al, const Location &loc, SymbolTable* scope,
     ASR::Module_t* mod, std::vector<ASR::asr_t *> &tmp_vec) {
 
     std::string mod_name = mod->m_name;
-    std::string g_func_name = mod_name + "global_init";
+    std::string g_func_name = mod_name + "global_stmts";
     ASR::symbol_t *g_func = mod->m_symtab->get_symbol(g_func_name);
-    if (g_func && !scope->get_symbol(g_func_name)) {
-        ASR::symbol_t *es = ASR::down_cast<ASR::symbol_t>(
-            ASR::make_ExternalSymbol_t(al, mod->base.base.loc,
-            scope, s2c(al, g_func_name), g_func,
-            s2c(al, mod_name), nullptr, 0, s2c(al, g_func_name),
-            ASR::accessType::Public));
-        scope->add_symbol(g_func_name, es);
-        tmp_vec.push_back(ASRUtils::make_SubroutineCall_t_util(al, loc,
-            es, g_func, nullptr, 0, nullptr, nullptr, false, false));
-    }
-
-    g_func_name = mod_name + "global_stmts";
-    g_func = mod->m_symtab->get_symbol(g_func_name);
     if (g_func && !scope->get_symbol(g_func_name)) {
         ASR::symbol_t *es = ASR::down_cast<ASR::symbol_t>(
             ASR::make_ExternalSymbol_t(al, mod->base.base.loc,
@@ -4888,6 +4875,14 @@ public:
             tmp = nullptr;
             tmp_vec.clear();
             visit_stmt(*x.m_body[i]);
+            if (!global_init.empty()) {
+                for (auto t: global_init) {
+                    if (t) {
+                        items.push_back(al, t);
+                        global_init.erase(t);
+                    }
+                }
+            }
             if (tmp) {
                 items.push_back(al, tmp);
             } else if (!tmp_vec.empty()) {
@@ -4905,30 +4900,7 @@ public:
         mod->m_dependencies = current_module_dependencies.p;
         mod->n_dependencies = current_module_dependencies.n;
 
-        if (global_init.n > 0) {
-            // unit->m_items is used and set to nullptr in the
-            // `pass_wrap_global_stmts_into_function` pass
-            unit->m_items = global_init.p;
-            unit->n_items = global_init.size();
-            std::string func_name = module_name + "global_init";
-            LCompilers::PassOptions pass_options;
-            pass_options.run_fun = func_name;
-            pass_wrap_global_stmts(al, *unit, pass_options);
-
-            ASR::symbol_t *f_sym = unit->m_symtab->get_symbol(func_name);
-            if (f_sym) {
-                // Add the `global_initilaizer` function into the
-                // module and later call this function to initialize the
-                // global variables like list, ...
-                ASR::Function_t *f = ASR::down_cast<ASR::Function_t>(f_sym);
-                f->m_symtab->parent = mod->m_symtab;
-                mod->m_symtab->add_symbol(func_name, (ASR::symbol_t *) f);
-                // Erase the function in TranslationUnit
-                unit->m_symtab->erase_symbol(func_name);
-            }
-            global_init.p = nullptr;
-            global_init.n = 0;
-        }
+        LCOMPILERS_ASSERT(global_init.empty())
 
         if (items.n > 0) {
             unit->m_items = items.p;
@@ -5012,7 +4984,7 @@ public:
             ASR::symbol_t *mod_sym = current_scope->resolve_symbol(mod_name);
             if (mod_sym) {
                 ASR::Module_t *mod = ASR::down_cast<ASR::Module_t>(mod_sym);
-                get_calls_to_global_init_and_stmts(al, x.base.base.loc, current_scope, mod, tmp_vec);
+                get_calls_to_global_stmts(al, x.base.base.loc, current_scope, mod, tmp_vec);
             }
         }
     }
@@ -5031,7 +5003,7 @@ public:
         ASR::symbol_t *mod_sym = current_scope->resolve_symbol(mod_name);
         if (mod_sym) {
             ASR::Module_t *mod = ASR::down_cast<ASR::Module_t>(mod_sym);
-            get_calls_to_global_init_and_stmts(al, x.base.base.loc, current_scope, mod, tmp_vec);
+            get_calls_to_global_stmts(al, x.base.base.loc, current_scope, mod, tmp_vec);
         }
         tmp = nullptr;
     }
@@ -8444,7 +8416,7 @@ Result<ASR::TranslationUnit_t*> python_ast_to_asr(Allocator &al, LocationManager
         ASR::Module_t *mod = ASR::down_cast<ASR::Module_t>(mod_sym);
         LCOMPILERS_ASSERT(mod);
         std::vector<ASR::asr_t*> tmp_vec;
-        get_calls_to_global_init_and_stmts(al, tu->base.base.loc, program_scope, mod, tmp_vec);
+        get_calls_to_global_stmts(al, tu->base.base.loc, program_scope, mod, tmp_vec);
 
         for (auto i:tmp_vec) {
             prog_body.push_back(al, ASRUtils::STMT(i));
