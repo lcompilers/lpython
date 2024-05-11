@@ -508,6 +508,8 @@ RUN(NAME expr_02u            LABELS cpython llvm llvm_jit c NOFAST)
 RUN(NAME expr_03u            LABELS cpython llvm llvm_jit c NOFAST)
 RUN(NAME expr_04u            LABELS cpython llvm llvm_jit c)
 
+RUN(NAME list_01             LABELS cpython llvm llvm_jit)
+
 RUN(NAME loop_01             LABELS cpython llvm llvm_jit c)
 RUN(NAME loop_02             LABELS cpython llvm llvm_jit c wasm wasm_x86 wasm_x64)
 RUN(NAME loop_03             LABELS cpython llvm llvm_jit c wasm wasm_x64)
