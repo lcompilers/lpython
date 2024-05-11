@@ -900,19 +900,12 @@ int compile_python_using_llvm(
 
         auto llvm_start = std::chrono::high_resolution_clock::now();
 
-        bool call_init = false;
         bool call_stmts = false;
-        if (m->get_return_type("__module___main_____main__global_init") == "void") {
-            call_init = true;
-        }
         if (m->get_return_type("__module___main_____main__global_stmts") == "void") {
             call_stmts = true;
         }
 
         e.add_module(std::move(m));
-        if (call_init) {
-            e.voidfn("__module___main_____main__global_init");
-        }
         if (call_stmts) {
             e.voidfn("__module___main_____main__global_stmts");
         }
