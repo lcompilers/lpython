@@ -638,8 +638,9 @@ public:
     }
 
     // An aggregate visitor for list methods with 0 or 1 argument
-    void visit_UnaryListMethods(ASR::expr_t* list, std::string method_name, ASR::expr_t* arg=nullptr) {
-        std::string r = indent;
+    void visit_UnaryListMethods(ASR::expr_t* list, std::string method_name,
+                ASR::expr_t* arg=nullptr, bool has_return_value=false) {
+        std::string r = "";
         visit_expr(*list);
         r += s;
         r += "." + method_name + "(";
@@ -647,7 +648,10 @@ public:
             visit_expr(*arg);
             r += s;
         }
-        r += ")\n";
+        r += ")";
+        if (!has_return_value) {
+            r = indent + r + "\n";
+        }
 
         s = r;
     }
@@ -657,7 +661,7 @@ public:
     }
 
     void visit_ListCount(const ASR::ListCount_t &x) {
-        visit_UnaryListMethods(x.m_arg, "count", x.m_ele);
+        visit_UnaryListMethods(x.m_arg, "count", x.m_ele, true);
     }
 
     void visit_ListRemove(const ASR::ListRemove_t &x) {
