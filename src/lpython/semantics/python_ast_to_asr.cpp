@@ -4086,55 +4086,6 @@ public:
             ASR::is_a<ASR::TranslationUnit_t>(*ASR::down_cast<ASR::unit_t>(tmp0)));
         global_scope = current_scope;
 
-        ASR::Module_t* module_sym = nullptr;
-        // Every module goes into a Module_t
-        SymbolTable *parent_scope = current_scope;
-        current_scope = al.make_new<SymbolTable>(parent_scope);
-
-        ASR::asr_t *tmp1 = ASR::make_Module_t(al, x.base.base.loc,
-                                    /* a_symtab */ current_scope,
-                                    /* a_name */ s2c(al, module_name),
-                                    nullptr,
-                                    0,
-                                    false, false);
-
-        if (parent_scope->get_scope().find(module_name) != parent_scope->get_scope().end()) {
-            throw SemanticError("Module '" + module_name + "' already defined", tmp1->loc);
-        }
-        module_sym = ASR::down_cast<ASR::Module_t>(ASR::down_cast<ASR::symbol_t>(tmp1));
-        parent_scope->add_symbol(module_name, ASR::down_cast<ASR::symbol_t>(tmp1));
-        current_module_dependencies.reserve(al, 1);
-        for (size_t i=0; i<x.n_body; i++) {
-            visit_stmt(*x.m_body[i]);
-        }
-
-        LCOMPILERS_ASSERT(module_sym != nullptr);
-        module_sym->m_dependencies = current_module_dependencies.p;
-        module_sym->n_dependencies = current_module_dependencies.size();
-        if (!overload_defs.empty()) {
-            create_GenericProcedure(x.base.base.loc);
-        }
-        global_scope = nullptr;
-        tmp = tmp0;
-    }
-    
-    void visit_Interactive(const AST::Interactive_t &x) {
-        ASR::asr_t *tmp0 = nullptr;
-        if (current_scope) {
-            LCOMPILERS_ASSERT(current_scope->asr_owner);
-            tmp0 = current_scope->asr_owner;
-        } else {
-            current_scope = al.make_new<SymbolTable>(nullptr);
-            // Create the TU early, so that asr_owner is set, so that
-            // ASRUtils::get_tu_symtab() can be used, which has an assert
-            // for asr_owner.
-            tmp0 = ASR::make_TranslationUnit_t(al, x.base.base.loc,
-            current_scope, nullptr, 0);
-        }
-        LCOMPILERS_ASSERT(ASR::is_a<ASR::unit_t>(*tmp0) &&
-            ASR::is_a<ASR::TranslationUnit_t>(*ASR::down_cast<ASR::unit_t>(tmp0)));
-        global_scope = current_scope;
-
         // Every module goes into a Module_t
         SymbolTable *parent_scope = current_scope;
         if (parent_scope->get_scope().find(module_name) == parent_scope->get_scope().end()) {
@@ -4857,28 +4808,6 @@ Result<ASR::asr_t*> symbol_table_visitor(Allocator &al, LocationManager &lm,
     return unit;
 }
 
-Result<ASR::asr_t*> symbol_table_visitor(Allocator &al, LocationManager &lm,
-        SymbolTable* symtab, const AST::Interactive_t &ast,
-        diag::Diagnostics &diagnostics, bool main_module, std::string module_name,
-        std::map<int, ASR::symbol_t*> &ast_overload, std::string parent_dir,
-        std::vector<std::string> import_paths, bool allow_implicit_casting)
-{
-    SymbolTableVisitor v(al, lm, symtab, diagnostics, main_module, module_name, ast_overload,
-        parent_dir, import_paths, allow_implicit_casting);
-    try {
-        v.visit_Interactive(ast);
-    } catch (const SemanticError &e) {
-        Error error;
-        diagnostics.diagnostics.push_back(e.d);
-        return error;
-    } catch (const SemanticAbort &) {
-        Error error;
-        return error;
-    }
-    ASR::asr_t *unit = v.tmp;
-    return unit;
-}
-
 class BodyVisitor : public CommonVisitor<BodyVisitor> {
 private:
 
@@ -4886,12 +4815,13 @@ public:
     ASR::asr_t *asr;
     std::vector<ASR::symbol_t*> do_loop_variables;
     bool using_func_attr = false;
+    size_t eval_count;
 
     BodyVisitor(Allocator &al, LocationManager &lm, ASR::asr_t *unit, diag::Diagnostics &diagnostics,
          bool main_module, std::string module_name, std::map<int, ASR::symbol_t*> &ast_overload,
-         bool allow_implicit_casting_)
+         bool allow_implicit_casting_, size_t eval_count=0)
          : CommonVisitor(al, lm, nullptr, diagnostics, main_module, module_name, ast_overload, "", {}, allow_implicit_casting_),
-         asr{unit}
+         asr{unit}, eval_count{eval_count}
          {}
 
     // Transforms statements to a list of ASR statements
@@ -4981,6 +4911,10 @@ public:
             unit->m_items = items.p;
             unit->n_items = items.size();
             std::string func_name = module_name + "global_stmts";
+            if (eval_count > 0) {
+                // In Interactive Shell. Update the func_name accordingly
+                func_name += "_" + std::to_string(eval_count) + "__";
+            }
             // Wrap all the global statements into a Function
             LCompilers::PassOptions pass_options;
             pass_options.run_fun = func_name;
@@ -5000,101 +4934,6 @@ public:
             items.p = nullptr;
             items.n = 0;
         }
-
-        tmp = asr;
-    }
-    
-    void visit_Interactive(const AST::Interactive_t &x) {
-        static size_t interactive_execution_count = 0; // ???: should this be a class member variable
-        // interactive_execution_count should be the same as eval_count in PythonCompiler
-
-        ASR::TranslationUnit_t *unit = ASR::down_cast2<ASR::TranslationUnit_t>(asr);
-        current_scope = unit->m_symtab;
-        LCOMPILERS_ASSERT(current_scope != nullptr);
-        ASR::symbol_t* module_sym = nullptr;
-        ASR::Module_t* mod = nullptr;
-
-        LCOMPILERS_ASSERT(module_name.size() > 0);
-        module_sym = current_scope->get_symbol(module_name);
-        mod = ASR::down_cast<ASR::Module_t>(module_sym);
-        LCOMPILERS_ASSERT(mod != nullptr);
-        current_scope = mod->m_symtab;
-        LCOMPILERS_ASSERT(current_scope != nullptr);
-
-        Vec<ASR::asr_t*> items;
-        items.reserve(al, 4);
-        current_module_dependencies.reserve(al, 1);
-        for (size_t i=0; i<x.n_body; i++) {
-            tmp = nullptr;
-            tmp_vec.clear();
-            visit_stmt(*x.m_body[i]);
-            if (tmp) {
-                items.push_back(al, tmp);
-            } else if (!tmp_vec.empty()) {
-                for (auto t: tmp_vec) {
-                    if (t) items.push_back(al, t);
-                }
-                // Ensure that statements in tmp_vec are used only once.
-                tmp_vec.clear();
-            }
-        }
-
-        for( size_t i = 0; i < mod->n_dependencies; i++ ) {
-            current_module_dependencies.push_back(al, mod->m_dependencies[i]);
-        }
-        mod->m_dependencies = current_module_dependencies.p;
-        mod->n_dependencies = current_module_dependencies.n;
-
-        if (global_init.n > 0) {
-            // unit->m_items is used and set to nullptr in the
-            // `pass_wrap_global_stmts_into_function` pass
-            unit->m_items = global_init.p;
-            unit->n_items = global_init.size();
-            std::string func_name = module_name + "__lpython_interactive_init_" + std::to_string(interactive_execution_count) + "__";
-            LCompilers::PassOptions pass_options;
-            pass_options.run_fun = func_name;
-            pass_wrap_global_stmts(al, *unit, pass_options);
-
-            ASR::symbol_t *f_sym = unit->m_symtab->get_symbol(func_name);
-            if (f_sym) {
-                // Add the `global_initilaizer` function into the
-                // module and later call this function to initialize the
-                // global variables like list, ...
-                ASR::Function_t *f = ASR::down_cast<ASR::Function_t>(f_sym);
-                f->m_symtab->parent = mod->m_symtab;
-                mod->m_symtab->add_symbol(func_name, (ASR::symbol_t *) f);
-                // Erase the function in TranslationUnit
-                unit->m_symtab->erase_symbol(func_name);
-            }
-            global_init.p = nullptr;
-            global_init.n = 0;
-        }
-
-        if (items.n > 0) {
-            unit->m_items = items.p;
-            unit->n_items = items.size();
-            std::string func_name = module_name + "__lpython_interactive_stmts_" + std::to_string(interactive_execution_count) + "__";;
-            // Wrap all the global statements into a Function
-            LCompilers::PassOptions pass_options;
-            pass_options.run_fun = func_name;
-            pass_wrap_global_stmts(al, *unit, pass_options);
-
-            ASR::symbol_t *f_sym = unit->m_symtab->get_symbol(func_name);
-            if (f_sym) {
-                // Add the `global_statements` function into the
-                // module and later call this function to execute the
-                // global_statements
-                ASR::Function_t *f = ASR::down_cast<ASR::Function_t>(f_sym);
-                f->m_symtab->parent = mod->m_symtab;
-                mod->m_symtab->add_symbol(func_name, (ASR::symbol_t *) f);
-                // Erase the function in TranslationUnit
-                unit->m_symtab->erase_symbol(func_name);
-            }
-            items.p = nullptr;
-            items.n = 0;
-        }
-
-        interactive_execution_count++;
 
         tmp = asr;
     }
@@ -8473,32 +8312,11 @@ Result<ASR::TranslationUnit_t*> body_visitor(Allocator &al, LocationManager &lm,
         diag::Diagnostics &diagnostics,
         ASR::asr_t *unit, bool main_module, std::string module_name,
         std::map<int, ASR::symbol_t*> &ast_overload,
-        bool allow_implicit_casting)
+        bool allow_implicit_casting, size_t eval_count)
 {
-    BodyVisitor b(al, lm, unit, diagnostics, main_module, module_name, ast_overload, allow_implicit_casting);
+    BodyVisitor b(al, lm, unit, diagnostics, main_module, module_name, ast_overload, allow_implicit_casting, eval_count);
     try {
         b.visit_Module(ast);
-    } catch (const SemanticError &e) {
-        Error error;
-        diagnostics.diagnostics.push_back(e.d);
-        return error;
-    } catch (const SemanticAbort &) {
-        Error error;
-        return error;
-    }
-    ASR::TranslationUnit_t *tu = ASR::down_cast2<ASR::TranslationUnit_t>(unit);
-    return tu;
-}
-
-Result<ASR::TranslationUnit_t*> body_visitor(Allocator &al, LocationManager &lm, const AST::Interactive_t &ast,
-        diag::Diagnostics &diagnostics,
-        ASR::asr_t *unit, bool main_module, std::string module_name,
-        std::map<int, ASR::symbol_t*> &ast_overload,
-        bool allow_implicit_casting)
-{
-    BodyVisitor b(al, lm, unit, diagnostics, main_module, module_name, ast_overload, allow_implicit_casting);
-    try {
-        b.visit_Interactive(ast);
     } catch (const SemanticError &e) {
         Error error;
         diagnostics.diagnostics.push_back(e.d);
@@ -8525,33 +8343,19 @@ std::string get_parent_dir(const std::string &path) {
 
 Result<ASR::TranslationUnit_t*> python_ast_to_asr(Allocator &al, LocationManager &lm, SymbolTable* symtab,
     AST::ast_t &ast, diag::Diagnostics &diagnostics, CompilerOptions &compiler_options,
-    bool main_module, std::string module_name, std::string file_path, bool allow_implicit_casting, bool is_interactive)
+    bool main_module, std::string module_name, std::string file_path, bool allow_implicit_casting, size_t eval_count)
 {
     std::map<int, ASR::symbol_t*> ast_overload;
     std::string parent_dir = get_parent_dir(file_path);
 
     ASR::asr_t *unit;
-    AST::Module_t *ast_m = nullptr;
-    AST::Interactive_t *ast_i = nullptr;
-
-    if (!is_interactive) {
-        ast_m = AST::down_cast2<AST::Module_t>(&ast);
-        Result<ASR::asr_t*> res = symbol_table_visitor(al, lm, symtab, *ast_m, diagnostics, main_module, module_name,
-        ast_overload, parent_dir, compiler_options.import_paths, allow_implicit_casting);
-        if (res.ok) {
-            unit = res.result;
-        } else {
-            return res.error;
-        }
+    AST::Module_t *ast_m = AST::down_cast2<AST::Module_t>(&ast);
+    Result<ASR::asr_t*> res = symbol_table_visitor(al, lm, symtab, *ast_m, diagnostics, main_module, module_name,
+    ast_overload, parent_dir, compiler_options.import_paths, allow_implicit_casting);
+    if (res.ok) {
+        unit = res.result;
     } else {
-        ast_i = AST::down_cast2<AST::Interactive_t>(&ast);
-        Result<ASR::asr_t*> res = symbol_table_visitor(al, lm, symtab, *ast_i, diagnostics, main_module, module_name,
-        ast_overload, parent_dir, compiler_options.import_paths, allow_implicit_casting);
-        if (res.ok) {
-            unit = res.result;
-        } else {
-            return res.error;
-        }
+        return res.error;
     }
 
     ASR::TranslationUnit_t *tu = ASR::down_cast2<ASR::TranslationUnit_t>(unit);
@@ -8578,23 +8382,12 @@ Result<ASR::TranslationUnit_t*> python_ast_to_asr(Allocator &al, LocationManager
 #endif
 
     if (!compiler_options.symtab_only) {
-        if (!is_interactive) {
-            auto res2 = body_visitor(al, lm, *ast_m, diagnostics, unit, main_module, module_name,
-                ast_overload, allow_implicit_casting);
-            if (res2.ok) {
-                tu = res2.result;
-            } else {
-                return res2.error;
-            }
+        auto res2 = body_visitor(al, lm, *ast_m, diagnostics, unit, main_module, module_name,
+            ast_overload, allow_implicit_casting, eval_count);
+        if (res2.ok) {
+            tu = res2.result;
         } else {
-            LCOMPILERS_ASSERT(ast_i != nullptr);
-            auto res2 = body_visitor(al, lm, *ast_i, diagnostics, unit, main_module, module_name,
-                ast_overload, allow_implicit_casting);
-            if (res2.ok) {
-                tu = res2.result;
-            } else {
-                return res2.error;
-            }
+            return res2.error;
         }
         if (compiler_options.po.dump_all_passes) {
             std::ofstream outfile ("pass_00_initial_asr_02.clj");

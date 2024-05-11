@@ -42,33 +42,6 @@ Result<LPython::AST::Module_t*> parse(Allocator &al, const std::string &s,
         p.result.p, p.result.size(), p.type_ignore.p, p.type_ignore.size());
 }
 
-Result<LPython::AST::ast_t*> parse_to_ast(Allocator &al, const std::string &s,
-        uint32_t prev_loc, diag::Diagnostics &diagnostics)
-{
-    Parser p(al, diagnostics);
-    try {
-        p.parse(s, prev_loc);
-    } catch (const parser_local::TokenizerError &e) {
-        Error error;
-        diagnostics.diagnostics.push_back(e.d);
-        return error;
-    } catch (const parser_local::ParserError &e) {
-        Error error;
-        diagnostics.diagnostics.push_back(e.d);
-        return error;
-    }
-
-    Location l;
-    if (p.result.size() == 0) {
-        l.first=0;
-        l.last=0;
-    } else {
-        l.first=p.result[0]->base.loc.first;
-        l.last=p.result[p.result.size()-1]->base.loc.last;
-    }
-    return LPython::AST::make_Interactive_t(al, l, p.result.p, p.result.size());
-}
-
 void Parser::parse(const std::string &input, uint32_t prev_loc)
 {
     inp = input;

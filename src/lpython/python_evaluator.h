@@ -61,7 +61,7 @@ public:
     
     Result<ASR::TranslationUnit_t*> get_asr3(
         LCompilers::LPython::AST::ast_t &ast, diag::Diagnostics &diagnostics,
-        LocationManager &lm);
+        LocationManager &lm, bool is_interactive=false);
 
     Result<std::unique_ptr<LLVMModule>> get_llvm3(ASR::TranslationUnit_t &asr,
         LCompilers::PassManager& lpm, diag::Diagnostics &diagnostics,

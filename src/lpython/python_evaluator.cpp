@@ -31,7 +31,7 @@ PythonCompiler::PythonCompiler(CompilerOptions compiler_options)
     al{1024*1024},
 #ifdef HAVE_LFORTRAN_LLVM
     e{std::make_unique<LLVMEvaluator>()},
-    eval_count{0},
+    eval_count{1},
 #endif
     compiler_options{compiler_options},
     symbol_table{nullptr}
@@ -70,7 +70,7 @@ Result<PythonCompiler::EvalResult> PythonCompiler::evaluate(
     }
 
     // AST -> ASR
-    Result<ASR::TranslationUnit_t*> res2 = get_asr3(*ast, diagnostics, lm);
+    Result<ASR::TranslationUnit_t*> res2 = get_asr3(*ast, diagnostics, lm, true);
     ASR::TranslationUnit_t* asr;
     if (res2.ok) {
         asr = res2.result;
@@ -84,6 +84,11 @@ Result<PythonCompiler::EvalResult> PythonCompiler::evaluate(
     }
 
     // ASR -> LLVM
+    std::string module_prefix = "__module___main___";
+    std::string module_name = "__main__";
+    std::string sym_name = module_name + "global_stmts_" + std::to_string(eval_count) + "__";
+    run_fn = module_prefix + sym_name;
+
     Result<std::unique_ptr<LLVMModule>> res3 = get_llvm3(*asr,
         pass_manager, diagnostics, lm.files.back().in_filename);
     std::unique_ptr<LCompilers::LLVMModule> m;
@@ -98,32 +103,19 @@ Result<PythonCompiler::EvalResult> PythonCompiler::evaluate(
         result.llvm_ir = m->str();
     }
 
-    bool call_init = false;
-    bool call_stmts = false;
-    std::string init_fn = "__module___main_____main____lpython_interactive_init_" + std::to_string(eval_count) + "__";
-    std::string stmts_fn = "__module___main_____main____lpython_interactive_stmts_" + std::to_string(eval_count) + "__";
-    if (m->get_return_type(init_fn) != "none") {
-        call_init = true;
-    }
-    if (m->get_return_type(stmts_fn) != "none") {
-        call_stmts = true;
+    bool call_run_fn = false;
+    if (m->get_return_type(run_fn) != "none") {
+        call_run_fn = true;
     }
 
     e->add_module(std::move(m));
-    if (call_init) {
-        e->voidfn(init_fn);
-    }
-    if (call_stmts) {
-        e->voidfn(stmts_fn);
+    if (call_run_fn) {
+        e->voidfn(run_fn);
     }
 
-    if (call_init) {
-        ASR::down_cast<ASR::Module_t>(symbol_table->resolve_symbol("__main__"))->m_symtab
-            ->erase_symbol("__main____lpython_interactive_init_" + std::to_string(eval_count) + "__");
-    }
-    if (call_stmts) {
-        ASR::down_cast<ASR::Module_t>(symbol_table->resolve_symbol("__main__"))->m_symtab
-            ->erase_symbol("__main____lpython_interactive_stmts_" + std::to_string(eval_count) + "__");
+    if (call_run_fn) {
+        ASR::down_cast<ASR::Module_t>(symbol_table->resolve_symbol(module_name))->m_symtab
+            ->erase_symbol(sym_name);
     }
 
     eval_count++;
@@ -139,8 +131,8 @@ Result<LCompilers::LPython::AST::ast_t*> PythonCompiler::get_ast2(
     // Src -> AST
     const std::string *code=&code_orig;
     std::string tmp;
-    Result<LCompilers::LPython::AST::ast_t*>
-        res = LCompilers::LPython::parse_to_ast(al, *code, 0, diagnostics);
+    Result<LCompilers::LPython::AST::Module_t*>
+        res = LCompilers::LPython::parse(al, *code, 0, diagnostics);
     if (res.ok) {
         return (LCompilers::LPython::AST::ast_t*)res.result;
     } else {
@@ -151,7 +143,7 @@ Result<LCompilers::LPython::AST::ast_t*> PythonCompiler::get_ast2(
 
 Result<ASR::TranslationUnit_t*> PythonCompiler::get_asr3(
     LCompilers::LPython::AST::ast_t &ast, diag::Diagnostics &diagnostics,
-    LocationManager &lm)
+    LocationManager &lm, bool is_interactive)
 {
     ASR::TranslationUnit_t* asr;
     // AST -> ASR
@@ -159,7 +151,7 @@ Result<ASR::TranslationUnit_t*> PythonCompiler::get_asr3(
         symbol_table->mark_all_variables_external(al);
     }
     auto res = LCompilers::LPython::python_ast_to_asr(al, lm, symbol_table, ast, diagnostics,
-        compiler_options, true, "__main__", "", false, true);
+        compiler_options, true, "__main__", "", false, is_interactive ? eval_count : 0);
     if (res.ok) {
         asr = res.result;
     } else {
@@ -200,7 +192,7 @@ Result<std::unique_ptr<LLVMModule>> PythonCompiler::get_llvm3(
     Result<std::unique_ptr<LCompilers::LLVMModule>> res
         = asr_to_llvm(asr, diagnostics,
             e->get_context(), al, lpm, compiler_options,
-            "", infile); // ??? What about run function
+            run_fn, infile);
     if (res.ok) {
         m = std::move(res.result);
     } else {

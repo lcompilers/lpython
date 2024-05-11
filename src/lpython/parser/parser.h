@@ -36,10 +36,6 @@ Result<LPython::AST::Module_t*> parse(Allocator &al,
     const std::string &s, uint32_t prev_loc,
     diag::Diagnostics &diagnostics);
 
-Result<LPython::AST::ast_t*> parse_to_ast(Allocator &al,
-    const std::string &s, uint32_t prev_loc,
-    diag::Diagnostics &diagnostics);
-
 Result<LPython::AST::ast_t*> parse_python_file(Allocator &al,
         const std::string &runtime_library_dir,
         const std::string &infile,
