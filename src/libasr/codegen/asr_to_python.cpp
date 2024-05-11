@@ -636,6 +636,56 @@ public:
     void visit_SetConstant(const ASR::SetConstant_t &x) {
         visit_AggregateConstant(x.n_elements, x.m_elements, "{", "}");
     }
+
+    // An aggregate visitor for list methods with 0 or 1 argument
+    void visit_UnaryListMethods(ASR::expr_t* list, std::string method_name,
+                ASR::expr_t* arg=nullptr, bool has_return_value=false) {
+        std::string r = "";
+        visit_expr(*list);
+        r += s;
+        r += "." + method_name + "(";
+        if (arg != nullptr) {
+            visit_expr(*arg);
+            r += s;
+        }
+        r += ")";
+        if (!has_return_value) {
+            r = indent + r + "\n";
+        }
+
+        s = r;
+    }
+
+    void visit_ListAppend(const ASR::ListAppend_t &x) {
+       visit_UnaryListMethods(x.m_a, "append", x.m_ele);
+    }
+
+    void visit_ListCount(const ASR::ListCount_t &x) {
+        visit_UnaryListMethods(x.m_arg, "count", x.m_ele, true);
+    }
+
+    void visit_ListRemove(const ASR::ListRemove_t &x) {
+        visit_UnaryListMethods(x.m_a, "remove", x.m_ele);
+    }
+
+    void visit_ListClear(const ASR::ListClear_t &x) {
+        visit_UnaryListMethods(x.m_a, "clear");
+    }
+
+    void visit_ListInsert(const ASR::ListInsert_t &x) {
+        std::string r = indent;
+        visit_expr(*x.m_a);
+        r += s;
+        r += ".insert(";
+        visit_expr(*x.m_pos);
+        r += s + ", ";
+        visit_expr(*x.m_ele);
+        r += s;
+        r += ")\n";
+
+        s = r;
+    }
+
 };
 
 Result<std::string> asr_to_python(Allocator& al, ASR::TranslationUnit_t &asr,

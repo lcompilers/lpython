@@ -56,6 +56,10 @@ filename = "test_aggregate_constants.py"
 python = true
 
 [[test]]
+filename = "test_list_methods.py"
+python = true
+
+[[test]]
 filename = "expr1.py"
 ast = true
 asr = true
