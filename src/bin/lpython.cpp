@@ -810,19 +810,20 @@ int interactive_python_repl(
     LCompilers::LocationManager lm;
     std::vector<std::pair<std::string, double>> times;
     LCompilers::PythonCompiler::EvalResult r;
-    
+
     std::string code_string;
     std::cout << ">>> ";
     size_t cell_count = 0;
     for (std::string input; std::getline(std::cin, input);) {
-        if (input == "exit" || input == "quit") // exit condition
+        if (input == "exit" || input == "quit") {
             return 0;
+        }
 
-        if ((input.rfind("def", 0) == 0) || 
-            (input.rfind("for", 0) == 0) || 
-            (input.rfind("if", 0) == 0) || 
-            (input.rfind("else", 0) == 0) || 
-            (input.rfind("elif", 0) == 0) || 
+        if ((input.rfind("def", 0) == 0) ||
+            (input.rfind("for", 0) == 0) ||
+            (input.rfind("if", 0) == 0) ||
+            (input.rfind("else", 0) == 0) ||
+            (input.rfind("elif", 0) == 0) ||
             (input.rfind("class", 0) == 0) ||
             (input.rfind('@', 0) == 0) ||
             (input.rfind(' ', 0) == 0) ||
@@ -859,11 +860,11 @@ int interactive_python_repl(
                 std::cout << ">>> ";
                 continue;
             }
-            
+
             auto evaluation_end_time = std::chrono::high_resolution_clock::now();
             times.push_back(std::make_pair("evalution " + std::to_string(cell_count), std::chrono::duration
                 <double, std::milli>(evaluation_start_time - evaluation_end_time).count()));
-        
+
         } catch (const LCompilers::LCompilersException &e) {
             std::cerr << "Internal Compiler Error: Unhandled exception" << std::endl;
             std::vector<LCompilers::StacktraceItem> d = e.stacktrace_addresses();
@@ -1934,8 +1935,6 @@ int main(int argc, char *argv[])
         compiler_options.use_colors = !arg_no_color;
         compiler_options.indent = !arg_no_indent;
 
-        lpython_pass_manager.parse_pass_arg(arg_pass, skip_pass);
-        lpython_pass_manager.use_default_passes();
 
         // if (fmt) {
         //     return format(arg_fmt_file, arg_fmt_inplace, !arg_fmt_no_color,
@@ -1983,6 +1982,8 @@ int main(int argc, char *argv[])
         }
 
         if (arg_files.size() == 0) {
+            lpython_pass_manager.parse_pass_arg(arg_pass, skip_pass);
+            lpython_pass_manager.use_default_passes();
             compiler_options.po.disable_main = true;
             compiler_options.emit_debug_line_column = false;
             compiler_options.generate_object_code = false;
@@ -2029,6 +2030,7 @@ int main(int argc, char *argv[])
         //     return emit_c_preprocessor(arg_file, compiler_options);
         // }
 
+        lpython_pass_manager.parse_pass_arg(arg_pass, skip_pass);
         if (show_tokens) {
             return emit_tokens(arg_file, true, compiler_options);
         }
@@ -2070,6 +2072,7 @@ int main(int argc, char *argv[])
             return 1;
 #endif
         }
+        lpython_pass_manager.use_default_passes();
         if (show_llvm) {
 #ifdef HAVE_LFORTRAN_LLVM
             return emit_llvm(arg_file, runtime_library_dir, lpython_pass_manager, compiler_options);

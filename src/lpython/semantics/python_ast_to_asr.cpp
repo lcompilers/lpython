@@ -8545,9 +8545,6 @@ Result<ASR::TranslationUnit_t*> python_ast_to_asr(Allocator &al, LocationManager
         }
     } else {
         ast_i = AST::down_cast2<AST::Interactive_t>(&ast);
-        if (!symtab) {
-            // Create new empty symbol table, as a module
-        }
         Result<ASR::asr_t*> res = symbol_table_visitor(al, lm, symtab, *ast_i, diagnostics, main_module, module_name,
         ast_overload, parent_dir, compiler_options.import_paths, allow_implicit_casting);
         if (res.ok) {
