@@ -4985,6 +4985,7 @@ namespace LCompilers {
         llvm::BasicBlock *mergeBB = llvm::BasicBlock::Create(context, "ifcont");
         builder->CreateCondBr(cond, thenBB, elseBB);
         builder->SetInsertPoint(thenBB);
+        builder0.SetInsertPoint(&entry_block, entry_block.getFirstInsertionPt());
         llvm::AllocaInst *idx = builder0.CreateAlloca(llvm::Type::getInt32Ty(context), nullptr);
         LLVM::CreateStore(*builder, llvm::ConstantInt::get(
                                     context, llvm::APInt(32, 0)), idx);
@@ -5066,6 +5067,7 @@ namespace LCompilers {
 
         llvm::Value *a_len = llvm_utils->list_api->len(l1);
         llvm::Value *b_len = llvm_utils->list_api->len(l2);
+        builder0.SetInsertPoint(&entry_block, entry_block.getFirstInsertionPt());
         llvm::AllocaInst *idx = builder0.CreateAlloca(llvm::Type::getInt32Ty(context), nullptr);
         LLVM::CreateStore(*builder, llvm::ConstantInt::get(
                                     context, llvm::APInt(32, 0)), idx);
