@@ -105,13 +105,48 @@ Result<PythonCompiler::EvalResult> PythonCompiler::evaluate(
     }
 
     bool call_run_fn = false;
+    std::string return_type;
     if (m->get_return_type(run_fn) != "none") {
         call_run_fn = true;
+        return_type = m->get_return_type(run_fn);
     }
 
     e->add_module(std::move(m));
     if (call_run_fn) {
-        e->voidfn(run_fn);
+        if (return_type == "integer4") {
+            int32_t r = e->int32fn(run_fn);
+            result.type = EvalResult::integer4;
+            result.i32 = r;
+        } else if (return_type == "integer8") {
+            int64_t r = e->int64fn(run_fn);
+            result.type = EvalResult::integer8;
+            result.i64 = r;
+        } else if (return_type == "real4") {
+            float r = e->floatfn(run_fn);
+            result.type = EvalResult::real4;
+            result.f32 = r;
+        } else if (return_type == "real8") {
+            double r = e->doublefn(run_fn);
+            result.type = EvalResult::real8;
+            result.f64 = r;
+        } else if (return_type == "complex4") {
+            std::complex<float> r = e->complex4fn(run_fn);
+            result.type = EvalResult::complex4;
+            result.c32.re = r.real();
+            result.c32.im = r.imag();
+        } else if (return_type == "complex8") {
+            std::complex<double> r = e->complex8fn(run_fn);
+            result.type = EvalResult::complex8;
+            result.c64.re = r.real();
+            result.c64.im = r.imag();
+        } else if (return_type == "void") {
+            e->voidfn(run_fn);
+            result.type = EvalResult::statement;
+        } else if (return_type == "none") {
+            result.type = EvalResult::none;
+        } else {
+            throw LCompilersException("FortranEvaluator::evaluate(): Return type not supported");
+        }
     }
 
     if (call_run_fn) {

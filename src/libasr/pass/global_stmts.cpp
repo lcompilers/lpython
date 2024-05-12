@@ -91,6 +91,7 @@ void pass_wrap_global_stmts(Allocator &al,
                 target = return_var_ref;
                 idx++;
             } else {
+                // TODO: We will need to add support to return other ASR::ttypeType::*
                 throw LCompilersException("Return type not supported in interactive mode");
             }
             ASR::stmt_t* asr_stmt = ASRUtils::STMT(ASR::make_Assignment_t(al, loc, target, value, nullptr));
@@ -119,7 +120,7 @@ void pass_wrap_global_stmts(Allocator &al,
         /* a_body */ body.p,
         /* n_body */ body.size(),
         /* a_return_var */ (return_var ? return_var_ref : nullptr),
-        (return_var ? ASR::abiType::BindC : ASR::abiType::Source),
+        ASR::abiType::Source,
         ASR::Public, ASR::Implementation,
         nullptr,
         false, false, false, false, false,

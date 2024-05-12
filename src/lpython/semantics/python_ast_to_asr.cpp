@@ -4088,8 +4088,8 @@ public:
 
         // Every module goes into a Module_t
         SymbolTable *parent_scope = current_scope;
+        ASR::Module_t* module_sym = nullptr;
         if (parent_scope->get_scope().find(module_name) == parent_scope->get_scope().end()) {
-            ASR::Module_t* module_sym = nullptr;
             current_scope = al.make_new<SymbolTable>(parent_scope);
             ASR::asr_t *tmp1 = ASR::make_Module_t(al, x.base.base.loc,
                                         /* a_symtab */ current_scope,
@@ -4103,7 +4103,6 @@ public:
             for (size_t i=0; i<x.n_body; i++) {
                 visit_stmt(*x.m_body[i]);
             }
-
             LCOMPILERS_ASSERT(module_sym != nullptr);
             module_sym->m_dependencies = current_module_dependencies.p;
             module_sym->n_dependencies = current_module_dependencies.size();
@@ -4111,12 +4110,21 @@ public:
                 create_GenericProcedure(x.base.base.loc);
             }
         } else {
-            ASR::Module_t* module_sym = 
-                ASR::down_cast<ASR::Module_t>(parent_scope->resolve_symbol(module_name));
+            module_sym = ASR::down_cast<ASR::Module_t>(parent_scope->resolve_symbol(module_name));
             LCOMPILERS_ASSERT(module_sym != nullptr);
             current_scope = module_sym->m_symtab;
             for (size_t i=0; i<x.n_body; i++) {
                 visit_stmt(*x.m_body[i]);
+            }
+            for (size_t i = 0; i < module_sym->n_dependencies; i++) {
+                if (module_sym->m_dependencies[i]) {
+                    current_module_dependencies.push_back(al, module_sym->m_dependencies[i]);
+                }
+            }
+            module_sym->m_dependencies = current_module_dependencies.p;
+            module_sym->n_dependencies = current_module_dependencies.size();
+            if (!overload_defs.empty()) {
+                create_GenericProcedure(x.base.base.loc);
             }
         }
 
@@ -6691,8 +6699,7 @@ public:
         // If tmp is a statement and not an expression
         // never cast into expression using ASRUtils::EXPR
         // Just ignore and exit the function naturally.
-        if( tmp && !ASR::is_a<ASR::stmt_t>(*tmp) ) {
-            LCOMPILERS_ASSERT(ASR::is_a<ASR::expr_t>(*tmp));
+        if( tmp && !ASR::is_a<ASR::expr_t>(*tmp) ) {
             tmp = nullptr;
         }
     }
