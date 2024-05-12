@@ -1,6 +1,7 @@
 #ifndef LPYTHON_PARSER_PARSER_H
 #define LPYTHON_PARSER_PARSER_H
 
+#include "lpython/python_ast.h"
 #include <libasr/containers.h>
 #include <libasr/diagnostics.h>
 #include <lpython/parser/tokenizer.h>

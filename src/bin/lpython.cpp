@@ -33,6 +33,7 @@
 #include <lpython/python_serialization.h>
 #include <lpython/parser/tokenizer.h>
 #include <lpython/parser/parser.h>
+#include <libasr/exception.h>
 
 #include <cpp-terminal/terminal.h>
 #include <cpp-terminal/prompt0.h>
@@ -743,6 +744,11 @@ void print_time_report(std::vector<std::pair<std::string, double>> &times, bool 
 
 #ifdef HAVE_LFORTRAN_LLVM
 
+void section(const std::string &s)
+{
+    std::cout << color(LCompilers::style::bold) << color(LCompilers::fg::blue) << s << color(LCompilers::style::reset) << color(LCompilers::fg::reset) << std::endl;
+}
+
 int emit_llvm(const std::string &infile,
     const std::string &runtime_library_dir,
     LCompilers::PassManager& pass_manager,
@@ -789,6 +795,157 @@ int emit_llvm(const std::string &infile,
         return 3;
     }
     std::cout << (res.result)->str();
+    return 0;
+}
+
+int interactive_python_repl(
+        LCompilers::PassManager& pass_manager,
+        CompilerOptions &compiler_options,
+        bool verbose)
+{
+    Allocator al(4*1024);
+    compiler_options.interactive = true;
+    LCompilers::PythonCompiler fe(compiler_options);
+    LCompilers::diag::Diagnostics diagnostics;
+    LCompilers::LocationManager lm;
+    std::vector<std::pair<std::string, double>> times;
+    LCompilers::PythonCompiler::EvalResult r;
+
+    std::string code_string;
+    std::cout << ">>> ";
+    size_t cell_count = 0;
+    for (std::string input; std::getline(std::cin, input);) {
+        if (input == "exit" || input == "quit") {
+            return 0;
+        }
+
+        if ((input.rfind("def", 0) == 0) ||
+            (input.rfind("for", 0) == 0) ||
+            (input.rfind("if", 0) == 0) ||
+            (input.rfind("else", 0) == 0) ||
+            (input.rfind("elif", 0) == 0) ||
+            (input.rfind("class", 0) == 0) ||
+            (input.rfind('@', 0) == 0) ||
+            (input.rfind(' ', 0) == 0) ||
+            (input.rfind('\t', 0) == 0)) {
+            // start of a block
+            code_string += input + "\n";
+            std::cout << "... ";
+            continue;
+        }
+        code_string += input + "\n";
+
+        {
+            cell_count++;
+            LCompilers::LocationManager::FileLocations fl;
+            fl.in_filename = "input";
+            std::ofstream out("input");
+            out << code_string;
+            lm.files.push_back(fl);
+            lm.init_simple(code_string);
+            lm.file_ends.push_back(code_string.size());
+        }
+
+        try {
+            auto evaluation_start_time = std::chrono::high_resolution_clock::now();
+            LCompilers::Result<LCompilers::PythonCompiler::EvalResult>
+            res = fe.evaluate(code_string, verbose, lm, pass_manager, diagnostics);
+            if (res.ok) {
+                r = res.result;
+            } else {
+                LCOMPILERS_ASSERT(diagnostics.has_error())
+                std::cerr << diagnostics.render(lm, compiler_options);
+                diagnostics.clear();
+                code_string = "";
+                std::cout << ">>> ";
+                continue;
+            }
+
+            auto evaluation_end_time = std::chrono::high_resolution_clock::now();
+            times.push_back(std::make_pair("evalution " + std::to_string(cell_count), std::chrono::duration
+                <double, std::milli>(evaluation_start_time - evaluation_end_time).count()));
+
+        } catch (const LCompilers::LCompilersException &e) {
+            std::cerr << "Internal Compiler Error: Unhandled exception" << std::endl;
+            std::vector<LCompilers::StacktraceItem> d = e.stacktrace_addresses();
+            get_local_addresses(d);
+            get_local_info(d);
+            std::cerr << stacktrace2str(d, LCompilers::stacktrace_depth);
+            std::cerr << e.name() + ": " << e.msg() << std::endl;
+
+            code_string = "";
+            std::cout << ">>> ";
+            continue;
+        }
+
+        if (verbose) {
+            section("AST:");
+            std::cout << r.ast << std::endl;
+            section("ASR:");
+            std::cout << r.asr << std::endl;
+            section("LLVM IR:");
+            std::cout << r.llvm_ir << std::endl;
+        }
+
+        switch (r.type) {
+            case (LCompilers::PythonCompiler::EvalResult::integer4) : {
+                if (verbose) std::cout << "Return type: integer" << std::endl;
+                if (verbose) section("Result:");
+                std::cout << r.i32 << std::endl;
+                break;
+            }
+            case (LCompilers::PythonCompiler::EvalResult::integer8) : {
+                if (verbose) std::cout << "Return type: integer(8)" << std::endl;
+                if (verbose) section("Result:");
+                std::cout << r.i64 << std::endl;
+                break;
+            }
+            case (LCompilers::PythonCompiler::EvalResult::real4) : {
+                if (verbose) std::cout << "Return type: real" << std::endl;
+                if (verbose) section("Result:");
+                std::cout << std::setprecision(8) << r.f32 << std::endl;
+                break;
+            }
+            case (LCompilers::PythonCompiler::EvalResult::real8) : {
+                if (verbose) std::cout << "Return type: real(8)" << std::endl;
+                if (verbose) section("Result:");
+                std::cout << std::setprecision(17) << r.f64 << std::endl;
+                break;
+            }
+            case (LCompilers::PythonCompiler::EvalResult::complex4) : {
+                if (verbose) std::cout << "Return type: complex" << std::endl;
+                if (verbose) section("Result:");
+                std::cout << std::setprecision(8) << "(" << r.c32.re << ", " << r.c32.im << ")" << std::endl;
+                break;
+            }
+            case (LCompilers::PythonCompiler::EvalResult::complex8) : {
+                if (verbose) std::cout << "Return type: complex(8)" << std::endl;
+                if (verbose) section("Result:");
+                std::cout << std::setprecision(17) << "(" << r.c64.re << ", " << r.c64.im << ")" << std::endl;
+                break;
+            }
+            case (LCompilers::PythonCompiler::EvalResult::statement) : {
+                if (verbose) {
+                    std::cout << "Return type: none" << std::endl;
+                    section("Result:");
+                    std::cout << "(statement)" << std::endl;
+                }
+                break;
+            }
+            case (LCompilers::PythonCompiler::EvalResult::none) : {
+                if (verbose) {
+                    std::cout << "Return type: none" << std::endl;
+                    section("Result:");
+                    std::cout << "(nothing to execute)" << std::endl;
+                }
+                break;
+            }
+            default : throw LCompilers::LCompilersException("Return type not supported");
+        }
+
+        code_string = "";
+        std::cout << ">>> ";
+    }
     return 0;
 }
 
@@ -1824,8 +1981,17 @@ int main(int argc, char *argv[])
         }
 
         if (arg_files.size() == 0) {
-            std::cerr << "Interactive prompt is not implemented yet in LPython" << std::endl;
+#ifdef HAVE_LFORTRAN_LLVM
+            lpython_pass_manager.parse_pass_arg(arg_pass, skip_pass);
+            lpython_pass_manager.use_default_passes();
+            compiler_options.po.disable_main = true;
+            compiler_options.emit_debug_line_column = false;
+            compiler_options.generate_object_code = false;
+            return interactive_python_repl(lpython_pass_manager, compiler_options, arg_v);
+#else
+            std::cerr << "Interactive prompt requires the LLVM backend to be enabled. Recompile with `WITH_LLVM=yes`." << std::endl;
             return 1;
+#endif
         }
 
         // TODO: for now we ignore the other filenames, only handle

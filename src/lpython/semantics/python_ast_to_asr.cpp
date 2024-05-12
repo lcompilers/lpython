@@ -4086,34 +4086,40 @@ public:
             ASR::is_a<ASR::TranslationUnit_t>(*ASR::down_cast<ASR::unit_t>(tmp0)));
         global_scope = current_scope;
 
-        ASR::Module_t* module_sym = nullptr;
         // Every module goes into a Module_t
         SymbolTable *parent_scope = current_scope;
-        current_scope = al.make_new<SymbolTable>(parent_scope);
+        if (parent_scope->get_scope().find(module_name) == parent_scope->get_scope().end()) {
+            ASR::Module_t* module_sym = nullptr;
+            current_scope = al.make_new<SymbolTable>(parent_scope);
+            ASR::asr_t *tmp1 = ASR::make_Module_t(al, x.base.base.loc,
+                                        /* a_symtab */ current_scope,
+                                        /* a_name */ s2c(al, module_name),
+                                        nullptr,
+                                        0,
+                                        false, false);
+            module_sym = ASR::down_cast<ASR::Module_t>(ASR::down_cast<ASR::symbol_t>(tmp1));
+            parent_scope->add_symbol(module_name, ASR::down_cast<ASR::symbol_t>(tmp1));
+            current_module_dependencies.reserve(al, 1);
+            for (size_t i=0; i<x.n_body; i++) {
+                visit_stmt(*x.m_body[i]);
+            }
 
-        ASR::asr_t *tmp1 = ASR::make_Module_t(al, x.base.base.loc,
-                                    /* a_symtab */ current_scope,
-                                    /* a_name */ s2c(al, module_name),
-                                    nullptr,
-                                    0,
-                                    false, false);
+            LCOMPILERS_ASSERT(module_sym != nullptr);
+            module_sym->m_dependencies = current_module_dependencies.p;
+            module_sym->n_dependencies = current_module_dependencies.size();
+            if (!overload_defs.empty()) {
+                create_GenericProcedure(x.base.base.loc);
+            }
+        } else {
+            ASR::Module_t* module_sym = 
+                ASR::down_cast<ASR::Module_t>(parent_scope->resolve_symbol(module_name));
+            LCOMPILERS_ASSERT(module_sym != nullptr);
+            current_scope = module_sym->m_symtab;
+            for (size_t i=0; i<x.n_body; i++) {
+                visit_stmt(*x.m_body[i]);
+            }
+        }
 
-        if (parent_scope->get_scope().find(module_name) != parent_scope->get_scope().end()) {
-            throw SemanticError("Module '" + module_name + "' already defined", tmp1->loc);
-        }
-        module_sym = ASR::down_cast<ASR::Module_t>(ASR::down_cast<ASR::symbol_t>(tmp1));
-        parent_scope->add_symbol(module_name, ASR::down_cast<ASR::symbol_t>(tmp1));
-        current_module_dependencies.reserve(al, 1);
-        for (size_t i=0; i<x.n_body; i++) {
-            visit_stmt(*x.m_body[i]);
-        }
-
-        LCOMPILERS_ASSERT(module_sym != nullptr);
-        module_sym->m_dependencies = current_module_dependencies.p;
-        module_sym->n_dependencies = current_module_dependencies.size();
-        if (!overload_defs.empty()) {
-            create_GenericProcedure(x.base.base.loc);
-        }
         global_scope = nullptr;
         tmp = tmp0;
     }
@@ -4809,12 +4815,13 @@ public:
     ASR::asr_t *asr;
     std::vector<ASR::symbol_t*> do_loop_variables;
     bool using_func_attr = false;
+    size_t eval_count;
 
     BodyVisitor(Allocator &al, LocationManager &lm, ASR::asr_t *unit, diag::Diagnostics &diagnostics,
          bool main_module, std::string module_name, std::map<int, ASR::symbol_t*> &ast_overload,
-         bool allow_implicit_casting_)
+         bool allow_implicit_casting_, size_t eval_count=0)
          : CommonVisitor(al, lm, nullptr, diagnostics, main_module, module_name, ast_overload, "", {}, allow_implicit_casting_),
-         asr{unit}
+         asr{unit}, eval_count{eval_count}
          {}
 
     // Transforms statements to a list of ASR statements
@@ -4904,6 +4911,10 @@ public:
             unit->m_items = items.p;
             unit->n_items = items.size();
             std::string func_name = module_name + "global_stmts";
+            if (eval_count > 0) {
+                // In Interactive Shell. Update the func_name accordingly
+                func_name += "_" + std::to_string(eval_count) + "__";
+            }
             // Wrap all the global statements into a Function
             LCompilers::PassOptions pass_options;
             pass_options.run_fun = func_name;
@@ -8301,9 +8312,9 @@ Result<ASR::TranslationUnit_t*> body_visitor(Allocator &al, LocationManager &lm,
         diag::Diagnostics &diagnostics,
         ASR::asr_t *unit, bool main_module, std::string module_name,
         std::map<int, ASR::symbol_t*> &ast_overload,
-        bool allow_implicit_casting)
+        bool allow_implicit_casting, size_t eval_count)
 {
-    BodyVisitor b(al, lm, unit, diagnostics, main_module, module_name, ast_overload, allow_implicit_casting);
+    BodyVisitor b(al, lm, unit, diagnostics, main_module, module_name, ast_overload, allow_implicit_casting, eval_count);
     try {
         b.visit_Module(ast);
     } catch (const SemanticError &e) {
@@ -8319,6 +8330,9 @@ Result<ASR::TranslationUnit_t*> body_visitor(Allocator &al, LocationManager &lm,
 }
 
 std::string get_parent_dir(const std::string &path) {
+    if (path == "") {
+        return std::filesystem::current_path().string();
+    }
     int idx = path.size()-1;
     while (idx >= 0 && path[idx] != '/' && path[idx] != '\\') idx--;
     if (idx == -1) {
@@ -8329,20 +8343,21 @@ std::string get_parent_dir(const std::string &path) {
 
 Result<ASR::TranslationUnit_t*> python_ast_to_asr(Allocator &al, LocationManager &lm, SymbolTable* symtab,
     AST::ast_t &ast, diag::Diagnostics &diagnostics, CompilerOptions &compiler_options,
-    bool main_module, std::string module_name, std::string file_path, bool allow_implicit_casting)
+    bool main_module, std::string module_name, std::string file_path, bool allow_implicit_casting, size_t eval_count)
 {
     std::map<int, ASR::symbol_t*> ast_overload;
     std::string parent_dir = get_parent_dir(file_path);
-    AST::Module_t *ast_m = AST::down_cast2<AST::Module_t>(&ast);
 
     ASR::asr_t *unit;
-    auto res = symbol_table_visitor(al, lm, symtab, *ast_m, diagnostics, main_module, module_name,
-        ast_overload, parent_dir, compiler_options.import_paths, allow_implicit_casting);
+    AST::Module_t *ast_m = AST::down_cast2<AST::Module_t>(&ast);
+    Result<ASR::asr_t*> res = symbol_table_visitor(al, lm, symtab, *ast_m, diagnostics, main_module, module_name,
+    ast_overload, parent_dir, compiler_options.import_paths, allow_implicit_casting);
     if (res.ok) {
         unit = res.result;
     } else {
         return res.error;
     }
+
     ASR::TranslationUnit_t *tu = ASR::down_cast2<ASR::TranslationUnit_t>(unit);
     if (compiler_options.po.dump_all_passes) {
         std::ofstream outfile ("pass_00_initial_asr_01.clj");
@@ -8368,7 +8383,7 @@ Result<ASR::TranslationUnit_t*> python_ast_to_asr(Allocator &al, LocationManager
 
     if (!compiler_options.symtab_only) {
         auto res2 = body_visitor(al, lm, *ast_m, diagnostics, unit, main_module, module_name,
-            ast_overload, allow_implicit_casting);
+            ast_overload, allow_implicit_casting, eval_count);
         if (res2.ok) {
             tu = res2.result;
         } else {

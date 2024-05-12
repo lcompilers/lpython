@@ -7,6 +7,7 @@
 #include <libasr/alloc.h>
 #include <libasr/asr_scopes.h>
 #include <libasr/asr.h>
+#include <lpython/python_ast.h>
 #include <lpython/utils.h>
 #include <libasr/config.h>
 #include <libasr/diagnostics.h>
@@ -51,6 +52,17 @@ public:
         std::string llvm_ir;
     };
 
+    Result<PythonCompiler::EvalResult> evaluate(
+            const std::string &code_orig, bool verbose, LocationManager &lm,
+            LCompilers::PassManager& pass_manager, diag::Diagnostics &diagnostics);
+    
+    Result<LCompilers::LPython::AST::ast_t*> get_ast2(
+            const std::string &code_orig, diag::Diagnostics &diagnostics);
+    
+    Result<ASR::TranslationUnit_t*> get_asr3(
+        LCompilers::LPython::AST::ast_t &ast, diag::Diagnostics &diagnostics,
+        LocationManager &lm, bool is_interactive=false);
+
     Result<std::unique_ptr<LLVMModule>> get_llvm3(ASR::TranslationUnit_t &asr,
         LCompilers::PassManager& lpm, diag::Diagnostics &diagnostics,
         const std::string &infile);
@@ -59,10 +71,10 @@ private:
     Allocator al;
 #ifdef HAVE_LFORTRAN_LLVM
     std::unique_ptr<LLVMEvaluator> e;
-    int eval_count;
 #endif
+    int eval_count;
     CompilerOptions compiler_options;
-//    SymbolTable *symbol_table;
+    SymbolTable *symbol_table;
     std::string run_fn;
 };
 

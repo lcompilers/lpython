@@ -127,6 +127,10 @@ struct Diagnostics {
         diagnostics.push_back(d);
     }
 
+    void clear() {
+        diagnostics.clear();
+    }
+
     void message_label(const std::string &message,
             const std::vector<Location> &locations,
             const std::string &error_label,
