@@ -1,15 +1,16 @@
-#include "libasr/asr_scopes.h"
-#include "lpython/python_ast.h"
 #include <iostream>
+#include <fstream>
+#include <string>
 
 #include <lpython/python_evaluator.h>
 #include <lpython/semantics/python_ast_to_asr.h>
+#include <lpython/python_ast.h>
+#include <lpython/pickle.h>
+#include <lpython/parser/parser.h>
 #include <libasr/codegen/asr_to_cpp.h>
 #include <libasr/exception.h>
 #include <libasr/asr.h>
-#include <lpython/pickle.h>
-#include <lpython/parser/parser.h>
-#include <string>
+#include <libasr/asr_scopes.h>
 
 #ifdef HAVE_LFORTRAN_LLVM
 #include <libasr/codegen/evaluator.h>
@@ -31,8 +32,8 @@ PythonCompiler::PythonCompiler(CompilerOptions compiler_options)
     al{1024*1024},
 #ifdef HAVE_LFORTRAN_LLVM
     e{std::make_unique<LLVMEvaluator>()},
-    eval_count{1},
 #endif
+    eval_count{1},
     compiler_options{compiler_options},
     symbol_table{nullptr}
 {

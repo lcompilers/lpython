@@ -1935,7 +1935,6 @@ int main(int argc, char *argv[])
         compiler_options.use_colors = !arg_no_color;
         compiler_options.indent = !arg_no_indent;
 
-
         // if (fmt) {
         //     return format(arg_fmt_file, arg_fmt_inplace, !arg_fmt_no_color,
         //         arg_fmt_indent, arg_fmt_indent_unit, compiler_options);
@@ -1982,12 +1981,17 @@ int main(int argc, char *argv[])
         }
 
         if (arg_files.size() == 0) {
+#ifdef HAVE_LFORTRAN_LLVM
             lpython_pass_manager.parse_pass_arg(arg_pass, skip_pass);
             lpython_pass_manager.use_default_passes();
             compiler_options.po.disable_main = true;
             compiler_options.emit_debug_line_column = false;
             compiler_options.generate_object_code = false;
             return interactive_python_repl(lpython_pass_manager, compiler_options, arg_v);
+#else
+            std::cerr << "Interactive prompt requires the LLVM backend to be enabled. Recompile with `WITH_LLVM=yes`." << std::endl;
+            return 1;
+#endif
         }
 
         // TODO: for now we ignore the other filenames, only handle

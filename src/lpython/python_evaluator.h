@@ -71,8 +71,8 @@ private:
     Allocator al;
 #ifdef HAVE_LFORTRAN_LLVM
     std::unique_ptr<LLVMEvaluator> e;
-    size_t eval_count;
 #endif
+    int eval_count;
     CompilerOptions compiler_options;
     SymbolTable *symbol_table;
     std::string run_fn;
