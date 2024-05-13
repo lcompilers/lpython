@@ -1154,6 +1154,7 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
 
     bool is_unsupported_function(const ASR::Function_t &x) {
         if (strcmp(x.m_name, "_start") == 0) return false;
+        if (strcmp(x.m_name, "__main__global_stmts") == 0) return false;
 
          if (ASRUtils::get_FunctionType(x)->m_abi == ASR::abiType::BindJS) {
             return true;
