@@ -1058,13 +1058,13 @@ int compile_python_using_llvm(
         auto llvm_start = std::chrono::high_resolution_clock::now();
 
         bool call_stmts = false;
-        if (m->get_return_type("__module___main_____main__global_stmts") == "void") {
+        if (m->get_return_type("__main__global_stmts") == "void") {
             call_stmts = true;
         }
 
         e.add_module(std::move(m));
         if (call_stmts) {
-            e.voidfn("__module___main_____main__global_stmts");
+            e.voidfn("__main__global_stmts");
         }
 
         if (compiler_options.enable_cpython) {

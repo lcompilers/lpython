@@ -9,7 +9,6 @@
 int64_t fib(int64_t n);
 void main0();
 void _xx_lcompilers_changed_main_xx();
-void __main__global_stmts();
 
 
 

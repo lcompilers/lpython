@@ -24,7 +24,6 @@ struct i16
 void g(struct i16* *x, struct i16* y);
 void check(struct i16* *ptr);
 void f();
-void __main__global_stmts();
 
 
 

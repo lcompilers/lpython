@@ -23,7 +23,7 @@
                                             "fields": {
                                                 "arg_types": [],
                                                 "return_var_type": [],
-                                                "abi": "Source",
+                                                "abi": "BindC",
                                                 "deftype": "Implementation",
                                                 "bindc_name": [],
                                                 "elemental": false,

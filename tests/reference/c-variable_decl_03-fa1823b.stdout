@@ -8,7 +8,6 @@
 double _lcompilers_abs_f64(double x);
 double f();
 void _xx_lcompilers_changed_main_xx();
-void __main__global_stmts();
 
 
 

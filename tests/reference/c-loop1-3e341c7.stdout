@@ -10,7 +10,6 @@ int32_t test_factorial_1(int32_t x);
 int32_t test_factorial_2(int32_t x);
 int64_t test_factorial_3(int32_t x);
 void main0();
-void __main__global_stmts();
 
 
 

@@ -9,7 +9,6 @@
 inline __attribute__((always_inline)) int32_t add(int32_t x, int32_t y);
 inline __attribute__((always_inline)) int32_t and_op(int32_t x, int32_t y);
 void main0();
-void __main__global_stmts();
 
 
 

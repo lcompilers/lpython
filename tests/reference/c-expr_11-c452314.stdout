@@ -7,7 +7,6 @@
 #include <lfortran_intrinsics.h>
 
 void f();
-void __main__global_stmts();
 
 
 

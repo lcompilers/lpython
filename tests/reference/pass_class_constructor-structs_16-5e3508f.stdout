@@ -119,7 +119,7 @@
                                     (FunctionType
                                         []
                                         ()
-                                        Source
+                                        BindC
                                         Implementation
                                         ()
                                         .false.

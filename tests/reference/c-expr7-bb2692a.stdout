@@ -11,7 +11,6 @@
 void test_pow();
 int32_t test_pow_1(int32_t a, int32_t b);
 void main0();
-void __main__global_stmts();
 
 
 

@@ -8,7 +8,6 @@
 
 static int64_t fib(int64_t n);
 void main0();
-void __main__global_stmts();
 
 
 

@@ -5,7 +5,7 @@ source_filename = "LFortran"
 @1 = private unnamed_addr constant [2 x i8] c"\0A\00", align 1
 @2 = private unnamed_addr constant [5 x i8] c"%d%s\00", align 1
 
-define void @__module___main_____main__global_stmts() !dbg !3 {
+define void @__main__global_stmts() !dbg !3 {
 .entry:
   call void @__module___main___main0(), !dbg !6
   br label %return, !dbg !6
@@ -41,7 +41,7 @@ declare void @_lfortran_printf(i8*, ...)
 define i32 @main(i32 %0, i8** %1) !dbg !22 {
 .entry:
   call void @_lpython_call_initial_functions(i32 %0, i8** %1), !dbg !25
-  call void @__module___main_____main__global_stmts(), !dbg !25
+  call void @__main__global_stmts(), !dbg !25
   ret i32 0, !dbg !25
 }
 

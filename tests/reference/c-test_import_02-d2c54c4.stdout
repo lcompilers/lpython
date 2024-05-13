@@ -9,7 +9,6 @@
 int32_t add(int32_t x, int32_t y);
 int32_t multiply(int32_t x, int32_t y);
 void f();
-void __main__global_stmts();
 
 
 

@@ -85,10 +85,8 @@ Result<PythonCompiler::EvalResult> PythonCompiler::evaluate(
     }
 
     // ASR -> LLVM
-    std::string module_prefix = "__module___main___";
     std::string module_name = "__main__";
-    std::string sym_name = module_name + "global_stmts_" + std::to_string(eval_count) + "__";
-    run_fn = module_prefix + sym_name;
+    run_fn = module_name + "global_stmts_" + std::to_string(eval_count) + "__";
 
     Result<std::unique_ptr<LLVMModule>> res3 = get_llvm3(*asr,
         pass_manager, diagnostics, lm.files.back().in_filename);
@@ -116,7 +114,7 @@ Result<PythonCompiler::EvalResult> PythonCompiler::evaluate(
 
     if (call_run_fn) {
         ASR::down_cast<ASR::Module_t>(symbol_table->resolve_symbol(module_name))->m_symtab
-            ->erase_symbol(sym_name);
+            ->erase_symbol(run_fn);
     }
 
     eval_count++;
