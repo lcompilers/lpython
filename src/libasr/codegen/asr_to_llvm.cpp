@@ -3791,7 +3791,9 @@ public:
                 }
             }
             std::string fn_name;
-            if (ASRUtils::get_FunctionType(x)->m_abi == ASR::abiType::BindC) {
+            if (compiler_options.interactive && startswith(sym_name, "__main__global_stmts")) {
+                fn_name = sym_name;
+            } else if (ASRUtils::get_FunctionType(x)->m_abi == ASR::abiType::BindC) {
                 if (ASRUtils::get_FunctionType(x)->m_bindc_name) {
                     fn_name = ASRUtils::get_FunctionType(x)->m_bindc_name;
                 } else {
