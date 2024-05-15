@@ -64,7 +64,7 @@ def abs(c: c32) -> f32:
     a: f32
     b: f32
     a = c.real
-    b = _lfortran_caimag(c)
+    b = c.imag
     return f32((a**f32(2) + b**f32(2))**f32(1/2))
 
 @overload
@@ -72,7 +72,7 @@ def abs(c: c64) -> f64:
     a: f64
     b: f64
     a = c.real
-    b = _lfortran_zaimag(c)
+    b = c.imag
     return (a**2.0 + b**2.0)**(1/2)
 
 @interface
@@ -434,22 +434,13 @@ def lbound(x: i32[:], dim: i32) -> i32:
 def ubound(x: i32[:], dim: i32) -> i32:
     pass
 
-
-@ccall
-def _lfortran_caimag(x: c32) -> f32:
-    pass
-
-@ccall
-def _lfortran_zaimag(x: c64) -> f64:
-    pass
-
 @overload
 def _lpython_imag(x: c64) -> f64:
-    return _lfortran_zaimag(x)
+    return x.imag
 
 @overload
 def _lpython_imag(x: c32) -> f32:
-    return _lfortran_caimag(x)
+    return x.imag
 
 
 @overload
