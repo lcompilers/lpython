@@ -36,8 +36,6 @@ int64_t __lpython_overloaded_8___mod(int64_t a, int64_t b);
 int32_t __lpython_overloaded_8__pow(bool x, bool y);
 std::complex<double> __lpython_overloaded_9__complex(int32_t x, int32_t y);
 std::complex<float> __lpython_overloaded_9__pow(std::complex<float> c, int32_t y);
-float _lfortran_caimag(std::complex<float> x);
-double _lfortran_zaimag(std::complex<double> x);
 namespace {
 }
 
@@ -162,10 +160,6 @@ std::complex<float> __lpython_overloaded_9__pow(std::complex<float> c, int32_t y
     _lpython_return_variable = std::pow(c, std::complex<double>(y));
     return _lpython_return_variable;
 }
-
-float _lfortran_caimag(std::complex<float> x);
-
-double _lfortran_zaimag(std::complex<double> x);
 
 void test_pow()
 {
