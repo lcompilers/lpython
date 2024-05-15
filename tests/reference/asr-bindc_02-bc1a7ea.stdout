@@ -10,7 +10,7 @@
                             __main__global_stmts:
                                 (Function
                                     (SymbolTable
-                                        229
+                                        227
                                         {
                                             
                                         })
@@ -76,11 +76,11 @@
                             f:
                                 (Function
                                     (SymbolTable
-                                        228
+                                        226
                                         {
                                             y:
                                                 (Variable
-                                                    228
+                                                    226
                                                     y
                                                     []
                                                     Local
@@ -101,7 +101,7 @@
                                                 ),
                                             yptr1:
                                                 (Variable
-                                                    228
+                                                    226
                                                     yptr1
                                                     []
                                                     Local
@@ -124,7 +124,7 @@
                                                 ),
                                             yq:
                                                 (Variable
-                                                    228
+                                                    226
                                                     yq
                                                     []
                                                     Local
@@ -157,14 +157,14 @@
                                     []
                                     []
                                     [(Assignment
-                                        (Var 228 yq)
+                                        (Var 226 yq)
                                         (PointerNullConstant
                                             (CPtr)
                                         )
                                         ()
                                     )
                                     (Assignment
-                                        (Var 228 y)
+                                        (Var 226 y)
                                         (ArrayConstructor
                                             []
                                             (Array
@@ -180,7 +180,7 @@
                                     )
                                     (Assignment
                                         (ArrayItem
-                                            (Var 228 y)
+                                            (Var 226 y)
                                             [(()
                                             (IntegerConstant 0 (Integer 4))
                                             ())]
@@ -198,7 +198,7 @@
                                     )
                                     (Assignment
                                         (ArrayItem
-                                            (Var 228 y)
+                                            (Var 226 y)
                                             [(()
                                             (IntegerConstant 1 (Integer 4))
                                             ())]
@@ -215,9 +215,9 @@
                                         ()
                                     )
                                     (Assignment
-                                        (Var 228 yptr1)
+                                        (Var 226 yptr1)
                                         (GetPointer
-                                            (Var 228 y)
+                                            (Var 226 y)
                                             (Pointer
                                                 (Array
                                                     (Integer 2)
@@ -232,7 +232,7 @@
                                     )
                                     (Print
                                         [(GetPointer
-                                            (Var 228 y)
+                                            (Var 226 y)
                                             (Pointer
                                                 (Array
                                                     (Integer 2)
@@ -243,13 +243,13 @@
                                             )
                                             ()
                                         )
-                                        (Var 228 yptr1)]
+                                        (Var 226 yptr1)]
                                         ()
                                         ()
                                     )
                                     (Print
                                         [(ArrayItem
-                                            (Var 228 yptr1)
+                                            (Var 226 yptr1)
                                             [(()
                                             (IntegerConstant 0 (Integer 4))
                                             ())]
@@ -258,7 +258,7 @@
                                             ()
                                         )
                                         (ArrayItem
-                                            (Var 228 yptr1)
+                                            (Var 226 yptr1)
                                             [(()
                                             (IntegerConstant 1 (Integer 4))
                                             ())]
@@ -272,7 +272,7 @@
                                     (Assert
                                         (IntegerCompare
                                             (ArrayItem
-                                                (Var 228 yptr1)
+                                                (Var 226 yptr1)
                                                 [(()
                                                 (IntegerConstant 0 (Integer 4))
                                                 ())]
@@ -295,7 +295,7 @@
                                     (Assert
                                         (IntegerCompare
                                             (ArrayItem
-                                                (Var 228 yptr1)
+                                                (Var 226 yptr1)
                                                 [(()
                                                 (IntegerConstant 1 (Integer 4))
                                                 ())]
@@ -316,8 +316,8 @@
                                         ()
                                     )
                                     (CPtrToPointer
-                                        (Var 228 yq)
-                                        (Var 228 yptr1)
+                                        (Var 226 yq)
+                                        (Var 226 yptr1)
                                         (ArrayConstant
                                             [(IntegerConstant 2 (Integer 4))]
                                             (Array
@@ -340,8 +340,8 @@
                                         )
                                     )
                                     (Print
-                                        [(Var 228 yq)
-                                        (Var 228 yptr1)]
+                                        [(Var 226 yq)
+                                        (Var 226 yptr1)]
                                         ()
                                         ()
                                     )]
@@ -405,11 +405,11 @@
             main_program:
                 (Program
                     (SymbolTable
-                        230
+                        228
                         {
                             __main__global_stmts:
                                 (ExternalSymbol
-                                    230
+                                    228
                                     __main__global_stmts
                                     2 __main__global_stmts
                                     __main__
@@ -421,7 +421,7 @@
                     main_program
                     [__main__]
                     [(SubroutineCall
-                        230 __main__global_stmts
+                        228 __main__global_stmts
                         2 __main__global_stmts
                         []
                         ()

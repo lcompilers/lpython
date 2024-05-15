@@ -10,11 +10,11 @@
                             A:
                                 (StructType
                                     (SymbolTable
-                                        228
+                                        226
                                         {
                                             a:
                                                 (Variable
-                                                    228
+                                                    226
                                                     a
                                                     []
                                                     Local
@@ -30,7 +30,7 @@
                                                 ),
                                             b:
                                                 (Variable
-                                                    228
+                                                    226
                                                     b
                                                     []
                                                     Local
@@ -46,7 +46,7 @@
                                                 ),
                                             c:
                                                 (Variable
-                                                    228
+                                                    226
                                                     c
                                                     []
                                                     Local
@@ -62,7 +62,7 @@
                                                 ),
                                             d:
                                                 (Variable
-                                                    228
+                                                    226
                                                     d
                                                     []
                                                     Local
@@ -78,7 +78,7 @@
                                                 ),
                                             x:
                                                 (Variable
-                                                    228
+                                                    226
                                                     x
                                                     []
                                                     Local
@@ -94,7 +94,7 @@
                                                 ),
                                             y:
                                                 (Variable
-                                                    228
+                                                    226
                                                     y
                                                     []
                                                     Local
@@ -110,7 +110,7 @@
                                                 ),
                                             z:
                                                 (Variable
-                                                    228
+                                                    226
                                                     z
                                                     []
                                                     Local
@@ -151,7 +151,7 @@
                             __main__global_stmts:
                                 (Function
                                     (SymbolTable
-                                        234
+                                        232
                                         {
                                             
                                         })
@@ -187,11 +187,11 @@
                             g:
                                 (Function
                                     (SymbolTable
-                                        232
+                                        230
                                         {
                                             y:
                                                 (Variable
-                                                    232
+                                                    230
                                                     y
                                                     []
                                                     Local
@@ -233,7 +233,7 @@
                                     update_2]
                                     []
                                     [(Assignment
-                                        (Var 232 y)
+                                        (Var 230 y)
                                         (ArrayConstructor
                                             []
                                             (Array
@@ -251,7 +251,7 @@
                                     )
                                     (Assignment
                                         (ArrayItem
-                                            (Var 232 y)
+                                            (Var 230 y)
                                             [(()
                                             (IntegerConstant 0 (Integer 4))
                                             ())]
@@ -311,7 +311,7 @@
                                     )
                                     (Assignment
                                         (ArrayItem
-                                            (Var 232 y)
+                                            (Var 230 y)
                                             [(()
                                             (IntegerConstant 1 (Integer 4))
                                             ())]
@@ -373,7 +373,7 @@
                                         2 verify
                                         ()
                                         [((ArrayPhysicalCast
-                                            (Var 232 y)
+                                            (Var 230 y)
                                             FixedSizeArray
                                             DescriptorArray
                                             (Array
@@ -402,7 +402,7 @@
                                         2 update_1
                                         ()
                                         [((ArrayItem
-                                            (Var 232 y)
+                                            (Var 230 y)
                                             [(()
                                             (IntegerConstant 0 (Integer 4))
                                             ())]
@@ -418,7 +418,7 @@
                                         2 update_2
                                         ()
                                         [((ArrayPhysicalCast
-                                            (Var 232 y)
+                                            (Var 230 y)
                                             FixedSizeArray
                                             DescriptorArray
                                             (Array
@@ -437,7 +437,7 @@
                                         2 verify
                                         ()
                                         [((ArrayPhysicalCast
-                                            (Var 232 y)
+                                            (Var 230 y)
                                             FixedSizeArray
                                             DescriptorArray
                                             (Array
@@ -471,11 +471,11 @@
                             update_1:
                                 (Function
                                     (SymbolTable
-                                        230
+                                        228
                                         {
                                             s:
                                                 (Variable
-                                                    230
+                                                    228
                                                     s
                                                     []
                                                     InOut
@@ -510,11 +510,11 @@
                                         .false.
                                     )
                                     []
-                                    [(Var 230 s)]
+                                    [(Var 228 s)]
                                     [(Assignment
                                         (StructInstanceMember
-                                            (Var 230 s)
-                                            228 x
+                                            (Var 228 s)
+                                            226 x
                                             (Integer 4)
                                             ()
                                         )
@@ -523,8 +523,8 @@
                                     )
                                     (Assignment
                                         (StructInstanceMember
-                                            (Var 230 s)
-                                            228 y
+                                            (Var 228 s)
+                                            226 y
                                             (Real 8)
                                             ()
                                         )
@@ -536,8 +536,8 @@
                                     )
                                     (Assignment
                                         (StructInstanceMember
-                                            (Var 230 s)
-                                            228 z
+                                            (Var 228 s)
+                                            226 z
                                             (Integer 8)
                                             ()
                                         )
@@ -551,8 +551,8 @@
                                     )
                                     (Assignment
                                         (StructInstanceMember
-                                            (Var 230 s)
-                                            228 a
+                                            (Var 228 s)
+                                            226 a
                                             (Real 4)
                                             ()
                                         )
@@ -572,8 +572,8 @@
                                     )
                                     (Assignment
                                         (StructInstanceMember
-                                            (Var 230 s)
-                                            228 b
+                                            (Var 228 s)
+                                            226 b
                                             (Integer 2)
                                             ()
                                         )
@@ -587,8 +587,8 @@
                                     )
                                     (Assignment
                                         (StructInstanceMember
-                                            (Var 230 s)
-                                            228 c
+                                            (Var 228 s)
+                                            226 c
                                             (Integer 1)
                                             ()
                                         )
@@ -609,11 +609,11 @@
                             update_2:
                                 (Function
                                     (SymbolTable
-                                        231
+                                        229
                                         {
                                             s:
                                                 (Variable
-                                                    231
+                                                    229
                                                     s
                                                     []
                                                     InOut
@@ -658,11 +658,11 @@
                                         .false.
                                     )
                                     []
-                                    [(Var 231 s)]
+                                    [(Var 229 s)]
                                     [(Assignment
                                         (StructInstanceMember
                                             (ArrayItem
-                                                (Var 231 s)
+                                                (Var 229 s)
                                                 [(()
                                                 (IntegerConstant 1 (Integer 4))
                                                 ())]
@@ -672,7 +672,7 @@
                                                 RowMajor
                                                 ()
                                             )
-                                            228 x
+                                            226 x
                                             (Integer 4)
                                             ()
                                         )
@@ -682,7 +682,7 @@
                                     (Assignment
                                         (StructInstanceMember
                                             (ArrayItem
-                                                (Var 231 s)
+                                                (Var 229 s)
                                                 [(()
                                                 (IntegerConstant 1 (Integer 4))
                                                 ())]
@@ -692,7 +692,7 @@
                                                 RowMajor
                                                 ()
                                             )
-                                            228 y
+                                            226 y
                                             (Real 8)
                                             ()
                                         )
@@ -705,7 +705,7 @@
                                     (Assignment
                                         (StructInstanceMember
                                             (ArrayItem
-                                                (Var 231 s)
+                                                (Var 229 s)
                                                 [(()
                                                 (IntegerConstant 1 (Integer 4))
                                                 ())]
@@ -715,7 +715,7 @@
                                                 RowMajor
                                                 ()
                                             )
-                                            228 z
+                                            226 z
                                             (Integer 8)
                                             ()
                                         )
@@ -730,7 +730,7 @@
                                     (Assignment
                                         (StructInstanceMember
                                             (ArrayItem
-                                                (Var 231 s)
+                                                (Var 229 s)
                                                 [(()
                                                 (IntegerConstant 1 (Integer 4))
                                                 ())]
@@ -740,7 +740,7 @@
                                                 RowMajor
                                                 ()
                                             )
-                                            228 a
+                                            226 a
                                             (Real 4)
                                             ()
                                         )
@@ -761,7 +761,7 @@
                                     (Assignment
                                         (StructInstanceMember
                                             (ArrayItem
-                                                (Var 231 s)
+                                                (Var 229 s)
                                                 [(()
                                                 (IntegerConstant 1 (Integer 4))
                                                 ())]
@@ -771,7 +771,7 @@
                                                 RowMajor
                                                 ()
                                             )
-                                            228 b
+                                            226 b
                                             (Integer 2)
                                             ()
                                         )
@@ -786,7 +786,7 @@
                                     (Assignment
                                         (StructInstanceMember
                                             (ArrayItem
-                                                (Var 231 s)
+                                                (Var 229 s)
                                                 [(()
                                                 (IntegerConstant 1 (Integer 4))
                                                 ())]
@@ -796,7 +796,7 @@
                                                 RowMajor
                                                 ()
                                             )
-                                            228 c
+                                            226 c
                                             (Integer 1)
                                             ()
                                         )
@@ -817,11 +817,11 @@
                             verify:
                                 (Function
                                     (SymbolTable
-                                        229
+                                        227
                                         {
                                             eps:
                                                 (Variable
-                                                    229
+                                                    227
                                                     eps
                                                     []
                                                     Local
@@ -837,7 +837,7 @@
                                                 ),
                                             s:
                                                 (Variable
-                                                    229
+                                                    227
                                                     s
                                                     []
                                                     InOut
@@ -860,7 +860,7 @@
                                                 ),
                                             s0:
                                                 (Variable
-                                                    229
+                                                    227
                                                     s0
                                                     []
                                                     Local
@@ -878,7 +878,7 @@
                                                 ),
                                             s1:
                                                 (Variable
-                                                    229
+                                                    227
                                                     s1
                                                     []
                                                     Local
@@ -896,7 +896,7 @@
                                                 ),
                                             x1:
                                                 (Variable
-                                                    229
+                                                    227
                                                     x1
                                                     []
                                                     In
@@ -912,7 +912,7 @@
                                                 ),
                                             x2:
                                                 (Variable
-                                                    229
+                                                    227
                                                     x2
                                                     []
                                                     In
@@ -928,7 +928,7 @@
                                                 ),
                                             y1:
                                                 (Variable
-                                                    229
+                                                    227
                                                     y1
                                                     []
                                                     In
@@ -944,7 +944,7 @@
                                                 ),
                                             y2:
                                                 (Variable
-                                                    229
+                                                    227
                                                     y2
                                                     []
                                                     In
@@ -986,13 +986,13 @@
                                         .false.
                                     )
                                     []
-                                    [(Var 229 s)
-                                    (Var 229 x1)
-                                    (Var 229 y1)
-                                    (Var 229 x2)
-                                    (Var 229 y2)]
+                                    [(Var 227 s)
+                                    (Var 227 x1)
+                                    (Var 227 y1)
+                                    (Var 227 x2)
+                                    (Var 227 y2)]
                                     [(Assignment
-                                        (Var 229 eps)
+                                        (Var 227 eps)
                                         (RealConstant
                                             0.000000
                                             (Real 8)
@@ -1000,9 +1000,9 @@
                                         ()
                                     )
                                     (Assignment
-                                        (Var 229 s0)
+                                        (Var 227 s0)
                                         (ArrayItem
-                                            (Var 229 s)
+                                            (Var 227 s)
                                             [(()
                                             (IntegerConstant 0 (Integer 4))
                                             ())]
@@ -1016,44 +1016,44 @@
                                     )
                                     (Print
                                         [(StructInstanceMember
-                                            (Var 229 s0)
-                                            228 x
+                                            (Var 227 s0)
+                                            226 x
                                             (Integer 4)
                                             ()
                                         )
                                         (StructInstanceMember
-                                            (Var 229 s0)
-                                            228 y
+                                            (Var 227 s0)
+                                            226 y
                                             (Real 8)
                                             ()
                                         )
                                         (StructInstanceMember
-                                            (Var 229 s0)
-                                            228 z
+                                            (Var 227 s0)
+                                            226 z
                                             (Integer 8)
                                             ()
                                         )
                                         (StructInstanceMember
-                                            (Var 229 s0)
-                                            228 a
+                                            (Var 227 s0)
+                                            226 a
                                             (Real 4)
                                             ()
                                         )
                                         (StructInstanceMember
-                                            (Var 229 s0)
-                                            228 b
+                                            (Var 227 s0)
+                                            226 b
                                             (Integer 2)
                                             ()
                                         )
                                         (StructInstanceMember
-                                            (Var 229 s0)
-                                            228 c
+                                            (Var 227 s0)
+                                            226 c
                                             (Integer 1)
                                             ()
                                         )
                                         (StructInstanceMember
-                                            (Var 229 s0)
-                                            228 d
+                                            (Var 227 s0)
+                                            226 d
                                             (Logical 4)
                                             ()
                                         )]
@@ -1063,13 +1063,13 @@
                                     (Assert
                                         (IntegerCompare
                                             (StructInstanceMember
-                                                (Var 229 s0)
-                                                228 x
+                                                (Var 227 s0)
+                                                226 x
                                                 (Integer 4)
                                                 ()
                                             )
                                             Eq
-                                            (Var 229 x1)
+                                            (Var 227 x1)
                                             (Logical 4)
                                             ()
                                         )
@@ -1081,13 +1081,13 @@
                                                 Abs
                                                 [(RealBinOp
                                                     (StructInstanceMember
-                                                        (Var 229 s0)
-                                                        228 y
+                                                        (Var 227 s0)
+                                                        226 y
                                                         (Real 8)
                                                         ()
                                                     )
                                                     Sub
-                                                    (Var 229 y1)
+                                                    (Var 227 y1)
                                                     (Real 8)
                                                     ()
                                                 )]
@@ -1096,7 +1096,7 @@
                                                 ()
                                             )
                                             Lt
-                                            (Var 229 eps)
+                                            (Var 227 eps)
                                             (Logical 4)
                                             ()
                                         )
@@ -1105,14 +1105,14 @@
                                     (Assert
                                         (IntegerCompare
                                             (StructInstanceMember
-                                                (Var 229 s0)
-                                                228 z
+                                                (Var 227 s0)
+                                                226 z
                                                 (Integer 8)
                                                 ()
                                             )
                                             Eq
                                             (Cast
-                                                (Var 229 x1)
+                                                (Var 227 x1)
                                                 IntegerToInteger
                                                 (Integer 8)
                                                 ()
@@ -1128,14 +1128,14 @@
                                                 Abs
                                                 [(RealBinOp
                                                     (StructInstanceMember
-                                                        (Var 229 s0)
-                                                        228 a
+                                                        (Var 227 s0)
+                                                        226 a
                                                         (Real 4)
                                                         ()
                                                     )
                                                     Sub
                                                     (Cast
-                                                        (Var 229 y1)
+                                                        (Var 227 y1)
                                                         RealToReal
                                                         (Real 4)
                                                         ()
@@ -1168,14 +1168,14 @@
                                     (Assert
                                         (IntegerCompare
                                             (StructInstanceMember
-                                                (Var 229 s0)
-                                                228 b
+                                                (Var 227 s0)
+                                                226 b
                                                 (Integer 2)
                                                 ()
                                             )
                                             Eq
                                             (Cast
-                                                (Var 229 x1)
+                                                (Var 227 x1)
                                                 IntegerToInteger
                                                 (Integer 2)
                                                 ()
@@ -1188,14 +1188,14 @@
                                     (Assert
                                         (IntegerCompare
                                             (StructInstanceMember
-                                                (Var 229 s0)
-                                                228 c
+                                                (Var 227 s0)
+                                                226 c
                                                 (Integer 1)
                                                 ()
                                             )
                                             Eq
                                             (Cast
-                                                (Var 229 x1)
+                                                (Var 227 x1)
                                                 IntegerToInteger
                                                 (Integer 1)
                                                 ()
@@ -1207,17 +1207,17 @@
                                     )
                                     (Assert
                                         (StructInstanceMember
-                                            (Var 229 s0)
-                                            228 d
+                                            (Var 227 s0)
+                                            226 d
                                             (Logical 4)
                                             ()
                                         )
                                         ()
                                     )
                                     (Assignment
-                                        (Var 229 s1)
+                                        (Var 227 s1)
                                         (ArrayItem
-                                            (Var 229 s)
+                                            (Var 227 s)
                                             [(()
                                             (IntegerConstant 1 (Integer 4))
                                             ())]
@@ -1231,44 +1231,44 @@
                                     )
                                     (Print
                                         [(StructInstanceMember
-                                            (Var 229 s1)
-                                            228 x
+                                            (Var 227 s1)
+                                            226 x
                                             (Integer 4)
                                             ()
                                         )
                                         (StructInstanceMember
-                                            (Var 229 s1)
-                                            228 y
+                                            (Var 227 s1)
+                                            226 y
                                             (Real 8)
                                             ()
                                         )
                                         (StructInstanceMember
-                                            (Var 229 s1)
-                                            228 z
+                                            (Var 227 s1)
+                                            226 z
                                             (Integer 8)
                                             ()
                                         )
                                         (StructInstanceMember
-                                            (Var 229 s1)
-                                            228 a
+                                            (Var 227 s1)
+                                            226 a
                                             (Real 4)
                                             ()
                                         )
                                         (StructInstanceMember
-                                            (Var 229 s1)
-                                            228 b
+                                            (Var 227 s1)
+                                            226 b
                                             (Integer 2)
                                             ()
                                         )
                                         (StructInstanceMember
-                                            (Var 229 s1)
-                                            228 c
+                                            (Var 227 s1)
+                                            226 c
                                             (Integer 1)
                                             ()
                                         )
                                         (StructInstanceMember
-                                            (Var 229 s1)
-                                            228 d
+                                            (Var 227 s1)
+                                            226 d
                                             (Logical 4)
                                             ()
                                         )]
@@ -1278,13 +1278,13 @@
                                     (Assert
                                         (IntegerCompare
                                             (StructInstanceMember
-                                                (Var 229 s1)
-                                                228 x
+                                                (Var 227 s1)
+                                                226 x
                                                 (Integer 4)
                                                 ()
                                             )
                                             Eq
-                                            (Var 229 x2)
+                                            (Var 227 x2)
                                             (Logical 4)
                                             ()
                                         )
@@ -1296,13 +1296,13 @@
                                                 Abs
                                                 [(RealBinOp
                                                     (StructInstanceMember
-                                                        (Var 229 s1)
-                                                        228 y
+                                                        (Var 227 s1)
+                                                        226 y
                                                         (Real 8)
                                                         ()
                                                     )
                                                     Sub
-                                                    (Var 229 y2)
+                                                    (Var 227 y2)
                                                     (Real 8)
                                                     ()
                                                 )]
@@ -1311,7 +1311,7 @@
                                                 ()
                                             )
                                             Lt
-                                            (Var 229 eps)
+                                            (Var 227 eps)
                                             (Logical 4)
                                             ()
                                         )
@@ -1320,14 +1320,14 @@
                                     (Assert
                                         (IntegerCompare
                                             (StructInstanceMember
-                                                (Var 229 s1)
-                                                228 z
+                                                (Var 227 s1)
+                                                226 z
                                                 (Integer 8)
                                                 ()
                                             )
                                             Eq
                                             (Cast
-                                                (Var 229 x2)
+                                                (Var 227 x2)
                                                 IntegerToInteger
                                                 (Integer 8)
                                                 ()
@@ -1343,14 +1343,14 @@
                                                 Abs
                                                 [(RealBinOp
                                                     (StructInstanceMember
-                                                        (Var 229 s1)
-                                                        228 a
+                                                        (Var 227 s1)
+                                                        226 a
                                                         (Real 4)
                                                         ()
                                                     )
                                                     Sub
                                                     (Cast
-                                                        (Var 229 y2)
+                                                        (Var 227 y2)
                                                         RealToReal
                                                         (Real 4)
                                                         ()
@@ -1383,14 +1383,14 @@
                                     (Assert
                                         (IntegerCompare
                                             (StructInstanceMember
-                                                (Var 229 s1)
-                                                228 b
+                                                (Var 227 s1)
+                                                226 b
                                                 (Integer 2)
                                                 ()
                                             )
                                             Eq
                                             (Cast
-                                                (Var 229 x2)
+                                                (Var 227 x2)
                                                 IntegerToInteger
                                                 (Integer 2)
                                                 ()
@@ -1403,14 +1403,14 @@
                                     (Assert
                                         (IntegerCompare
                                             (StructInstanceMember
-                                                (Var 229 s1)
-                                                228 c
+                                                (Var 227 s1)
+                                                226 c
                                                 (Integer 1)
                                                 ()
                                             )
                                             Eq
                                             (Cast
-                                                (Var 229 x2)
+                                                (Var 227 x2)
                                                 IntegerToInteger
                                                 (Integer 1)
                                                 ()
@@ -1422,8 +1422,8 @@
                                     )
                                     (Assert
                                         (StructInstanceMember
-                                            (Var 229 s1)
-                                            228 d
+                                            (Var 227 s1)
+                                            226 d
                                             (Logical 4)
                                             ()
                                         )
@@ -1446,11 +1446,11 @@
             main_program:
                 (Program
                     (SymbolTable
-                        235
+                        233
                         {
                             __main__global_stmts:
                                 (ExternalSymbol
-                                    235
+                                    233
                                     __main__global_stmts
                                     2 __main__global_stmts
                                     __main__
@@ -1462,7 +1462,7 @@
                     main_program
                     [__main__]
                     [(SubroutineCall
-                        235 __main__global_stmts
+                        233 __main__global_stmts
                         2 __main__global_stmts
                         []
                         ()
