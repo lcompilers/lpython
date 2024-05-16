@@ -420,6 +420,11 @@ public:
     }
 
     void visit_Function(const Function_t &x) {
+        ASR::FunctionType_t* v_func_type = ASR::down_cast<ASR::FunctionType_t>(x.m_function_signature);
+        if (v_func_type->m_abi == abiType::Interactive) {
+            // This function would have been verified in the previous interactive pass
+            return;
+        }
         std::vector<std::string> function_dependencies_copy = function_dependencies;
         function_dependencies.clear();
         function_dependencies.reserve(x.n_dependencies);
