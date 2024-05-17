@@ -143,12 +143,36 @@
                                     [(Assignment
                                         (Var 3 x)
                                         (DictConstant
+                                            []
+                                            []
+                                            (Dict
+                                                (Integer 4)
+                                                (Integer 4)
+                                            )
+                                        )
+                                        ()
+                                    )
+                                    (Assignment
+                                        (Var 3 x)
+                                        (DictConstant
                                             [(IntegerConstant 1 (Integer 4))
                                             (IntegerConstant 3 (Integer 4))]
                                             [(IntegerConstant 2 (Integer 4))
                                             (IntegerConstant 4 (Integer 4))]
                                             (Dict
                                                 (Integer 4)
+                                                (Integer 4)
+                                            )
+                                        )
+                                        ()
+                                    )
+                                    (Assignment
+                                        (Var 3 y)
+                                        (DictConstant
+                                            []
+                                            []
+                                            (Dict
+                                                (Character 1 -2 ())
                                                 (Integer 4)
                                             )
                                         )
@@ -288,6 +312,18 @@
                                     [(Assignment
                                         (Var 5 y)
                                         (DictConstant
+                                            []
+                                            []
+                                            (Dict
+                                                (Character 1 -2 ())
+                                                (Integer 4)
+                                            )
+                                        )
+                                        ()
+                                    )
+                                    (Assignment
+                                        (Var 5 y)
+                                        (DictConstant
                                             [(StringConstant
                                                 "a"
                                                 (Character 1 1 ())
@@ -390,6 +426,18 @@
                                     []
                                     []
                                     [(Assignment
+                                        (Var 4 y)
+                                        (DictConstant
+                                            []
+                                            []
+                                            (Dict
+                                                (Character 1 -2 ())
+                                                (Integer 4)
+                                            )
+                                        )
+                                        ()
+                                    )
+                                    (Assignment
                                         (Var 4 y)
                                         (DictConstant
                                             [(StringConstant
@@ -496,6 +544,18 @@
                                     [(Assignment
                                         (Var 6 y)
                                         (DictConstant
+                                            []
+                                            []
+                                            (Dict
+                                                (Character 1 -2 ())
+                                                (Integer 4)
+                                            )
+                                        )
+                                        ()
+                                    )
+                                    (Assignment
+                                        (Var 6 y)
+                                        (DictConstant
                                             [(StringConstant
                                                 "a"
                                                 (Character 1 1 ())
@@ -574,7 +634,19 @@
                                     )
                                     [f]
                                     []
-                                    [(SubroutineCall
+                                    [(Assignment
+                                        (Var 8 x)
+                                        (DictConstant
+                                            []
+                                            []
+                                            (Dict
+                                                (Integer 4)
+                                                (Integer 4)
+                                            )
+                                        )
+                                        ()
+                                    )
+                                    (SubroutineCall
                                         2 f
                                         ()
                                         [((Var 8 x))]
