@@ -2,11 +2,10 @@ from lpython import i32, f64
 
 
 def test_logical_assignment():
-    # Can be uncommented after fixing the segfault
-    # _LPYTHON: str = "LPython"
-    # s_var: str = "" or _LPYTHON
-    # assert s_var == "LPython"
-    # print(s_var)
+    _LPYTHON: str = "LPython"
+    s_var: str = "" or _LPYTHON
+    assert s_var == "LPython"
+    print(s_var)
 
     _MAX_VAL: i32 = 100
     i_var: i32 = 0 and 100

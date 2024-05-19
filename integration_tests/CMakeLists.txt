@@ -765,8 +765,8 @@ RUN(NAME test_platform       LABELS cpython llvm llvm_jit c)
 RUN(NAME test_vars_01        LABELS cpython llvm llvm_jit)
 RUN(NAME test_version        LABELS cpython llvm llvm_jit)
 RUN(NAME logical_binop1      LABELS cpython llvm llvm_jit)
-RUN(NAME test_logical_compare           LABELS cpython llvm llvm_jit)
-RUN(NAME test_logical_assignment        LABELS cpython llvm llvm_jit)
+RUN(NAME test_logical_compare           LABELS cpython llvm llvm_jit) # TODO: Add C backend after fixing issue #2708
+RUN(NAME test_logical_assignment        LABELS cpython llvm llvm_jit) # TODO: Add C backend after fixing issue #2708
 RUN(NAME vec_01              LABELS cpython llvm llvm_jit c NOFAST)
 RUN(NAME test_str_comparison LABELS cpython llvm llvm_jit c wasm)
 RUN(NAME test_bit_length     LABELS cpython llvm llvm_jit c)

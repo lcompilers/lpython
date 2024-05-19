@@ -5897,7 +5897,7 @@ public:
             }
             cond = builder->CreateFCmpUEQ(left_val, zero);
         } else if (ASRUtils::is_character(*x.m_type)) {
-            zero = llvm::Constant::getNullValue(character_type);
+            zero = builder->CreateGlobalStringPtr("");
             cond = lfortran_str_cmp(left_val, zero, "_lpython_str_compare_eq");
         } else if (ASRUtils::is_logical(*x.m_type)) {
             zero = llvm::ConstantInt::get(context,
