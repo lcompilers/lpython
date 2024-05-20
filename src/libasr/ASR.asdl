@@ -40,6 +40,7 @@ stmt
     | ErrorStop(expr? code)
     | Exit(identifier? stmt_name)
     | ForAllSingle(do_loop_head head, stmt assign_stmt)
+    | ForEach(expr var, expr container, stmt* body)
     | GoTo(int target_id, identifier name)
     | GoToTarget(int id, identifier name)
     | If(expr test, stmt* body, stmt* orelse)
