@@ -108,4 +108,16 @@ def test_symbolic_operations():
     assert(b.is_positive == False)
     assert(c.is_positive == False)
 
+    # logical binop check
+    l1: bool = True and p.func == Pow
+    l2: bool = False or p.func == Pow
+    l3: bool = False and u.func == Mul
+    l4: bool = True or u.func == Add
+    if p.func == Pow and u.func == Mul:
+        print(True)
+    assert(l1)
+    assert(l2)
+    assert(not l3)
+    assert(l4)
+
 test_symbolic_operations()
