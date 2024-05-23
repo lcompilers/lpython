@@ -645,6 +645,10 @@ namespace LCompilers {
             void set_is_dict_present(bool value);
 
             virtual
+            llvm::Value *is_key_present(llvm::Value *dict, llvm::Value *key,
+                ASR::Dict_t *dict_type, llvm::Module &module) = 0;
+
+            virtual
             void get_elements_list(llvm::Value* dict,
                 llvm::Value* elements_list, ASR::ttype_t* key_asr_type,
                 ASR::ttype_t* value_asr_type, llvm::Module& module,
@@ -738,6 +742,9 @@ namespace LCompilers {
 
             llvm::Value* len(llvm::Value* dict);
 
+            llvm::Value *is_key_present(llvm::Value *dict, llvm::Value *key,
+                ASR::Dict_t *dict_type, llvm::Module &module);
+
             void get_elements_list(llvm::Value* dict,
                 llvm::Value* elements_list, ASR::ttype_t* key_asr_type,
                 ASR::ttype_t* value_asr_type, llvm::Module& module,
@@ -778,6 +785,9 @@ namespace LCompilers {
                                                     llvm::Value* key, llvm::Module& module,
                                                     ASR::ttype_t* key_asr_type, ASR::ttype_t* value_asr_type,
                                                     llvm::Value *def_value);
+
+            llvm::Value *is_key_present(llvm::Value *dict, llvm::Value *key,
+                ASR::Dict_t *dict_type, llvm::Module &module);
 
             virtual ~LLVMDictOptimizedLinearProbing();
 
@@ -886,6 +896,9 @@ namespace LCompilers {
 
             llvm::Value* len(llvm::Value* dict);
 
+            llvm::Value *is_key_present(llvm::Value *dict, llvm::Value *key,
+                ASR::Dict_t *dict_type, llvm::Module &module);
+
             void get_elements_list(llvm::Value* dict,
                 llvm::Value* elements_list, ASR::ttype_t* key_asr_type,
                 ASR::ttype_t* value_asr_type, llvm::Module& module,
@@ -981,6 +994,11 @@ namespace LCompilers {
                 std::map<std::string, std::map<std::string, int>>& name2memidx) = 0;
 
             virtual
+            llvm::Value *is_el_present(
+                llvm::Value *set, llvm::Value *el,
+                llvm::Module &module, ASR::ttype_t *el_asr_type) = 0;
+
+            virtual
             llvm::Value* len(llvm::Value* set);
 
             virtual
@@ -1048,6 +1066,10 @@ namespace LCompilers {
                 llvm::Value* src, llvm::Value* dest,
                 ASR::Set_t* set_type, llvm::Module* module,
                 std::map<std::string, std::map<std::string, int>>& name2memidx);
+
+            llvm::Value *is_el_present(
+                llvm::Value *set, llvm::Value *el,
+                llvm::Module &module, ASR::ttype_t *el_asr_type);
 
             ~LLVMSetLinearProbing();
     };
@@ -1129,6 +1151,10 @@ namespace LCompilers {
                 llvm::Value* src, llvm::Value* dest,
                 ASR::Set_t* set_type, llvm::Module* module,
                 std::map<std::string, std::map<std::string, int>>& name2memidx);
+
+            llvm::Value *is_el_present(
+                llvm::Value *set, llvm::Value *el,
+                llvm::Module &module, ASR::ttype_t *el_asr_type);
 
             ~LLVMSetSeparateChaining();
     };

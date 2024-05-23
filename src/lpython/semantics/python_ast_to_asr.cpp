@@ -6575,6 +6575,130 @@ public:
         }
     }
 
+    void visit_Membership(const AST::Membership_t &x) {
+        this->visit_expr(*x.m_left);
+        ASR::expr_t *left = ASRUtils::EXPR(tmp);
+        this->visit_expr(*x.m_right);
+        ASR::expr_t *right = ASRUtils::EXPR(tmp);
+
+        ASR::ttype_t *left_type = ASRUtils::expr_type(left);
+        ASR::ttype_t *right_type = ASRUtils::expr_type(right);
+
+        ASR::expr_t *value = nullptr;
+        ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_Logical_t(
+                      al, x.base.base.loc, 4)); 
+        if (ASR::is_a<ASR::List_t>(*right_type)) {
+            ASR::ttype_t *contained_type = ASRUtils::get_contained_type(right_type);              
+            if (!ASRUtils::check_equal_type(left_type, contained_type)) {
+                std::string ltype = ASRUtils::type_to_str_python(ASRUtils::expr_type(left));
+                std::string rtype = ASRUtils::type_to_str_python(ASRUtils::expr_type(right));
+                diag.add(diag::Diagnostic(
+                    "Type mismatch in comparison operator, the types must be compatible",
+                    diag::Level::Error, diag::Stage::Semantic, {
+                        diag::Label("type mismatch ('" + ltype + "' and '" + rtype + "')",
+                                {left->base.loc, right->base.loc})
+                    })
+                );
+                throw SemanticAbort();
+            }
+
+            tmp = ASR::make_ListContains_t(al, x.base.base.loc, left, right, type, value);
+        } else if (ASRUtils::is_character(*right_type)) {
+            if (!ASRUtils::check_equal_type(left_type, right_type)) {
+                std::string ltype = ASRUtils::type_to_str_python(ASRUtils::expr_type(left));
+                std::string rtype = ASRUtils::type_to_str_python(ASRUtils::expr_type(right));
+                diag.add(diag::Diagnostic(
+                    "Type mismatch in comparison operator, the types must be compatible",
+                    diag::Level::Error, diag::Stage::Semantic, {
+                        diag::Label("type mismatch ('" + ltype + "' and '" + rtype + "')",
+                                {left->base.loc, right->base.loc})
+                    })
+                );
+                throw SemanticAbort();
+            }
+            if (ASRUtils::expr_value(left) != nullptr && ASRUtils::expr_value(right) != nullptr) {
+                char* left_value = ASR::down_cast<ASR::StringConstant_t>(
+                                        ASRUtils::expr_value(left))->m_s;
+                char* right_value = ASR::down_cast<ASR::StringConstant_t>(
+                                        ASRUtils::expr_value(right))->m_s;
+                std::string left_str = std::string(left_value);
+                std::string right_str = std::string(right_value);
+
+                bool result = right_str.find(left_str) != std::string::npos;
+
+                //switch (asr_op) {
+                  //case (ASR::membershipopType::In) : {
+                        //break;
+                    //}
+                  //case (ASR::membershipopType::NotIn) : {
+                      //result = !result;
+                      //break;
+                    //}
+                  //default : {
+                      //throw SemanticError("ICE: Unknown membership operator", x.base.base.loc);
+                    //}
+                //}
+                value = ASR::down_cast<ASR::expr_t>(ASR::make_LogicalConstant_t(
+                      al, x.base.base.loc, result, type));
+            } 
+            tmp = make_StringContains_t(al, x.base.base.loc, left, right, type, value);
+        } else if (ASR::is_a<ASR::Tuple_t>(*right_type)) {
+            ASR::ttype_t *contained_type = ASRUtils::get_contained_type(right_type);              
+            if (!ASRUtils::check_equal_type(left_type, contained_type)) {
+                std::string ltype = ASRUtils::type_to_str_python(ASRUtils::expr_type(left));
+                std::string rtype = ASRUtils::type_to_str_python(ASRUtils::expr_type(right));
+                diag.add(diag::Diagnostic(
+                    "Type mismatch in comparison operator, the types must be compatible",
+                    diag::Level::Error, diag::Stage::Semantic, {
+                        diag::Label("type mismatch ('" + ltype + "' and '" + rtype + "')",
+                                {left->base.loc, right->base.loc})
+                    })
+                );
+                throw SemanticAbort();
+            }
+
+            tmp = ASR::make_TupleContains_t(al, x.base.base.loc, left, right, type, value);
+        } else if (ASR::is_a<ASR::Set_t>(*right_type)) {
+            ASR::ttype_t *contained_type = ASRUtils::get_contained_type(right_type);              
+            if (!ASRUtils::check_equal_type(left_type, contained_type)) {
+                std::string ltype = ASRUtils::type_to_str_python(ASRUtils::expr_type(left));
+                std::string rtype = ASRUtils::type_to_str_python(ASRUtils::expr_type(right));
+                diag.add(diag::Diagnostic(
+                    "Type mismatch in comparison operator, the types must be compatible",
+                    diag::Level::Error, diag::Stage::Semantic, {
+                        diag::Label("type mismatch ('" + ltype + "' and '" + rtype + "')",
+                                {left->base.loc, right->base.loc})
+                    })
+                );
+                throw SemanticAbort();
+            }
+
+            tmp = ASR::make_SetContains_t(al, x.base.base.loc, left, right, type, value);
+        } else if (ASR::is_a<ASR::Dict_t>(*right_type)) {
+            ASR::ttype_t *contained_type = ASRUtils::get_contained_type(right_type);              
+            if (!ASRUtils::check_equal_type(left_type, contained_type)) {
+                std::string ltype = ASRUtils::type_to_str_python(ASRUtils::expr_type(left));
+                std::string rtype = ASRUtils::type_to_str_python(ASRUtils::expr_type(right));
+                diag.add(diag::Diagnostic(
+                    "Type mismatch in comparison operator, the types must be compatible",
+                    diag::Level::Error, diag::Stage::Semantic, {
+                        diag::Label("type mismatch ('" + ltype + "' and '" + rtype + "')",
+                                {left->base.loc, right->base.loc})
+                    })
+                );
+                throw SemanticAbort();
+            }
+
+            tmp = ASR::make_DictContains_t(al, x.base.base.loc, left, right, type, value);
+        } else {
+            throw SemanticError("Membership operator is only defined for strings, lists, tuples, sets and dictionaries.", x.base.base.loc);
+        }
+
+        if (x.m_op == AST::membershipopType::NotIn) {
+            tmp = ASR::make_LogicalNot_t(al, x.base.base.loc, ASRUtils::EXPR(tmp), type, nullptr);
+        }
+    }
+
     void visit_ConstantEllipsis(const AST::ConstantEllipsis_t &/*x*/) {
         tmp = nullptr;
     }

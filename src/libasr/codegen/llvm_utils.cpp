@@ -4359,6 +4359,128 @@ namespace LCompilers {
         llvm_utils->start_new_block(loopend);
     }
 
+    llvm::Value *LLVMDict::is_key_present(llvm::Value *dict, llvm::Value *key,
+        ASR::Dict_t *dict_type, llvm::Module &module) {
+        llvm::Value *capacity = LLVM::CreateLoad(*builder, get_pointer_to_capacity(dict));
+        llvm::Value *key_hash = get_key_hash(capacity, key, dict_type->m_key_type, module);
+        llvm::Value *key_mask = LLVM::CreateLoad(*builder, get_pointer_to_keymask(dict));
+        llvm::Value *key_list = get_key_list(dict);
+
+        this->resolve_collision(capacity, key_hash, key, key_list, key_mask, module, dict_type->m_key_type, true);
+        llvm::Value *pos = LLVM::CreateLoad(*builder, pos_ptr);
+        llvm::Value* is_key_matching = llvm_utils->is_equal_by_value(key,
+            llvm_utils->list_api->read_item(key_list, pos, false, module,
+                LLVM::is_llvm_struct(dict_type->m_key_type)), module, dict_type->m_key_type);
+
+        return is_key_matching;
+    }
+  
+    llvm::Value *LLVMDictOptimizedLinearProbing::is_key_present(llvm::Value *dict, llvm::Value *key,
+        ASR::Dict_t *dict_type, llvm::Module &module) {
+        /**
+         * C++ equivalent:
+         *
+         * key_mask_value = key_mask[key_hash];
+         * is_prob_not_needed = key_mask_value == 1;
+         * if( is_prob_not_needed ) {
+         *     is_key_matching = key == key_list[key_hash];
+         *     if( is_key_matching ) {
+         *         pos = key_hash;
+         *     }
+         *     else {
+         *         return is_key_matching;
+         *     }
+         * }
+         * else {
+         *     resolve_collision(key, for_read=true);  // modifies pos
+         * }
+         *
+         * is_key_matching = key == key_list[pos];
+         * return is_key_matching;
+         */
+
+        llvm::Value* key_list = get_key_list(dict);
+        llvm::Value* capacity = LLVM::CreateLoad(*builder, get_pointer_to_capacity(dict));
+        llvm::Value *key_hash = get_key_hash(capacity, key, dict_type->m_key_type, module);
+        llvm::Value* key_mask = LLVM::CreateLoad(*builder, get_pointer_to_keymask(dict));
+        get_builder0()
+        pos_ptr = builder0.CreateAlloca(llvm::Type::getInt32Ty(context), nullptr);
+        llvm::Function *fn = builder->GetInsertBlock()->getParent();
+        llvm::BasicBlock *thenBB = llvm::BasicBlock::Create(context, "then", fn);
+        llvm::BasicBlock *elseBB = llvm::BasicBlock::Create(context, "else");
+        llvm::BasicBlock *mergeBB = llvm::BasicBlock::Create(context, "ifcont");
+        llvm::Value* key_mask_value = LLVM::CreateLoad(*builder,
+                                        llvm_utils->create_ptr_gep(key_mask, key_hash));
+        llvm::Value* is_prob_not_neeeded = builder->CreateICmpEQ(key_mask_value,
+            llvm::ConstantInt::get(llvm::Type::getInt8Ty(context), llvm::APInt(8, 1)));
+        bool to_return = false;
+        builder->CreateCondBr(is_prob_not_neeeded, thenBB, elseBB);
+        builder->SetInsertPoint(thenBB);
+        {
+            // A single by value comparison is needed even though
+            // we don't need to do linear probing. This is because
+            // the user can provide a key which is absent in the dict
+            // but is giving the same hash value as one of the keys present in the dict.
+            // In the above case we will end up returning value for a key
+            // which is not present in the dict. Instead we should return an error
+            // which is done in the below code.
+            llvm::Value* is_key_matching = llvm_utils->is_equal_by_value(key,
+                llvm_utils->list_api->read_item(key_list, key_hash, false, module,
+                    LLVM::is_llvm_struct(dict_type->m_key_type)), module, dict_type->m_key_type);
+
+            llvm_utils->create_if_else(is_key_matching, [=]() {
+                LLVM::CreateStore(*builder, key_hash, pos_ptr);
+            }, [&]() {
+                //to_return = true;
+            });
+        }
+        builder->CreateBr(mergeBB);
+        llvm_utils->start_new_block(elseBB);
+        {
+            this->resolve_collision(capacity, key_hash, key, key_list, key_mask,
+                           module, dict_type->m_key_type, true);
+        }
+        llvm_utils->start_new_block(mergeBB);
+        if (to_return) {
+            return llvm::ConstantInt::get(llvm::Type::getInt1Ty(context), 0);
+        }
+        llvm::Value* pos = LLVM::CreateLoad(*builder, pos_ptr);
+        // Check if the actual key is present or not
+        llvm::Value* is_key_matching = llvm_utils->is_equal_by_value(key,
+                llvm_utils->list_api->read_item(key_list, pos, false, module,
+                    LLVM::is_llvm_struct(dict_type->m_key_type)), module, dict_type->m_key_type);
+
+        return is_key_matching;
+    }
+
+    llvm::Value *LLVMDictSeparateChaining::is_key_present(llvm::Value *dict, llvm::Value *key,
+        ASR::Dict_t *dict_type, llvm::Module &module) {
+        llvm::Value *capacity = LLVM::CreateLoad(*builder, get_pointer_to_capacity(dict));
+        llvm::Value *key_hash = get_key_hash(capacity, key, dict_type->m_key_type, module);
+        llvm::Value *key_mask = LLVM::CreateLoad(*builder, get_pointer_to_keymask(dict));
+        llvm::Value* key_value_pairs = LLVM::CreateLoad(*builder, get_pointer_to_key_value_pairs(dict));
+        llvm::Value* key_value_pair_linked_list = llvm_utils->create_ptr_gep(key_value_pairs, key_hash);
+        llvm::Type* kv_struct_type = get_key_value_pair_type(dict_type->m_key_type, dict_type->m_value_type);
+        this->resolve_collision(capacity, key_hash, key, key_value_pair_linked_list,
+                                kv_struct_type, key_mask, module, dict_type->m_key_type);
+        std::pair<std::string, std::string> llvm_key = std::make_pair(
+            ASRUtils::get_type_code(dict_type->m_key_type),
+            ASRUtils::get_type_code(dict_type->m_value_type)
+        );
+        llvm::Type* value_type = std::get<2>(typecode2dicttype[llvm_key]).second;
+        get_builder0()
+        tmp_value_ptr = builder0.CreateAlloca(value_type, nullptr);
+        llvm::Value* key_mask_value = LLVM::CreateLoad(*builder,
+            llvm_utils->create_ptr_gep(key_mask, key_hash));
+        llvm::Value* does_kv_exists = builder->CreateICmpEQ(key_mask_value,
+            llvm::ConstantInt::get(llvm::Type::getInt8Ty(context), llvm::APInt(8, 1)));
+        does_kv_exists = builder->CreateAnd(does_kv_exists,
+            builder->CreateICmpNE(LLVM::CreateLoad(*builder, chain_itr),
+            llvm::ConstantPointerNull::get(llvm::Type::getInt8PtrTy(context)))
+        );
+        return does_kv_exists;
+    }
+  
     llvm::Value* LLVMList::read_item(llvm::Value* list, llvm::Value* pos,
                                      bool enable_bounds_checking,
                                      llvm::Module& module, bool get_pointer) {
@@ -6823,6 +6945,113 @@ namespace LCompilers {
 
         // end
         llvm_utils->start_new_block(loopend);
+    }
+
+    llvm::Value *LLVMSetLinearProbing::is_el_present(
+        llvm::Value *set, llvm::Value *el,
+        llvm::Module &module, ASR::ttype_t *el_asr_type) {
+        /**
+         * C++ equivalent:
+         *
+         * el_mask_value = el_mask[el_hash];
+         * is_prob_needed = el_mask_value == 1;
+         * if( is_prob_needed ) {
+         *     is_el_matching = el == el_list[el_hash];
+         *     if( is_el_matching ) {
+         *         pos = el_hash;
+         *     }
+         *     else {
+         *         return is_el_matching;
+         *     }
+         * }
+         * else {
+         *     resolve_collision(el, for_read=true);  // modifies pos
+         * }
+         *
+         * is_el_matching = el == el_list[pos];
+         * return is_el_matching
+         */
+
+        get_builder0()
+        llvm::Value* el_list = get_el_list(set);
+        llvm::Value* el_mask = LLVM::CreateLoad(*builder, get_pointer_to_mask(set));
+        llvm::Value* capacity = LLVM::CreateLoad(*builder, get_pointer_to_capacity(set));
+        llvm::Value *el_hash = get_el_hash(capacity, el, el_asr_type, module);
+        pos_ptr = builder0.CreateAlloca(llvm::Type::getInt32Ty(context), nullptr);
+        llvm::Function *fn = builder->GetInsertBlock()->getParent();
+        llvm::BasicBlock *thenBB = llvm::BasicBlock::Create(context, "then", fn);
+        llvm::BasicBlock *elseBB = llvm::BasicBlock::Create(context, "else");
+        llvm::BasicBlock *mergeBB = llvm::BasicBlock::Create(context, "ifcont");
+        llvm::Value* el_mask_value = LLVM::CreateLoad(*builder,
+                                        llvm_utils->create_ptr_gep(el_mask, el_hash));
+        llvm::Value* is_prob_not_needed = builder->CreateICmpEQ(el_mask_value,
+            llvm::ConstantInt::get(llvm::Type::getInt8Ty(context), llvm::APInt(8, 1)));
+        bool to_return = false;
+        builder->CreateCondBr(is_prob_not_needed, thenBB, elseBB);
+        builder->SetInsertPoint(thenBB);
+        {
+            // reasoning for this check explained in
+            // LLVMDictOptimizedLinearProbing::resolve_collision_for_read_with_bound_check
+            llvm::Value* is_el_matching = llvm_utils->is_equal_by_value(el,
+                llvm_utils->list_api->read_item(el_list, el_hash, false, module,
+                    LLVM::is_llvm_struct(el_asr_type)), module, el_asr_type);
+
+            llvm_utils->create_if_else(is_el_matching, [=]() {
+                LLVM::CreateStore(*builder, el_hash, pos_ptr);
+            }, [&]() {
+                //to_return = true; // Need to check why this is not working
+            });
+        }
+        builder->CreateBr(mergeBB);
+        llvm_utils->start_new_block(elseBB);
+        {
+            this->resolve_collision(capacity, el_hash, el, el_list, el_mask,
+                                    module, el_asr_type, true);
+        }
+        llvm_utils->start_new_block(mergeBB);
+        if (to_return) {
+            return llvm::ConstantInt::get(llvm::Type::getInt1Ty(context), 0);
+        }
+        llvm::Value* pos = LLVM::CreateLoad(*builder, pos_ptr);
+        // Check if the actual element is present or not
+        llvm::Value* is_el_matching = llvm_utils->is_equal_by_value(el,
+                llvm_utils->list_api->read_item(el_list, pos, false, module,
+                    LLVM::is_llvm_struct(el_asr_type)), module, el_asr_type);
+
+
+        return is_el_matching;
+    }
+
+    llvm::Value *LLVMSetSeparateChaining::is_el_present(
+        llvm::Value *set, llvm::Value *el,
+        llvm::Module &module, ASR::ttype_t *el_asr_type) {
+        /**
+         * C++ equivalent:
+         *
+         * resolve_collision(el);   // modified chain_itr
+         * does_el_exist = el_mask[el_hash] == 1 && chain_itr != nullptr;
+         * return does_el_exist;
+         *
+         */
+        llvm::Value* elems = LLVM::CreateLoad(*builder, get_pointer_to_elems(set));
+        llvm::Value* capacity = LLVM::CreateLoad(*builder, get_pointer_to_capacity(set));
+        llvm::Value* el_hash = get_el_hash(capacity, el, el_asr_type, module);
+        llvm::Value* el_linked_list = llvm_utils->create_ptr_gep(elems, el_hash);
+        llvm::Value* el_mask = LLVM::CreateLoad(*builder, get_pointer_to_mask(set));
+        std::string el_type_code = ASRUtils::get_type_code(el_asr_type);
+        llvm::Type* el_struct_type = typecode2elstruct[el_type_code];
+        this->resolve_collision(el_hash, el, el_linked_list,
+                                el_struct_type, el_mask, module, el_asr_type);
+        llvm::Value* el_mask_value = LLVM::CreateLoad(*builder,
+            llvm_utils->create_ptr_gep(el_mask, el_hash));
+        llvm::Value* does_el_exist = builder->CreateICmpEQ(el_mask_value,
+            llvm::ConstantInt::get(llvm::Type::getInt8Ty(context), llvm::APInt(8, 1)));
+        does_el_exist = builder->CreateAnd(does_el_exist,
+            builder->CreateICmpNE(LLVM::CreateLoad(*builder, chain_itr),
+            llvm::ConstantPointerNull::get(llvm::Type::getInt8PtrTy(context)))
+        );
+
+        return does_el_exist;
     }
 
     llvm::Value* LLVMSetInterface::len(llvm::Value* set) {

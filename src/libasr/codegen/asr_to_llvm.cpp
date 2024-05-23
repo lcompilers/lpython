@@ -1637,6 +1637,45 @@ public:
         }
     }
 
+    void visit_DictContains(const ASR::DictContains_t &x) {
+        if (x.m_value) {
+            this->visit_expr(*x.m_value);
+            return;
+        }
+
+        int64_t ptr_loads_copy = ptr_loads;
+        ptr_loads = 0;
+        this->visit_expr(*x.m_right);
+        llvm::Value *right = tmp;
+        ASR::Dict_t *dict_type = ASR::down_cast<ASR::Dict_t>(
+            ASRUtils::expr_type(x.m_right));
+        ptr_loads = !LLVM::is_llvm_struct(dict_type->m_key_type);
+        this->visit_expr(*x.m_left);
+        llvm::Value *left = tmp;
+        ptr_loads = ptr_loads_copy;
+
+        tmp = llvm_utils->dict_api->is_key_present(right, left, dict_type, *module);
+    }
+
+    void visit_SetContains(const ASR::SetContains_t &x) {
+        if (x.m_value) {
+            this->visit_expr(*x.m_value);
+            return;
+        }
+
+        int64_t ptr_loads_copy = ptr_loads;
+        ptr_loads = 0;
+        this->visit_expr(*x.m_right);
+        llvm::Value *right = tmp;
+        ASR::ttype_t *el_type = ASRUtils::expr_type(x.m_left);
+        ptr_loads = !LLVM::is_llvm_struct(el_type);
+        this->visit_expr(*x.m_left);
+        llvm::Value *left = tmp;
+        ptr_loads = ptr_loads_copy;
+
+        tmp = llvm_utils->set_api->is_el_present(right, left, *module, el_type);
+    }
+
     void visit_DictLen(const ASR::DictLen_t& x) {
         if (x.m_value) {
             this->visit_expr(*x.m_value);
