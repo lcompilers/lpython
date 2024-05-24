@@ -41,6 +41,22 @@ PythonCompiler::PythonCompiler(CompilerOptions compiler_options)
 
 PythonCompiler::~PythonCompiler() = default;
 
+Result<PythonCompiler::EvalResult> PythonCompiler::evaluate2(const std::string &code) {
+    LocationManager lm;
+    LCompilers::PassManager lpm;
+    lpm.use_default_passes();
+    {
+        LCompilers::LocationManager::FileLocations fl;
+        fl.in_filename = "input";
+        std::ofstream out("input");
+        out << code;
+        lm.files.push_back(fl);
+        lm.init_simple(code);
+        lm.file_ends.push_back(code.size());
+    }
+    diag::Diagnostics diagnostics;
+    return evaluate(code, false, lm, lpm, diagnostics);
+}
 
 Result<PythonCompiler::EvalResult> PythonCompiler::evaluate(
 #ifdef HAVE_LFORTRAN_LLVM
