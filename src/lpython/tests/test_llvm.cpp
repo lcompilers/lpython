@@ -641,7 +641,7 @@ TEST_CASE("PythonCompiler i32 expressions") {
     r = e.evaluate2("3 ** 3");
     CHECK(r.ok);
     CHECK(r.result.type == PythonCompiler::EvalResult::integer4);
-    CHECK(r.result.i64 == 27);
+    CHECK(r.result.i32 == 27);
 
     r = e.evaluate2("4 // 2");
     CHECK(r.ok);
