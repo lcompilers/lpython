@@ -6693,10 +6693,16 @@ public:
         }
         this->visit_expr(*x.m_value);
 
-        // If tmp is a statement and not an expression
-        // never cast into expression using ASRUtils::EXPR
-        // Just ignore and exit the function naturally.
-        if( tmp && !ASR::is_a<ASR::stmt_t>(*tmp) ) {
+        if (eval_count > 0) {
+            // In Interactive mode
+            if ((tmp) && (!ASR::is_a<ASR::expr_t>(*tmp))) {
+                LCOMPILERS_ASSERT(ASR::is_a<ASR::expr_t>(*tmp));
+                tmp = nullptr;
+            }
+        } else if (tmp && !ASR::is_a<ASR::stmt_t>(*tmp)) {
+            // If tmp is a statement and not an expression
+            // never cast into expression using ASRUtils::EXPR
+            // Just ignore and exit the function naturally.
             LCOMPILERS_ASSERT(ASR::is_a<ASR::expr_t>(*tmp));
             tmp = nullptr;
         }
