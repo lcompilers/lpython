@@ -6626,18 +6626,6 @@ public:
 
                 bool result = right_str.find(left_str) != std::string::npos;
 
-                //switch (asr_op) {
-                  //case (ASR::membershipopType::In) : {
-                        //break;
-                    //}
-                  //case (ASR::membershipopType::NotIn) : {
-                      //result = !result;
-                      //break;
-                    //}
-                  //default : {
-                      //throw SemanticError("ICE: Unknown membership operator", x.base.base.loc);
-                    //}
-                //}
                 value = ASR::down_cast<ASR::expr_t>(ASR::make_LogicalConstant_t(
                       al, x.base.base.loc, result, type));
             } 
