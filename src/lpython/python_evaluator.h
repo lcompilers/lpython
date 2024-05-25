@@ -55,7 +55,9 @@ public:
     Result<PythonCompiler::EvalResult> evaluate(
             const std::string &code_orig, bool verbose, LocationManager &lm,
             LCompilers::PassManager& pass_manager, diag::Diagnostics &diagnostics);
-    
+
+    Result<PythonCompiler::EvalResult> evaluate2(const std::string &code);
+
     Result<LCompilers::LPython::AST::ast_t*> get_ast2(
             const std::string &code_orig, diag::Diagnostics &diagnostics);
     

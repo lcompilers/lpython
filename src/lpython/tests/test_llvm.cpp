@@ -607,3 +607,17 @@ define float @f()
     float r = e.floatfn("f");
     CHECK(std::abs(r - 8) < 1e-6);
 }
+
+TEST_CASE("PythonCompiler 1") {
+    CompilerOptions cu;
+    cu.po.disable_main = true;
+    cu.emit_debug_line_column = false;
+    cu.generate_object_code = false;
+    cu.interactive = true;
+    cu.po.runtime_library_dir = LCompilers::LPython::get_runtime_library_dir();
+    PythonCompiler e(cu);
+    LCompilers::Result<PythonCompiler::EvalResult>
+    r = e.evaluate2("1");
+    CHECK(r.ok);
+    CHECK(r.result.type == PythonCompiler::EvalResult::none); // TODO: change to integer4 and check the value once printing top level expressions is implemented
+}
