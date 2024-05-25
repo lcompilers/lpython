@@ -608,6 +608,21 @@ define float @f()
     CHECK(std::abs(r - 8) < 1e-6);
 }
 
+TEST_CASE("PythonCompiler 1") {
+    CompilerOptions cu;
+    cu.po.disable_main = true;
+    cu.emit_debug_line_column = false;
+    cu.generate_object_code = false;
+    cu.interactive = true;
+    cu.po.runtime_library_dir = LCompilers::LPython::get_runtime_library_dir();
+    PythonCompiler e(cu);
+    LCompilers::Result<PythonCompiler::EvalResult>
+    r = e.evaluate2("1");
+    CHECK(r.ok);
+    CHECK(r.result.type == PythonCompiler::EvalResult::integer4);
+    CHECK(r.result.i32 == 1);
+}
+
 TEST_CASE("PythonCompiler i32 expressions") {
     CompilerOptions cu;
     cu.po.disable_main = true;
