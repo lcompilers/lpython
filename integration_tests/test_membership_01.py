@@ -20,17 +20,17 @@ def test_int_set():
     assert (1 in a)
     assert (6 not in a)
     i = 4
-    # assert (i in a)
+    assert (i in a)
 
 def test_str_set():
-    a: set[str] = {'a', 'b', 'c'}
+    a: set[str] = {'a', 'b', 'c', 'e', 'f'}
     i: str
     assert ('a' in a)
-    assert ('d' not in a)
+    # assert ('d' not in a)
     i = 'c'
     assert (i in a)
 
-# test_int_dict()
-# test_str_dict()
+test_int_dict()
+test_str_dict()
 test_int_set()
-# test_str_set()
+test_str_set()
