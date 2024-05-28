@@ -785,7 +785,7 @@ TEST_CASE("PythonCompiler i64 declaration") {
     CHECK(r.result.i64 == 14);
 }
 
-TEST_CASE("PythonCompiler 2") {
+TEST_CASE("PythonCompiler asr verify 1") {
     CompilerOptions cu;
     cu.po.disable_main = true;
     cu.emit_debug_line_column = false;
@@ -794,12 +794,102 @@ TEST_CASE("PythonCompiler 2") {
     cu.po.runtime_library_dir = LCompilers::LPython::get_runtime_library_dir();
     PythonCompiler e(cu);
     LCompilers::Result<PythonCompiler::EvalResult>
-    r = e.evaluate2("i: i32 = 3 % 1");
+    r = e.evaluate2("i: i32 = 3 % 2");
     CHECK(r.ok);
     CHECK(r.result.type == PythonCompiler::EvalResult::none);
     r = e.evaluate2("i");
     CHECK(r.ok);
-    CHECK(r.result.type == PythonCompiler::EvalResult::none); // TODO: change to integer4 and check the value once printing top level expressions is implemented
+    CHECK(r.result.type == PythonCompiler::EvalResult::integer4);
+    CHECK(r.result.i32 == 1);
+}
+
+TEST_CASE("PythonCompiler asr verify 2") {
+    CompilerOptions cu;
+    cu.po.disable_main = true;
+    cu.emit_debug_line_column = false;
+    cu.generate_object_code = false;
+    cu.interactive = true;
+    cu.po.runtime_library_dir = LCompilers::LPython::get_runtime_library_dir();
+    PythonCompiler e(cu);
+    LCompilers::Result<PythonCompiler::EvalResult>
+    r = e.evaluate2(R"(
+def is_even(x: i32) -> i32:
+    if x % 2 == 0:
+        return 1
+    return 0
+)");
+    CHECK(r.ok);
+    CHECK(r.result.type == PythonCompiler::EvalResult::none);
+    r = e.evaluate2("is_even(4)");
+    CHECK(r.ok);
+    CHECK(r.result.type == PythonCompiler::EvalResult::integer4);
+    CHECK(r.result.i32 == 1);
+    r = e.evaluate2("is_even(3)");
+    CHECK(r.ok);
+    CHECK(r.result.type == PythonCompiler::EvalResult::integer4);
+    CHECK(r.result.i32 == 0);
+}
+
+TEST_CASE("PythonCompiler asr verify 3") {
+    CompilerOptions cu;
+    cu.po.disable_main = true;
+    cu.emit_debug_line_column = false;
+    cu.generate_object_code = false;
+    cu.interactive = true;
+    cu.po.runtime_library_dir = LCompilers::LPython::get_runtime_library_dir();
+    PythonCompiler e(cu);
+    LCompilers::Result<PythonCompiler::EvalResult>
+    r = e.evaluate2(R"(
+def addi(x: i32, y: i32) -> i32:
+    return x + y
+)");
+    CHECK(r.ok);
+    CHECK(r.result.type == PythonCompiler::EvalResult::none);
+    r = e.evaluate2(R"(
+def subi(x: i32, y: i32) -> i32:
+    return addi(x, -y)
+)");
+    CHECK(r.ok);
+    CHECK(r.result.type == PythonCompiler::EvalResult::none);
+    r = e.evaluate2("addi(2, 3)");
+    CHECK(r.ok);
+    CHECK(r.result.type == PythonCompiler::EvalResult::integer4);
+    CHECK(r.result.i32 == 5);
+    r = e.evaluate2("subi(2, 3)");
+    CHECK(r.ok);
+    CHECK(r.result.type == PythonCompiler::EvalResult::integer4);
+    CHECK(r.result.i32 == -1);
+}
+
+TEST_CASE("PythonCompiler asr verify 4") {
+    CompilerOptions cu;
+    cu.po.disable_main = true;
+    cu.emit_debug_line_column = false;
+    cu.generate_object_code = false;
+    cu.interactive = true;
+    cu.po.runtime_library_dir = LCompilers::LPython::get_runtime_library_dir();
+    PythonCompiler e(cu);
+    LCompilers::Result<PythonCompiler::EvalResult>
+    r = e.evaluate2(R"(
+def addr(x: f64, y: f64) -> f64:
+    return x + y
+)");
+    CHECK(r.ok);
+    CHECK(r.result.type == PythonCompiler::EvalResult::none);
+    r = e.evaluate2(R"(
+def subr(x: f64, y: f64) -> f64:
+    return addr(x, -y)
+)");
+    CHECK(r.ok);
+    CHECK(r.result.type == PythonCompiler::EvalResult::none);
+    r = e.evaluate2("addr(2.5, 3.5)");
+    CHECK(r.ok);
+    CHECK(r.result.type == PythonCompiler::EvalResult::integer4);
+    CHECK(r.result.i32 == 5);
+    r = e.evaluate2("subr(2.5, 3.5)");
+    CHECK(r.ok);
+    CHECK(r.result.type == PythonCompiler::EvalResult::integer4);
+    CHECK(r.result.i32 == -1);
 }
 
 TEST_CASE("PythonCompiler u32 expressions") {
