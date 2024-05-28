@@ -884,12 +884,12 @@ def subr(x: f64, y: f64) -> f64:
     CHECK(r.result.type == PythonCompiler::EvalResult::none);
     r = e.evaluate2("addr(2.5, 3.5)");
     CHECK(r.ok);
-    CHECK(r.result.type == PythonCompiler::EvalResult::integer4);
-    CHECK(r.result.i32 == 5);
+    CHECK(r.result.type == PythonCompiler::EvalResult::real8);
+    CHECK(r.result.f64 == 6);
     r = e.evaluate2("subr(2.5, 3.5)");
     CHECK(r.ok);
-    CHECK(r.result.type == PythonCompiler::EvalResult::integer4);
-    CHECK(r.result.i32 == -1);
+    CHECK(r.result.type == PythonCompiler::EvalResult::real8);
+    CHECK(r.result.f64 == -1);
 }
 
 TEST_CASE("PythonCompiler u32 expressions") {
