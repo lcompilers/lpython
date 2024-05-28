@@ -900,6 +900,18 @@ int interactive_python_repl(
                 std::cout << r.i64 << std::endl;
                 break;
             }
+            case (LCompilers::PythonCompiler::EvalResult::unsignedInteger4) : {
+                if (verbose) std::cout << "Return type: unsigned integer" << std::endl;
+                if (verbose) section("Result:");
+                std::cout << r.u32 << std::endl;
+                break;
+            }
+            case (LCompilers::PythonCompiler::EvalResult::unsignedInteger8) : {
+                if (verbose) std::cout << "Return type: unsigned integer(8)" << std::endl;
+                if (verbose) section("Result:");
+                std::cout << r.u64 << std::endl;
+                break;
+            }
             case (LCompilers::PythonCompiler::EvalResult::real4) : {
                 if (verbose) std::cout << "Return type: real" << std::endl;
                 if (verbose) section("Result:");
