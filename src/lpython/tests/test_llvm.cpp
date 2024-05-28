@@ -810,6 +810,7 @@ TEST_CASE("PythonCompiler asr verify 2") {
     cu.generate_object_code = false;
     cu.interactive = true;
     cu.po.runtime_library_dir = LCompilers::LPython::get_runtime_library_dir();
+    std::cout << cu.po.runtime_library_dir << std::endl;
     PythonCompiler e(cu);
     LCompilers::Result<PythonCompiler::EvalResult>
     r = e.evaluate2(R"(
