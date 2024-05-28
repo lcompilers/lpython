@@ -128,13 +128,31 @@ Result<PythonCompiler::EvalResult> PythonCompiler::evaluate(
     e->add_module(std::move(m));
     if (call_run_fn) {
         if (return_type == "integer4") {
-            int32_t r = e->int32fn(run_fn);
-            result.type = EvalResult::integer4;
-            result.i32 = r;
+            ASR::symbol_t *fn = ASR::down_cast<ASR::Module_t>(symbol_table->resolve_symbol(module_name))
+                                    ->m_symtab->get_symbol(run_fn);
+            LCOMPILERS_ASSERT(fn)
+            if (ASRUtils::get_FunctionType(fn)->m_return_var_type->type == ASR::ttypeType::UnsignedInteger) {
+                uint32_t r = e->int32fn(run_fn);
+                result.type = EvalResult::unsignedInteger4;
+                result.u32 = r;
+            } else {
+                int32_t r = e->int32fn(run_fn);
+                result.type = EvalResult::integer4;
+                result.i32 = r;
+            }
         } else if (return_type == "integer8") {
-            int64_t r = e->int64fn(run_fn);
-            result.type = EvalResult::integer8;
-            result.i64 = r;
+            ASR::symbol_t *fn = ASR::down_cast<ASR::Module_t>(symbol_table->resolve_symbol(module_name))
+                                    ->m_symtab->get_symbol(run_fn);
+            LCOMPILERS_ASSERT(fn)
+            if (ASRUtils::get_FunctionType(fn)->m_return_var_type->type == ASR::ttypeType::UnsignedInteger) {
+                uint64_t r = e->int64fn(run_fn);
+                result.type = EvalResult::unsignedInteger8;
+                result.u64 = r;
+            } else {
+                int64_t r = e->int64fn(run_fn);
+                result.type = EvalResult::integer8;
+                result.i64 = r;
+            }
         } else if (return_type == "real4") {
             float r = e->floatfn(run_fn);
             result.type = EvalResult::real4;

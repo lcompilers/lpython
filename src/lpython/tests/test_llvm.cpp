@@ -784,3 +784,165 @@ TEST_CASE("PythonCompiler i64 declaration") {
     CHECK(r.result.type == PythonCompiler::EvalResult::integer8);
     CHECK(r.result.i64 == 14);
 }
+
+TEST_CASE("PythonCompiler u32 expressions") {
+    CompilerOptions cu;
+    cu.po.disable_main = true;
+    cu.emit_debug_line_column = false;
+    cu.generate_object_code = false;
+    cu.interactive = true;
+    cu.po.runtime_library_dir = LCompilers::LPython::get_runtime_library_dir();
+    PythonCompiler e(cu);
+    LCompilers::Result<PythonCompiler::EvalResult>
+
+    r = e.evaluate2("u32(1)");
+    CHECK(r.ok);
+    CHECK(r.result.type == PythonCompiler::EvalResult::unsignedInteger4);
+    CHECK(r.result.u32 == 1);
+
+    r = e.evaluate2("u32(1) + u32(2)");
+    CHECK(r.ok);
+    CHECK(r.result.type == PythonCompiler::EvalResult::unsignedInteger4);
+    CHECK(r.result.u32 == 3);
+
+    r = e.evaluate2("u32(20) - u32(10)");
+    CHECK(r.ok);
+    CHECK(r.result.type == PythonCompiler::EvalResult::unsignedInteger4);
+    CHECK(r.result.u32 == 10);
+
+    r = e.evaluate2("u32(1) * u32(2)");
+    CHECK(r.ok);
+    CHECK(r.result.type == PythonCompiler::EvalResult::unsignedInteger4);
+    CHECK(r.result.u32 == 2);
+
+    r = e.evaluate2("u32(3) ** u32(3)");
+    CHECK(r.ok);
+    CHECK(r.result.type == PythonCompiler::EvalResult::unsignedInteger4);
+    CHECK(r.result.u32 == 27);
+
+    r = e.evaluate2("u32(4) // u32(2)");
+    CHECK(r.ok);
+    CHECK(r.result.type == PythonCompiler::EvalResult::unsignedInteger4);
+    CHECK(r.result.u32 == 2);
+
+    r = e.evaluate2("u32(4) / u32(2)");
+    CHECK(r.ok);
+    CHECK(r.result.type == PythonCompiler::EvalResult::real8);
+    CHECK(r.result.f64 == 2);
+}
+
+TEST_CASE("PythonCompiler u32 declaration") {
+    CompilerOptions cu;
+    cu.po.disable_main = true;
+    cu.emit_debug_line_column = false;
+    cu.generate_object_code = false;
+    cu.interactive = true;
+    cu.po.runtime_library_dir = LCompilers::LPython::get_runtime_library_dir();
+    PythonCompiler e(cu);
+    LCompilers::Result<PythonCompiler::EvalResult>
+
+    r = e.evaluate2("i: u32");
+    CHECK(r.ok);
+    CHECK(r.result.type == PythonCompiler::EvalResult::none);
+    r = e.evaluate2("i = u32(5)");
+    CHECK(r.ok);
+    CHECK(r.result.type == PythonCompiler::EvalResult::statement);
+    r = e.evaluate2("i");
+    CHECK(r.ok);
+    CHECK(r.result.type == PythonCompiler::EvalResult::unsignedInteger4);
+    CHECK(r.result.u32 == 5);
+
+    r = e.evaluate2("j: u32 = u32(9)");
+    CHECK(r.ok);
+    CHECK(r.result.type == PythonCompiler::EvalResult::none);
+    r = e.evaluate2("j");
+    CHECK(r.ok);
+    CHECK(r.result.type == PythonCompiler::EvalResult::unsignedInteger4);
+    CHECK(r.result.u32 == 9);
+
+    r = e.evaluate2("i * j");
+    CHECK(r.ok);
+    CHECK(r.result.type == PythonCompiler::EvalResult::unsignedInteger4);
+    CHECK(r.result.u32 == 45);
+}
+
+TEST_CASE("PythonCompiler u64 expressions") {
+    CompilerOptions cu;
+    cu.po.disable_main = true;
+    cu.emit_debug_line_column = false;
+    cu.generate_object_code = false;
+    cu.interactive = true;
+    cu.po.runtime_library_dir = LCompilers::LPython::get_runtime_library_dir();
+    PythonCompiler e(cu);
+    LCompilers::Result<PythonCompiler::EvalResult>
+
+    r = e.evaluate2("u64(1)");
+    CHECK(r.ok);
+    CHECK(r.result.type == PythonCompiler::EvalResult::unsignedInteger8);
+    CHECK(r.result.u64 == 1);
+
+    r = e.evaluate2("u64(1) + u64(2)");
+    CHECK(r.ok);
+    CHECK(r.result.type == PythonCompiler::EvalResult::unsignedInteger8);
+    CHECK(r.result.u64 == 3);
+
+    r = e.evaluate2("u64(20) - u64(10)");
+    CHECK(r.ok);
+    CHECK(r.result.type == PythonCompiler::EvalResult::unsignedInteger8);
+    CHECK(r.result.u64 == 10);
+
+    r = e.evaluate2("u64(1) * u64(2)");
+    CHECK(r.ok);
+    CHECK(r.result.type == PythonCompiler::EvalResult::unsignedInteger8);
+    CHECK(r.result.u64 == 2);
+
+    r = e.evaluate2("u64(3) ** u64(3)");
+    CHECK(r.ok);
+    CHECK(r.result.type == PythonCompiler::EvalResult::unsignedInteger8);
+    CHECK(r.result.u64 == 27);
+
+    r = e.evaluate2("u64(4) // u64(2)");
+    CHECK(r.ok);
+    CHECK(r.result.type == PythonCompiler::EvalResult::unsignedInteger8);
+    CHECK(r.result.u64 == 2);
+
+    r = e.evaluate2("u64(4) / u64(2)");
+    CHECK(r.ok);
+    CHECK(r.result.type == PythonCompiler::EvalResult::real8);
+    CHECK(r.result.f64 == 2);
+}
+
+TEST_CASE("PythonCompiler u64 declaration") {
+    CompilerOptions cu;
+    cu.po.disable_main = true;
+    cu.emit_debug_line_column = false;
+    cu.generate_object_code = false;
+    cu.interactive = true;
+    cu.po.runtime_library_dir = LCompilers::LPython::get_runtime_library_dir();
+    PythonCompiler e(cu);
+    LCompilers::Result<PythonCompiler::EvalResult>
+
+    r = e.evaluate2("i: u64");
+    CHECK(r.ok);
+    CHECK(r.result.type == PythonCompiler::EvalResult::none);
+    r = e.evaluate2("i = u64(5)");
+    CHECK(r.ok);
+    CHECK(r.result.type == PythonCompiler::EvalResult::statement);
+    r = e.evaluate2("i");
+    CHECK(r.ok);
+    CHECK(r.result.type == PythonCompiler::EvalResult::unsignedInteger8);
+    CHECK(r.result.u64 == 5);
+
+    r = e.evaluate2("j: u64 = u64(9)");
+    CHECK(r.ok);
+    CHECK(r.result.type == PythonCompiler::EvalResult::none);
+    r = e.evaluate2("j");
+    CHECK(r.ok);
+    CHECK(r.result.type == PythonCompiler::EvalResult::unsignedInteger8);
+    CHECK(r.result.u64 == 9);
+
+    r = e.evaluate2("i * j");
+    CHECK(r.ok);
+    CHECK(r.result.type == PythonCompiler::EvalResult::unsignedInteger8);
+    CHECK(r.result.u64 == 45);
+}
