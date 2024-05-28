@@ -811,6 +811,8 @@ int interactive_python_repl(
     std::vector<std::pair<std::string, double>> times;
     LCompilers::PythonCompiler::EvalResult r;
 
+    std::cout << LCompilers::LPython::get_runtime_library_dir() << std::endl;
+
     std::string code_string;
     std::cout << ">>> ";
     size_t cell_count = 0;
