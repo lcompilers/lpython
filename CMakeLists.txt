@@ -121,6 +121,7 @@ if (WITH_LCOMPILERS_FAST_ALLOC)
 endif()
 
 # copy runtime files
+configure_file("${CMAKE_CURRENT_SOURCE_DIR}/src/runtime/lpython/lpython.py" "${CMAKE_CURRENT_BINARY_DIR}/src/runtime/lpython/lpython.py")
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/src/runtime/cmath.py" "${CMAKE_CURRENT_BINARY_DIR}/src/runtime/cmath.py")
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/src/runtime/lpython_builtin.py" "${CMAKE_CURRENT_BINARY_DIR}/src/runtime/lpython_builtin.py")
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/src/runtime/lpython_intrinsic_numpy.py" "${CMAKE_CURRENT_BINARY_DIR}/src/runtime/lpython_intrinsic_numpy.py")
