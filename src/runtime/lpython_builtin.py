@@ -785,7 +785,6 @@ def _lpython_str_istitle(s: str) -> bool:
                 word_start = False
             else:
                 return False  # Found an uppercase character in the middle of a word
-        
         elif ch.isalpha() and (ord('a') <= ord(ch) and ord(ch) <= ord('z')):
             only_whitespace = False
             if word_start:
@@ -793,7 +792,6 @@ def _lpython_str_istitle(s: str) -> bool:
             word_start = False
         else:
             word_start = True
-
     return True if not only_whitespace else False
 
 @overload
@@ -824,7 +822,7 @@ def _lpython_str_find(s: str, sub: str) -> i32:
             else:
                 lps[i] = 0
                 i += 1
-
+    
     j: i32
     j = 0
     i = 0
@@ -841,7 +839,6 @@ def _lpython_str_find(s: str, sub: str) -> i32:
                 j = lps[j - 1]
             else:
                 i = i + 1
-    
     return res
 
 def _lpython_str_rstrip(x: str) -> str:
