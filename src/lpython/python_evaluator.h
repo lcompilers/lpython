@@ -37,7 +37,20 @@ public:
 
     struct EvalResult {
         enum {
-            integer4, integer8, unsignedInteger4, unsignedInteger8, real4, real8, complex4, complex8, statement, none
+            integer1,
+            integer2,
+            unsignedInteger1,
+            unsignedInteger2,
+            integer4,
+            integer8,
+            unsignedInteger4,
+            unsignedInteger8,
+            real4,
+            real8,
+            complex4,
+            complex8,
+            statement,
+            none
         } type;
         union {
             int32_t i32;

@@ -888,50 +888,74 @@ int interactive_python_repl(
         }
 
         switch (r.type) {
+            case (LCompilers::PythonCompiler::EvalResult::integer1) : {
+                if (verbose) std::cout << "Return type: i8" << std::endl;
+                if (verbose) section("Result:");
+                std::cout << r.i32 << std::endl;
+                break;
+            }
+            case (LCompilers::PythonCompiler::EvalResult::integer2) : {
+                if (verbose) std::cout << "Return type: i16" << std::endl;
+                if (verbose) section("Result:");
+                std::cout << r.i64 << std::endl;
+                break;
+            }
             case (LCompilers::PythonCompiler::EvalResult::integer4) : {
-                if (verbose) std::cout << "Return type: integer" << std::endl;
+                if (verbose) std::cout << "Return type: i32" << std::endl;
                 if (verbose) section("Result:");
                 std::cout << r.i32 << std::endl;
                 break;
             }
             case (LCompilers::PythonCompiler::EvalResult::integer8) : {
-                if (verbose) std::cout << "Return type: integer(8)" << std::endl;
+                if (verbose) std::cout << "Return type: i64" << std::endl;
                 if (verbose) section("Result:");
                 std::cout << r.i64 << std::endl;
                 break;
             }
+            case (LCompilers::PythonCompiler::EvalResult::unsignedInteger1) : {
+                if (verbose) std::cout << "Return type: u8" << std::endl;
+                if (verbose) section("Result:");
+                std::cout << r.u32 << std::endl;
+                break;
+            }
+            case (LCompilers::PythonCompiler::EvalResult::unsignedInteger2) : {
+                if (verbose) std::cout << "Return type: u16" << std::endl;
+                if (verbose) section("Result:");
+                std::cout << r.u64 << std::endl;
+                break;
+            }
             case (LCompilers::PythonCompiler::EvalResult::unsignedInteger4) : {
-                if (verbose) std::cout << "Return type: unsigned integer" << std::endl;
+                if (verbose) std::cout << "Return type: u32" << std::endl;
                 if (verbose) section("Result:");
                 std::cout << r.u32 << std::endl;
                 break;
             }
             case (LCompilers::PythonCompiler::EvalResult::unsignedInteger8) : {
-                if (verbose) std::cout << "Return type: unsigned integer(8)" << std::endl;
+                if (verbose) std::cout << "Return type: u64" << std::endl;
                 if (verbose) section("Result:");
                 std::cout << r.u64 << std::endl;
                 break;
             }
             case (LCompilers::PythonCompiler::EvalResult::real4) : {
-                if (verbose) std::cout << "Return type: real" << std::endl;
+                if (verbose) std::cout << "Return type: f32" << std::endl;
                 if (verbose) section("Result:");
                 std::cout << std::setprecision(8) << r.f32 << std::endl;
                 break;
             }
             case (LCompilers::PythonCompiler::EvalResult::real8) : {
-                if (verbose) std::cout << "Return type: real(8)" << std::endl;
+                if (verbose) std::cout << "Return type: f64" << std::endl;
                 if (verbose) section("Result:");
                 std::cout << std::setprecision(17) << r.f64 << std::endl;
                 break;
             }
             case (LCompilers::PythonCompiler::EvalResult::complex4) : {
-                if (verbose) std::cout << "Return type: complex" << std::endl;
+                if (verbose) std::cout << "Return type: c32" << std::endl;
                 if (verbose) section("Result:");
                 std::cout << std::setprecision(8) << "(" << r.c32.re << ", " << r.c32.im << ")" << std::endl;
                 break;
             }
             case (LCompilers::PythonCompiler::EvalResult::complex8) : {
-                if (verbose) std::cout << "Return type: complex(8)" << std::endl;
+                if (verbose) std::cout << "Return type: c64" << std::endl;
                 if (verbose) section("Result:");
                 std::cout << std::setprecision(17) << "(" << r.c64.re << ", " << r.c64.im << ")" << std::endl;
                 break;

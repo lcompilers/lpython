@@ -127,7 +127,33 @@ Result<PythonCompiler::EvalResult> PythonCompiler::evaluate(
 
     e->add_module(std::move(m));
     if (call_run_fn) {
-        if (return_type == "integer4") {
+        if (return_type == "integer1") {
+            ASR::symbol_t *fn = ASR::down_cast<ASR::Module_t>(symbol_table->resolve_symbol(module_name))
+                                    ->m_symtab->get_symbol(run_fn);
+            LCOMPILERS_ASSERT(fn)
+            if (ASRUtils::get_FunctionType(fn)->m_return_var_type->type == ASR::ttypeType::UnsignedInteger) {
+                uint8_t r = e->int8fn(run_fn);
+                result.type = EvalResult::unsignedInteger1;
+                result.u32 = r;
+            } else {
+                int8_t r = e->int8fn(run_fn);
+                result.type = EvalResult::integer1;
+                result.i32 = r;
+            }
+        } else if (return_type == "integer2") {
+            ASR::symbol_t *fn = ASR::down_cast<ASR::Module_t>(symbol_table->resolve_symbol(module_name))
+                                    ->m_symtab->get_symbol(run_fn);
+            LCOMPILERS_ASSERT(fn)
+            if (ASRUtils::get_FunctionType(fn)->m_return_var_type->type == ASR::ttypeType::UnsignedInteger) {
+                uint16_t r = e->int16fn(run_fn);
+                result.type = EvalResult::unsignedInteger2;
+                result.u32 = r;
+            } else {
+                int16_t r = e->int16fn(run_fn);
+                result.type = EvalResult::integer2;
+                result.i32 = r;
+            }
+        } else if (return_type == "integer4") {
             ASR::symbol_t *fn = ASR::down_cast<ASR::Module_t>(symbol_table->resolve_symbol(module_name))
                                     ->m_symtab->get_symbol(run_fn);
             LCOMPILERS_ASSERT(fn)

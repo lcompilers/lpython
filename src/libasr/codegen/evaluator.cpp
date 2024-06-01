@@ -102,6 +102,10 @@ std::string LLVMModule::get_return_type(const std::string &fn_name)
         return "real4";
     } else if (type->isDoubleTy()) {
         return "real8";
+    } else if (type->isIntegerTy(8)) {
+        return "integer1";
+    } else if (type->isIntegerTy(16)) {
+        return "integer2";
     } else if (type->isIntegerTy(32)) {
         return "integer4";
     } else if (type->isIntegerTy(64)) {
@@ -267,6 +271,18 @@ intptr_t LLVMEvaluator::get_symbol_address(const std::string &name) {
         throw LCompilersException("JITSymbol::getAddress() returned an error: " + msg);
     }
     return (intptr_t)cantFail(std::move(addr0));
+}
+
+int8_t LLVMEvaluator::int8fn(const std::string &name) {
+    intptr_t addr = get_symbol_address(name);
+    int8_t (*f)() = (int8_t (*)())addr;
+    return f();
+}
+
+int16_t LLVMEvaluator::int16fn(const std::string &name) {
+    intptr_t addr = get_symbol_address(name);
+    int16_t (*f)() = (int16_t (*)())addr;
+    return f();
 }
 
 int32_t LLVMEvaluator::int32fn(const std::string &name) {
