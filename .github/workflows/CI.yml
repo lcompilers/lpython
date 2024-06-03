@@ -35,13 +35,9 @@ jobs:
           key:
             ${{ runner.os }}-conda-${{ env.CACHE_NUMBER }}-${{ hashFiles('ci/environment.yml') }}
 
-      - uses: conda-incubator/setup-miniconda@v2
+      - uses: mamba-org/setup-micromamba@v1.8.0
         with:
-          miniconda-version: "latest"
-          auto-update-conda: true
           environment-file: ci/environment.yml
-          python-version: ${{ matrix.python-version }}
-          use-only-tar-bz2: true
 
       - name: Install Windows Conda Packages
         if: contains(matrix.os, 'windows')
