@@ -14,5 +14,5 @@ dependencies:
   - setuptools
   - bison=3.4
   - python=3.10.2
-  - llvmdev=11.0.1
+  - llvmdev=16
   - zstd-static=1.5.5

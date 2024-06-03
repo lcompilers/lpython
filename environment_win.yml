@@ -1,4 +1,4 @@
-name: lp
+name: lp16
 channels:
   - conda-forge
 dependencies:
@@ -16,5 +16,5 @@ dependencies:
   - setuptools
   - python=3.10.2
   - m2-bison=3.0.4
-  - llvmdev=11.1.0
+  - llvmdev=16
   - zstd-static=1.5.5

@@ -48,6 +48,7 @@
 #include <llvm/Support/SourceMgr.h>
 #include <llvm/ADT/StringRef.h>
 #include <llvm/Target/TargetOptions.h>
+#include <llvm/ExecutionEngine/Orc/ThreadSafeModule.h>
 #if LLVM_VERSION_MAJOR >= 14
 #    include <llvm/MC/TargetRegistry.h>
 #else
@@ -167,7 +168,7 @@ LLVMEvaluator::LLVMEvaluator(const std::string &t)
     LLVMInitializeWebAssemblyAsmParser();
 #endif
 
-    context = std::make_unique<llvm::LLVMContext>();
+    // context = std::make_unique<llvm::LLVMContext>();
 
     if (t != "")
         target_triple = t;
@@ -187,8 +188,6 @@ LLVMEvaluator::LLVMEvaluator(const std::string &t)
 
     // For some reason the JIT requires a different TargetMachine
     jit = cantFail(llvm::orc::KaleidoscopeJIT::Create());
-
-    _lfortran_stan(0.5);
 }
 
 LLVMEvaluator::~LLVMEvaluator()
@@ -200,6 +199,7 @@ LLVMEvaluator::~LLVMEvaluator()
 std::unique_ptr<llvm::Module> LLVMEvaluator::parse_module(const std::string &source)
 {
     llvm::SMDiagnostic err;
+    context = std::make_unique<llvm::LLVMContext>();
     std::unique_ptr<llvm::Module> module
         = llvm::parseAssemblyString(source, err, *context);
     if (!module) {
@@ -210,7 +210,7 @@ std::unique_ptr<llvm::Module> LLVMEvaluator::parse_module(const std::string &sou
         throw LCompilersException("parse_module(): module failed verification.");
     };
     module->setTargetTriple(target_triple);
-    module->setDataLayout(jit->getTargetMachine().createDataLayout());
+    module->setDataLayout(jit->getDataLayout());
     return module;
 }
 
@@ -232,7 +232,7 @@ void LLVMEvaluator::add_module(std::unique_ptr<llvm::Module> mod) {
     // cases when the Module was constructed directly, not via parse_module().
     mod->setTargetTriple(target_triple);
     mod->setDataLayout(jit->getDataLayout());
-    llvm::Error err = jit->addModule(std::move(mod));
+    llvm::Error err = jit->addModule(llvm::orc::ThreadSafeModule(std::move(mod), std::move(context)));
     if (err) {
         llvm::SmallVector<char, 128> buf;
         llvm::raw_svector_ostream dest(buf);
@@ -346,7 +346,7 @@ std::string LLVMEvaluator::get_asm(llvm::Module &m)
     llvm::CodeGenFileType ft = llvm::CGFT_AssemblyFile;
     llvm::SmallVector<char, 128> buf;
     llvm::raw_svector_ostream dest(buf);
-    if (jit->getTargetMachine().addPassesToEmitFile(pass, dest, nullptr, ft)) {
+    if (TM->addPassesToEmitFile(pass, dest, nullptr, ft)) {
         throw std::runtime_error("TargetMachine can't emit a file of this type");
     }
     pass.run(m);
@@ -430,6 +430,7 @@ void LLVMEvaluator::print_version_message()
 
 llvm::LLVMContext &LLVMEvaluator::get_context()
 {
+    context = std::make_unique<llvm::LLVMContext>();
     return *context;
 }
 
