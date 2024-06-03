@@ -2950,9 +2950,6 @@ public:
                 visit_ClassDef(*AST::down_cast<AST::ClassDef_t>(x.m_body[i]));
                 continue;
             } else if ( AST::is_a<AST::FunctionDef_t>(*x.m_body[i]) ) {
-                tmp = ASR::make_ClassProcedure_t(
-
-                );
                 this->visit_stmt(*x.m_body[i]);
                 continue;
             } else if (AST::is_a<AST::Pass_t>(*x.m_body[i])) {
