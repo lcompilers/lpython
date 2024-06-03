@@ -168,7 +168,7 @@ LLVMEvaluator::LLVMEvaluator(const std::string &t)
     LLVMInitializeWebAssemblyAsmParser();
 #endif
 
-    // context = std::make_unique<llvm::LLVMContext>();
+    context = std::make_unique<llvm::LLVMContext>();
 
     if (t != "")
         target_triple = t;

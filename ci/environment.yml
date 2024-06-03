@@ -3,7 +3,7 @@ channels:
   - conda-forge
   - defaults
 dependencies:
-  - llvmdev=16
+  - llvmdev=16.0.6
   - toml
   - pytest
   - jupyter
