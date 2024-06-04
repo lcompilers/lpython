@@ -894,7 +894,7 @@ int interactive_python_repl(
             case (LCompilers::PythonCompiler::EvalResult::integer1) : {
                 if (verbose) std::cout << "Return type: i8" << std::endl;
                 if (verbose) section("Result:");
-                std::cout << r.i8 << std::endl;
+                std::cout << (int)r.i8 << std::endl;
                 break;
             }
             case (LCompilers::PythonCompiler::EvalResult::integer2) : {

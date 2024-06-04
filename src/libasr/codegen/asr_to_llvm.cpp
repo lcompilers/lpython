@@ -1354,7 +1354,7 @@ public:
         llvm::Function *fn = module->getFunction(runtime_func_name);
         if (!fn) {
             llvm::FunctionType *function_type = llvm::FunctionType::get(
-                    llvm::Type::getInt32Ty(context), {
+                    llvm_utils->getIntType(int_kind), {
                         llvm_utils->getIntType(int_kind)
                     }, false);
             fn = llvm::Function::Create(function_type,

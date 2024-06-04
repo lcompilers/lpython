@@ -2084,9 +2084,9 @@ LFORTRAN_API char* _lfortran_int_to_str8(int64_t num)
     return res;
 }
 
-LFORTRAN_API int32_t _lpython_bit_length1(int8_t num)
+LFORTRAN_API int8_t _lpython_bit_length1(int8_t num)
 {
-    int32_t res = 0;
+    int8_t res = 0;
     num = abs((int)num);
     while (num > 0) {
         num = num >> 1;
@@ -2095,9 +2095,9 @@ LFORTRAN_API int32_t _lpython_bit_length1(int8_t num)
     return res;
 }
 
-LFORTRAN_API int32_t _lpython_bit_length2(int16_t num)
+LFORTRAN_API int16_t _lpython_bit_length2(int16_t num)
 {
-    int32_t res = 0;
+    int16_t res = 0;
     num = abs((int)num);
     while (num > 0) {
         num = num >> 1;
@@ -2117,9 +2117,9 @@ LFORTRAN_API int32_t _lpython_bit_length4(int32_t num)
     return res;
 }
 
-LFORTRAN_API int32_t _lpython_bit_length8(int64_t num)
+LFORTRAN_API int64_t _lpython_bit_length8(int64_t num)
 {
-    int32_t res = 0;
+    int64_t res = 0;
     num = llabs(num);
     while (num > 0) {
         num = num >> 1;

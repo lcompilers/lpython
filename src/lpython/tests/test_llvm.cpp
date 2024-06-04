@@ -1413,13 +1413,50 @@ TEST_CASE("PythonCompiler tmp 2") {
     LCompilers::LPython::open_runtime_library(runtime_lib);
     PythonCompiler e(cu);
     LCompilers::Result<PythonCompiler::EvalResult>
+    
     r = e.evaluate2("(121212).bit_length()");
     CHECK(r.ok);
     CHECK(r.result.type == PythonCompiler::EvalResult::integer4);
     CHECK(r.result.i32 == 17);
+    
     r = e.evaluate2("(8).bit_length()");
     CHECK(r.ok);
     CHECK(r.result.type == PythonCompiler::EvalResult::integer4);
     CHECK(r.result.i32 == 4);
+    
+    r = e.evaluate2("x: i32 = 1 << 30");
+    CHECK(r.ok);
+    CHECK(r.result.type == PythonCompiler::EvalResult::none);
+    r = e.evaluate2("x.bit_length()");
+    CHECK(r.ok);
+    CHECK(r.result.type == PythonCompiler::EvalResult::integer4);
+    CHECK(r.result.i32 == 31);
+    
+    r = e.evaluate2("y: i8 = i8(1 << 6)");
+    CHECK(r.ok);
+    CHECK(r.result.type == PythonCompiler::EvalResult::none);
+    r = e.evaluate2("y.bit_length()");
+    CHECK(r.ok);
+    CHECK(r.result.type == PythonCompiler::EvalResult::integer1);
+    CHECK(r.result.i32 == 7);
+    
+    r = e.evaluate2("z: i16 = -i16(i16(1) << i16(13))");
+    CHECK(r.ok);
+    CHECK(r.result.type == PythonCompiler::EvalResult::none);
+    r = e.evaluate2("z.bit_length()");
+    CHECK(r.ok);
+    CHECK(r.result.type == PythonCompiler::EvalResult::integer2);
+    CHECK(r.result.i32 == 14);
+    
+    r = e.evaluate2("(-100).bit_length()");
+    CHECK(r.ok);
+    CHECK(r.result.type == PythonCompiler::EvalResult::integer4);
+    CHECK(r.result.i32 == 7);
+    
+    r = e.evaluate2("(-4).bit_length()");
+    CHECK(r.ok);
+    CHECK(r.result.type == PythonCompiler::EvalResult::integer4);
+    CHECK(r.result.i32 == 3);
+    
     LCompilers::LPython::close_runtime_library(runtime_lib);
 }
