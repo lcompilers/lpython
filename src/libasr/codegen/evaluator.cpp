@@ -233,6 +233,7 @@ void LLVMEvaluator::add_module(std::unique_ptr<llvm::Module> mod) {
     mod->setTargetTriple(target_triple);
     mod->setDataLayout(jit->getDataLayout());
     llvm::Error err = jit->addModule(llvm::orc::ThreadSafeModule(std::move(mod), std::move(context)));
+    context = std::make_unique<llvm::LLVMContext>();
     if (err) {
         llvm::SmallVector<char, 128> buf;
         llvm::raw_svector_ostream dest(buf);
@@ -430,7 +431,7 @@ void LLVMEvaluator::print_version_message()
 
 llvm::LLVMContext &LLVMEvaluator::get_context()
 {
-    context = std::make_unique<llvm::LLVMContext>();
+    // context = std::make_unique<llvm::LLVMContext>();
     return *context;
 }
 

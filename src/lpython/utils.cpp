@@ -130,6 +130,29 @@ bool path_exists(std::string path) {
 
 #ifdef HAVE_LFORTRAN_LLVM
 
+void open_runtime_library(DynamicLibrary &l) {
+#if defined (__linux__)
+    l.l = dlopen((get_runtime_library_dir() + "/liblpython_runtime.so").c_str(), RTLD_DEEPBIND | RTLD_GLOBAL | RTLD_NOW);
+#elif defined (__APPLE__)
+    l.l = dlopen((get_runtime_library_dir() + "/liblpython_runtime.dylib").c_str(), RTLD_GLOBAL | RTLD_NOW);
+#else
+    l.l = LoadLibrary((get_runtime_library_dir() + "\\liblpython_runtime.dll").c_str());
+#endif
+
+    if (l.l == nullptr)
+        throw "Could not open runtime library";
+}
+
+void close_runtime_library(DynamicLibrary &l) {
+#if (defined (__linux__)) or (defined (__APPLE__))
+    dlclose(l.l);
+    l.l = nullptr;
+#else
+    FreeLibrary((HMODULE)l.l);
+    l.l = nullptr;
+#endif
+}
+
 void open_cpython_library(DynamicLibrary &l) {
     std::string conda_prefix = std::getenv("CONDA_PREFIX");
 #if defined (__linux__)

@@ -23,6 +23,8 @@ void open_cpython_library(DynamicLibrary &l);
 void close_cpython_library(DynamicLibrary &l);
 void open_symengine_library(DynamicLibrary &l);
 void close_symengine_library(DynamicLibrary &l);
+void open_runtime_library(DynamicLibrary &l);
+void close_runtime_library(DynamicLibrary &l);
 #endif
 
 // Decodes the exit status code of the process (in Unix)

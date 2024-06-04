@@ -811,7 +811,8 @@ int interactive_python_repl(
     std::vector<std::pair<std::string, double>> times;
     LCompilers::PythonCompiler::EvalResult r;
 
-    std::cout << LCompilers::LPython::get_runtime_library_dir() << std::endl;
+    LCompilers::LPython::DynamicLibrary runtime_lib;
+    LCompilers::LPython::open_runtime_library(runtime_lib);
 
     std::string code_string;
     std::cout << ">>> ";
@@ -984,6 +985,9 @@ int interactive_python_repl(
         code_string = "";
         std::cout << ">>> ";
     }
+
+    LCompilers::LPython::open_runtime_library(runtime_lib);
+
     return 0;
 }
 
@@ -1083,6 +1087,9 @@ int compile_python_using_llvm(
     std::unique_ptr<LCompilers::LLVMModule> m = std::move(res.result);
 
     if (to_jit) {
+        LCompilers::LPython::DynamicLibrary runtime_lib;
+        LCompilers::LPython::open_runtime_library(runtime_lib);
+
         LCompilers::LPython::DynamicLibrary cpython_lib;
         LCompilers::LPython::DynamicLibrary symengine_lib;
 
@@ -1111,6 +1118,8 @@ int compile_python_using_llvm(
         if (compiler_options.enable_symengine) {
             LCompilers::LPython::close_symengine_library(symengine_lib);
         }
+
+        LCompilers::LPython::close_runtime_library(runtime_lib);
 
         auto llvm_end = std::chrono::high_resolution_clock::now();
         times.push_back(std::make_pair("LLVM JIT execution", std::chrono::duration<double, std::milli>(llvm_end - llvm_start).count()));
