@@ -1401,3 +1401,25 @@ TEST_CASE("PythonCompiler u16 declaration") {
     CHECK(r.result.type == PythonCompiler::EvalResult::unsignedInteger2);
     CHECK(r.result.u16 == 45);
 }
+
+TEST_CASE("PythonCompiler tmp 2") {
+    CompilerOptions cu;
+    cu.po.disable_main = true;
+    cu.emit_debug_line_column = false;
+    cu.generate_object_code = false;
+    cu.interactive = true;
+    cu.po.runtime_library_dir = LCompilers::LPython::get_runtime_library_dir();
+    LCompilers::LPython::DynamicLibrary runtime_lib;
+    LCompilers::LPython::open_runtime_library(runtime_lib);
+    PythonCompiler e(cu);
+    LCompilers::Result<PythonCompiler::EvalResult>
+    r = e.evaluate2("(121212).bit_length()");
+    CHECK(r.ok);
+    CHECK(r.result.type == PythonCompiler::EvalResult::integer4);
+    CHECK(r.result.i32 == 17);
+    r = e.evaluate2("(8).bit_length()");
+    CHECK(r.ok);
+    CHECK(r.result.type == PythonCompiler::EvalResult::integer4);
+    CHECK(r.result.i32 == 4);
+    LCompilers::LPython::close_runtime_library(runtime_lib);
+}
