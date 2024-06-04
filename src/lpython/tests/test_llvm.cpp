@@ -785,66 +785,74 @@ TEST_CASE("PythonCompiler i64 declaration") {
     CHECK(r.result.i64 == 14);
 }
 
-// TEST_CASE("PythonCompiler tmp 1") {
-//     CompilerOptions cu;
-//     cu.po.disable_main = true;
-//     cu.emit_debug_line_column = false;
-//     cu.generate_object_code = false;
-//     cu.interactive = true;
-//     cu.po.runtime_library_dir = LCompilers::LPython::get_runtime_library_dir();
-//     PythonCompiler e(cu);
-//     LCompilers::Result<PythonCompiler::EvalResult>
-//     r = e.evaluate2("3 % 2");
-//     CHECK(r.ok);
-//     CHECK(r.result.type == PythonCompiler::EvalResult::integer4);
-//     CHECK(r.result.i32 == 1);
-// }
+TEST_CASE("PythonCompiler tmp 1") {
+    CompilerOptions cu;
+    cu.po.disable_main = true;
+    cu.emit_debug_line_column = false;
+    cu.generate_object_code = false;
+    cu.interactive = true;
+    cu.po.runtime_library_dir = LCompilers::LPython::get_runtime_library_dir();
+    LCompilers::LPython::DynamicLibrary runtime_lib;
+    LCompilers::LPython::open_runtime_library(runtime_lib);
+    PythonCompiler e(cu);
+    LCompilers::Result<PythonCompiler::EvalResult>
+    r = e.evaluate2("3 % 2");
+    CHECK(r.ok);
+    CHECK(r.result.type == PythonCompiler::EvalResult::integer4);
+    CHECK(r.result.i32 == 1);
+    LCompilers::LPython::close_runtime_library(runtime_lib);
+}
 
-// TEST_CASE("PythonCompiler asr verify 1") {
-//     CompilerOptions cu;
-//     cu.po.disable_main = true;
-//     cu.emit_debug_line_column = false;
-//     cu.generate_object_code = false;
-//     cu.interactive = true;
-//     cu.po.runtime_library_dir = LCompilers::LPython::get_runtime_library_dir();
-//     PythonCompiler e(cu);
-//     LCompilers::Result<PythonCompiler::EvalResult>
-//     r = e.evaluate2("i: i32 = 3 % 2");
-//     CHECK(r.ok);
-//     CHECK(r.result.type == PythonCompiler::EvalResult::none);
-//     r = e.evaluate2("i");
-//     CHECK(r.ok);
-//     CHECK(r.result.type == PythonCompiler::EvalResult::integer4);
-//     CHECK(r.result.i32 == 1);
-// }
+TEST_CASE("PythonCompiler asr verify 1") {
+    CompilerOptions cu;
+    cu.po.disable_main = true;
+    cu.emit_debug_line_column = false;
+    cu.generate_object_code = false;
+    cu.interactive = true;
+    cu.po.runtime_library_dir = LCompilers::LPython::get_runtime_library_dir();
+    LCompilers::LPython::DynamicLibrary runtime_lib;
+    LCompilers::LPython::open_runtime_library(runtime_lib);
+    PythonCompiler e(cu);
+    LCompilers::Result<PythonCompiler::EvalResult>
+    r = e.evaluate2("i: i32 = 3 % 2");
+    CHECK(r.ok);
+    CHECK(r.result.type == PythonCompiler::EvalResult::none);
+    r = e.evaluate2("i");
+    CHECK(r.ok);
+    CHECK(r.result.type == PythonCompiler::EvalResult::integer4);
+    CHECK(r.result.i32 == 1);
+    LCompilers::LPython::close_runtime_library(runtime_lib);
+}
 
-// TEST_CASE("PythonCompiler asr verify 2") {
-//     CompilerOptions cu;
-//     cu.po.disable_main = true;
-//     cu.emit_debug_line_column = false;
-//     cu.generate_object_code = false;
-//     cu.interactive = true;
-//     cu.po.runtime_library_dir = LCompilers::LPython::get_runtime_library_dir();
-//     std::cout << cu.po.runtime_library_dir << std::endl;
-//     PythonCompiler e(cu);
-//     LCompilers::Result<PythonCompiler::EvalResult>
-//     r = e.evaluate2(R"(
-// def is_even(x: i32) -> i32:
-//     if x % 2 == 0:
-//         return 1
-//     return 0
-// )");
-//     CHECK(r.ok);
-//     CHECK(r.result.type == PythonCompiler::EvalResult::none);
-//     r = e.evaluate2("is_even(4)");
-//     CHECK(r.ok);
-//     CHECK(r.result.type == PythonCompiler::EvalResult::integer4);
-//     CHECK(r.result.i32 == 1);
-//     r = e.evaluate2("is_even(3)");
-//     CHECK(r.ok);
-//     CHECK(r.result.type == PythonCompiler::EvalResult::integer4);
-//     CHECK(r.result.i32 == 0);
-// }
+TEST_CASE("PythonCompiler asr verify 2") {
+    CompilerOptions cu;
+    cu.po.disable_main = true;
+    cu.emit_debug_line_column = false;
+    cu.generate_object_code = false;
+    cu.interactive = true;
+    cu.po.runtime_library_dir = LCompilers::LPython::get_runtime_library_dir();
+    LCompilers::LPython::DynamicLibrary runtime_lib;
+    LCompilers::LPython::open_runtime_library(runtime_lib);
+    PythonCompiler e(cu);
+    LCompilers::Result<PythonCompiler::EvalResult>
+    r = e.evaluate2(R"(
+def is_even(x: i32) -> i32:
+    if x % 2 == 0:
+        return 1
+    return 0
+)");
+    CHECK(r.ok);
+    CHECK(r.result.type == PythonCompiler::EvalResult::none);
+    r = e.evaluate2("is_even(4)");
+    CHECK(r.ok);
+    CHECK(r.result.type == PythonCompiler::EvalResult::integer4);
+    CHECK(r.result.i32 == 1);
+    r = e.evaluate2("is_even(3)");
+    CHECK(r.ok);
+    CHECK(r.result.type == PythonCompiler::EvalResult::integer4);
+    CHECK(r.result.i32 == 0);
+    LCompilers::LPython::close_runtime_library(runtime_lib);
+}
 
 TEST_CASE("PythonCompiler asr verify 3") {
     CompilerOptions cu;
