@@ -2,7 +2,7 @@ from math import floor, log2
 from lpython import i8, i32, i16
 
 def ff():
-    assert -8 .bit_length() == 4
+    assert -8 .bit_length() == -4
     #TODO:(1 << 12).bit_length()
     #TODO:(anything return integeri).bit_length()
     assert 121212 .bit_length() == 17
