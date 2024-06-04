@@ -40,12 +40,6 @@ jobs:
         shell: bash -e -l {0}
         run: micromamba install bison=3.4
 
-      - name: Conda info
-        shell: bash -e -l {0}
-        run: |
-            conda info
-            conda list
-
       - name: Setup Platform (Linux)
         if: contains(matrix.os, 'ubuntu')
         shell: bash -e -l {0}
