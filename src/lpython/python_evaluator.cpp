@@ -134,11 +134,11 @@ Result<PythonCompiler::EvalResult> PythonCompiler::evaluate(
             if (ASRUtils::get_FunctionType(fn)->m_return_var_type->type == ASR::ttypeType::UnsignedInteger) {
                 uint8_t r = e->int8fn(run_fn);
                 result.type = EvalResult::unsignedInteger1;
-                result.u32 = r;
+                result.u32 = (uint32_t)r;
             } else {
                 int8_t r = e->int8fn(run_fn);
                 result.type = EvalResult::integer1;
-                result.i32 = r;
+                result.i32 = (int32_t)r;
             }
         } else if (return_type == "integer2") {
             ASR::symbol_t *fn = ASR::down_cast<ASR::Module_t>(symbol_table->resolve_symbol(module_name))
@@ -147,11 +147,11 @@ Result<PythonCompiler::EvalResult> PythonCompiler::evaluate(
             if (ASRUtils::get_FunctionType(fn)->m_return_var_type->type == ASR::ttypeType::UnsignedInteger) {
                 uint16_t r = e->int16fn(run_fn);
                 result.type = EvalResult::unsignedInteger2;
-                result.u32 = r;
+                result.u32 = (uint32_t)r;
             } else {
                 int16_t r = e->int16fn(run_fn);
                 result.type = EvalResult::integer2;
-                result.i32 = r;
+                result.i32 = (int32_t)r;
             }
         } else if (return_type == "integer4") {
             ASR::symbol_t *fn = ASR::down_cast<ASR::Module_t>(symbol_table->resolve_symbol(module_name))
