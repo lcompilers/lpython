@@ -1438,7 +1438,7 @@ TEST_CASE("PythonCompiler tmp 2") {
     r = e.evaluate2("y.bit_length()");
     CHECK(r.ok);
     CHECK(r.result.type == PythonCompiler::EvalResult::integer1);
-    CHECK(r.result.i32 == 7);
+    CHECK(r.result.i8 == 7);
     
     r = e.evaluate2("z: i16 = -i16(i16(1) << i16(13))");
     CHECK(r.ok);
@@ -1446,7 +1446,7 @@ TEST_CASE("PythonCompiler tmp 2") {
     r = e.evaluate2("z.bit_length()");
     CHECK(r.ok);
     CHECK(r.result.type == PythonCompiler::EvalResult::integer2);
-    CHECK(r.result.i32 == 14);
+    CHECK(r.result.i16 == 14);
     
     r = e.evaluate2("(-100).bit_length()");
     CHECK(r.ok);

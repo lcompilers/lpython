@@ -272,7 +272,7 @@ jobs:
       - name: Test Linux
         shell: bash -e -l {0}
         run: |
-            ctest
+            ctest --output-on-failure
             ./run_tests.py -s
             cd integration_tests
             ./run_tests.py -b llvm c
