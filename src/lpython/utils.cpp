@@ -136,7 +136,7 @@ void open_runtime_library(DynamicLibrary &l) {
 #elif defined (__APPLE__)
     l.l = dlopen((get_runtime_library_dir() + "/liblpython_runtime.dylib").c_str(), RTLD_GLOBAL | RTLD_NOW);
 #else
-    l.l = LoadLibrary((get_runtime_library_dir() + "\\liblpython_runtime.dll").c_str());
+    l.l = LoadLibrary((get_runtime_library_dir() + "\\lpython_runtime.dll").c_str());
 #endif
 
     if (l.l == nullptr)
