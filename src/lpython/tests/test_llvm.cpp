@@ -633,12 +633,13 @@ TEST_CASE("PythonCompiler 2") {
     PythonCompiler e(cu);
     LCompilers::Result<PythonCompiler::EvalResult>
 
-    r = e.evaluate2("i: i32 = 3 % 1");
+    r = e.evaluate2("i: i32 = 3 % 2");
     CHECK(r.ok);
     CHECK(r.result.type == PythonCompiler::EvalResult::none);
     r = e.evaluate2("i");
     CHECK(r.ok);
-    CHECK(r.result.type == PythonCompiler::EvalResult::none); // TODO: change to integer4 and check the value once printing top level expressions is implemented
+    CHECK(r.result.type == PythonCompiler::EvalResult::integer4);
+    CHECK(r.result.i32 == 1);
 }
 
 TEST_CASE("PythonCompiler i32 expressions") {
