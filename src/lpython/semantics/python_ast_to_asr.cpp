@@ -2951,28 +2951,28 @@ public:
                 continue;
             } else if ( AST::is_a<AST::FunctionDef_t>(*x.m_body[i]) ) {
                 this->visit_stmt(*x.m_body[i]);
-                // AST::FunctionDef_t* f_ast = AST::down_cast<AST::FunctionDef_t>(x.m_body[i]);
-                // ASR::symbol_t* f_sym = current_scope->get_symbol(f_ast->m_name);
-                // ASR::Function_t* f = ASR::down_cast<ASR::Function_t>(f_sym);
-                // std::string class_proc_name = "Xx_Class_Procedure_"+std::string(f->m_name);
-                // SymbolTable* proc_scope = ASRUtils::symbol_parent_symtab(f_sym);
-                // Str s;
-                // s.from_str(al,class_proc_name);
-                // ASR::abiType abi = ASR::abiType::Source;
-                // tmp = make_ClassProcedure_t(
-                //     al,
-                //     f_sym->base.loc,
-                //     proc_scope,
-                //     s.p,
-                //     nullptr,
-                //     f->m_name,
-                //     f_sym,
-                //     abi,
-                //     false,
-                //     false                    
-                // );
-                // ASR::symbol_t *cls_proc_sym = ASR::down_cast<ASR::symbol_t>(tmp);
-                // current_scope->add_symbol(class_proc_name, cls_proc_sym);
+                AST::FunctionDef_t* f_ast = AST::down_cast<AST::FunctionDef_t>(x.m_body[i]);
+                ASR::symbol_t* f_sym = current_scope->get_symbol(f_ast->m_name);
+                ASR::Function_t* f = ASR::down_cast<ASR::Function_t>(f_sym);
+                std::string class_proc_name = "Xx_Class_Procedure_"+std::string(f->m_name);
+                SymbolTable* proc_scope = ASRUtils::symbol_parent_symtab(f_sym);
+                Str s;
+                s.from_str(al,class_proc_name);
+                ASR::abiType abi = ASR::abiType::Source;
+                tmp = make_ClassProcedure_t(
+                    al,
+                    f_sym->base.loc,
+                    proc_scope,
+                    s.p,
+                    nullptr,
+                    f->m_name,
+                    f_sym,
+                    abi,
+                    false,
+                    false                    
+                );
+                ASR::symbol_t *cls_proc_sym = ASR::down_cast<ASR::symbol_t>(tmp);
+                current_scope->add_symbol(class_proc_name, cls_proc_sym);
                 continue;
             } else if (AST::is_a<AST::Pass_t>(*x.m_body[i])) {
                 continue;

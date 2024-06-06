@@ -524,11 +524,13 @@ public:
                 ASR::is_a<ASR::StructType_t>(*a.second) ||
                 ASR::is_a<ASR::UnionType_t>(*a.second) ||
                 ASR::is_a<ASR::ExternalSymbol_t>(*a.second) ||
-                ASR::is_a<ASR::CustomOperator_t>(*a.second) ) {
+                ASR::is_a<ASR::CustomOperator_t>(*a.second) ||
+                ASR::is_a<ASR::Function_t>(*a.second))  {
                 continue ;
             }
             // TODO: Uncomment the following line
             // ASR::ttype_t* var_type = ASRUtils::extract_type(ASRUtils::symbol_type(a.second));
+
             ASR::ttype_t* var_type = ASRUtils::type_get_past_pointer(ASRUtils::symbol_type(a.second));
             char* aggregate_type_name = nullptr;
             ASR::symbol_t* sym = nullptr;
