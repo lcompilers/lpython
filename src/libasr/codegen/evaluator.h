@@ -52,6 +52,7 @@ public:
     void add_module(std::unique_ptr<llvm::Module> mod);
     void add_module(std::unique_ptr<LLVMModule> m);
     intptr_t get_symbol_address(const std::string &name);
+    char *strfn(const std::string &name);
     int8_t int8fn(const std::string &name);
     int16_t int16fn(const std::string &name);
     int32_t int32fn(const std::string &name);

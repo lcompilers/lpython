@@ -960,6 +960,12 @@ int interactive_python_repl(
                 std::cout << std::setprecision(17) << "(" << r.c64.re << ", " << r.c64.im << ")" << std::endl;
                 break;
             }
+            case (LCompilers::PythonCompiler::EvalResult::string) : {
+                if (verbose) std::cout << "Return type: str" << std::endl;
+                if (verbose) section("Result:");
+                std::cout << (r.str == nullptr ? "" : r.str) << std::endl;
+                break;
+            }
             case (LCompilers::PythonCompiler::EvalResult::statement) : {
                 if (verbose) {
                     std::cout << "Return type: none" << std::endl;

@@ -1,6 +1,7 @@
 #include <tests/doctest.h>
 
 #include <cmath>
+#include <cstring>
 
 #include <lpython/python_evaluator.h>
 #include <libasr/codegen/evaluator.h>
@@ -1269,4 +1270,91 @@ TEST_CASE("PythonCompiler u16 declaration") {
     CHECK(r.ok);
     CHECK(r.result.type == PythonCompiler::EvalResult::unsignedInteger2);
     CHECK(r.result.u32 == 45);
+}
+
+TEST_CASE("PythonCompiler string 1") {
+    CompilerOptions cu;
+    cu.po.disable_main = true;
+    cu.emit_debug_line_column = false;
+    cu.generate_object_code = false;
+    cu.interactive = true;
+    cu.po.runtime_library_dir = LCompilers::LPython::get_runtime_library_dir();
+    PythonCompiler e(cu);
+    LCompilers::Result<PythonCompiler::EvalResult>
+
+    r = e.evaluate2("\"My String\"");
+    CHECK(r.ok);
+    CHECK(r.result.type == PythonCompiler::EvalResult::string);
+    CHECK(std::strcmp(r.result.str, "My String") == 0);
+
+    r = e.evaluate2("\"s1\" + \" \" + \"s2\"");
+    CHECK(r.ok);
+    CHECK(r.result.type == PythonCompiler::EvalResult::string);
+    CHECK(std::strcmp(r.result.str, "s1 s2") == 0);
+}
+
+TEST_CASE("PythonCompiler string 2") {
+    CompilerOptions cu;
+    cu.po.disable_main = true;
+    cu.emit_debug_line_column = false;
+    cu.generate_object_code = false;
+    cu.interactive = true;
+    cu.po.runtime_library_dir = LCompilers::LPython::get_runtime_library_dir();
+    PythonCompiler e(cu);
+    LCompilers::Result<PythonCompiler::EvalResult>
+
+    r = e.evaluate2("s: str");
+    CHECK(r.ok);
+    CHECK(r.result.type == PythonCompiler::EvalResult::none);
+
+    r = e.evaluate2("s");
+    CHECK(r.ok);
+    CHECK(r.result.type == PythonCompiler::EvalResult::string);
+    CHECK(r.result.str == nullptr);
+
+    r = e.evaluate2(R"(
+s = ""
+i: i32 = 0
+for i in range(10):
+    s += str(i)
+)");
+    CHECK(r.ok);
+    CHECK(r.result.type == PythonCompiler::EvalResult::statement);
+
+    r = e.evaluate2("s");
+    CHECK(r.ok);
+    CHECK(r.result.type == PythonCompiler::EvalResult::string);
+    CHECK(std::strcmp(r.result.str, "0123456789") == 0);
+}
+
+TEST_CASE("PythonCompiler string 3") {
+    CompilerOptions cu;
+    cu.po.disable_main = true;
+    cu.emit_debug_line_column = false;
+    cu.generate_object_code = false;
+    cu.interactive = true;
+    cu.po.runtime_library_dir = LCompilers::LPython::get_runtime_library_dir();
+    PythonCompiler e(cu);
+    LCompilers::Result<PythonCompiler::EvalResult>
+
+    r = e.evaluate2(R"(
+def my_concat(x: str, y: str) -> str:
+    return x + " " + y
+)");
+    CHECK(r.ok);
+    CHECK(r.result.type == PythonCompiler::EvalResult::none);
+
+    r = e.evaluate2("s: str = \"0123456789\"");
+    CHECK(r.ok);
+    CHECK(r.result.type == PythonCompiler::EvalResult::none);
+
+    r = e.evaluate2("my_concat(s, \"NUM\")");
+    CHECK(r.ok);
+    CHECK(r.result.type == PythonCompiler::EvalResult::string);
+    CHECK(std::strcmp(r.result.str, "0123456789 NUM") == 0);
+
+    r = e.evaluate2("my_concat(\"Python\", \"REPL\")");
+    CHECK(r.ok);
+    CHECK(r.result.type == PythonCompiler::EvalResult::string);
+    CHECK(std::strcmp(r.result.str, "Python REPL") == 0);
 }
