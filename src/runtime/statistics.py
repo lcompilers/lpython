@@ -12,7 +12,7 @@ def mean(x: list[i32]) -> f64:
     sum: f64
     sum = 0.0
     i: i32
-    
+
     for i in range(k):
         sum += float(x[i])
     return sum/f64(k)
@@ -29,10 +29,10 @@ def mean(x: list[i64]) -> f64:
     sum: f64
     sum = 0.0
     i: i32
-    
+
     for i in range(k):
         sum += float(x[i])
-    
+
     return sum/f64(k)
 
 
@@ -47,7 +47,7 @@ def mean(x: list[f32]) -> f64:
     sum: f64
     sum = 0.0
     i: i32
-    
+
     for i in range(k):
         sum += float(x[i])
     return sum/f64(k)
@@ -64,7 +64,7 @@ def mean(x: list[f64]) -> f64:
     sum: f64
     sum = 0.0
     i: i32
-    
+
     for i in range(k):
         sum += x[i]
     return sum/f64(k)
@@ -112,12 +112,12 @@ def geometric_mean(x: list[i32]) -> f64:
     product: f64
     product = 1.0
     i: i32
-    
+
     for i in range(k):
         if x[i] <= 0:
             raise Exception("geometric mean requires a non-empty dataset containing positive numbers")
         product *= float(x[i])
-    
+
     return product**(1/k)
 
 @overload
@@ -131,7 +131,7 @@ def geometric_mean(x: list[i64]) -> f64:
     product: f64
     product = 1.0
     i: i32
-    
+
     for i in range(k):
         if x[i] <= i64(0):
             raise Exception("geometric mean requires a non-empty dataset containing positive numbers")
@@ -150,7 +150,7 @@ def geometric_mean(x: list[f64]) -> f64:
     product: f64
     product = 1.0
     i: i32
-    
+
     for i in range(k):
         if x[i] <= 0.0:
             raise Exception("geometric mean requires a non-empty dataset containing positive numbers")
@@ -169,14 +169,14 @@ def harmonic_mean(x: list[i32]) -> f64:
     sum: f64
     sum = 0.0
     i: i32
-    
+
     for i in range(k):
         if x[i] == 0:
             return 0.0
         if x[i] < 0:
             raise Exception("Harmonic mean does not support negative values")
         sum += 1 / x[i]
-    
+
     return f64(k)/sum
 
 @overload
@@ -190,7 +190,7 @@ def harmonic_mean(x: list[i64]) -> f64:
     sum: f64
     sum = 0.0
     i: i32
-    
+
     for i in range(k):
         if x[i] == i64(0):
             return 0.0
@@ -210,14 +210,14 @@ def harmonic_mean(x: list[f64]) -> f64:
     sum: f64
     sum = 0.0
     i: i32
-    
+
     for i in range(k):
         if x[i] == 0.0:
             return 0.0
         if x[i] < 0.0:
             raise Exception("Harmonic mean does not support negative values")
         sum += 1.0 / x[i]
-    
+
     return f64(k) / sum
 
 
@@ -227,15 +227,15 @@ def mode(x: list[i32]) -> i32:
     k: i32 = len(x)
     c: i32
     count: dict[i32, i32] = {0: 0}
-    
+
     # insert keys in the dictionary
     for c in range(k):
         count[x[c]] = 0
-    
+
     # update the frequencies
     for c in range(k):
         count[x[c]] = count[x[c]] + 1
-    
+
     max_count: i32 = 0
     ans: i32
     for c in range(k):
@@ -249,15 +249,15 @@ def mode(x: list[i64]) -> i64:
     k: i32 = len(x)
     c: i32
     count: dict[i64, i32] = {i64(0): 0}
-    
+
     # insert keys in the dictionary
     for c in range(k):
         count[x[c]] = 0
-    
+
     # update the frequencies
     for c in range(k):
         count[x[c]] = count[x[c]] + 1
-    
+
     max_count: i32 = 0
     ans: i64
     for c in range(k):
@@ -383,17 +383,17 @@ def correlation(x: list[i32], y: list[i32]) -> f64:
         raise Exception("correlation requires at least two data points")
     xmean: f64 = mean(x)
     ymean: f64 = mean(y)
-    
+
     sxy: f64 = 0.0
     i: i32
     for i in range(n):
         sxy += (f64(x[i]) - xmean) * (f64(y[i]) - ymean)
-    
+
     sxx: f64 = 0.0
     j: i32
     for j in range(n):
         sxx += (f64(x[j]) - xmean) ** 2.0
-    
+
     syy: f64 = 0.0
     k: i32
     for k in range(n):
@@ -415,17 +415,17 @@ def correlation(x: list[f64], y: list[f64]) -> f64:
         raise Exception("correlation requires at least two data points")
     xmean: f64 = mean(x)
     ymean: f64 = mean(y)
-    
+
     sxy: f64 = 0.0
     i: i32
     for i in range(n):
         sxy += (x[i] - xmean) * (y[i] - ymean)
-    
+
     sxx: f64 = 0.0
     j: i32
     for j in range(n):
         sxx += (f64(x[j]) - xmean) ** 2.0
-    
+
     syy: f64 = 0.0
     k: i32
     for k in range(n):
@@ -472,6 +472,7 @@ def covariance(x: list[f64], y: list[f64]) -> f64:
 
 @overload
 def linear_regression(x: list[i32], y: list[i32]) -> tuple[f64, f64]:
+
     """
     Returns the slope and intercept of simple linear regression
     parameters estimated using ordinary least squares.
@@ -483,32 +484,33 @@ def linear_regression(x: list[i32], y: list[i32]) -> tuple[f64, f64]:
         raise Exception('linear regression requires at least two data points')
     xmean: f64 = mean(x)
     ymean: f64 = mean(y)
-    
+
     sxy: f64 = 0.0
     i: i32
     for i in range(n):
         sxy += (f64(x[i]) - xmean) * (f64(y[i]) - ymean)
-    
+
     sxx: f64 = 0.0
     j: i32
     for j in range(n):
         sxx += (f64(x[j]) - xmean) ** 2.0
-    
+
     slope: f64
-    
+
     if sxx == 0.0:
         raise Exception('x is constant')
     else:
         slope = sxy / sxx
-    
+
     intercept: f64  = ymean - slope * xmean
-    
+
     LinReg: tuple[f64, f64] = (slope, intercept)
-    
+
     return LinReg
 
 @overload
 def linear_regression(x: list[f64], y: list[f64]) -> tuple[f64, f64]:
+
     """
     Returns the slope and intercept of simple linear regression
     parameters estimated using ordinary least squares.
@@ -520,26 +522,26 @@ def linear_regression(x: list[f64], y: list[f64]) -> tuple[f64, f64]:
         raise Exception('linear regression requires at least two data points')
     xmean: f64 = mean(x)
     ymean: f64 = mean(y)
-    
+
     sxy: f64 = 0.0
     i: i32
     for i in range(n):
         sxy += (x[i] - xmean) * (y[i] - ymean)
-    
+
     sxx: f64 = 0.0
     j: i32
     for j in range(n):
         sxx += (f64(x[j]) - xmean) ** 2.0
-    
+
     slope: f64
-    
+
     if sxx == 0.0:
         raise Exception('x is constant')
     else:
         slope = sxy / sxx
-    
+
     intercept: f64  = ymean - slope * xmean
-    
+
     LinReg: tuple[f64, f64] = (slope, intercept)
-    
+
     return LinReg

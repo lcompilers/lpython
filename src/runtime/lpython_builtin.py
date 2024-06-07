@@ -129,7 +129,7 @@ def pow(x: f64, y: i32) -> f64:
 def pow(x: bool, y: bool) -> i32:
     if y and not x:
         return 0
-    
+
     return 1
 
 @overload
@@ -146,7 +146,7 @@ def sum(arr: list[i32]) -> i32:
     """
     sum: i32
     sum = 0
-    
+
     i: i32
     for i in range(len(arr)):
         sum += arr[i]
@@ -159,7 +159,7 @@ def sum(arr: list[i64]) -> i64:
     """
     sum: i64
     sum = i64(0)
-    
+
     i: i32
     for i in range(len(arr)):
         sum += arr[i]
@@ -172,7 +172,7 @@ def sum(arr: list[f32]) -> f32:
     """
     sum: f32
     sum = f32(0.0)
-    
+
     i: i32
     for i in range(len(arr)):
         sum += arr[i]
@@ -185,7 +185,7 @@ def sum(arr: list[f64]) -> f64:
     """
     sum: f64
     sum = 0.0
-    
+
     i: i32
     for i in range(len(arr)):
         sum += arr[i]
@@ -618,7 +618,7 @@ def _lpython_str_capitalize(x: str) -> str:
             res += chr(ord(i) + 32)  # Convert to lowercase using ASCII values
         else:
             res += i
-    
+
     val: i32
     val = ord(res[0])
     if val >= ord('a') and val <= ord('z'):
@@ -634,15 +634,15 @@ def _lpython_str_count(s: str, sub: str) -> i32:
     lps: list[i32] = []
     s_len = len(s)
     sub_len = len(sub)
-    
+
     if sub_len == 0:
         return s_len + 1 
-    
+
     count = 0
-    
+
     for i in range(sub_len):
         lps.append(0)
-    
+
     i = 1
     _len = 0
     while i < sub_len:
@@ -656,7 +656,7 @@ def _lpython_str_count(s: str, sub: str) -> i32:
             else:
                 lps[i] = 0
                 i += 1
-    
+
     j: i32
     j = 0
     i = 0
@@ -672,7 +672,7 @@ def _lpython_str_count(s: str, sub: str) -> i32:
                 j = lps[j - 1]
             else:
                 i = i + 1
-    
+
     return count
 
 
@@ -766,15 +766,15 @@ def _lpython_str_title(s: str) -> str:
         else:
             result += ch
             capitalize_next = True
-    
+
     return result
 
 def _lpython_str_istitle(s: str) -> bool:
     length: i32 = len(s)
-    
+
     if length == 0:
         return False  # Empty string is not in title case
-    
+
     word_start: bool = True  # Flag to track the start of a word
     ch: str
     only_whitespace: bool = True 
@@ -785,6 +785,7 @@ def _lpython_str_istitle(s: str) -> bool:
                 word_start = False
             else:
                 return False  # Found an uppercase character in the middle of a word
+
         elif ch.isalpha() and (ord('a') <= ord(ch) and ord(ch) <= ord('z')):
             only_whitespace = False
             if word_start:
@@ -792,6 +793,7 @@ def _lpython_str_istitle(s: str) -> bool:
             word_start = False
         else:
             word_start = True
+
     return True if not only_whitespace else False
 
 @overload
@@ -805,10 +807,10 @@ def _lpython_str_find(s: str, sub: str) -> i32:
     res = -1
     if s_len == 0 or sub_len == 0:
         return 0 if sub_len == 0 or (sub_len == s_len) else -1
-    
+
     for i in range(sub_len):
         lps.append(0)
-    
+
     i = 1
     _len = 0
     while i < sub_len:
@@ -822,7 +824,7 @@ def _lpython_str_find(s: str, sub: str) -> i32:
             else:
                 lps[i] = 0
                 i += 1
-    
+
     j: i32
     j = 0
     i = 0
@@ -839,6 +841,7 @@ def _lpython_str_find(s: str, sub: str) -> i32:
                 j = lps[j - 1]
             else:
                 i = i + 1
+
     return res
 
 def _lpython_str_rstrip(x: str) -> str:
@@ -883,7 +886,7 @@ def _lpython_str_split(x: str) -> list[str]:
             res.append(x_strip[start:start + ind])
             start += ind + len(sep)
     return res
-
+    
 @overload
 def _lpython_str_split(x: str, sep:str) -> list[str]:
     if len(sep) == 0:
@@ -904,7 +907,7 @@ def _lpython_str_split(x: str, sep:str) -> list[str]:
 @overload
 def _lpython_str_replace(x: str, old:str, new:str) -> str:
     return _lpython_str_replace(x, old, new, len(x))
-
+    
 
 @overload
 def _lpython_str_replace(x: str, old:str, new:str, count: i32) -> str:
@@ -922,7 +925,7 @@ def _lpython_str_replace(x: str, old:str, new:str, count: i32) -> str:
     lx: i32 = len(x)
     c: i32 = 0
     t: i32 = -1
-    
+
     while(c<count):
         t = _lpython_str_find(x[i:lx], old)
         if(t==-1):
@@ -962,16 +965,17 @@ def _lpython_str_startswith(s: str ,sub: str) -> bool:
 
 @overload
 def _lpython_str_endswith(s: str, suffix: str) -> bool:
+
     if(len(suffix) > len(s)):
         return False
-    
+
     i : i32
     i = 0
     while(i < len(suffix)):
         if(suffix[len(suffix) - i - 1] != s[len(s) - i - 1]):
             return False
         i += 1
-    
+
     return True
 
 @overload

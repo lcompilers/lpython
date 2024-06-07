@@ -10,7 +10,7 @@ tau: f64 = 6.283185307179586
 def modf(x: f64) -> tuple[f64, f64]:
     """
     Return fractional and integral parts of `x` as a pair.
-    
+
     Both results carry the sign of x and are floats.
     """
     return (x - f64(int(x)), float(int(x)))
@@ -20,7 +20,7 @@ def factorial(x: i32) -> i32:
     """
     Computes the factorial of `x`.
     """
-    
+
     result: i32
     result = 0
     if x < 0:
@@ -104,7 +104,7 @@ def fsum(arr: list[i32]) -> f64:
     """
     sum: f64
     sum = 0.0
-    
+
     i: i32
     for i in range(len(arr)):
         sum += float(arr[i])
@@ -117,7 +117,7 @@ def fsum(arr: list[i64]) -> f64:
     """
     sum: f64
     sum = 0.0
-    
+
     i: i32
     for i in range(len(arr)):
         sum += float(arr[i])
@@ -130,7 +130,7 @@ def fsum(arr: list[f32]) -> f64:
     """
     sum: f64
     sum = 0.0
-    
+
     i: i32
     for i in range(len(arr)):
         sum += float(arr[i])
@@ -143,7 +143,7 @@ def fsum(arr: list[f64]) -> f64:
     """
     sum: f64
     sum = 0.0
-    
+
     i: i32
     for i in range(len(arr)):
         sum += arr[i]
@@ -157,7 +157,7 @@ def prod(arr: list[i32]) -> f64:
     """
     Return the product of the elements of `arr`.
     """
-    
+
     result: f64
     result = 1.0
     i: i32
@@ -170,7 +170,7 @@ def prod(arr: list[i64]) -> f64:
     """
     Return the product of the elements of `arr`.
     """
-    
+
     result: f64
     result = 1.0
     i: i32
@@ -183,7 +183,7 @@ def prod(arr: list[f32]) -> f64:
     """
     Return the product of the elements of `arr`.
     """
-    
+
     result: f64
     result = 1.0
     i: i32
@@ -196,7 +196,7 @@ def prod(arr: list[f64]) -> f64:
     """
     Return the product of the elements of `arr`.
     """
-    
+
     result: f64
     result = 1.0
     i: i32
@@ -213,7 +213,7 @@ def dist(x: list[f64], y: list[f64]) -> f64:
          raise ValueError("Length of lists should be same")
     res: f64
     res = 0.0
-    
+
     i: i32
     for i in range(len(x)):
         res += (x[i] - y[i]) * (x[i] - y[i])
@@ -225,7 +225,7 @@ def comb(n: i32, k: i32) -> i32:
     Computes the result of `nCk`, i.e, the number of ways to choose `k`
     items from `n` items without repetition and without order.
     """
-    
+
     if n < k or n < 0:
         return 0
     return i32(factorial(n)//(factorial(k)*factorial(n-k)))
@@ -236,7 +236,7 @@ def perm(n: i32, k: i32) -> i32:
     Computes the result of `nPk`, i.e, the number of ways to choose `k` items
     from `n` items without repetition and with order.
     """
-    
+
     if n < k or n < 0:
         return 0
     return i32(factorial(n)//factorial(n-k))
