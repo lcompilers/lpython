@@ -1106,7 +1106,7 @@ int compile_python_using_llvm(
 
         e.add_module(std::move(m));
         if (call_stmts) {
-            e.voidfn("__module___main_____main__global_stmts");
+            e.execfn<void>("__module___main_____main__global_stmts");
         }
 
         if (compiler_options.enable_cpython) {

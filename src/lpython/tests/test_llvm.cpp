@@ -26,9 +26,9 @@ define i64 @f1()
     ret i64 4
 }
     )""");
-    CHECK(e.int64fn("f1") == 4);
+    CHECK(e.execfn<int64_t>("f1") == 4);
     e.add_module("");
-    //CHECK(e.int64fn("f1") == 4);
+    //CHECK(e.execfn<int64_t>("f1") == 4);
 
     e.add_module(R"""(
 define i64 @f2()
@@ -36,9 +36,9 @@ define i64 @f2()
     ret i64 5
 }
     )""");
-    CHECK(e.int64fn("f2") == 5);
+    CHECK(e.execfn<int64_t>("f2") == 5);
     //e.add_module("");
-    //CHECK(e.int64fn("f2") == 5);
+    //CHECK(e.execfn<int64_t>("f2") == 5);
 }
 
 TEST_CASE("llvm 1 fail") {
@@ -72,7 +72,7 @@ define i64 @f1()
     ret i64 %1
 }
     )""");
-    CHECK(e.int64fn("f1") == 4);
+    CHECK(e.execfn<int64_t>("f1") == 4);
 
     e.add_module(R"""(
 @count = external global i64
@@ -83,7 +83,7 @@ define i64 @f2()
     ret i64 %1
 }
     )""");
-    CHECK(e.int64fn("f2") == 4);
+    CHECK(e.execfn<int64_t>("f2") == 4);
 
     CHECK_THROWS_AS(e.add_module(R"""(
 define i64 @f3()
@@ -118,12 +118,12 @@ define void @inc()
     ret void
 }
     )""");
-    CHECK(e.int64fn("f1") == 5);
+    CHECK(e.execfn<int64_t>("f1") == 5);
     /*
-    e.voidfn("inc");
-    CHECK(e.int64fn("f1") == 6);
-    e.voidfn("inc");
-    CHECK(e.int64fn("f1") == 7);
+    e.execfn<void>("inc");
+    CHECK(e.execfn<int64_t>("f1") == 6);
+    e.execfn<void>("inc");
+    CHECK(e.execfn<int64_t>("f1") == 7);
     */
 
     /*
@@ -138,13 +138,13 @@ define void @inc2()
     ret void
 }
     )""");
-    CHECK(e.int64fn("f1") == 7);
-    e.voidfn("inc2");
-    CHECK(e.int64fn("f1") == 9);
-    e.voidfn("inc");
-    CHECK(e.int64fn("f1") == 10);
-    e.voidfn("inc2");
-    CHECK(e.int64fn("f1") == 12);
+    CHECK(e.execfn<int64_t>("f1") == 7);
+    e.execfn<void>("inc2");
+    CHECK(e.execfn<int64_t>("f1") == 9);
+    e.execfn<void>("inc");
+    CHECK(e.execfn<int64_t>("f1") == 10);
+    e.execfn<void>("inc2");
+    CHECK(e.execfn<int64_t>("f1") == 12);
     */
 
     // Test that we can have another independent LLVMEvaluator and use both at
@@ -169,19 +169,19 @@ define void @inc()
 }
     )""");
 
-    CHECK(e2.int64fn("f1") == 5);
-    e2.voidfn("inc");
-    CHECK(e2.int64fn("f1") == 6);
-    e2.voidfn("inc");
-    CHECK(e2.int64fn("f1") == 7);
+    CHECK(e2.execfn<int64_t>("f1") == 5);
+    e2.execfn<void>("inc");
+    CHECK(e2.execfn<int64_t>("f1") == 6);
+    e2.execfn<void>("inc");
+    CHECK(e2.execfn<int64_t>("f1") == 7);
 
-    CHECK(e.int64fn("f1") == 12);
-    e2.voidfn("inc");
-    CHECK(e2.int64fn("f1") == 8);
-    CHECK(e.int64fn("f1") == 12);
-    e.voidfn("inc");
-    CHECK(e2.int64fn("f1") == 8);
-    CHECK(e.int64fn("f1") == 13);
+    CHECK(e.execfn<int64_t>("f1") == 12);
+    e2.execfn<void>("inc");
+    CHECK(e2.execfn<int64_t>("f1") == 8);
+    CHECK(e.execfn<int64_t>("f1") == 12);
+    e.execfn<void>("inc");
+    CHECK(e2.execfn<int64_t>("f1") == 8);
+    CHECK(e.execfn<int64_t>("f1") == 13);
 */
 }
 
@@ -204,12 +204,12 @@ define void @inc()
     ret void
 }
 )""");
-    CHECK(e.int64fn("f1") == 5);
+    CHECK(e.execfn<int64_t>("f1") == 5);
     /*
-    e.voidfn("inc");
-    CHECK(e.int64fn("f1") == 6);
-    e.voidfn("inc");
-    CHECK(e.int64fn("f1") == 7);
+    e.execfn<void>("inc");
+    CHECK(e.execfn<int64_t>("f1") == 6);
+    e.execfn<void>("inc");
+    CHECK(e.execfn<int64_t>("f1") == 7);
 
     e.add_module(R"""(
 declare void @inc()
@@ -221,13 +221,13 @@ define void @inc2()
     ret void
 }
 )""");
-    CHECK(e.int64fn("f1") == 7);
-    e.voidfn("inc2");
-    CHECK(e.int64fn("f1") == 9);
-    e.voidfn("inc");
-    CHECK(e.int64fn("f1") == 10);
-    e.voidfn("inc2");
-    CHECK(e.int64fn("f1") == 12);
+    CHECK(e.execfn<int64_t>("f1") == 7);
+    e.execfn<void>("inc2");
+    CHECK(e.execfn<int64_t>("f1") == 9);
+    e.execfn<void>("inc");
+    CHECK(e.execfn<int64_t>("f1") == 10);
+    e.execfn<void>("inc2");
+    CHECK(e.execfn<int64_t>("f1") == 12);
 
     CHECK_THROWS_AS(e.add_module(R"""(
 define void @inc2()
@@ -280,7 +280,7 @@ define i64 @f()
     ret i64 %r
 }
     )""");
-    CHECK(e.int64fn("f") == 6);
+    CHECK(e.execfn<int64_t>("f") == 6);
 }
 
 TEST_CASE("llvm array 2") {
@@ -325,7 +325,7 @@ define i64 @f()
     ret i64 %r
 }
     )""");
-    //CHECK(e.int64fn("f") == 6);
+    //CHECK(e.execfn<int64_t>("f") == 6);
 }
 
 int f(int a, int b) {
@@ -349,7 +349,7 @@ define i64 @f1()
     ret i64 %r
 }
     )""");
-    CHECK(e.int64fn("f1") == 5);
+    CHECK(e.execfn<int64_t>("f1") == 5);
 }
 
 
@@ -387,7 +387,7 @@ define float @f()
     ret float %r
 }
     )""");
-    CHECK(std::abs(e.floatfn("f") - 8) < 1e-6);
+    CHECK(std::abs(e.execfn<float>("f") - 8) < 1e-6);
 }
 
 // Tests passing the complex struct by value
@@ -426,7 +426,7 @@ define float @f()
     ret float %r
 }
     )""");
-    //CHECK(std::abs(e.floatfn("f") - 8) < 1e-6);
+    //CHECK(std::abs(e.execfn<float>("f") - 8) < 1e-6);
 }
 
 // Tests passing boolean by reference
@@ -456,7 +456,7 @@ define i1 @b()
     ret i1 %r
 }
     )""");
-    CHECK(e.boolfn("b") == false);
+    CHECK(e.execfn<bool>("b") == false);
 }
 
 // Tests passing boolean by value
@@ -486,7 +486,7 @@ define i1 @b()
     ret i1 %r
 }
     )""");
-    CHECK(e.boolfn("b") == false);
+    CHECK(e.execfn<bool>("b") == false);
 }
 
 // Tests pointers
@@ -507,7 +507,7 @@ define i64 @f()
     ret i64 %raddr
 }
     )""");
-    int64_t r = e.int64fn("f");
+    int64_t r = e.execfn<int64_t>("f");
     CHECK(r != 8);
     int64_t *p = (int64_t*)r;
     CHECK(*p == 8);
@@ -527,7 +527,7 @@ define i64 @f()
     ret i64 %raddr
 }
     )""");
-    int64_t r = e.int64fn("f");
+    int64_t r = e.execfn<int64_t>("f");
     float *p = (float *)r;
     CHECK(std::abs(*p - 8) < 1e-6);
 }
@@ -568,7 +568,7 @@ define float @f()
     ret float %ret
 }
     )""");
-    float r = e.floatfn("f");
+    float r = e.execfn<float>("f");
     CHECK(std::abs(r - 8) < 1e-6);
 }
 
@@ -605,7 +605,7 @@ define float @f()
     ret float %ret
 }
     )""");
-    float r = e.floatfn("f");
+    float r = e.execfn<float>("f");
     CHECK(std::abs(r - 8) < 1e-6);
 }
 
