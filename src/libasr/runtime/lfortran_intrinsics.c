@@ -1972,6 +1972,10 @@ LFORTRAN_API void _lfortran_strcpy(char** x, char *y, int8_t free_target)
         // *x = (char*) malloc((strlen(y) + 1) * sizeof(char));
         // _lfortran_string_init(strlen(y) + 1, *x);
     }
+    if (y == NULL) {
+        *x = NULL;
+        return;
+    }
     // if( *x == NULL ) {
         *x = (char*) malloc((strlen(y) + 1) * sizeof(char));
         _lfortran_string_init(strlen(y) + 1, *x);

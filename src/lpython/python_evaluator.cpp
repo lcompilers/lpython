@@ -127,7 +127,18 @@ Result<PythonCompiler::EvalResult> PythonCompiler::evaluate(
 
     e->add_module(std::move(m));
     if (call_run_fn) {
-        if (return_type == "integer1") {
+        if (return_type == "integer1ptr") {
+            ASR::symbol_t *fn = ASR::down_cast<ASR::Module_t>(symbol_table->resolve_symbol(module_name))
+                                    ->m_symtab->get_symbol(run_fn);
+            LCOMPILERS_ASSERT(fn)
+            if (ASRUtils::get_FunctionType(fn)->m_return_var_type->type == ASR::ttypeType::Character) {
+                char *r = e->strfn(run_fn);
+                result.type = EvalResult::string;
+                result.str = r;
+            } else {
+                throw LCompilersException("PythonCompiler::evaluate(): Return type not supported");
+            }
+        } else if (return_type == "integer1") {
             ASR::symbol_t *fn = ASR::down_cast<ASR::Module_t>(symbol_table->resolve_symbol(module_name))
                                     ->m_symtab->get_symbol(run_fn);
             LCOMPILERS_ASSERT(fn)
@@ -203,7 +214,7 @@ Result<PythonCompiler::EvalResult> PythonCompiler::evaluate(
         } else if (return_type == "none") {
             result.type = EvalResult::none;
         } else {
-            throw LCompilersException("FortranEvaluator::evaluate(): Return type not supported");
+            throw LCompilersException("PythonCompiler::evaluate(): Return type not supported");
         }
     }
 

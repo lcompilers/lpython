@@ -110,6 +110,8 @@ std::string LLVMModule::get_return_type(const std::string &fn_name)
         return "integer4";
     } else if (type->isIntegerTy(64)) {
         return "integer8";
+    } else if (type->isPointerTy() && type->getPointerElementType()->isIntegerTy(8)) {
+        return "integer1ptr";
     } else if (type->isStructTy()) {
         llvm::StructType *st = llvm::cast<llvm::StructType>(type);
         if (st->hasName()) {
@@ -271,6 +273,12 @@ intptr_t LLVMEvaluator::get_symbol_address(const std::string &name) {
         throw LCompilersException("JITSymbol::getAddress() returned an error: " + msg);
     }
     return (intptr_t)cantFail(std::move(addr0));
+}
+
+char *LLVMEvaluator::strfn(const std::string &name) {
+    intptr_t addr = get_symbol_address(name);
+    char *(*f)() = (char *(*)())addr;
+    return f();
 }
 
 int8_t LLVMEvaluator::int8fn(const std::string &name) {

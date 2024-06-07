@@ -49,6 +49,7 @@ public:
             real8,
             complex4,
             complex8,
+            string,
             statement,
             none
         } type;
@@ -59,6 +60,7 @@ public:
             uint64_t u64;
             float f32;
             double f64;
+            char *str;
             struct {float re, im;} c32;
             struct {double re, im;} c64;
         };

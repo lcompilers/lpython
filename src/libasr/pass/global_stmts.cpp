@@ -93,7 +93,8 @@ void pass_wrap_global_stmts(Allocator &al,
                 fn_scope->add_symbol(std::string(var_name), down_cast<ASR::symbol_t>(return_var));
                 target = return_var_ref;
                 idx++;
-            } else if (ASRUtils::expr_type(value)->type == ASR::ttypeType::Complex) {
+            } else if ((ASRUtils::expr_type(value)->type == ASR::ttypeType::Complex) ||
+                       (ASRUtils::expr_type(value)->type == ASR::ttypeType::Character)) {
                 s.from_str(al, fn_name_s + std::to_string(idx));
                 var_name = s.c_str(al);
                 type = ASRUtils::expr_type(value);
