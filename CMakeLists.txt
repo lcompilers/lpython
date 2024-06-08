@@ -120,6 +120,20 @@ if (WITH_LCOMPILERS_FAST_ALLOC)
     add_definitions("-DLCOMPILERS_FAST_ALLOC=1")
 endif()
 
+# copy runtime files
+configure_file("${CMAKE_CURRENT_SOURCE_DIR}/src/runtime/lpython/lpython.py" "${CMAKE_CURRENT_BINARY_DIR}/src/runtime/lpython/lpython.py")
+configure_file("${CMAKE_CURRENT_SOURCE_DIR}/src/runtime/cmath.py" "${CMAKE_CURRENT_BINARY_DIR}/src/runtime/cmath.py")
+configure_file("${CMAKE_CURRENT_SOURCE_DIR}/src/runtime/lpython_builtin.py" "${CMAKE_CURRENT_BINARY_DIR}/src/runtime/lpython_builtin.py")
+configure_file("${CMAKE_CURRENT_SOURCE_DIR}/src/runtime/lpython_intrinsic_numpy.py" "${CMAKE_CURRENT_BINARY_DIR}/src/runtime/lpython_intrinsic_numpy.py")
+configure_file("${CMAKE_CURRENT_SOURCE_DIR}/src/runtime/lpython_parser.py" "${CMAKE_CURRENT_BINARY_DIR}/src/runtime/lpython_parser.py")
+configure_file("${CMAKE_CURRENT_SOURCE_DIR}/src/runtime/math.py" "${CMAKE_CURRENT_BINARY_DIR}/src/runtime/math.py")
+configure_file("${CMAKE_CURRENT_SOURCE_DIR}/src/runtime/os.py" "${CMAKE_CURRENT_BINARY_DIR}/src/runtime/os.py")
+configure_file("${CMAKE_CURRENT_SOURCE_DIR}/src/runtime/platform.py" "${CMAKE_CURRENT_BINARY_DIR}/src/runtime/platform.py")
+configure_file("${CMAKE_CURRENT_SOURCE_DIR}/src/runtime/random.py" "${CMAKE_CURRENT_BINARY_DIR}/src/runtime/random.py")
+configure_file("${CMAKE_CURRENT_SOURCE_DIR}/src/runtime/statistics.py" "${CMAKE_CURRENT_BINARY_DIR}/src/runtime/statistics.py")
+configure_file("${CMAKE_CURRENT_SOURCE_DIR}/src/runtime/sys.py" "${CMAKE_CURRENT_BINARY_DIR}/src/runtime/sys.py")
+configure_file("${CMAKE_CURRENT_SOURCE_DIR}/src/runtime/time.py" "${CMAKE_CURRENT_BINARY_DIR}/src/runtime/time.py")
+
 # LLVM
 set(WITH_LLVM no CACHE BOOL "Build with LLVM support")
 set(WITH_TARGET_AARCH64 no CACHE BOOL "Enable target AARCH64")

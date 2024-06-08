@@ -116,7 +116,7 @@ std::string read_file(const std::string &filename)
     std::vector<char> bytes(filesize);
     ifs.read(&bytes[0], filesize);
 
-    return std::string(&bytes[0], filesize);
+    return replace(std::string(&bytes[0], filesize), "\r\n", "\n");
 }
 
 std::string parent_path(const std::string &path) {
