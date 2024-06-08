@@ -1346,7 +1346,7 @@ TEST_CASE("PythonCompiler boolean declaration") {
     
     r = e.evaluate2("f: bool = False");
     CHECK(r.ok);
-    CHECK(r.result.type == PythonCompiler::EvalResult::statement);
+    CHECK(r.result.type == PythonCompiler::EvalResult::none);
     r = e.evaluate2("f");
     CHECK(r.ok);
     CHECK(r.result.type == PythonCompiler::EvalResult::boolean);
