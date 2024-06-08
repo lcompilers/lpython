@@ -2950,29 +2950,33 @@ public:
                 visit_ClassDef(*AST::down_cast<AST::ClassDef_t>(x.m_body[i]));  
                 continue;
             } else if ( AST::is_a<AST::FunctionDef_t>(*x.m_body[i]) ) {
-                this->visit_stmt(*x.m_body[i]);
                 AST::FunctionDef_t* f_ast = AST::down_cast<AST::FunctionDef_t>(x.m_body[i]);
+                std::string f_name_old = std::string(f_ast->m_name);
+                std::string f_name_new = "Xx_Class_Procedure_" + f_name_old;
+                Str old_name;
+                old_name.from_str(al,f_name_old);
+                Str new_name;
+                new_name.from_str(al,f_name_new);
+                f_ast->m_name = new_name.p;
+                this->visit_stmt(*x.m_body[i]);
                 ASR::symbol_t* f_sym = current_scope->get_symbol(f_ast->m_name);
                 ASR::Function_t* f = ASR::down_cast<ASR::Function_t>(f_sym);
-                std::string class_proc_name = "Xx_Class_Procedure_"+std::string(f->m_name);
                 SymbolTable* proc_scope = ASRUtils::symbol_parent_symtab(f_sym);
-                Str s;
-                s.from_str(al,class_proc_name);
                 ASR::abiType abi = ASR::abiType::Source;
                 tmp = make_ClassProcedure_t(
-                    al,
-                    f_sym->base.loc,
-                    proc_scope,
-                    s.p,
-                    nullptr,
-                    f->m_name,
-                    f_sym,
-                    abi,
-                    false,
-                    false                    
-                );
+                    /*&al*/al,
+                    /*&a_loc*/f_sym->base.loc,
+                    /*a_parent_symtab*/proc_scope,
+                    /*a_name*/old_name.p,
+                    /*a_self_argument*/nullptr,
+                    /*a_proc_name*/f->m_name,
+                    /*a_proc*/f_sym,
+                    /*a_abi*/abi,
+                    /*a_is_deferred*/false,
+                    /*a_is_nopass*/false    
+                    );
                 ASR::symbol_t *cls_proc_sym = ASR::down_cast<ASR::symbol_t>(tmp);
-                current_scope->add_symbol(class_proc_name, cls_proc_sym);
+                current_scope->add_symbol(f_name_old, cls_proc_sym);
                 continue;
             } else if (AST::is_a<AST::Pass_t>(*x.m_body[i])) {
                 continue;
@@ -7623,6 +7627,7 @@ we will have to use something else.
                     if (ASR::is_a<ASR::Struct_t>(*var->m_type)) {
                         // call to struct member function
                         ASR::Struct_t* var_struct = ASR::down_cast<ASR::Struct_t>(var->m_type);
+                        call_name = "Xx_Class_Procedure_" + call_name;
                         st = get_struct_member(var_struct->m_derived_type, call_name, loc);
                     } else {
                         // this case when we have variable and attribute
