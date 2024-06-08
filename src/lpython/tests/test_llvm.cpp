@@ -1292,6 +1292,77 @@ TEST_CASE("PythonCompiler u16 declaration") {
     CHECK(r.result.u32 == 45);
 }
 
+TEST_CASE("PythonCompiler boolean expressions") {
+    CompilerOptions cu;
+    cu.po.disable_main = true;
+    cu.emit_debug_line_column = false;
+    cu.generate_object_code = false;
+    cu.interactive = true;
+    cu.po.runtime_library_dir = LCompilers::LPython::get_runtime_library_dir();
+    PythonCompiler e(cu);
+    LCompilers::Result<PythonCompiler::EvalResult>
+
+    r = e.evaluate2("True");
+    CHECK(r.ok);
+    CHECK(r.result.type == PythonCompiler::EvalResult::boolean);
+    CHECK(r.result.b);
+
+    r = e.evaluate2("False");
+    CHECK(r.ok);
+    CHECK(r.result.type == PythonCompiler::EvalResult::boolean);
+    CHECK(!r.result.b);
+ 
+    r = e.evaluate2("False or True");
+    CHECK(r.ok);
+    CHECK(r.result.type == PythonCompiler::EvalResult::boolean);
+    CHECK(r.result.b);
+    
+    r = e.evaluate2("False and True");
+    CHECK(r.ok);
+    CHECK(r.result.type == PythonCompiler::EvalResult::boolean);
+    CHECK(!r.result.b);
+}
+
+TEST_CASE("PythonCompiler boolean declaration") {
+    CompilerOptions cu;
+    cu.po.disable_main = true;
+    cu.emit_debug_line_column = false;
+    cu.generate_object_code = false;
+    cu.interactive = true;
+    cu.po.runtime_library_dir = LCompilers::LPython::get_runtime_library_dir();
+    PythonCompiler e(cu);
+    LCompilers::Result<PythonCompiler::EvalResult>
+
+    r = e.evaluate2("t: bool");
+    CHECK(r.ok);
+    CHECK(r.result.type == PythonCompiler::EvalResult::none);
+    r = e.evaluate2("t = True");
+    CHECK(r.ok);
+    CHECK(r.result.type == PythonCompiler::EvalResult::statement);
+    r = e.evaluate2("t");
+    CHECK(r.ok);
+    CHECK(r.result.type == PythonCompiler::EvalResult::boolean);
+    CHECK(r.result.b);
+    
+    r = e.evaluate2("f: bool = False");
+    CHECK(r.ok);
+    CHECK(r.result.type == PythonCompiler::EvalResult::statement);
+    r = e.evaluate2("f");
+    CHECK(r.ok);
+    CHECK(r.result.type == PythonCompiler::EvalResult::boolean);
+    CHECK(!r.result.b);
+
+    r = e.evaluate2("t or f");
+    CHECK(r.ok);
+    CHECK(r.result.type == PythonCompiler::EvalResult::boolean);
+    CHECK(r.result.b);
+    
+    r = e.evaluate2("t and f");
+    CHECK(r.ok);
+    CHECK(r.result.type == PythonCompiler::EvalResult::boolean);
+    CHECK(!r.result.b);
+}
+
 TEST_CASE("PythonCompiler string 1") {
     CompilerOptions cu;
     cu.po.disable_main = true;
