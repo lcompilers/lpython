@@ -49,6 +49,7 @@ public:
             real8,
             complex4,
             complex8,
+            boolean,
             string,
             statement,
             none
@@ -58,6 +59,7 @@ public:
             int64_t i64;
             uint32_t u32;
             uint64_t u64;
+            bool b;
             float f32;
             double f64;
             char *str;

@@ -208,6 +208,10 @@ Result<PythonCompiler::EvalResult> PythonCompiler::evaluate(
             result.type = EvalResult::complex8;
             result.c64.re = r.real();
             result.c64.im = r.imag();
+        } else if (return_type == "logical") {
+            bool r = e->execfn<bool>(run_fn);
+            result.type = EvalResult::boolean;
+            result.b = r;
         } else if (return_type == "void") {
             e->execfn<void>(run_fn);
             result.type = EvalResult::statement;

@@ -986,6 +986,12 @@ int interactive_python_repl(
                 std::cout << std::setprecision(17) << "(" << r.c64.re << ", " << r.c64.im << ")" << std::endl;
                 break;
             }
+            case (LCompilers::PythonCompiler::EvalResult::boolean) : {
+                if (verbose) std::cout << "Return type: logical" << std::endl;
+                if (verbose) section("Result:");
+                std::cout << (r.b ? "True" : "False") << std::endl;
+                break;
+            }
             case (LCompilers::PythonCompiler::EvalResult::string) : {
                 if (verbose) std::cout << "Return type: str" << std::endl;
                 if (verbose) section("Result:");
