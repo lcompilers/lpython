@@ -798,6 +798,37 @@ int emit_llvm(const std::string &infile,
     return 0;
 }
 
+bool determine_completeness(std::string command)
+{
+    auto get_last_line = [](std::string input) {
+        if(input.length() == 1) {
+            return input;
+        }
+        size_t position = input.length() - 2;
+        while ((!(input[position] == '\n' || input[position] == '\r')) && (position > 0)) {
+            position--;
+        }
+        if(input[position] == '\n' || input[position] == '\r') {
+            position += 1;
+        }
+        return input.substr(position);
+    };
+
+    std::string last_line = get_last_line(command);
+    if ((last_line.rfind("def", 0) == 0) ||
+        (last_line.rfind("for", 0) == 0) ||
+        (last_line.rfind("if", 0) == 0) ||
+        (last_line.rfind("else", 0) == 0) ||
+        (last_line.rfind("elif", 0) == 0) ||
+        (last_line.rfind("class", 0) == 0) ||
+        (last_line.rfind('@', 0) == 0) ||
+        (last_line.rfind(' ', 0) == 0) ||
+        (last_line.rfind('\t', 0) == 0)) {
+            return false;
+    }
+    return true;
+}
+
 int interactive_python_repl(
         LCompilers::PassManager& pass_manager,
         CompilerOptions &compiler_options,
@@ -811,29 +842,29 @@ int interactive_python_repl(
     std::vector<std::pair<std::string, double>> times;
     LCompilers::PythonCompiler::EvalResult r;
 
+    Terminal term(true, false);
+    std::cout << "Interactive LPython. Experimental prototype, not ready for end users." << std::endl;
+    std::string version = LFORTRAN_VERSION;
+    std::cout << "LPython version: " << version << std::endl;
+    std::cout << "  * Use Ctrl-D to exit" << std::endl;
+    std::cout << "  * Use Enter to submit" << std::endl;
+    std::cout << "  * Use Alt-Enter or Ctrl-N to make a new line" << std::endl;
+    std::cout << "    - Editing (Keys: Left, Right, Home, End, Backspace, Delete)" << std::endl;
+    std::cout << "    - History (Keys: Up, Down)" << std::endl;
+
+    std::vector<std::string> history;
+    
+    std::function<bool(std::string)> iscomplete = determine_completeness;
+    
     std::string code_string;
-    std::cout << ">>> ";
     size_t cell_count = 0;
-    for (std::string input; std::getline(std::cin, input);) {
-        if (input == "exit" || input == "quit") {
+    while (true) {
+        std::string code_string = prompt0(term, ">>> ", history, iscomplete);
+        if (code_string.size() == 1 && code_string[0] == CTRL_KEY('d')) {
+            std::cout << std::endl;
+            std::cout << "Exiting." << std::endl;
             return 0;
         }
-
-        if ((input.rfind("def", 0) == 0) ||
-            (input.rfind("for", 0) == 0) ||
-            (input.rfind("if", 0) == 0) ||
-            (input.rfind("else", 0) == 0) ||
-            (input.rfind("elif", 0) == 0) ||
-            (input.rfind("class", 0) == 0) ||
-            (input.rfind('@', 0) == 0) ||
-            (input.rfind(' ', 0) == 0) ||
-            (input.rfind('\t', 0) == 0)) {
-            // start of a block
-            code_string += input + "\n";
-            std::cout << "... ";
-            continue;
-        }
-        code_string += input + "\n";
 
         {
             cell_count++;
@@ -856,8 +887,6 @@ int interactive_python_repl(
                 LCOMPILERS_ASSERT(diagnostics.has_error())
                 std::cerr << diagnostics.render(lm, compiler_options);
                 diagnostics.clear();
-                code_string = "";
-                std::cout << ">>> ";
                 continue;
             }
 
@@ -872,9 +901,6 @@ int interactive_python_repl(
             get_local_info(d);
             std::cerr << stacktrace2str(d, LCompilers::stacktrace_depth);
             std::cerr << e.name() + ": " << e.msg() << std::endl;
-
-            code_string = "";
-            std::cout << ">>> ";
             continue;
         }
 
@@ -984,9 +1010,6 @@ int interactive_python_repl(
             }
             default : throw LCompilers::LCompilersException("Return type not supported");
         }
-
-        code_string = "";
-        std::cout << ">>> ";
     }
     return 0;
 }
