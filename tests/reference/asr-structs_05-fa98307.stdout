@@ -151,7 +151,7 @@
                             __main__global_stmts:
                                 (Function
                                     (SymbolTable
-                                        232
+                                        231
                                         {
                                             
                                         })
@@ -1446,11 +1446,11 @@
             main_program:
                 (Program
                     (SymbolTable
-                        233
+                        232
                         {
                             __main__global_stmts:
                                 (ExternalSymbol
-                                    233
+                                    232
                                     __main__global_stmts
                                     2 __main__global_stmts
                                     __main__
@@ -1462,7 +1462,7 @@
                     main_program
                     [__main__]
                     [(SubroutineCall
-                        233 __main__global_stmts
+                        232 __main__global_stmts
                         2 __main__global_stmts
                         []
                         ()

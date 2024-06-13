@@ -3220,10 +3220,6 @@ public:
             return;
         } else {
             current_scope->add_symbol(x_m_name, class_type);
-            ASR::symbol_t* sym = current_scope->resolve_symbol(x_m_name);
-            ASR::StructType_t *st = ASR::down_cast<ASR::StructType_t>(sym);
-            st->m_initializers = member_init.p;
-            st->n_initializers = member_init.size(); 
         }
     }
 
