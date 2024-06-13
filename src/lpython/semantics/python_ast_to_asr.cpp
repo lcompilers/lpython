@@ -7707,7 +7707,7 @@ we will have to use something else.
             };
             if (symbolic_attributes.find(at->m_attr) != symbolic_attributes.end()){
                 std::set<std::string> symbolic_functions = {
-                    "sin", "cos", "log", "exp", "Abs", "Symbol"
+                    "sin", "cos", "log", "exp", "Abs", "sign", "Symbol"
                 };
                 if (AST::is_a<AST::Attribute_t>(*call->m_func)) {
                     visit_Call(*call);
@@ -7839,7 +7839,7 @@ we will have to use something else.
                 "sum" // For sum called over lists
             };
             std::set<std::string> symbolic_functions = {
-                "sin", "cos", "log", "exp", "Abs"
+                "sin", "cos", "log", "exp", "Abs", "sign"
             };
             if ((symbolic_functions.find(call_name) != symbolic_functions.end()) &&
                 imported_functions[call_name] == "sympy"){

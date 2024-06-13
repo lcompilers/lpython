@@ -420,6 +420,11 @@ public:
     }
 
     void visit_Function(const Function_t &x) {
+        ASR::FunctionType_t* x_func_type = ASR::down_cast<ASR::FunctionType_t>(x.m_function_signature);
+        if (x_func_type->m_abi == abiType::Interactive) {
+            require(x.n_body == 0,
+            "The Function::n_body should be 0 if abi set to Interactive");
+        }
         std::vector<std::string> function_dependencies_copy = function_dependencies;
         function_dependencies.clear();
         function_dependencies.reserve(x.n_dependencies);

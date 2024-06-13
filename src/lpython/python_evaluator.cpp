@@ -127,16 +127,53 @@ Result<PythonCompiler::EvalResult> PythonCompiler::evaluate(
 
     e->add_module(std::move(m));
     if (call_run_fn) {
-        if (return_type == "integer4") {
+        if (return_type == "integer1ptr") {
+            ASR::symbol_t *fn = ASR::down_cast<ASR::Module_t>(symbol_table->resolve_symbol(module_name))
+                                    ->m_symtab->get_symbol(run_fn);
+            LCOMPILERS_ASSERT(fn)
+            if (ASRUtils::get_FunctionType(fn)->m_return_var_type->type == ASR::ttypeType::Character) {
+                char *r = e->execfn<char*>(run_fn);
+                result.type = EvalResult::string;
+                result.str = r;
+            } else {
+                throw LCompilersException("PythonCompiler::evaluate(): Return type not supported");
+            }
+        } else if (return_type == "integer1") {
             ASR::symbol_t *fn = ASR::down_cast<ASR::Module_t>(symbol_table->resolve_symbol(module_name))
                                     ->m_symtab->get_symbol(run_fn);
             LCOMPILERS_ASSERT(fn)
             if (ASRUtils::get_FunctionType(fn)->m_return_var_type->type == ASR::ttypeType::UnsignedInteger) {
-                uint32_t r = e->int32fn(run_fn);
+                uint8_t r = e->execfn<uint8_t>(run_fn);
+                result.type = EvalResult::unsignedInteger1;
+                result.u32 = r;
+            } else {
+                int8_t r = e->execfn<int8_t>(run_fn);
+                result.type = EvalResult::integer1;
+                result.i32 = r;
+            }
+        } else if (return_type == "integer2") {
+            ASR::symbol_t *fn = ASR::down_cast<ASR::Module_t>(symbol_table->resolve_symbol(module_name))
+                                    ->m_symtab->get_symbol(run_fn);
+            LCOMPILERS_ASSERT(fn)
+            if (ASRUtils::get_FunctionType(fn)->m_return_var_type->type == ASR::ttypeType::UnsignedInteger) {
+                uint16_t r = e->execfn<uint16_t>(run_fn);
+                result.type = EvalResult::unsignedInteger2;
+                result.u32 = r;
+            } else {
+                int16_t r = e->execfn<int16_t>(run_fn);
+                result.type = EvalResult::integer2;
+                result.i32 = r;
+            }
+        } else if (return_type == "integer4") {
+            ASR::symbol_t *fn = ASR::down_cast<ASR::Module_t>(symbol_table->resolve_symbol(module_name))
+                                    ->m_symtab->get_symbol(run_fn);
+            LCOMPILERS_ASSERT(fn)
+            if (ASRUtils::get_FunctionType(fn)->m_return_var_type->type == ASR::ttypeType::UnsignedInteger) {
+                uint32_t r = e->execfn<uint32_t>(run_fn);
                 result.type = EvalResult::unsignedInteger4;
                 result.u32 = r;
             } else {
-                int32_t r = e->int32fn(run_fn);
+                int32_t r = e->execfn<int32_t>(run_fn);
                 result.type = EvalResult::integer4;
                 result.i32 = r;
             }
@@ -145,39 +182,43 @@ Result<PythonCompiler::EvalResult> PythonCompiler::evaluate(
                                     ->m_symtab->get_symbol(run_fn);
             LCOMPILERS_ASSERT(fn)
             if (ASRUtils::get_FunctionType(fn)->m_return_var_type->type == ASR::ttypeType::UnsignedInteger) {
-                uint64_t r = e->int64fn(run_fn);
+                uint64_t r = e->execfn<uint64_t>(run_fn);
                 result.type = EvalResult::unsignedInteger8;
                 result.u64 = r;
             } else {
-                int64_t r = e->int64fn(run_fn);
+                int64_t r = e->execfn<int64_t>(run_fn);
                 result.type = EvalResult::integer8;
                 result.i64 = r;
             }
         } else if (return_type == "real4") {
-            float r = e->floatfn(run_fn);
+            float r = e->execfn<float>(run_fn);
             result.type = EvalResult::real4;
             result.f32 = r;
         } else if (return_type == "real8") {
-            double r = e->doublefn(run_fn);
+            double r = e->execfn<double>(run_fn);
             result.type = EvalResult::real8;
             result.f64 = r;
         } else if (return_type == "complex4") {
-            std::complex<float> r = e->complex4fn(run_fn);
+            std::complex<float> r = e->execfn<std::complex<float>>(run_fn);
             result.type = EvalResult::complex4;
             result.c32.re = r.real();
             result.c32.im = r.imag();
         } else if (return_type == "complex8") {
-            std::complex<double> r = e->complex8fn(run_fn);
+            std::complex<double> r = e->execfn<std::complex<double>>(run_fn);
             result.type = EvalResult::complex8;
             result.c64.re = r.real();
             result.c64.im = r.imag();
+        } else if (return_type == "logical") {
+            bool r = e->execfn<bool>(run_fn);
+            result.type = EvalResult::boolean;
+            result.b = r;
         } else if (return_type == "void") {
-            e->voidfn(run_fn);
+            e->execfn<void>(run_fn);
             result.type = EvalResult::statement;
         } else if (return_type == "none") {
             result.type = EvalResult::none;
         } else {
-            throw LCompilersException("FortranEvaluator::evaluate(): Return type not supported");
+            throw LCompilersException("PythonCompiler::evaluate(): Return type not supported");
         }
     }
 

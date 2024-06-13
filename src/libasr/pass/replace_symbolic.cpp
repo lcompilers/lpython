@@ -477,6 +477,7 @@ public:
             BASIC_UNARYOP(Log, log)
             BASIC_UNARYOP(Exp, exp)
             BASIC_UNARYOP(Abs, abs)
+            BASIC_UNARYOP(Sign, sign)
             BASIC_UNARYOP(Expand, expand)
             BASIC_TERNARYOP(Subs, subs2)
             case LCompilers::ASRUtils::IntrinsicElementalFunctions::SymbolicGetArgument: {

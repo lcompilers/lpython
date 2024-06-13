@@ -102,10 +102,18 @@ std::string LLVMModule::get_return_type(const std::string &fn_name)
         return "real4";
     } else if (type->isDoubleTy()) {
         return "real8";
+    } else if (type->isIntegerTy(1)) {
+        return "logical";
+    } else if (type->isIntegerTy(8)) {
+        return "integer1";
+    } else if (type->isIntegerTy(16)) {
+        return "integer2";
     } else if (type->isIntegerTy(32)) {
         return "integer4";
     } else if (type->isIntegerTy(64)) {
         return "integer8";
+    } else if (type->isPointerTy() && type->getPointerElementType()->isIntegerTy(8)) {
+        return "integer1ptr";
     } else if (type->isStructTy()) {
         llvm::StructType *st = llvm::cast<llvm::StructType>(type);
         if (st->hasName()) {
@@ -206,7 +214,7 @@ std::unique_ptr<llvm::Module> LLVMEvaluator::parse_module(const std::string &sou
         throw LCompilersException("parse_module(): module failed verification.");
     };
     module->setTargetTriple(target_triple);
-    module->setDataLayout(jit->getTargetMachine().createDataLayout());
+    module->setDataLayout(jit->getDataLayout());
     return module;
 }
 
@@ -228,7 +236,7 @@ void LLVMEvaluator::add_module(std::unique_ptr<llvm::Module> mod) {
     // cases when the Module was constructed directly, not via parse_module().
     mod->setTargetTriple(target_triple);
     mod->setDataLayout(jit->getDataLayout());
-    llvm::Error err = jit->addModule(std::move(mod));
+    llvm::Error err = jit->addModule(std::move(mod), context);
     if (err) {
         llvm::SmallVector<char, 128> buf;
         llvm::raw_svector_ostream dest(buf);
@@ -269,54 +277,6 @@ intptr_t LLVMEvaluator::get_symbol_address(const std::string &name) {
     return (intptr_t)cantFail(std::move(addr0));
 }
 
-int32_t LLVMEvaluator::int32fn(const std::string &name) {
-    intptr_t addr = get_symbol_address(name);
-    int32_t (*f)() = (int32_t (*)())addr;
-    return f();
-}
-
-int64_t LLVMEvaluator::int64fn(const std::string &name) {
-    intptr_t addr = get_symbol_address(name);
-    int64_t (*f)() = (int64_t (*)())addr;
-    return f();
-}
-
-bool LLVMEvaluator::boolfn(const std::string &name) {
-    intptr_t addr = get_symbol_address(name);
-    bool (*f)() = (bool (*)())addr;
-    return f();
-}
-
-float LLVMEvaluator::floatfn(const std::string &name) {
-    intptr_t addr = get_symbol_address(name);
-    float (*f)() = (float (*)())addr;
-    return f();
-}
-
-double LLVMEvaluator::doublefn(const std::string &name) {
-    intptr_t addr = get_symbol_address(name);
-    double (*f)() = (double (*)())addr;
-    return f();
-}
-
-std::complex<float> LLVMEvaluator::complex4fn(const std::string &name) {
-    intptr_t addr = get_symbol_address(name);
-    std::complex<float> (*f)() = (std::complex<float> (*)())addr;
-    return f();
-}
-
-std::complex<double> LLVMEvaluator::complex8fn(const std::string &name) {
-    intptr_t addr = get_symbol_address(name);
-    std::complex<double> (*f)() = (std::complex<double> (*)())addr;
-    return f();
-}
-
-void LLVMEvaluator::voidfn(const std::string &name) {
-    intptr_t addr = get_symbol_address(name);
-    void (*f)() = (void (*)())addr;
-    f();
-}
-
 void write_file(const std::string &filename, const std::string &contents)
 {
     std::ofstream out;
@@ -330,7 +290,7 @@ std::string LLVMEvaluator::get_asm(llvm::Module &m)
     llvm::CodeGenFileType ft = llvm::CGFT_AssemblyFile;
     llvm::SmallVector<char, 128> buf;
     llvm::raw_svector_ostream dest(buf);
-    if (jit->getTargetMachine().addPassesToEmitFile(pass, dest, nullptr, ft)) {
+    if (TM->addPassesToEmitFile(pass, dest, nullptr, ft)) {
         throw std::runtime_error("TargetMachine can't emit a file of this type");
     }
     pass.run(m);

@@ -1143,4 +1143,3 @@ def list(s: str) -> list[str]:
     for i in range(len(s)):
         l.append(s[i])
     return l
-  
