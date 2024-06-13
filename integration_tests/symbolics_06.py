@@ -1,4 +1,4 @@
-from sympy import Symbol, sin, cos, exp, log, Abs, pi, diff
+from sympy import Symbol, sin, cos, exp, log, Abs, pi, diff, sign
 from lpython import S
 
 def test_elementary_functions():
@@ -24,6 +24,13 @@ def test_elementary_functions():
     assert(Abs(S(-10)) == S(10))
     assert(Abs(S(10)) == S(10))
     assert(Abs(S(-1)*x) == Abs(x))
+
+    # test sign
+    assert(sign(S(-10)) == S(-1))
+    assert(sign(S(0)) == S(0))
+    assert(sign(S(10)) == S(1))
+    assert(sign(S(2)* x) == sign(x))
+    assert(sign(S(-1)* x) == S(-1) * sign(x))
 
     # test composite functions
     a: S = exp(x)
