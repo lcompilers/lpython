@@ -2870,9 +2870,10 @@ public:
         if (is_const) {
             storage_type = ASR::storage_typeType::Parameter;
         }
-
-        create_add_variable_to_scope(var_name, type,
-                x.base.base.loc, abi, storage_type);
+        if( !(inside_struct && current_scope->resolve_symbol(var_name)) ){
+            create_add_variable_to_scope(var_name, type,
+                    x.base.base.loc, abi, storage_type);
+        }
 
         ASR::expr_t* assign_asr_target_copy = assign_asr_target;
         this->visit_expr(*x.m_target);
@@ -2928,10 +2929,24 @@ public:
         Vec<ASR::call_arg_t> &member_init,
         bool is_enum_scope=false, ASR::abiType abi=ASR::abiType::Source,
         bool is_generating_body = false) {
-        if(is_generating_body){
+        if(is_generating_body && !is_enum_scope){
             for( size_t i = 0; i < x.n_body; i++ ){
-                if ( AST::is_a<AST::FunctionDef_t>(*x.m_body[i]) ) 
+                if ( AST::is_a<AST::FunctionDef_t>(*x.m_body[i]) )
+                    //generating function body 
                     this->visit_stmt(*x.m_body[i]);
+                if (AST::is_a<AST::AnnAssign_t>(*x.m_body[i])) {
+                    //Add initializers to the AnnAssign
+                    AST::AnnAssign_t* ann_assign = AST::down_cast<AST::AnnAssign_t>(x.m_body[i]);
+                    AST::Name_t *n = AST::down_cast<AST::Name_t>(ann_assign->m_target);
+                    std::string var_name = n->m_id;
+                    ASR::expr_t* init_expr = nullptr;
+                    visit_AnnAssignUtil(*ann_assign, var_name, init_expr, false, abi, true);
+                    ASR::symbol_t* var_sym = current_scope->resolve_symbol(var_name);
+                    ASR::call_arg_t c_arg;
+                    c_arg.loc = var_sym->base.loc;
+                    c_arg.m_value = init_expr;
+                    member_init.push_back(al, c_arg);
+                }
             }
             return;
         }
@@ -2950,33 +2965,7 @@ public:
                 visit_ClassDef(*AST::down_cast<AST::ClassDef_t>(x.m_body[i]));  
                 continue;
             } else if ( AST::is_a<AST::FunctionDef_t>(*x.m_body[i]) ) {
-                AST::FunctionDef_t* f_ast = AST::down_cast<AST::FunctionDef_t>(x.m_body[i]);
-                std::string f_name_old = std::string(f_ast->m_name);
-                std::string f_name_new = "Xx_Class_Procedure_" + f_name_old;
-                Str old_name;
-                old_name.from_str(al,f_name_old);
-                Str new_name;
-                new_name.from_str(al,f_name_new);
-                f_ast->m_name = new_name.p;
                 this->visit_stmt(*x.m_body[i]);
-                ASR::symbol_t* f_sym = current_scope->get_symbol(f_ast->m_name);
-                ASR::Function_t* f = ASR::down_cast<ASR::Function_t>(f_sym);
-                SymbolTable* proc_scope = ASRUtils::symbol_parent_symtab(f_sym);
-                ASR::abiType abi = ASR::abiType::Source;
-                tmp = make_ClassProcedure_t(
-                    /*&al*/al,
-                    /*&a_loc*/f_sym->base.loc,
-                    /*a_parent_symtab*/proc_scope,
-                    /*a_name*/old_name.p,
-                    /*a_self_argument*/nullptr,
-                    /*a_proc_name*/f->m_name,
-                    /*a_proc*/f_sym,
-                    /*a_abi*/abi,
-                    /*a_is_deferred*/false,
-                    /*a_is_nopass*/false    
-                    );
-                ASR::symbol_t *cls_proc_sym = ASR::down_cast<ASR::symbol_t>(tmp);
-                current_scope->add_symbol(f_name_old, cls_proc_sym);
                 continue;
             } else if (AST::is_a<AST::Pass_t>(*x.m_body[i])) {
                 continue;
@@ -3196,7 +3185,7 @@ public:
         SymbolTable *parent_scope = current_scope;
         ASR::symbol_t* clss_sym = current_scope->get_symbol(x_m_name);
         ASR::StructType_t* clss = nullptr;
-        if(clss_sym != nullptr && !is_enum(x.m_bases, x.n_bases) && !is_union(x.m_bases, x.n_bases)){
+        if( clss_sym != nullptr ){
             clss = ASR::down_cast<ASR::StructType_t>(clss_sym);
             current_scope = clss->m_symtab;
             is_generating_body = true;
@@ -3214,7 +3203,6 @@ public:
             class_abi = ASR::abiType::BindC;
         }
         visit_ClassMembers(x, member_names, struct_dependencies, member_init, false, class_abi,is_generating_body);
-        LCOMPILERS_ASSERT(member_init.size() == member_names.size());
         ASR::symbol_t* class_type = ASR::down_cast<ASR::symbol_t>(ASR::make_StructType_t(al,
                                         x.base.base.loc, current_scope, x.m_name,
                                         struct_dependencies.p, struct_dependencies.size(),
@@ -3224,6 +3212,10 @@ public:
                                         nullptr));
         current_scope = parent_scope;
         if (current_scope->resolve_symbol(x_m_name)) {
+            ASR::symbol_t* sym = current_scope->resolve_symbol(x_m_name);
+            ASR::StructType_t *st = ASR::down_cast<ASR::StructType_t>(sym);
+            st->m_initializers = member_init.p;
+            st->n_initializers = member_init.size();
             clss->m_symtab->asr_owner = &clss_sym->base;
             return;
         } else {
@@ -7627,7 +7619,6 @@ we will have to use something else.
                     if (ASR::is_a<ASR::Struct_t>(*var->m_type)) {
                         // call to struct member function
                         ASR::Struct_t* var_struct = ASR::down_cast<ASR::Struct_t>(var->m_type);
-                        call_name = "Xx_Class_Procedure_" + call_name;
                         st = get_struct_member(var_struct->m_derived_type, call_name, loc);
                     } else {
                         // this case when we have variable and attribute
