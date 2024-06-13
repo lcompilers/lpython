@@ -26,6 +26,10 @@
 #include "llvm/IR/LLVMContext.h"
 #include <memory>
 
+#if LLVM_VERSION_MAJOR >= 13
+#include "llvm/ExecutionEngine/Orc/ExecutorProcessControl.h"
+#endif
+
 #if LLVM_VERSION_MAJOR >= 16
 #    define RM_OPTIONAL_TYPE std::optional
 #else
@@ -37,77 +41,76 @@ namespace orc {
 
 class KaleidoscopeJIT {
 private:
-  ExecutionSession ES;
+  std::unique_ptr<ExecutionSession> ES;
   RTDyldObjectLinkingLayer ObjectLayer;
   IRCompileLayer CompileLayer;
 
   DataLayout DL;
   MangleAndInterner Mangle;
-  ThreadSafeContext Ctx;
   JITDylib &JITDL;
 
-  TargetMachine *TM;
-
 public:
-  KaleidoscopeJIT(JITTargetMachineBuilder JTMB, DataLayout DL)
+  KaleidoscopeJIT(std::unique_ptr<ExecutionSession> ES, JITTargetMachineBuilder JTMB, DataLayout DL)
       :
-#if LLVM_VERSION_MAJOR >= 13
-        ES(cantFail(SelfExecutorProcessControl::Create())),
-#endif
-        ObjectLayer(ES,
+        ES(std::move(ES)),
+        ObjectLayer(*this->ES,
                     []() { return std::make_unique<SectionMemoryManager>(); }),
-        CompileLayer(ES, ObjectLayer, std::make_unique<ConcurrentIRCompiler>(ConcurrentIRCompiler(std::move(JTMB)))),
-        DL(std::move(DL)), Mangle(ES, this->DL),
-        Ctx(std::make_unique<LLVMContext>()),
+        CompileLayer(*this->ES, ObjectLayer, std::make_unique<ConcurrentIRCompiler>(std::move(JTMB))),
+        DL(std::move(DL)), Mangle(*this->ES, this->DL),
         JITDL(
 #if LLVM_VERSION_MAJOR >= 11
             cantFail
 #endif
-          (ES.createJITDylib("Main"))) {
+          (this->ES->createJITDylib("Main"))) {
     JITDL.addGenerator(
         cantFail(DynamicLibrarySearchGenerator::GetForCurrentProcess(
             DL.getGlobalPrefix())));
-
-    std::string Error;
-    auto TargetTriple = sys::getDefaultTargetTriple();
-    auto Target = TargetRegistry::lookupTarget(TargetTriple, Error);
-    if (!Target) {
-      throw std::runtime_error("Failed to lookup the target");
+    if (JTMB.getTargetTriple().isOSBinFormatCOFF()) {
+      ObjectLayer.setOverrideObjectFlagsWithResponsibilityFlags(true);
+      ObjectLayer.setAutoClaimResponsibilityForObjectSymbols(true);
     }
-    auto CPU = "generic";
-    auto Features = "";
-    TargetOptions opt;
-    auto RM = RM_OPTIONAL_TYPE<Reloc::Model>();
-    TM = Target->createTargetMachine(TargetTriple, CPU, Features, opt, RM);
   }
 
   static Expected<std::unique_ptr<KaleidoscopeJIT>> Create() {
-    auto JTMB = JITTargetMachineBuilder::detectHost();
+#if LLVM_VERSION_MAJOR >= 13
+    auto EPC = SelfExecutorProcessControl::Create();
+    if (!EPC)
+      return EPC.takeError();
 
-    if (!JTMB)
-      return JTMB.takeError();
+    auto ES = std::make_unique<ExecutionSession>(std::move(*EPC));
 
-    auto DL = JTMB->getDefaultDataLayoutForTarget();
+    JITTargetMachineBuilder JTMB(
+        ES->getExecutorProcessControl().getTargetTriple());
+#else
+    auto ES = std::make_unique<ExecutionSession>();
+
+    auto JTMB_P = JITTargetMachineBuilder::detectHost();
+    if (!JTMB_P)
+      return JTMB_P.takeError();
+
+    auto JTMB = *JTMB_P;
+#endif
+
+    auto DL = JTMB.getDefaultDataLayoutForTarget();
     if (!DL)
       return DL.takeError();
 
-    return std::make_unique<KaleidoscopeJIT>(std::move(*JTMB), std::move(*DL));
+    return std::make_unique<KaleidoscopeJIT>(std::move(ES), std::move(JTMB),
+                                             std::move(*DL));
   }
 
   const DataLayout &getDataLayout() const { return DL; }
 
-  LLVMContext &getContext() { return *Ctx.getContext(); }
-
-  Error addModule(std::unique_ptr<Module> M) {
-    return CompileLayer.add(JITDL,
-                            ThreadSafeModule(std::move(M), Ctx));
+  Error addModule(std::unique_ptr<Module> M, std::unique_ptr<LLVMContext> &Ctx) {
+    auto res =  CompileLayer.add(JITDL,
+                            ThreadSafeModule(std::move(M), std::move(Ctx)));
+    Ctx = std::make_unique<LLVMContext>();
+    return res;
   }
 
   Expected<JITEvaluatedSymbol> lookup(StringRef Name) {
-    return ES.lookup({&JITDL}, Mangle(Name.str()));
+    return ES->lookup({&JITDL}, Mangle(Name.str()));
   }
-
-  TargetMachine &getTargetMachine() { return *TM; }
 };
 
 } // end namespace orc

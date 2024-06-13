@@ -3,6 +3,7 @@
 
 #include <libasr/asr_scopes.h>
 #include <libasr/asr_utils.h>
+#include <libasr/pass/pass_utils.h>
 
 std::string lcompilers_unique_ID;
 
@@ -39,9 +40,13 @@ void SymbolTable::mark_all_variables_external(Allocator &al) {
             case (ASR::symbolType::Function) : {
                 ASR::Function_t *v = ASR::down_cast<ASR::Function_t>(a.second);
                 ASR::FunctionType_t* v_func_type = ASR::down_cast<ASR::FunctionType_t>(v->m_function_signature);
-                v_func_type->m_abi = ASR::abiType::Interactive;
-                v->m_body = nullptr;
-                v->n_body = 0;
+                if (v_func_type->m_abi != ASR::abiType::Interactive) {
+                    v_func_type->m_abi = ASR::abiType::Interactive;
+                    v->m_body = nullptr;
+                    v->n_body = 0;
+                    PassUtils::UpdateDependenciesVisitor ud(al);
+                    ud.visit_Function(*v);
+                }
                 break;
             }
             case (ASR::symbolType::Module) : {

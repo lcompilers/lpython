@@ -62,6 +62,40 @@ void pass_wrap_global_stmts(Allocator &al,
                 fn_scope->add_symbol(std::string(var_name), down_cast<ASR::symbol_t>(return_var));
                 target = return_var_ref;
                 idx++;
+            } else if (ASRUtils::expr_type(value)->type == ASR::ttypeType::UnsignedInteger) {
+                s.from_str(al, fn_name_s + std::to_string(idx));
+                var_name = s.c_str(al);
+
+                int a_kind = down_cast<ASR::UnsignedInteger_t>(ASRUtils::expr_type(value))->m_kind;
+
+                type = ASRUtils::TYPE(ASR::make_UnsignedInteger_t(al, loc, a_kind));
+                return_var = ASR::make_Variable_t(al, loc,
+                    fn_scope, var_name, nullptr, 0, ASRUtils::intent_local, nullptr, nullptr,
+                    ASR::storage_typeType::Default, type,
+                    nullptr, ASR::abiType::BindC,
+                    ASR::Public, ASR::presenceType::Required, false);
+                return_var_ref = EXPR(ASR::make_Var_t(al, loc,
+                    down_cast<ASR::symbol_t>(return_var)));
+                fn_scope->add_symbol(std::string(var_name), down_cast<ASR::symbol_t>(return_var));
+                target = return_var_ref;
+                idx++;
+            } else if (ASRUtils::expr_type(value)->type == ASR::ttypeType::Logical) {
+                s.from_str(al, fn_name_s + std::to_string(idx));
+                var_name = s.c_str(al);
+
+                int a_kind = down_cast<ASR::Logical_t>(ASRUtils::expr_type(value))->m_kind;
+
+                type = ASRUtils::TYPE(ASR::make_Logical_t(al, loc, a_kind));
+                return_var = ASR::make_Variable_t(al, loc,
+                    fn_scope, var_name, nullptr, 0, ASRUtils::intent_local, nullptr, nullptr,
+                    ASR::storage_typeType::Default, type,
+                    nullptr, ASR::abiType::BindC,
+                    ASR::Public, ASR::presenceType::Required, false);
+                return_var_ref = EXPR(ASR::make_Var_t(al, loc,
+                    down_cast<ASR::symbol_t>(return_var)));
+                fn_scope->add_symbol(std::string(var_name), down_cast<ASR::symbol_t>(return_var));
+                target = return_var_ref;
+                idx++;
             } else if (ASRUtils::expr_type(value)->type == ASR::ttypeType::Real) {
                 s.from_str(al, fn_name_s + std::to_string(idx));
                 var_name = s.c_str(al);
@@ -76,7 +110,8 @@ void pass_wrap_global_stmts(Allocator &al,
                 fn_scope->add_symbol(std::string(var_name), down_cast<ASR::symbol_t>(return_var));
                 target = return_var_ref;
                 idx++;
-            } else if (ASRUtils::expr_type(value)->type == ASR::ttypeType::Complex) {
+            } else if ((ASRUtils::expr_type(value)->type == ASR::ttypeType::Complex) ||
+                       (ASRUtils::expr_type(value)->type == ASR::ttypeType::Character)) {
                 s.from_str(al, fn_name_s + std::to_string(idx));
                 var_name = s.c_str(al);
                 type = ASRUtils::expr_type(value);
