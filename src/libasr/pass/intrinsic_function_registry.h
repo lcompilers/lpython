@@ -154,6 +154,7 @@ inline std::string get_intrinsic_name(int x) {
         INTRINSIC_NAME_CASE(SymbolicLog)
         INTRINSIC_NAME_CASE(SymbolicExp)
         INTRINSIC_NAME_CASE(SymbolicAbs)
+        INTRINSIC_NAME_CASE(SymbolicSign)
         INTRINSIC_NAME_CASE(SymbolicHasSymbolQ)
         INTRINSIC_NAME_CASE(SymbolicAddQ)
         INTRINSIC_NAME_CASE(SymbolicMulQ)
@@ -448,6 +449,8 @@ namespace IntrinsicElementalFunctionRegistry {
             {nullptr, &SymbolicExp::verify_args}},
         {static_cast<int64_t>(IntrinsicElementalFunctions::SymbolicAbs),
             {nullptr, &SymbolicAbs::verify_args}},
+        {static_cast<int64_t>(IntrinsicElementalFunctions::SymbolicSign),
+            {nullptr, &SymbolicSign::verify_args}},
         {static_cast<int64_t>(IntrinsicElementalFunctions::SymbolicHasSymbolQ),
             {nullptr, &SymbolicHasSymbolQ::verify_args}},
         {static_cast<int64_t>(IntrinsicElementalFunctions::SymbolicAddQ),
@@ -739,6 +742,8 @@ namespace IntrinsicElementalFunctionRegistry {
             "SymbolicExp"},
         {static_cast<int64_t>(IntrinsicElementalFunctions::SymbolicAbs),
             "SymbolicAbs"},
+        {static_cast<int64_t>(IntrinsicElementalFunctions::SymbolicSign),
+            "SymbolicSign"},
         {static_cast<int64_t>(IntrinsicElementalFunctions::SymbolicHasSymbolQ),
             "SymbolicHasSymbolQ"},
         {static_cast<int64_t>(IntrinsicElementalFunctions::SymbolicAddQ),
@@ -900,6 +905,7 @@ namespace IntrinsicElementalFunctionRegistry {
                 {"SymbolicLog", {&SymbolicLog::create_SymbolicLog, &SymbolicLog::eval_SymbolicLog}},
                 {"SymbolicExp", {&SymbolicExp::create_SymbolicExp, &SymbolicExp::eval_SymbolicExp}},
                 {"SymbolicAbs", {&SymbolicAbs::create_SymbolicAbs, &SymbolicAbs::eval_SymbolicAbs}},
+                {"SymbolicSign", {&SymbolicSign::create_SymbolicSign, &SymbolicSign::eval_SymbolicSign}},
                 {"has", {&SymbolicHasSymbolQ::create_SymbolicHasSymbolQ, &SymbolicHasSymbolQ::eval_SymbolicHasSymbolQ}},
                 {"AddQ", {&SymbolicAddQ::create_SymbolicAddQ, &SymbolicAddQ::eval_SymbolicAddQ}},
                 {"MulQ", {&SymbolicMulQ::create_SymbolicMulQ, &SymbolicMulQ::eval_SymbolicMulQ}},

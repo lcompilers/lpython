@@ -155,6 +155,7 @@ enum class IntrinsicElementalFunctions : int64_t {
     SymbolicLog,
     SymbolicExp,
     SymbolicAbs,
+    SymbolicSign,
     SymbolicHasSymbolQ,
     SymbolicAddQ,
     SymbolicMulQ,
@@ -5968,6 +5969,7 @@ create_symbolic_unary_macro(SymbolicCos)
 create_symbolic_unary_macro(SymbolicLog)
 create_symbolic_unary_macro(SymbolicExp)
 create_symbolic_unary_macro(SymbolicAbs)
+create_symbolic_unary_macro(SymbolicSign)
 create_symbolic_unary_macro(SymbolicExpand)
 
 } // namespace LCompilers::ASRUtils
