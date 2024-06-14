@@ -2806,33 +2806,41 @@ public:
             llvm::StructType* list_type = static_cast<llvm::StructType*>(
                 llvm_utils->get_type_from_ttype_t_util(x.m_type, module.get()));
             llvm::Constant *ptr = module->getOrInsertGlobal(x.m_name, list_type);
-            module->getNamedGlobal(x.m_name)->setInitializer(
-                llvm::ConstantStruct::get(list_type,
-                llvm::Constant::getNullValue(list_type)));
+            if (!external) {
+                module->getNamedGlobal(x.m_name)->setInitializer(
+                    llvm::ConstantStruct::get(list_type,
+                    llvm::Constant::getNullValue(list_type)));
+            }
             llvm_symtab[h] = ptr;
         } else if (x.m_type->type == ASR::ttypeType::Tuple) {
             llvm::StructType* tuple_type = static_cast<llvm::StructType*>(
                 llvm_utils->get_type_from_ttype_t_util(x.m_type, module.get()));
             llvm::Constant *ptr = module->getOrInsertGlobal(x.m_name, tuple_type);
-            module->getNamedGlobal(x.m_name)->setInitializer(
-                llvm::ConstantStruct::get(tuple_type,
-                llvm::Constant::getNullValue(tuple_type)));
+            if (!external) {
+                module->getNamedGlobal(x.m_name)->setInitializer(
+                    llvm::ConstantStruct::get(tuple_type,
+                    llvm::Constant::getNullValue(tuple_type)));
+            }
             llvm_symtab[h] = ptr;
         } else if(x.m_type->type == ASR::ttypeType::Dict) {
             llvm::StructType* dict_type = static_cast<llvm::StructType*>(
                 llvm_utils->get_type_from_ttype_t_util(x.m_type, module.get()));
             llvm::Constant *ptr = module->getOrInsertGlobal(x.m_name, dict_type);
-            module->getNamedGlobal(x.m_name)->setInitializer(
-                llvm::ConstantStruct::get(dict_type,
-                llvm::Constant::getNullValue(dict_type)));
+            if (!external) {
+                module->getNamedGlobal(x.m_name)->setInitializer(
+                    llvm::ConstantStruct::get(dict_type,
+                    llvm::Constant::getNullValue(dict_type)));
+            }
             llvm_symtab[h] = ptr;
         } else if(x.m_type->type == ASR::ttypeType::Set) {
             llvm::StructType* set_type = static_cast<llvm::StructType*>(
                 llvm_utils->get_type_from_ttype_t_util(x.m_type, module.get()));
             llvm::Constant *ptr = module->getOrInsertGlobal(x.m_name, set_type);
-            module->getNamedGlobal(x.m_name)->setInitializer(
-                llvm::ConstantStruct::get(set_type,
-                llvm::Constant::getNullValue(set_type)));
+            if (!external) {
+                module->getNamedGlobal(x.m_name)->setInitializer(
+                    llvm::ConstantStruct::get(set_type,
+                    llvm::Constant::getNullValue(set_type)));
+            }
             llvm_symtab[h] = ptr;
         } else if (x.m_type->type == ASR::ttypeType::TypeParameter) {
             // Ignore type variables
@@ -6072,7 +6080,7 @@ public:
             }
             cond = builder->CreateFCmpUEQ(left_val, zero);
         } else if (ASRUtils::is_character(*x.m_type)) {
-            zero = llvm::Constant::getNullValue(character_type);
+            zero = builder->CreateGlobalStringPtr("");
             cond = lfortran_str_cmp(left_val, zero, "_lpython_str_compare_eq");
         } else if (ASRUtils::is_logical(*x.m_type)) {
             zero = llvm::ConstantInt::get(context,

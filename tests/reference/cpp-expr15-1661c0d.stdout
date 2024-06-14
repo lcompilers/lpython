@@ -23,8 +23,6 @@ double test1();
 std::complex<double> test2();
 int32_t test3();
 std::complex<double> __lpython_overloaded_9__complex(int32_t x, int32_t y);
-float _lfortran_caimag(std::complex<float> x);
-double _lfortran_zaimag(std::complex<double> x);
 namespace {
 }
 
@@ -35,10 +33,6 @@ std::complex<double> __lpython_overloaded_9__complex(int32_t x, int32_t y)
     _lpython_return_variable = std::complex<double>(x) + std::complex<double>(y)*std::complex<double>(0.000000, 1.000000);
     return _lpython_return_variable;
 }
-
-float _lfortran_caimag(std::complex<float> x);
-
-double _lfortran_zaimag(std::complex<double> x);
 
 double test1()
 {

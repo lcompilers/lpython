@@ -102,28 +102,27 @@ def test_logical_compare_variable():
     print(f_a - 3.0 and f_a + 3.0 or f_b - 3.0 and f_b + 3.0)
     assert (f_a - 3.0 and f_a + 3.0 or f_b - 3.0 and f_b + 3.0) == 4.67
 
-    # Can be uncommented after fixing the segfault
     # Strings
-    # s_a: str = "a"
-    # s_b: str = "b"
+    s_a: str = "a"
+    s_b: str = "b"
 
-    # print(s_a or s_b)
-    # assert (s_a or s_b) == s_a
+    print(s_a or s_b)
+    assert (s_a or s_b) == s_a
 
-    # print(s_a and s_b)
-    # assert (s_a and s_b) == s_b
+    print(s_a and s_b)
+    assert (s_a and s_b) == s_b
 
-    # print(s_a + s_b or s_b + s_a)
-    # assert (s_a + s_b or s_b + s_a) == "ab"
+    print(s_a + s_b or s_b + s_a)
+    assert (s_a + s_b or s_b + s_a) == "ab"
 
-    # print(s_a[0] or s_b[-1])
-    # assert (s_a[0] or s_b[-1]) == "a"
+    print(s_a[0] or s_b[-1])
+    assert (s_a[0] or s_b[-1]) == "a"
 
-    # print(s_a[0] and s_b[-1])
-    # assert (s_a[0] and s_b[-1]) == "b"
+    print(s_a[0] and s_b[-1])
+    assert (s_a[0] and s_b[-1]) == "b"
 
-    # print(s_a + s_b or s_b + s_a + s_a[0] and s_b[-1])
-    # assert (s_a + s_b or s_b + s_a + s_a[0] and s_b[-1]) == "ab"
+    print(s_a + s_b or s_b + s_a + s_a[0] and s_b[-1])
+    assert (s_a + s_b or s_b + s_a + s_a[0] and s_b[-1]) == "ab"
 
 
 test_logical_compare_literal()
