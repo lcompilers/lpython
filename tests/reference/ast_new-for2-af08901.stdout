@@ -169,16 +169,16 @@
             i
             Store
         )
-        (Compare
+        (Membership
             (Name
                 a
                 Load
             )
             In
-            [(Name
+            (Name
                 list1
                 Load
-            )]
+            )
         )
         [(Pass)]
         []
@@ -194,16 +194,16 @@
             Load
         )
         [(If
-            (Compare
+            (Membership
                 (Name
                     item
                     Load
                 )
                 In
-                [(Name
+                (Name
                     list2
                     Load
-                )]
+                )
             )
             [(Pass)]
             []
@@ -216,39 +216,39 @@
             Or
             [(BoolOp
                 And
-                [(Compare
+                [(Membership
                     (Name
                         a
                         Load
                     )
                     In
-                    [(Name
+                    (Name
                         list1
                         Load
-                    )]
+                    )
                 )
-                (Compare
+                (Membership
                     (Name
                         b
                         Load
                     )
                     NotIn
-                    [(Name
+                    (Name
                         list2
                         Load
-                    )]
+                    )
                 )]
             )
-            (Compare
+            (Membership
                 (Name
                     c
                     Load
                 )
                 In
-                [(Name
+                (Name
                     list3
                     Load
-                )]
+                )
             )]
         )
         [(Pass)]

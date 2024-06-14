@@ -131,13 +131,13 @@
         ()
     )
     (If
-        (Compare
+        (Membership
             (Name
                 a
                 Load
             )
             NotIn
-            [(List
+            (List
                 [(ConstantInt
                     1
                     ()
@@ -147,20 +147,20 @@
                     ()
                 )]
                 Load
-            )]
+            )
         )
         [(Pass)]
         []
     )
     (If
-        (Compare
-            (Compare
+        (Membership
+            (Membership
                 (Name
                     a
                     Load
                 )
                 NotIn
-                [(List
+                (List
                     [(ConstantInt
                         1
                         ()
@@ -170,10 +170,10 @@
                         ()
                     )]
                     Load
-                )]
+                )
             )
             NotIn
-            [(List
+            (List
                 [(ConstantBool
                     .true.
                     ()
@@ -183,19 +183,19 @@
                     ()
                 )]
                 Load
-            )]
+            )
         )
         [(Pass)]
         []
     )
     (If
-        (Compare
+        (Membership
             (Name
                 field
                 Load
             )
             In
-            [(List
+            (List
                 [(ConstantStr
                     "vararg"
                     ()
@@ -205,7 +205,7 @@
                     ()
                 )]
                 Load
-            )]
+            )
         )
         [(If
             (Compare
@@ -224,16 +224,16 @@
         []
     )
     (If
-        (Compare
+        (Membership
             (Name
                 a
                 Load
             )
             In
-            [(Name
+            (Name
                 list1
                 Load
-            )]
+            )
         )
         [(Pass)]
         []

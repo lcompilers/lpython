@@ -719,6 +719,8 @@ static inline ast_t* BOOLOP_01(Allocator &al, Location &loc,
 #define UNARY(x, op, l) make_UnaryOp_t(p.m_a, l, unaryopType::op, EXPR(x))
 #define COMPARE(x, op, y, l) make_Compare_t(p.m_a, l, \
         EXPR(x), cmpopType::op, EXPRS(A2LIST(p.m_a, y)), 1)
+#define MEMBERSHIP(x, op, y, l) make_Membership_t(p.m_a, l, \
+        EXPR(x), membershipopType::op, EXPR(y))
 
 static inline ast_t* concat_string(Allocator &al, Location &l,
         expr_t *string, std::string str, expr_t *string_literal) {

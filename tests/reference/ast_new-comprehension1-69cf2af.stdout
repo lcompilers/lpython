@@ -360,13 +360,13 @@
             )
             [(BoolOp
                 And
-                [(Compare
+                [(Membership
                     (Name
                         i
                         Load
                     )
                     NotIn
-                    [(List
+                    (List
                         [(ConstantInt
                             3
                             ()
@@ -380,18 +380,18 @@
                             ()
                         )]
                         Load
-                    )]
+                    )
                 )
-                (Compare
+                (Membership
                     (Name
                         i
                         Load
                     )
                     In
-                    [(Name
+                    (Name
                         list3
                         Load
-                    )]
+                    )
                 )]
             )]
             0)]
@@ -641,16 +641,16 @@
                     )]
                     []
                 )
-                [(Compare
+                [(Membership
                     (Name
                         i
                         Load
                     )
                     NotIn
-                    [(Name
+                    (Name
                         axis
                         Load
-                    )]
+                    )
                 )]
                 0)]
             )]

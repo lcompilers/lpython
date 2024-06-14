@@ -327,16 +327,16 @@
     (Expr
         (Call
             (IfExp
-                (Compare
+                (Membership
                     (Name
                         tktype
                         Load
                     )
                     In
-                    [(Name
+                    (Name
                         whentrue
                         Load
-                    )]
+                    )
                 )
                 (Attribute
                     (Name
@@ -890,16 +890,16 @@
                         Load
                     )
                     (IfExp
-                        (Compare
+                        (Membership
                             (Name
                                 start
                                 Load
                             )
                             In
-                            [(Name
+                            (Name
                                 labels
                                 Load
-                            )]
+                            )
                         )
                         (ConstantStr
                             ":"

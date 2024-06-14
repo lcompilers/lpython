@@ -1015,26 +1015,26 @@
         )
     )
     (Expr
-        (Compare
+        (Membership
             (ConstantStr
                 "hello"
                 ()
             )
             In
-            [(Name
+            (Name
                 x
                 Load
-            )]
+            )
         )
     )
     (Expr
-        (Compare
+        (Membership
             (ConstantStr
                 "a"
                 ()
             )
             In
-            [(Call
+            (Call
                 (Attribute
                     (Name
                         a
@@ -1045,20 +1045,20 @@
                 )
                 []
                 []
-            )]
+            )
         )
     )
     (Expr
-        (Compare
+        (Membership
             (ConstantStr
                 "lo"
                 ()
             )
             In
-            [(ConstantStr
+            (ConstantStr
                 "hello"
                 ()
-            )]
+            )
         )
     )
     (Expr
@@ -1460,7 +1460,7 @@
             bool
             Load
         )
-        (Compare
+        (Membership
             (List
                 [(Name
                     x
@@ -1469,13 +1469,13 @@
                 Load
             )
             NotIn
-            [(List
+            (List
                 [(Name
                     y
                     Load
                 )]
                 Load
-            )]
+            )
         )
         1
     )
@@ -1496,7 +1496,7 @@
             output
             Store
         )]
-        (Compare
+        (Membership
             (List
                 [(Name
                     x
@@ -1505,13 +1505,13 @@
                 Load
             )
             NotIn
-            [(List
+            (List
                 [(Name
                     y
                     Load
                 )]
                 Load
-            )]
+            )
         )
         ()
     )
@@ -1561,7 +1561,7 @@
         []
         [])
         [(Return
-            (Compare
+            (Membership
                 (List
                     [(Name
                         a
@@ -1570,13 +1570,13 @@
                     Load
                 )
                 In
-                [(List
+                (List
                     [(Name
                         b
                         Load
                     )]
                     Load
-                )]
+                )
             )
         )]
         []
@@ -1614,7 +1614,7 @@
                 output
                 Store
             )]
-            (Compare
+            (Membership
                 (List
                     [(Name
                         a
@@ -1623,13 +1623,13 @@
                     Load
                 )
                 NotIn
-                [(List
+                (List
                     [(Name
                         b
                         Load
                     )]
                     Load
-                )]
+                )
             )
             ()
         )
@@ -1662,7 +1662,7 @@
                 output
                 Store
             )]
-            (Compare
+            (Membership
                 (List
                     [(Name
                         a
@@ -1671,13 +1671,13 @@
                     Load
                 )
                 NotIn
-                [(List
+                (List
                     [(Name
                         b
                         Load
                     )]
                     Load
-                )]
+                )
             )
             ()
         )

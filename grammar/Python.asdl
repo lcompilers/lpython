@@ -73,6 +73,7 @@ module LPython
          -- need sequences for compare to distinguish between
          -- x < 4 < 3 and (x < 4) < 3
          | Compare(expr left, cmpop ops, expr* comparators)
+         | Membership(expr left, membershipop op, expr right)
          | Call(expr func, expr* args, keyword* keywords)
          | FormattedValue(expr value, int conversion, expr? format_spec)
          | JoinedStr(expr* values)
@@ -110,7 +111,9 @@ module LPython
 
     unaryop = Invert | Not | UAdd | USub
 
-    cmpop = Eq | NotEq | Lt | LtE | Gt | GtE | Is | IsNot | In | NotIn
+    cmpop = Eq | NotEq | Lt | LtE | Gt | GtE | Is | IsNot 
+
+    membershipop = In | NotIn
 
     comprehension = (expr target, expr iter, expr* ifs, int is_async)
 
