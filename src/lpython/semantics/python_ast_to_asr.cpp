@@ -5591,11 +5591,17 @@ public:
                 } else {
                     global_init.push_back(al, assign);
                 }
-                loop_end = for_iterable_helper(tmp_assign_name, x.base.base.loc, explicit_iter_name);
-                for_iter_type = loop_end;
-                LCOMPILERS_ASSERT(loop_end);
                 loop_src_var_name = tmp_assign_name;
-                is_explicit_iterator_required = true;
+                if (ASR::is_a<ASR::Dict_t>(*loop_src_var_ttype) || 
+                    ASR::is_a<ASR::Set_t>(*loop_src_var_ttype)) {
+                    is_explicit_iterator_required = false;
+                    for_each = true;
+                } else {
+                    loop_end = for_iterable_helper(loop_src_var_name, x.base.base.loc, explicit_iter_name);
+                    for_iter_type = loop_end;
+                    LCOMPILERS_ASSERT(loop_end);
+                    is_explicit_iterator_required = true;
+                }
             } else {
                 throw SemanticError("Only Name is supported for Subscript",
                     sbt->base.base.loc);

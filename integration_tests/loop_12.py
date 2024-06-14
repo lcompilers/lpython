@@ -49,4 +49,19 @@ def test_for_set_str():
 
     assert (s == "ab" or s == "ba")
 
+def test_nested():
+    graph: dict[i32, set[i32]] = {1: {2, 3}}
+    el: i32
+    s: i32 = 0
+    for el in graph[1]:
+        print(el)
+        s += el
 
+    assert s == 5
+        
+
+test_for_dict_int()
+test_for_set_int()
+test_for_dict_str()
+test_for_set_str()
+test_nested()
