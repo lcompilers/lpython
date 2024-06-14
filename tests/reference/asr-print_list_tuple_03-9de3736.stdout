@@ -112,21 +112,6 @@
                                     [(Assignment
                                         (Var 3 x)
                                         (DictConstant
-                                            []
-                                            []
-                                            (Dict
-                                                (Integer 4)
-                                                (Tuple
-                                                    [(Integer 4)
-                                                    (Integer 4)]
-                                                )
-                                            )
-                                        )
-                                        ()
-                                    )
-                                    (Assignment
-                                        (Var 3 x)
-                                        (DictConstant
                                             [(IntegerConstant 1 (Integer 4))
                                             (IntegerConstant 2 (Integer 4))]
                                             [(TupleConstant
@@ -150,20 +135,6 @@
                                                 (Tuple
                                                     [(Integer 4)
                                                     (Integer 4)]
-                                                )
-                                            )
-                                        )
-                                        ()
-                                    )
-                                    (Assignment
-                                        (Var 3 y)
-                                        (DictConstant
-                                            []
-                                            []
-                                            (Dict
-                                                (Integer 4)
-                                                (List
-                                                    (Integer 4)
                                                 )
                                             )
                                         )
