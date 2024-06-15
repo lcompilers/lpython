@@ -1450,6 +1450,23 @@ def my_concat(x: str, y: str) -> str:
     CHECK(std::strcmp(r.result.str, "Python REPL") == 0);
 }
 
+TEST_CASE("PythonCompiler Array 1") {
+    CompilerOptions cu;
+    cu.po.disable_main = true;
+    cu.emit_debug_line_column = false;
+    cu.generate_object_code = false;
+    cu.interactive = true;
+    cu.po.runtime_library_dir = LCompilers::LPython::get_runtime_library_dir();
+    PythonCompiler e(cu);
+    LCompilers::Result<PythonCompiler::EvalResult>
+    r = e.evaluate2("i: i32[10]");
+    CHECK(r.ok);
+    CHECK(r.result.type == PythonCompiler::EvalResult::none);
+    r = e.evaluate2("print(i)");
+    CHECK(r.ok);
+    CHECK(r.result.type == PythonCompiler::EvalResult::statement);
+}
+
 TEST_CASE("PythonCompiler asr verify 1") {
     CompilerOptions cu;
     cu.po.disable_main = true;
