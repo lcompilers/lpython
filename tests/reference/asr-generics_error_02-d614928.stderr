@@ -1,1 +1,5 @@
-/bin/sh: 1: lpython: not found
+semantic error: No applicable argument to the restriction zero
+  --> tests/errors/generics_error_02.py:37:7
+   |
+37 | print(mean(["a","b","c"], add=add_string, div=div_string))
+   |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 

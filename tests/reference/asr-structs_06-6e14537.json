@@ -8,6 +8,6 @@
     "stdout": null,
     "stdout_hash": null,
     "stderr": "asr-structs_06-6e14537.stderr",
-    "stderr_hash": "66203f8186d39e82e445c38cd4b48def18018149f7f5b50f43ae2478",
-    "returncode": 127
+    "stderr_hash": "8e0da9c7e84854ce3d6ad79066a9fbb33d82c9fcde3af2a7baeccec8",
+    "returncode": 2
 }

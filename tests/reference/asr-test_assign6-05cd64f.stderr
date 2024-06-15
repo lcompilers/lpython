@@ -1,1 +1,5 @@
-/bin/sh: 1: lpython: not found
+semantic error: 'str' object does not support item assignment
+ --> tests/errors/test_assign6.py:4:5
+  |
+4 |     s[0] = 'f'
+  |     ^^^^ 

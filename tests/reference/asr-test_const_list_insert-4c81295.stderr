@@ -1,1 +1,5 @@
-/bin/sh: 1: lpython: not found
+semantic error: cannot insert element in a const list
+ --> tests/errors/test_const_list_insert.py:7:5
+  |
+7 |     CONST_INTEGER_LIST.insert(3, 8)
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 

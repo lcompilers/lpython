@@ -1,1 +1,5 @@
-/bin/sh: 1: lpython: not found
+semantic error: readonly attribute
+ --> tests/errors/test_assign8.py:6:5
+  |
+6 |     c.real = 5.0
+  |     ^^^^^^^^^^^^ 

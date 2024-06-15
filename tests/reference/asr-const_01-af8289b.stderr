@@ -1,1 +1,5 @@
-/bin/sh: 1: lpython: not found
+semantic error: Constant variable x is not initialised at declaration.
+ --> tests/errors/const_01.py:4:5
+  |
+4 |     x: Const[i32]
+  |     ^^^^^^^^^^^^^ 

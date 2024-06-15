@@ -1,1 +1,5 @@
-/bin/sh: 1: lpython: not found
+semantic error: Assignment to an input function parameter `x` is not allowed
+ --> tests/errors/test_assign9.py:2:5
+  |
+2 |     x = 2
+  |     ^ Hint: create a new local variable with a different name

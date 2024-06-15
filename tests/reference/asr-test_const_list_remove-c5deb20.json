@@ -8,6 +8,6 @@
     "stdout": null,
     "stdout_hash": null,
     "stderr": "asr-test_const_list_remove-c5deb20.stderr",
-    "stderr_hash": "66203f8186d39e82e445c38cd4b48def18018149f7f5b50f43ae2478",
-    "returncode": 127
+    "stderr_hash": "3529d822548d9327dbd0eab32aebc7b4a0da518cc0a6c2356e65c7b8",
+    "returncode": 2
 }

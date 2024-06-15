@@ -1,1 +1,5 @@
-/bin/sh: 1: lpython: not found
+semantic error: Number of arguments does not match in the function call
+  --> tests/errors/test_func_args.py:11:11
+   |
+11 |     ans = fib(35, 10)
+   |           ^^^^^^^^^^^ (found: '2', expected: '1')

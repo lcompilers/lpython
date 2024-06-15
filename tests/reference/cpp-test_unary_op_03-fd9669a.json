@@ -5,9 +5,9 @@
     "infile_hash": "ce63509c56eb6c68ca6d64cc2a195644f3d2fc285f3ec8865551eff5",
     "outfile": null,
     "outfile_hash": null,
-    "stdout": null,
-    "stdout_hash": null,
-    "stderr": "cpp-test_unary_op_03-fd9669a.stderr",
-    "stderr_hash": "66203f8186d39e82e445c38cd4b48def18018149f7f5b50f43ae2478",
-    "returncode": 127
+    "stdout": "cpp-test_unary_op_03-fd9669a.stdout",
+    "stdout_hash": "50205765dbafb525c90c7551a7217ca5b5c197047dfe471ffd2f4dec",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
 }

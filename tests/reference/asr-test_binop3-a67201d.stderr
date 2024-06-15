@@ -1,1 +1,5 @@
-/bin/sh: 1: lpython: not found
+semantic error: Type mismatch in binary operator; the types must be compatible
+ --> tests/errors/test_binop3.py:5:9
+  |
+5 |     y = complex(5)+100
+  |         ^^^^^^^^^^ ^^^ type mismatch (c32 and i32)

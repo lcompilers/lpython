@@ -5,9 +5,9 @@
     "infile_hash": "c4513f1b2ab1a2f33a0784fe80b4d32b506c05799b0c920c4f5b0411",
     "outfile": null,
     "outfile_hash": null,
-    "stdout": null,
-    "stdout_hash": null,
-    "stderr": "pass_print_list_tuple-print_02-09600eb.stderr",
-    "stderr_hash": "66203f8186d39e82e445c38cd4b48def18018149f7f5b50f43ae2478",
-    "returncode": 127
+    "stdout": "pass_print_list_tuple-print_02-09600eb.stdout",
+    "stdout_hash": "2831d417b5508b57e5e64c51339eb96f4d9aaf3559ee19c31dd0bb3c",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
 }

@@ -1,1 +1,5 @@
-/bin/sh: 1: lpython: not found
+syntax error: Token '"Hello World"' (of type 'string') is unexpected here
+ --> tests/errors/prefix_string_02.py:7:13
+  |
+7 |     print(r "Hello World")
+  |             ^^^^^^^^^^^^^ 

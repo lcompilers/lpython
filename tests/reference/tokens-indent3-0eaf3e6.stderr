@@ -1,1 +1,5 @@
-/bin/sh: 1: lpython: not found
+tokenizer error: Expected an indented block.
+ --> tests/tokens/errors/indent3.py:5:1
+  |
+5 |     pass
+  | ^^^^ 

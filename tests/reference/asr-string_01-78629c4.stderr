@@ -1,1 +1,5 @@
-/bin/sh: 1: lpython: not found
+semantic error: Type mismatch in index, expected a single integer or slice
+ --> tests/errors/string_01.py:3:13
+  |
+3 |     print(x[2, 5])
+  |             ^^^^ type mismatch (found: 'tuple[i32, i32]', expected: 'i32' or slice)

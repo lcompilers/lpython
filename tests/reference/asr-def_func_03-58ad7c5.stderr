@@ -1,1 +1,5 @@
-/bin/sh: 1: lpython: not found
+semantic error: Number of arguments does not match in the function call
+ --> tests/errors/def_func_03.py:5:1
+  |
+5 | func_03(1)
+  | ^^^^^^^^^^ missing 1 required arguments : 'y'

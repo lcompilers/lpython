@@ -8,6 +8,6 @@
     "stdout": null,
     "stdout_hash": null,
     "stderr": "asr-test_int_semantic_error-44fe25e.stderr",
-    "stderr_hash": "66203f8186d39e82e445c38cd4b48def18018149f7f5b50f43ae2478",
-    "returncode": 127
+    "stderr_hash": "a1cd1ec0fee194e3c1651668753a1666ca46c925fa91335c6230e026",
+    "returncode": 2
 }

@@ -1,1 +1,5 @@
-/bin/sh: 1: lpython: not found
+tokenizer error: Indentation should be of the same type (either tabs or spaces)
+ --> tests/tokens/errors/indent2.py:4:1
+  |
+4 |  else:
+  | ^ 

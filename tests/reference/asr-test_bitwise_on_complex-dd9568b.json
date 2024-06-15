@@ -8,6 +8,6 @@
     "stdout": null,
     "stdout_hash": null,
     "stderr": "asr-test_bitwise_on_complex-dd9568b.stderr",
-    "stderr_hash": "66203f8186d39e82e445c38cd4b48def18018149f7f5b50f43ae2478",
-    "returncode": 127
+    "stderr_hash": "58f7acb7f7187308d38c7c97fcd9e34b2022c42be1b6583b95b379af",
+    "returncode": 2
 }

@@ -1,1 +1,5 @@
-/bin/sh: 1: lpython: not found
+semantic error: Return type of function is not defined
+ --> tests/errors/test_return2.py:4:5
+  |
+4 |     return x
+  |     ^^^^^^^^ 

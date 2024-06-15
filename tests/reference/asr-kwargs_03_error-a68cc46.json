@@ -8,6 +8,6 @@
     "stdout": null,
     "stdout_hash": null,
     "stderr": "asr-kwargs_03_error-a68cc46.stderr",
-    "stderr_hash": "66203f8186d39e82e445c38cd4b48def18018149f7f5b50f43ae2478",
-    "returncode": 127
+    "stderr_hash": "83b858c0d4e17fe2f03b1e47652414c4478d709def5d3fbaa71aad71",
+    "returncode": 2
 }

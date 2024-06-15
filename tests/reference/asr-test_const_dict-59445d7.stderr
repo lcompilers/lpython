@@ -1,1 +1,5 @@
-/bin/sh: 1: lpython: not found
+semantic error: cannot pop elements from a const dict
+ --> tests/errors/test_const_dict.py:6:11
+  |
+6 |     print(CONST_DICTIONARY.pop("a"))
+  |           ^^^^^^^^^^^^^^^^^^^^^^^^^ 

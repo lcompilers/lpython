@@ -1,1 +1,5 @@
-/bin/sh: 1: lpython: not found
+semantic error: str.capitalize() takes no arguments
+ --> tests/errors/test_str_capitalize.py:4:9
+  |
+4 |     s = s.capitalize(23)
+  |         ^^^^^^^^^^^^^^^^ 

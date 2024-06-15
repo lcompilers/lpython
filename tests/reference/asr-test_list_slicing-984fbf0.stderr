@@ -1,1 +1,5 @@
-/bin/sh: 1: lpython: not found
+semantic error: slice step cannot be zero
+ --> tests/errors/test_list_slicing.py:6:18
+  |
+6 |     print(l[0:10:0])
+  |                  ^ 

@@ -1,1 +1,5 @@
-/bin/sh: 1: lpython: not found
+semantic error: The type 'Pattern' is undeclared.
+ --> tests/errors/test_annassign_02.py:2:15
+  |
+2 |     hex_pat : Pattern[str] = r'-?0[xX]+'
+  |               ^^^^^^^^^^^^ 
