@@ -5,9 +5,9 @@
     "infile_hash": "24df29cba718c679016f3758a2eccafbeb9cfebd56265fd8da16bee1",
     "outfile": null,
     "outfile_hash": null,
-    "stdout": "ast-ellipsis1-4f6c4dd.stdout",
-    "stdout_hash": "6d6aef7896c1a43a27f489cb283c508b2bf1238ff6ad0c807b58b9e7",
-    "stderr": null,
-    "stderr_hash": null,
-    "returncode": 0
+    "stdout": null,
+    "stdout_hash": null,
+    "stderr": "ast-ellipsis1-4f6c4dd.stderr",
+    "stderr_hash": "66203f8186d39e82e445c38cd4b48def18018149f7f5b50f43ae2478",
+    "returncode": 127
 }

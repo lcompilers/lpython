@@ -1,5 +1,1 @@
-semantic error: Type Mismatch in return, found ('f64' and 'i32')
- --> tests/errors/test_return1.py:4:5
-  |
-4 |     return x
-  |     ^^^^^^^^ 
+/bin/sh: 1: lpython: not found

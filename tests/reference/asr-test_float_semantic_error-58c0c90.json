@@ -8,6 +8,6 @@
     "stdout": null,
     "stdout_hash": null,
     "stderr": "asr-test_float_semantic_error-58c0c90.stderr",
-    "stderr_hash": "c11166fb86be513e74796a51f5c9e84653c2eb894ed95d502ed8af57",
-    "returncode": 2
+    "stderr_hash": "66203f8186d39e82e445c38cd4b48def18018149f7f5b50f43ae2478",
+    "returncode": 127
 }

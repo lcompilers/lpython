@@ -5,9 +5,9 @@
     "infile_hash": "6e225037304a9a1222b4c356b8cd1ffc5ed4a58bb7d6916c242c7b53",
     "outfile": null,
     "outfile_hash": null,
-    "stdout": "python-test_aggregate_constants-26c89d6.stdout",
-    "stdout_hash": "615052b21f411decc56105bba5b9b1286e369c3da614dddfcaa6e3a2",
-    "stderr": null,
-    "stderr_hash": null,
-    "returncode": 0
+    "stdout": null,
+    "stdout_hash": null,
+    "stderr": "python-test_aggregate_constants-26c89d6.stderr",
+    "stderr_hash": "66203f8186d39e82e445c38cd4b48def18018149f7f5b50f43ae2478",
+    "returncode": 127
 }

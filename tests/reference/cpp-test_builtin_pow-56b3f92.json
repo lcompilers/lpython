@@ -5,9 +5,9 @@
     "infile_hash": "b7d1d5e1592f5078961eb228c756e424d394f5f0383a1577f1cced1b",
     "outfile": null,
     "outfile_hash": null,
-    "stdout": "cpp-test_builtin_pow-56b3f92.stdout",
-    "stdout_hash": "1ba4554c50fe8ead16dca0fd1370e2255261d28724e6f9aa3a17543f",
+    "stdout": null,
+    "stdout_hash": null,
     "stderr": "cpp-test_builtin_pow-56b3f92.stderr",
-    "stderr_hash": "859ce76c74748f2d32c7eab92cfbba789a78d4cbf5818646b99806ea",
-    "returncode": 0
+    "stderr_hash": "66203f8186d39e82e445c38cd4b48def18018149f7f5b50f43ae2478",
+    "returncode": 127
 }

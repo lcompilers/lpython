@@ -1,5 +1,1 @@
-semantic error: Function func01 doesn't have an argument named 'd'
-  --> tests/errors/kwargs_03_error.py:11:5
-   |
-11 |     func01(arg1, d=int(8))
-   |     ^^^^^^^^^^^^^^^^^^^^^^ 
+/bin/sh: 1: lpython: not found

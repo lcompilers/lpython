@@ -1,11 +1,1 @@
-style suggestion: Could have used '**' instead of 'pow'
-  --> tests/errors/test_pow2.py:12:11
-   |
-12 |     print(pow(a, b, c, d))
-   |           ^^^^^^^^^^^^^^^ '**' could be used instead
-
-semantic error: Arguments do not match for any generic procedure, pow
-  --> tests/errors/test_pow2.py:12:11
-   |
-12 |     print(pow(a, b, c, d))
-   |           ^^^^^^^^^^^^^^^ 
+/bin/sh: 1: lpython: not found

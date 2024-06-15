@@ -1,5 +1,1 @@
-semantic error: 'dict' key type cannot be float/complex because resolving collisions by exact comparison of float/complex values will result in unexpected behaviours. In addition fuzzy equality checks with a certain tolerance does not follow transitivity with float/complex values.
- --> tests/errors/test_dict13.py:2:11
-  |
-2 |     print({complex(0.0, 1.0): 1.1}) # constant dict with complex value as key
-  |           ^^^^^^^^^^^^^^^^^^^^^^^^ 
+/bin/sh: 1: lpython: not found

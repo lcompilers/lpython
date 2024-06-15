@@ -5,9 +5,9 @@
     "infile_hash": "8fe6f0b490e63a1b86d4964ede9d5410d421e0251bd692d36a4b79c6",
     "outfile": null,
     "outfile_hash": null,
-    "stdout": "python-test_list_methods-ceccf6b.stdout",
-    "stdout_hash": "888c041c38f4a7c2ea49df884a2caae10cc223b746227de97f9abf25",
-    "stderr": null,
-    "stderr_hash": null,
-    "returncode": 0
+    "stdout": null,
+    "stdout_hash": null,
+    "stderr": "python-test_list_methods-ceccf6b.stderr",
+    "stderr_hash": "66203f8186d39e82e445c38cd4b48def18018149f7f5b50f43ae2478",
+    "returncode": 127
 }

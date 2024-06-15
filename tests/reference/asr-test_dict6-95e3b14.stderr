@@ -1,5 +1,1 @@
-semantic error: Type mismatch in pop's key value, the types must be compatible
- --> tests/errors/test_dict6.py:5:17
-  |
-5 |     res = d.pop("a")
-  |                 ^^^ type mismatch (found: 'str', expected: 'i32')
+/bin/sh: 1: lpython: not found

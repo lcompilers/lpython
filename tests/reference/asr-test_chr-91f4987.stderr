@@ -1,5 +1,1 @@
-semantic error: 'f64' object cannot be interpreted as an integer
- --> tests/errors/test_chr.py:3:13
-  |
-3 |     s = chr(973.2)
-  |             ^^^^^ 
+/bin/sh: 1: lpython: not found

@@ -1,5 +1,1 @@
-semantic error: func01() got multiple values for argument 'a'
-  --> tests/errors/kwargs_01_error.py:11:5
-   |
-11 |     func01(arg1, a=int(8))
-   |     ^^^^^^^^^^^^^^^^^^^^^^ 
+/bin/sh: 1: lpython: not found

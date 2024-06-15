@@ -1,5 +1,1 @@
-semantic error: Unsupported binary operation on floats: '<<'
- --> tests/errors/test_bitwise_on_float.py:8:11
-  |
-8 |     print(f1 << f2)
-  |           ^^^^^^^^ 
+/bin/sh: 1: lpython: not found

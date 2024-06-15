@@ -1,5 +1,1 @@
-semantic error: Call to set.remove must have exactly one argument
- --> tests/errors/test_set2.py:6:5
-  |
-6 |     a.remove('error', 'error2')
-  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
+/bin/sh: 1: lpython: not found

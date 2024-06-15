@@ -1,5 +1,1 @@
-semantic error: Unhashable type: 'list'
- --> tests/errors/test_set_object4.py:2:12
-  |
-2 |     print({[1, 2], [3, 4]})
-  |            ^^^^^^ Mutable type 'list' cannot be stored in a set.
+/bin/sh: 1: lpython: not found

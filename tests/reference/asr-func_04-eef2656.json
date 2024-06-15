@@ -8,6 +8,6 @@
     "stdout": null,
     "stdout_hash": null,
     "stderr": "asr-func_04-eef2656.stderr",
-    "stderr_hash": "d1e5bb4b5356e57124ff34eea9e5b96ecc44d3bc8a1da4b0a7db5b4a",
-    "returncode": 2
+    "stderr_hash": "66203f8186d39e82e445c38cd4b48def18018149f7f5b50f43ae2478",
+    "returncode": 127
 }

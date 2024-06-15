@@ -8,6 +8,6 @@
     "stdout": null,
     "stdout_hash": null,
     "stderr": "asr-enum_02-54656c5.stderr",
-    "stderr_hash": "88c95223e82c39f9d40d9f62923d1bffdf3a9f0a47565bad19b37dee",
-    "returncode": 2
+    "stderr_hash": "66203f8186d39e82e445c38cd4b48def18018149f7f5b50f43ae2478",
+    "returncode": 127
 }

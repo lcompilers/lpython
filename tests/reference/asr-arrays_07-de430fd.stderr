@@ -1,5 +1,1 @@
-semantic error: Type mismatch in annotation-assignment, the types must be compatible
- --> tests/errors/arrays_07.py:6:5
-  |
-6 |     x: f32[5, 4] = empty([5, 4], dtype=complex64)
-  |     ^              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ type mismatch ('f32[5,4]' and 'c32[5,4]')
+/bin/sh: 1: lpython: not found

@@ -1,5 +1,1 @@
-semantic error: Intent annotation 'In' cannot be used here
- --> tests/errors/func_08.py:3:17
-  |
-3 | def main0(x: In[In[i32]]):
-  |                 ^^^^^^^ 
+/bin/sh: 1: lpython: not found

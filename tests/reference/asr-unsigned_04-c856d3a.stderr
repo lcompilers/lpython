@@ -1,5 +1,1 @@
-semantic error: The result of the bitnot ~ operation is negative, thus out of range for u16
- --> tests/errors/unsigned_04.py:4:5
-  |
-4 | i = ~i
-  |     ^^ use ~i32(u) for signed result or bitnot_u16(u) for unsigned result
+/bin/sh: 1: lpython: not found

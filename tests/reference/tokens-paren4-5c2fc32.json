@@ -8,6 +8,6 @@
     "stdout": null,
     "stdout_hash": null,
     "stderr": "tokens-paren4-5c2fc32.stderr",
-    "stderr_hash": "4ee038fab6af5c6ed6e0bfc147b98031946c9aa227364e263aaa4913",
-    "returncode": 1
+    "stderr_hash": "66203f8186d39e82e445c38cd4b48def18018149f7f5b50f43ae2478",
+    "returncode": 127
 }

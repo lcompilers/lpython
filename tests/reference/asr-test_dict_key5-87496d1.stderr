@@ -1,5 +1,1 @@
-semantic error: Unhashable type: 'dict'
- --> tests/errors/test_dict_key5.py:2:12
-  |
-2 |     print({{1: "a", 2: "b"}: "first", {3: "c", 4: "d"}: "second"})
-  |            ^^^^^^^^^^^^^^^^ Mutable type 'dict' cannot become a key in dict. Hint: Use an immutable type for key.
+/bin/sh: 1: lpython: not found

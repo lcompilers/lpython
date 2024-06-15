@@ -1,5 +1,1 @@
-semantic error: Runtime Indexing with tuple[i32, i32, i32] is not possible.
- --> tests/errors/test_tuple2.py:4:11
-  |
-4 |     print(t[x])
-  |           ^^^^ 
+/bin/sh: 1: lpython: not found

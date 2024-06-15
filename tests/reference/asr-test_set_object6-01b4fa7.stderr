@@ -1,5 +1,1 @@
-semantic error: Unhashable type: 'set'
- --> tests/errors/test_set_object6.py:2:12
-  |
-2 |     print({{1, 2}, {3, 4}})
-  |            ^^^^^^ Mutable type 'set' cannot be stored in a set.
+/bin/sh: 1: lpython: not found
