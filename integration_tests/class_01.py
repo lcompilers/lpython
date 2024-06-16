@@ -12,7 +12,7 @@ class Test:
         print("fn_2 called")
         fn_2()
         print("fn_3 called")
-        fn_3()
+        Test.fn_3()
         return 
     def fn_3():
         print("Inside fn_3")
