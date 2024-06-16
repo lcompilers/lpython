@@ -3014,6 +3014,30 @@ public:
         }
     }
 
+    void visit_StructType(const ASR::StructType_t &x){
+        SymbolTable *current_scope_copy = current_scope;
+        current_scope = x.m_symtab;
+        for (auto &item : x.m_symtab->get_scope()){
+            if (is_a<ASR::Function_t>(*item.second)){
+                ASR::Function_t *v = down_cast<ASR::Function_t>(item.second);
+                instantiate_function(*v);
+            }
+        }
+        current_scope = current_scope_copy;
+    }
+
+    void make_struct_f_def(const ASR::StructType_t &x){
+        SymbolTable *current_scope_copy = current_scope;
+        current_scope = x.m_symtab;
+        for (auto &item : x.m_symtab->get_scope()){
+            if (is_a<ASR::Function_t>(*item.second)){
+                ASR::Function_t *v = down_cast<ASR::Function_t>(item.second);
+                visit_Function(*v);
+            }
+        }
+        current_scope = current_scope_copy;
+    }
+
     void start_module_init_function_prototype(const ASR::Module_t &x) {
         uint32_t h = get_hash((ASR::asr_t*)&x);
         llvm::FunctionType *function_type = llvm::FunctionType::get(
@@ -3055,6 +3079,11 @@ public:
             } else if (is_a<ASR::EnumType_t>(*item.second)) {
                 ASR::EnumType_t *et = down_cast<ASR::EnumType_t>(item.second);
                 visit_EnumType(*et);
+            } else if (is_a<ASR::StructType_t>(*item.second)) {
+                mangle_prefix = "";
+                ASR::StructType_t *st = down_cast<ASR::StructType_t>(item.second);
+                visit_StructType(*st); 
+                mangle_prefix = "__module_" + std::string(x.m_name) + "_";
             }
         }
         finish_module_init_function_prototype(x);
@@ -4048,6 +4077,9 @@ public:
             if (is_a<ASR::Function_t>(*item.second)) {
                 ASR::Function_t *s = ASR::down_cast<ASR::Function_t>(item.second);
                 visit_Function(*s);
+            }else if(is_a<ASR::StructType_t>(*item.second)) {
+                ASR::StructType_t *st = down_cast<ASR::StructType_t>(item.second);
+                make_struct_f_def(*st); 
             }
         }
     }

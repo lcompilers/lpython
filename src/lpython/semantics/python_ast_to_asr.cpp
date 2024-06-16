@@ -2493,13 +2493,11 @@ public:
         return false;
     }
 
-    bool is_dataclass(AST::expr_t** decorators, size_t n,
+    void  get_alignment(AST::expr_t** decorators, size_t n,
         ASR::expr_t*& aligned_expr, bool& is_packed) {
-        bool is_dataclass_ = false;
         for( size_t i = 0; i < n; i++ ) {
             if( AST::is_a<AST::Name_t>(*decorators[i]) ) {
                 AST::Name_t* dc_name = AST::down_cast<AST::Name_t>(decorators[i]);
-                is_dataclass_ = std::string(dc_name->m_id) == "dataclass";
                 is_packed = is_packed || std::string(dc_name->m_id) == "packed";
             } else if( AST::is_a<AST::Call_t>(*decorators[i]) ) {
                 AST::Call_t* dc_call = AST::down_cast<AST::Call_t>(decorators[i]);
@@ -2532,7 +2530,7 @@ public:
             }
         }
 
-        return is_dataclass_;
+        return;
     }
 
     bool is_enum(AST::expr_t** bases, size_t n) {
@@ -2870,9 +2868,10 @@ public:
         if (is_const) {
             storage_type = ASR::storage_typeType::Parameter;
         }
-
-        create_add_variable_to_scope(var_name, type,
-                x.base.base.loc, abi, storage_type);
+        if( !(inside_struct && current_scope->resolve_symbol(var_name)) ){
+            create_add_variable_to_scope(var_name, type,
+                    x.base.base.loc, abi, storage_type);
+        }
 
         ASR::expr_t* assign_asr_target_copy = assign_asr_target;
         this->visit_expr(*x.m_target);
@@ -2926,7 +2925,29 @@ public:
     void visit_ClassMembers(const AST::ClassDef_t& x,
         Vec<char*>& member_names, SetChar& struct_dependencies,
         Vec<ASR::call_arg_t> &member_init,
-        bool is_enum_scope=false, ASR::abiType abi=ASR::abiType::Source) {
+        bool is_enum_scope=false, ASR::abiType abi=ASR::abiType::Source,
+        bool is_generating_body = false) {
+        if(is_generating_body && !is_enum_scope){
+            for( size_t i = 0; i < x.n_body; i++ ){
+                if ( AST::is_a<AST::FunctionDef_t>(*x.m_body[i]) )
+                    //generating function body 
+                    this->visit_stmt(*x.m_body[i]);
+                if (AST::is_a<AST::AnnAssign_t>(*x.m_body[i])) {
+                    //Add initializers to the AnnAssign
+                    AST::AnnAssign_t* ann_assign = AST::down_cast<AST::AnnAssign_t>(x.m_body[i]);
+                    AST::Name_t *n = AST::down_cast<AST::Name_t>(ann_assign->m_target);
+                    std::string var_name = n->m_id;
+                    ASR::expr_t* init_expr = nullptr;
+                    visit_AnnAssignUtil(*ann_assign, var_name, init_expr, false, abi, true);
+                    ASR::symbol_t* var_sym = current_scope->resolve_symbol(var_name);
+                    ASR::call_arg_t c_arg;
+                    c_arg.loc = var_sym->base.loc;
+                    c_arg.m_value = init_expr;
+                    member_init.push_back(al, c_arg);
+                }
+            }
+            return;
+        }
         int64_t prev_value = 1;
         for( size_t i = 0; i < x.n_body; i++ ) {
             if (AST::is_a<AST::Expr_t>(*x.m_body[i])) {
@@ -2939,77 +2960,80 @@ public:
                 }
                 throw SemanticError("Only doc strings and const ellipsis allowed as expressions inside class", expr->base.base.loc);
             } else if( AST::is_a<AST::ClassDef_t>(*x.m_body[i]) ) {
-                visit_ClassDef(*AST::down_cast<AST::ClassDef_t>(x.m_body[i]));
+                visit_ClassDef(*AST::down_cast<AST::ClassDef_t>(x.m_body[i]));  
                 continue;
             } else if ( AST::is_a<AST::FunctionDef_t>(*x.m_body[i]) ) {
-                throw SemanticError("Struct member functions are not supported", x.m_body[i]->base.loc);
+                this->visit_stmt(*x.m_body[i]);
+                continue;
             } else if (AST::is_a<AST::Pass_t>(*x.m_body[i])) {
                 continue;
-            } else if (!AST::is_a<AST::AnnAssign_t>(*x.m_body[i])) {
-                throw SemanticError("AnnAssign expected inside struct", x.m_body[i]->base.loc);
-            }
-            AST::AnnAssign_t* ann_assign = AST::down_cast<AST::AnnAssign_t>(x.m_body[i]);
-            if (!AST::is_a<AST::Name_t>(*ann_assign->m_target)) {
-                throw SemanticError("Only Name supported as target in AnnAssign inside struct", x.m_body[i]->base.loc);
-            }
-            AST::Name_t *n = AST::down_cast<AST::Name_t>(ann_assign->m_target);
-            std::string var_name = n->m_id;
-            ASR::expr_t* init_expr = nullptr;
-            if( is_enum_scope ) {
-                ASR::ttype_t* i64_type = ASRUtils::TYPE(ASR::make_Integer_t(al, x.base.base.loc, 8));
-                init_expr = ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, x.base.base.loc, -1, i64_type));
-            }
-            visit_AnnAssignUtil(*ann_assign, var_name, init_expr, false, abi, true);
-            ASR::symbol_t* var_sym = current_scope->resolve_symbol(var_name);
-            ASR::call_arg_t c_arg;
-            c_arg.loc = var_sym->base.loc;
-            c_arg.m_value = init_expr;
-            member_init.push_back(al, c_arg);
-            if( is_enum_scope ) {
-                if( AST::is_a<AST::Call_t>(*ann_assign->m_value) ) {
-                    AST::Call_t* auto_call_cand = AST::down_cast<AST::Call_t>(ann_assign->m_value);
-                    if( AST::is_a<AST::Name_t>(*auto_call_cand->m_func) ) {
-                        AST::Name_t* func = AST::down_cast<AST::Name_t>(auto_call_cand->m_func);
-                        std::string func_name = func->m_id;
-                        if( func_name == "auto" ) {
-                            ASR::ttype_t* int_type = ASRUtils::symbol_type(var_sym);
-                            init_expr = ASRUtils::EXPR(ASR::make_IntegerConstant_t(al,
-                                auto_call_cand->base.base.loc, prev_value, int_type));
-                            prev_value += 1;
+            } else if (AST::is_a<AST::AnnAssign_t>(*x.m_body[i])) {
+                AST::AnnAssign_t* ann_assign = AST::down_cast<AST::AnnAssign_t>(x.m_body[i]);
+                if (!AST::is_a<AST::Name_t>(*ann_assign->m_target)) {
+                    throw SemanticError("Only Name supported as target in AnnAssign inside struct", x.m_body[i]->base.loc);
+                }
+                AST::Name_t *n = AST::down_cast<AST::Name_t>(ann_assign->m_target);
+                std::string var_name = n->m_id;
+                ASR::expr_t* init_expr = nullptr;
+                if( is_enum_scope ) {
+                    ASR::ttype_t* i64_type = ASRUtils::TYPE(ASR::make_Integer_t(al, x.base.base.loc, 8));
+                    init_expr = ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, x.base.base.loc, -1, i64_type));
+                }
+                visit_AnnAssignUtil(*ann_assign, var_name, init_expr, false, abi, true);
+                ASR::symbol_t* var_sym = current_scope->resolve_symbol(var_name);
+                ASR::call_arg_t c_arg;
+                c_arg.loc = var_sym->base.loc;
+                c_arg.m_value = init_expr;
+                member_init.push_back(al, c_arg);
+                if( is_enum_scope ) {
+                    if( AST::is_a<AST::Call_t>(*ann_assign->m_value) ) {
+                        AST::Call_t* auto_call_cand = AST::down_cast<AST::Call_t>(ann_assign->m_value);
+                        if( AST::is_a<AST::Name_t>(*auto_call_cand->m_func) ) {
+                            AST::Name_t* func = AST::down_cast<AST::Name_t>(auto_call_cand->m_func);
+                            std::string func_name = func->m_id;
+                            if( func_name == "auto" ) {
+                                ASR::ttype_t* int_type = ASRUtils::symbol_type(var_sym);
+                                init_expr = ASRUtils::EXPR(ASR::make_IntegerConstant_t(al,
+                                    auto_call_cand->base.base.loc, prev_value, int_type));
+                                prev_value += 1;
+                            }
                         }
+                    } else {
+                        this->visit_expr(*ann_assign->m_value);
+                        ASR::expr_t* enum_value = ASRUtils::expr_value(ASRUtils::EXPR(tmp));
+                        LCOMPILERS_ASSERT(ASRUtils::is_value_constant(enum_value));
+                        ASRUtils::extract_value(enum_value, prev_value);
+                        prev_value += 1;
+                        init_expr = enum_value;
                     }
                 } else {
-                    this->visit_expr(*ann_assign->m_value);
-                    ASR::expr_t* enum_value = ASRUtils::expr_value(ASRUtils::EXPR(tmp));
-                    LCOMPILERS_ASSERT(ASRUtils::is_value_constant(enum_value));
-                    ASRUtils::extract_value(enum_value, prev_value);
-                    prev_value += 1;
-                    init_expr = enum_value;
+                    init_expr = nullptr;
                 }
-            } else {
-                init_expr = nullptr;
+                if( ASR::is_a<ASR::Variable_t>(*var_sym) ) {
+                    ASR::Variable_t* variable = ASR::down_cast<ASR::Variable_t>(var_sym);
+                    variable->m_symbolic_value = init_expr;
+                }
+                ASR::ttype_t* var_type = ASRUtils::type_get_past_pointer(ASRUtils::symbol_type(var_sym));
+                char* aggregate_type_name = nullptr;
+                if( ASR::is_a<ASR::Struct_t>(*var_type) ) {
+                    aggregate_type_name = ASRUtils::symbol_name(
+                        ASR::down_cast<ASR::Struct_t>(var_type)->m_derived_type);
+                } else if( ASR::is_a<ASR::Enum_t>(*var_type) ) {
+                    aggregate_type_name = ASRUtils::symbol_name(
+                        ASR::down_cast<ASR::Enum_t>(var_type)->m_enum_type);
+                } else if( ASR::is_a<ASR::Union_t>(*var_type) ) {
+                    aggregate_type_name = ASRUtils::symbol_name(
+                        ASR::down_cast<ASR::Union_t>(var_type)->m_union_type);
+                }
+                if( aggregate_type_name &&
+                    !current_scope->get_symbol(std::string(aggregate_type_name)) ) {
+                    struct_dependencies.push_back(al, aggregate_type_name);
+                }
+                member_names.push_back(al, n->m_id);
             }
-            if( ASR::is_a<ASR::Variable_t>(*var_sym) ) {
-                ASR::Variable_t* variable = ASR::down_cast<ASR::Variable_t>(var_sym);
-                variable->m_symbolic_value = init_expr;
+            else {
+                throw SemanticError("AnnAssign or Function def expected inside struct", x.m_body[i]->base.loc);
             }
-            ASR::ttype_t* var_type = ASRUtils::type_get_past_pointer(ASRUtils::symbol_type(var_sym));
-            char* aggregate_type_name = nullptr;
-            if( ASR::is_a<ASR::Struct_t>(*var_type) ) {
-                aggregate_type_name = ASRUtils::symbol_name(
-                    ASR::down_cast<ASR::Struct_t>(var_type)->m_derived_type);
-            } else if( ASR::is_a<ASR::Enum_t>(*var_type) ) {
-                aggregate_type_name = ASRUtils::symbol_name(
-                    ASR::down_cast<ASR::Enum_t>(var_type)->m_enum_type);
-            } else if( ASR::is_a<ASR::Union_t>(*var_type) ) {
-                aggregate_type_name = ASRUtils::symbol_name(
-                    ASR::down_cast<ASR::Union_t>(var_type)->m_union_type);
-            }
-            if( aggregate_type_name &&
-                !current_scope->get_symbol(std::string(aggregate_type_name)) ) {
-                struct_dependencies.push_back(al, aggregate_type_name);
-            }
-            member_names.push_back(al, n->m_id);
         }
     }
 
@@ -3030,6 +3054,7 @@ public:
 
     void visit_ClassDef(const AST::ClassDef_t& x) {
         std::string x_m_name = x.m_name;
+        bool is_generating_body = false;
         if( is_enum(x.m_bases, x.n_bases) ) {
             if( current_scope->resolve_symbol(x_m_name) ) {
                 return ;
@@ -3150,19 +3175,21 @@ public:
         }
         ASR::expr_t* algined_expr = nullptr;
         bool is_packed = false;
-        if( !is_dataclass(x.m_decorator_list, x.n_decorator_list,
-                          algined_expr, is_packed) ) {
-            throw SemanticError("Only dataclass-decorated classes and Enum subclasses are supported.",
-                                x.base.base.loc);
-        }
-
+        get_alignment(x.m_decorator_list, x.n_decorator_list, algined_expr, is_packed);
         if( x.n_bases > 0 ) {
             throw SemanticError("Inheritance in classes isn't supported yet.",
                                 x.base.base.loc);
         }
-
         SymbolTable *parent_scope = current_scope;
-        current_scope = al.make_new<SymbolTable>(parent_scope);
+        ASR::symbol_t* clss_sym = current_scope->get_symbol(x_m_name);
+        ASR::StructType_t* clss = nullptr;
+        if( clss_sym != nullptr ){
+            clss = ASR::down_cast<ASR::StructType_t>(clss_sym);
+            current_scope = clss->m_symtab;
+            is_generating_body = true;
+        }else{
+            current_scope = al.make_new<SymbolTable>(parent_scope);
+        }
         Vec<char*> member_names;
         Vec<ASR::call_arg_t> member_init;
         member_names.reserve(al, x.n_body);
@@ -3173,8 +3200,7 @@ public:
         if( is_bindc_class(x.m_decorator_list, x.n_decorator_list) ) {
             class_abi = ASR::abiType::BindC;
         }
-        visit_ClassMembers(x, member_names, struct_dependencies, member_init, false, class_abi);
-        LCOMPILERS_ASSERT(member_init.size() == member_names.size());
+        visit_ClassMembers(x, member_names, struct_dependencies, member_init, false, class_abi,is_generating_body);
         ASR::symbol_t* class_type = ASR::down_cast<ASR::symbol_t>(ASR::make_StructType_t(al,
                                         x.base.base.loc, current_scope, x.m_name,
                                         struct_dependencies.p, struct_dependencies.size(),
@@ -3188,6 +3214,8 @@ public:
             ASR::StructType_t *st = ASR::down_cast<ASR::StructType_t>(sym);
             st->m_initializers = member_init.p;
             st->n_initializers = member_init.size();
+            clss->m_symtab->asr_owner = &clss_sym->base;
+            return;
         } else {
             current_scope->add_symbol(x_m_name, class_type);
         }
