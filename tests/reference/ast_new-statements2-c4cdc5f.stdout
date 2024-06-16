@@ -232,7 +232,7 @@
         )
     )
     (If
-        (Compare
+        (Membership
             (Subscript
                 (Subscript
                     (Name
@@ -256,7 +256,7 @@
                 Load
             )
             In
-            [(List
+            (List
                 [(ConstantStr
                     ""
                     ()
@@ -266,7 +266,7 @@
                     ()
                 )]
                 Load
-            )]
+            )
         )
         [(Pass)]
         []
@@ -387,16 +387,16 @@
         )
     )
     (If
-        (Compare
+        (Membership
             (Name
                 x
                 Load
             )
             NotIn
-            [(Name
+            (Name
                 z
                 Load
-            )]
+            )
         )
         [(Expr
             (ConstantEllipsis
@@ -406,16 +406,16 @@
         []
     )
     (If
-        (Compare
+        (Membership
             (Name
                 x
                 Load
             )
             NotIn
-            [(Name
+            (Name
                 z
                 Load
-            )]
+            )
         )
         [(Expr
             (ConstantEllipsis
@@ -425,16 +425,16 @@
         []
     )
     (If
-        (Compare
+        (Membership
             (Name
                 x
                 Load
             )
             NotIn
-            [(Name
+            (Name
                 z
                 Load
-            )]
+            )
         )
         [(Expr
             (ConstantEllipsis
@@ -444,16 +444,16 @@
         []
     )
     (If
-        (Compare
+        (Membership
             (Name
                 x
                 Load
             )
             NotIn
-            [(Name
+            (Name
                 z
                 Load
-            )]
+            )
         )
         [(Expr
             (ConstantEllipsis

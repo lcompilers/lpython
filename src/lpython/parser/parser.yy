@@ -1228,8 +1228,9 @@ expr
     | expr ">=" expr { $$ = COMPARE($1, GtE, $3, @$); }
     | expr "is" expr { $$ = COMPARE($1, Is, $3, @$); }
     | expr "is not" expr { $$ = COMPARE($1, IsNot, $3, @$); }
-    | expr "in" expr { $$ = COMPARE($1, In, $3, @$); }
-    | expr "not in" expr { $$ = COMPARE($1, NotIn, $3, @$); }
+
+    | expr "in" expr { $$ = MEMBERSHIP($1, In, $3, @$); }
+    | expr "not in" expr { $$ = MEMBERSHIP($1, NotIn, $3, @$); }
 
     | expr "and" expr { $$ = BOOLOP($1, And, $3, @$); }
     | expr "or" expr { $$ = BOOLOP($1, Or, $3, @$); }

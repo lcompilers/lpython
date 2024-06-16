@@ -589,7 +589,7 @@ namespace LCompilers {
             virtual
             llvm::Value* resolve_collision_for_read_with_bound_check(llvm::Value* dict, llvm::Value* key_hash,
                 llvm::Value* key, llvm::Module& module,
-                ASR::ttype_t* key_asr_type, ASR::ttype_t* value_asr_type) = 0;
+                ASR::ttype_t* key_asr_type, ASR::ttype_t* value_asr_type, bool check_if_exists = false) = 0;
 
             virtual
             llvm::Value* resolve_collision_for_read_with_default(llvm::Value* dict, llvm::Value* key_hash,
@@ -643,6 +643,7 @@ namespace LCompilers {
 
             virtual
             void set_is_dict_present(bool value);
+
 
             virtual
             void get_elements_list(llvm::Value* dict,
@@ -700,7 +701,7 @@ namespace LCompilers {
 
             llvm::Value* resolve_collision_for_read_with_bound_check(llvm::Value* dict, llvm::Value* key_hash,
                                                  llvm::Value* key, llvm::Module& module,
-                                                 ASR::ttype_t* key_asr_type, ASR::ttype_t* value_asr_type);
+                                                 ASR::ttype_t* key_asr_type, ASR::ttype_t* value_asr_type, bool check_if_exists = false);
 
             llvm::Value* resolve_collision_for_read_with_default(llvm::Value* dict, llvm::Value* key_hash,
                                                  llvm::Value* key, llvm::Module& module,
@@ -738,6 +739,7 @@ namespace LCompilers {
 
             llvm::Value* len(llvm::Value* dict);
 
+
             void get_elements_list(llvm::Value* dict,
                 llvm::Value* elements_list, ASR::ttype_t* key_asr_type,
                 ASR::ttype_t* value_asr_type, llvm::Module& module,
@@ -772,12 +774,13 @@ namespace LCompilers {
 
             llvm::Value* resolve_collision_for_read_with_bound_check(llvm::Value* dict, llvm::Value* key_hash,
                                                     llvm::Value* key, llvm::Module& module,
-                                                    ASR::ttype_t* key_asr_type, ASR::ttype_t* value_asr_type);
+                                                    ASR::ttype_t* key_asr_type, ASR::ttype_t* value_asr_type, bool check_if_exists = false);
 
             llvm::Value* resolve_collision_for_read_with_default(llvm::Value* dict, llvm::Value* key_hash,
                                                     llvm::Value* key, llvm::Module& module,
                                                     ASR::ttype_t* key_asr_type, ASR::ttype_t* value_asr_type,
                                                     llvm::Value *def_value);
+
 
             virtual ~LLVMDictOptimizedLinearProbing();
 
@@ -849,7 +852,7 @@ namespace LCompilers {
 
             llvm::Value* resolve_collision_for_read_with_bound_check(llvm::Value* dict, llvm::Value* key_hash,
                 llvm::Value* key, llvm::Module& module,
-                ASR::ttype_t* key_asr_type, ASR::ttype_t* value_asr_type);
+                ASR::ttype_t* key_asr_type, ASR::ttype_t* value_asr_type, bool check_if_exists = false);
 
             llvm::Value* resolve_collision_for_read_with_default(llvm::Value* dict, llvm::Value* key_hash,
                 llvm::Value* key, llvm::Module& module,
@@ -885,6 +888,7 @@ namespace LCompilers {
                 std::map<std::string, std::map<std::string, int>>& name2memidx);
 
             llvm::Value* len(llvm::Value* dict);
+
 
             void get_elements_list(llvm::Value* dict,
                 llvm::Value* elements_list, ASR::ttype_t* key_asr_type,
@@ -965,9 +969,9 @@ namespace LCompilers {
                 std::map<std::string, std::map<std::string, int>>& name2memidx);
 
             virtual
-            void resolve_collision_for_read_with_bound_check(
+            llvm::Value* resolve_collision_for_read_with_bound_check(
                 llvm::Value* set, llvm::Value* el_hash, llvm::Value* el,
-                llvm::Module& module, ASR::ttype_t* el_asr_type, bool throw_key_error) = 0;
+                llvm::Module& module, ASR::ttype_t* el_asr_type, bool throw_key_error, bool check_if_exists = false) = 0;
 
             virtual
             void remove_item(
@@ -1036,9 +1040,9 @@ namespace LCompilers {
                 llvm::Value* set, llvm::Module* module, ASR::ttype_t* el_asr_type,
                 std::map<std::string, std::map<std::string, int>>& name2memidx);
 
-            void resolve_collision_for_read_with_bound_check(
+            llvm::Value* resolve_collision_for_read_with_bound_check(
                 llvm::Value* set, llvm::Value* el_hash, llvm::Value* el,
-                llvm::Module& module, ASR::ttype_t* el_asr_type, bool throw_key_error);
+                llvm::Module& module, ASR::ttype_t* el_asr_type, bool throw_key_error, bool check_if_exists = false);
 
             void remove_item(
                 llvm::Value* set, llvm::Value* el,
@@ -1117,9 +1121,9 @@ namespace LCompilers {
                 llvm::Value* set, llvm::Module* module, ASR::ttype_t* el_asr_type,
                 std::map<std::string, std::map<std::string, int>>& name2memidx);
 
-            void resolve_collision_for_read_with_bound_check(
+            llvm::Value* resolve_collision_for_read_with_bound_check(
                 llvm::Value* set, llvm::Value* el_hash, llvm::Value* el,
-                llvm::Module& module, ASR::ttype_t* el_asr_type, bool throw_key_error);
+                llvm::Module& module, ASR::ttype_t* el_asr_type, bool throw_key_error, bool check_if_exists = false);
 
             void remove_item(
                 llvm::Value* set, llvm::Value* el,
