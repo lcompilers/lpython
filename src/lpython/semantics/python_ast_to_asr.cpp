@@ -2493,13 +2493,11 @@ public:
         return false;
     }
 
-    bool is_dataclass(AST::expr_t** decorators, size_t n,
+    void  get_alignment(AST::expr_t** decorators, size_t n,
         ASR::expr_t*& aligned_expr, bool& is_packed) {
-        bool is_dataclass_ = false;
         for( size_t i = 0; i < n; i++ ) {
             if( AST::is_a<AST::Name_t>(*decorators[i]) ) {
                 AST::Name_t* dc_name = AST::down_cast<AST::Name_t>(decorators[i]);
-                is_dataclass_ = std::string(dc_name->m_id) == "dataclass";
                 is_packed = is_packed || std::string(dc_name->m_id) == "packed";
             } else if( AST::is_a<AST::Call_t>(*decorators[i]) ) {
                 AST::Call_t* dc_call = AST::down_cast<AST::Call_t>(decorators[i]);
@@ -2532,7 +2530,7 @@ public:
             }
         }
 
-        return is_dataclass_;
+        return;
     }
 
     bool is_enum(AST::expr_t** bases, size_t n) {
@@ -3177,7 +3175,7 @@ public:
         }
         ASR::expr_t* algined_expr = nullptr;
         bool is_packed = false;
-
+        get_alignment(x.m_decorator_list, x.n_decorator_list, algined_expr, is_packed);
         if( x.n_bases > 0 ) {
             throw SemanticError("Inheritance in classes isn't supported yet.",
                                 x.base.base.loc);
