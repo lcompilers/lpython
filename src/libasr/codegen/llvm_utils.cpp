@@ -6454,10 +6454,9 @@ namespace LCompilers {
         llvm::Value* el_mask = LLVM::CreateLoad(*builder, get_pointer_to_mask(set));
         llvm::Value* capacity = LLVM::CreateLoad(*builder, get_pointer_to_capacity(set));
         llvm::Function *fn = builder->GetInsertBlock()->getParent();
-        std::string s = check_if_exists ? "qq" : "pp"; 
-        llvm::BasicBlock *thenBB = llvm::BasicBlock::Create(context, "then"+s, fn);
-        llvm::BasicBlock *elseBB = llvm::BasicBlock::Create(context, "else"+s);
-        llvm::BasicBlock *mergeBB = llvm::BasicBlock::Create(context, "ifcont"+s);
+        llvm::BasicBlock *thenBB = llvm::BasicBlock::Create(context, "then", fn);
+        llvm::BasicBlock *elseBB = llvm::BasicBlock::Create(context, "else");
+        llvm::BasicBlock *mergeBB = llvm::BasicBlock::Create(context, "ifcont");
         llvm::Value* el_mask_value = LLVM::CreateLoad(*builder,
                                         llvm_utils->create_ptr_gep(el_mask, el_hash));
         llvm::Value* is_prob_not_needed = builder->CreateICmpEQ(el_mask_value,
