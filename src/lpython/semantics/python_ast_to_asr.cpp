@@ -8040,6 +8040,17 @@ we will have to use something else.
             }
             handle_builtin_attribute(dict_expr, at->m_attr, loc, eles);
             return;
+        } else if (AST::is_a<AST::Subscript_t>(*at->m_value)) {
+            AST::Subscript_t *s = AST::down_cast<AST::Subscript_t>(at->m_value);
+            visit_Subscript(*s);
+            ASR::expr_t *subscript_expr =  ASR::down_cast<ASR::expr_t>(tmp);
+            Vec<ASR::expr_t*> eles;
+            eles.reserve(al, args.size());
+            for (size_t i = 0; i < args.size(); i++) {
+                eles.push_back(al, args[i].m_value);
+            }
+            handle_builtin_attribute(subscript_expr, at->m_attr, loc, eles);
+            return;
         } else {
             throw SemanticError("Only Name type and constant integers supported in Call", loc);
         }
