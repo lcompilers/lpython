@@ -1945,6 +1945,11 @@ namespace LCompilers {
                 dict_api->dict_deepcopy(src, dest, dict_type, module, name2memidx);
                 break ;
             }
+            case ASR::ttypeType::Set: {
+                ASR::Set_t *set_type = ASR::down_cast<ASR::Set_t>(asr_type);
+                set_api->set_deepcopy(src, dest, set_type, module, name2memidx);
+                break;
+            }
             case ASR::ttypeType::Struct: {
                 ASR::Struct_t* struct_t = ASR::down_cast<ASR::Struct_t>(asr_type);
                 ASR::StructType_t* struct_type_t = ASR::down_cast<ASR::StructType_t>(
