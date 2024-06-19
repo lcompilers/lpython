@@ -1019,7 +1019,7 @@ namespace LCompilers {
                     break;
                 }
                 case (ASR::ttypeType::StructType) :
-                    throw CodeGenError("StructType return type not implemented yet");
+                    throw CodeGenError("Struct return type not implemented yet");
                     break;
                 case (ASR::ttypeType::Tuple) : {
                     ASR::Tuple_t* asr_tuple = ASR::down_cast<ASR::Tuple_t>(return_var_type0);
@@ -1217,7 +1217,7 @@ namespace LCompilers {
                     break;
                 }
                 case (ASR::ttypeType::StructType) :
-                    throw CodeGenError("StructType return type not implemented yet");
+                    throw CodeGenError("Struct return type not implemented yet");
                     break;
                 case (ASR::ttypeType::Tuple) : {
                     ASR::Tuple_t* asr_tuple = ASR::down_cast<ASR::Tuple_t>(return_var_type0);
