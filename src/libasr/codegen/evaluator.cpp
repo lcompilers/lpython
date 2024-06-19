@@ -122,7 +122,7 @@ std::string LLVMModule::get_return_type(const std::string &fn_name)
             } else if (startswith(std::string(st->getName()), "complex_8")) {
                 return "complex8";
             } else {
-                throw LCompilersException("LLVMModule::get_return_type(): StructType return type `" + std::string(st->getName()) + "` not supported");
+                throw LCompilersException("LLVMModule::get_return_type(): Struct return type `" + std::string(st->getName()) + "` not supported");
             }
         } else {
             throw LCompilersException("LLVMModule::get_return_type(): Noname struct return type not supported");
