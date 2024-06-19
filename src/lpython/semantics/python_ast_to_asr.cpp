@@ -345,7 +345,7 @@ public:
     std::vector<std::string> import_paths;
     /*
         current_body exists only for Functions, For, If (& its Else part), While.
-        current_body does not exist for Modules, ClassDef/StructTypes.
+        current_body does not exist for Modules, ClassDef/Structs.
     */
     Vec<ASR::stmt_t*> *current_body;
     ASR::expr_t* assign_asr_target;
