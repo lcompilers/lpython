@@ -36,10 +36,10 @@ class WASMInstructionsVisitor():
         self.data = data
 
     def visit_BaseWASMVisitor(self, mod, *args):
-        self.emit("template <class Struct>", 0)
+        self.emit("template <class StructType>", 0)
         self.emit("class BaseWASMVisitor {", 0)
         self.emit("private:", 0)
-        self.emit(    "Struct& self() { return static_cast<Struct&>(*this); }", 1)
+        self.emit(    "StructType& self() { return static_cast<StructType&>(*this); }", 1)
         self.emit("public:", 0)
         self.emit(    "Vec<uint8_t> &code;", 1)
         self.emit(    "uint32_t offset;\n", 1)
@@ -105,12 +105,12 @@ class WASMInstructionsVisitor():
         self.emit("};\n", 0)
 
     def visit_WASMInstsAssembler(self, mod):
-        self.emit("template <class Struct>", 0)
+        self.emit("template <class StructType>", 0)
         self.emit("class WASMInstsAssembler {", 0)
         self.emit("private:", 0)
         self.emit(    "Allocator &m_al;", 1)
         self.emit(    "Vec<uint8_t> &m_code;\n", 1)
-        self.emit(    "Struct &self() { return static_cast<Struct &>(*this); }", 1)
+        self.emit(    "StructType &self() { return static_cast<StructType &>(*this); }", 1)
         self.emit("public:", 0)
         self.emit(    "WASMInstsAssembler(Allocator &al, Vec<uint8_t> &code): m_al(al), m_code(code) {}\n", 1)
 

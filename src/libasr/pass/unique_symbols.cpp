@@ -242,7 +242,7 @@ class SymbolRenameVisitor: public ASR::BaseWalkVisitor<SymbolRenameVisitor> {
         }
     }
 
-    void visit_StructType(const ASR::StructType_t &x) {
+    void visit_Struct(const ASR::Struct_t &x) {
         visit_symbols_2(x);
     }
 
@@ -444,7 +444,7 @@ class UniqueSymbolVisitor: public ASR::BaseWalkVisitor<UniqueSymbolVisitor> {
         current_scope = current_scope_copy;
     }
 
-    void visit_StructType(const ASR::StructType_t &x) {
+    void visit_Struct(const ASR::Struct_t &x) {
         update_symbols_2(x);
     }
 

@@ -12,7 +12,7 @@ namespace LCompilers {
 using ASR::down_cast;
 using ASR::is_a;
 
-class PrintStructTypeVisitor : public PassUtils::PassVisitor<PrintStructTypeVisitor>
+class PrintStructVisitor : public PassUtils::PassVisitor<PrintStructVisitor>
 {
 
 private:
@@ -21,17 +21,17 @@ private:
 
 public:
 
-    PrintStructTypeVisitor(Allocator &al_) : PassVisitor(al_, nullptr) {
+    PrintStructVisitor(Allocator &al_) : PassVisitor(al_, nullptr) {
         pass_result.reserve(al, 1);
     }
 
     void print_struct_type(ASR::expr_t* obj,
-        ASR::StructType_t* struct_type_t,
+        ASR::Struct_t* struct_type_t,
         Vec<ASR::expr_t*>& new_values) {
         if( struct_type_t->m_parent ) {
             ASR::symbol_t* parent = ASRUtils::symbol_get_past_external(struct_type_t->m_parent);
-            if( ASR::is_a<ASR::StructType_t>(*parent) ) {
-                ASR::StructType_t* parent_struct_type_t = ASR::down_cast<ASR::StructType_t>(parent);
+            if( ASR::is_a<ASR::Struct_t>(*parent) ) {
+                ASR::Struct_t* parent_struct_type_t = ASR::down_cast<ASR::Struct_t>(parent);
                 print_struct_type(obj, parent_struct_type_t, new_values);
             } else {
                 LCOMPILERS_ASSERT(false);
@@ -51,7 +51,7 @@ public:
     }
 
     void visit_Print(const ASR::Print_t& x) {
-        #define is_struct_type(value) if( ASR::is_a<ASR::Struct_t>(    \
+        #define is_struct_type(value) if( ASR::is_a<ASR::StructType_t>(    \
             *ASRUtils::expr_type(value)) )    \
 
         bool is_struct_type_present = false;
@@ -81,10 +81,10 @@ public:
             is_struct_type(x_m_value)
             {
 
-            ASR::Struct_t* struct_t = ASR::down_cast<ASR::Struct_t>(ASRUtils::expr_type(x_m_value));
+            ASR::StructType_t* struct_t = ASR::down_cast<ASR::StructType_t>(ASRUtils::expr_type(x_m_value));
             ASR::symbol_t* struct_t_sym = ASRUtils::symbol_get_past_external(struct_t->m_derived_type);
-            if( ASR::is_a<ASR::StructType_t>(*struct_t_sym) ) {
-                ASR::StructType_t* struct_type_t = ASR::down_cast<ASR::StructType_t>(struct_t_sym);
+            if( ASR::is_a<ASR::Struct_t>(*struct_t_sym) ) {
+                ASR::Struct_t* struct_type_t = ASR::down_cast<ASR::Struct_t>(struct_t_sym);
                 print_struct_type(x_m_value, struct_type_t, new_values);
             } else {
                 LCOMPILERS_ASSERT(false);
@@ -107,7 +107,7 @@ public:
 void pass_replace_print_struct_type(
     Allocator &al, ASR::TranslationUnit_t &unit,
     const LCompilers::PassOptions& /*pass_options*/) {
-    PrintStructTypeVisitor v(al);
+    PrintStructVisitor v(al);
     v.visit_TranslationUnit(unit);
 }
 

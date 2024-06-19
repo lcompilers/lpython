@@ -294,8 +294,8 @@ public:
                 extract_dimensions(v.m_type)
                 dims = convert_dims(n_dims, m_dims, size);
                 sub = format_type(dims, "std::string", v.m_name, use_ref, dummy);
-            } else if (ASR::is_a<ASR::Struct_t>(*v.m_type)) {
-                ASR::Struct_t *t = ASR::down_cast<ASR::Struct_t>(v_m_type);
+            } else if (ASR::is_a<ASR::StructType_t>(*v.m_type)) {
+                ASR::StructType_t *t = ASR::down_cast<ASR::StructType_t>(v_m_type);
                 std::string der_type_name = ASRUtils::symbol_name(t->m_derived_type);
                 std::string encoded_type_name = "x" + der_type_name;
                 std::string type_name = std::string("struct ") + der_type_name;

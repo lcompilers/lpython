@@ -313,7 +313,7 @@ public:
             if( !ASR::is_a<ASR::Variable_t>(*itr.second) ||
                  ASRUtils::is_character(*ASRUtils::symbol_type(itr.second)) ||
                  ASRUtils::is_array(ASRUtils::symbol_type(itr.second)) ||
-                 ASR::is_a<ASR::Struct_t>(*ASRUtils::symbol_type(itr.second)) ||
+                 ASR::is_a<ASR::StructType_t>(*ASRUtils::symbol_type(itr.second)) ||
                  ASR::is_a<ASR::Class_t>(*ASRUtils::symbol_type(itr.second)) ) {
                 arg2value.clear();
                 return ;

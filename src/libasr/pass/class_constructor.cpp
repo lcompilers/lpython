@@ -14,7 +14,7 @@ namespace LCompilers {
 using ASR::down_cast;
 using ASR::is_a;
 
-class ReplaceStructTypeConstructor: public ASR::BaseExprReplacer<ReplaceStructTypeConstructor> {
+class ReplaceStructConstructor: public ASR::BaseExprReplacer<ReplaceStructConstructor> {
 
     public:
 
@@ -25,31 +25,31 @@ class ReplaceStructTypeConstructor: public ASR::BaseExprReplacer<ReplaceStructTy
     SymbolTable* current_scope;
     ASR::expr_t* result_var;
 
-    ReplaceStructTypeConstructor(Allocator& al_, Vec<ASR::stmt_t*>& pass_result_,
+    ReplaceStructConstructor(Allocator& al_, Vec<ASR::stmt_t*>& pass_result_,
         bool& remove_original_statement_) :
     al(al_), pass_result(pass_result_),
     remove_original_statement(remove_original_statement_),
     current_scope(nullptr), result_var(nullptr) {}
 
-    void replace_StructTypeConstructor(ASR::StructTypeConstructor_t* x) {
+    void replace_StructConstructor(ASR::StructConstructor_t* x) {
         Vec<ASR::stmt_t*>* result_vec = &pass_result;
-        PassUtils::ReplacerUtils::replace_StructTypeConstructor(
+        PassUtils::ReplacerUtils::replace_StructConstructor(
             x, this, false, remove_original_statement, result_vec);
     }
 };
 
-class StructTypeConstructorVisitor : public ASR::CallReplacerOnExpressionsVisitor<StructTypeConstructorVisitor>
+class StructConstructorVisitor : public ASR::CallReplacerOnExpressionsVisitor<StructConstructorVisitor>
 {
     private:
 
         Allocator& al;
         bool remove_original_statement;
-        ReplaceStructTypeConstructor replacer;
+        ReplaceStructConstructor replacer;
         Vec<ASR::stmt_t*> pass_result;
 
     public:
 
-        StructTypeConstructorVisitor(Allocator& al_) :
+        StructConstructorVisitor(Allocator& al_) :
         al(al_), remove_original_statement(false),
         replacer(al_, pass_result, remove_original_statement) {
             pass_result.n = 0;
@@ -113,7 +113,7 @@ class StructTypeConstructorVisitor : public ASR::CallReplacerOnExpressionsVisito
 void pass_replace_class_constructor(Allocator &al,
     ASR::TranslationUnit_t &unit,
     const LCompilers::PassOptions& /*pass_options*/) {
-    StructTypeConstructorVisitor v(al);
+    StructConstructorVisitor v(al);
     v.visit_TranslationUnit(unit);
     PassUtils::UpdateDependenciesVisitor w(al);
     w.visit_TranslationUnit(unit);
