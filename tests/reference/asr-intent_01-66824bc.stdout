@@ -8,7 +8,7 @@
                         2
                         {
                             Foo:
-                                (StructType
+                                (Struct
                                     (SymbolTable
                                         3
                                         {
@@ -55,7 +55,7 @@
                                                     ()
                                                     Default
                                                     (Array
-                                                        (Struct
+                                                        (StructType
                                                             2 Foo
                                                         )
                                                         [((IntegerConstant 0 (Integer 4))
@@ -131,7 +131,7 @@
                                             )
                                         )
                                         (Array
-                                            (Struct
+                                            (StructType
                                                 2 Foo
                                             )
                                             [((IntegerConstant 0 (Integer 4))

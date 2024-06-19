@@ -8,7 +8,7 @@
                         2
                         {
                             A:
-                                (StructType
+                                (Struct
                                     (SymbolTable
                                         3
                                         {
@@ -59,7 +59,7 @@
                                     ()
                                 ),
                             B:
-                                (StructType
+                                (Struct
                                     (SymbolTable
                                         4
                                         {
@@ -72,7 +72,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Struct
+                                                    (StructType
                                                         2 A
                                                     )
                                                     ()
@@ -107,7 +107,7 @@
                                     .false.
                                     .false.
                                     [(())
-                                    ((StructTypeConstructor
+                                    ((StructConstructor
                                         2 A
                                         [((Cast
                                             (RealConstant
@@ -122,7 +122,7 @@
                                             )
                                         ))
                                         ((IntegerConstant 0 (Integer 4)))]
-                                        (Struct
+                                        (StructType
                                             2 A
                                         )
                                         ()
@@ -180,7 +180,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Struct
+                                                    (StructType
                                                         2 B
                                                     )
                                                     ()
@@ -192,7 +192,7 @@
                                         })
                                     f
                                     (FunctionType
-                                        [(Struct
+                                        [(StructType
                                             2 B
                                         )]
                                         ()
@@ -220,7 +220,7 @@
                                             (StructInstanceMember
                                                 (Var 5 b)
                                                 4 a
-                                                (Struct
+                                                (StructType
                                                     2 A
                                                 )
                                                 ()
@@ -233,7 +233,7 @@
                                             (StructInstanceMember
                                                 (Var 5 b)
                                                 4 a
-                                                (Struct
+                                                (StructType
                                                     2 A
                                                 )
                                                 ()
@@ -266,7 +266,7 @@
                                                 (StructInstanceMember
                                                     (Var 5 b)
                                                     4 a
-                                                    (Struct
+                                                    (StructType
                                                         2 A
                                                     )
                                                     ()
@@ -289,7 +289,7 @@
                                                     (StructInstanceMember
                                                         (Var 5 b)
                                                         4 a
-                                                        (Struct
+                                                        (StructType
                                                             2 A
                                                         )
                                                         ()
@@ -332,7 +332,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Struct
+                                                    (StructType
                                                         2 A
                                                     )
                                                     ()
@@ -350,7 +350,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Struct
+                                                    (StructType
                                                         2 A
                                                     )
                                                     ()
@@ -368,7 +368,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Struct
+                                                    (StructType
                                                         2 B
                                                     )
                                                     ()
@@ -397,7 +397,7 @@
                                     []
                                     [(Assignment
                                         (Var 6 a1)
-                                        (StructTypeConstructor
+                                        (StructConstructor
                                             2 A
                                             [((Cast
                                                 (RealConstant
@@ -412,7 +412,7 @@
                                                 )
                                             ))
                                             ((IntegerConstant 1 (Integer 4)))]
-                                            (Struct
+                                            (StructType
                                                 2 A
                                             )
                                             ()
@@ -421,7 +421,7 @@
                                     )
                                     (Assignment
                                         (Var 6 a2)
-                                        (StructTypeConstructor
+                                        (StructConstructor
                                             2 A
                                             [((Cast
                                                 (RealConstant
@@ -436,7 +436,7 @@
                                                 )
                                             ))
                                             ((IntegerConstant 2 (Integer 4)))]
-                                            (Struct
+                                            (StructType
                                                 2 A
                                             )
                                             ()
@@ -445,11 +445,11 @@
                                     )
                                     (Assignment
                                         (Var 6 b)
-                                        (StructTypeConstructor
+                                        (StructConstructor
                                             2 B
                                             [((IntegerConstant 1 (Integer 4)))
                                             ((Var 6 a1))]
-                                            (Struct
+                                            (StructType
                                                 2 B
                                             )
                                             ()
@@ -460,7 +460,7 @@
                                         (StructInstanceMember
                                             (Var 6 b)
                                             4 a
-                                            (Struct
+                                            (StructType
                                                 2 A
                                             )
                                             ()
@@ -483,7 +483,7 @@
                                             (StructInstanceMember
                                                 (Var 6 b)
                                                 4 a
-                                                (Struct
+                                                (StructType
                                                     2 A
                                                 )
                                                 ()
@@ -500,7 +500,7 @@
                                             (StructInstanceMember
                                                 (Var 6 b)
                                                 4 a
-                                                (Struct
+                                                (StructType
                                                     2 A
                                                 )
                                                 ()
