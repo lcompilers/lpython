@@ -1283,7 +1283,7 @@ public:
             }
 
             if (args.size() > 0 && args.size() > Struct->n_members) {
-                throw SemanticError("StructType constructor has more arguments than the number of struct members",
+                throw SemanticError("StructConstructor has more arguments than the number of struct members",
                                     loc);
             }
 
@@ -2942,7 +2942,7 @@ public:
                 visit_ClassDef(*AST::down_cast<AST::ClassDef_t>(x.m_body[i]));
                 continue;
             } else if ( AST::is_a<AST::FunctionDef_t>(*x.m_body[i]) ) {
-                throw SemanticError("StructType member functions are not supported", x.m_body[i]->base.loc);
+                throw SemanticError("Struct member functions are not supported", x.m_body[i]->base.loc);
             } else if (AST::is_a<AST::Pass_t>(*x.m_body[i])) {
                 continue;
             } else if (!AST::is_a<AST::AnnAssign_t>(*x.m_body[i])) {
