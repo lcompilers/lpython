@@ -1275,22 +1275,22 @@ public:
                     s_generic, args_new.p, args_new.size(), nullptr, nullptr, false, false);
             }
         } else if(ASR::is_a<ASR::Struct_t>(*s)) {
-            ASR::Struct_t* Struct = ASR::down_cast<ASR::Struct_t>(s);
+            ASR::Struct_t* st = ASR::down_cast<ASR::Struct_t>(s);
             if (n_kwargs > 0) {
                 args.reserve(al, n_pos_args + n_kwargs);
                 visit_expr_list(pos_args, n_pos_args, kwargs, n_kwargs,
-                                         args, Struct, loc);
+                                         args, st, loc);
             }
 
-            if (args.size() > 0 && args.size() > Struct->n_members) {
+            if (args.size() > 0 && args.size() > st->n_members) {
                 throw SemanticError("StructConstructor has more arguments than the number of struct members",
                                     loc);
             }
 
             for( size_t i = 0; i < args.size(); i++ ) {
-                std::string member_name = Struct->m_members[i];
+                std::string member_name = st->m_members[i];
                 ASR::Variable_t* member_var = ASR::down_cast<ASR::Variable_t>(
-                                                Struct->m_symtab->resolve_symbol(member_name));
+                                                st->m_symtab->resolve_symbol(member_name));
                 ASR::expr_t* arg_new_i = args[i].m_value;
                 cast_helper(member_var->m_type, arg_new_i, arg_new_i->base.loc);
                 ASR::ttype_t* left_type = member_var->m_type;
@@ -1309,8 +1309,8 @@ public:
                 }
                 args.p[i].m_value = arg_new_i;
             }
-            for (size_t i = args.size(); i < Struct->n_members; i++) {
-                args.push_back(al, Struct->m_initializers[i]);
+            for (size_t i = args.size(); i < st->n_members; i++) {
+                args.push_back(al, st->m_initializers[i]);
             }
             ASR::ttype_t* der_type = ASRUtils::TYPE(ASR::make_StructType_t(al, loc, stemp));
             return ASR::make_StructConstructor_t(al, loc, stemp, args.p, args.size(), der_type, nullptr);
