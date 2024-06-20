@@ -308,8 +308,8 @@ void get_calls_to_global_stmts(Allocator &al, const Location &loc, SymbolTable* 
     }
 }
 
-template <class StructType>
-class CommonVisitor : public AST::BaseVisitor<StructType> {
+template <class Struct>
+class CommonVisitor : public AST::BaseVisitor<Struct> {
 public:
     diag::Diagnostics &diag;
 
