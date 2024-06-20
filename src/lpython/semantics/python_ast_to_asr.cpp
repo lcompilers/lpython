@@ -1275,7 +1275,7 @@ public:
                     s_generic, args_new.p, args_new.size(), nullptr, nullptr, false, false);
             }
         } else if(ASR::is_a<ASR::Struct_t>(*s)) {
-            ASR::Struct_t* struct = ASR::down_cast<ASR::Struct_t>(s);
+            ASR::Struct_t* Struct = ASR::down_cast<ASR::Struct_t>(s);
             if (n_kwargs > 0) {
                 args.reserve(al, n_pos_args + n_kwargs);
                 visit_expr_list(pos_args, n_pos_args, kwargs, n_kwargs,
