@@ -8,7 +8,7 @@
                         2
                         {
                             A:
-                                (StructType
+                                (Struct
                                     (SymbolTable
                                         3
                                         {
@@ -124,7 +124,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Struct
+                                                    (StructType
                                                         2 A
                                                     )
                                                     ()
@@ -143,7 +143,7 @@
                                                     ()
                                                     Default
                                                     (Pointer
-                                                        (Struct
+                                                        (StructType
                                                             2 A
                                                         )
                                                     )
@@ -205,7 +205,7 @@
                                     [(Var 4 a)]
                                     [(Assignment
                                         (Var 4 a1)
-                                        (StructTypeConstructor
+                                        (StructConstructor
                                             2 A
                                             [((IntegerConstant 3 (Integer 4)))
                                             ((Cast
@@ -220,7 +220,7 @@
                                                     (Real 4)
                                                 )
                                             ))]
-                                            (Struct
+                                            (StructType
                                                 2 A
                                             )
                                             ()
@@ -232,7 +232,7 @@
                                         (GetPointer
                                             (Var 4 a1)
                                             (Pointer
-                                                (Struct
+                                                (StructType
                                                     2 A
                                                 )
                                             )
@@ -245,7 +245,7 @@
                                         (GetPointer
                                             (Var 4 a1)
                                             (Pointer
-                                                (Struct
+                                                (StructType
                                                     2 A
                                                 )
                                             )

@@ -8,7 +8,7 @@
                         2
                         {
                             A:
-                                (StructType
+                                (Struct
                                     (SymbolTable
                                         226
                                         {
@@ -199,7 +199,7 @@
                                                     ()
                                                     Default
                                                     (Array
-                                                        (Struct
+                                                        (StructType
                                                             2 A
                                                         )
                                                         [((IntegerConstant 0 (Integer 4))
@@ -237,7 +237,7 @@
                                         (ArrayConstructor
                                             []
                                             (Array
-                                                (Struct
+                                                (StructType
                                                     2 A
                                                 )
                                                 [((IntegerConstant 0 (Integer 4))
@@ -255,13 +255,13 @@
                                             [(()
                                             (IntegerConstant 0 (Integer 4))
                                             ())]
-                                            (Struct
+                                            (StructType
                                                 2 A
                                             )
                                             RowMajor
                                             ()
                                         )
-                                        (StructTypeConstructor
+                                        (StructConstructor
                                             2 A
                                             [((RealConstant
                                                 1.100000
@@ -302,7 +302,7 @@
                                                 .true.
                                                 (Logical 4)
                                             ))]
-                                            (Struct
+                                            (StructType
                                                 2 A
                                             )
                                             ()
@@ -315,13 +315,13 @@
                                             [(()
                                             (IntegerConstant 1 (Integer 4))
                                             ())]
-                                            (Struct
+                                            (StructType
                                                 2 A
                                             )
                                             RowMajor
                                             ()
                                         )
-                                        (StructTypeConstructor
+                                        (StructConstructor
                                             2 A
                                             [((RealConstant
                                                 2.200000
@@ -362,7 +362,7 @@
                                                 .true.
                                                 (Logical 4)
                                             ))]
-                                            (Struct
+                                            (StructType
                                                 2 A
                                             )
                                             ()
@@ -377,7 +377,7 @@
                                             FixedSizeArray
                                             DescriptorArray
                                             (Array
-                                                (Struct
+                                                (StructType
                                                     2 A
                                                 )
                                                 [((IntegerConstant 0 (Integer 4))
@@ -406,7 +406,7 @@
                                             [(()
                                             (IntegerConstant 0 (Integer 4))
                                             ())]
-                                            (Struct
+                                            (StructType
                                                 2 A
                                             )
                                             RowMajor
@@ -422,7 +422,7 @@
                                             FixedSizeArray
                                             DescriptorArray
                                             (Array
-                                                (Struct
+                                                (StructType
                                                     2 A
                                                 )
                                                 [((IntegerConstant 0 (Integer 4))
@@ -441,7 +441,7 @@
                                             FixedSizeArray
                                             DescriptorArray
                                             (Array
-                                                (Struct
+                                                (StructType
                                                     2 A
                                                 )
                                                 [((IntegerConstant 0 (Integer 4))
@@ -482,7 +482,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Struct
+                                                    (StructType
                                                         2 A
                                                     )
                                                     ()
@@ -494,7 +494,7 @@
                                         })
                                     update_1
                                     (FunctionType
-                                        [(Struct
+                                        [(StructType
                                             2 A
                                         )]
                                         ()
@@ -621,7 +621,7 @@
                                                     ()
                                                     Default
                                                     (Array
-                                                        (Struct
+                                                        (StructType
                                                             2 A
                                                         )
                                                         [(()
@@ -638,7 +638,7 @@
                                     update_2
                                     (FunctionType
                                         [(Array
-                                            (Struct
+                                            (StructType
                                                 2 A
                                             )
                                             [(()
@@ -666,7 +666,7 @@
                                                 [(()
                                                 (IntegerConstant 1 (Integer 4))
                                                 ())]
-                                                (Struct
+                                                (StructType
                                                     2 A
                                                 )
                                                 RowMajor
@@ -686,7 +686,7 @@
                                                 [(()
                                                 (IntegerConstant 1 (Integer 4))
                                                 ())]
-                                                (Struct
+                                                (StructType
                                                     2 A
                                                 )
                                                 RowMajor
@@ -709,7 +709,7 @@
                                                 [(()
                                                 (IntegerConstant 1 (Integer 4))
                                                 ())]
-                                                (Struct
+                                                (StructType
                                                     2 A
                                                 )
                                                 RowMajor
@@ -734,7 +734,7 @@
                                                 [(()
                                                 (IntegerConstant 1 (Integer 4))
                                                 ())]
-                                                (Struct
+                                                (StructType
                                                     2 A
                                                 )
                                                 RowMajor
@@ -765,7 +765,7 @@
                                                 [(()
                                                 (IntegerConstant 1 (Integer 4))
                                                 ())]
-                                                (Struct
+                                                (StructType
                                                     2 A
                                                 )
                                                 RowMajor
@@ -790,7 +790,7 @@
                                                 [(()
                                                 (IntegerConstant 1 (Integer 4))
                                                 ())]
-                                                (Struct
+                                                (StructType
                                                     2 A
                                                 )
                                                 RowMajor
@@ -845,7 +845,7 @@
                                                     ()
                                                     Default
                                                     (Array
-                                                        (Struct
+                                                        (StructType
                                                             2 A
                                                         )
                                                         [(()
@@ -867,7 +867,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Struct
+                                                    (StructType
                                                         2 A
                                                     )
                                                     ()
@@ -885,7 +885,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Struct
+                                                    (StructType
                                                         2 A
                                                     )
                                                     ()
@@ -962,7 +962,7 @@
                                     verify
                                     (FunctionType
                                         [(Array
-                                            (Struct
+                                            (StructType
                                                 2 A
                                             )
                                             [(()
@@ -1006,7 +1006,7 @@
                                             [(()
                                             (IntegerConstant 0 (Integer 4))
                                             ())]
-                                            (Struct
+                                            (StructType
                                                 2 A
                                             )
                                             RowMajor
@@ -1221,7 +1221,7 @@
                                             [(()
                                             (IntegerConstant 1 (Integer 4))
                                             ())]
-                                            (Struct
+                                            (StructType
                                                 2 A
                                             )
                                             RowMajor

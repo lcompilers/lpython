@@ -8,7 +8,7 @@
                         2
                         {
                             A:
-                                (StructType
+                                (Struct
                                     (SymbolTable
                                         3
                                         {
@@ -108,7 +108,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Struct
+                                                    (StructType
                                                         2 A
                                                     )
                                                     ()
@@ -120,7 +120,7 @@
                                         })
                                     change_struct
                                     (FunctionType
-                                        [(Struct
+                                        [(StructType
                                             2 A
                                         )]
                                         ()
@@ -207,7 +207,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Struct
+                                                    (StructType
                                                         2 A
                                                     )
                                                     ()
@@ -219,7 +219,7 @@
                                         })
                                     f
                                     (FunctionType
-                                        [(Struct
+                                        [(StructType
                                             2 A
                                         )]
                                         ()
@@ -276,7 +276,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Struct
+                                                    (StructType
                                                         2 A
                                                     )
                                                     ()
@@ -306,7 +306,7 @@
                                     []
                                     [(Assignment
                                         (Var 6 x)
-                                        (StructTypeConstructor
+                                        (StructConstructor
                                             2 A
                                             [((Cast
                                                 (RealConstant
@@ -321,7 +321,7 @@
                                                 )
                                             ))
                                             ((IntegerConstant 3 (Integer 4)))]
-                                            (Struct
+                                            (StructType
                                                 2 A
                                             )
                                             ()

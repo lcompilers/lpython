@@ -180,7 +180,7 @@ namespace LCompilers {
         static inline bool is_llvm_struct(ASR::ttype_t* asr_type) {
             return ASR::is_a<ASR::Tuple_t>(*asr_type) ||
                    ASR::is_a<ASR::List_t>(*asr_type) ||
-                   ASR::is_a<ASR::Struct_t>(*asr_type) ||
+                   ASR::is_a<ASR::StructType_t>(*asr_type) ||
                    ASR::is_a<ASR::Class_t>(*asr_type)||
                    ASR::is_a<ASR::Dict_t>(*asr_type);
         }
@@ -269,9 +269,9 @@ namespace LCompilers {
             llvm::Type* getMemberType(ASR::ttype_t* mem_type,
                 ASR::Variable_t* member, llvm::Module* module);
 
-            void createStructContext(ASR::StructType_t* der_type);
+            void createStructTypeContext(ASR::Struct_t* der_type);
 
-            llvm::Type* getStructType(ASR::StructType_t* der_type, llvm::Module* module, bool is_pointer=false);
+            llvm::Type* getStructType(ASR::Struct_t* der_type, llvm::Module* module, bool is_pointer=false);
 
             llvm::Type* getStructType(ASR::ttype_t* _type, llvm::Module* module, bool is_pointer=false);
 
@@ -283,7 +283,7 @@ namespace LCompilers {
 
             llvm::Type* getClassType(ASR::ClassType_t* der_type, bool is_pointer=false);
 
-            llvm::Type* getClassType(ASR::StructType_t* der_type, bool is_pointer=false);
+            llvm::Type* getClassType(ASR::Struct_t* der_type, bool is_pointer=false);
 
             llvm::Type* getClassType(ASR::ttype_t* _type, bool is_pointer=false);
 

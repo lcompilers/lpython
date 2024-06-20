@@ -227,8 +227,8 @@ public:
             } case ASR::ttypeType::Pointer: {
                 r = get_type(down_cast<ASR::Pointer_t>(t)->m_type) + ", pointer";
                 break;
-            } case ASR::ttypeType::Struct: {
-                ASR::Struct_t* struct_type = down_cast<ASR::Struct_t>(t);
+            } case ASR::ttypeType::StructType: {
+                ASR::StructType_t* struct_type = down_cast<ASR::StructType_t>(t);
                 std::string struct_name = ASRUtils::symbol_name(struct_type->m_derived_type);
                 r = "type(";
                 r += struct_name;
@@ -307,7 +307,7 @@ public:
         r += "\n";
         std::map<std::string, std::vector<std::string>> struct_dep_graph;
         for (auto &item : x.m_symtab->get_scope()) {
-            if (ASR::is_a<ASR::StructType_t>(*item.second) ||
+            if (ASR::is_a<ASR::Struct_t>(*item.second) ||
                     ASR::is_a<ASR::EnumType_t>(*item.second) ||
                     ASR::is_a<ASR::UnionType_t>(*item.second)) {
                 std::vector<std::string> struct_deps_vec;
@@ -388,7 +388,7 @@ public:
         }
         std::map<std::string, std::vector<std::string>> struct_dep_graph;
         for (auto &item : x.m_symtab->get_scope()) {
-            if (ASR::is_a<ASR::StructType_t>(*item.second) ||
+            if (ASR::is_a<ASR::Struct_t>(*item.second) ||
                     ASR::is_a<ASR::EnumType_t>(*item.second) ||
                     ASR::is_a<ASR::UnionType_t>(*item.second)) {
                 std::vector<std::string> struct_deps_vec;
@@ -599,7 +599,7 @@ public:
     void visit_ExternalSymbol(const ASR::ExternalSymbol_t &x) {
         ASR::symbol_t *sym = down_cast<ASR::symbol_t>(
             ASRUtils::symbol_parent_symtab(x.m_external)->asr_owner);
-        if (!is_a<ASR::StructType_t>(*sym)) {
+        if (!is_a<ASR::Struct_t>(*sym)) {
             src = indent;
             src += "use ";
             src.append(x.m_module_name);
@@ -609,7 +609,7 @@ public:
         }
     }
 
-    void visit_StructType(const ASR::StructType_t &x) {
+    void visit_Struct(const ASR::Struct_t &x) {
         std::string r = indent;
         r += "type :: ";
         r.append(x.m_name);
@@ -1326,7 +1326,7 @@ public:
 
     // void visit_IntrinsicImpureFunction(const ASR::IntrinsicImpureFunction_t &x) {}
 
-    void visit_StructTypeConstructor(const ASR::StructTypeConstructor_t &x) {
+    void visit_StructConstructor(const ASR::StructConstructor_t &x) {
         std::string r = indent;
         r += ASRUtils::symbol_name(x.m_dt_sym);
         r += "(";

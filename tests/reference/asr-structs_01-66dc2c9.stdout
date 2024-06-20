@@ -8,7 +8,7 @@
                         2
                         {
                             S:
-                                (StructType
+                                (Struct
                                     (SymbolTable
                                         3
                                         {
@@ -108,7 +108,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Struct
+                                                    (StructType
                                                         2 S
                                                     )
                                                     ()
@@ -137,11 +137,11 @@
                                     []
                                     [(Assignment
                                         (Var 4 s)
-                                        (StructTypeConstructor
+                                        (StructConstructor
                                             2 S
                                             [((IntegerConstant 2 (Integer 4)))
                                             (())]
-                                            (Struct
+                                            (StructType
                                                 2 S
                                             )
                                             ()
