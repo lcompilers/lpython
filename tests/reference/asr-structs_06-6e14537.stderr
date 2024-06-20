@@ -1,4 +1,4 @@
-semantic error: StructType constructor has more arguments than the number of struct members
+semantic error: StructConstructor has more arguments than the number of struct members
  --> tests/errors/structs_06.py:9:12
   |
 9 |     s: S = S(2, 3, 4, 5)
