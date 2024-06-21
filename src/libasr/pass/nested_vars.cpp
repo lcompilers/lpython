@@ -306,7 +306,7 @@ class ReplaceNestedVisitor: public ASR::CallReplacerOnExpressionsVisitor<Replace
                             m_derived_type = ASR::down_cast<ASR::symbol_t>(fn);
                             current_scope->add_symbol(fn_name, m_derived_type);
                         }
-                        var_type_ = ASRUtils::TYPE(ASR::make_StructType_t(al, struct_t->base.base.loc,
+                        var_type_ = ASRUtils::TYPE(ASRUtils::make_StructType_t_util(al, struct_t->base.base.loc,
                                     m_derived_type));
                         if( ASR::is_a<ASR::Array_t>(*var_type) ) {
                             ASR::Array_t* array_t = ASR::down_cast<ASR::Array_t>(var_type);
