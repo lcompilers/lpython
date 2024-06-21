@@ -5713,6 +5713,7 @@ public:
         }
 
         if (for_each) {
+            current_scope = parent_scope;
             ASR::expr_t* loop_src_var = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, current_scope->resolve_symbol(loop_src_var_name)));
             tmp = ASR::make_ForEach_t(al, x.base.base.loc, target, loop_src_var, body.p, body.size());
             for_each = false;
