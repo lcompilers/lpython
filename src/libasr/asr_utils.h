@@ -3659,12 +3659,9 @@ static inline ASR::symbol_t* import_struct_instance_member(Allocator& al, ASR::s
             }
             mem_type = ASRUtils::TYPE(ASRUtils::make_StructType_t_util(al, mem_type->base.loc,
                 scope->get_symbol(struct_type_name_)));
-            // mem_type = ASRUtils::TYPE(ASR::make_StructType_t(al, mem_type->base.loc, scope->get_symbol(struct_type_name_)));
         } else {
             mem_type = ASRUtils::TYPE(ASRUtils::make_StructType_t_util(al, mem_type->base.loc,
                 scope->resolve_symbol(struct_type_name)));
-            // mem_type = ASRUtils::TYPE(ASR::make_StructType_t(al, mem_type->base.loc,
-            //     scope->resolve_symbol(struct_type_name)));
         }
     }
     if( n_dims > 0 ) {
@@ -4923,7 +4920,6 @@ static inline void import_struct_t(Allocator& al,
                 der_sym = current_scope->resolve_symbol(sym_name);
             }
             var_type = ASRUtils::TYPE(ASRUtils::make_StructType_t_util(al, loc, der_sym));
-            // var_type = ASRUtils::TYPE(ASR::make_StructType_t(al, loc, der_sym));
             if( is_array ) {
                 var_type = ASRUtils::make_Array_t_util(al, loc, var_type, m_dims, n_dims,
                     ASR::abiType::Source, false, ptype, true);
