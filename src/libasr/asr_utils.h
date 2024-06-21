@@ -2468,7 +2468,8 @@ static inline ASR::asr_t* make_StructType_t_util(Allocator& al, Location loc, AS
     for(size_t i = 0; i < st->n_members; i++){
         ASR::symbol_t* temp = current_scope->get_symbol(st->m_members[i]);
         if(ASR::is_a<ASR::Variable_t>(*temp)){
-            ASR::Variable_t* var = ASR::down_cast<ASR::Variable_t>(temp);
+            ASR::Variable_t* var = ASR::down_cast<ASR::Variable_t>(
+                                                ASRUtils::symbol_get_past_external(temp));
             members.push_back(al,var->m_type); 
         }
     }
