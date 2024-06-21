@@ -109,6 +109,10 @@
                                                     ()
                                                     Default
                                                     (StructType
+                                                        [(Real 4)
+                                                        (Integer 4)]
+                                                        []
+                                                        .true.
                                                         2 A
                                                     )
                                                     ()
@@ -121,6 +125,10 @@
                                     change_struct
                                     (FunctionType
                                         [(StructType
+                                            [(Real 4)
+                                            (Integer 4)]
+                                            []
+                                            .true.
                                             2 A
                                         )]
                                         ()
@@ -208,6 +216,10 @@
                                                     ()
                                                     Default
                                                     (StructType
+                                                        [(Real 4)
+                                                        (Integer 4)]
+                                                        []
+                                                        .true.
                                                         2 A
                                                     )
                                                     ()
@@ -220,6 +232,10 @@
                                     f
                                     (FunctionType
                                         [(StructType
+                                            [(Real 4)
+                                            (Integer 4)]
+                                            []
+                                            .true.
                                             2 A
                                         )]
                                         ()
@@ -277,6 +293,10 @@
                                                     ()
                                                     Default
                                                     (StructType
+                                                        [(Real 4)
+                                                        (Integer 4)]
+                                                        []
+                                                        .true.
                                                         2 A
                                                     )
                                                     ()
@@ -322,6 +342,10 @@
                                             ))
                                             ((IntegerConstant 3 (Integer 4)))]
                                             (StructType
+                                                [(Real 4)
+                                                (Integer 4)]
+                                                []
+                                                .true.
                                                 2 A
                                             )
                                             ()

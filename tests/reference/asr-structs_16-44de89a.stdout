@@ -169,6 +169,12 @@
                                                     ()
                                                     Default
                                                     (StructType
+                                                        [(Union
+                                                            3 B
+                                                        )
+                                                        (Integer 4)]
+                                                        []
+                                                        .true.
                                                         2 A
                                                     )
                                                     ()
@@ -242,6 +248,12 @@
                                             [((Var 5 bd))
                                             ((IntegerConstant 2 (Integer 4)))]
                                             (StructType
+                                                [(Union
+                                                    3 B
+                                                )
+                                                (Integer 4)]
+                                                []
+                                                .true.
                                                 2 A
                                             )
                                             ()

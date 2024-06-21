@@ -125,6 +125,10 @@
                                                     ()
                                                     Default
                                                     (StructType
+                                                        [(Integer 4)
+                                                        (Real 4)]
+                                                        []
+                                                        .true.
                                                         2 A
                                                     )
                                                     ()
@@ -144,6 +148,10 @@
                                                     Default
                                                     (Pointer
                                                         (StructType
+                                                            [(Integer 4)
+                                                            (Real 4)]
+                                                            []
+                                                            .true.
                                                             2 A
                                                         )
                                                     )
@@ -221,6 +229,10 @@
                                                 )
                                             ))]
                                             (StructType
+                                                [(Integer 4)
+                                                (Real 4)]
+                                                []
+                                                .true.
                                                 2 A
                                             )
                                             ()
@@ -233,6 +245,10 @@
                                             (Var 4 a1)
                                             (Pointer
                                                 (StructType
+                                                    [(Integer 4)
+                                                    (Real 4)]
+                                                    []
+                                                    .true.
                                                     2 A
                                                 )
                                             )
@@ -246,6 +262,10 @@
                                             (Var 4 a1)
                                             (Pointer
                                                 (StructType
+                                                    [(Integer 4)
+                                                    (Real 4)]
+                                                    []
+                                                    .true.
                                                     2 A
                                                 )
                                             )

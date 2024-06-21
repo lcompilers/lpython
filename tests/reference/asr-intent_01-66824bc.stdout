@@ -56,6 +56,9 @@
                                                     Default
                                                     (Array
                                                         (StructType
+                                                            [(Integer 4)]
+                                                            []
+                                                            .true.
                                                             2 Foo
                                                         )
                                                         [((IntegerConstant 0 (Integer 4))
@@ -132,6 +135,9 @@
                                         )
                                         (Array
                                             (StructType
+                                                [(Integer 4)]
+                                                []
+                                                .true.
                                                 2 Foo
                                             )
                                             [((IntegerConstant 0 (Integer 4))
