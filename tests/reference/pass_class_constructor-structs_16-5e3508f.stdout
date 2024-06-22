@@ -189,6 +189,12 @@
                                                     ()
                                                     Default
                                                     (StructType
+                                                        [(Union
+                                                            3 B
+                                                        )
+                                                        (Integer 4)]
+                                                        []
+                                                        .true.
                                                         2 A
                                                     )
                                                     ()

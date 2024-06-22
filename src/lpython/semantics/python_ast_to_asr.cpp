@@ -570,7 +570,7 @@ public:
                 } else {
                     sym = es_s;
                 }
-                return ASRUtils::TYPE(ASR::make_StructType_t(al, loc, sym));
+                return ASRUtils::TYPE(ASRUtils::make_StructType_t_util(al, loc, sym));
             }
             default: {
                 return return_type;
@@ -822,7 +822,7 @@ public:
                 ASR::symbol_t *der_sym = ASRUtils::symbol_get_past_external(s);
                 if( der_sym ) {
                     if ( ASR::is_a<ASR::Struct_t>(*der_sym) ) {
-                        type = ASRUtils::TYPE(ASR::make_StructType_t(al, loc, s));
+                        type = ASRUtils::TYPE(ASRUtils::make_StructType_t_util(al, loc, s));
                         type = ASRUtils::make_Array_t_util(al, loc, type, dims.p, dims.size(), abi, is_argument);
                     } else if( ASR::is_a<ASR::EnumType_t>(*der_sym) ) {
                         type = ASRUtils::TYPE(ASR::make_Enum_t(al, loc, s));
@@ -1312,7 +1312,7 @@ public:
             for (size_t i = args.size(); i < st->n_members; i++) {
                 args.push_back(al, st->m_initializers[i]);
             }
-            ASR::ttype_t* der_type = ASRUtils::TYPE(ASR::make_StructType_t(al, loc, stemp));
+            ASR::ttype_t* der_type = ASRUtils::TYPE(ASRUtils::make_StructType_t_util(al, loc, stemp));
             return ASR::make_StructConstructor_t(al, loc, stemp, args.p, args.size(), der_type, nullptr);
         } else if( ASR::is_a<ASR::EnumType_t>(*s) ) {
             Vec<ASR::expr_t*> args_new;
@@ -5831,7 +5831,7 @@ public:
                                                                     s2c(al, struct_member_name), ASR::accessType::Public));
                             current_scope->add_symbol(import_name, import_struct_member);
                         }
-                        member_var_type = ASRUtils::TYPE(ASR::make_StructType_t(al, loc, import_struct_member));
+                        member_var_type = ASRUtils::TYPE(ASRUtils::make_StructType_t_util(al, loc, import_struct_member));
                     }
                 }
             }
@@ -5965,7 +5965,7 @@ public:
                                                                     s2c(al, struct_member_name), ASR::accessType::Public));
                             current_scope->add_symbol(import_name, import_struct_member);
                         }
-                        member_var_type = ASRUtils::TYPE(ASR::make_StructType_t(al, loc, import_struct_member));
+                        member_var_type = ASRUtils::TYPE(ASRUtils::make_StructType_t_util(al, loc, import_struct_member));
                     }
                 }
             }

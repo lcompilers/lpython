@@ -199,7 +199,7 @@ ttype
     | Set(ttype type)
     | List(ttype type)
     | Tuple(ttype* type)
-    | StructType(symbol derived_type)
+    | StructType(ttype* data_member_types, ttype* member_function_types, bool is_cstruct, symbol derived_type)
     | Enum(symbol enum_type)
     | Union(symbol union_type)
     | Class(symbol class_type)
