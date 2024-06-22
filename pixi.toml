@@ -1,0 +1,40 @@
+[project]
+name = "lp"
+version = "0.1.0"
+description = "Add a short description here"
+authors = ["Wolf Vollprecht <w.vollprecht@gmail.com>"]
+channels = ["conda-forge"]
+platforms = ["osx-arm64"]
+
+[feature.host.tasks]
+build_0 = "sh build0.sh"
+
+start = { cmd = "build/src/bin/lpython -I build/src/runtime" }
+clean = "rm -rf ./inst && rm -rf ./build"
+
+[feature.host.dependencies]
+git = "*"
+pip = "*"
+re2c = "*"
+toml = "*"
+zlib = "*"
+numpy = "*"
+flake8 = "*"
+setuptools = "*"
+bison = "3.4.*"
+python = "3.10.2.*"
+llvmdev = "11.0.1.*"
+zstd-static = "1.5.5.*"
+
+[feature.compiler.dependencies]
+cxx-compiler = "*"
+cmake = "*"
+ninja = "*"
+
+[feature.compiler.tasks]
+build_1 = { cmd = "sh build1.sh", depends-on = ["build_0"] }
+build = { depends-on = ["build_0", "build_1"] }
+
+[environments]
+compiler = ["compiler"]
+host = ["host"]
