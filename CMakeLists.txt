@@ -131,6 +131,7 @@ configure_file("${CMAKE_CURRENT_SOURCE_DIR}/src/runtime/os.py" "${CMAKE_CURRENT_
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/src/runtime/platform.py" "${CMAKE_CURRENT_BINARY_DIR}/src/runtime/platform.py")
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/src/runtime/random.py" "${CMAKE_CURRENT_BINARY_DIR}/src/runtime/random.py")
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/src/runtime/statistics.py" "${CMAKE_CURRENT_BINARY_DIR}/src/runtime/statistics.py")
+configure_file("${CMAKE_CURRENT_SOURCE_DIR}/src/runtime/string.py" "${CMAKE_CURRENT_BINARY_DIR}/src/runtime/string.py")
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/src/runtime/sys.py" "${CMAKE_CURRENT_BINARY_DIR}/src/runtime/sys.py")
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/src/runtime/time.py" "${CMAKE_CURRENT_BINARY_DIR}/src/runtime/time.py")
 
