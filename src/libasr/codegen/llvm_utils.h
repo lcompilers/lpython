@@ -1,6 +1,7 @@
 #ifndef LFORTRAN_LLVM_UTILS_H
 #define LFORTRAN_LLVM_UTILS_H
 
+#include <cstdlib>
 #include <memory>
 
 #include <llvm/IR/Value.h>
@@ -644,6 +645,9 @@ namespace LCompilers {
             virtual
             void set_is_dict_present(bool value);
 
+            virtual
+            void dict_clear(llvm::Value *dict, llvm::Module *module,
+                ASR::ttype_t *key_asr_type, ASR::ttype_t* value_asr_type) = 0;
 
             virtual
             void get_elements_list(llvm::Value* dict,
@@ -739,6 +743,8 @@ namespace LCompilers {
 
             llvm::Value* len(llvm::Value* dict);
 
+            void dict_clear(llvm::Value *dict, llvm::Module *module,
+                ASR::ttype_t *key_asr_type, ASR::ttype_t* value_asr_type);
 
             void get_elements_list(llvm::Value* dict,
                 llvm::Value* elements_list, ASR::ttype_t* key_asr_type,
@@ -889,6 +895,8 @@ namespace LCompilers {
 
             llvm::Value* len(llvm::Value* dict);
 
+            void dict_clear(llvm::Value *dict, llvm::Module *module,
+                ASR::ttype_t *key_asr_type, ASR::ttype_t* value_asr_type);
 
             void get_elements_list(llvm::Value* dict,
                 llvm::Value* elements_list, ASR::ttype_t* key_asr_type,
@@ -988,6 +996,9 @@ namespace LCompilers {
             llvm::Value* len(llvm::Value* set);
 
             virtual
+            void set_clear(llvm::Value *set, llvm::Module *module, ASR::ttype_t *el_asr_type) = 0;
+
+            virtual
             bool is_set_present();
 
             virtual
@@ -1052,6 +1063,8 @@ namespace LCompilers {
                 llvm::Value* src, llvm::Value* dest,
                 ASR::Set_t* set_type, llvm::Module* module,
                 std::map<std::string, std::map<std::string, int>>& name2memidx);
+
+            void set_clear(llvm::Value *set, llvm::Module *module, ASR::ttype_t *el_asr_type);
 
             ~LLVMSetLinearProbing();
     };
@@ -1133,6 +1146,8 @@ namespace LCompilers {
                 llvm::Value* src, llvm::Value* dest,
                 ASR::Set_t* set_type, llvm::Module* module,
                 std::map<std::string, std::map<std::string, int>>& name2memidx);
+
+            void set_clear(llvm::Value *set, llvm::Module *module, ASR::ttype_t *el_asr_type);
 
             ~LLVMSetSeparateChaining();
     };

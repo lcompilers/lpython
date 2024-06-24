@@ -74,6 +74,8 @@ stmt
     | ListRemove(expr a, expr ele)
     | ListClear(expr a)
     | DictInsert(expr a, expr key, expr value)
+    | DictClear(expr a)
+    | SetClear(expr a)
     | Expr(expr expression)
 
 expr
