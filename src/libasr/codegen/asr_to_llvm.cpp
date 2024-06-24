@@ -1637,6 +1637,29 @@ public:
         }
     }
 
+    void visit_DictClear(const ASR::DictClear_t& x) {
+        int64_t ptr_loads_copy = ptr_loads;
+        ptr_loads = 0;
+        this->visit_expr(*x.m_a);
+        llvm::Value* pdict = tmp;
+        ptr_loads = ptr_loads_copy;
+        ASR::Dict_t* dict_type = ASR::down_cast<ASR::Dict_t>(ASRUtils::expr_type(x.m_a));
+
+        llvm_utils->dict_api->dict_clear(pdict, module.get(), dict_type->m_key_type, dict_type->m_value_type);
+    }
+
+    void visit_SetClear(const ASR::SetClear_t& x) {
+        int64_t ptr_loads_copy = ptr_loads;
+        ptr_loads = 0;
+        this->visit_expr(*x.m_a);
+        llvm::Value* pset = tmp;
+        ptr_loads = ptr_loads_copy;
+        ASR::Set_t *set_type = ASR::down_cast<ASR::Set_t>(
+            ASRUtils::expr_type(x.m_a));
+
+        llvm_utils->set_api->set_clear(pset, module.get(), set_type->m_type);
+    }
+
     void visit_DictContains(const ASR::DictContains_t &x) {
         if (x.m_value) {
             this->visit_expr(*x.m_value);

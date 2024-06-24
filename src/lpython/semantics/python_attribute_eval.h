@@ -34,10 +34,12 @@ struct AttributeHandler {
             {"set@add", &eval_set_add},
             {"set@remove", &eval_set_remove},
             {"set@discard", &eval_set_discard},
+            {"set@clear", &eval_set_clear},
             {"dict@get", &eval_dict_get},
             {"dict@pop", &eval_dict_pop},
             {"dict@keys", &eval_dict_keys},
-            {"dict@values", &eval_dict_values}
+            {"dict@values", &eval_dict_values},
+            {"dict@clear", &eval_dict_clear}
         };
 
         modify_attr_set = {"list@append", "list@remove",
@@ -356,6 +358,26 @@ struct AttributeHandler {
         return create_function(al, loc, args_with_set, diag);
     }
 
+    static ASR::asr_t* eval_set_clear(ASR::expr_t *s, Allocator &al,
+        const Location &loc, Vec<ASR::expr_t*> &args, diag::Diagnostics & diag) {
+            if (ASRUtils::is_const(s)) {
+                throw SemanticError("cannot clear elements from a const set", loc);
+            }
+            if (args.size() != 0) {
+                diag.add(diag::Diagnostic(
+                    "Incorrect number of arguments in 'clear', it accepts no argument",
+                    diag::Level::Error, diag::Stage::Semantic, {
+                        diag::Label("incorrect number of arguments in clear (found: " +
+                                    std::to_string(args.size()) + ", expected: 0)",
+                                {loc})
+                    })
+                );
+                throw SemanticAbort();
+            }
+
+            return make_SetClear_t(al, loc, s);
+    }
+
     static ASR::asr_t* eval_dict_get(ASR::expr_t *s, Allocator &al, const Location &loc,
             Vec<ASR::expr_t*> &args, diag::Diagnostics &diag) {
         ASR::expr_t *def = nullptr;
@@ -446,6 +468,26 @@ struct AttributeHandler {
         ASRUtils::create_intrinsic_function create_function =
             ASRUtils::IntrinsicElementalFunctionRegistry::get_create_function("dict.values");
         return create_function(al, loc, args_with_dict, diag);
+    }
+
+    static ASR::asr_t* eval_dict_clear(ASR::expr_t *s, Allocator &al,
+        const Location &loc, Vec<ASR::expr_t*> &args, diag::Diagnostics & diag) {
+            if (ASRUtils::is_const(s)) {
+                throw SemanticError("cannot clear elements from a const dict", loc);
+            }
+            if (args.size() != 0) {
+                diag.add(diag::Diagnostic(
+                    "Incorrect number of arguments in 'clear', it accepts no argument",
+                    diag::Level::Error, diag::Stage::Semantic, {
+                        diag::Label("incorrect number of arguments in clear (found: " +
+                                    std::to_string(args.size()) + ", expected: 0)",
+                                {loc})
+                    })
+                );
+                throw SemanticAbort();
+            }
+
+            return make_DictClear_t(al, loc, s);
     }
 
     static ASR::asr_t* eval_symbolic_diff(ASR::expr_t *s, Allocator &al, const Location &loc,
