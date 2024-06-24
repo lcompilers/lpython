@@ -3256,7 +3256,6 @@ public:
                                             nullptr));
             current_scope = parent_scope;
             if ( is_genr_body ) {
-                continue;
             } else {
                 current_scope->add_symbol(x_m_name, class_type);
                 st->m_initializers = member_init.p;
