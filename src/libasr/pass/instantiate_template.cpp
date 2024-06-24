@@ -328,12 +328,19 @@ public:
             data_member_names.push_back(al, x->m_members[i]);
         }
 
+        Vec<char*> data_member_fn_names;
+        data_member_fn_names.reserve(al, x->n_member_functions);
+        for (size_t i=0; i<x->n_members; i++) {
+            data_member_fn_names.push_back(al, x->m_member_functions[i]);
+        }
+
         ASR::expr_t *m_alignment = duplicate_expr(x->m_alignment);
 
         ASR::asr_t *result = ASR::make_Struct_t(al, x->base.base.loc,
             current_scope, s2c(al, new_sym_name),
             nullptr, 0,
             data_member_names.p, data_member_names.size(),
+            data_member_fn_names.p, data_member_fn_names.size(),
             x->m_abi, x->m_access, x->m_is_packed, x->m_is_abstract,
             nullptr, 0, m_alignment, nullptr);
 
@@ -1255,11 +1262,19 @@ public:
             data_member_names.push_back(al, x->m_members[i]);
         }
 
+        Vec<char*> data_member_fn_names;
+        data_member_fn_names.reserve(al, x->n_member_functions);
+        for (size_t i=0; i<x->n_members; i++) {
+            data_member_fn_names.push_back(al, x->m_member_functions[i]);
+        }
+
         ASR::expr_t* m_alignment = duplicate_expr(x->m_alignment);
 
         ASR::asr_t* result = ASR::make_Struct_t(al, x->base.base.loc,
             new_scope, s2c(al, new_sym_name), nullptr, 0, data_member_names.p,
-            data_member_names.size(), x->m_abi, x->m_access, x->m_is_packed,
+            data_member_names.size(),
+            data_member_fn_names.p, data_member_fn_names.size(),
+            x->m_abi, x->m_access, x->m_is_packed,
             x->m_is_abstract, nullptr, 0, m_alignment, nullptr);
 
         ASR::symbol_t* s = ASR::down_cast<ASR::symbol_t>(result);

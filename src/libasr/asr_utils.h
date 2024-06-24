@@ -4299,7 +4299,9 @@ class SymbolDuplicator {
         return ASR::down_cast<ASR::symbol_t>(ASR::make_Struct_t(
             al, struct_type_t->base.base.loc, struct_type_symtab,
             struct_type_t->m_name, struct_type_t->m_dependencies, struct_type_t->n_dependencies,
-            struct_type_t->m_members, struct_type_t->n_members, struct_type_t->m_abi,
+            struct_type_t->m_members, struct_type_t->n_members,
+            struct_type_t->m_member_functions, struct_type_t->n_member_functions, 
+            struct_type_t->m_abi,
             struct_type_t->m_access, struct_type_t->m_is_packed, struct_type_t->m_is_abstract,
             struct_type_t->m_initializers, struct_type_t->n_initializers, struct_type_t->m_alignment,
             struct_type_t->m_parent));
