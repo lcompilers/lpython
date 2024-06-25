@@ -3224,7 +3224,9 @@ public:
             SymbolTable *parent_scope = current_scope;
             if( current_scope->resolve_symbol(x_m_name) ){
                 sym = current_scope->resolve_symbol(x_m_name);
-                st = ASR::down_cast<ASR::Struct_t>(sym);
+                if (ASR::is_a<ASR::Struct_t>(sym) ){
+                    st = ASR::down_cast<ASR::Struct_t>(sym);
+                }
                 is_genr_body = true;
                 current_scope = st->m_symtab;
             } else{
