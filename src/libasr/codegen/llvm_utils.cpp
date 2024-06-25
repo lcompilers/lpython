@@ -6926,16 +6926,16 @@ namespace LCompilers {
         llvm::Value* new_el_mask = LLVM::lfortran_calloc(context, *module, *builder, llvm_zero,
                                                           llvm_mask_size);
         std::string el_type_code = ASRUtils::get_type_code(el_asr_type);
-        //llvm::Type* el_llvm_type = std::get<2>(typecode2settype[el_type_code]);
-        //int32_t el_type_size = std::get<1>(typecode2settype[el_type_code]);
+        llvm::Type* el_llvm_type = std::get<2>(typecode2settype[el_type_code]);
+        int32_t el_type_size = std::get<1>(typecode2settype[el_type_code]);
 
-        //llvm::Value* new_el_list = builder0.CreateAlloca(llvm_utils->list_api->get_list_type(el_llvm_type,
-                                                          //el_type_code, el_type_size), nullptr);
+        llvm::Value* new_el_list = builder0.CreateAlloca(llvm_utils->list_api->get_list_type(el_llvm_type,
+                                                          el_type_code, el_type_size), nullptr);
         llvm_utils->list_api->list_init(el_type_code, el_list, *module, llvm_zero, llvm_zero);
 
         llvm_utils->list_api->free_data(el_list, *module);
         LLVM::lfortran_free(context, *module, *builder, LLVM::CreateLoad(*builder, get_pointer_to_mask(set)));
-        //LLVM::CreateStore(*builder, LLVM::CreateLoad(*builder, new_el_list), el_list);
+        LLVM::CreateStore(*builder, LLVM::CreateLoad(*builder, new_el_list), el_list);
         LLVM::CreateStore(*builder, new_el_mask, get_pointer_to_mask(set));
     }
 
