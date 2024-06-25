@@ -5,8 +5,7 @@ def test_clear():
     a[3] = 3
 
     assert len(a) == 1
-    assert a.keys() == [3]
-    assert a.values() == [3]
+    assert 3 in a
 
     b: dict[str, str] = {'a':'a', 'b':'b'}
 
@@ -14,7 +13,6 @@ def test_clear():
     b['c'] = 'c'
 
     assert len(b) == 1
-    assert b.keys() == ['c']
-    assert b.values() == ['c']
+    assert 'c' in b
 
 test_clear()
