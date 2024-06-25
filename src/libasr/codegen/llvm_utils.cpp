@@ -6902,32 +6902,13 @@ namespace LCompilers {
     }
 
     void LLVMSetLinearProbing::set_clear(llvm::Value* set, llvm::Module* module, ASR::ttype_t* el_asr_type) {
-        get_builder0();
-        llvm::Value* occupancy_ptr = get_pointer_to_occupancy(set);
-        llvm::Value* capacity_ptr = get_pointer_to_capacity(set);
-        llvm::Value* llvm_zero = llvm::ConstantInt::get(llvm::Type::getInt32Ty(context), llvm::APInt(32, 0));
-        LLVM::CreateStore(*builder, llvm_zero, occupancy_ptr);
-        LLVM::CreateStore(*builder, llvm_zero, capacity_ptr);
 
         llvm::Value* el_list = get_el_list(set);
-        llvm::DataLayout data_layout(module);
-        size_t mask_size = data_layout.getTypeAllocSize(llvm::Type::getInt8Ty(context));
-        llvm::Value* llvm_mask_size = llvm::ConstantInt::get(llvm::Type::getInt32Ty(context),
-                                            llvm::APInt(32, mask_size));
-        llvm::Value* new_el_mask = LLVM::lfortran_calloc(context, *module, *builder, llvm_zero,
-                                                          llvm_mask_size);
-        std::string el_type_code = ASRUtils::get_type_code(el_asr_type);
-        llvm::Type* el_llvm_type = std::get<2>(typecode2settype[el_type_code]);
-        int32_t el_type_size = std::get<1>(typecode2settype[el_type_code]);
-
-        llvm::Value* new_el_list = builder0.CreateAlloca(llvm_utils->list_api->get_list_type(el_llvm_type,
-                                                          el_type_code, el_type_size), nullptr);
-        llvm_utils->list_api->list_init(el_type_code, el_list, *module, llvm_zero, llvm_zero);
 
         llvm_utils->list_api->free_data(el_list, *module);
         LLVM::lfortran_free(context, *module, *builder, LLVM::CreateLoad(*builder, get_pointer_to_mask(set)));
-        LLVM::CreateStore(*builder, LLVM::CreateLoad(*builder, new_el_list), el_list);
-        LLVM::CreateStore(*builder, new_el_mask, get_pointer_to_mask(set));
+
+        set_init(ASRUtils::get_type_code(el_asr_type), set, module, 0);
     }
 
     void LLVMSetSeparateChaining::set_clear(llvm::Value* set, llvm::Module* module, ASR::ttype_t* el_asr_type) {
