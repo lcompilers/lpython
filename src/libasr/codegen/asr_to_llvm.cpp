@@ -3571,6 +3571,62 @@ public:
                             line = v->base.base.loc.first;
                             column = 0;
                         }
+
+                        if (ASR::is_a<ASR::List_t>(*v->m_type)) {
+                          std::string member_type_name;
+                          uint32_t member_type_size, member_type_encoding;
+
+                          llvm::DIType *int_type = DBuilder->createBasicType("integer", 32, llvm::dwarf::DW_ATE_signed);
+                          ASR::ttype_t *asr_member_type = ASRUtils::get_contained_type(v->m_type);
+
+                          get_type_debug_info(asr_member_type, member_type_name,
+                              member_type_size, member_type_encoding);
+                          llvm::DIType *member_type = DBuilder->createBasicType(member_type_name, member_type_size, member_type_encoding);
+
+                          llvm::DIType *member_pointer_type = DBuilder->createPointerType(member_type, 64, 0, 0, member_type_name+"*");
+                          llvm::DIType *list_type = DBuilder->createStructType(
+                              debug_current_scope, "list", debug_Unit, line, 64+member_type_size, 0, llvm::DINode::FlagZero, nullptr, DBuilder->getOrCreateArray({
+                  DBuilder->createMemberType(debug_Unit, "i32", debug_Unit, line, 32, 0, 0, llvm::DINode::FlagZero, int_type),
+                  DBuilder->createMemberType(debug_Unit, "i32", debug_Unit, line, 32, 32, 0, llvm::DINode::FlagZero, int_type),
+                  DBuilder->createMemberType(debug_Unit, "member", debug_Unit, line, 64, 64, 0, llvm::DINode::FlagZero, member_pointer_type)
+                                }));
+                          llvm::DILocalVariable *debug_var = DBuilder->createParameterVariable(debug_current_scope,
+                              v->m_name, ++debug_arg_count, debug_Unit, line, list_type, true);
+                          DBuilder->insertDeclare(ptr, debug_var, DBuilder->createExpression(),
+                              llvm::DILocation::get(debug_current_scope->getContext(),
+                              line, 0, debug_current_scope), builder->GetInsertBlock());
+                        } else if (ASR::is_a<ASR::Set_t>(*v->m_type)) {
+                          std::string member_type_name;
+                          uint32_t member_type_size, member_type_encoding;
+
+                          llvm::DIType *int_type = DBuilder->createBasicType("integer", 32, llvm::dwarf::DW_ATE_signed);
+                          llvm::DIType *int_8_ptr_type = DBuilder->createPointerType(
+                              DBuilder->createBasicType("char", 8, llvm::dwarf::DW_ATE_unsigned_char), 64, 0, 0, "i8*");
+                          ASR::ttype_t *asr_member_type = ASRUtils::get_contained_type(v->m_type);
+
+                          get_type_debug_info(asr_member_type, member_type_name,
+                              member_type_size, member_type_encoding);
+                          llvm::DIType *member_type = DBuilder->createBasicType(member_type_name, member_type_size, member_type_encoding);
+
+                          llvm::DIType *member_pointer_type = DBuilder->createPointerType(member_type, 64, 0, 0, member_type_name+"*");
+                          llvm::DIType *list_type = DBuilder->createStructType(
+                              debug_current_scope, "list", debug_Unit, line, 64+member_type_size, 0, llvm::DINode::FlagZero, nullptr, DBuilder->getOrCreateArray({
+                  DBuilder->createMemberType(debug_Unit, "i32", debug_Unit, line, 32, 0, 0, llvm::DINode::FlagZero, int_type),
+                  DBuilder->createMemberType(debug_Unit, "i32", debug_Unit, line, 32, 32, 0, llvm::DINode::FlagZero, int_type),
+                  DBuilder->createMemberType(debug_Unit, "member", debug_Unit, line, 64, 64, 0, llvm::DINode::FlagZero, member_pointer_type)
+                                }));
+                          llvm::DIType *set_type = DBuilder->createStructType(
+                              debug_current_scope, "list", debug_Unit, line, 64+member_type_size+32+64, 0, llvm::DINode::FlagZero, nullptr, DBuilder->getOrCreateArray({
+                  DBuilder->createMemberType(debug_Unit, "i32", debug_Unit, line, 32, 0, 0, llvm::DINode::FlagZero, int_type),
+                  DBuilder->createMemberType(debug_Unit, "list", debug_Unit, line, 128, 32, 0, llvm::DINode::FlagZero, list_type),
+                  DBuilder->createMemberType(debug_Unit, "i8*", debug_Unit, line, 64, 160, 0, llvm::DINode::FlagZero, int_8_ptr_type)}));
+                          llvm::DILocalVariable *debug_var = DBuilder->createParameterVariable(debug_current_scope,
+                              v->m_name, ++debug_arg_count, debug_Unit, line, set_type, true);
+                          DBuilder->insertDeclare(ptr, debug_var, DBuilder->createExpression(),
+                              llvm::DILocation::get(debug_current_scope->getContext(),
+                              line, 0, debug_current_scope), builder->GetInsertBlock());
+                        } else {
+
                         std::string type_name;
                         uint32_t type_size, type_encoding;
                         get_type_debug_info(v->m_type, type_name, type_size,
@@ -3581,6 +3637,7 @@ public:
                         DBuilder->insertDeclare(ptr, debug_var, DBuilder->createExpression(),
                             llvm::DILocation::get(debug_current_scope->getContext(),
                             line, 0, debug_current_scope), builder->GetInsertBlock());
+                        }
                     }
 
                     if( ASR::is_a<ASR::StructType_t>(*v->m_type) ) {
