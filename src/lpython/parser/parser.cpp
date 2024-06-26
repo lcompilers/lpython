@@ -112,9 +112,9 @@ std::string unique_filename(const std::string &prefix) {
     return filename;
 }
 
-Result<LPython::AST::ast_t*> parse_python_file(Allocator &al,
+Result<LPython::AST::ast_t*> parse_python_source(Allocator &al,
         const std::string &/*runtime_library_dir*/,
-        const std::string &infile,
+        const std::string &source_code,
         diag::Diagnostics &diagnostics,
         uint32_t prev_loc,
         [[maybe_unused]] bool new_parser) {
@@ -122,8 +122,7 @@ Result<LPython::AST::ast_t*> parse_python_file(Allocator &al,
     // We will be using the new parser from now on
     new_parser = true;
     LCOMPILERS_ASSERT(new_parser)
-    std::string input = read_file(infile);
-    Result<LPython::AST::Module_t*> res = parse(al, input, prev_loc, diagnostics);
+    Result<LPython::AST::Module_t*> res = parse(al, source_code, prev_loc, diagnostics);
     if (res.ok) {
         ast = (LPython::AST::ast_t*)res.result;
     } else {
@@ -131,6 +130,16 @@ Result<LPython::AST::ast_t*> parse_python_file(Allocator &al,
         return Error();
     }
     return ast;
+}
+
+Result<LPython::AST::ast_t*> parse_python_file(Allocator &al,
+        const std::string &runtime_library_dir,
+        const std::string &infile,
+        diag::Diagnostics &diagnostics,
+        uint32_t prev_loc,
+        [[maybe_unused]] bool new_parser) {
+    std::string input_source_code = read_file(infile);
+    return parse_python_source(al, runtime_library_dir, input_source_code, diagnostics, prev_loc, new_parser);
 }
 
 

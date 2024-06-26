@@ -42,6 +42,12 @@ Result<LPython::AST::ast_t*> parse_python_file(Allocator &al,
         diag::Diagnostics &diagnostics,
         uint32_t prev_loc, bool new_parser);
 
+Result<LPython::AST::ast_t*> parse_python_source(Allocator &al,
+        const std::string &runtime_library_dir,
+        const std::string &infile,
+        diag::Diagnostics &diagnostics,
+        uint32_t prev_loc, bool new_parser);
+
 } // namespace LCompilers::LPython
 
 #endif
