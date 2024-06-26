@@ -184,9 +184,9 @@ public:
                 ASR::Function_t *f = ASR::down_cast<ASR::Function_t>(x);
                 return instantiate_Function(f);
             }
-            case (ASR::symbolType::StructType) : {
-                ASR::StructType_t *s = ASR::down_cast<ASR::StructType_t>(x);
-                return instantiate_StructType(s);
+            case (ASR::symbolType::Struct) : {
+                ASR::Struct_t *s = ASR::down_cast<ASR::Struct_t>(x);
+                return instantiate_Struct(s);
             }
             default : {
                 std::string sym_name = ASRUtils::symbol_name(x);
@@ -314,7 +314,7 @@ public:
         return t;
     }
 
-    ASR::symbol_t* instantiate_StructType(ASR::StructType_t *x) {
+    ASR::symbol_t* instantiate_Struct(ASR::Struct_t *x) {
         current_scope = al.make_new<SymbolTable>(func_scope);
         for (auto const &sym_pair: x->m_symtab->get_scope()) {
             if (ASR::is_a<ASR::Variable_t>(*sym_pair.second)) {
@@ -330,7 +330,7 @@ public:
 
         ASR::expr_t *m_alignment = duplicate_expr(x->m_alignment);
 
-        ASR::asr_t *result = ASR::make_StructType_t(al, x->base.base.loc,
+        ASR::asr_t *result = ASR::make_Struct_t(al, x->base.base.loc,
             current_scope, s2c(al, new_sym_name),
             nullptr, 0,
             data_member_names.p, data_member_names.size(),
@@ -687,14 +687,14 @@ public:
                 return ASRUtils::TYPE(ASR::make_List_t(al, ttype->base.loc,
                     substitute_type(tlist->m_type)));
             }
-            case (ASR::ttypeType::Struct) : {
-                ASR::Struct_t *s = ASR::down_cast<ASR::Struct_t>(ttype);
+            case (ASR::ttypeType::StructType) : {
+                ASR::StructType_t *s = ASR::down_cast<ASR::StructType_t>(ttype);
                 std::string struct_name = ASRUtils::symbol_name(s->m_derived_type);
                 if (context_map.find(struct_name) != context_map.end()) {
                     std::string new_struct_name = context_map[struct_name];
                     ASR::symbol_t *sym = func_scope->resolve_symbol(new_struct_name);
                     return ASRUtils::TYPE(
-                        ASR::make_Struct_t(al, s->base.base.loc, sym));
+                        ASRUtils::make_StructType_t_util(al, s->base.base.loc, sym));
                 } else {
                     return ttype;
                 }
@@ -1124,9 +1124,9 @@ public:
                 ASR::Template_t* x = ASR::down_cast<ASR::Template_t>(sym);
                 return instantiate_Template(x);
             }
-            case (ASR::symbolType::StructType) : {
-                ASR::StructType_t* x = ASR::down_cast<ASR::StructType_t>(sym);
-                return instantiate_StructType(x);
+            case (ASR::symbolType::Struct) : {
+                ASR::Struct_t* x = ASR::down_cast<ASR::Struct_t>(sym);
+                return instantiate_Struct(x);
             }
             case (ASR::symbolType::ExternalSymbol) : {
                 ASR::ExternalSymbol_t* x = ASR::down_cast<ASR::ExternalSymbol_t>(sym);
@@ -1246,7 +1246,7 @@ public:
         return t;
     }
 
-    ASR::symbol_t* instantiate_StructType(ASR::StructType_t* x) {
+    ASR::symbol_t* instantiate_Struct(ASR::Struct_t* x) {
         new_scope = al.make_new<SymbolTable>(target_scope);
 
         Vec<char*> data_member_names;
@@ -1257,7 +1257,7 @@ public:
 
         ASR::expr_t* m_alignment = duplicate_expr(x->m_alignment);
 
-        ASR::asr_t* result = ASR::make_StructType_t(al, x->base.base.loc,
+        ASR::asr_t* result = ASR::make_Struct_t(al, x->base.base.loc,
             new_scope, s2c(al, new_sym_name), nullptr, 0, data_member_names.p,
             data_member_names.size(), x->m_abi, x->m_access, x->m_is_packed,
             x->m_is_abstract, nullptr, 0, m_alignment, nullptr);
@@ -1360,12 +1360,12 @@ public:
                 return ASRUtils::TYPE(ASR::make_List_t(al, ttype->base.loc,
                     substitute_type(tlist->m_type)));
             }
-            case (ASR::ttypeType::Struct) : {
-                ASR::Struct_t *s = ASR::down_cast<ASR::Struct_t>(ttype);
+            case (ASR::ttypeType::StructType) : {
+                ASR::StructType_t *s = ASR::down_cast<ASR::StructType_t>(ttype);
                 std::string struct_name = ASRUtils::symbol_name(s->m_derived_type);
                 if (symbol_subs.find(struct_name) != symbol_subs.end()) {
                     ASR::symbol_t *sym = symbol_subs[struct_name];
-                    return ASRUtils::TYPE(ASR::make_Struct_t(al, ttype->base.loc, sym));
+                    return ASRUtils::TYPE(ASRUtils::make_StructType_t_util(al, ttype->base.loc, sym));
                 }
                 return ttype;
             }
@@ -1444,10 +1444,10 @@ public:
             case (ASR::symbolType::Variable) : {
                 break;
             }
-            case (ASR::symbolType::StructType) : {
-                LCOMPILERS_ASSERT(ASR::is_a<ASR::StructType_t>(*new_sym));
-                ASR::StructType_t* x = ASR::down_cast<ASR::StructType_t>(sym);
-                instantiate_StructType(x);
+            case (ASR::symbolType::Struct) : {
+                LCOMPILERS_ASSERT(ASR::is_a<ASR::Struct_t>(*new_sym));
+                ASR::Struct_t* x = ASR::down_cast<ASR::Struct_t>(sym);
+                instantiate_Struct(x);
                 break;
             }
             case (ASR::symbolType::ClassProcedure) : {
@@ -1522,8 +1522,8 @@ public:
         }
     }
 
-    void instantiate_StructType(ASR::StructType_t* x) {
-        ASR::StructType_t* new_s = ASR::down_cast<ASR::StructType_t>(new_sym);
+    void instantiate_Struct(ASR::Struct_t* x) {
+        ASR::Struct_t* new_s = ASR::down_cast<ASR::Struct_t>(new_sym);
 
         for (auto const &sym_pair: new_s->m_symtab->get_scope()) {
             ASR::symbol_t* new_sym_i = sym_pair.second;
@@ -1780,12 +1780,12 @@ public:
                 return ASRUtils::TYPE(ASR::make_List_t(al, ttype->base.loc,
                     substitute_type(tlist->m_type)));
             }
-            case (ASR::ttypeType::Struct) : {
-                ASR::Struct_t *s = ASR::down_cast<ASR::Struct_t>(ttype);
+            case (ASR::ttypeType::StructType) : {
+                ASR::StructType_t *s = ASR::down_cast<ASR::StructType_t>(ttype);
                 std::string struct_name = ASRUtils::symbol_name(s->m_derived_type);
                 if (symbol_subs.find(struct_name) != symbol_subs.end()) {
                     ASR::symbol_t *sym = symbol_subs[struct_name];
-                    ttype = ASRUtils::TYPE(ASR::make_Struct_t(al, s->base.base.loc, sym));
+                    ttype = ASRUtils::TYPE(ASRUtils::make_StructType_t_util(al, s->base.base.loc, sym));
                 }
                 return ttype;
             }

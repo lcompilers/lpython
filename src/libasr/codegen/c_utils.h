@@ -44,7 +44,7 @@ namespace LCompilers {
 namespace CUtils {
 
     static inline bool is_non_primitive_DT(ASR::ttype_t *t) {
-        return ASR::is_a<ASR::List_t>(*t) || ASR::is_a<ASR::Tuple_t>(*t) || ASR::is_a<ASR::Struct_t>(*t);
+        return ASR::is_a<ASR::List_t>(*t) || ASR::is_a<ASR::Tuple_t>(*t) || ASR::is_a<ASR::StructType_t>(*t);
     }
 
     class CUtilFunctions {
@@ -245,7 +245,7 @@ namespace CUtils {
         return result;
     }
 
-    static inline std::string get_struct_type_code(ASR::Struct_t* struct_t) {
+    static inline std::string get_struct_type_code(ASR::StructType_t* struct_t) {
         return ASRUtils::symbol_name(struct_t->m_derived_type);
     }
 
@@ -294,8 +294,8 @@ namespace CUtils {
                 type_src = "void*";
                 break;
             }
-            case ASR::ttypeType::Struct: {
-                ASR::Struct_t* der_type = ASR::down_cast<ASR::Struct_t>(t);
+            case ASR::ttypeType::StructType: {
+                ASR::StructType_t* der_type = ASR::down_cast<ASR::StructType_t>(t);
                 type_src = std::string("struct ") + ASRUtils::symbol_name(der_type->m_derived_type);
                 break;
             }
@@ -417,7 +417,7 @@ class CCPPDSUtils {
                     }
                     break;
                 }
-                case ASR::ttypeType::Struct: {
+                case ASR::ttypeType::StructType: {
                     std::string func = get_struct_deepcopy_func(t);
                     result = func + "(" + value + ", " + target + ");";
                     break;
@@ -602,7 +602,7 @@ class CCPPDSUtils {
         }
 
         std::string get_struct_deepcopy_func(ASR::ttype_t* struct_type_asr) {
-            ASR::Struct_t* struct_type = ASR::down_cast<ASR::Struct_t>(struct_type_asr);
+            ASR::StructType_t* struct_type = ASR::down_cast<ASR::StructType_t>(struct_type_asr);
             std::string struct_type_code = CUtils::get_struct_type_code(struct_type);
             if( typecodeToDSfuncs.find(struct_type_code) == typecodeToDSfuncs.end() ) {
                 struct_deepcopy(struct_type_asr);
@@ -832,8 +832,8 @@ class CCPPDSUtils {
         }
 
         void struct_deepcopy(ASR::ttype_t* struct_type_asr) {
-            ASR::Struct_t* struct_type = ASR::down_cast<ASR::Struct_t>(struct_type_asr);
-            ASR::StructType_t* struct_type_t = ASR::down_cast<ASR::StructType_t>(
+            ASR::StructType_t* struct_type = ASR::down_cast<ASR::StructType_t>(struct_type_asr);
+            ASR::Struct_t* struct_type_t = ASR::down_cast<ASR::Struct_t>(
                 ASRUtils::symbol_get_past_external(struct_type->m_derived_type));
             std::string struct_type_code = CUtils::get_struct_type_code(struct_type);
             std::string indent(indentation_level * indentation_spaces, ' ');

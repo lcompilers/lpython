@@ -509,15 +509,15 @@ public:
         SymbolTable *parent_symtab = current_symtab;
         current_symtab = x.m_symtab;
         require(x.m_name != nullptr,
-            "The StructType::m_name cannot be nullptr");
+            "The Struct::m_name cannot be nullptr");
         require(x.m_symtab != nullptr,
-            "The StructType::m_symtab cannot be nullptr");
+            "The Struct::m_symtab cannot be nullptr");
         require(x.m_symtab->parent == parent_symtab,
-            "The StructType::m_symtab->parent is not the right parent");
+            "The Struct::m_symtab->parent is not the right parent");
         require(x.m_symtab->asr_owner == (ASR::asr_t*)&x,
             "The X::m_symtab::asr_owner must point to X");
         require(id_symtab_map.find(x.m_symtab->counter) == id_symtab_map.end(),
-            "StructType::m_symtab->counter must be unique");
+            "Struct::m_symtab->counter must be unique");
         require(ASRUtils::symbol_symtab(down_cast<symbol_t>(current_symtab->asr_owner)) == current_symtab,
             "The asr_owner invariant failed");
         id_symtab_map[x.m_symtab->counter] = x.m_symtab;
@@ -526,7 +526,7 @@ public:
             this->visit_symbol(*a.second);
             if( ASR::is_a<ASR::ClassProcedure_t>(*a.second) ||
                 ASR::is_a<ASR::GenericProcedure_t>(*a.second) ||
-                ASR::is_a<ASR::StructType_t>(*a.second) ||
+                ASR::is_a<ASR::Struct_t>(*a.second) ||
                 ASR::is_a<ASR::UnionType_t>(*a.second) ||
                 ASR::is_a<ASR::ExternalSymbol_t>(*a.second) ||
                 ASR::is_a<ASR::CustomOperator_t>(*a.second) ) {
@@ -537,8 +537,8 @@ public:
             ASR::ttype_t* var_type = ASRUtils::type_get_past_pointer(ASRUtils::symbol_type(a.second));
             char* aggregate_type_name = nullptr;
             ASR::symbol_t* sym = nullptr;
-            if( ASR::is_a<ASR::Struct_t>(*var_type) ) {
-                sym = ASR::down_cast<ASR::Struct_t>(var_type)->m_derived_type;
+            if( ASR::is_a<ASR::StructType_t>(*var_type) ) {
+                sym = ASR::down_cast<ASR::StructType_t>(var_type)->m_derived_type;
                 aggregate_type_name = ASRUtils::symbol_name(sym);
             } else if( ASR::is_a<ASR::Enum_t>(*var_type) ) {
                 sym = ASR::down_cast<ASR::Enum_t>(var_type)->m_enum_type;
@@ -569,7 +569,7 @@ public:
         current_symtab = parent_symtab;
     }
 
-    void visit_StructType(const StructType_t& x) {
+    void visit_Struct(const Struct_t& x) {
         visit_UserDefinedType(x);
         if( !x.m_alignment ) {
             return ;
@@ -663,7 +663,7 @@ public:
             if (ASR::is_a<ASR::Module_t>(*asr_owner_sym)) {
                 is_module = true;
             }
-            if (ASR::is_a<ASR::StructType_t>(*asr_owner_sym)) {
+            if (ASR::is_a<ASR::Struct_t>(*asr_owner_sym)) {
                 is_struct = true;
             }
         }
@@ -719,7 +719,7 @@ public:
             require(std::string(x.m_original_name) == std::string(orig_name),
                 "ExternalSymbol::m_original_name must match external->m_name");
             ASR::Module_t *m = ASRUtils::get_sym_module(x.m_external);
-            ASR::StructType_t* sm = nullptr;
+            ASR::Struct_t* sm = nullptr;
             ASR::EnumType_t* em = nullptr;
             ASR::UnionType_t* um = nullptr;
             ASR::Function_t* fm = nullptr;
@@ -728,12 +728,12 @@ public:
             std::string asr_owner_name = "";
             if( !is_valid_owner ) {
                 ASR::symbol_t* asr_owner_sym = ASRUtils::get_asr_owner(x.m_external);
-                is_valid_owner = (ASR::is_a<ASR::StructType_t>(*asr_owner_sym) ||
+                is_valid_owner = (ASR::is_a<ASR::Struct_t>(*asr_owner_sym) ||
                                   ASR::is_a<ASR::EnumType_t>(*asr_owner_sym) ||
                                   ASR::is_a<ASR::Function_t>(*asr_owner_sym) ||
                                   ASR::is_a<ASR::UnionType_t>(*asr_owner_sym));
-                if( ASR::is_a<ASR::StructType_t>(*asr_owner_sym) ) {
-                    sm = ASR::down_cast<ASR::StructType_t>(asr_owner_sym);
+                if( ASR::is_a<ASR::Struct_t>(*asr_owner_sym) ) {
+                    sm = ASR::down_cast<ASR::Struct_t>(asr_owner_sym);
                     asr_owner_name = sm->m_name;
                 } else if( ASR::is_a<ASR::EnumType_t>(*asr_owner_sym) ) {
                     em = ASR::down_cast<ASR::EnumType_t>(asr_owner_sym);
@@ -968,8 +968,8 @@ public:
         ASR::ttype_t *t2 = ASRUtils::type_get_past_pointer(ASRUtils::expr_type(dt));
         ASR::symbol_t *type_sym=nullptr;
         switch (t2->type) {
-            case (ASR::ttypeType::Struct): {
-                type_sym = ASR::down_cast<ASR::Struct_t>(t2)->m_derived_type;
+            case (ASR::ttypeType::StructType): {
+                type_sym = ASR::down_cast<ASR::StructType_t>(t2)->m_derived_type;
                 break;
             }
             case (ASR::ttypeType::Class): {
@@ -978,7 +978,7 @@ public:
             }
             default :
                 require_with_loc(false,
-                    "m_dt::m_v::m_type must point to a type with a symbol table (Struct or Class)",
+                    "m_dt::m_v::m_type must point to a type with a symbol table (StructType or Class)",
                     dt->base.loc);
         }
         return get_dt_symtab(type_sym);
@@ -987,15 +987,15 @@ public:
     ASR::symbol_t *get_parent_type_dt(ASR::symbol_t *dt) {
         ASR::symbol_t *parent = nullptr;
         switch (dt->type) {
-            case (ASR::symbolType::StructType): {
+            case (ASR::symbolType::Struct): {
                 dt = ASRUtils::symbol_get_past_external(dt);
-                ASR::StructType_t* der_type = ASR::down_cast<ASR::StructType_t>(dt);
+                ASR::Struct_t* der_type = ASR::down_cast<ASR::Struct_t>(dt);
                 parent = der_type->m_parent;
                 break;
             }
             default :
                 require_with_loc(false,
-                    "m_dt::m_v::m_type must point to a Struct type",
+                    "m_dt::m_v::m_type must point to a StructType type",
                     dt->base.loc);
         }
         return parent;
@@ -1006,25 +1006,25 @@ public:
         ASR::symbol_t *type_sym=nullptr;
         ASR::symbol_t *parent = nullptr;
         switch (t2->type) {
-            case (ASR::ttypeType::Struct): {
-                type_sym = ASR::down_cast<ASR::Struct_t>(t2)->m_derived_type;
+            case (ASR::ttypeType::StructType): {
+                type_sym = ASR::down_cast<ASR::StructType_t>(t2)->m_derived_type;
                 type_sym = ASRUtils::symbol_get_past_external(type_sym);
-                ASR::StructType_t* der_type = ASR::down_cast<ASR::StructType_t>(type_sym);
+                ASR::Struct_t* der_type = ASR::down_cast<ASR::Struct_t>(type_sym);
                 parent = der_type->m_parent;
                 break;
             }
             case (ASR::ttypeType::Class): {
                 type_sym = ASR::down_cast<ASR::Class_t>(t2)->m_class_type;
                 type_sym = ASRUtils::symbol_get_past_external(type_sym);
-                if( type_sym->type == ASR::symbolType::StructType ) {
-                    ASR::StructType_t* der_type = ASR::down_cast<ASR::StructType_t>(type_sym);
+                if( type_sym->type == ASR::symbolType::Struct ) {
+                    ASR::Struct_t* der_type = ASR::down_cast<ASR::Struct_t>(type_sym);
                     parent = der_type->m_parent;
                 }
                 break;
             }
             default :
                 require_with_loc(false,
-                    "m_dt::m_v::m_type must point to a Struct type",
+                    "m_dt::m_v::m_type must point to a StructType type",
                     dt->base.loc);
         }
         return parent;
@@ -1133,13 +1133,13 @@ public:
         visit_ttype(*x.m_type);
     }
 
-    void visit_Struct(const Struct_t &x) {
+    void visit_StructType(const StructType_t &x) {
         std::string symbol_owner = "global scope";
         if( ASRUtils::get_asr_owner(x.m_derived_type) ) {
             symbol_owner = ASRUtils::symbol_name(ASRUtils::get_asr_owner(x.m_derived_type));
         }
         require(symtab_in_scope(current_symtab, x.m_derived_type),
-            "Struct::m_derived_type '" +
+            "StructType::m_derived_type '" +
             std::string(ASRUtils::symbol_name(x.m_derived_type)) +
             "' cannot point outside of its symbol table, owner: " +
             symbol_owner);

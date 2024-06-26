@@ -40,10 +40,10 @@ class CodeGenError {
 
 namespace wasm {
 
-template <class Struct>
+template <class StructType>
 class WASMDecoder {
    private:
-    Struct &self() { return static_cast<Struct &>(*this); }
+    StructType &self() { return static_cast<StructType &>(*this); }
 
    public:
     Allocator &al;

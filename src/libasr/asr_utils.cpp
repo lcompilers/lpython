@@ -414,8 +414,8 @@ void set_intrinsic(ASR::symbol_t* sym) {
             func_sym_type->m_abi = ASR::abiType::Intrinsic;
             break;
         }
-        case ASR::symbolType::StructType: {
-            ASR::StructType_t* derived_type_sym = ASR::down_cast<ASR::StructType_t>(sym);
+        case ASR::symbolType::Struct: {
+            ASR::Struct_t* derived_type_sym = ASR::down_cast<ASR::Struct_t>(sym);
             derived_type_sym->m_abi = ASR::abiType::Intrinsic;
             break;
         }
@@ -467,8 +467,8 @@ ASR::asr_t* getStructInstanceMember_t(Allocator& al, const Location& loc,
                             ASR::asr_t* v_var, ASR::symbol_t *v,
                             ASR::symbol_t* member, SymbolTable* current_scope) {
     member = ASRUtils::symbol_get_past_external(member);
-    if (ASR::is_a<ASR::StructType_t>(*member)) {
-        ASR::StructType_t* member_variable = ASR::down_cast<ASR::StructType_t>(member);
+    if (ASR::is_a<ASR::Struct_t>(*member)) {
+        ASR::Struct_t* member_variable = ASR::down_cast<ASR::Struct_t>(member);
         ASR::symbol_t *mem_es = nullptr;
         std::string mem_name = "1_" + std::string(ASRUtils::symbol_name(member));
         if (current_scope->resolve_symbol(mem_name)) {
@@ -480,7 +480,7 @@ ASR::asr_t* getStructInstanceMember_t(Allocator& al, const Location& loc,
                 nullptr, 0, member_variable->m_name, ASR::accessType::Public));
             current_scope->add_symbol(mem_name, mem_es);
         }
-        ASR::ttype_t* member_type = ASRUtils::TYPE(ASR::make_Struct_t(al,
+        ASR::ttype_t* member_type = ASRUtils::TYPE(ASRUtils::make_StructType_t_util(al,
             member_variable->base.base.loc, mem_es));
         return ASR::make_StructInstanceMember_t(al, loc, ASRUtils::EXPR(v_var),
             mem_es, ASRUtils::fix_scoped_type(al, member_type, current_scope), nullptr);
@@ -493,8 +493,8 @@ ASR::asr_t* getStructInstanceMember_t(Allocator& al, const Location& loc,
         ASR::dimension_t* m_dims = nullptr;
         size_t n_dims = ASRUtils::extract_dimensions_from_ttype(member_type, m_dims);
         switch( member_type_->type ) {
-            case ASR::ttypeType::Struct: {
-                ASR::Struct_t* der = ASR::down_cast<ASR::Struct_t>(member_type_);
+            case ASR::ttypeType::StructType: {
+                ASR::StructType_t* der = ASR::down_cast<ASR::StructType_t>(member_type_);
                 std::string der_type_name = ASRUtils::symbol_name(der->m_derived_type);
                 ASR::symbol_t* der_type_sym = current_scope->resolve_symbol(der_type_name);
                 if( der_type_sym == nullptr ) {
@@ -505,9 +505,9 @@ ASR::asr_t* getStructInstanceMember_t(Allocator& al, const Location& loc,
                         ASR::ExternalSymbol_t* m_ext = ASR::down_cast<ASR::ExternalSymbol_t>(m_external);
                         m_external = m_ext->m_external;
                         module_name = m_ext->m_module_name;
-                    } else if( ASR::is_a<ASR::StructType_t>(*m_external) ) {
+                    } else if( ASR::is_a<ASR::Struct_t>(*m_external) ) {
                         ASR::symbol_t* asr_owner = ASRUtils::get_asr_owner(m_external);
-                        if( ASR::is_a<ASR::StructType_t>(*asr_owner) ||
+                        if( ASR::is_a<ASR::Struct_t>(*asr_owner) ||
                             ASR::is_a<ASR::Module_t>(*asr_owner) ) {
                             module_name = ASRUtils::symbol_name(asr_owner);
                         }
@@ -543,10 +543,10 @@ ASR::asr_t* getStructInstanceMember_t(Allocator& al, const Location& loc,
                     } else {
                         der_ext = current_scope->get_symbol(mangled_name);
                     }
-                    ASR::asr_t* der_new = ASR::make_Struct_t(al, loc, der_ext);
+                    ASR::asr_t* der_new = ASRUtils::make_StructType_t_util(al, loc, der_ext);
                     member_type_ = ASRUtils::TYPE(der_new);
                 } else if(ASR::is_a<ASR::ExternalSymbol_t>(*der_type_sym)) {
-                    member_type_ = ASRUtils::TYPE(ASR::make_Struct_t(al, loc, der_type_sym));
+                    member_type_ = ASRUtils::TYPE(ASRUtils::make_StructType_t_util(al, loc, der_type_sym));
                 }
                 member_type = ASRUtils::make_Array_t_util(al, loc,
                     member_type_, m_dims, n_dims);
@@ -586,13 +586,13 @@ bool use_overloaded(ASR::expr_t* left, ASR::expr_t* right,
     const std::function<void (const std::string &, const Location &)> err) {
     ASR::ttype_t *left_type = ASRUtils::expr_type(left);
     ASR::ttype_t *right_type = ASRUtils::expr_type(right);
-    ASR::StructType_t *left_struct = nullptr;
-    if ( ASR::is_a<ASR::Struct_t>(*left_type) ) {
-        left_struct = ASR::down_cast<ASR::StructType_t>(
-            ASRUtils::symbol_get_past_external(ASR::down_cast<ASR::Struct_t>(
+    ASR::Struct_t *left_struct = nullptr;
+    if ( ASR::is_a<ASR::StructType_t>(*left_type) ) {
+        left_struct = ASR::down_cast<ASR::Struct_t>(
+            ASRUtils::symbol_get_past_external(ASR::down_cast<ASR::StructType_t>(
             left_type)->m_derived_type));
     } else if ( ASR::is_a<ASR::Class_t>(*left_type) ) {
-        left_struct = ASR::down_cast<ASR::StructType_t>(
+        left_struct = ASR::down_cast<ASR::Struct_t>(
             ASRUtils::symbol_get_past_external(ASR::down_cast<ASR::Class_t>(
             left_type)->m_class_type));
     }
@@ -666,8 +666,8 @@ bool use_overloaded(ASR::expr_t* left, ASR::expr_t* right,
                                 ASR::dimension_t* m_dims = nullptr;
                                 size_t n_dims = ASRUtils::extract_dimensions_from_ttype(return_type, m_dims);
                                 return_type = ASRUtils::type_get_past_array(return_type);
-                                if( ASR::is_a<ASR::Struct_t>(*return_type) ) {
-                                    ASR::Struct_t* struct_t = ASR::down_cast<ASR::Struct_t>(return_type);
+                                if( ASR::is_a<ASR::StructType_t>(*return_type) ) {
+                                    ASR::StructType_t* struct_t = ASR::down_cast<ASR::StructType_t>(return_type);
                                     if( curr_scope->get_counter() !=
                                         ASRUtils::symbol_parent_symtab(struct_t->m_derived_type)->get_counter() &&
                                         !curr_scope->resolve_symbol(ASRUtils::symbol_name(struct_t->m_derived_type)) ) {
@@ -677,7 +677,7 @@ bool use_overloaded(ASR::expr_t* left, ASR::expr_t* right,
                                                 ASRUtils::symbol_name(ASRUtils::get_asr_owner(struct_t->m_derived_type)), nullptr, 0,
                                                 ASRUtils::symbol_name(struct_t->m_derived_type), ASR::accessType::Public)));
                                     }
-                                    return_type = ASRUtils::TYPE(ASR::make_Struct_t(al, loc,
+                                    return_type = ASRUtils::TYPE(ASRUtils::make_StructType_t_util(al, loc,
                                         curr_scope->resolve_symbol(ASRUtils::symbol_name(struct_t->m_derived_type))));
                                     if( is_array ) {
                                         return_type = ASRUtils::make_Array_t_util(al, loc, return_type, m_dims, n_dims);
@@ -757,8 +757,8 @@ void process_overloaded_unary_minus_function(ASR::symbol_t* proc, ASR::expr_t* o
                 ASR::dimension_t* m_dims = nullptr;
                 size_t n_dims = ASRUtils::extract_dimensions_from_ttype(return_type, m_dims);
                 return_type = ASRUtils::type_get_past_array(return_type);
-                if( ASR::is_a<ASR::Struct_t>(*return_type) ) {
-                    ASR::Struct_t* struct_t = ASR::down_cast<ASR::Struct_t>(return_type);
+                if( ASR::is_a<ASR::StructType_t>(*return_type) ) {
+                    ASR::StructType_t* struct_t = ASR::down_cast<ASR::StructType_t>(return_type);
                     if( curr_scope->get_counter() !=
                         ASRUtils::symbol_parent_symtab(struct_t->m_derived_type)->get_counter() &&
                         !curr_scope->resolve_symbol(ASRUtils::symbol_name(struct_t->m_derived_type)) ) {
@@ -768,7 +768,7 @@ void process_overloaded_unary_minus_function(ASR::symbol_t* proc, ASR::expr_t* o
                                 ASRUtils::symbol_name(ASRUtils::get_asr_owner(struct_t->m_derived_type)), nullptr, 0,
                                 ASRUtils::symbol_name(struct_t->m_derived_type), ASR::accessType::Public)));
                     }
-                    return_type = ASRUtils::TYPE(ASR::make_Struct_t(al, loc,
+                    return_type = ASRUtils::TYPE(ASRUtils::make_StructType_t_util(al, loc,
                         curr_scope->resolve_symbol(ASRUtils::symbol_name(struct_t->m_derived_type))));
                     if( is_array ) {
                         return_type = ASRUtils::make_Array_t_util(
@@ -797,14 +797,14 @@ bool use_overloaded_unary_minus(ASR::expr_t* operand,
     ASR::ttype_t *operand_type = ASRUtils::expr_type(operand);
     ASR::symbol_t* sym = curr_scope->resolve_symbol("~sub");
     if( !sym ) {
-        if( ASR::is_a<ASR::Struct_t>(*operand_type) ) {
-            ASR::Struct_t* struct_t = ASR::down_cast<ASR::Struct_t>(operand_type);
+        if( ASR::is_a<ASR::StructType_t>(*operand_type) ) {
+            ASR::StructType_t* struct_t = ASR::down_cast<ASR::StructType_t>(operand_type);
             ASR::symbol_t* struct_t_sym = ASRUtils::symbol_get_past_external(struct_t->m_derived_type);
-            if( ASR::is_a<ASR::StructType_t>(*struct_t_sym) ) {
-                ASR::StructType_t* struct_type_t = ASR::down_cast<ASR::StructType_t>(struct_t_sym);
+            if( ASR::is_a<ASR::Struct_t>(*struct_t_sym) ) {
+                ASR::Struct_t* struct_type_t = ASR::down_cast<ASR::Struct_t>(struct_t_sym);
                 sym = struct_type_t->m_symtab->resolve_symbol("~sub");
                 while( sym == nullptr && struct_type_t->m_parent != nullptr ) {
-                    struct_type_t = ASR::down_cast<ASR::StructType_t>(
+                    struct_type_t = ASR::down_cast<ASR::Struct_t>(
                         ASRUtils::symbol_get_past_external(struct_type_t->m_parent));
                     sym = struct_type_t->m_symtab->resolve_symbol("~sub");
                 }
@@ -850,7 +850,7 @@ bool use_overloaded_unary_minus(ASR::expr_t* operand,
 }
 
 bool is_op_overloaded(ASR::binopType op, std::string& intrinsic_op_name,
-                      SymbolTable* curr_scope, ASR::StructType_t* left_struct) {
+                      SymbolTable* curr_scope, ASR::Struct_t* left_struct) {
     bool result = true;
     switch(op) {
         case ASR::binopType::Add: {
@@ -972,14 +972,14 @@ bool use_overloaded_assignment(ASR::expr_t* target, ASR::expr_t* value,
     ASR::symbol_t* sym = curr_scope->resolve_symbol("~assign");
     ASR::expr_t* expr_dt = nullptr;
     if( !sym ) {
-        if( ASR::is_a<ASR::Struct_t>(*target_type) ) {
-            ASR::StructType_t* target_struct = ASR::down_cast<ASR::StructType_t>(
-                ASRUtils::symbol_get_past_external(ASR::down_cast<ASR::Struct_t>(target_type)->m_derived_type));
+        if( ASR::is_a<ASR::StructType_t>(*target_type) ) {
+            ASR::Struct_t* target_struct = ASR::down_cast<ASR::Struct_t>(
+                ASRUtils::symbol_get_past_external(ASR::down_cast<ASR::StructType_t>(target_type)->m_derived_type));
             sym = target_struct->m_symtab->resolve_symbol("~assign");
             expr_dt = target;
-        } else if( ASR::is_a<ASR::Struct_t>(*value_type) ) {
-            ASR::StructType_t* value_struct = ASR::down_cast<ASR::StructType_t>(
-                ASRUtils::symbol_get_past_external(ASR::down_cast<ASR::Struct_t>(value_type)->m_derived_type));
+        } else if( ASR::is_a<ASR::StructType_t>(*value_type) ) {
+            ASR::Struct_t* value_struct = ASR::down_cast<ASR::Struct_t>(
+                ASRUtils::symbol_get_past_external(ASR::down_cast<ASR::StructType_t>(value_type)->m_derived_type));
             sym = value_struct->m_symtab->resolve_symbol("~assign");
             expr_dt = value;
         }
@@ -1074,9 +1074,9 @@ bool use_overloaded_file_read_write(std::string &read_write, Vec<ASR::expr_t*> a
     ASR::symbol_t* sym = curr_scope->resolve_symbol(read_write);
     ASR::expr_t* expr_dt = nullptr;
     if( sym == nullptr ) {
-        if( ASR::is_a<ASR::Struct_t>(*arg_type) ) {
-            ASR::StructType_t* arg_struct = ASR::down_cast<ASR::StructType_t>(
-                ASRUtils::symbol_get_past_external(ASR::down_cast<ASR::Struct_t>(arg_type)->m_derived_type));
+        if( ASR::is_a<ASR::StructType_t>(*arg_type) ) {
+            ASR::Struct_t* arg_struct = ASR::down_cast<ASR::Struct_t>(
+                ASRUtils::symbol_get_past_external(ASR::down_cast<ASR::StructType_t>(arg_type)->m_derived_type));
             sym = arg_struct->m_symtab->resolve_symbol(read_write);
             expr_dt = args[0];
         }
@@ -1120,13 +1120,13 @@ bool use_overloaded(ASR::expr_t* left, ASR::expr_t* right,
                     const std::function<void (const std::string &, const Location &)> err) {
     ASR::ttype_t *left_type = ASRUtils::expr_type(left);
     ASR::ttype_t *right_type = ASRUtils::expr_type(right);
-    ASR::StructType_t *left_struct = nullptr;
-    if ( ASR::is_a<ASR::Struct_t>(*left_type) ) {
-        left_struct = ASR::down_cast<ASR::StructType_t>(
-            ASRUtils::symbol_get_past_external(ASR::down_cast<ASR::Struct_t>(
+    ASR::Struct_t *left_struct = nullptr;
+    if ( ASR::is_a<ASR::StructType_t>(*left_type) ) {
+        left_struct = ASR::down_cast<ASR::Struct_t>(
+            ASRUtils::symbol_get_past_external(ASR::down_cast<ASR::StructType_t>(
             left_type)->m_derived_type));
     } else if ( ASR::is_a<ASR::Class_t>(*left_type) ) {
-        left_struct = ASR::down_cast<ASR::StructType_t>(
+        left_struct = ASR::down_cast<ASR::Struct_t>(
             ASRUtils::symbol_get_past_external(ASR::down_cast<ASR::Class_t>(
             left_type)->m_class_type));
     }
@@ -1157,9 +1157,9 @@ bool use_overloaded(ASR::expr_t* left, ASR::expr_t* right,
                         if( (left_arg_type->type == left_type->type &&
                             right_arg_type->type == right_type->type)
                         || (ASR::is_a<ASR::Class_t>(*left_arg_type) &&
-                            ASR::is_a<ASR::Struct_t>(*left_type))
+                            ASR::is_a<ASR::StructType_t>(*left_type))
                         || (ASR::is_a<ASR::Class_t>(*right_arg_type) &&
-                            ASR::is_a<ASR::Struct_t>(*right_type))) {
+                            ASR::is_a<ASR::StructType_t>(*right_type))) {
                             found = true;
                             Vec<ASR::call_arg_t> a_args;
                             a_args.reserve(al, 2);
@@ -1218,7 +1218,7 @@ bool use_overloaded(ASR::expr_t* left, ASR::expr_t* right,
 }
 
 bool is_op_overloaded(ASR::cmpopType op, std::string& intrinsic_op_name,
-                      SymbolTable* curr_scope, ASR::StructType_t *left_struct) {
+                      SymbolTable* curr_scope, ASR::Struct_t *left_struct) {
     bool result = true;
     switch(op) {
         case ASR::cmpopType::Eq: {

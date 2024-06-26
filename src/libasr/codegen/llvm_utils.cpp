@@ -159,7 +159,7 @@ namespace LCompilers {
                 llvm_mem_type = getFPType(a_kind);
                 break;
             }
-            case ASR::ttypeType::Struct: {
+            case ASR::ttypeType::StructType: {
                 llvm_mem_type = getStructType(mem_type, module);
                 break;
             }
@@ -203,7 +203,7 @@ namespace LCompilers {
         return llvm_mem_type;
     }
 
-    void LLVMUtils::createStructContext(ASR::StructType_t* der_type) {
+    void LLVMUtils::createStructTypeContext(ASR::Struct_t* der_type) {
         std::string der_type_name = std::string(der_type->m_name);
         if (name2dercontext.find(der_type_name) == name2dercontext.end() ) {
             llvm::StructType* der_type_llvm = llvm::StructType::create(context,
@@ -212,24 +212,24 @@ namespace LCompilers {
                                 der_type->m_is_packed);
             name2dercontext[der_type_name] = der_type_llvm;
             if( der_type->m_parent != nullptr ) {
-                ASR::StructType_t *par_der_type = ASR::down_cast<ASR::StructType_t>(
+                ASR::Struct_t *par_der_type = ASR::down_cast<ASR::Struct_t>(
                                                 ASRUtils::symbol_get_past_external(der_type->m_parent));
-                createStructContext(par_der_type);
+                createStructTypeContext(par_der_type);
             }
             for( size_t i = 0; i < der_type->n_members; i++ ) {
                 std::string member_name = der_type->m_members[i];
                 ASR::symbol_t* sym = der_type->m_symtab->get_symbol(member_name);
-                if (ASR::is_a<ASR::StructType_t>(*sym)) {
-                    ASR::StructType_t *d_type = ASR::down_cast<ASR::StructType_t>(sym);
-                    createStructContext(d_type);
+                if (ASR::is_a<ASR::Struct_t>(*sym)) {
+                    ASR::Struct_t *d_type = ASR::down_cast<ASR::Struct_t>(sym);
+                    createStructTypeContext(d_type);
                 }
             }
         }
     }
 
-    llvm::Type* LLVMUtils::getStructType(ASR::StructType_t* der_type, llvm::Module* module, bool is_pointer) {
+    llvm::Type* LLVMUtils::getStructType(ASR::Struct_t* der_type, llvm::Module* module, bool is_pointer) {
         std::string der_type_name = std::string(der_type->m_name);
-        createStructContext(der_type);
+        createStructTypeContext(der_type);
         if (std::find(struct_type_stack.begin(), struct_type_stack.end(),
                         der_type_name) != struct_type_stack.end()) {
             LCOMPILERS_ASSERT(name2dercontext.find(der_type_name) != name2dercontext.end());
@@ -244,7 +244,7 @@ namespace LCompilers {
             std::vector<llvm::Type*> member_types;
             int member_idx = 0;
             if( der_type->m_parent != nullptr ) {
-                ASR::StructType_t *par_der_type = ASR::down_cast<ASR::StructType_t>(
+                ASR::Struct_t *par_der_type = ASR::down_cast<ASR::Struct_t>(
                                                         ASRUtils::symbol_get_past_external(der_type->m_parent));
                 llvm::Type* par_llvm = getStructType(par_der_type, module);
                 member_types.push_back(par_llvm);
@@ -270,15 +270,15 @@ namespace LCompilers {
     }
 
     llvm::Type* LLVMUtils::getStructType(ASR::ttype_t* _type, llvm::Module* module, bool is_pointer) {
-        ASR::StructType_t* der_type;
-        if( ASR::is_a<ASR::Struct_t>(*_type) ) {
-            ASR::Struct_t* der = ASR::down_cast<ASR::Struct_t>(_type);
+        ASR::Struct_t* der_type;
+        if( ASR::is_a<ASR::StructType_t>(*_type) ) {
+            ASR::StructType_t* der = ASR::down_cast<ASR::StructType_t>(_type);
             ASR::symbol_t* der_sym = ASRUtils::symbol_get_past_external(der->m_derived_type);
-            der_type = ASR::down_cast<ASR::StructType_t>(der_sym);
+            der_type = ASR::down_cast<ASR::Struct_t>(der_sym);
         } else if( ASR::is_a<ASR::Class_t>(*_type) ) {
             ASR::Class_t* der = ASR::down_cast<ASR::Class_t>(_type);
             ASR::symbol_t* der_sym = ASRUtils::symbol_get_past_external(der->m_class_type);
-            der_type = ASR::down_cast<ASR::StructType_t>(der_sym);
+            der_type = ASR::down_cast<ASR::Struct_t>(der_sym);
         } else {
             LCOMPILERS_ASSERT(false);
             return nullptr; // silence a warning
@@ -373,7 +373,7 @@ namespace LCompilers {
         return (llvm::Type*) der_type_llvm;
     }
 
-    llvm::Type* LLVMUtils::getClassType(ASR::StructType_t* der_type, bool is_pointer) {
+    llvm::Type* LLVMUtils::getClassType(ASR::Struct_t* der_type, bool is_pointer) {
         std::string der_type_name = std::string(der_type->m_name) + std::string("_polymorphic");
         llvm::StructType* der_type_llvm = nullptr;
         if( name2dertype.find(der_type_name) != name2dertype.end() ) {
@@ -402,8 +402,8 @@ namespace LCompilers {
             } else if( ASR::is_a<ASR::ClassType_t>(*der_sym) ) {
                 ASR::ClassType_t* class_type_t = ASR::down_cast<ASR::ClassType_t>(der_sym);
                 member_types.push_back(getClassType(class_type_t, is_pointer));
-            } else if( ASR::is_a<ASR::StructType_t>(*der_sym) ) {
-                ASR::StructType_t* struct_type_t = ASR::down_cast<ASR::StructType_t>(der_sym);
+            } else if( ASR::is_a<ASR::Struct_t>(*der_sym) ) {
+                ASR::Struct_t* struct_type_t = ASR::down_cast<ASR::Struct_t>(der_sym);
                 member_types.push_back(getStructType(struct_type_t, module, is_pointer));
             }
             der_type_llvm = llvm::StructType::create(context, member_types, der_type_name);
@@ -491,7 +491,7 @@ namespace LCompilers {
                 el_type = llvm::Type::getInt1Ty(context);
                 break;
             }
-            case ASR::ttypeType::Struct: {
+            case ASR::ttypeType::StructType: {
                 el_type = getStructType(m_type_, module);
                 break;
             }
@@ -762,7 +762,7 @@ namespace LCompilers {
                 }
                 break;
             }
-            case (ASR::ttypeType::Struct) : {
+            case (ASR::ttypeType::StructType) : {
                 type = getStructType(asr_type, module, true);
                 break;
             }
@@ -1018,7 +1018,7 @@ namespace LCompilers {
                     return_type = get_type_from_ttype_t_util(ASRUtils::get_contained_type(return_var_type0), module);
                     break;
                 }
-                case (ASR::ttypeType::Struct) :
+                case (ASR::ttypeType::StructType) :
                     throw CodeGenError("Struct return type not implemented yet");
                     break;
                 case (ASR::ttypeType::Tuple) : {
@@ -1216,7 +1216,7 @@ namespace LCompilers {
                     return_type = get_type_from_ttype_t_util(ASRUtils::get_contained_type(return_var_type0), module);
                     break;
                 }
-                case (ASR::ttypeType::Struct) :
+                case (ASR::ttypeType::StructType) :
                     throw CodeGenError("Struct return type not implemented yet");
                     break;
                 case (ASR::ttypeType::Tuple) : {
@@ -1426,7 +1426,7 @@ namespace LCompilers {
                 llvm_type = llvm::Type::getInt1Ty(context);
                 break;
             }
-            case (ASR::ttypeType::Struct) : {
+            case (ASR::ttypeType::StructType) : {
                 llvm_type = getStructType(asr_type, module, false);
                 break;
             }
@@ -1950,9 +1950,9 @@ namespace LCompilers {
                 set_api->set_deepcopy(src, dest, set_type, module, name2memidx);
                 break;
             }
-            case ASR::ttypeType::Struct: {
-                ASR::Struct_t* struct_t = ASR::down_cast<ASR::Struct_t>(asr_type);
-                ASR::StructType_t* struct_type_t = ASR::down_cast<ASR::StructType_t>(
+            case ASR::ttypeType::StructType: {
+                ASR::StructType_t* struct_t = ASR::down_cast<ASR::StructType_t>(asr_type);
+                ASR::Struct_t* struct_type_t = ASR::down_cast<ASR::Struct_t>(
                     ASRUtils::symbol_get_past_external(struct_t->m_derived_type));
                 std::string der_type_name = std::string(struct_type_t->m_name);
                 while( struct_type_t != nullptr ) {
@@ -1974,8 +1974,8 @@ namespace LCompilers {
                             module, name2memidx);
                     }
                     if( struct_type_t->m_parent != nullptr ) {
-                        ASR::StructType_t* parent_struct_type_t =
-                            ASR::down_cast<ASR::StructType_t>(struct_type_t->m_parent);
+                        ASR::Struct_t* parent_struct_type_t =
+                            ASR::down_cast<ASR::Struct_t>(struct_type_t->m_parent);
                         struct_type_t = parent_struct_type_t;
                     } else {
                         struct_type_t = nullptr;

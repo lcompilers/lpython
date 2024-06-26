@@ -117,7 +117,7 @@ public:
                 READ_SYMBOL_CASE(Function)
                 READ_SYMBOL_CASE(GenericProcedure)
                 READ_SYMBOL_CASE(ExternalSymbol)
-                READ_SYMBOL_CASE(StructType)
+                READ_SYMBOL_CASE(Struct)
                 READ_SYMBOL_CASE(Variable)
                 READ_SYMBOL_CASE(ClassProcedure)
                 default : throw LCompilersException("Symbol type not supported");
@@ -142,7 +142,7 @@ public:
                 INSERT_SYMBOL_CASE(Function)
                 INSERT_SYMBOL_CASE(GenericProcedure)
                 INSERT_SYMBOL_CASE(ExternalSymbol)
-                INSERT_SYMBOL_CASE(StructType)
+                INSERT_SYMBOL_CASE(Struct)
                 INSERT_SYMBOL_CASE(Variable)
                 INSERT_SYMBOL_CASE(ClassProcedure)
                 default : throw LCompilersException("Symbol type not supported");
@@ -221,7 +221,7 @@ public:
         current_symtab = parent_symtab;
     }
 
-    void visit_StructType(const StructType_t &x) {
+    void visit_Struct(const Struct_t &x) {
         SymbolTable *parent_symtab = current_symtab;
         current_symtab = x.m_symtab;
         x.m_symtab->parent = parent_symtab;
@@ -357,8 +357,8 @@ public:
             }
 
             symbol_t *sym = nullptr;
-            if( ASR::is_a<ASR::StructType_t>(*m_sym) ) {
-                StructType_t *m = down_cast<StructType_t>(m_sym);
+            if( ASR::is_a<ASR::Struct_t>(*m_sym) ) {
+                Struct_t *m = down_cast<Struct_t>(m_sym);
                 sym = m->m_symtab->find_scoped_symbol(original_name,
                         x.n_scope_names, x.m_scope_names);
             } else if( ASR::is_a<ASR::EnumType_t>(*m_sym) ) {

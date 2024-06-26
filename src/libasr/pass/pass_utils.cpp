@@ -92,13 +92,13 @@ namespace LCompilers {
          #define fix_struct_type_scope() array_ref_type = ASRUtils::type_get_past_array( \
                 ASRUtils::type_get_past_pointer( \
                     ASRUtils::type_get_past_allocatable(array_ref_type))); \
-            if( current_scope && ASR::is_a<ASR::Struct_t>(*array_ref_type) ) { \
-                ASR::Struct_t* struct_t = ASR::down_cast<ASR::Struct_t>(array_ref_type); \
+            if( current_scope && ASR::is_a<ASR::StructType_t>(*array_ref_type) ) { \
+                ASR::StructType_t* struct_t = ASR::down_cast<ASR::StructType_t>(array_ref_type); \
                 if( current_scope->get_counter() != ASRUtils::symbol_parent_symtab( \
                         struct_t->m_derived_type)->get_counter() ) { \
                     ASR::symbol_t* m_derived_type = current_scope->resolve_symbol( \
                         ASRUtils::symbol_name(struct_t->m_derived_type)); \
-                    ASR::ttype_t* struct_type = ASRUtils::TYPE(ASR::make_Struct_t(al, \
+                    ASR::ttype_t* struct_type = ASRUtils::TYPE(ASRUtils::make_StructType_t_util(al, \
                         struct_t->base.base.loc, m_derived_type)); \
                     array_ref_type = struct_type; \
                 } \
@@ -681,7 +681,7 @@ namespace LCompilers {
             ASR::dimension_t* m_dims;
             int n_dims = ASRUtils::extract_dimensions_from_ttype(x_mv_type, m_dims);
             bool is_data_only_array = ASRUtils::is_fixed_size_array(m_dims, n_dims) && ASRUtils::get_asr_owner(arr_expr) &&
-                                    ASR::is_a<ASR::StructType_t>(*ASRUtils::get_asr_owner(arr_expr));
+                                    ASR::is_a<ASR::Struct_t>(*ASRUtils::get_asr_owner(arr_expr));
             ASR::ttype_t* int32_type = ASRUtils::TYPE(ASR::make_Integer_t(al, arr_expr->base.loc, 4));
             if (is_data_only_array) {
                 const Location& loc = arr_expr->base.loc;

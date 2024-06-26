@@ -286,8 +286,8 @@ class ReplaceNestedVisitor: public ASR::CallReplacerOnExpressionsVisitor<Replace
                 ASR::ttype_t* var_type = ASRUtils::type_get_past_allocatable(
                     ASRUtils::type_get_past_pointer(var->m_type));
                 ASR::ttype_t* var_type_ = ASRUtils::type_get_past_array(var_type);
-                if( ASR::is_a<ASR::Struct_t>(*var_type_) ) {
-                    ASR::Struct_t* struct_t = ASR::down_cast<ASR::Struct_t>(var_type_);
+                if( ASR::is_a<ASR::StructType_t>(*var_type_) ) {
+                    ASR::StructType_t* struct_t = ASR::down_cast<ASR::StructType_t>(var_type_);
                     if( current_scope->get_counter() != ASRUtils::symbol_parent_symtab(
                             struct_t->m_derived_type)->get_counter() ) {
                         ASR::symbol_t* m_derived_type = current_scope->get_symbol(
@@ -306,7 +306,7 @@ class ReplaceNestedVisitor: public ASR::CallReplacerOnExpressionsVisitor<Replace
                             m_derived_type = ASR::down_cast<ASR::symbol_t>(fn);
                             current_scope->add_symbol(fn_name, m_derived_type);
                         }
-                        var_type_ = ASRUtils::TYPE(ASR::make_Struct_t(al, struct_t->base.base.loc,
+                        var_type_ = ASRUtils::TYPE(ASRUtils::make_StructType_t_util(al, struct_t->base.base.loc,
                                     m_derived_type));
                         if( ASR::is_a<ASR::Array_t>(*var_type) ) {
                             ASR::Array_t* array_t = ASR::down_cast<ASR::Array_t>(var_type);

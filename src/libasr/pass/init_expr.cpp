@@ -69,7 +69,7 @@ class ReplaceInitExpr: public ASR::BaseExprReplacer<ReplaceInitExpr> {
         *current_expr = nullptr;
     }
 
-    void replace_StructTypeConstructor(ASR::StructTypeConstructor_t* x) {
+    void replace_StructConstructor(ASR::StructConstructor_t* x) {
         if( symtab2decls.find(current_scope) == symtab2decls.end() ) {
             Vec<ASR::stmt_t*> result_vec_;
             result_vec_.reserve(al, 0);
@@ -77,7 +77,7 @@ class ReplaceInitExpr: public ASR::BaseExprReplacer<ReplaceInitExpr> {
         }
         Vec<ASR::stmt_t*>* result_vec = &symtab2decls[current_scope];
         bool remove_original_statement = false;
-        PassUtils::ReplacerUtils::replace_StructTypeConstructor(
+        PassUtils::ReplacerUtils::replace_StructConstructor(
             x, this, true, remove_original_statement, result_vec,
             perform_cast, cast_kind, casted_type);
         *current_expr = nullptr;
@@ -182,7 +182,7 @@ class InitExprVisitor : public ASR::CallReplacerOnExpressionsVisitor<InitExprVis
             }
             if( !(symbolic_value &&
                   (ASR::is_a<ASR::ArrayConstant_t>(*symbolic_value) ||
-                   ASR::is_a<ASR::StructTypeConstructor_t>(*symbolic_value) ||
+                   ASR::is_a<ASR::StructConstructor_t>(*symbolic_value) ||
                    ASR::is_a<ASR::ArrayConstructor_t>(*symbolic_value))) ||
                  (ASR::is_a<ASR::Module_t>(*asr_owner) &&
                   (ASR::is_a<ASR::ArrayConstant_t>(*symbolic_value) ||
