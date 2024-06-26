@@ -568,6 +568,9 @@ namespace LCompilers {
             llvm::Value* get_pointer_to_occupancy(llvm::Value* dict) = 0;
 
             virtual
+            llvm::Value* get_pointer_to_keymask(llvm::Value* dict) = 0;
+
+            virtual
             llvm::Value* get_pointer_to_capacity(llvm::Value* dict) = 0;
 
             virtual
@@ -651,6 +654,13 @@ namespace LCompilers {
                 ASR::ttype_t* value_asr_type, llvm::Module& module,
                 std::map<std::string, std::map<std::string, int>>& name2memidx,
                 bool key_or_value) = 0;
+
+            virtual
+            llvm::Type* get_key_value_pair_type(ASR::ttype_t* key_asr_type, ASR::ttype_t* value_pair_type) = 0;
+
+            virtual
+            llvm::Value* get_pointer_to_key_value_pairs(llvm::Value* dict) = 0;
+
 
             virtual ~LLVMDictInterface() = 0;
 
@@ -746,6 +756,10 @@ namespace LCompilers {
                 std::map<std::string, std::map<std::string, int>>& name2memidx,
                 bool key_or_value);
 
+            llvm::Type* get_key_value_pair_type(ASR::ttype_t* key_asr_type, ASR::ttype_t* value_pair_type);
+
+            llvm::Value* get_pointer_to_key_value_pairs(llvm::Value* dict);
+
             virtual ~LLVMDict();
     };
 
@@ -794,8 +808,6 @@ namespace LCompilers {
 
             llvm::Value* get_pointer_to_number_of_filled_buckets(llvm::Value* dict);
 
-            llvm::Value* get_pointer_to_key_value_pairs(llvm::Value* dict);
-
             llvm::Value* get_pointer_to_rehash_flag(llvm::Value* dict);
 
             void deepcopy_key_value_pair_linked_list(llvm::Value* srci, llvm::Value* desti,
@@ -812,8 +824,6 @@ namespace LCompilers {
                 llvm::Module& module, ASR::ttype_t* key_asr_type);
 
             llvm::Type* get_key_value_pair_type(std::string key_type_code, std::string value_type_code);
-
-            llvm::Type* get_key_value_pair_type(ASR::ttype_t* key_asr_type, ASR::ttype_t* value_pair_type);
 
             void dict_init_given_initial_capacity(std::string key_type_code, std::string value_type_code,
                 llvm::Value* dict, llvm::Module* module, llvm::Value* initial_capacity);
@@ -896,6 +906,10 @@ namespace LCompilers {
                 std::map<std::string, std::map<std::string, int>>& name2memidx,
                 bool key_or_value);
 
+            llvm::Type* get_key_value_pair_type(ASR::ttype_t* key_asr_type, ASR::ttype_t* value_pair_type);
+
+            llvm::Value* get_pointer_to_key_value_pairs(llvm::Value* dict);
+
             virtual ~LLVMDictSeparateChaining();
 
     };
@@ -942,6 +956,9 @@ namespace LCompilers {
 
             virtual
             llvm::Value* get_pointer_to_capacity(llvm::Value* set) = 0;
+
+            virtual
+            llvm::Value* get_pointer_to_mask(llvm::Value* set) = 0;
 
             llvm::Value* get_el_hash(llvm::Value* capacity, llvm::Value* el,
                 ASR::ttype_t* el_asr_type, llvm::Module& module);

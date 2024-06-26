@@ -5510,6 +5510,7 @@ public:
         ASR::expr_t *target=ASRUtils::EXPR(tmp);
         Vec<ASR::stmt_t*> body;
         bool is_explicit_iterator_required = false;
+        bool for_each = false;
         std::string explicit_iter_name = "";
         std::string loop_src_var_name = "";
         ASR::expr_t *loop_end = nullptr, *loop_start = nullptr, *inc = nullptr;
@@ -5552,10 +5553,20 @@ public:
 
         } else if (AST::is_a<AST::Name_t>(*x.m_iter)) {
             loop_src_var_name = AST::down_cast<AST::Name_t>(x.m_iter)->m_id;
-            loop_end = for_iterable_helper(loop_src_var_name, x.base.base.loc, explicit_iter_name);
-            for_iter_type = loop_end;
-            LCOMPILERS_ASSERT(loop_end);
-            is_explicit_iterator_required = true;
+            auto loop_src_var_symbol = current_scope->resolve_symbol(loop_src_var_name);
+            LCOMPILERS_ASSERT(loop_src_var_symbol!=nullptr);
+            auto loop_src_var_ttype = ASRUtils::symbol_type(loop_src_var_symbol);
+
+            if (ASR::is_a<ASR::Dict_t>(*loop_src_var_ttype) || 
+                ASR::is_a<ASR::Set_t>(*loop_src_var_ttype)) {
+                is_explicit_iterator_required = false;
+                for_each = true;
+            } else {
+                loop_end = for_iterable_helper(loop_src_var_name, x.base.base.loc, explicit_iter_name);
+                for_iter_type = loop_end;
+                LCOMPILERS_ASSERT(loop_end);
+                is_explicit_iterator_required = true;
+            }
         } else if (AST::is_a<AST::Subscript_t>(*x.m_iter)) {
             AST::Subscript_t *sbt = AST::down_cast<AST::Subscript_t>(x.m_iter);
             if (AST::is_a<AST::Name_t>(*sbt->m_value)) {
@@ -5585,11 +5596,17 @@ public:
                 } else {
                     global_init.push_back(al, assign);
                 }
-                loop_end = for_iterable_helper(tmp_assign_name, x.base.base.loc, explicit_iter_name);
-                for_iter_type = loop_end;
-                LCOMPILERS_ASSERT(loop_end);
                 loop_src_var_name = tmp_assign_name;
-                is_explicit_iterator_required = true;
+                if (ASR::is_a<ASR::Dict_t>(*loop_src_var_ttype) || 
+                    ASR::is_a<ASR::Set_t>(*loop_src_var_ttype)) {
+                    is_explicit_iterator_required = false;
+                    for_each = true;
+                } else {
+                    loop_end = for_iterable_helper(loop_src_var_name, x.base.base.loc, explicit_iter_name);
+                    for_iter_type = loop_end;
+                    LCOMPILERS_ASSERT(loop_end);
+                    is_explicit_iterator_required = true;
+                }
             } else {
                 throw SemanticError("Only Name is supported for Subscript",
                     sbt->base.base.loc);
@@ -5634,8 +5651,11 @@ public:
         if (!is_explicit_iterator_required) {
             a_kind = ASRUtils::extract_kind_from_ttype_t(ASRUtils::expr_type(target));
         }
-        ASR::do_loop_head_t head = make_do_loop_head(loop_start, loop_end, inc, a_kind,
-                                            x.base.base.loc);
+
+        ASR::do_loop_head_t head;
+        if (!for_each)
+            head = make_do_loop_head(loop_start, loop_end, inc, a_kind,
+                                                x.base.base.loc);
 
         if (target) {
             ASR::Var_t* loop_var = ASR::down_cast<ASR::Var_t>(target);
@@ -5691,6 +5711,15 @@ public:
             body.reserve(al, 1);
             body.push_back(al, decls);
         }
+
+        if (for_each) {
+            current_scope = parent_scope;
+            ASR::expr_t* loop_src_var = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, current_scope->resolve_symbol(loop_src_var_name)));
+            tmp = ASR::make_ForEach_t(al, x.base.base.loc, target, loop_src_var, body.p, body.size());
+            for_each = false;
+            return;
+        }
+
         Vec<ASR::stmt_t*> orelse;
         orelse.reserve(al, x.n_orelse);
         transform_stmts(orelse, x.n_orelse, x.m_orelse);

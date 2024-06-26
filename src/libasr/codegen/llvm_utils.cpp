@@ -2075,6 +2075,11 @@ namespace LCompilers {
         return get_key_value_pair_type(key_type_code, value_type_code);
     }
 
+    llvm::Type* LLVMDict::get_key_value_pair_type(
+        ASR::ttype_t* /*key_asr_type*/, ASR::ttype_t* /*value_asr_type*/) {
+        return nullptr;
+    }
+
     llvm::Type* LLVMDictSeparateChaining::get_dict_type(
         std::string key_type_code, std::string value_type_code,
         int32_t key_type_size, int32_t value_type_size,
@@ -2154,6 +2159,10 @@ namespace LCompilers {
 
     llvm::Value* LLVMDict::get_key_list(llvm::Value* dict) {
         return llvm_utils->create_gep(dict, 1);
+    }
+
+    llvm::Value* LLVMDict::get_pointer_to_key_value_pairs(llvm::Value* /*dict*/) {
+        return nullptr;
     }
 
     llvm::Value* LLVMDictSeparateChaining::get_pointer_to_key_value_pairs(llvm::Value* dict) {
