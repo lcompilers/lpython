@@ -2568,9 +2568,14 @@ public:
         ASR::Variable_t* v_variable = ASR::down_cast<ASR::Variable_t>(v_sym);
         std::string var_name = v_variable->m_name;
         ASR::ttype_t* type = v_variable->m_type;
-        if (!init_expr && ASR::is_a<ASR::Dict_t>(*type)) {
-            init_expr = ASRUtils::EXPR(ASR::make_DictConstant_t(al, loc, 
-                  nullptr, 0, nullptr, 0, type));
+        if (!init_expr) {
+            if (ASR::is_a<ASR::Dict_t>(*type)) {
+                init_expr = ASRUtils::EXPR(ASR::make_DictConstant_t(al, loc, 
+                      nullptr, 0, nullptr, 0, type));
+            } else if (ASR::is_a<ASR::Set_t>(*type)) {
+                init_expr = ASRUtils::EXPR(ASR::make_SetConstant_t(al, loc,
+                      nullptr, 0, type));
+            }
         }
 
         if( init_expr ) {
