@@ -2932,13 +2932,11 @@ public:
         assign_asr_target = assign_asr_target_copy;
     }
 
-    void visit_Constructor(const AST::FunctionDef_t &x){
+    void visit_Constructor(const AST::FunctionDef_t &x,
+        Vec<char*>& member_names, Vec<ASR::call_arg_t> &member_init){
         if(x.n_decorator_list>0){
             throw SemanticError("Decorators for __init__ not implemented" , x.base.base.loc);
         }
-        // if( !x.m_returns ){
-        //     throw SemanticError("__init__ should return None " , x.base.base.loc);
-        // }
         if( x.m_args.n_args > 1 ){
             throw SemanticError("Only default constructors implemented " , x.base.base.loc);
         }
@@ -2948,23 +2946,85 @@ public:
             if (! AST::is_a<AST::AnnAssign_t>(*x.m_body[i]) ){
                 throw SemanticError("Only AnnAssign implemented in __init__ " , x.m_body[i]->base.loc);
             }
-            AST::AnnAssign_t* ann_assign = AST::down_cast<AST::AnnAssign_t>(x.m_body[i]);
-            if (!AST::is_a<AST::Name_t>(*ann_assign->m_target)) {
-                if(AST::is_a<AST::Attribute_t>(*ann_assign->m_target)){
-                    AST::Attribute_t* a = AST::down_cast<AST::Attribute_t>(ann_assign->m_target);
-                    var_name = a->m_attr;
-                }else{
-                    throw SemanticError("Only Name supported as target in AnnAssign inside struct", x.m_body[i]->base.loc);
+            AST::AnnAssign_t ann_assign = *AST::down_cast<AST::AnnAssign_t>(x.m_body[i]);
+            if(AST::is_a<AST::Attribute_t>(*ann_assign.m_target)){
+                AST::Attribute_t* a = AST::down_cast<AST::Attribute_t>(ann_assign.m_target);
+                if(AST::is_a<AST::Name_t>(*a->m_value)){
+                    AST::Name_t* n = AST::down_cast<AST::Name_t>(a->m_value);
+                    if(std::string(n->m_id)!=self_name && current_scope->resolve_symbol(std::string(n->m_id))){
+                        throw SemanticError("Symbol not declared" , x.m_body[i]->base.loc);
+                    }
                 }
+                var_name = a->m_attr;
+                member_names.push_back(al,s2c(al,var_name));
+            }else{
+                throw SemanticError("Only Name supported as target in AnnAssign inside struct", x.m_body[i]->base.loc);
             }
-            
             ASR::expr_t* init_expr = nullptr;
             ASR::abiType abi=ASR::abiType::Source;
-            visit_AnnAssignUtil(*ann_assign, var_name, init_expr, false, abi, true);
+            bool is_allocatable = false, is_const = false;
+            ASR::ttype_t *type = nullptr;
+            type = ast_expr_to_asr_type(ann_assign.m_annotation->base.loc, *ann_assign.m_annotation, is_allocatable, is_const, true);
+            if (ASR::is_a<ASR::FunctionType_t>(*type)) {
+                ASR::FunctionType_t* fn_type = ASR::down_cast<ASR::FunctionType_t>(type);
+                handle_lambda_function_declaration(var_name, fn_type, ann_assign.m_value, ann_assign.base.base.loc);
+                return;
+            }
+            ASR::storage_typeType storage_type = ASR::storage_typeType::Default;
+            if (is_allocatable) {
+                type = ASRUtils::TYPE(ASR::make_Allocatable_t(al, type->base.loc,
+                    ASRUtils::type_get_past_pointer(type)));
+            }
+            if (is_const) {
+                storage_type = ASR::storage_typeType::Parameter;
+            }
+
+            create_add_variable_to_scope(var_name, type,
+                    ann_assign.base.base.loc, abi, storage_type);
+
+            tmp = nullptr;
+            if (ann_assign.m_value) {
+                this->visit_expr(*ann_assign.m_value);
+            } else {
+                if (ASR::is_a<ASR::StructType_t>(*type)) {
+                    //`s` must be initialized with an instance of S
+                    throw  SemanticError("`" + var_name + "` must be initialized with an instance of " +
+                            ASRUtils::type_to_str_python(type), ann_assign.base.base.loc);
+                }
+            }
+            if (tmp && ASR::is_a<ASR::expr_t>(*tmp)) {
+                ASR::expr_t* value = ASRUtils::EXPR(tmp);
+                ASR::ttype_t* underlying_type = type;
+                cast_helper(underlying_type, value, value->base.loc);
+                if (!ASRUtils::check_equal_type(underlying_type, ASRUtils::expr_type(value), true)) {
+                    std::string ltype = ASRUtils::type_to_str_python(underlying_type);
+                    std::string rtype = ASRUtils::type_to_str_python(ASRUtils::expr_type(value));
+                    diag.add(diag::Diagnostic(
+                        "Type mismatch in annotation-assignment, the types must be compatible",
+                        diag::Level::Error, diag::Stage::Semantic, {
+                            diag::Label("type mismatch ('" + ltype + "' and '" + rtype + "')",
+                                    {ann_assign.m_target->base.loc, value->base.loc})
+                        })
+                    );
+                    throw SemanticAbort();
+                }
+                init_expr = value;
+            }
+            
+            if ( is_const ) {
+                process_variable_init_val(current_scope->get_symbol(var_name), ann_assign.base.base.loc, init_expr);
+            }
+
+            if ( !(tmp && ASR::is_a<ASR::stmt_t>(*tmp) &&
+                (ASR::is_a<ASR::CPtrToPointer_t>(*ASR::down_cast<ASR::stmt_t>(tmp)) ||
+                ASR::is_a<ASR::Allocate_t>(*ASR::down_cast<ASR::stmt_t>(tmp)))) ) {
+                tmp = nullptr;
+            }
             ASR::symbol_t* var_sym = current_scope->resolve_symbol(var_name);
             ASR::call_arg_t c_arg;
             c_arg.loc = var_sym->base.loc;
             c_arg.m_value = init_expr;
+            member_init.push_back(al, c_arg);
             init_expr = nullptr;
         }
 
@@ -2998,7 +3058,7 @@ public:
                     member_fn_names.push_back(al, f->m_name);
                     std::string f_name = f->m_name;
                     if (f_name == "__init__"){
-                        this->visit_Constructor(*f);
+                        this->visit_Constructor(*f,member_names,member_init);
                     }else{
                         this->visit_stmt(*x.m_body[i]);
                     }
@@ -3255,8 +3315,6 @@ public:
                 current_scope->add_symbol(x_m_name, class_type);
             }
         } else {
-            get_alignment(x.m_decorator_list, x.n_decorator_list,
-                            aligned_expr, is_packed);
             if( x.n_bases > 0 ) {
                 throw SemanticError("Inheritance in classes isn't supported yet.",
                                     x.base.base.loc);
@@ -3270,7 +3328,10 @@ public:
                 current_scope = st->m_symtab;
                 for( size_t i = 0; i < x.n_body; i++ ) {
                     if ( AST::is_a<AST::FunctionDef_t>(*x.m_body[i]) ) {
-                        this->visit_stmt(*x.m_body[i]);
+                        AST::FunctionDef_t* f = AST::down_cast<AST::FunctionDef_t>(x.m_body[i]);
+                        if ( std::string(f->m_name) != std::string("__init__") ){
+                            this->visit_stmt(*x.m_body[i]);
+                        }
                     }
                 }
             } else {
@@ -3299,7 +3360,11 @@ public:
                                                 class_abi, ASR::accessType::Public,
                                                 is_packed, false, member_init.p, member_init.size(), aligned_expr,
                                                 nullptr));
-                parent_scope->add_or_overwrite_symbol(x.m_name, class_type);
+                parent_scope->add_symbol(x.m_name, class_type);
+                ASR::symbol_t* sym = current_scope->resolve_symbol(x_m_name);
+                ASR::Struct_t *st = ASR::down_cast<ASR::Struct_t>(sym);
+                st->m_initializers = member_init.p;
+                st->n_initializers = member_init.size();
             }
             current_scope = parent_scope;
         }
