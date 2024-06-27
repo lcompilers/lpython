@@ -1588,6 +1588,21 @@ public:
                                  LLVM::is_llvm_struct(dict_type->m_value_type));
     }
 
+    void visit_SetPop(const ASR::SetPop_t& x) {
+        ASR::Set_t* set_type = ASR::down_cast<ASR::Set_t>(
+                                    ASRUtils::expr_type(x.m_a));
+        int64_t ptr_loads_copy = ptr_loads;
+        ptr_loads = 0;
+        this->visit_expr(*x.m_a);
+        llvm::Value* pset = tmp;
+
+        ptr_loads = ptr_loads_copy;
+
+        llvm_utils->set_set_api(set_type);
+        tmp = llvm_utils->set_api->pop_item(pset, *module, set_type->m_type);
+    }
+    
+
     void visit_ListLen(const ASR::ListLen_t& x) {
         if (x.m_value) {
             this->visit_expr(*x.m_value);

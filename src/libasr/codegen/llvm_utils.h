@@ -1005,6 +1005,9 @@ namespace LCompilers {
                 llvm::Module& module, ASR::ttype_t* el_asr_type, bool throw_key_error) = 0;
 
             virtual
+            llvm::Value* pop_item(llvm::Value* set, llvm::Module& module, ASR::ttype_t* el_asr_type) = 0;
+
+            virtual
             void set_deepcopy(
                 llvm::Value* src, llvm::Value* dest,
                 ASR::Set_t* set_type, llvm::Module* module,
@@ -1076,6 +1079,8 @@ namespace LCompilers {
             void remove_item(
                 llvm::Value* set, llvm::Value* el,
                 llvm::Module& module, ASR::ttype_t* el_asr_type, bool throw_key_error);
+
+            llvm::Value* pop_item(llvm::Value* set, llvm::Module& module, ASR::ttype_t* el_asr_type);
 
             void set_deepcopy(
                 llvm::Value* src, llvm::Value* dest,
@@ -1159,6 +1164,8 @@ namespace LCompilers {
             void remove_item(
                 llvm::Value* set, llvm::Value* el,
                 llvm::Module& module, ASR::ttype_t* el_asr_type, bool throw_key_error);
+
+            llvm::Value* pop_item(llvm::Value* set, llvm::Module& module, ASR::ttype_t* el_asr_type);
 
             void set_deepcopy(
                 llvm::Value* src, llvm::Value* dest,
