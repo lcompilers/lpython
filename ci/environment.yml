@@ -7,10 +7,9 @@ dependencies:
   - toml
   - pytest
   - jupyter
-  - xeus=1.0.1
-  - xtl
-  - nlohmann_json
-  - cppzmq
+  - xeus=5.1.0
+  - xeus-zmq=3.0.0
+  - nlohmann_json=3.11.3
   - jupyter_kernel_test
   - xonsh
   - re2c
