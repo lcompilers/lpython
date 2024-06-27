@@ -1,3 +1,5 @@
+#include "llvm_utils.h"
+#include <functional>
 #include <libasr/assert.h>
 #include <libasr/codegen/llvm_utils.h>
 #include <libasr/codegen/llvm_array_utils.h>
@@ -1945,6 +1947,11 @@ namespace LCompilers {
                 dict_api->dict_deepcopy(src, dest, dict_type, module, name2memidx);
                 break ;
             }
+            case ASR::ttypeType::Set: {
+                ASR::Set_t *set_type = ASR::down_cast<ASR::Set_t>(asr_type);
+                set_api->set_deepcopy(src, dest, set_type, module, name2memidx);
+                break;
+            }
             case ASR::ttypeType::StructType: {
                 ASR::StructType_t* struct_t = ASR::down_cast<ASR::StructType_t>(asr_type);
                 ASR::Struct_t* struct_type_t = ASR::down_cast<ASR::Struct_t>(
@@ -2075,6 +2082,11 @@ namespace LCompilers {
         return get_key_value_pair_type(key_type_code, value_type_code);
     }
 
+    llvm::Type* LLVMDict::get_key_value_pair_type(
+        ASR::ttype_t* /*key_asr_type*/, ASR::ttype_t* /*value_asr_type*/) {
+        return nullptr;
+    }
+
     llvm::Type* LLVMDictSeparateChaining::get_dict_type(
         std::string key_type_code, std::string value_type_code,
         int32_t key_type_size, int32_t value_type_size,
@@ -2154,6 +2166,10 @@ namespace LCompilers {
 
     llvm::Value* LLVMDict::get_key_list(llvm::Value* dict) {
         return llvm_utils->create_gep(dict, 1);
+    }
+
+    llvm::Value* LLVMDict::get_pointer_to_key_value_pairs(llvm::Value* /*dict*/) {
+        return nullptr;
     }
 
     llvm::Value* LLVMDictSeparateChaining::get_pointer_to_key_value_pairs(llvm::Value* dict) {
@@ -4384,6 +4400,25 @@ namespace LCompilers {
         llvm_utils->start_new_block(loopend);
     }
   
+    void LLVMDict::dict_clear(llvm::Value *dict, llvm::Module *module,
+        ASR::ttype_t *key_asr_type, ASR::ttype_t* value_asr_type) {
+        llvm::Value* key_list = get_key_list(dict);
+        llvm::Value* value_list = get_value_list(dict);
+        llvm::Value* key_mask = LLVM::CreateLoad(*builder, get_pointer_to_keymask(dict));
+        llvm_utils->list_api->free_data(key_list, *module);
+        llvm_utils->list_api->free_data(value_list, *module);
+        LLVM::lfortran_free(context, *module, *builder, key_mask);
+
+        std::string key_type_code = ASRUtils::get_type_code(key_asr_type);
+        std::string value_type_code = ASRUtils::get_type_code(value_asr_type);
+        dict_init(key_type_code, value_type_code, dict, module, 0);
+    }
+
+    void LLVMDictSeparateChaining::dict_clear(llvm::Value *dict, llvm::Module *module,
+        ASR::ttype_t *key_asr_type, ASR::ttype_t* value_asr_type) {
+        dict_init(ASRUtils::get_type_code(key_asr_type), 
+            ASRUtils::get_type_code(value_asr_type), dict, module, 0);
+    }
 
     llvm::Value* LLVMList::read_item(llvm::Value* list, llvm::Value* pos,
                                      bool enable_bounds_checking,
@@ -6878,6 +6913,22 @@ namespace LCompilers {
 
         // end
         llvm_utils->start_new_block(loopend);
+    }
+
+    void LLVMSetLinearProbing::set_clear(llvm::Value* set, llvm::Module* module, ASR::ttype_t* el_asr_type) {
+
+        llvm::Value* el_list = get_el_list(set);
+
+        llvm_utils->list_api->free_data(el_list, *module);
+        LLVM::lfortran_free(context, *module, *builder, LLVM::CreateLoad(*builder, get_pointer_to_mask(set)));
+
+        set_init(ASRUtils::get_type_code(el_asr_type), set, module, 0);
+    }
+
+    void LLVMSetSeparateChaining::set_clear(llvm::Value* set, llvm::Module* module, ASR::ttype_t* el_asr_type) {
+        LLVM::lfortran_free(context, *module, *builder, LLVM::CreateLoad(*builder, get_pointer_to_mask(set)));
+        llvm::Value* llvm_zero = llvm::ConstantInt::get(llvm::Type::getInt32Ty(context), llvm::APInt(32, 0));
+        set_init_given_initial_capacity(ASRUtils::get_type_code(el_asr_type), set, module, llvm_zero);
     }
 
     llvm::Value* LLVMSetInterface::len(llvm::Value* set) {

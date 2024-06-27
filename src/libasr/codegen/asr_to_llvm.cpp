@@ -1637,6 +1637,29 @@ public:
         }
     }
 
+    void visit_DictClear(const ASR::DictClear_t& x) {
+        int64_t ptr_loads_copy = ptr_loads;
+        ptr_loads = 0;
+        this->visit_expr(*x.m_a);
+        llvm::Value* pdict = tmp;
+        ptr_loads = ptr_loads_copy;
+        ASR::Dict_t* dict_type = ASR::down_cast<ASR::Dict_t>(ASRUtils::expr_type(x.m_a));
+
+        llvm_utils->dict_api->dict_clear(pdict, module.get(), dict_type->m_key_type, dict_type->m_value_type);
+    }
+
+    void visit_SetClear(const ASR::SetClear_t& x) {
+        int64_t ptr_loads_copy = ptr_loads;
+        ptr_loads = 0;
+        this->visit_expr(*x.m_a);
+        llvm::Value* pset = tmp;
+        ptr_loads = ptr_loads_copy;
+        ASR::Set_t *set_type = ASR::down_cast<ASR::Set_t>(
+            ASRUtils::expr_type(x.m_a));
+
+        llvm_utils->set_api->set_clear(pset, module.get(), set_type->m_type);
+    }
+
     void visit_DictContains(const ASR::DictContains_t &x) {
         if (x.m_value) {
             this->visit_expr(*x.m_value);
@@ -3571,6 +3594,62 @@ public:
                             line = v->base.base.loc.first;
                             column = 0;
                         }
+
+                        if (ASR::is_a<ASR::List_t>(*v->m_type)) {
+                          std::string member_type_name;
+                          uint32_t member_type_size, member_type_encoding;
+
+                          llvm::DIType *int_type = DBuilder->createBasicType("integer", 32, llvm::dwarf::DW_ATE_signed);
+                          ASR::ttype_t *asr_member_type = ASRUtils::get_contained_type(v->m_type);
+
+                          get_type_debug_info(asr_member_type, member_type_name,
+                              member_type_size, member_type_encoding);
+                          llvm::DIType *member_type = DBuilder->createBasicType(member_type_name, member_type_size, member_type_encoding);
+
+                          llvm::DIType *member_pointer_type = DBuilder->createPointerType(member_type, 64, 0, 0, member_type_name+"*");
+                          llvm::DIType *list_type = DBuilder->createStructType(
+                              debug_current_scope, "list", debug_Unit, line, 64+member_type_size, 0, llvm::DINode::FlagZero, nullptr, DBuilder->getOrCreateArray({
+                  DBuilder->createMemberType(debug_Unit, "i32", debug_Unit, line, 32, 0, 0, llvm::DINode::FlagZero, int_type),
+                  DBuilder->createMemberType(debug_Unit, "i32", debug_Unit, line, 32, 32, 0, llvm::DINode::FlagZero, int_type),
+                  DBuilder->createMemberType(debug_Unit, "member", debug_Unit, line, 64, 64, 0, llvm::DINode::FlagZero, member_pointer_type)
+                                }));
+                          llvm::DILocalVariable *debug_var = DBuilder->createParameterVariable(debug_current_scope,
+                              v->m_name, ++debug_arg_count, debug_Unit, line, list_type, true);
+                          DBuilder->insertDeclare(ptr, debug_var, DBuilder->createExpression(),
+                              llvm::DILocation::get(debug_current_scope->getContext(),
+                              line, 0, debug_current_scope), builder->GetInsertBlock());
+                        } else if (ASR::is_a<ASR::Set_t>(*v->m_type)) {
+                          std::string member_type_name;
+                          uint32_t member_type_size, member_type_encoding;
+
+                          llvm::DIType *int_type = DBuilder->createBasicType("integer", 32, llvm::dwarf::DW_ATE_signed);
+                          llvm::DIType *int_8_ptr_type = DBuilder->createPointerType(
+                              DBuilder->createBasicType("char", 8, llvm::dwarf::DW_ATE_unsigned_char), 64, 0, 0, "i8*");
+                          ASR::ttype_t *asr_member_type = ASRUtils::get_contained_type(v->m_type);
+
+                          get_type_debug_info(asr_member_type, member_type_name,
+                              member_type_size, member_type_encoding);
+                          llvm::DIType *member_type = DBuilder->createBasicType(member_type_name, member_type_size, member_type_encoding);
+
+                          llvm::DIType *member_pointer_type = DBuilder->createPointerType(member_type, 64, 0, 0, member_type_name+"*");
+                          llvm::DIType *list_type = DBuilder->createStructType(
+                              debug_current_scope, "list", debug_Unit, line, 64+member_type_size, 0, llvm::DINode::FlagZero, nullptr, DBuilder->getOrCreateArray({
+                  DBuilder->createMemberType(debug_Unit, "i32", debug_Unit, line, 32, 0, 0, llvm::DINode::FlagZero, int_type),
+                  DBuilder->createMemberType(debug_Unit, "i32", debug_Unit, line, 32, 32, 0, llvm::DINode::FlagZero, int_type),
+                  DBuilder->createMemberType(debug_Unit, "member", debug_Unit, line, 64, 64, 0, llvm::DINode::FlagZero, member_pointer_type)
+                                }));
+                          llvm::DIType *set_type = DBuilder->createStructType(
+                              debug_current_scope, "list", debug_Unit, line, 64+member_type_size+32+64, 0, llvm::DINode::FlagZero, nullptr, DBuilder->getOrCreateArray({
+                  DBuilder->createMemberType(debug_Unit, "i32", debug_Unit, line, 32, 0, 0, llvm::DINode::FlagZero, int_type),
+                  DBuilder->createMemberType(debug_Unit, "list", debug_Unit, line, 128, 32, 0, llvm::DINode::FlagZero, list_type),
+                  DBuilder->createMemberType(debug_Unit, "i8*", debug_Unit, line, 64, 160, 0, llvm::DINode::FlagZero, int_8_ptr_type)}));
+                          llvm::DILocalVariable *debug_var = DBuilder->createParameterVariable(debug_current_scope,
+                              v->m_name, ++debug_arg_count, debug_Unit, line, set_type, true);
+                          DBuilder->insertDeclare(ptr, debug_var, DBuilder->createExpression(),
+                              llvm::DILocation::get(debug_current_scope->getContext(),
+                              line, 0, debug_current_scope), builder->GetInsertBlock());
+                        } else {
+
                         std::string type_name;
                         uint32_t type_size, type_encoding;
                         get_type_debug_info(v->m_type, type_name, type_size,
@@ -3581,6 +3660,7 @@ public:
                         DBuilder->insertDeclare(ptr, debug_var, DBuilder->createExpression(),
                             llvm::DILocation::get(debug_current_scope->getContext(),
                             line, 0, debug_current_scope), builder->GetInsertBlock());
+                        }
                     }
 
                     if( ASR::is_a<ASR::StructType_t>(*v->m_type) ) {
@@ -5823,6 +5903,189 @@ public:
             }
             call_lcompilers_free_strings();
         });
+        strings_to_be_deallocated.reserve(al, n);
+        strings_to_be_deallocated.n = n;
+        strings_to_be_deallocated.p = strings_to_be_deallocated_copy;
+    }
+
+    void visit_ForEach(const ASR::ForEach_t &x) {
+        llvm::Value **strings_to_be_deallocated_copy = strings_to_be_deallocated.p;
+        size_t n = strings_to_be_deallocated.n;
+        strings_to_be_deallocated.reserve(al, 1);
+
+        int64_t ptr_loads_copy = ptr_loads;
+        ptr_loads = 0;
+        this->visit_expr(*x.m_container);
+        llvm::Value *pcontainer = tmp;
+        ptr_loads = 0;
+        this->visit_expr(*x.m_var);
+        llvm::Value *pvar = tmp;
+        ptr_loads = ptr_loads_copy;
+
+        if (ASR::is_a<ASR::Dict_t>(*ASRUtils::expr_type(x.m_container))) {
+            ASR::Dict_t *dict_type = ASR::down_cast<ASR::Dict_t>(
+                ASRUtils::expr_type(x.m_container));
+            ASR::ttype_t *key_type = dict_type->m_key_type;
+            llvm::Value *capacity = LLVM::CreateLoad(*builder,
+                llvm_utils->dict_api->get_pointer_to_capacity(pcontainer));
+            llvm::Value *key_mask = LLVM::CreateLoad(*builder, 
+                llvm_utils->dict_api->get_pointer_to_keymask(pcontainer));
+            llvm::Value *key_list = llvm_utils->dict_api->get_key_list(pcontainer);
+            llvm::AllocaInst *idx_ptr = builder->CreateAlloca(
+                llvm::Type::getInt32Ty(context), nullptr);
+            LLVM::CreateStore(*builder, llvm::ConstantInt::get(
+                llvm::Type::getInt32Ty(context), llvm::APInt(32, 0)), idx_ptr);
+
+            if (llvm_utils->dict_api == llvm_utils->dict_api_sc) {
+                llvm::Value *key_value_pairs = LLVM::CreateLoad(*builder, 
+                  llvm_utils->dict_api->get_pointer_to_key_value_pairs(pcontainer));
+                llvm::Type* kv_pair_type = 
+                    llvm_utils->dict_api->get_key_value_pair_type(key_type, dict_type->m_value_type);
+                llvm::AllocaInst *chain_itr = builder->CreateAlloca(
+                    llvm::Type::getInt8PtrTy(context), nullptr);
+
+                create_loop(nullptr, [=](){
+                    call_lcompilers_free_strings();
+                    return builder->CreateICmpSGT(capacity, LLVM::CreateLoad(*builder, idx_ptr));
+                }, [&](){
+                llvm::Value* idx = LLVM::CreateLoad(*builder, idx_ptr);
+                llvm::Value* key_mask_value = LLVM::CreateLoad(*builder,
+                    llvm_utils->create_ptr_gep(key_mask, idx));
+                llvm::Value* is_key_set = builder->CreateICmpEQ(key_mask_value,
+                    llvm::ConstantInt::get(llvm::Type::getInt8Ty(context), llvm::APInt(8, 1)));
+
+                llvm_utils->create_if_else(is_key_set, [&]() {
+                    llvm::Value* dict_i = llvm_utils->create_ptr_gep(key_value_pairs, idx);
+                    llvm::Value* kv_ll_i8 = builder->CreateBitCast(dict_i, llvm::Type::getInt8PtrTy(context));
+                    LLVM::CreateStore(*builder, kv_ll_i8, chain_itr);
+
+                    llvm::BasicBlock *loop2head = llvm::BasicBlock::Create(context, "loop2.head");
+                    llvm::BasicBlock *loop2body = llvm::BasicBlock::Create(context, "loop2.body");
+                    llvm::BasicBlock *loop2end = llvm::BasicBlock::Create(context, "loop2.end");
+
+                    // head
+                    llvm_utils->start_new_block(loop2head);
+                    {
+                        llvm::Value *cond = builder->CreateICmpNE(
+                            LLVM::CreateLoad(*builder, chain_itr),
+                            llvm::ConstantPointerNull::get(llvm::Type::getInt8PtrTy(context))
+                        );
+                        builder->CreateCondBr(cond, loop2body, loop2end);
+                    }
+
+                    // body
+                    llvm_utils->start_new_block(loop2body);
+                    {
+                        llvm::Value* kv_struct_i8 = LLVM::CreateLoad(*builder, chain_itr);
+                        llvm::Value* kv_struct = builder->CreateBitCast(kv_struct_i8, kv_pair_type->getPointerTo());
+                        llvm::Value* kv_el = llvm_utils->create_gep(kv_struct, 0);
+                        if( !LLVM::is_llvm_struct(key_type) ) {
+                            kv_el = LLVM::CreateLoad(*builder, kv_el);
+                        }
+                        LLVM::CreateStore(*builder, kv_el, pvar);
+                        for (size_t i=0; i<x.n_body; i++) {
+                            this->visit_stmt(*x.m_body[i]);
+                        }
+                        call_lcompilers_free_strings();
+                        llvm::Value* next_kv_struct = LLVM::CreateLoad(*builder, llvm_utils->create_gep(kv_struct, 2));
+                        LLVM::CreateStore(*builder, next_kv_struct, chain_itr);
+                    }
+
+                    builder->CreateBr(loop2head);
+
+                    // end
+                    llvm_utils->start_new_block(loop2end);
+                }, [=]() {
+                });
+                llvm::Value* tmp = builder->CreateAdd(idx,
+                            llvm::ConstantInt::get(context, llvm::APInt(32, 1)));
+                LLVM::CreateStore(*builder, tmp, idx_ptr);
+                    
+                });
+
+            } else {
+                create_loop(nullptr, [=](){
+                    call_lcompilers_free_strings();
+                    return builder->CreateICmpSGT(capacity, LLVM::CreateLoad(*builder, idx_ptr));
+                }, [&](){
+                llvm::Value *idx = LLVM::CreateLoad(*builder, idx_ptr);
+                llvm::Value *key_mask_value = LLVM::CreateLoad(*builder,
+                    llvm_utils->create_ptr_gep(key_mask, idx));
+                llvm::Value *is_key_skip = builder->CreateICmpEQ(key_mask_value,
+                    llvm::ConstantInt::get(llvm::Type::getInt8Ty(context),
+                    llvm::APInt(8, 3)));
+                llvm::Value *is_key_set = builder->CreateICmpNE(key_mask_value,
+                    llvm::ConstantInt::get(llvm::Type::getInt8Ty(context),
+                    llvm::APInt(8, 0)));
+
+                llvm::Value *el_exists = builder->CreateAnd(is_key_set,
+                    builder->CreateNot(is_key_skip));
+
+                llvm_utils->create_if_else(el_exists, [&]() {
+                    LLVM::CreateStore(*builder, llvm_utils->list_api->read_item(key_list, idx,
+                        false, *module, LLVM::is_llvm_struct(key_type)), pvar);
+
+                    for (size_t i=0; i<x.n_body; i++) {
+                        this->visit_stmt(*x.m_body[i]);
+                    }
+                    call_lcompilers_free_strings();
+                }, [=](){});
+
+                idx = builder->CreateAdd(idx, 
+                    llvm::ConstantInt::get(context, llvm::APInt(32, 1)));
+                LLVM::CreateStore(*builder, idx, idx_ptr);
+                });
+            }
+        } else if (ASR::is_a<ASR::Set_t>(*ASRUtils::expr_type(x.m_container))) {
+            ASR::Set_t *set_type = ASR::down_cast<ASR::Set_t>(
+                ASRUtils::expr_type(x.m_container));
+            ASR::ttype_t *el_type = set_type->m_type;
+
+            llvm::AllocaInst *idx_ptr = builder->CreateAlloca(
+                llvm::Type::getInt32Ty(context), nullptr);
+            LLVM::CreateStore(*builder, llvm::ConstantInt::get(
+                llvm::Type::getInt32Ty(context), llvm::APInt(32, 0)), idx_ptr);
+
+            llvm::Value *capacity = LLVM::CreateLoad(*builder, 
+                llvm_utils->set_api->get_pointer_to_capacity(pcontainer));
+            llvm::Value *el_list = llvm_utils->set_api->get_el_list(pcontainer);
+            llvm::Value *el_mask = LLVM::CreateLoad(*builder,
+                llvm_utils->set_api->get_pointer_to_mask(pcontainer));
+
+            create_loop(nullptr, [=](){
+                call_lcompilers_free_strings();
+                return builder->CreateICmpSGT(capacity, LLVM::CreateLoad(*builder, idx_ptr));
+            }, [&](){
+            llvm::Value *idx = LLVM::CreateLoad(*builder, idx_ptr);
+            llvm::Value *el_mask_value = LLVM::CreateLoad(*builder,
+                llvm_utils->create_ptr_gep(el_mask, idx));
+            llvm::Value *is_el_skip = builder->CreateICmpEQ(el_mask_value,
+                llvm::ConstantInt::get(llvm::Type::getInt8Ty(context),
+                llvm::APInt(8, 3)));
+            llvm::Value *is_el_set = builder->CreateICmpNE(el_mask_value,
+                llvm::ConstantInt::get(llvm::Type::getInt8Ty(context),
+                llvm::APInt(8, 0)));
+
+            llvm::Value *el_exists = builder->CreateAnd(is_el_set,
+                builder->CreateNot(is_el_skip));
+
+            llvm_utils->create_if_else(el_exists, [&]() {
+                LLVM::CreateStore(*builder, llvm_utils->list_api->read_item(el_list, idx,
+                    false, *module, LLVM::is_llvm_struct(el_type)), pvar);
+
+                for (size_t i=0; i<x.n_body; i++) {
+                    this->visit_stmt(*x.m_body[i]);
+                }
+                call_lcompilers_free_strings();
+            }, [=](){});
+
+            idx = builder->CreateAdd(idx, 
+                llvm::ConstantInt::get(context, llvm::APInt(32, 1)));
+            LLVM::CreateStore(*builder, idx, idx_ptr);
+            });
+        } else {
+            throw CodeGenError("Only sets and dictionaries are supported with this loop for now.");
+        }
         strings_to_be_deallocated.reserve(al, n);
         strings_to_be_deallocated.n = n;
         strings_to_be_deallocated.p = strings_to_be_deallocated_copy;
