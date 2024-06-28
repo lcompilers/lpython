@@ -23,13 +23,16 @@ if (NOT (CMAKE_BUILD_TYPE STREQUAL "Debug" OR
     message(FATAL_ERROR "CMAKE_BUILD_TYPE must be one of: Debug, Release (current value: '${CMAKE_BUILD_TYPE}')")
 endif ()
 
-if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-    set(LPYTHON_CXX_NO_RTTI_FLAG "-fno-rtti")
-elseif (CMAKE_CXX_COMPILER_ID MATCHES Clang)
-    set(LPYTHON_CXX_NO_RTTI_FLAG "-fno-rtti")
-elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
-    set(LPYTHON_CXX_NO_RTTI_FLAG "/GR-")
-endif ()
+# xeus does use `dynamic_cast` and thus needs rtti (otherwise it segfaults)
+if (NOT WITH_XEUS)
+    if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+        set(LPYTHON_CXX_NO_RTTI_FLAG "-fno-rtti")
+    elseif (CMAKE_CXX_COMPILER_ID MATCHES Clang)
+        set(LPYTHON_CXX_NO_RTTI_FLAG "-fno-rtti")
+    elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+        set(LPYTHON_CXX_NO_RTTI_FLAG "/GR-")
+    endif ()
+endif(NOT WITH_XEUS)
 
 
 # For CMAKE_INSTALL_BINDIR:
@@ -205,19 +208,20 @@ if (WITH_LLVM)
     set(HAVE_LFORTRAN_LLVM yes)
 endif()
 
-# XEUS (Fortran kernel)
+# XEUS (Python kernel)
 set(WITH_XEUS no CACHE BOOL "Build with XEUS support")
 if (WITH_XEUS)
-    find_package(xeus 0.24.1 REQUIRED)
-    set(HAVE_LFORTRAN_XEUS yes)
+    find_package(xeus 5.1.0 REQUIRED)
+    find_package(xeus-zmq 3.0.0 REQUIRED)
+    set(HAVE_LPYTHON_XEUS yes)
 
     # Generate kernel.json with correct paths
     configure_file (
-        "${CMAKE_CURRENT_SOURCE_DIR}/share/jupyter/kernels/fortran/kernel.json.in"
-        "${CMAKE_CURRENT_BINARY_DIR}/share/jupyter/kernels/fortran/kernel.json"
+        "${CMAKE_CURRENT_SOURCE_DIR}/share/jupyter/kernels/python/kernel.json.in"
+        "${CMAKE_CURRENT_BINARY_DIR}/share/jupyter/kernels/python/kernel.json"
     )
 
-    # Configuration and data directories for Jupyter and LFortran
+    # Configuration and data directories for Jupyter and LPython
     set(XJUPYTER_DATA_DIR "share/jupyter" CACHE STRING "Jupyter data directory")
 
     # Install Jupyter kernelspecs
