@@ -4724,7 +4724,10 @@ namespace LCompilers {
 
         /* Equivalent in C++:
          * int i = start;
-         * while(list[i] != item && end_point > i) {
+         * while(end_point > i) {
+         *     if (list[i] == item) {
+         *         break;
+         *     }
          *     i++;
          * }
          *
@@ -4740,28 +4743,38 @@ namespace LCompilers {
         // head
         llvm_utils->start_new_block(loophead);
         {
-            llvm::Value* left_arg = read_item(list, LLVM::CreateLoad(*builder, i),
-                false, module, LLVM::is_llvm_struct(item_type));
-            llvm::Value* is_item_not_equal = builder->CreateNot(
-                                                llvm_utils->is_equal_by_value(
-                                                    left_arg, item,
-                                                    module, item_type)
-                                            );
-            llvm::Value *cond = builder->CreateAnd(is_item_not_equal,
-                                                   builder->CreateICmpSGT(end_point,
-                                                    LLVM::CreateLoad(*builder, i)));
+            llvm::Value *cond = builder->CreateICmpSGT(end_point,
+                                  LLVM::CreateLoad(*builder, i));
             builder->CreateCondBr(cond, loopbody, loopend);
         }
 
         // body
         llvm_utils->start_new_block(loopbody);
         {
-            tmp = builder->CreateAdd(
-                        LLVM::CreateLoad(*builder, i),
-                        llvm::ConstantInt::get(context, llvm::APInt(32, 1)));
-            LLVM::CreateStore(*builder, tmp, i);
+            llvm::Value* left_arg = read_item(list, LLVM::CreateLoad(*builder, i),
+                false, module, LLVM::is_llvm_struct(item_type));
+
+            llvm::Value* is_item_equal = llvm_utils->is_equal_by_value(
+                                                    left_arg, item,
+                                                    module, item_type);
+
+            llvm::BasicBlock *ifblock = llvm::BasicBlock::Create(context, "if");
+            llvm::BasicBlock *elseblock = llvm::BasicBlock::Create(context, "else");
+
+            llvm_utils->start_new_block(ifblock);
+            {
+                builder->CreateCondBr(is_item_equal, loopend, elseblock);
+            }
+            
+            llvm_utils->start_new_block(elseblock);
+            {
+                tmp = builder->CreateAdd(
+                            LLVM::CreateLoad(*builder, i),
+                            llvm::ConstantInt::get(context, llvm::APInt(32, 1)));
+                LLVM::CreateStore(*builder, tmp, i);
+                builder->CreateBr(loophead);
+            }
         }
-        builder->CreateBr(loophead);
 
         // end
         llvm_utils->start_new_block(loopend);
@@ -4775,6 +4788,9 @@ namespace LCompilers {
             std::string message = "The list does not contain the element: ";
             llvm::Value *fmt_ptr = builder->CreateGlobalStringPtr("ValueError: %s%d\n");
             llvm::Value *fmt_ptr2 = builder->CreateGlobalStringPtr(message);
+            if (ASR::is_a<ASR::Character_t>(*item_type)) {
+                fmt_ptr = builder->CreateGlobalStringPtr("ValueError: %s%s\n");
+            }
             print_error(context, module, *builder, {fmt_ptr, fmt_ptr2, item});
             int exit_code_int = 1;
             llvm::Value *exit_code = llvm::ConstantInt::get(context,
