@@ -2530,7 +2530,6 @@ public:
                 }
             }
         }
-        return;
     }
 
     bool is_dataclass(AST::expr_t** decorators, size_t n) {
@@ -2932,7 +2931,7 @@ public:
         assign_asr_target = assign_asr_target_copy;
     }
 
-    void visit_Constructor(const AST::FunctionDef_t &x,
+    void handle_init_method(const AST::FunctionDef_t &x,
         Vec<char*>& member_names, Vec<ASR::call_arg_t> &member_init){
         if(x.n_decorator_list>0){
             throw SemanticError("Decorators for __init__ not implemented" , x.base.base.loc);
@@ -2965,32 +2964,12 @@ public:
             bool is_allocatable = false, is_const = false;
             ASR::ttype_t *type = nullptr;
             type = ast_expr_to_asr_type(ann_assign.m_annotation->base.loc, *ann_assign.m_annotation, is_allocatable, is_const, true);
-            if (ASR::is_a<ASR::FunctionType_t>(*type)) {
-                ASR::FunctionType_t* fn_type = ASR::down_cast<ASR::FunctionType_t>(type);
-                handle_lambda_function_declaration(var_name, fn_type, ann_assign.m_value, ann_assign.base.base.loc);
-                return;
-            }
             ASR::storage_typeType storage_type = ASR::storage_typeType::Default;
-            if (is_allocatable) {
-                type = ASRUtils::TYPE(ASR::make_Allocatable_t(al, type->base.loc,
-                    ASRUtils::type_get_past_pointer(type)));
-            }
-            if (is_const) {
-                storage_type = ASR::storage_typeType::Parameter;
-            }
-
             create_add_variable_to_scope(var_name, type,
                     ann_assign.base.base.loc, abi, storage_type);
-
             tmp = nullptr;
             if (ann_assign.m_value) {
                 this->visit_expr(*ann_assign.m_value);
-            } else {
-                if (ASR::is_a<ASR::StructType_t>(*type)) {
-                    //`s` must be initialized with an instance of S
-                    throw  SemanticError("`" + var_name + "` must be initialized with an instance of " +
-                            ASRUtils::type_to_str_python(type), ann_assign.base.base.loc);
-                }
             }
             if (tmp && ASR::is_a<ASR::expr_t>(*tmp)) {
                 ASR::expr_t* value = ASRUtils::EXPR(tmp);
@@ -3009,16 +2988,6 @@ public:
                     throw SemanticAbort();
                 }
                 init_expr = value;
-            }
-            
-            if ( is_const ) {
-                process_variable_init_val(current_scope->get_symbol(var_name), ann_assign.base.base.loc, init_expr);
-            }
-
-            if ( !(tmp && ASR::is_a<ASR::stmt_t>(*tmp) &&
-                (ASR::is_a<ASR::CPtrToPointer_t>(*ASR::down_cast<ASR::stmt_t>(tmp)) ||
-                ASR::is_a<ASR::Allocate_t>(*ASR::down_cast<ASR::stmt_t>(tmp)))) ) {
-                tmp = nullptr;
             }
             ASR::symbol_t* var_sym = current_scope->resolve_symbol(var_name);
             ASR::call_arg_t c_arg;
@@ -3058,7 +3027,7 @@ public:
                     member_fn_names.push_back(al, f->m_name);
                     std::string f_name = f->m_name;
                     if (f_name == "__init__"){
-                        this->visit_Constructor(*f,member_names,member_init);
+                        this->handle_init_method(*f,member_names,member_init);
                     }else{
                         this->visit_stmt(*x.m_body[i]);
                     }
@@ -3295,7 +3264,7 @@ public:
             if( is_bindc_class(x.m_decorator_list, x.n_decorator_list) ) {
                 class_abi = ASR::abiType::BindC;
             }
-            visit_ClassMembers(x, member_names, member_fn_names, struct_dependencies, member_init, false, class_abi);//TODO add member functions to the list
+            visit_ClassMembers(x, member_names, member_fn_names, struct_dependencies, member_init, false, class_abi);
             LCOMPILERS_ASSERT(member_init.size() == member_names.size());
             ASR::symbol_t* class_type = ASR::down_cast<ASR::symbol_t>(ASR::make_Struct_t(al,
                                             x.base.base.loc, current_scope, x.m_name,
@@ -3320,16 +3289,14 @@ public:
                                     x.base.base.loc);
             }
             SymbolTable *parent_scope = current_scope;
-            ASR::symbol_t* sym = current_scope->resolve_symbol(x_m_name);
-            if( sym && !(ASR::is_a<ASR::Variable_t>(*sym) &&
-                ASR::is_a<ASR::TypeParameter_t>(*ASR::down_cast<ASR::Variable_t>(sym)->m_type))) {
+            if( ASR::symbol_t* sym = current_scope->resolve_symbol(x_m_name) ) {
                 LCOMPILERS_ASSERT(ASR::is_a<ASR::Struct_t>(*sym));
                 ASR::Struct_t *st = ASR::down_cast<ASR::Struct_t>(sym);
                 current_scope = st->m_symtab;
                 for( size_t i = 0; i < x.n_body; i++ ) {
                     if ( AST::is_a<AST::FunctionDef_t>(*x.m_body[i]) ) {
                         AST::FunctionDef_t* f = AST::down_cast<AST::FunctionDef_t>(x.m_body[i]);
-                        if ( std::string(f->m_name) != std::string("__init__") ){
+                        if ( std::string(f->m_name) != std::string("__init__") ) {
                             this->visit_stmt(*x.m_body[i]);
                         }
                     }
@@ -3346,7 +3313,6 @@ public:
                 struct_dependencies.reserve(al, 1);
                 ASR::abiType class_abi = ASR::abiType::Source;
                 if( is_bindc_class(x.m_decorator_list, x.n_decorator_list) ) {
-                    class_abi = ASR::abiType::BindC;
                     throw SemanticError("Bindc in classes is not supported,instead use the dataclass decorator ",
                                         x.base.base.loc);
                 }
@@ -3361,10 +3327,6 @@ public:
                                                 is_packed, false, member_init.p, member_init.size(), aligned_expr,
                                                 nullptr));
                 parent_scope->add_symbol(x.m_name, class_type);
-                ASR::symbol_t* sym = current_scope->resolve_symbol(x_m_name);
-                ASR::Struct_t *st = ASR::down_cast<ASR::Struct_t>(sym);
-                st->m_initializers = member_init.p;
-                st->n_initializers = member_init.size();
             }
             current_scope = parent_scope;
         }
@@ -5138,8 +5100,6 @@ public:
         v.n_dependencies = dependencies.size();
         rt_vec.clear();
     }
-
-    void visit_Constructor(const AST::FunctionDef_t & /*x*/){}
 
     void visit_FunctionDef(const AST::FunctionDef_t &x) {
         SymbolTable *old_scope = current_scope;
