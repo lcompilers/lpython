@@ -853,5 +853,24 @@ std::string pickle_token(int token, const YYSTYPE &yystype)
     return t;
 }
 
+std::string get_token_name(int token, const LFortran::YYSTYPE &yystype) {
+  std::string token_name;
+  if (token == yytokentype::TK_NAME) {
+    token_name += yystype.string.str();
+  } else if (token == yytokentype::TK_INTEGER) {
+    token_name += BigInt::int_to_str(yystype.n);
+  } else if (token == yytokentype::TK_REAL) {
+    token_name += std::to_string(yystype.f);
+  } else if (token == yytokentype::TK_IMAG_NUM) {
+    token_name += std::to_string(yystype.f) + "j";
+  } else if (token == yytokentype::TK_STRING) {
+    token_name = "\"" + yystype.string.str() + "\"";
+  } else if (token == yytokentype::TK_TYPE_COMMENT) {
+    token_name = "\"" + yystype.string.str() + "\"";
+  }
+  return token_name;
+}
+
+
 
 } // namespace LCompilers::LPython
