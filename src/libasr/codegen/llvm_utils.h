@@ -330,6 +330,8 @@ namespace LCompilers {
                 ASR::ttype_t* asr_type, llvm::Module* module,
                 std::map<std::string, std::map<std::string, int>>& name2memidx);
 
+            void free_data(llvm::Value* src, ASR::ttype_t* asr_type, llvm::Module* module);
+
 
             // Note: `llvm_utils->create_if_else` and `create_loop` are optional APIs
             // that do not have to be used. Many times, for more complicated
@@ -445,7 +447,7 @@ namespace LCompilers {
 
             llvm::Value* pop_last(llvm::Value* list, ASR::ttype_t* list_type, llvm::Module& module);
 
-            void list_clear(llvm::Value* list);
+            void list_clear(llvm::Value* list, ASR::ttype_t *item_type, llvm::Module *module);
 
             void reverse(llvm::Value* list, llvm::Module& module);
 
@@ -461,7 +463,7 @@ namespace LCompilers {
             llvm::Value* count(llvm::Value* list, llvm::Value* item,
                                 ASR::ttype_t* item_type, llvm::Module& module);
 
-            void free_data(llvm::Value* list, llvm::Module& module);
+            void free_data(llvm::Value* list, ASR::ttype_t *item_type, llvm::Module& module);
 
             llvm::Value* check_list_equality(llvm::Value* l1, llvm::Value* l2, ASR::ttype_t *item_type,
                 llvm::LLVMContext& context, llvm::IRBuilder<>* builder, llvm::Module& module);
@@ -666,6 +668,9 @@ namespace LCompilers {
             virtual
             llvm::Value* get_pointer_to_key_value_pairs(llvm::Value* dict) = 0;
 
+            virtual
+            void dict_free(llvm::Value *dict, llvm::Module *module, ASR::ttype_t *key_asr_type, ASR::ttype_t *value_pair_type) = 0;
+
 
             virtual ~LLVMDictInterface() = 0;
 
@@ -766,6 +771,8 @@ namespace LCompilers {
             llvm::Type* get_key_value_pair_type(ASR::ttype_t* key_asr_type, ASR::ttype_t* value_pair_type);
 
             llvm::Value* get_pointer_to_key_value_pairs(llvm::Value* dict);
+
+            void dict_free(llvm::Value *dict, llvm::Module *module, ASR::ttype_t *key_asr_type, ASR::ttype_t *value_pair_type);
 
             virtual ~LLVMDict();
     };
@@ -919,6 +926,8 @@ namespace LCompilers {
 
             llvm::Value* get_pointer_to_key_value_pairs(llvm::Value* dict);
 
+            void dict_free(llvm::Value *dict, llvm::Module *module, ASR::ttype_t *key_asr_type, ASR::ttype_t *value_pair_type);
+
             virtual ~LLVMDictSeparateChaining();
 
     };
@@ -1025,6 +1034,9 @@ namespace LCompilers {
             virtual
             void set_is_set_present(bool value);
 
+            virtual
+            void set_free(llvm::Value *set, llvm::Module *module, ASR::ttype_t *el_asr_type) = 0;
+
             virtual ~LLVMSetInterface() = 0;
 
     };
@@ -1088,6 +1100,8 @@ namespace LCompilers {
                 std::map<std::string, std::map<std::string, int>>& name2memidx);
 
             void set_clear(llvm::Value *set, llvm::Module *module, ASR::ttype_t *el_asr_type);
+
+            void set_free(llvm::Value *set, llvm::Module *module, ASR::ttype_t *el_asr_type);
 
             ~LLVMSetLinearProbing();
     };
@@ -1173,6 +1187,8 @@ namespace LCompilers {
                 std::map<std::string, std::map<std::string, int>>& name2memidx);
 
             void set_clear(llvm::Value *set, llvm::Module *module, ASR::ttype_t *el_asr_type);
+
+            void set_free(llvm::Value *set, llvm::Module *module, ASR::ttype_t *el_asr_type);
 
             ~LLVMSetSeparateChaining();
     };

@@ -1992,6 +1992,50 @@ namespace LCompilers {
         }
     }
 
+    void LLVMUtils::free_data(llvm::Value* src, ASR::ttype_t* asr_type, llvm::Module* module) {
+        switch( ASRUtils::type_get_past_array(asr_type)->type ) {
+            // TODO: change this if explicit freeing is required for any of the below
+            case ASR::ttypeType::Integer:
+            case ASR::ttypeType::UnsignedInteger:
+            case ASR::ttypeType::Real:
+            case ASR::ttypeType::Logical:
+            case ASR::ttypeType::Complex:
+            case ASR::ttypeType::Character:
+            case ASR::ttypeType::FunctionType:
+            case ASR::ttypeType::CPtr:
+            case ASR::ttypeType::Allocatable: {
+                break ;
+            }
+            case ASR::ttypeType::Tuple: {
+                // TODO: implement tuple free
+                break ;
+            }
+            case ASR::ttypeType::List: {
+                ASR::List_t* list_type = ASR::down_cast<ASR::List_t>(asr_type);
+                list_api->free_data(src, list_type->m_type, *module);
+                break ;
+            }
+            case ASR::ttypeType::Dict: {
+                ASR::Dict_t* dict_type = ASR::down_cast<ASR::Dict_t>(asr_type);
+                set_dict_api(dict_type);
+                dict_api->dict_free(src, module, dict_type->m_key_type,
+                    dict_type->m_value_type);
+                break ;
+            }
+            case ASR::ttypeType::Set: {
+                ASR::Set_t *set_type = ASR::down_cast<ASR::Set_t>(asr_type);
+                set_set_api(set_type);
+                set_api->set_free(src, module, set_type->m_type);
+                break ;
+            }
+            case ASR::ttypeType::StructType: {
+                // TODO: implement struct free and call destructor if required
+                break ;
+            }
+                            
+        }
+    }
+
     LLVMList::LLVMList(llvm::LLVMContext& context_,
         LLVMUtils* llvm_utils_,
         llvm::IRBuilder<>* builder_):
@@ -3822,8 +3866,8 @@ namespace LCompilers {
         llvm_utils->start_new_block(loopend);
 
         // TODO: Free key_list, value_list and key_mask
-        llvm_utils->list_api->free_data(key_list, *module);
-        llvm_utils->list_api->free_data(value_list, *module);
+        llvm_utils->list_api->free_data(key_list, key_asr_type, *module);
+        llvm_utils->list_api->free_data(value_list, value_asr_type, *module);
         LLVM::lfortran_free(context, *module, *builder, key_mask);
         LLVM::CreateStore(*builder, LLVM::CreateLoad(*builder, new_key_list), key_list);
         LLVM::CreateStore(*builder, LLVM::CreateLoad(*builder, new_value_list), value_list);
@@ -3865,6 +3909,8 @@ namespace LCompilers {
                                                                        llvm::APInt(32, 3)));
         capacity = builder->CreateAdd(capacity, llvm::ConstantInt::get(llvm::Type::getInt32Ty(context),
                                                                        llvm::APInt(32, 1)));
+        LLVM::lfortran_free(context, *module, *builder, old_key_mask_value);
+        LLVM::lfortran_free(context, *module, *builder, LLVM::CreateLoad(*builder, get_pointer_to_key_value_pairs(dict)));
         dict_init_given_initial_capacity(ASRUtils::get_type_code(key_asr_type),
                                          ASRUtils::get_type_code(value_asr_type),
                                          dict, module, capacity);
@@ -4405,8 +4451,8 @@ namespace LCompilers {
         llvm::Value* key_list = get_key_list(dict);
         llvm::Value* value_list = get_value_list(dict);
         llvm::Value* key_mask = LLVM::CreateLoad(*builder, get_pointer_to_keymask(dict));
-        llvm_utils->list_api->free_data(key_list, *module);
-        llvm_utils->list_api->free_data(value_list, *module);
+        llvm_utils->list_api->free_data(key_list, key_asr_type, *module);
+        llvm_utils->list_api->free_data(value_list, value_asr_type, *module);
         LLVM::lfortran_free(context, *module, *builder, key_mask);
 
         std::string key_type_code = ASRUtils::get_type_code(key_asr_type);
@@ -4416,8 +4462,25 @@ namespace LCompilers {
 
     void LLVMDictSeparateChaining::dict_clear(llvm::Value *dict, llvm::Module *module,
         ASR::ttype_t *key_asr_type, ASR::ttype_t* value_asr_type) {
+        LLVM::lfortran_free(context, *module, *builder, LLVM::CreateLoad(*builder, get_pointer_to_keymask(dict)));
+        LLVM::lfortran_free(context, *module, *builder, LLVM::CreateLoad(*builder, get_pointer_to_key_value_pairs(dict)));
         dict_init(ASRUtils::get_type_code(key_asr_type), 
             ASRUtils::get_type_code(value_asr_type), dict, module, 0);
+    }
+
+    void LLVMDict::dict_free(llvm::Value *dict, llvm::Module *module,
+        ASR::ttype_t *key_asr_type, ASR::ttype_t* value_asr_type) {
+        llvm::Value* key_list = get_key_list(dict);
+        llvm::Value* value_list = get_value_list(dict);
+        llvm::Value* key_mask = LLVM::CreateLoad(*builder, get_pointer_to_keymask(dict));
+        llvm_utils->list_api->free_data(key_list, key_asr_type, *module);
+        llvm_utils->list_api->free_data(value_list, value_asr_type, *module);
+        LLVM::lfortran_free(context, *module, *builder, key_mask);
+        
+    }
+
+    void LLVMDictSeparateChaining::dict_free(llvm::Value *dict, llvm::Module *module,
+        ASR::ttype_t *key_asr_type, ASR::ttype_t* value_asr_type) {
     }
 
     llvm::Value* LLVMList::read_item(llvm::Value* list, llvm::Value* pos,
@@ -5017,14 +5080,55 @@ namespace LCompilers {
         return item;
     }
 
-    void LLVMList::list_clear(llvm::Value* list) {
-        llvm::Value* end_point_ptr = get_pointer_to_current_end_point(list);
-        llvm::Value* zero = llvm::ConstantInt::get(llvm::Type::getInt32Ty(context),
-                                                   llvm::APInt(32, 0));
-        LLVM::CreateStore(*builder, zero, end_point_ptr);
+    void LLVMList::list_clear(llvm::Value* list, ASR::ttype_t *item_type,
+                              llvm::Module* module) {
+        free_data(list, item_type, *module);
+        std::string type_code = ASRUtils::get_type_code(item_type) ;
+        list_init(type_code, list, *module, 0, 0);
     }
 
-    void LLVMList::free_data(llvm::Value* list, llvm::Module& module) {
+    void LLVMList::free_data(llvm::Value* list, ASR::ttype_t* item_type, llvm::Module& module) {
+        // If it is an llvm struct, then it would require nested freeing,
+        // or else a simple free of the allocated data for the list is enough.
+        get_builder0()
+        if (LLVM::is_llvm_struct(item_type)) {
+            llvm::AllocaInst *pos_ptr = builder0.CreateAlloca(llvm::Type::getInt32Ty(context),
+                                                              nullptr);
+            LLVM::CreateStore(*builder, llvm::ConstantInt::get(llvm::Type::getInt32Ty(context),
+                                                               llvm::APInt(32, 0)), pos_ptr);
+
+            llvm::BasicBlock *loophead = llvm::BasicBlock::Create(context, "loop.head");
+            llvm::BasicBlock *loopbody = llvm::BasicBlock::Create(context, "loop.body");
+            llvm::BasicBlock *loopend = llvm::BasicBlock::Create(context, "loop.end");
+
+            // head
+            llvm_utils->start_new_block(loophead);
+            {
+                llvm::Value *cond = builder->CreateICmpSGT(
+                                            LLVM::CreateLoad(*builder,
+                                            get_pointer_to_current_end_point(list)),
+                                            LLVM::CreateLoad(*builder, pos_ptr));
+                builder->CreateCondBr(cond, loopbody, loopend);
+            }
+
+            // body
+            llvm_utils->start_new_block(loopbody);
+            {
+                llvm::Value* pos = LLVM::CreateLoad(*builder, pos_ptr);
+                llvm::Value* item = read_item(list, pos, false, module, true);
+
+                llvm_utils->free_data(item, item_type, &module);
+                llvm::Value* tmp = builder->CreateAdd(
+                            pos,
+                            llvm::ConstantInt::get(context, llvm::APInt(32, 1)));
+                LLVM::CreateStore(*builder, tmp, pos_ptr);
+            }
+            builder->CreateBr(loophead);
+
+            // end
+            llvm_utils->start_new_block(loopend);
+        }
+
         llvm::Value* data = LLVM::CreateLoad(*builder, get_pointer_to_list_data(list));
         LLVM::lfortran_free(context, module, *builder, data);
     }
@@ -6187,7 +6291,7 @@ namespace LCompilers {
         // end
         llvm_utils->start_new_block(loopend);
 
-        llvm_utils->list_api->free_data(el_list, *module);
+        llvm_utils->list_api->free_data(el_list,el_asr_type, *module);
         LLVM::lfortran_free(context, *module, *builder, el_mask);
         LLVM::CreateStore(*builder, LLVM::CreateLoad(*builder, new_el_list), el_list);
         LLVM::CreateStore(*builder, new_el_mask, get_pointer_to_mask(set));
@@ -7093,7 +7197,7 @@ namespace LCompilers {
 
         llvm::Value* el_list = get_el_list(set);
 
-        llvm_utils->list_api->free_data(el_list, *module);
+        llvm_utils->list_api->free_data(el_list, el_asr_type, *module);
         LLVM::lfortran_free(context, *module, *builder, LLVM::CreateLoad(*builder, get_pointer_to_mask(set)));
 
         set_init(ASRUtils::get_type_code(el_asr_type), set, module, 0);
@@ -7103,6 +7207,14 @@ namespace LCompilers {
         LLVM::lfortran_free(context, *module, *builder, LLVM::CreateLoad(*builder, get_pointer_to_mask(set)));
         llvm::Value* llvm_zero = llvm::ConstantInt::get(llvm::Type::getInt32Ty(context), llvm::APInt(32, 0));
         set_init_given_initial_capacity(ASRUtils::get_type_code(el_asr_type), set, module, llvm_zero);
+    }
+
+    void LLVMSetLinearProbing::set_free(llvm::Value *dict, llvm::Module *module,
+        ASR::ttype_t *el_asr_type) {
+    }
+
+    void LLVMSetSeparateChaining::set_free(llvm::Value *dict, llvm::Module *module,
+        ASR::ttype_t *el_asr_type) {
     }
 
     llvm::Value* LLVMSetInterface::len(llvm::Value* set) {
