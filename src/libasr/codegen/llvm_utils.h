@@ -1140,6 +1140,10 @@ namespace LCompilers {
                 ASR::Set_t* set_type, llvm::Module* module,
                 std::map<std::string, std::map<std::string, int>>& name2memidx);
 
+            void free_data(llvm::Value *set, llvm::Module *module,
+                ASR::ttype_t* el_asr_type, llvm::Value *capacity,
+                llvm::Value *el_mask, llvm::Value *elems);
+
         public:
 
             LLVMSetSeparateChaining(
