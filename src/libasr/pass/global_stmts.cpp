@@ -31,7 +31,7 @@ void pass_wrap_global_stmts(Allocator &al,
     char *fn_name = s.c_str(al);
     SymbolTable *fn_scope = al.make_new<SymbolTable>(unit.m_symtab);
 
-    ASR::ttype_t *type;
+    ASR::ttype_t *type = nullptr;
     Location loc = unit.base.base.loc;
     ASR::asr_t *return_var=nullptr;
     ASR::expr_t *return_var_ref=nullptr;
@@ -82,6 +82,9 @@ void pass_wrap_global_stmts(Allocator &al,
 
     if (return_var) {
         // The last defined `return_var` is the actual return value
+        LCOMPILERS_ASSERT(type)
+        LCOMPILERS_ASSERT(return_var_ref)
+
         ASR::down_cast2<ASR::Variable_t>(return_var)->m_intent = ASRUtils::intent_return_var;
         std::string global_underscore_name = "_" + fn_name_s;
         s.from_str(al, global_underscore_name);
