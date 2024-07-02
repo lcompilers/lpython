@@ -90,6 +90,11 @@ std::string LLVMModule::str()
     return LLVMEvaluator::module_to_string(*m_m);
 }
 
+llvm::Function *LLVMModule::get_function(const std::string &fn_name) {
+    llvm::Module *m = m_m.get();
+    return m->getFunction(fn_name);
+}
+
 std::string LLVMModule::get_return_type(const std::string &fn_name)
 {
     llvm::Module *m = m_m.get();
@@ -121,12 +126,9 @@ std::string LLVMModule::get_return_type(const std::string &fn_name)
                 return "complex4";
             } else if (startswith(std::string(st->getName()), "complex_8")) {
                 return "complex8";
-            } else {
-                throw LCompilersException("LLVMModule::get_return_type(): Struct return type `" + std::string(st->getName()) + "` not supported");
             }
-        } else {
-            throw LCompilersException("LLVMModule::get_return_type(): Noname struct return type not supported");
         }
+        return "struct";
     } else if (type->isVectorTy()) {
         // Used for passing complex_4 on some platforms
         return "complex4";
@@ -375,6 +377,10 @@ void LLVMEvaluator::print_version_message()
 llvm::LLVMContext &LLVMEvaluator::get_context()
 {
     return *context;
+}
+
+const llvm::DataLayout &LLVMEvaluator::get_jit_data_layout() {
+    return jit->getDataLayout();
 }
 
 void LLVMEvaluator::print_targets()
