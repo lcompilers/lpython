@@ -150,7 +150,12 @@ Result<PythonCompiler::EvalResult> PythonCompiler::evaluate(
             type = type->getStructElementType(2);
             LCOMPILERS_ASSERT(type->isPointerTy())
             result.structure.element_size = e->get_jit_data_layout().getTypeAllocSize(
-                                                type->getNonOpaquePointerElementType());
+#if LLVM_VERSION_MAJOR >= 14
+                                                type->getNonOpaquePointerElementType()
+#else
+                                                type->getPointerElementType()
+#endif
+                                                );
         }
     }
 
