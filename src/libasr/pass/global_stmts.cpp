@@ -45,58 +45,14 @@ void pass_wrap_global_stmts(Allocator &al,
             ASR::expr_t *target;
             ASR::expr_t *value = EXPR(unit.m_items[i]);
             // Create a new variable with the right type
-            if (ASRUtils::expr_type(value)->type == ASR::ttypeType::Integer) {
-                s.from_str(al, fn_name_s + std::to_string(idx));
-                var_name = s.c_str(al);
-
-                int a_kind = down_cast<ASR::Integer_t>(ASRUtils::expr_type(value))->m_kind;
-
-                type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc, a_kind));
-                return_var = ASR::make_Variable_t(al, loc,
-                    fn_scope, var_name, nullptr, 0, ASRUtils::intent_local, nullptr, nullptr,
-                    ASR::storage_typeType::Default, type,
-                    nullptr, ASR::abiType::BindC,
-                    ASR::Public, ASR::presenceType::Required, false);
-                return_var_ref = EXPR(ASR::make_Var_t(al, loc,
-                    down_cast<ASR::symbol_t>(return_var)));
-                fn_scope->add_symbol(std::string(var_name), down_cast<ASR::symbol_t>(return_var));
-                target = return_var_ref;
-                idx++;
-            } else if (ASRUtils::expr_type(value)->type == ASR::ttypeType::UnsignedInteger) {
-                s.from_str(al, fn_name_s + std::to_string(idx));
-                var_name = s.c_str(al);
-
-                int a_kind = down_cast<ASR::UnsignedInteger_t>(ASRUtils::expr_type(value))->m_kind;
-
-                type = ASRUtils::TYPE(ASR::make_UnsignedInteger_t(al, loc, a_kind));
-                return_var = ASR::make_Variable_t(al, loc,
-                    fn_scope, var_name, nullptr, 0, ASRUtils::intent_local, nullptr, nullptr,
-                    ASR::storage_typeType::Default, type,
-                    nullptr, ASR::abiType::BindC,
-                    ASR::Public, ASR::presenceType::Required, false);
-                return_var_ref = EXPR(ASR::make_Var_t(al, loc,
-                    down_cast<ASR::symbol_t>(return_var)));
-                fn_scope->add_symbol(std::string(var_name), down_cast<ASR::symbol_t>(return_var));
-                target = return_var_ref;
-                idx++;
-            } else if (ASRUtils::expr_type(value)->type == ASR::ttypeType::Logical) {
-                s.from_str(al, fn_name_s + std::to_string(idx));
-                var_name = s.c_str(al);
-
-                int a_kind = down_cast<ASR::Logical_t>(ASRUtils::expr_type(value))->m_kind;
-
-                type = ASRUtils::TYPE(ASR::make_Logical_t(al, loc, a_kind));
-                return_var = ASR::make_Variable_t(al, loc,
-                    fn_scope, var_name, nullptr, 0, ASRUtils::intent_local, nullptr, nullptr,
-                    ASR::storage_typeType::Default, type,
-                    nullptr, ASR::abiType::BindC,
-                    ASR::Public, ASR::presenceType::Required, false);
-                return_var_ref = EXPR(ASR::make_Var_t(al, loc,
-                    down_cast<ASR::symbol_t>(return_var)));
-                fn_scope->add_symbol(std::string(var_name), down_cast<ASR::symbol_t>(return_var));
-                target = return_var_ref;
-                idx++;
-            } else if (ASRUtils::expr_type(value)->type == ASR::ttypeType::Real) {
+            if ((ASRUtils::expr_type(value)->type == ASR::ttypeType::Integer) ||
+                (ASRUtils::expr_type(value)->type == ASR::ttypeType::UnsignedInteger) ||
+                (ASRUtils::expr_type(value)->type == ASR::ttypeType::Logical) ||
+                (ASRUtils::expr_type(value)->type == ASR::ttypeType::Real) ||
+                (ASRUtils::expr_type(value)->type == ASR::ttypeType::Complex) ||
+                (ASRUtils::expr_type(value)->type == ASR::ttypeType::Character) ||
+                (ASRUtils::expr_type(value)->type == ASR::ttypeType::List) ||
+                (ASRUtils::expr_type(value)->type == ASR::ttypeType::Tuple)) {
                 s.from_str(al, fn_name_s + std::to_string(idx));
                 var_name = s.c_str(al);
                 type = ASRUtils::expr_type(value);
@@ -110,22 +66,7 @@ void pass_wrap_global_stmts(Allocator &al,
                 fn_scope->add_symbol(std::string(var_name), down_cast<ASR::symbol_t>(return_var));
                 target = return_var_ref;
                 idx++;
-            } else if ((ASRUtils::expr_type(value)->type == ASR::ttypeType::Complex) ||
-                       (ASRUtils::expr_type(value)->type == ASR::ttypeType::Character)) {
-                s.from_str(al, fn_name_s + std::to_string(idx));
-                var_name = s.c_str(al);
-                type = ASRUtils::expr_type(value);
-                return_var = ASR::make_Variable_t(al, loc,
-                    fn_scope, var_name, nullptr, 0, ASRUtils::intent_local, nullptr, nullptr,
-                    ASR::storage_typeType::Default, type,
-                    nullptr, ASR::abiType::BindC,
-                    ASR::Public, ASR::presenceType::Required, false);
-                return_var_ref = EXPR(ASR::make_Var_t(al, loc,
-                    down_cast<ASR::symbol_t>(return_var)));
-                fn_scope->add_symbol(std::string(var_name), down_cast<ASR::symbol_t>(return_var));
-                target = return_var_ref;
-                idx++;
-            } else {
+            }  else {
                 throw LCompilersException("Return type not supported in interactive mode");
             }
             ASR::stmt_t* asr_stmt = ASRUtils::STMT(ASR::make_Assignment_t(al, loc, target, value, nullptr));
@@ -142,6 +83,43 @@ void pass_wrap_global_stmts(Allocator &al,
     if (return_var) {
         // The last defined `return_var` is the actual return value
         ASR::down_cast2<ASR::Variable_t>(return_var)->m_intent = ASRUtils::intent_return_var;
+        std::string global_underscore_name = "_" + fn_name_s;
+        s.from_str(al, global_underscore_name);
+        
+        ASR::asr_t *global_underscore = ASR::make_Variable_t(al, loc,
+                    unit.m_symtab, s.c_str(al), nullptr, 0, ASRUtils::intent_local, nullptr, nullptr,
+                    ASR::storage_typeType::Default, type,
+                    nullptr, ASR::abiType::Source,
+                    ASR::Public, ASR::presenceType::Required, false);
+        ASR::expr_t * global_underscore_ref = EXPR(ASR::make_Var_t(al, loc, down_cast<ASR::symbol_t>(global_underscore)));
+        
+        if (fn_scope->parent->get_symbol(global_underscore_name) != nullptr) {
+            throw LCompilersException("Global variable already defined");
+        }
+        unit.m_symtab->add_symbol(global_underscore_name, down_cast<ASR::symbol_t>(global_underscore));
+        ASR::stmt_t* asr_stmt = ASRUtils::STMT(ASR::make_Assignment_t(al, loc, global_underscore_ref, return_var_ref, nullptr));
+        body.push_back(al, asr_stmt);
+
+        // if ((type->type == ASR::ttypeType::Tuple) ||
+        //     (type->type == ASR::ttypeType::List)) {
+        //     s.from_str(al, fn_name_s + std::to_string(idx));
+        //     var_name = s.c_str(al);
+
+        //     ASR::ttype_t *type_pointer = ASRUtils::TYPE(ASR::make_Pointer_t(al, loc, type));
+        //     ASR::expr_t *value = EXPR(ASR::make_GetPointer_t(al, loc, global_underscore_ref, type_pointer, nullptr));
+            
+        //     return_var = ASR::make_Variable_t(al, loc,
+        //             fn_scope, var_name, nullptr, 0, ASRUtils::intent_local, nullptr, nullptr,
+        //             ASR::storage_typeType::Default, type_pointer,
+        //             nullptr, ASR::abiType::BindC,
+        //             ASR::Public, ASR::presenceType::Required, false);
+        //     return_var_ref = EXPR(ASR::make_Var_t(al, loc, down_cast<ASR::symbol_t>(return_var)));
+        //     ASR::stmt_t* asr_stmt = ASRUtils::STMT(ASR::make_Assignment_t(al, loc, return_var_ref, value, nullptr));
+        //     body.push_back(al, asr_stmt);
+        //     idx++;
+        //     return_var_ref = nullptr;
+        //     return_var = nullptr;
+        // }
     }
 
     ASR::asr_t *fn = ASRUtils::make_Function_t_util(

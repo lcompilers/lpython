@@ -1007,6 +1007,16 @@ int interactive_python_repl(
                 }
                 break;
             }
+            case (LCompilers::PythonCompiler::EvalResult::structt) : {
+                if (verbose) {
+                    std::cout << "Return type: " 
+                        << LCompilers::ASRUtils::get_type_code(r.structure.ttype) 
+                        << std::endl;
+                }
+                if (verbose) section("Result:");
+                std::cout << fe.string_aggregate_type(r) << std::endl;
+                break;
+            }
             case (LCompilers::PythonCompiler::EvalResult::none) : {
                 if (verbose) {
                     std::cout << "Return type: none" << std::endl;

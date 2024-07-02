@@ -53,6 +53,7 @@ public:
             complex8,
             boolean,
             string,
+            structt,
             statement,
             none
         } type;
@@ -67,6 +68,12 @@ public:
             char *str;
             struct {float re, im;} c32;
             struct {double re, im;} c64;
+            struct {
+                void *structure;
+                ASR::ttype_t *ttype;
+                size_t *offsets;
+                size_t element_size;
+            } structure;
         };
         std::string ast;
         std::string asr;
@@ -112,6 +119,8 @@ public:
             LocationManager &lm,
             LCompilers::PassManager& pass_manager,
             diag::Diagnostics &diagnostics);
+
+    std::string string_aggregate_type(const struct EvalResult &r);
 
 private:
     Allocator al;

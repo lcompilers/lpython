@@ -16,6 +16,9 @@
 #ifdef HAVE_LFORTRAN_LLVM
 #include <libasr/codegen/evaluator.h>
 #include <libasr/codegen/asr_to_llvm.h>
+#include <llvm/IR/Function.h>
+#include <llvm/IR/Type.h>
+#include <llvm/IR/DataLayout.h>
 #else
 namespace LCompilers {
     class LLVMEvaluator {};
@@ -120,10 +123,35 @@ Result<PythonCompiler::EvalResult> PythonCompiler::evaluate(
     }
 
     bool call_run_fn = false;
-    std::string return_type;
-    if (m->get_return_type(run_fn) != "none") {
-        call_run_fn = true;
-        return_type = m->get_return_type(run_fn);
+    std::string return_type = m->get_return_type(run_fn);
+    if (return_type != "none") {
+      call_run_fn = true;
+    }
+
+    llvm::Type *type = nullptr;
+    ASR::symbol_t *f = symbol_table->get_symbol("_" + run_fn);
+    if ((return_type == "struct") && (f)) {
+        llvm::Function *fn = m->get_function(run_fn);
+        type = fn->getReturnType();
+        LCOMPILERS_ASSERT(type->isStructTy())
+
+        const llvm::DataLayout &dl = e->get_jit_data_layout();
+        size_t elements_count = type->getStructNumElements();
+        LCompilers::Vec<size_t> offsets;
+        offsets.reserve(al, elements_count);
+        for (size_t i = 0; i < elements_count; i++) {
+            size_t offset = dl.getStructLayout((llvm::StructType*)type)->getElementOffset(i);
+            offsets.push_back(al, offset);
+        }
+        result.structure.offsets = offsets.p;
+
+        result.structure.ttype = ASR::down_cast<ASR::Variable_t>(f)->m_type;
+        if (result.structure.ttype->type == ASR::ttypeType::List) {
+            type = type->getStructElementType(2);
+            LCOMPILERS_ASSERT(type->isPointerTy())
+            result.structure.element_size = e->get_jit_data_layout().getTypeAllocSize(
+                                                type->getNonOpaquePointerElementType());
+        }
     }
 
     e->add_module(std::move(m));
@@ -213,6 +241,14 @@ Result<PythonCompiler::EvalResult> PythonCompiler::evaluate(
             bool r = e->execfn<bool>(run_fn);
             result.type = EvalResult::boolean;
             result.b = r;
+        } else if (return_type == "struct") {
+            e->execfn<void>(run_fn);
+            if (f) {
+                void *r = (void*)e->get_symbol_address("_" + run_fn);
+                LCOMPILERS_ASSERT(r)
+                result.structure.structure = r;
+                result.type = EvalResult::structt;
+            }
         } else if (return_type == "void") {
             e->execfn<void>(run_fn);
             result.type = EvalResult::statement;
@@ -448,5 +484,106 @@ Result<std::string> PythonCompiler::get_asm(
 #endif
 }
 
+
+void print_type(ASR::ttype_t *t, void *data, std::string &result);
+
+std::string PythonCompiler::string_aggregate_type(const struct EvalResult &r) {
+    ASR::ttype_t *asr_type = r.structure.ttype;
+    void *data = r.structure.structure;
+    size_t *offsets = r.structure.offsets;
+    size_t element_size = r.structure.element_size;
+
+    std::string result;
+
+    if (asr_type->type == ASR::ttypeType::List) {
+        int32_t size = *(int32_t*)(((char*)data)+offsets[0]);
+        void *array = *(void**)(((char*)data)+offsets[2]);
+        // int32_t capacity = *(int32_t*)(((char*)data)+offsets[1]);
+        // std::cout << "size: " << size << " capacity: " << capacity << " array: " << array << std::endl;
+        ASR::ttype_t *element_ttype = ASR::down_cast<ASR::List_t>(asr_type)->m_type;
+
+        result += "[";
+        for (int32_t i = 0; i < size - 1; i++) {
+            print_type(element_ttype, ((char*)array)+(i*element_size), result);
+            result += ", ";
+        }
+        print_type(element_ttype, ((char*)array)+((size - 1)*element_size), result);
+        result += "]";
+
+    } else {
+        throw LCompilersException("PythonCompiler::evaluate(): Return type not supported");
+    }
+
+    return result;
+}
+
+void print_type(ASR::ttype_t *t, void *data, std::string &result) {
+    switch (t->type) {
+        case ASR::ttypeType::Logical:
+            result += (*(bool*)data ? "True" : "False");
+            break;
+        case ASR::ttypeType::Integer: {
+            int64_t a_kind = ASR::down_cast<ASR::Integer_t>(t)->m_kind;
+            switch (a_kind) {
+                case 1:
+                    result += std::to_string(int(*(int8_t*)data));
+                    break;
+                case 2:
+                    result += std::to_string(*(int16_t*)data);
+                    break;
+                case 4:
+                    result += std::to_string(*(int32_t*)data);
+                    break;
+                case 8:
+                    result += std::to_string(*(int64_t*)data);
+                    break;
+                default:
+                    throw LCompilersException("Unaccepted int size");
+            }
+            break;
+        }
+        case ASR::ttypeType::UnsignedInteger: {
+            int64_t a_kind = ASR::down_cast<ASR::UnsignedInteger_t>(t)->m_kind;
+            switch (a_kind) {
+                case 1:
+                    result += std::to_string(int(*(uint8_t*)data));
+                    break;
+                case 2:
+                    result += std::to_string(*(uint16_t*)data);
+                    break;
+                case 4:
+                    result += std::to_string(*(uint32_t*)data);
+                    break;
+                case 8:
+                    result += std::to_string(*(uint64_t*)data);
+                    break;
+                default:
+                    throw LCompilersException("Unaccepted int size");
+            }
+            break;
+        }
+        case ASR::ttypeType::Real: {
+            int64_t a_kind = ASR::down_cast<ASR::Real_t>(t)->m_kind;
+            switch (a_kind) {
+                case 4:
+                    result += std::to_string(*(float*)data);
+                    break;
+                case 8:
+                    result += std::to_string(*(double*)data);
+                    break;
+                default:
+                    throw LCompilersException("Unaccepted real size");
+            }
+            break;
+        }
+        case ASR::ttypeType::Character:
+            result += '"';
+            result += std::string(*(char**)data); // TODO: replace \n with \\n
+            result += '"';
+            break;
+        default:
+            throw LCompilersException("PythonCompiler::print_type(): type not supported");
+    }
+}
 
 } // namespace LCompilers::LPython

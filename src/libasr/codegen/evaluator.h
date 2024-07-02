@@ -19,6 +19,7 @@ namespace llvm {
     class Module;
     class Function;
     class TargetMachine;
+    class DataLayout;
     namespace orc {
         class KaleidoscopeJIT;
     }
@@ -35,6 +36,7 @@ public:
     std::string str();
     // Return a function return type as a string (real / integer)
     std::string get_return_type(const std::string &fn_name);
+    llvm::Function *get_function(const std::string &fn_name);
 };
 
 class LLVMEvaluator
@@ -60,6 +62,7 @@ public:
     static std::string module_to_string(llvm::Module &m);
     static void print_version_message();
     llvm::LLVMContext &get_context();
+    const llvm::DataLayout &get_jit_data_layout();
     static void print_targets();
     static std::string get_default_target_triple();
 

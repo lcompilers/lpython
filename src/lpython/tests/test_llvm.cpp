@@ -1467,6 +1467,45 @@ TEST_CASE("PythonCompiler Array 1") {
     CHECK(r.result.type == PythonCompiler::EvalResult::statement);
 }
 
+TEST_CASE("PythonCompiler lists") {
+    CompilerOptions cu;
+    cu.po.disable_main = true;
+    cu.emit_debug_line_column = false;
+    cu.generate_object_code = false;
+    cu.interactive = true;
+    cu.po.runtime_library_dir = LCompilers::LPython::get_runtime_library_dir();
+    PythonCompiler e(cu);
+    LCompilers::Result<PythonCompiler::EvalResult>
+    
+    r = e.evaluate2("[1, 2, 3]");
+    CHECK(r.ok);
+    CHECK(r.result.type == PythonCompiler::EvalResult::structt);
+    CHECK(LCompilers::ASRUtils::get_type_code(r.result.structure.ttype) == "list[i32]");
+    CHECK(e.string_aggregate_type(r.result) == "[1, 2, 3]");
+    
+    r = e.evaluate2("[u8(1), u8(2), u8(3)] + [u8(1), u8(2), u8(3)]");
+    CHECK(r.ok);
+    CHECK(r.result.type == PythonCompiler::EvalResult::structt);
+    CHECK(LCompilers::ASRUtils::get_type_code(r.result.structure.ttype) == "list[u8]");
+    CHECK(e.string_aggregate_type(r.result) == "[1, 2, 3, 1, 2, 3]");
+    
+    r = e.evaluate2("x: list[f64] = [1.5, 2.5, 3.5]");
+    CHECK(r.ok);
+    CHECK(r.result.type == PythonCompiler::EvalResult::statement);
+
+    r = e.evaluate2("x + [4.5]");
+    CHECK(r.ok);
+    CHECK(r.result.type == PythonCompiler::EvalResult::structt);
+    CHECK(LCompilers::ASRUtils::get_type_code(r.result.structure.ttype) == "list[r64]");
+    CHECK(e.string_aggregate_type(r.result) == "[1.500000, 2.500000, 3.500000, 4.500000]");
+    
+    r = e.evaluate2("[\"lfortran\", \"lpython\", \"lc\"]");
+    CHECK(r.ok);
+    CHECK(r.result.type == PythonCompiler::EvalResult::structt);
+    CHECK(LCompilers::ASRUtils::get_type_code(r.result.structure.ttype) == "list[str]");
+    CHECK(e.string_aggregate_type(r.result) == "[\"lfortran\", \"lpython\", \"lc\"]");
+}
+
 TEST_CASE("PythonCompiler asr verify 1") {
     CompilerOptions cu;
     cu.po.disable_main = true;
