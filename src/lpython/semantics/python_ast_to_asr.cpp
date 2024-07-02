@@ -1166,7 +1166,7 @@ public:
                         ASR::call_arg_t call_arg;
                         call_arg.m_value = var->m_symbolic_value;
                         call_arg.loc = (var->m_symbolic_value->base).loc;
-                        args.push_back(al,call_arg);       
+                        args.push_back(al,call_arg);
                     }
                 }
                 if(missed_args_count > 0){
@@ -1752,7 +1752,7 @@ public:
                         diag.add(diag::Diagnostic(
                             "Unhashable type: '" + ASRUtils::type_to_str(type) + "'",
                             diag::Level::Error, diag::Stage::Semantic, {
-                                diag::Label("Mutable type '" + ASRUtils::type_to_str(type) 
+                                diag::Label("Mutable type '" + ASRUtils::type_to_str(type)
                                 + "' cannot be stored in a set.",
                                         {s->m_slice->base.loc})
                             })
@@ -1798,7 +1798,7 @@ public:
                         diag.add(diag::Diagnostic(
                             "Unhashable type: '" + ASRUtils::type_to_str(key_type) + "'",
                             diag::Level::Error, diag::Stage::Semantic, {
-                                diag::Label("Mutable type '" + ASRUtils::type_to_str(key_type) 
+                                diag::Label("Mutable type '" + ASRUtils::type_to_str(key_type)
                                 + "' cannot become a key in dict. Hint: Use an immutable type for key.",
                                         {t->m_elts[0]->base.loc})
                             })
@@ -2493,13 +2493,11 @@ public:
         return false;
     }
 
-    bool is_dataclass(AST::expr_t** decorators, size_t n,
+    void get_alignment(AST::expr_t** decorators, size_t n,
         ASR::expr_t*& aligned_expr, bool& is_packed) {
-        bool is_dataclass_ = false;
         for( size_t i = 0; i < n; i++ ) {
             if( AST::is_a<AST::Name_t>(*decorators[i]) ) {
                 AST::Name_t* dc_name = AST::down_cast<AST::Name_t>(decorators[i]);
-                is_dataclass_ = std::string(dc_name->m_id) == "dataclass";
                 is_packed = is_packed || std::string(dc_name->m_id) == "packed";
             } else if( AST::is_a<AST::Call_t>(*decorators[i]) ) {
                 AST::Call_t* dc_call = AST::down_cast<AST::Call_t>(decorators[i]);
@@ -2531,7 +2529,16 @@ public:
                 }
             }
         }
+    }
 
+    bool is_dataclass(AST::expr_t** decorators, size_t n) {
+        bool is_dataclass_ = false;
+        for( size_t i = 0; i < n; i++ ) {
+            if( AST::is_a<AST::Name_t>(*decorators[i]) ) {
+                AST::Name_t* dc_name = AST::down_cast<AST::Name_t>(decorators[i]);
+                is_dataclass_ = std::string(dc_name->m_id) == "dataclass";
+            }
+        }
         return is_dataclass_;
     }
 
@@ -2569,7 +2576,7 @@ public:
         std::string var_name = v_variable->m_name;
         ASR::ttype_t* type = v_variable->m_type;
         if (!init_expr && ASR::is_a<ASR::Dict_t>(*type)) {
-            init_expr = ASRUtils::EXPR(ASR::make_DictConstant_t(al, loc, 
+            init_expr = ASRUtils::EXPR(ASR::make_DictConstant_t(al, loc,
                   nullptr, 0, nullptr, 0, type));
         }
 
@@ -2923,10 +2930,91 @@ public:
         assign_asr_target = assign_asr_target_copy;
     }
 
+    void handle_init_method(const AST::FunctionDef_t &x,
+        Vec<char*>& member_names, Vec<ASR::call_arg_t> &member_init){
+        if(x.n_decorator_list > 0) {
+            throw SemanticError("Decorators for __init__ not implemented",
+                x.base.base.loc);
+        }
+        if( x.m_args.n_args > 1 ) {
+            throw SemanticError("Only default constructors implemented ",
+                x.base.base.loc);
+        }
+        // TODO: the obj_name can be anything
+        std::string obj_name = "self";
+        if ( std::string(x.m_args.m_args[0].m_arg) != obj_name) {
+            throw SemanticError("Only `self` can be used as object name for now",
+            x.base.base.loc);
+        }
+        for(size_t i = 0; i < x.n_body; i++) {
+            std::string var_name;
+            if (! AST::is_a<AST::AnnAssign_t>(*x.m_body[i]) ){
+                throw SemanticError("Only AnnAssign implemented in __init__ ",
+                    x.m_body[i]->base.loc);
+            }
+            AST::AnnAssign_t ann_assign = *AST::down_cast<AST::AnnAssign_t>(x.m_body[i]);
+            if(AST::is_a<AST::Attribute_t>(*ann_assign.m_target)){
+                AST::Attribute_t* a = AST::down_cast<AST::Attribute_t>(ann_assign.m_target);
+                if(AST::is_a<AST::Name_t>(*a->m_value)) {
+                    AST::Name_t* n = AST::down_cast<AST::Name_t>(a->m_value);
+                    if(std::string(n->m_id) != obj_name) {
+                        throw SemanticError("Object name doesn't matach",
+                            x.m_body[i]->base.loc);
+                    }
+                }
+                var_name = a->m_attr;
+                member_names.push_back(al, s2c(al, var_name));
+            } else {
+                throw SemanticError("Only Attribute supported as target in "
+                    "AnnAssign inside Class", x.m_body[i]->base.loc);
+            }
+            ASR::expr_t* init_expr = nullptr;
+            ASR::abiType abi = ASR::abiType::Source;
+            bool is_allocatable = false, is_const = false;
+            ASR::ttype_t *type = ast_expr_to_asr_type(ann_assign.m_annotation->base.loc,
+                *ann_assign.m_annotation, is_allocatable, is_const, true);
+
+            ASR::storage_typeType storage_type = ASR::storage_typeType::Default;
+            create_add_variable_to_scope(var_name, type,
+                    ann_assign.base.base.loc, abi, storage_type);
+
+            if (ann_assign.m_value == nullptr) {
+                throw SemanticError("Missing an initialiser for the data member",
+                    x.m_body[i]->base.loc);
+            }
+            this->visit_expr(*ann_assign.m_value);
+            if (tmp && ASR::is_a<ASR::expr_t>(*tmp)) {
+                ASR::expr_t* value = ASRUtils::EXPR(tmp);
+                ASR::ttype_t* underlying_type = type;
+                cast_helper(underlying_type, value, value->base.loc);
+                if (!ASRUtils::check_equal_type(underlying_type, ASRUtils::expr_type(value), true)) {
+                    std::string ltype = ASRUtils::type_to_str_python(underlying_type);
+                    std::string rtype = ASRUtils::type_to_str_python(ASRUtils::expr_type(value));
+                    diag.add(diag::Diagnostic(
+                        "Type mismatch in annotation-assignment, the types must be compatible",
+                        diag::Level::Error, diag::Stage::Semantic, {
+                            diag::Label("type mismatch ('" + ltype + "' and '" + rtype + "')",
+                                    {ann_assign.m_target->base.loc, value->base.loc})
+                        })
+                    );
+                    throw SemanticAbort();
+                }
+                init_expr = value;
+            }
+            ASR::symbol_t* var_sym = current_scope->resolve_symbol(var_name);
+            ASR::call_arg_t c_arg;
+            c_arg.loc = var_sym->base.loc;
+            c_arg.m_value = init_expr;
+            member_init.push_back(al, c_arg);
+        }
+
+    }
+
     void visit_ClassMembers(const AST::ClassDef_t& x,
-        Vec<char*>& member_names, SetChar& struct_dependencies,
-        Vec<ASR::call_arg_t> &member_init,
-        bool is_enum_scope=false, ASR::abiType abi=ASR::abiType::Source) {
+        Vec<char*>& member_names, Vec<char*>& member_fn_names,
+        SetChar& struct_dependencies, Vec<ASR::call_arg_t> &member_init,
+        bool is_enum_scope=false, ASR::abiType abi=ASR::abiType::Source,
+        bool is_class_scope = false) {
         int64_t prev_value = 1;
         for( size_t i = 0; i < x.n_body; i++ ) {
             if (AST::is_a<AST::Expr_t>(*x.m_body[i])) {
@@ -2942,7 +3030,24 @@ public:
                 visit_ClassDef(*AST::down_cast<AST::ClassDef_t>(x.m_body[i]));
                 continue;
             } else if ( AST::is_a<AST::FunctionDef_t>(*x.m_body[i]) ) {
-                throw SemanticError("Struct member functions are not supported", x.m_body[i]->base.loc);
+                if ( !is_class_scope ) {
+                    throw SemanticError("Struct member functions are not supported", x.m_body[i]->base.loc);
+                } else {
+                    AST::FunctionDef_t
+                        *f = AST::down_cast<AST::FunctionDef_t>(x.m_body[i]);
+                    std::string f_name = f->m_name;
+                    if (f_name == "__init__") {
+                        this->handle_init_method(*f, member_names, member_init);
+                        // This seems hackish, as struct depends on itself
+                        // We need to handle this later.
+                        // Removing this throws a ASR verify error
+                        struct_dependencies.push_back(al, x.m_name);
+                    } else {
+                        this->visit_stmt(*x.m_body[i]);
+                        member_fn_names.push_back(al, f->m_name);
+                    }
+                    continue;
+                }
             } else if (AST::is_a<AST::Pass_t>(*x.m_body[i])) {
                 continue;
             } else if (!AST::is_a<AST::AnnAssign_t>(*x.m_body[i])) {
@@ -3038,14 +3143,16 @@ public:
             SymbolTable *parent_scope = current_scope;
             current_scope = al.make_new<SymbolTable>(parent_scope);
             Vec<char*> member_names;
+            Vec<char*> member_fn_names;
             Vec<ASR::call_arg_t>  member_init;
             member_names.reserve(al, x.n_body);
+            member_fn_names.reserve(al, 1);
             member_init.reserve(al, 1);
             Vec<ASR::stmt_t*>* current_body_copy = current_body;
             current_body = nullptr;
             SetChar struct_dependencies;
             struct_dependencies.reserve(al, 1);
-            visit_ClassMembers(x, member_names, struct_dependencies, member_init, true, enum_abi);
+            visit_ClassMembers(x, member_names, member_fn_names, struct_dependencies, member_init, true, enum_abi);
             current_body = current_body_copy;
             ASR::ttype_t* common_type = nullptr;
             for( auto sym: current_scope->get_scope() ) {
@@ -3124,12 +3231,14 @@ public:
             SymbolTable *parent_scope = current_scope;
             current_scope = al.make_new<SymbolTable>(parent_scope);
             Vec<char*> member_names;
+            Vec<char*> member_fn_names;
             Vec<ASR::call_arg_t> member_init;
             member_names.reserve(al, x.n_body);
             member_init.reserve(al, x.n_body);
+            member_fn_names.reserve(al, 1);
             SetChar struct_dependencies;
             struct_dependencies.reserve(al, 1);
-            visit_ClassMembers(x, member_names, struct_dependencies, member_init);
+            visit_ClassMembers(x, member_names, member_fn_names, struct_dependencies, member_init);
             LCOMPILERS_ASSERT(member_init.size() == member_names.size());
             ASR::symbol_t* union_type = ASR::down_cast<ASR::symbol_t>(ASR::make_UnionType_t(al,
                                             x.base.base.loc, current_scope, x.m_name,
@@ -3147,49 +3256,106 @@ public:
                 current_scope->add_symbol(x_m_name, union_type);
             }
             return ;
-        }
-        ASR::expr_t* algined_expr = nullptr;
-        bool is_packed = false;
-        if( !is_dataclass(x.m_decorator_list, x.n_decorator_list,
-                          algined_expr, is_packed) ) {
-            throw SemanticError("Only dataclass-decorated classes and Enum subclasses are supported.",
-                                x.base.base.loc);
-        }
-
-        if( x.n_bases > 0 ) {
-            throw SemanticError("Inheritance in classes isn't supported yet.",
-                                x.base.base.loc);
-        }
-
-        SymbolTable *parent_scope = current_scope;
-        current_scope = al.make_new<SymbolTable>(parent_scope);
-        Vec<char*> member_names;
-        Vec<ASR::call_arg_t> member_init;
-        member_names.reserve(al, x.n_body);
-        member_init.reserve(al, x.n_body);
-        SetChar struct_dependencies;
-        struct_dependencies.reserve(al, 1);
-        ASR::abiType class_abi = ASR::abiType::Source;
-        if( is_bindc_class(x.m_decorator_list, x.n_decorator_list) ) {
-            class_abi = ASR::abiType::BindC;
-        }
-        visit_ClassMembers(x, member_names, struct_dependencies, member_init, false, class_abi);
-        LCOMPILERS_ASSERT(member_init.size() == member_names.size());
-        ASR::symbol_t* class_type = ASR::down_cast<ASR::symbol_t>(ASR::make_Struct_t(al,
-                                        x.base.base.loc, current_scope, x.m_name,
-                                        struct_dependencies.p, struct_dependencies.size(),
-                                        member_names.p, member_names.size(),
-                                        class_abi, ASR::accessType::Public,
-                                        is_packed, false, member_init.p, member_init.size(), algined_expr,
-                                        nullptr));
-        current_scope = parent_scope;
-        if (current_scope->resolve_symbol(x_m_name)) {
-            ASR::symbol_t* sym = current_scope->resolve_symbol(x_m_name);
-            ASR::Struct_t *st = ASR::down_cast<ASR::Struct_t>(sym);
-            st->m_initializers = member_init.p;
-            st->n_initializers = member_init.size();
+        } else if( is_dataclass(x.m_decorator_list, x.n_decorator_list) ){
+            ASR::expr_t* aligned_expr = nullptr;
+            bool is_packed = false;
+            get_alignment(x.m_decorator_list, x.n_decorator_list,
+                            aligned_expr, is_packed);
+            if( x.n_bases > 0 ) {
+                throw SemanticError("Inheritance in classes isn't supported yet.",
+                                    x.base.base.loc);
+            }
+            SymbolTable *parent_scope = current_scope;
+            current_scope = al.make_new<SymbolTable>(parent_scope);
+            Vec<char*> member_names;
+            Vec<char*> member_fn_names;
+            Vec<ASR::call_arg_t> member_init;
+            member_names.reserve(al, x.n_body);
+            member_fn_names.reserve(al, 1);
+            member_init.reserve(al, x.n_body);
+            SetChar struct_dependencies;
+            struct_dependencies.reserve(al, 1);
+            ASR::abiType class_abi = ASR::abiType::Source;
+            if( is_bindc_class(x.m_decorator_list, x.n_decorator_list) ) {
+                class_abi = ASR::abiType::BindC;
+            }
+            visit_ClassMembers(x, member_names, member_fn_names, struct_dependencies, member_init, false, class_abi);
+            LCOMPILERS_ASSERT(member_init.size() == member_names.size());
+            ASR::symbol_t* class_type = ASR::down_cast<ASR::symbol_t>(ASR::make_Struct_t(al,
+                                            x.base.base.loc, current_scope, x.m_name,
+                                            struct_dependencies.p, struct_dependencies.size(),
+                                            member_names.p, member_names.size(),
+                                            member_fn_names.p, member_fn_names.size(),
+                                            class_abi, ASR::accessType::Public,
+                                            is_packed, false, member_init.p, member_init.size(), aligned_expr,
+                                            nullptr));
+            current_scope = parent_scope;
+            if (current_scope->resolve_symbol(x_m_name)) {
+                ASR::symbol_t* sym = current_scope->resolve_symbol(x_m_name);
+                ASR::Struct_t *st = ASR::down_cast<ASR::Struct_t>(sym);
+                st->m_initializers = member_init.p;
+                st->n_initializers = member_init.size();
+            } else {
+                current_scope->add_symbol(x_m_name, class_type);
+            }
         } else {
-            current_scope->add_symbol(x_m_name, class_type);
+            if( x.n_bases > 0 ) {
+                throw SemanticError("Inheritance in classes isn't supported yet.",
+                                    x.base.base.loc);
+            }
+            SymbolTable *parent_scope = current_scope;
+            if( ASR::symbol_t* sym = current_scope->resolve_symbol(x_m_name) ) {
+                LCOMPILERS_ASSERT(ASR::is_a<ASR::Struct_t>(*sym));
+                ASR::Struct_t *st = ASR::down_cast<ASR::Struct_t>(sym);
+                current_scope = st->m_symtab;
+                for( size_t i = 0; i < x.n_body; i++ ) {
+                    if ( AST::is_a<AST::FunctionDef_t>(*x.m_body[i]) ) {
+                        AST::FunctionDef_t*
+                            f = AST::down_cast<AST::FunctionDef_t>(x.m_body[i]);
+                        if ( std::string(f->m_name) != std::string("__init__") ) {
+                            this->visit_stmt(*x.m_body[i]);
+                        }
+                    }
+                }
+            } else {
+                current_scope = al.make_new<SymbolTable>(parent_scope);
+                Vec<char*> member_names;
+                Vec<char*> member_fn_names;
+                Vec<ASR::call_arg_t> member_init;
+                member_names.reserve(al, 1);
+                member_fn_names.reserve(al, 1);
+                member_init.reserve(al, 1);
+                SetChar struct_dependencies;
+                struct_dependencies.reserve(al, 1);
+                ASR::abiType class_abi = ASR::abiType::Source;
+                if( is_bindc_class(x.m_decorator_list, x.n_decorator_list) ) {
+                    throw SemanticError("Bindc in classes is not supported, "
+                    "instead use the dataclass decorator ",
+                    x.base.base.loc);
+                }
+                visit_ClassMembers(x, member_names, member_fn_names,
+                    struct_dependencies, member_init, false, class_abi, true);
+                LCOMPILERS_ASSERT(member_init.size() == member_names.size());
+                ASR::symbol_t* class_sym = ASR::down_cast<ASR::symbol_t>(
+                    ASR::make_Struct_t(al, x.base.base.loc, current_scope,
+                    x.m_name, struct_dependencies.p, struct_dependencies.size(),
+                    member_names.p, member_names.size(), member_fn_names.p,
+                    member_fn_names.size(), class_abi, ASR::accessType::Public,
+                    false, false, member_init.p, member_init.size(),
+                    nullptr, nullptr));
+                ASR::ttype_t*  class_type = ASRUtils::TYPE(
+                    ASRUtils::make_StructType_t_util(al, x.base.base.loc,
+                    class_sym));
+                std::string self_name = "self";
+                if ( current_scope->get_symbol(self_name) ) {
+                    throw SemanticError("`self` cannot be used as a data member "
+                    "for now", x.base.base.loc);
+                }
+                create_add_variable_to_scope(self_name, class_type,
+                    x.base.base.loc, class_abi);
+                parent_scope->add_symbol(x.m_name, class_sym);
+            }
+            current_scope = parent_scope;
         }
     }
 
@@ -4116,7 +4282,7 @@ public:
                 create_GenericProcedure(x.base.base.loc);
             }
         } else {
-            ASR::Module_t* module_sym = 
+            ASR::Module_t* module_sym =
                 ASR::down_cast<ASR::Module_t>(parent_scope->resolve_symbol(module_name));
             LCOMPILERS_ASSERT(module_sym != nullptr);
             current_scope = module_sym->m_symtab;
@@ -4363,7 +4529,7 @@ public:
             }
             ASR::accessType s_access = ASR::accessType::Public;
             ASR::presenceType s_presence = ASR::presenceType::Required;
-            if (i >= default_arg_index_start){                
+            if (i >= default_arg_index_start){
             	s_presence = ASR::presenceType::Optional;
             }
             bool value_attr = false;
@@ -5557,7 +5723,7 @@ public:
             LCOMPILERS_ASSERT(loop_src_var_symbol!=nullptr);
             auto loop_src_var_ttype = ASRUtils::symbol_type(loop_src_var_symbol);
 
-            if (ASR::is_a<ASR::Dict_t>(*loop_src_var_ttype) || 
+            if (ASR::is_a<ASR::Dict_t>(*loop_src_var_ttype) ||
                 ASR::is_a<ASR::Set_t>(*loop_src_var_ttype)) {
                 is_explicit_iterator_required = false;
                 for_each = true;
@@ -5597,7 +5763,7 @@ public:
                     global_init.push_back(al, assign);
                 }
                 loop_src_var_name = tmp_assign_name;
-                if (ASR::is_a<ASR::Dict_t>(*loop_src_var_ttype) || 
+                if (ASR::is_a<ASR::Dict_t>(*loop_src_var_ttype) ||
                     ASR::is_a<ASR::Set_t>(*loop_src_var_ttype)) {
                     is_explicit_iterator_required = false;
                     for_each = true;
@@ -6215,7 +6381,7 @@ public:
                     diag.add(diag::Diagnostic(
                         "Unhashable type: '" + ASRUtils::type_to_str(key_type) + "'",
                         diag::Level::Error, diag::Stage::Semantic, {
-                            diag::Label("Mutable type '" + ASRUtils::type_to_str(key_type) 
+                            diag::Label("Mutable type '" + ASRUtils::type_to_str(key_type)
                             + "' cannot become a key in dict. Hint: Use an immutable type for key.",
                                     {key->base.loc})
                         })
@@ -6615,9 +6781,9 @@ public:
 
         ASR::expr_t *value = nullptr;
         ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_Logical_t(
-                      al, x.base.base.loc, 4)); 
+                      al, x.base.base.loc, 4));
         if (ASR::is_a<ASR::List_t>(*right_type)) {
-            ASR::ttype_t *contained_type = ASRUtils::get_contained_type(right_type);              
+            ASR::ttype_t *contained_type = ASRUtils::get_contained_type(right_type);
             if (!ASRUtils::check_equal_type(left_type, contained_type)) {
                 std::string ltype = ASRUtils::type_to_str_python(ASRUtils::expr_type(left));
                 std::string rtype = ASRUtils::type_to_str_python(ASRUtils::expr_type(right));
@@ -6657,10 +6823,10 @@ public:
 
                 value = ASR::down_cast<ASR::expr_t>(ASR::make_LogicalConstant_t(
                       al, x.base.base.loc, result, type));
-            } 
+            }
             tmp = make_StringContains_t(al, x.base.base.loc, left, right, type, value);
         } else if (ASR::is_a<ASR::Tuple_t>(*right_type)) {
-            ASR::ttype_t *contained_type = ASRUtils::get_contained_type(right_type);              
+            ASR::ttype_t *contained_type = ASRUtils::get_contained_type(right_type);
             if (!ASRUtils::check_equal_type(left_type, contained_type)) {
                 std::string ltype = ASRUtils::type_to_str_python(ASRUtils::expr_type(left));
                 std::string rtype = ASRUtils::type_to_str_python(ASRUtils::expr_type(right));
@@ -6676,7 +6842,7 @@ public:
 
             tmp = ASR::make_TupleContains_t(al, x.base.base.loc, left, right, type, value);
         } else if (ASR::is_a<ASR::Set_t>(*right_type)) {
-            ASR::ttype_t *contained_type = ASRUtils::get_contained_type(right_type);              
+            ASR::ttype_t *contained_type = ASRUtils::get_contained_type(right_type);
             if (!ASRUtils::check_equal_type(left_type, contained_type)) {
                 std::string ltype = ASRUtils::type_to_str_python(ASRUtils::expr_type(left));
                 std::string rtype = ASRUtils::type_to_str_python(ASRUtils::expr_type(right));
@@ -6692,7 +6858,7 @@ public:
 
             tmp = ASR::make_SetContains_t(al, x.base.base.loc, left, right, type, value);
         } else if (ASR::is_a<ASR::Dict_t>(*right_type)) {
-            ASR::ttype_t *contained_type = ASRUtils::get_contained_type(right_type);              
+            ASR::ttype_t *contained_type = ASRUtils::get_contained_type(right_type);
             if (!ASRUtils::check_equal_type(left_type, contained_type)) {
                 std::string ltype = ASRUtils::type_to_str_python(ASRUtils::expr_type(left));
                 std::string rtype = ASRUtils::type_to_str_python(ASRUtils::expr_type(right));
@@ -6807,7 +6973,7 @@ public:
                     diag.add(diag::Diagnostic(
                         "Unhashable type: '" + ASRUtils::type_to_str(type) + "'",
                         diag::Level::Error, diag::Stage::Semantic, {
-                            diag::Label("Mutable type '" + ASRUtils::type_to_str(type) 
+                            diag::Label("Mutable type '" + ASRUtils::type_to_str(type)
                             + "' cannot be stored in a set.",
                                     {value->base.loc})
                         })
