@@ -1459,9 +1459,9 @@ TEST_CASE("PythonCompiler Array 1") {
     cu.po.runtime_library_dir = LCompilers::LPython::get_runtime_library_dir();
     PythonCompiler e(cu);
     LCompilers::Result<PythonCompiler::EvalResult>
-    r = e.evaluate2("i: i32[10]");
+    r = e.evaluate2("i: i32[10] = empty(10, dtype=int32)");
     CHECK(r.ok);
-    CHECK(r.result.type == PythonCompiler::EvalResult::none);
+    CHECK(r.result.type == PythonCompiler::EvalResult::statement);
     r = e.evaluate2("print(i)");
     CHECK(r.ok);
     CHECK(r.result.type == PythonCompiler::EvalResult::statement);
