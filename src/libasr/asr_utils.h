@@ -2453,7 +2453,9 @@ static inline ASR::dimension_t* duplicate_dimensions(Allocator& al, ASR::dimensi
 static inline ASR::asr_t* make_StructType_t_util(Allocator& al, Location loc, ASR::symbol_t* der){
     ASR::Struct_t* st = ASR::down_cast<ASR::Struct_t>(ASRUtils::symbol_get_past_external(der));
     Vec<ASR::ttype_t*> members;
-    members.reserve(al, st->n_members);
+    members.reserve(al, 1);
+    Vec<ASR::ttype_t*> member_functions;
+    member_functions.reserve(al, 1);
     SymbolTable* current_scope = st->m_symtab;
     for(size_t i = 0; i < st->n_members; i++){
         ASR::symbol_t* temp = current_scope->get_symbol(st->m_members[i]);
@@ -2463,13 +2465,22 @@ static inline ASR::asr_t* make_StructType_t_util(Allocator& al, Location loc, AS
             members.push_back(al,var->m_type); 
         }
     }
+    for(size_t i = 0; i < st->n_member_functions; i++){
+        ASR::symbol_t* temp = current_scope->get_symbol(st->m_member_functions[i]);
+        if(temp && ASR::is_a<ASR::Function_t>(*temp)){
+            ASR::Function_t *f = ASR::down_cast<ASR::Function_t>(ASRUtils::symbol_get_past_external(temp));
+            ASR::ttype_t* f_type = f->m_function_signature;
+            member_functions.push_back(al,f_type); 
+        }
+    }
+    bool is_cstruct = member_functions.n==0;
     return ASR::make_StructType_t(al, 
                                 loc, 
                                 members.p, 
                                 members.n,
-                                nullptr, //Correct this when mem fn added to Struct_t
-                                0,       //Correct this when mem fn added to Struct_t
-                                true,    //Correct this when mem fn added to Struct_t
+                                member_functions.p, 
+                                member_functions.n,    
+                                is_cstruct,
                                 der);
 
 }

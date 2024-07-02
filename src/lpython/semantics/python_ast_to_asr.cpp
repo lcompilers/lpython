@@ -3024,12 +3024,13 @@ public:
                 }
                 else {
                     AST::FunctionDef_t *f = AST::down_cast<AST::FunctionDef_t>(x.m_body[i]);
-                    member_fn_names.push_back(al, f->m_name);
                     std::string f_name = f->m_name;
                     if (f_name == "__init__"){
                         this->handle_init_method(*f,member_names,member_init);
+                        struct_dependencies.push_back(al, x.m_name);
                     }else{
                         this->visit_stmt(*x.m_body[i]);
+                        member_fn_names.push_back(al, f->m_name);
                     }
                     continue;
                 }
@@ -3318,7 +3319,7 @@ public:
                 }
                 visit_ClassMembers(x, member_names, member_fn_names, struct_dependencies, member_init, false, class_abi, true);
                 LCOMPILERS_ASSERT(member_init.size() == member_names.size());
-                ASR::symbol_t* class_type = ASR::down_cast<ASR::symbol_t>(ASR::make_Struct_t(al,
+                ASR::symbol_t* class_sym = ASR::down_cast<ASR::symbol_t>(ASR::make_Struct_t(al,
                                                 x.base.base.loc, current_scope, x.m_name,
                                                 struct_dependencies.p, struct_dependencies.size(),
                                                 member_names.p, member_names.size(),
@@ -3326,7 +3327,10 @@ public:
                                                 class_abi, ASR::accessType::Public,
                                                 is_packed, false, member_init.p, member_init.size(), aligned_expr,
                                                 nullptr));
-                parent_scope->add_symbol(x.m_name, class_type);
+                ASR::ttype_t*  class_type = ASRUtils::TYPE(ASRUtils::make_StructType_t_util(al, x.base.base.loc, class_sym));  
+                std::string self_name = "self";                           
+                create_add_variable_to_scope(self_name ,class_type, x.base.base.loc,class_abi);
+                parent_scope->add_symbol(x.m_name, class_sym);
             }
             current_scope = parent_scope;
         }
