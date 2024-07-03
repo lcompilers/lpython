@@ -529,7 +529,8 @@ public:
                 ASR::is_a<ASR::Struct_t>(*a.second) ||
                 ASR::is_a<ASR::UnionType_t>(*a.second) ||
                 ASR::is_a<ASR::ExternalSymbol_t>(*a.second) ||
-                ASR::is_a<ASR::CustomOperator_t>(*a.second) ) {
+                ASR::is_a<ASR::CustomOperator_t>(*a.second) ||
+                ASR::is_a<ASR::Function_t>(*a.second)) {
                 continue ;
             }
             // TODO: Uncomment the following line
