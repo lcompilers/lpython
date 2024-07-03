@@ -842,7 +842,7 @@ namespace LCompilers {
             void dict_init_given_initial_capacity(std::string key_type_code, std::string value_type_code,
                 llvm::Value* dict, llvm::Module* module, llvm::Value* initial_capacity);
 
-            void free_data(llvm::Value *dict, llvm::Module *module, ASR::ttype_t* key_asr_type, 
+            void free_data(llvm::Module *module, ASR::ttype_t* key_asr_type, 
                 ASR::ttype_t* value_asr_type, llvm::Value *capacity,
                 llvm::Value *key_mask, llvm::Value *key_value_pairs);
 
@@ -1140,7 +1140,7 @@ namespace LCompilers {
                 ASR::Set_t* set_type, llvm::Module* module,
                 std::map<std::string, std::map<std::string, int>>& name2memidx);
 
-            void free_data(llvm::Value *set, llvm::Module *module,
+            void free_data(llvm::Module *module,
                 ASR::ttype_t* el_asr_type, llvm::Value *capacity,
                 llvm::Value *el_mask, llvm::Value *elems);
 

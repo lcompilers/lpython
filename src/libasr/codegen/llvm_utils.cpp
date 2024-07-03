@@ -2032,6 +2032,9 @@ namespace LCompilers {
                 // TODO: implement struct free and call destructor if required
                 break ;
             }
+            default: {
+                break;
+            }
                             
         }
     }
@@ -3962,7 +3965,7 @@ namespace LCompilers {
         // end
         llvm_utils->start_new_block(loopend);
 
-        free_data(dict, module, key_asr_type, value_asr_type, old_capacity_value, old_key_mask_value, old_key_value_pairs_value);
+        free_data(module, key_asr_type, value_asr_type, old_capacity_value, old_key_mask_value, old_key_value_pairs_value);
 
         builder->CreateBr(mergeBB_rehash);
         llvm_utils->start_new_block(elseBB_rehash);
@@ -4445,7 +4448,7 @@ namespace LCompilers {
         llvm_utils->start_new_block(loopend);
     }
 
-    void LLVMDictSeparateChaining::free_data(llvm::Value *dict, llvm::Module *module, ASR::ttype_t* key_asr_type, 
+    void LLVMDictSeparateChaining::free_data(llvm::Module *module, ASR::ttype_t* key_asr_type, 
         ASR::ttype_t* value_asr_type, llvm::Value *capacity,
         llvm::Value *key_mask, llvm::Value *key_value_pairs) {
       /* C++ equivalent:
@@ -4600,7 +4603,7 @@ namespace LCompilers {
             get_pointer_to_capacity(dict));
         llvm::Value *key_mask = LLVM::CreateLoad(*builder, 
             get_pointer_to_keymask(dict));
-        free_data(dict, module, key_asr_type, value_asr_type, capacity, key_mask, key_value_pairs);
+        free_data(module, key_asr_type, value_asr_type, capacity, key_mask, key_value_pairs);
     }
 
 
@@ -6527,7 +6530,7 @@ namespace LCompilers {
         // end
         llvm_utils->start_new_block(loopend);
 
-        free_data(set, module, el_asr_type, old_capacity_value, old_elems_value, old_el_mask_value);
+        free_data(module, el_asr_type, old_capacity_value, old_elems_value, old_el_mask_value);
 
         builder->CreateBr(mergeBB_rehash);
         llvm_utils->start_new_block(elseBB_rehash);
@@ -7338,11 +7341,11 @@ namespace LCompilers {
         ASR::ttype_t *el_asr_type) {
         llvm::Value* el_mask = LLVM::CreateLoad(*builder, get_pointer_to_mask(set));
         llvm::Value* elems = LLVM::CreateLoad(*builder, get_pointer_to_elems(set));
-        free_data(set, module, el_asr_type, LLVM::CreateLoad(*builder, get_pointer_to_capacity(set)),
+        free_data(module, el_asr_type, LLVM::CreateLoad(*builder, get_pointer_to_capacity(set)),
             el_mask, elems);
     }
 
-    void LLVMSetSeparateChaining::free_data(llvm::Value *set, llvm::Module *module,
+    void LLVMSetSeparateChaining::free_data(llvm::Module *module,
         ASR::ttype_t* el_asr_type, llvm::Value *capacity,
         llvm::Value *el_mask, llvm::Value *elems) {
         get_builder0()
@@ -7379,6 +7382,14 @@ namespace LCompilers {
                 llvm::Value* el_i = llvm_utils->create_ptr_gep(elems, idx);
                 llvm::Value* el_ll_i8 = builder->CreateBitCast(el_i, llvm::Type::getInt8PtrTy(context));
                 LLVM::CreateStore(*builder, el_ll_i8, chain_itr);
+
+                // See logic for the same in LLVMDictSeparateChaining::free_data
+                llvm::Value* el_struct_i8 = LLVM::CreateLoad(*builder, chain_itr);
+                std::string el_type_code = ASRUtils::get_type_code(el_asr_type);
+                llvm::Type* el_struct_type = typecode2elstruct[el_type_code];
+                llvm::Value* el_struct = builder->CreateBitCast(el_struct_i8, el_struct_type->getPointerTo());
+                llvm::Value* next_el_struct = LLVM::CreateLoad(*builder, llvm_utils->create_gep(el_struct, 1));
+                LLVM::CreateStore(*builder, next_el_struct, chain_itr);
 
                 llvm::BasicBlock *loop2head = llvm::BasicBlock::Create(context, "loop2.head");
                 llvm::BasicBlock *loop2body = llvm::BasicBlock::Create(context, "loop2.body");
