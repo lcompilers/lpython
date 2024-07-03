@@ -2776,9 +2776,11 @@ public:
             llvm::StructType* array_type = static_cast<llvm::StructType*>(
                 llvm_utils->get_type_from_ttype_t_util(x.m_type, module.get()));
             llvm::Constant *ptr = module->getOrInsertGlobal(x.m_name, array_type);
-            module->getNamedGlobal(x.m_name)->setInitializer(
-                llvm::ConstantStruct::get(array_type,
-                llvm::Constant::getNullValue(array_type)));
+            if (!external) {
+                module->getNamedGlobal(x.m_name)->setInitializer(
+                    llvm::ConstantStruct::get(array_type,
+                    llvm::Constant::getNullValue(array_type)));
+            }
             llvm_symtab[h] = ptr;
         } else if (x.m_type->type == ASR::ttypeType::Logical) {
             llvm::Constant *ptr = module->getOrInsertGlobal(x.m_name,
