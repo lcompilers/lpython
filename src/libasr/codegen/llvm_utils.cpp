@@ -4448,6 +4448,28 @@ namespace LCompilers {
     void LLVMDictSeparateChaining::free_data(llvm::Value *dict, llvm::Module *module, ASR::ttype_t* key_asr_type, 
         ASR::ttype_t* value_asr_type, llvm::Value *capacity,
         llvm::Value *key_mask, llvm::Value *key_value_pairs) {
+      /* C++ equivalent:
+       * idx = 0;
+       * while (capacity > idx) {
+       *   key_mask_value = key_mask[idx];
+       *   is_key_set = key_mask_value == 1;
+       *   if (is_key_set) {
+       *     dict_i = key_value_pairs[idx];
+       *     chain_itr = (i8*)dict_i;
+       *
+       *     chain_itr = chain_itr[2];
+       *     while (chain_itr != nullptr) {
+       *       kv_struct = (kv_pair_type*)chain_itr;
+       *       free_data(kv_struct[0]);
+       *       free_data(kv_struct[1]);
+       *       next_kv_struct = kv_struct[2];
+       *       chain_itr = next_kv_struct;
+       *       free(kv_struct);
+       *     }
+       *   }
+       *   idx++;
+       * }
+       */
         llvm::Type* kv_pair_type = 
             get_key_value_pair_type(key_asr_type, value_asr_type);
         get_builder0()
@@ -4485,6 +4507,14 @@ namespace LCompilers {
                 llvm::Value* kv_ll_i8 = builder->CreateBitCast(dict_i, llvm::Type::getInt8PtrTy(context));
                 LLVM::CreateStore(*builder, kv_ll_i8, chain_itr);
 
+                // In the linked list, we should not free the head node,
+                // since that will be freed through the final list free
+                // Hence we proceed to the next node and start freeing from there
+                llvm::Value* kv_struct_i8 = LLVM::CreateLoad(*builder, chain_itr);
+                llvm::Value* kv_struct = builder->CreateBitCast(kv_struct_i8, kv_pair_type->getPointerTo());
+                llvm::Value* next_kv_struct = LLVM::CreateLoad(*builder, llvm_utils->create_gep(kv_struct, 2));
+                LLVM::CreateStore(*builder, next_kv_struct, chain_itr);
+
                 llvm::BasicBlock *loop2head = llvm::BasicBlock::Create(context, "loop2.head");
                 llvm::BasicBlock *loop2body = llvm::BasicBlock::Create(context, "loop2.body");
                 llvm::BasicBlock *loop2end = llvm::BasicBlock::Create(context, "loop2.end");
@@ -4514,8 +4544,7 @@ namespace LCompilers {
                     }
                     llvm::Value* next_kv_struct = LLVM::CreateLoad(*builder, llvm_utils->create_gep(kv_struct, 2));
                     LLVM::CreateStore(*builder, next_kv_struct, chain_itr);
-                    LLVM::lfortran_free(context, *module, *builder, key_ptr);
-                    LLVM::lfortran_free(context, *module, *builder, value_ptr);
+                    LLVM::lfortran_free(context, *module, *builder, kv_struct_i8);
                 }
 
                 builder->CreateBr(loop2head);
@@ -7295,7 +7324,7 @@ namespace LCompilers {
 
     void LLVMSetSeparateChaining::set_clear(llvm::Value* set, llvm::Module* module, ASR::ttype_t* el_asr_type) {
         set_free(set, module, el_asr_type);
-        set_init_given_initial_capacity(ASRUtils::get_type_code(el_asr_type), set, module, llvm_zero);
+        set_init_given_initial_capacity(ASRUtils::get_type_code(el_asr_type), set, module, 0);
     }
 
     void LLVMSetLinearProbing::set_free(llvm::Value *set, llvm::Module *module,
@@ -7316,8 +7345,6 @@ namespace LCompilers {
     void LLVMSetSeparateChaining::free_data(llvm::Value *set, llvm::Module *module,
         ASR::ttype_t* el_asr_type, llvm::Value *capacity,
         llvm::Value *el_mask, llvm::Value *elems) {
-        llvm::Type* kv_pair_type = 
-            get_key_value_pair_type(key_asr_type, value_asr_type);
         get_builder0()
         llvm::AllocaInst *chain_itr = builder0.CreateAlloca(
             llvm::Type::getInt8PtrTy(context), nullptr);
