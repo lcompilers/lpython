@@ -3,19 +3,18 @@ channels:
   - conda-forge
   - defaults
 dependencies:
-  - toml
-  - pytest
-  - jupyter
-  - xeus=1.0.1
-  - xtl
-  - nlohmann_json
-  - cppzmq
-  - jupyter_kernel_test
-  - xonsh
+  - git
+  - pip
+  - make
   - re2c
-  - numpy
+  - toml
   - zlib
-  - ninja
-  - rapidjson
-#  - bison=3.4  [not win]
-#  - m2-bison=3.4  [win]
+  - cmake
+  - numpy
+  - flake8
+  - setuptools
+  - bison=3.4
+  - python=3.10.2
+  - zstd-static=1.5
+  - symengine=0.12.0
+  - sympy=1.11.1

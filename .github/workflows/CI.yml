@@ -513,10 +513,6 @@ jobs:
           environment-file: ci/environment_linux_llvm.yml
           create-args: >-
             llvmdev=${{ matrix.llvm-version }}
-            python=3.10
-            bison=3.4
-            symengine=0.12.0
-            sympy=1.11.1
 
       - uses: hendrikmuhs/ccache-action@main
         with:
