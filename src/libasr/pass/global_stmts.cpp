@@ -102,27 +102,6 @@ void pass_wrap_global_stmts(Allocator &al,
         unit.m_symtab->add_symbol(global_underscore_name, down_cast<ASR::symbol_t>(global_underscore));
         ASR::stmt_t* asr_stmt = ASRUtils::STMT(ASR::make_Assignment_t(al, loc, global_underscore_ref, return_var_ref, nullptr));
         body.push_back(al, asr_stmt);
-
-        // if ((type->type == ASR::ttypeType::Tuple) ||
-        //     (type->type == ASR::ttypeType::List)) {
-        //     s.from_str(al, fn_name_s + std::to_string(idx));
-        //     var_name = s.c_str(al);
-
-        //     ASR::ttype_t *type_pointer = ASRUtils::TYPE(ASR::make_Pointer_t(al, loc, type));
-        //     ASR::expr_t *value = EXPR(ASR::make_GetPointer_t(al, loc, global_underscore_ref, type_pointer, nullptr));
-            
-        //     return_var = ASR::make_Variable_t(al, loc,
-        //             fn_scope, var_name, nullptr, 0, ASRUtils::intent_local, nullptr, nullptr,
-        //             ASR::storage_typeType::Default, type_pointer,
-        //             nullptr, ASR::abiType::BindC,
-        //             ASR::Public, ASR::presenceType::Required, false);
-        //     return_var_ref = EXPR(ASR::make_Var_t(al, loc, down_cast<ASR::symbol_t>(return_var)));
-        //     ASR::stmt_t* asr_stmt = ASRUtils::STMT(ASR::make_Assignment_t(al, loc, return_var_ref, value, nullptr));
-        //     body.push_back(al, asr_stmt);
-        //     idx++;
-        //     return_var_ref = nullptr;
-        //     return_var = nullptr;
-        // }
     }
 
     ASR::asr_t *fn = ASRUtils::make_Function_t_util(

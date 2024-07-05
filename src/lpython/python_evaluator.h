@@ -13,6 +13,10 @@
 #include <libasr/diagnostics.h>
 #include <libasr/pass/pass_manager.h>
 
+namespace llvm {
+    class Type;
+}
+
 namespace LCompilers {
 
 class LLVMModule;
@@ -53,7 +57,7 @@ public:
             complex8,
             boolean,
             string,
-            structt,
+            struct_type,
             statement,
             none
         } type;
@@ -120,7 +124,10 @@ public:
             LCompilers::PassManager& pass_manager,
             diag::Diagnostics &diagnostics);
 
-    std::string string_aggregate_type(const struct EvalResult &r);
+    std::string aggregate_type_to_string(const struct EvalResult &r);
+
+private:
+    void compute_offsets(llvm::Type *type, ASR::symbol_t *asr_type, EvalResult &result);
 
 private:
     Allocator al;

@@ -1479,15 +1479,15 @@ TEST_CASE("PythonCompiler lists") {
     
     r = e.evaluate2("[1, 2, 3]");
     CHECK(r.ok);
-    CHECK(r.result.type == PythonCompiler::EvalResult::structt);
+    CHECK(r.result.type == PythonCompiler::EvalResult::struct_type);
     CHECK(LCompilers::ASRUtils::get_type_code(r.result.structure.ttype) == "list[i32]");
-    CHECK(e.string_aggregate_type(r.result) == "[1, 2, 3]");
+    CHECK(e.aggregate_type_to_string(r.result) == "[1, 2, 3]");
     
     r = e.evaluate2("[u8(1), u8(2), u8(3)] + [u8(1), u8(2), u8(3)]");
     CHECK(r.ok);
-    CHECK(r.result.type == PythonCompiler::EvalResult::structt);
+    CHECK(r.result.type == PythonCompiler::EvalResult::struct_type);
     CHECK(LCompilers::ASRUtils::get_type_code(r.result.structure.ttype) == "list[u8]");
-    CHECK(e.string_aggregate_type(r.result) == "[1, 2, 3, 1, 2, 3]");
+    CHECK(e.aggregate_type_to_string(r.result) == "[1, 2, 3, 1, 2, 3]");
     
     r = e.evaluate2("x: list[f64] = [1.5, 2.5, 3.5]");
     CHECK(r.ok);
@@ -1495,15 +1495,15 @@ TEST_CASE("PythonCompiler lists") {
 
     r = e.evaluate2("x + [4.5]");
     CHECK(r.ok);
-    CHECK(r.result.type == PythonCompiler::EvalResult::structt);
+    CHECK(r.result.type == PythonCompiler::EvalResult::struct_type);
     CHECK(LCompilers::ASRUtils::get_type_code(r.result.structure.ttype) == "list[r64]");
-    CHECK(e.string_aggregate_type(r.result) == "[1.500000, 2.500000, 3.500000, 4.500000]");
+    CHECK(e.aggregate_type_to_string(r.result) == "[1.500000, 2.500000, 3.500000, 4.500000]");
     
     r = e.evaluate2("[\"lfortran\", \"lpython\", \"lc\"]");
     CHECK(r.ok);
-    CHECK(r.result.type == PythonCompiler::EvalResult::structt);
+    CHECK(r.result.type == PythonCompiler::EvalResult::struct_type);
     CHECK(LCompilers::ASRUtils::get_type_code(r.result.structure.ttype) == "list[str]");
-    CHECK(e.string_aggregate_type(r.result) == "[\"lfortran\", \"lpython\", \"lc\"]");
+    CHECK(e.aggregate_type_to_string(r.result) == "[\"lfortran\", \"lpython\", \"lc\"]");
 }
 
 TEST_CASE("PythonCompiler asr verify 1") {

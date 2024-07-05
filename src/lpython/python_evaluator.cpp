@@ -128,35 +128,19 @@ Result<PythonCompiler::EvalResult> PythonCompiler::evaluate(
       call_run_fn = true;
     }
 
-    llvm::Type *type = nullptr;
-    ASR::symbol_t *f = symbol_table->get_symbol("_" + run_fn);
-    if ((return_type == "struct") && (f)) {
+    ASR::symbol_t *global_underscore_sym = symbol_table->get_symbol("_" + run_fn);
+    if ((return_type == "struct") && (global_underscore_sym)) {
+        // we compute the offsets of the struct's attribute here
+        // we will be using it later in aggregate_type_to_string to print the struct
+
+        // we compute the offsets here instead of computing it in aggregate_type_to_string
+        // because once we call `e->add_module`, internally LLVM may deallocate all the
+        // type info after compiling the IR into machine code
+
         llvm::Function *fn = m->get_function(run_fn);
-        type = fn->getReturnType();
-        LCOMPILERS_ASSERT(type->isStructTy())
-
-        const llvm::DataLayout &dl = e->get_jit_data_layout();
-        size_t elements_count = type->getStructNumElements();
-        LCompilers::Vec<size_t> offsets;
-        offsets.reserve(al, elements_count);
-        for (size_t i = 0; i < elements_count; i++) {
-            size_t offset = dl.getStructLayout((llvm::StructType*)type)->getElementOffset(i);
-            offsets.push_back(al, offset);
-        }
-        result.structure.offsets = offsets.p;
-
-        result.structure.ttype = ASR::down_cast<ASR::Variable_t>(f)->m_type;
-        if (result.structure.ttype->type == ASR::ttypeType::List) {
-            type = type->getStructElementType(2);
-            LCOMPILERS_ASSERT(type->isPointerTy())
-            result.structure.element_size = e->get_jit_data_layout().getTypeAllocSize(
-#if LLVM_VERSION_MAJOR >= 14
-                                                type->getNonOpaquePointerElementType()
-#else
-                                                type->getPointerElementType()
-#endif
-                                                );
-        }
+        llvm::Type *llvm_type = fn->getReturnType();
+        LCOMPILERS_ASSERT(llvm_type->isStructTy())
+        compute_offsets(llvm_type, global_underscore_sym, result);
     }
 
     e->add_module(std::move(m));
@@ -248,11 +232,11 @@ Result<PythonCompiler::EvalResult> PythonCompiler::evaluate(
             result.b = r;
         } else if (return_type == "struct") {
             e->execfn<void>(run_fn);
-            if (f) {
+            if (global_underscore_sym) {
                 void *r = (void*)e->get_symbol_address("_" + run_fn);
                 LCOMPILERS_ASSERT(r)
                 result.structure.structure = r;
-                result.type = EvalResult::structt;
+                result.type = EvalResult::struct_type;
             }
         } else if (return_type == "void") {
             e->execfn<void>(run_fn);
@@ -492,7 +476,7 @@ Result<std::string> PythonCompiler::get_asm(
 
 void print_type(ASR::ttype_t *t, void *data, std::string &result);
 
-std::string PythonCompiler::string_aggregate_type(const struct EvalResult &r) {
+std::string PythonCompiler::aggregate_type_to_string(const struct EvalResult &r) {
     ASR::ttype_t *asr_type = r.structure.ttype;
     void *data = r.structure.structure;
     size_t *offsets = r.structure.offsets;
@@ -520,6 +504,33 @@ std::string PythonCompiler::string_aggregate_type(const struct EvalResult &r) {
     }
 
     return result;
+}
+
+void PythonCompiler::compute_offsets(llvm::Type *type, ASR::symbol_t *asr_type, EvalResult &result) {
+        LCOMPILERS_ASSERT(type->isStructTy())
+
+        const llvm::DataLayout &dl = e->get_jit_data_layout();
+        size_t elements_count = type->getStructNumElements();
+        LCompilers::Vec<size_t> offsets;
+        offsets.reserve(al, elements_count);
+        for (size_t i = 0; i < elements_count; i++) {
+            size_t offset = dl.getStructLayout((llvm::StructType*)type)->getElementOffset(i);
+            offsets.push_back(al, offset);
+        }
+        result.structure.offsets = offsets.p;
+
+        result.structure.ttype = ASR::down_cast<ASR::Variable_t>(asr_type)->m_type;
+        if (result.structure.ttype->type == ASR::ttypeType::List) {
+            type = type->getStructElementType(2);
+            LCOMPILERS_ASSERT(type->isPointerTy())
+            result.structure.element_size = e->get_jit_data_layout().getTypeAllocSize(
+#if LLVM_VERSION_MAJOR >= 14
+                                                type->getNonOpaquePointerElementType()
+#else
+                                                type->getPointerElementType()
+#endif
+                                                );
+        }
 }
 
 void print_type(ASR::ttype_t *t, void *data, std::string &result) {
