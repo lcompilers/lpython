@@ -1,0 +1,21 @@
+name: lp
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - toml
+  - pytest
+  - jupyter
+  - xeus=1.0.1
+  - xtl
+  - nlohmann_json
+  - cppzmq
+  - jupyter_kernel_test
+  - xonsh
+  - re2c
+  - numpy
+  - zlib
+  - ninja
+  - rapidjson
+#  - bison=3.4  [not win]
+#  - m2-bison=3.4  [win]

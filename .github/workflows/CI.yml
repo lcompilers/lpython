@@ -496,6 +496,56 @@ jobs:
             cd integration_tests
             ./run_tests.py -b cpython c_py
 
+  test_llvm:
+    name: Test LLVM ${{ matrix.llvm-version }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        llvm-version: ["10", "14", "15", "16"]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: mamba-org/setup-micromamba@v1.8.0
+        with:
+          environment-file: ci/environment_linux_llvm.yml
+          create-args: >-
+            llvmdev=${{ matrix.llvm-version }}
+            python=3.10
+            bison=3.4
+
+      - uses: hendrikmuhs/ccache-action@main
+        with:
+          variant: sccache
+          key: ${{ github.job }}-${{ matrix.llvm-version }}
+
+      - name: Build Linux
+        shell: bash -e -l {0}
+        run: |
+            ./build0.sh
+            export CXXFLAGS="-Werror"
+            cmake . -GNinja \
+              -DCMAKE_BUILD_TYPE=Debug \
+              -DWITH_LLVM=yes \
+              -DLFORTRAN_BUILD_ALL=yes \
+              -DWITH_STACKTRACE=no \
+              -DCMAKE_PREFIX_PATH="$CONDA_PREFIX" \
+              -DCMAKE_INSTALL_PREFIX=`pwd`/inst \
+              -DCMAKE_C_COMPILER_LAUNCHER=sccache \
+              -DCMAKE_CXX_COMPILER_LAUNCHER=sccache
+
+            cmake --build . -j16 --target install
+
+      - name: Test Linux LLVM 10-16
+        shell: bash -e -l {0}
+        run: |
+            ctest --output-on-failure
+            cd integration_tests
+            ./run_tests.py -b llvm llvm_jit
+            ./run_tests.py -b llvm llvm_jit -f
+
   build_jupyter_kernel:
     name: Build Jupyter Kernel
     runs-on: ubuntu-latest
