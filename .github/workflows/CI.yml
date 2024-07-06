@@ -26,32 +26,30 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Cache conda
-        uses: actions/cache@v3
-        env:
-          CACHE_NUMBER: 0
-        with:
-          path: ~/conda_pkgs_dir
-          key:
-            ${{ runner.os }}-conda-${{ env.CACHE_NUMBER }}-${{ hashFiles('ci/environment.yml') }}
+#      - name: Cache conda
+#        uses: actions/cache@v3
+#        env:
+#          CACHE_NUMBER: 0
+#        with:
+#          path: ~/conda_pkgs_dir
+#          key:
+#            ${{ runner.os }}-conda-${{ env.CACHE_NUMBER }}-${{ hashFiles('ci/environment.yml') }}
 
-      - uses: conda-incubator/setup-miniconda@v2
+      - uses: mamba-org/setup-micromamba@v1.8.0
         with:
-          miniconda-version: "latest"
-          auto-update-conda: true
           environment-file: ci/environment.yml
-          python-version: ${{ matrix.python-version }}
-          use-only-tar-bz2: true
+          create-args: >-
+            python=${{ matrix.python-version }}
 
       - name: Install Windows Conda Packages
         if: contains(matrix.os, 'windows')
         shell: bash -e -l {0}
-        run: conda install m2-bison=3.0.4 cmake=3.21.1
+        run: micromamba install m2-bison=3.0.4 m2-filesystem cmake=3.21.1
 
       - name: Install Linux / macOS Conda Packages
         if: contains(matrix.os, 'ubuntu') || contains(matrix.os, 'macos')
         shell: bash -e -l {0}
-        run: conda install bison=3.4 nodejs=18
+        run: micromamba install bison=3.4 nodejs=18
 
       - name: Conda info
         shell: bash -e -l {0}
