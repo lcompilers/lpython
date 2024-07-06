@@ -9,7 +9,7 @@ dependencies:
   - jupyter=1.0.0
   - xeus=1.0.1
   - xtl=0.7.4
-  - nlohmann_json=3.11.3
+  - nlohmann_json=3.10.0
   - cppzmq=4.7.1
   - jupyter_kernel_test=0.4.4
   - xonsh=0.16.0
