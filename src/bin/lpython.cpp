@@ -29,7 +29,9 @@
 #include <libasr/config.h>
 #include <libasr/string_utils.h>
 #include <libasr/lsp_interface.h>
-#include <lpython/python_kernel.h>
+#ifdef HAVE_LFORTRAN_XEUS
+#    include <lpython/python_kernel.h>
+#endif
 #include <lpython/utils.h>
 #include <lpython/python_serialization.h>
 #include <lpython/parser/tokenizer.h>
