@@ -105,9 +105,9 @@ jobs:
         if: contains(matrix.os, 'windows')
         shell: cmd
         run: |
-            set CONDA_INSTALL_LOCN=C:\\Miniconda3
-            call %CONDA_INSTALL_LOCN%\Scripts\activate.bat
-            call conda activate test
+            set MAMBA_INSTALL_LOCN=C:\\Users\runneradmin\micromamba
+            call %MAMBA_INSTALL_LOCN%\Scripts\activate.bat
+            call micromamba activate lp
             set LFORTRAN_CMAKE_GENERATOR=Ninja
             set WIN=1
             set MACOS=0
