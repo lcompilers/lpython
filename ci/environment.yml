@@ -12,7 +12,7 @@ dependencies:
   - nlohmann_json
   - cppzmq
   - jupyter_kernel_test
-  - xonsh
+  - xonsh=0.16.0
   - re2c
   - numpy
   - zlib
