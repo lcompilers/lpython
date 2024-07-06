@@ -513,7 +513,6 @@ jobs:
             nlohmann_json
             python=3.10
             bison=3.4
-            xeus=5.1.0
             xeus-zmq=3.0.0
 
       - uses: hendrikmuhs/ccache-action@main
