@@ -4,19 +4,20 @@ channels:
   - defaults
 dependencies:
   - llvmdev=11.1.0
-  - toml
-  - pytest
-  - jupyter
+  - toml=0.10.2
+  - pytest=7.2.0
+  - jupyter=1.0.0
   - xeus=1.0.1
-  - xtl
-  - nlohmann_json
-  - cppzmq
-  - jupyter_kernel_test
+  - xtl=0.7.4
+  - nlohmann_json=3.11.3
+  - cppzmq=4.7.1
+  - jupyter_kernel_test=0.4.4
   - xonsh=0.16.0
-  - re2c
-  - numpy
-  - zlib
-  - ninja
-  - rapidjson
+  - re2c=2.2
+  - numpy=1.23.4
+  - zlib=1.2.13
+  - zstd=1.5.2
+  - ninja=1.11.0
+  - rapidjson=1.1.0
 #  - bison=3.4  [not win]
 #  - m2-bison=3.4  [win]
