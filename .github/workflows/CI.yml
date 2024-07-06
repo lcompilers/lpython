@@ -87,7 +87,7 @@ jobs:
         run: |
             set MAMBA_INSTALL_LOCN=C:\\Users\runneradmin\micromamba
             call %MAMBA_INSTALL_LOCN%\Scripts\activate.bat
-            call micromamba activate test
+            call micromamba activate lp
             set LFORTRAN_CMAKE_GENERATOR=Ninja
             set WIN=1
             set MACOS=0
