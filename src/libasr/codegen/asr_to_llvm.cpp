@@ -205,6 +205,8 @@ public:
     std::map<llvm::Value*, llvm::Value*> strings_to_be_allocated; // (array, size)
     Vec<llvm::Value*> strings_to_be_deallocated;
 
+    uint32_t global_underscore_hash; // used in interactive mode
+
     ASRToLLVMVisitor(Allocator &al, llvm::LLVMContext &context, std::string infile,
         CompilerOptions &compiler_options_, diag::Diagnostics &diagnostics) :
     diag{diagnostics},
@@ -231,7 +233,8 @@ public:
     set_api_sc(std::make_unique<LLVMSetSeparateChaining>(context, llvm_utils.get(), builder.get())),
     arr_descr(LLVMArrUtils::Descriptor::get_descriptor(context,
               builder.get(), llvm_utils.get(),
-              LLVMArrUtils::DESCR_TYPE::_SimpleCMODescriptor, compiler_options_, heap_arrays))
+              LLVMArrUtils::DESCR_TYPE::_SimpleCMODescriptor, compiler_options_, heap_arrays)),
+    global_underscore_hash(0)
     {
         llvm_utils->tuple_api = tuple_api.get();
         llvm_utils->list_api = list_api.get();
@@ -2709,11 +2712,20 @@ public:
     }
 
     void visit_Variable(const ASR::Variable_t &x) {
+        if ((compiler_options.interactive) && 
+            (std::strcmp(x.m_name, "_") == 0) && 
+            (x.m_abi == ASR::abiType::Interactive)) {
+            return;
+        }
         if (x.m_value && x.m_storage == ASR::storage_typeType::Parameter) {
             this->visit_expr_wrapper(x.m_value, true);
             return;
         }
         uint32_t h = get_hash((ASR::asr_t*)&x);
+        if ((compiler_options.interactive) &&
+            (std::strcmp(x.m_name, compiler_options.po.global_underscore.c_str()) == 0)) {
+                global_underscore_hash = h;
+        }
         // This happens at global scope, so the intent can only be either local
         // (global variable declared/initialized in this translation unit), or
         // external (global variable not declared/initialized in this
@@ -6966,6 +6978,12 @@ public:
 
     inline void fetch_val(ASR::Variable_t* x) {
         uint32_t x_h = get_hash((ASR::asr_t*)x);
+        if ((compiler_options.interactive) && 
+            (std::strcmp(x->m_name, "_") == 0) && 
+            (x->m_abi == ASR::abiType::Interactive) &&
+            (llvm_symtab.find(x_h) == llvm_symtab.end())) {
+            x_h = global_underscore_hash;
+        }
         llvm::Value* x_v;
         LCOMPILERS_ASSERT(llvm_symtab.find(x_h) != llvm_symtab.end());
         x_v = llvm_symtab[x_h];
@@ -8472,6 +8490,11 @@ public:
                 if (ASR::is_a<ASR::Variable_t>(*var_sym)) {
                     ASR::Variable_t *arg = EXPR2VAR(x.m_args[i].m_value);
                     uint32_t h = get_hash((ASR::asr_t*)arg);
+                    if ((compiler_options.interactive) && 
+                        (std::strcmp(arg->m_name, "_") == 0) && 
+                        (arg->m_abi == ASR::abiType::Interactive)) {
+                        h = global_underscore_hash;
+                    }
                     if (llvm_symtab.find(h) != llvm_symtab.end()) {
                         tmp = llvm_symtab[h];
                         if( !ASRUtils::is_array(arg->m_type) ) {
@@ -10085,7 +10108,7 @@ Result<std::unique_ptr<LLVMModule>> asr_to_llvm(ASR::TranslationUnit_t &asr,
         diag::Diagnostics &diagnostics,
         llvm::LLVMContext &context, Allocator &al,
         LCompilers::PassManager& pass_manager,
-        CompilerOptions &co, const std::string &run_fn,
+        CompilerOptions &co, const std::string &run_fn, const std::string &global_underscore,
         const std::string &infile)
 {
 #if LLVM_VERSION_MAJOR >= 15
@@ -10102,6 +10125,7 @@ Result<std::unique_ptr<LLVMModule>> asr_to_llvm(ASR::TranslationUnit_t &asr,
                     ASRUtils::IntrinsicElementalFunctions::SignFromValue));
 
     co.po.run_fun = run_fn;
+    co.po.global_underscore = global_underscore;
     co.po.always_run = false;
     co.po.skip_optimization_func_instantiation = skip_optimization_func_instantiation;
     pass_manager.rtlib = co.rtlib;

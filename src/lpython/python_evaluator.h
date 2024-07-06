@@ -137,6 +137,7 @@ private:
     int eval_count;
     SymbolTable *symbol_table;
     std::string run_fn;
+    std::string global_underscore_name;
 };
 
 } // namespace LCompilers
