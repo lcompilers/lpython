@@ -32,6 +32,8 @@ class LLVMEvaluator;
 class PythonCompiler
 {
 public:
+    CompilerOptions compiler_options;
+
     PythonCompiler(CompilerOptions compiler_options);
     ~PythonCompiler();
 
@@ -77,16 +79,39 @@ public:
 
     Result<PythonCompiler::EvalResult> evaluate2(const std::string &code);
 
+    Result<std::string> get_ast(const std::string &code,
+            LocationManager &lm, diag::Diagnostics &diagnostics);
+
     Result<LCompilers::LPython::AST::ast_t*> get_ast2(
             const std::string &code_orig, diag::Diagnostics &diagnostics);
-    
+
+    Result<std::string> get_asr(const std::string &code,
+            LocationManager &lm, diag::Diagnostics &diagnostics);
+
+    Result<ASR::TranslationUnit_t*> get_asr2(
+            const std::string &code_orig, LocationManager &lm,
+            diag::Diagnostics &diagnostics);
+
     Result<ASR::TranslationUnit_t*> get_asr3(
         LCompilers::LPython::AST::ast_t &ast, diag::Diagnostics &diagnostics,
         LocationManager &lm, bool is_interactive=false);
 
+    Result<std::string> get_llvm(
+            const std::string &code, LocationManager &lm, LCompilers::PassManager& pass_manager,
+            diag::Diagnostics &diagnostics);
+
+    Result<std::unique_ptr<LLVMModule>> get_llvm2(
+            const std::string &code, LocationManager &lm, LCompilers::PassManager& pass_manager,
+            diag::Diagnostics &diagnostics);
+
     Result<std::unique_ptr<LLVMModule>> get_llvm3(ASR::TranslationUnit_t &asr,
         LCompilers::PassManager& lpm, diag::Diagnostics &diagnostics,
         const std::string &infile);
+
+    Result<std::string> get_asm(const std::string &code,
+            LocationManager &lm,
+            LCompilers::PassManager& pass_manager,
+            diag::Diagnostics &diagnostics);
 
 private:
     Allocator al;
@@ -94,7 +119,6 @@ private:
     std::unique_ptr<LLVMEvaluator> e;
 #endif
     int eval_count;
-    CompilerOptions compiler_options;
     SymbolTable *symbol_table;
     std::string run_fn;
 };
