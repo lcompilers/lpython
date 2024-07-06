@@ -507,6 +507,7 @@ std::string PythonCompiler::aggregate_type_to_string(const struct EvalResult &r)
 }
 
 void PythonCompiler::compute_offsets(llvm::Type *type, ASR::symbol_t *asr_type, EvalResult &result) {
+#ifdef HAVE_LFORTRAN_LLVM
         LCOMPILERS_ASSERT(type->isStructTy())
 
         const llvm::DataLayout &dl = e->get_jit_data_layout();
@@ -531,6 +532,9 @@ void PythonCompiler::compute_offsets(llvm::Type *type, ASR::symbol_t *asr_type, 
 #endif
                                                 );
         }
+#else
+    throw LCompilersException("LLVM is not enabled");
+#endif
 }
 
 void print_type(ASR::ttype_t *t, void *data, std::string &result) {
