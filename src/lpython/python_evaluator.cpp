@@ -134,7 +134,7 @@ Result<PythonCompiler::EvalResult> PythonCompiler::evaluate(
       call_run_fn = true;
     }
 
-    ASR::symbol_t *global_underscore_sym = symbol_table->get_symbol("_" + run_fn);
+    ASR::symbol_t *global_underscore_sym = symbol_table->get_symbol(global_underscore_name);
     if ((return_type == "struct") && (global_underscore_sym)) {
         // we compute the offsets of the struct's attribute here
         // we will be using it later in aggregate_type_to_string to print the struct
@@ -266,7 +266,7 @@ Result<PythonCompiler::EvalResult> PythonCompiler::evaluate(
         ASR::Variable_t *b = al.make_new<ASR::Variable_t>();
         *b = *a;
         Str s;
-        s.from_str_view("_");
+        s.from_str(al, "_");
         b->m_name = s.c_str(al);
         symbol_table->add_symbol("_", ASR::down_cast<ASR::symbol_t>((ASR::asr_t*)b));
     }
