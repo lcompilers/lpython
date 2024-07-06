@@ -22,7 +22,7 @@ endif()
 
 if (WITH_XEUS)
     set(SRC ${SRC}
-#        fortran_kernel.cpp
+       python_kernel.cpp
     )
 endif()
 add_library(lpython_lib ${SRC})
@@ -35,7 +35,7 @@ endif()
 target_include_directories(lpython_lib BEFORE PUBLIC ${lpython_SOURCE_DIR}/src)
 target_include_directories(lpython_lib BEFORE PUBLIC ${lpython_BINARY_DIR}/src)
 if (WITH_XEUS)
-    target_link_libraries(lpython_lib xeus)
+    target_link_libraries(lpython_lib xeus xeus-zmq)
 endif()
 if (WITH_BFD)
     target_link_libraries(lpython_lib p::bfd)

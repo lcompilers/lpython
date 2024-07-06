@@ -29,6 +29,7 @@
 #include <libasr/config.h>
 #include <libasr/string_utils.h>
 #include <libasr/lsp_interface.h>
+#include <lpython/python_kernel.h>
 #include <lpython/utils.h>
 #include <lpython/python_serialization.h>
 #include <lpython/parser/tokenizer.h>
@@ -2012,8 +2013,12 @@ int main(int argc, char *argv[])
         // }
 
         if (kernel) {
-            std::cerr << "The kernel subcommand is not implemented yet for LPython." << std::endl;
-            return 1;
+#ifdef HAVE_LFORTRAN_XEUS
+        return LCompilers::LPython::run_kernel(arg_kernel_f);
+#else
+        std::cerr << "The kernel subcommand requires LFortran to be compiled with XEUS support. Recompile with `WITH_XEUS=yes`." << std::endl;
+        return 1;
+#endif
         }
 
         // if (mod) {

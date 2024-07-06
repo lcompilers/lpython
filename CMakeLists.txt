@@ -208,13 +208,14 @@ endif()
 # XEUS (Fortran kernel)
 set(WITH_XEUS no CACHE BOOL "Build with XEUS support")
 if (WITH_XEUS)
-    find_package(xeus 0.24.1 REQUIRED)
+    find_package(xeus 5.1.0 REQUIRED)
+    find_package(xeus-zmq 3.0.0 REQUIRED)
     set(HAVE_LFORTRAN_XEUS yes)
 
     # Generate kernel.json with correct paths
     configure_file (
-        "${CMAKE_CURRENT_SOURCE_DIR}/share/jupyter/kernels/fortran/kernel.json.in"
-        "${CMAKE_CURRENT_BINARY_DIR}/share/jupyter/kernels/fortran/kernel.json"
+        "${CMAKE_CURRENT_SOURCE_DIR}/share/jupyter/kernels/lpython/kernel.json.in"
+        "${CMAKE_CURRENT_BINARY_DIR}/share/jupyter/kernels/lpython/kernel.json"
     )
 
     # Configuration and data directories for Jupyter and LFortran

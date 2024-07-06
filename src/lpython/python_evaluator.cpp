@@ -11,6 +11,7 @@
 #include <libasr/exception.h>
 #include <libasr/asr.h>
 #include <libasr/asr_scopes.h>
+#include <libasr/pickle.h>
 
 #ifdef HAVE_LFORTRAN_LLVM
 #include <libasr/codegen/evaluator.h>
@@ -29,12 +30,12 @@ namespace LCompilers {
 
 PythonCompiler::PythonCompiler(CompilerOptions compiler_options)
     :
+    compiler_options{compiler_options},
     al{1024*1024},
 #ifdef HAVE_LFORTRAN_LLVM
     e{std::make_unique<LLVMEvaluator>()},
 #endif
     eval_count{1},
-    compiler_options{compiler_options},
     symbol_table{nullptr}
 {
 }
@@ -234,6 +235,66 @@ Result<PythonCompiler::EvalResult> PythonCompiler::evaluate(
 #endif
 }
 
+Result<std::string> PythonCompiler::get_ast(const std::string &code,
+    LocationManager &lm, diag::Diagnostics &diagnostics)
+{
+    Result<LCompilers::LPython::AST::ast_t*> ast = get_ast2(code, diagnostics);
+    if (ast.ok) {
+        if (compiler_options.po.tree) {
+            return LCompilers::LPython::pickle_tree_python(*ast.result, compiler_options.use_colors);
+        } else if (compiler_options.po.json || compiler_options.po.visualize) {
+            return LCompilers::LPython::pickle_json(*ast.result, lm);
+        }
+        return LCompilers::LPython::pickle_python(*ast.result, compiler_options.use_colors,
+            compiler_options.indent);
+    } else {
+        LCOMPILERS_ASSERT(diagnostics.has_error())
+        return ast.error;
+    }
+}
+
+Result<std::string> PythonCompiler::get_asr(const std::string &code,
+    LocationManager &lm, diag::Diagnostics &diagnostics)
+{
+    Result<ASR::TranslationUnit_t*> asr = get_asr2(code, lm, diagnostics);
+    if (asr.ok) {
+        if (compiler_options.po.tree) {
+            return LCompilers::pickle_tree(*asr.result, compiler_options.use_colors);
+        } else if (compiler_options.po.json) {
+            return LCompilers::pickle_json(*asr.result, lm, compiler_options.po.no_loc, false);
+        }
+        return LCompilers::pickle(*asr.result,
+            compiler_options.use_colors, compiler_options.indent);
+    } else {
+        LCOMPILERS_ASSERT(diagnostics.has_error())
+        return asr.error;
+    }
+}
+
+Result<ASR::TranslationUnit_t*> PythonCompiler::get_asr2(
+            const std::string &code_orig, LocationManager &lm,
+            diag::Diagnostics &diagnostics)
+{
+    // Src -> AST
+    Result<LCompilers::LPython::AST::ast_t*> res = get_ast2(code_orig, diagnostics);
+    LCompilers::LPython::AST::ast_t* ast;
+    if (res.ok) {
+        ast = res.result;
+    } else {
+        LCOMPILERS_ASSERT(diagnostics.has_error())
+        return res.error;
+    }
+
+    // AST -> ASR
+    Result<ASR::TranslationUnit_t*> res2 = get_asr3(*ast, diagnostics, lm, true);
+    if (res2.ok) {
+        return res2.result;
+    } else {
+        LCOMPILERS_ASSERT(diagnostics.has_error())
+        return res2.error;
+    }
+}
+
 Result<LCompilers::LPython::AST::ast_t*> PythonCompiler::get_ast2(
             const std::string &code_orig, diag::Diagnostics &diagnostics)
 {
@@ -271,6 +332,48 @@ Result<ASR::TranslationUnit_t*> PythonCompiler::get_asr3(
 
     return asr;
 }
+
+Result<std::string> PythonCompiler::get_llvm(
+    const std::string &code, LocationManager &lm, LCompilers::PassManager& pass_manager,
+    diag::Diagnostics &diagnostics
+    )
+{
+    Result<std::unique_ptr<LLVMModule>> res = get_llvm2(code, lm, pass_manager, diagnostics);
+    if (res.ok) {
+#ifdef HAVE_LFORTRAN_LLVM
+        return res.result->str();
+#else
+        throw LCompilersException("LLVM is not enabled");
+#endif
+    } else {
+        LCOMPILERS_ASSERT(diagnostics.has_error())
+        return res.error;
+    }
+}
+
+Result<std::unique_ptr<LLVMModule>> PythonCompiler::get_llvm2(
+    const std::string &code, LocationManager &lm, LCompilers::PassManager& pass_manager,
+    diag::Diagnostics &diagnostics)
+{
+    Result<ASR::TranslationUnit_t*> asr = get_asr2(code, lm, diagnostics);
+    if (!asr.ok) {
+        return asr.error;
+    }
+    Result<std::unique_ptr<LLVMModule>> res = get_llvm3(*asr.result, pass_manager,
+        diagnostics, lm.files.back().in_filename);
+    if (res.ok) {
+#ifdef HAVE_LFORTRAN_LLVM
+        std::unique_ptr<LLVMModule> m = std::move(res.result);
+        return m;
+#else
+        throw LCompilersException("LLVM is not enabled");
+#endif
+    } else {
+        LCOMPILERS_ASSERT(diagnostics.has_error())
+        return res.error;
+    }
+}
+
 
 Result<std::unique_ptr<LLVMModule>> PythonCompiler::get_llvm3(
 #ifdef HAVE_LFORTRAN_LLVM
@@ -318,5 +421,32 @@ Result<std::unique_ptr<LLVMModule>> PythonCompiler::get_llvm3(
     throw LCompilersException("LLVM is not enabled");
 #endif
 }
+
+Result<std::string> PythonCompiler::get_asm(
+#ifdef HAVE_LFORTRAN_LLVM
+    const std::string &code, LocationManager &lm,
+    LCompilers::PassManager& lpm,
+    diag::Diagnostics &diagnostics
+#else
+    const std::string &/*code*/,
+    LocationManager &/*lm*/,
+    LCompilers::PassManager&/*lpm*/,
+    diag::Diagnostics &/*diagnostics*/
+#endif
+    )
+{
+#ifdef HAVE_LFORTRAN_LLVM
+    Result<std::unique_ptr<LLVMModule>> res = get_llvm2(code, lm, lpm, diagnostics);
+    if (res.ok) {
+        return e->get_asm(*res.result->m_m);
+    } else {
+        LCOMPILERS_ASSERT(diagnostics.has_error())
+        return res.error;
+    }
+#else
+    throw LCompilersException("LLVM is not enabled");
+#endif
+}
+
 
 } // namespace LCompilers::LPython
