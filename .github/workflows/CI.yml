@@ -496,6 +496,51 @@ jobs:
             cd integration_tests
             ./run_tests.py -b cpython c_py
 
+  build_jupyter_kernel:
+    name: Build Jupyter Kernel
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - uses: mamba-org/setup-micromamba@v1
+        with:
+          environment-file: ci/environment.yml
+          create-args: >-
+            jupyter
+            nlohmann_json
+            python=3.10
+            bison=3.4
+            xeus=5.1.0
+            xeus-zmq=3.0.0
+
+      - uses: hendrikmuhs/ccache-action@main
+        with:
+          variant: sccache
+          key: ${{ github.job }}-${{ matrix.os }}
+
+      - name: Build LPython with Kernel
+        shell: bash -e -l {0}
+        run: |
+            ./build0.sh
+            export CXXFLAGS="-Werror"
+            cmake . -GNinja \
+              -DCMAKE_BUILD_TYPE=Debug \
+              -DWITH_LLVM=yes \
+              -DWITH_XEUS=yes \
+              -DCMAKE_PREFIX_PATH="$CONDA_PREFIX" \
+              -DCMAKE_INSTALL_PREFIX="$CONDA_PREFIX"
+
+            ninja install
+            ctest --output-on-failure
+            jupyter kernelspec list --json
+
+      - name: Test Kernel
+        shell: bash -e -l {0}
+        run: |
+            ctest --output-on-failure
+
   upload_tarball:
     name: Upload Tarball
     runs-on: ubuntu-latest
