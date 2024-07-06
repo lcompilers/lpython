@@ -405,6 +405,7 @@ jobs:
             bison=3.4
             symengine=0.12.0
             sympy=1.11.1
+            zstd=1.5.6
 
       - uses: hendrikmuhs/ccache-action@main
         with:
