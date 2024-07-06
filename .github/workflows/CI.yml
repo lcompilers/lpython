@@ -49,7 +49,7 @@ jobs:
       - name: Install Linux / macOS Conda Packages
         if: contains(matrix.os, 'ubuntu') || contains(matrix.os, 'macos')
         shell: bash -e -l {0}
-        run: micromamba install bison=3.4 nodejs=18
+        run: micromamba install bison=3.4 nodejs=18 xeus=1.0.1 nlohmann_json=3.9.1
 
 #      - name: Conda info
 #        shell: bash -e -l {0}
