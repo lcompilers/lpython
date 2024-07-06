@@ -40,6 +40,8 @@ jobs:
           environment-file: ci/environment.yml
           create-args: >-
             python=${{ matrix.python-version }}
+            zstd=1.5.2
+            zlib=1.2.13
 
       - name: Install Windows Conda Packages
         if: contains(matrix.os, 'windows')
