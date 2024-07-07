@@ -4280,9 +4280,7 @@ public:
             args_vec.push_back(al,*arg);
         }
         new_args->m_args = args_vec.p;
-        x = *AST::down_cast<AST::FunctionDef_t>(AST::make_FunctionDef_t(al,x.base.base.loc,
-        x.m_name,*new_args,x.m_body,x.n_body,x.m_decorator_list,x.n_decorator_list,
-        x.m_returns,x.m_type_comment));
+        x.m_args = *new_args;
         visit_FunctionDef(x);
     }
 
