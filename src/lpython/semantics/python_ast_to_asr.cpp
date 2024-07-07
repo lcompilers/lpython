@@ -2961,11 +2961,7 @@ public:
                     if (f_name == "__init__") {
                         this->handle_init_method(*f, member_names, member_init);
                         this->handle_class_method(*f);
-                        // This seems hackish, as struct depends on itself
-                        // We need to handle this later.
-                        // Removing this throws a ASR verify error
                         member_fn_names.push_back(al, f->m_name);
-                        struct_dependencies.push_back(al, x.m_name);
                     } else {
                         this->handle_class_method(*f);
                         member_fn_names.push_back(al, f->m_name);
