@@ -346,19 +346,19 @@ public:
         transform_stmts(xx.m_body, xx.n_body);
 
         // freeing out variables
-        // if (!symbolic_vars_to_free.empty()) {
-        //     Vec<ASR::stmt_t*> func_body;
-        //     func_body.from_pointer_n_copy(al, xx.m_body, xx.n_body);
+        if (!symbolic_vars_to_free.empty()) {
+            Vec<ASR::stmt_t*> func_body;
+            func_body.from_pointer_n_copy(al, xx.m_body, xx.n_body);
 
-        //     for (ASR::symbol_t* symbol : symbolic_vars_to_free) {
-        //         func_body.push_back(al, basic_free_stack(x.base.base.loc,
-        //             ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, symbol))));
-        //     }
+            for (ASR::symbol_t* symbol : symbolic_vars_to_free) {
+                func_body.push_back(al, basic_free_stack(x.base.base.loc,
+                    ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, symbol))));
+            }
 
-        //     xx.n_body = func_body.size();
-        //     xx.m_body = func_body.p;
-        //     symbolic_vars_to_free.clear();
-        // }
+            xx.n_body = func_body.size();
+            xx.m_body = func_body.p;
+            symbolic_vars_to_free.clear();
+        }
 
         SetChar function_dependencies;
         function_dependencies.from_pointer_n_copy(al, xx.m_dependencies, xx.n_dependencies);
@@ -1113,10 +1113,10 @@ public:
     void visit_Return(const ASR::Return_t &x) {
         // freeing out variables
         if (!symbolic_vars_to_free.empty()){
-            // for (ASR::symbol_t* symbol : symbolic_vars_to_free) {
-            //     pass_result.push_back(al, basic_free_stack(x.base.base.loc,
-            //         ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, symbol))));
-            // }
+            for (ASR::symbol_t* symbol : symbolic_vars_to_free) {
+                pass_result.push_back(al, basic_free_stack(x.base.base.loc,
+                    ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, symbol))));
+            }
             pass_result.push_back(al, ASRUtils::STMT(ASR::make_Return_t(al, x.base.base.loc)));
         }
     }
