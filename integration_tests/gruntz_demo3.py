@@ -102,7 +102,7 @@ def rewrite(e: S, x: S, w: S) -> S:
         return newe
 
 def signinf(e: S, x : S) -> S:
-    """
+    r"""
     Determine sign of the expression at the infinity.
 
     Returns
