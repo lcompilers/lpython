@@ -40,7 +40,7 @@ jobs:
           environment-file: ci/environment.yml
           create-args: >-
             python=${{ matrix.python-version }}
-            cmake=3.21.1
+            cmake=3.30.0
 
       - name: Install Windows Conda Packages
         if: contains(matrix.os, 'windows')
@@ -456,7 +456,7 @@ jobs:
             bison=3.4
             re2c=2.2
             zlib=1.2.13
-            cmake=3.21.1
+            cmake=3.30.0
             make=4.3
             python=${{ matrix.python-version }}
             numpy=1.26.4
