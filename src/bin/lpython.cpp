@@ -917,13 +917,13 @@ int interactive_python_repl(
             case (LCompilers::PythonCompiler::EvalResult::integer1) : {
                 if (verbose) std::cout << "Return type: i8" << std::endl;
                 if (verbose) section("Result:");
-                std::cout << r.i32 << std::endl;
+                std::cout << r.i8 << std::endl;
                 break;
             }
             case (LCompilers::PythonCompiler::EvalResult::integer2) : {
                 if (verbose) std::cout << "Return type: i16" << std::endl;
                 if (verbose) section("Result:");
-                std::cout << r.i64 << std::endl;
+                std::cout << r.i16 << std::endl;
                 break;
             }
             case (LCompilers::PythonCompiler::EvalResult::integer4) : {
@@ -941,13 +941,13 @@ int interactive_python_repl(
             case (LCompilers::PythonCompiler::EvalResult::unsignedInteger1) : {
                 if (verbose) std::cout << "Return type: u8" << std::endl;
                 if (verbose) section("Result:");
-                std::cout << r.u32 << std::endl;
+                std::cout << r.u8 << std::endl;
                 break;
             }
             case (LCompilers::PythonCompiler::EvalResult::unsignedInteger2) : {
                 if (verbose) std::cout << "Return type: u16" << std::endl;
                 if (verbose) section("Result:");
-                std::cout << r.u64 << std::endl;
+                std::cout << r.u16 << std::endl;
                 break;
             }
             case (LCompilers::PythonCompiler::EvalResult::unsignedInteger4) : {
