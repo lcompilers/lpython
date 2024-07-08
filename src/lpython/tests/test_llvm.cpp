@@ -981,32 +981,32 @@ TEST_CASE("PythonCompiler i8 expressions") {
     r = e.evaluate2("i8(1)");
     CHECK(r.ok);
     CHECK(r.result.type == PythonCompiler::EvalResult::integer1);
-    CHECK(r.result.i32 == 1);
+    CHECK(r.result.i8 == 1);
 
     r = e.evaluate2("i8(1) + i8(2)");
     CHECK(r.ok);
     CHECK(r.result.type == PythonCompiler::EvalResult::integer1);
-    CHECK(r.result.i32 == 3);
+    CHECK(r.result.i8 == 3);
 
     r = e.evaluate2("i8(1) - i8(2)");
     CHECK(r.ok);
     CHECK(r.result.type == PythonCompiler::EvalResult::integer1);
-    CHECK(r.result.i32 == -1);
+    CHECK(r.result.i8 == -1);
 
     r = e.evaluate2("i8(1) * i8(2)");
     CHECK(r.ok);
     CHECK(r.result.type == PythonCompiler::EvalResult::integer1);
-    CHECK(r.result.i32 == 2);
+    CHECK(r.result.i8 == 2);
 
     r = e.evaluate2("i8(3) ** i8(3)");
     CHECK(r.ok);
     CHECK(r.result.type == PythonCompiler::EvalResult::integer1);
-    CHECK(r.result.i32 == 27);
+    CHECK(r.result.i8 == 27);
 
     r = e.evaluate2("i8(4) // i8(2)");
     CHECK(r.ok);
     CHECK(r.result.type == PythonCompiler::EvalResult::integer1);
-    CHECK(r.result.i32 == 2);
+    CHECK(r.result.i8 == 2);
 
     r = e.evaluate2("i8(4) / i8(2)");
     CHECK(r.ok);
@@ -1033,7 +1033,7 @@ TEST_CASE("PythonCompiler i8 declaration") {
     r = e.evaluate2("i");
     CHECK(r.ok);
     CHECK(r.result.type == PythonCompiler::EvalResult::integer1);
-    CHECK(r.result.i32 == 5);
+    CHECK(r.result.i8 == 5);
 
     r = e.evaluate2("j: i8 = i8(9)");
     CHECK(r.ok);
@@ -1041,12 +1041,12 @@ TEST_CASE("PythonCompiler i8 declaration") {
     r = e.evaluate2("j");
     CHECK(r.ok);
     CHECK(r.result.type == PythonCompiler::EvalResult::integer1);
-    CHECK(r.result.i32 == 9);
+    CHECK(r.result.i8 == 9);
 
     r = e.evaluate2("i + j");
     CHECK(r.ok);
     CHECK(r.result.type == PythonCompiler::EvalResult::integer1);
-    CHECK(r.result.i32 == 14);
+    CHECK(r.result.i8 == 14);
 }
 
 TEST_CASE("PythonCompiler u8 expressions") {
@@ -1062,32 +1062,32 @@ TEST_CASE("PythonCompiler u8 expressions") {
     r = e.evaluate2("u8(1)");
     CHECK(r.ok);
     CHECK(r.result.type == PythonCompiler::EvalResult::unsignedInteger1);
-    CHECK(r.result.u32 == 1);
+    CHECK(r.result.u8 == 1);
 
     r = e.evaluate2("u8(1) + u8(2)");
     CHECK(r.ok);
     CHECK(r.result.type == PythonCompiler::EvalResult::unsignedInteger1);
-    CHECK(r.result.u32 == 3);
+    CHECK(r.result.u8 == 3);
 
     r = e.evaluate2("u8(20) - u8(10)");
     CHECK(r.ok);
     CHECK(r.result.type == PythonCompiler::EvalResult::unsignedInteger1);
-    CHECK(r.result.u32 == 10);
+    CHECK(r.result.u8 == 10);
 
     r = e.evaluate2("u8(1) * u8(2)");
     CHECK(r.ok);
     CHECK(r.result.type == PythonCompiler::EvalResult::unsignedInteger1);
-    CHECK(r.result.u32 == 2);
+    CHECK(r.result.u8 == 2);
 
     r = e.evaluate2("u8(3) ** u8(3)");
     CHECK(r.ok);
     CHECK(r.result.type == PythonCompiler::EvalResult::unsignedInteger1);
-    CHECK(r.result.u32 == 27);
+    CHECK(r.result.u8 == 27);
 
     r = e.evaluate2("u8(4) // u8(2)");
     CHECK(r.ok);
     CHECK(r.result.type == PythonCompiler::EvalResult::unsignedInteger1);
-    CHECK(r.result.u32 == 2);
+    CHECK(r.result.u8 == 2);
 
     r = e.evaluate2("u8(4) / u8(2)");
     CHECK(r.ok);
@@ -1114,7 +1114,7 @@ TEST_CASE("PythonCompiler u8 declaration") {
     r = e.evaluate2("i");
     CHECK(r.ok);
     CHECK(r.result.type == PythonCompiler::EvalResult::unsignedInteger1);
-    CHECK(r.result.u32 == 5);
+    CHECK(r.result.u8 == 5);
 
     r = e.evaluate2("j: u8 = u8(9)");
     CHECK(r.ok);
@@ -1122,12 +1122,12 @@ TEST_CASE("PythonCompiler u8 declaration") {
     r = e.evaluate2("j");
     CHECK(r.ok);
     CHECK(r.result.type == PythonCompiler::EvalResult::unsignedInteger1);
-    CHECK(r.result.u32 == 9);
+    CHECK(r.result.u8 == 9);
 
     r = e.evaluate2("i * j");
     CHECK(r.ok);
     CHECK(r.result.type == PythonCompiler::EvalResult::unsignedInteger1);
-    CHECK(r.result.u32 == 45);
+    CHECK(r.result.u8 == 45);
 }
 
 TEST_CASE("PythonCompiler i16 expressions") {
@@ -1143,32 +1143,32 @@ TEST_CASE("PythonCompiler i16 expressions") {
     r = e.evaluate2("i16(1)");
     CHECK(r.ok);
     CHECK(r.result.type == PythonCompiler::EvalResult::integer2);
-    CHECK(r.result.i32 == 1);
+    CHECK(r.result.i16 == 1);
 
     r = e.evaluate2("i16(1) + i16(2)");
     CHECK(r.ok);
     CHECK(r.result.type == PythonCompiler::EvalResult::integer2);
-    CHECK(r.result.i32 == 3);
+    CHECK(r.result.i16 == 3);
 
     r = e.evaluate2("i16(1) - i16(2)");
     CHECK(r.ok);
     CHECK(r.result.type == PythonCompiler::EvalResult::integer2);
-    CHECK(r.result.i32 == -1);
+    CHECK(r.result.i16 == -1);
 
     r = e.evaluate2("i16(1) * i16(2)");
     CHECK(r.ok);
     CHECK(r.result.type == PythonCompiler::EvalResult::integer2);
-    CHECK(r.result.i32 == 2);
+    CHECK(r.result.i16 == 2);
 
     r = e.evaluate2("i16(3) ** i16(3)");
     CHECK(r.ok);
     CHECK(r.result.type == PythonCompiler::EvalResult::integer2);
-    CHECK(r.result.i32 == 27);
+    CHECK(r.result.i16 == 27);
 
     r = e.evaluate2("i16(4) // i16(2)");
     CHECK(r.ok);
     CHECK(r.result.type == PythonCompiler::EvalResult::integer2);
-    CHECK(r.result.i32 == 2);
+    CHECK(r.result.i16 == 2);
 
     r = e.evaluate2("i16(4) / i16(2)");
     CHECK(r.ok);
@@ -1195,7 +1195,7 @@ TEST_CASE("PythonCompiler i16 declaration") {
     r = e.evaluate2("i");
     CHECK(r.ok);
     CHECK(r.result.type == PythonCompiler::EvalResult::integer2);
-    CHECK(r.result.i32 == 5);
+    CHECK(r.result.i16 == 5);
 
     r = e.evaluate2("j: i16 = i16(9)");
     CHECK(r.ok);
@@ -1203,12 +1203,12 @@ TEST_CASE("PythonCompiler i16 declaration") {
     r = e.evaluate2("j");
     CHECK(r.ok);
     CHECK(r.result.type == PythonCompiler::EvalResult::integer2);
-    CHECK(r.result.i32 == 9);
+    CHECK(r.result.i16 == 9);
 
     r = e.evaluate2("i + j");
     CHECK(r.ok);
     CHECK(r.result.type == PythonCompiler::EvalResult::integer2);
-    CHECK(r.result.i32 == 14);
+    CHECK(r.result.i16 == 14);
 }
 
 TEST_CASE("PythonCompiler u16 expressions") {
@@ -1224,32 +1224,32 @@ TEST_CASE("PythonCompiler u16 expressions") {
     r = e.evaluate2("u16(1)");
     CHECK(r.ok);
     CHECK(r.result.type == PythonCompiler::EvalResult::unsignedInteger2);
-    CHECK(r.result.u32 == 1);
+    CHECK(r.result.u16 == 1);
 
     r = e.evaluate2("u16(1) + u16(2)");
     CHECK(r.ok);
     CHECK(r.result.type == PythonCompiler::EvalResult::unsignedInteger2);
-    CHECK(r.result.u32 == 3);
+    CHECK(r.result.u16 == 3);
 
     r = e.evaluate2("u16(20) - u16(10)");
     CHECK(r.ok);
     CHECK(r.result.type == PythonCompiler::EvalResult::unsignedInteger2);
-    CHECK(r.result.u32 == 10);
+    CHECK(r.result.u16 == 10);
 
     r = e.evaluate2("u16(1) * u16(2)");
     CHECK(r.ok);
     CHECK(r.result.type == PythonCompiler::EvalResult::unsignedInteger2);
-    CHECK(r.result.u32 == 2);
+    CHECK(r.result.u16 == 2);
 
     r = e.evaluate2("u16(3) ** u16(3)");
     CHECK(r.ok);
     CHECK(r.result.type == PythonCompiler::EvalResult::unsignedInteger2);
-    CHECK(r.result.u32 == 27);
+    CHECK(r.result.u16 == 27);
 
     r = e.evaluate2("u16(4) // u16(2)");
     CHECK(r.ok);
     CHECK(r.result.type == PythonCompiler::EvalResult::unsignedInteger2);
-    CHECK(r.result.u32 == 2);
+    CHECK(r.result.u16 == 2);
 
     r = e.evaluate2("u16(4) / u16(2)");
     CHECK(r.ok);
@@ -1276,7 +1276,7 @@ TEST_CASE("PythonCompiler u16 declaration") {
     r = e.evaluate2("i");
     CHECK(r.ok);
     CHECK(r.result.type == PythonCompiler::EvalResult::unsignedInteger2);
-    CHECK(r.result.u32 == 5);
+    CHECK(r.result.u16 == 5);
 
     r = e.evaluate2("j: u16 = u16(9)");
     CHECK(r.ok);
@@ -1284,12 +1284,12 @@ TEST_CASE("PythonCompiler u16 declaration") {
     r = e.evaluate2("j");
     CHECK(r.ok);
     CHECK(r.result.type == PythonCompiler::EvalResult::unsignedInteger2);
-    CHECK(r.result.u32 == 9);
+    CHECK(r.result.u16 == 9);
 
     r = e.evaluate2("i * j");
     CHECK(r.ok);
     CHECK(r.result.type == PythonCompiler::EvalResult::unsignedInteger2);
-    CHECK(r.result.u32 == 45);
+    CHECK(r.result.u16 == 45);
 }
 
 TEST_CASE("PythonCompiler boolean expressions") {
