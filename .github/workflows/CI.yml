@@ -41,8 +41,6 @@ jobs:
           create-args: >-
             python=${{ matrix.python-version }}
             cmake=3.21.1
-            gcc
-            gxx
 
       - name: Install Windows Conda Packages
         if: contains(matrix.os, 'windows')
