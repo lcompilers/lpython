@@ -185,6 +185,38 @@ You can run the following examples manually in a terminal:
 ./src/bin/lpython --show-c examples/expr2.py
 ```
 
+## Enabling the Jupyter Kernel
+
+To install the Jupyter kernel, install the following Conda packages also:
+```
+conda install xeus=5.1.0 xeus-zmq=3.0.0 nlohmann_json
+```
+and enable the kernel by `-DWITH_XEUS=yes` and install into `$CONDA_PREFIX`. For
+example:
+```
+cmake . -GNinja \
+    -DCMAKE_BUILD_TYPE=Debug \
+    -DWITH_LLVM=yes \
+    -DWITH_XEUS=yes \
+    -DCMAKE_PREFIX_PATH="$CONDA_PREFIX" \
+    -DCMAKE_INSTALL_PREFIX="$CONDA_PREFIX"
+    .
+ninja install
+```
+To use it, install Jupyter (`conda install jupyter`) and test that the LPython
+kernel was found:
+```
+jupyter kernelspec list --json
+```
+Then launch a Jupyter notebook as follows:
+```
+jupyter notebook
+```
+Click `New->LPython`. To launch a terminal jupyter LPython console:
+```
+jupyter console --kernel=lpython
+```
+
 ## Found a bug?
 Please report any bugs you find at our issue tracker [here](https://github.com/lcompilers/lpython/issues). Or, even better, fork the repository on GitHub and create a Pull Request (PR). 
 
