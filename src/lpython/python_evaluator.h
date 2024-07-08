@@ -55,10 +55,6 @@ public:
             none
         } type;
         union {
-            int32_t i8;
-            int64_t i16;
-            uint32_t u8;
-            uint64_t u16;
             int32_t i32;
             int64_t i64;
             uint32_t u32;
