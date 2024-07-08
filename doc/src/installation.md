@@ -194,14 +194,14 @@ conda install xeus=5.1.0 xeus-zmq=3.0.0 nlohmann_json
 and enable the kernel by `-DWITH_XEUS=yes` and install into `$CONDA_PREFIX`. For
 example:
 ```
-cmake \
+cmake . -GNinja \
     -DCMAKE_BUILD_TYPE=Debug \
     -DWITH_LLVM=yes \
     -DWITH_XEUS=yes \
     -DCMAKE_PREFIX_PATH="$CONDA_PREFIX" \
-    -DCMAKE_INSTALL_PREFIX="$CONDA_PREFIX" \
+    -DCMAKE_INSTALL_PREFIX="$CONDA_PREFIX"
     .
-cmake --build . -j4 --target install
+ninja install
 ```
 To use it, install Jupyter (`conda install jupyter`) and test that the LPython
 kernel was found:
@@ -212,9 +212,9 @@ Then launch a Jupyter notebook as follows:
 ```
 jupyter notebook
 ```
-Click `New->Python`. To launch a terminal jupyter LPython console:
+Click `New->LPython`. To launch a terminal jupyter LPython console:
 ```
-jupyter console --kernel=python
+jupyter console --kernel=lpython
 ```
 
 ## Found a bug?
