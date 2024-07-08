@@ -127,38 +127,29 @@ def leadterm(e: S, x: S) -> list[S]:
     """
     Returns the leading term a*x**b as a list [a, b].
     """
-    term1: S = sin(x)/x
-    term2: S = S(2)*sin(x)/x
-    term3: S = sin(S(2)*x)/x
-    term4: S = sin(x)**S(2)/x
-    term5: S = sin(x)/x**S(2)
-    term6: S = sin(x)**S(2)/x**S(2)
-    term7: S = sin(sin(sin(x)))/sin(x)
-    term8: S = S(2)*log(x+S(1))/x
-    term9: S = sin((log(x+S(1))/x)*x)/x
 
     l1: list[S] = [S(1), S(0)]
     l2: list[S] = [S(2), S(0)]
     l3: list[S] = [S(1), S(1)]
     l4: list[S] = [S(1), S(-1)]
 
-    if e == term1:
+    if e == sin(x)/x:
         return l1
-    elif e == term2:
+    elif e == S(2)*sin(x)/x:
         return l2
-    elif e == term3:
+    elif e == sin(S(2)*x)/x:
         return l2
-    elif e == term4:
+    elif e == sin(x)**S(2)/x:
         return l3
-    elif e == term5:
+    elif e == sin(x)/x**S(2):
         return l4
-    elif e == term6:
+    elif e == sin(x)**S(2)/x**S(2):
         return l1
-    elif e == term7:
+    elif e == sin(sin(sin(x)))/sin(x):
         return l1
-    elif e == term8:
+    elif e == S(2)*log(x+S(1))/x:
         return l2
-    elif e == term9:
+    elif e == sin((log(x+S(1))/x)*x)/x:
         return l1
     raise NotImplementedError(f"Can't calculate the leadterm of {e}.")
 
