@@ -42,6 +42,7 @@ jobs:
             python=${{ matrix.python-version }}
             cmake=3.21.1
             clang
+            clangxx
 
       - name: Install Windows Conda Packages
         if: contains(matrix.os, 'windows')
