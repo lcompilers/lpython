@@ -61,6 +61,7 @@ src/libasr/wasm_visitor.h
 src/libasr/pass/intrinsic_function_registry_util.h
 src/libasr/config.h
 share/jupyter/kernels/fortran/kernel.json
+share/jupyter/kernels/lpython/kernel.json
 src/runtime/*.o.empty.c
 python_ast.py
 python_ast.h
