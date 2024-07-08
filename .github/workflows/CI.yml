@@ -40,13 +40,13 @@ jobs:
           environment-file: ci/environment.yml
           create-args: >-
             python=${{ matrix.python-version }}
-            zstd=1.5.2
-            zlib=1.2.13
+            cmake=3.21.1
+            clang
 
       - name: Install Windows Conda Packages
         if: contains(matrix.os, 'windows')
         shell: bash -e -l {0}
-        run: micromamba install --freeze-installed m2-bison=3.0.4 m2-filesystem cmake=3.21.1
+        run: micromamba install --freeze-installed m2-bison=3.0.4 m2-filesystem
 
       - name: Install Linux / macOS Conda Packages
         if: contains(matrix.os, 'ubuntu') || contains(matrix.os, 'macos')
