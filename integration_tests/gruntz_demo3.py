@@ -1,5 +1,5 @@
 from lpython import S, str
-from sympy import Symbol, Pow, sin, oo, pi, E, Mul, Add, oo, log, exp, cos
+from sympy import Symbol, Pow, sin, oo, pi, E, Mul, Add, oo, log, exp, sign
 
 def mrv(e: S, x: S) -> list[S]:
     """
@@ -101,27 +101,6 @@ def rewrite(e: S, x: S, w: S) -> S:
         newe: S = e.subs(x, S(1)/w)
         return newe
 
-def sign(e: S) -> S:
-    """
-    Returns the complex sign of an expression:
-
-    Explanation
-    ===========
-
-    If the expression is real the sign will be:
-
-        * $1$ if expression is positive
-        * $0$ if expression is equal to zero
-        * $-1$ if expression is negative
-    """
-
-    if e.is_positive:
-        return S(1)
-    elif e == S(0):
-        return S(0)
-    else:
-        return S(-1)
-
 def signinf(e: S, x : S) -> S:
     """
     Determine sign of the expression at the infinity.
@@ -148,33 +127,39 @@ def leadterm(e: S, x: S) -> list[S]:
     """
     Returns the leading term a*x**b as a list [a, b].
     """
-    if e == sin(x)/x:
-        l1: list[S] = [S(1), S(0)]
+    term1: S = sin(x)/x
+    term2: S = S(2)*sin(x)/x
+    term3: S = sin(S(2)*x)/x
+    term4: S = sin(x)**S(2)/x
+    term5: S = sin(x)/x**S(2)
+    term6: S = sin(x)**S(2)/x**S(2)
+    term7: S = sin(sin(sin(x)))/sin(x)
+    term8: S = S(2)*log(x+S(1))/x
+    term9: S = sin((log(x+S(1))/x)*x)/x
+
+    l1: list[S] = [S(1), S(0)]
+    l2: list[S] = [S(2), S(0)]
+    l3: list[S] = [S(1), S(1)]
+    l4: list[S] = [S(1), S(-1)]
+
+    if e == term1:
         return l1
-    elif e == S(2)*sin(x)/x:
-        l2: list[S] = [S(2), S(0)]
+    elif e == term2:
         return l2
-    elif e == sin(S(2)*x)/x:
-        l3: list[S] = [S(2), S(0)]
+    elif e == term3:
+        return l2
+    elif e == term4:
         return l3
-    elif e == sin(x)**S(2)/x:
-        l4: list[S] = [S(1), S(1)]
+    elif e == term5:
         return l4
-    elif e == sin(x)/x**S(2):
-        l5: list[S] = [S(1), S(-1)]
-        return l5
-    elif e == sin(x)**S(2)/x**S(2):
-        l6: list[S] = [S(1), S(0)]
-        return l6
-    elif e == sin(sin(sin(x)))/sin(x):
-        l7: list[S] = [S(1), S(0)]
-        return l7
-    elif e == S(2)*log(x+S(1))/x:
-        l8: list[S] = [S(2), S(0)]
-        return l8
-    elif e == sin((log(x+S(1))/x)*x)/x:
-        l9: list[S] = [S(1), S(0)]
-        return l9
+    elif e == term6:
+        return l1
+    elif e == term7:
+        return l1
+    elif e == term8:
+        return l2
+    elif e == term9:
+        return l1
     raise NotImplementedError(f"Can't calculate the leadterm of {e}.")
 
 def mrv_leadterm(e: S, x: S) -> list[S]:
@@ -196,14 +181,12 @@ def mrv_leadterm(e: S, x: S) -> list[S]:
     (-1, 0)
 
     """
-
     # w = Dummy('w', real=True, positive=True)
     # e = rewrite(e, x, w)
     # return e.leadterm(w)
     w: S = Symbol('w')
     newe: S = rewrite(e, x, w)
     coeff_exp_list: list[S] = leadterm(newe, w)
-
     return coeff_exp_list
 
 def limitinf(e: S, x: S) -> S:
@@ -217,7 +200,6 @@ def limitinf(e: S, x: S) -> S:
     -1
 
     """
-
     if not e.has(x):
         return e
     
@@ -225,10 +207,11 @@ def limitinf(e: S, x: S) -> S:
     c0: S = coeff_exp_list[0]
     e0: S = coeff_exp_list[1]
     sig: S = signinf(e0, x)
+    case_2: S = signinf(c0, x) * oo
     if sig == S(1):
         return S(0)
     if sig == S(-1):
-        return signinf(c0, x) * oo
+        return case_2
     if sig == S(0):
         return limitinf(c0, x)
     raise NotImplementedError(f'Result depends on the sign of {sig}.')
@@ -252,10 +235,12 @@ def gruntz(e: S, z: S, z0: S, dir: str ="+") -> S:
     """
 
     e0: S
+    sub_neg: S = z0 - S(1)/z
+    sub_pos: S = z0 + S(1)/z
     if str(dir) == "-":
-        e0 = e.subs(z, z0 - S(1)/z)
+        e0 = e.subs(z, sub_neg)
     elif str(dir) == "+":
-        e0 = e.subs(z, z0 + S(1)/z)
+        e0 = e.subs(z, sub_pos)
     else:
         raise NotImplementedError("dir must be '+' or '-'")
 
