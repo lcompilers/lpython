@@ -746,6 +746,7 @@ RUN(NAME symbolics_15        LABELS c_sym llvm_sym llvm_jit NOFAST EXTRA_ARGS --
 RUN(NAME symbolics_16        LABELS cpython_sym c_sym llvm_sym llvm_jit NOFAST EXTRA_ARGS --enable-symengine)
 RUN(NAME symbolics_17        LABELS cpython_sym c_sym llvm_sym llvm_jit NOFAST EXTRA_ARGS --enable-symengine)
 RUN(NAME symbolics_18        LABELS cpython_sym c_sym llvm_sym llvm_jit NOFAST EXTRA_ARGS --enable-symengine)
+RUN(NAME gruntz_demo3        LABELS cpython_sym c_sym llvm_sym llvm_jit NOFAST EXTRA_ARGS --enable-symengine)
 
 RUN(NAME sizeof_01           LABELS llvm c
         EXTRAFILES sizeof_01b.c)
