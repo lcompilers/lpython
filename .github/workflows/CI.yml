@@ -454,12 +454,12 @@ jobs:
           create-args: >-
             llvmdev=11.1.0
             bison=3.4
-            re2c
-            zlib
-            cmake
-            make
+            re2c=2.2
+            zlib=1.2.13
+            cmake=3.21.1
+            make=4.3
             python=${{ matrix.python-version }}
-            numpy
+            numpy=1.23.4
 
       - uses: hendrikmuhs/ccache-action@main
         with:
@@ -508,12 +508,9 @@ jobs:
         with:
           environment-file: ci/environment.yml
           create-args: >-
-            jupyter
-            nlohmann_json
+            jupyter=1.0.0
             python=3.10
             bison=3.4
-            xeus=5.1.0
-            xeus-zmq=3.0.0
 
       - uses: hendrikmuhs/ccache-action@main
         with:
