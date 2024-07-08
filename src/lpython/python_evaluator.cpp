@@ -487,8 +487,6 @@ std::string PythonCompiler::aggregate_type_to_string(const struct EvalResult &r)
     if (asr_type->type == ASR::ttypeType::List) {
         int32_t size = *(int32_t*)(((char*)data)+offsets[0]);
         void *array = *(void**)(((char*)data)+offsets[2]);
-        // int32_t capacity = *(int32_t*)(((char*)data)+offsets[1]);
-        // std::cout << "size: " << size << " capacity: " << capacity << " array: " << array << std::endl;
         ASR::ttype_t *element_ttype = ASR::down_cast<ASR::List_t>(asr_type)->m_type;
 
         result += "[";
