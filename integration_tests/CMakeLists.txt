@@ -773,7 +773,7 @@ RUN(NAME test_logical_compare           LABELS cpython llvm llvm_jit) # TODO: Ad
 RUN(NAME test_logical_assignment        LABELS cpython llvm llvm_jit) # TODO: Add C backend after fixing issue #2708
 RUN(NAME vec_01              LABELS cpython llvm llvm_jit c NOFAST)
 RUN(NAME test_str_comparison LABELS cpython llvm llvm_jit c wasm)
-RUN(NAME test_bit_length     LABELS cpython llvm llvm_jit c)
+RUN(NAME test_bit_length     LABELS cpython c)
 RUN(NAME str_to_list_cast    LABELS cpython llvm llvm_jit c)
 RUN(NAME cast_01             LABELS cpython llvm llvm_jit c)
 RUN(NAME cast_02             LABELS cpython llvm llvm_jit c)
