@@ -13,9 +13,9 @@ dependencies:
   - jupyter_kernel_test=0.4.4
   - xonsh=0.13.3
   - re2c=2.2
-  - numpy=1.23.4
-  - zlib
-  - zstd
+  - numpy=1.26.4
+  - zlib=1.3.1
+  - zstd=1.5.6
   - ninja=1.11.0
   - rapidjson=1.1.0
 #  - bison=3.4  [not win]
