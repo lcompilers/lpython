@@ -1,4 +1,4 @@
-from lpython import S, str
+from lpython import S
 from sympy import Symbol, Pow, sin, oo, pi, E, Mul, Add, oo, log, exp, sign
 
 def mrv(e: S, x: S) -> list[S]:
