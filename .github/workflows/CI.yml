@@ -35,29 +35,28 @@ jobs:
           key:
             ${{ runner.os }}-conda-${{ env.CACHE_NUMBER }}-${{ hashFiles('ci/environment.yml') }}
 
-      - uses: conda-incubator/setup-miniconda@v2
+      - uses: mamba-org/setup-micromamba@v1.9.0
         with:
-          miniconda-version: "latest"
-          auto-update-conda: true
           environment-file: ci/environment.yml
-          python-version: ${{ matrix.python-version }}
-          use-only-tar-bz2: true
+          create-args: >-
+            python=${{ matrix.python-version }}
+            cmake=3.21.1
 
       - name: Install Windows Conda Packages
         if: contains(matrix.os, 'windows')
         shell: bash -e -l {0}
-        run: conda install m2-bison=3.0.4 cmake=3.21.1
+        run: micromamba install --freeze-installed m2-bison=3.0.4 m2-filesystem
 
       - name: Install Linux / macOS Conda Packages
         if: contains(matrix.os, 'ubuntu') || contains(matrix.os, 'macos')
         shell: bash -e -l {0}
-        run: conda install bison=3.4 nodejs=18
+        run: micromamba install --freeze-installed bison=3.4 nodejs=18
 
       - name: Conda info
         shell: bash -e -l {0}
         run: |
-            conda info
-            conda list
+            micromamba info
+            micromamba list
 
       - name: Setup Platform (Linux)
         if: contains(matrix.os, 'ubuntu')
@@ -87,9 +86,9 @@ jobs:
         if: contains(matrix.os, 'windows')
         shell: cmd
         run: |
-            set CONDA_INSTALL_LOCN=C:\\Miniconda3
-            call %CONDA_INSTALL_LOCN%\Scripts\activate.bat
-            call conda activate test
+            set MAMBA_INSTALL_LOCN=C:\\Users\runneradmin\micromamba
+            call %MAMBA_INSTALL_LOCN%\Scripts\activate.bat
+            call micromamba activate lp
             set LFORTRAN_CMAKE_GENERATOR=Ninja
             set WIN=1
             set MACOS=0
@@ -107,9 +106,9 @@ jobs:
         if: contains(matrix.os, 'windows')
         shell: cmd
         run: |
-            set CONDA_INSTALL_LOCN=C:\\Miniconda3
-            call %CONDA_INSTALL_LOCN%\Scripts\activate.bat
-            call conda activate test
+            set MAMBA_INSTALL_LOCN=C:\\Users\runneradmin\micromamba
+            call %MAMBA_INSTALL_LOCN%\Scripts\activate.bat
+            call micromamba activate lp
             set LFORTRAN_CMAKE_GENERATOR=Ninja
             set WIN=1
             set MACOS=0

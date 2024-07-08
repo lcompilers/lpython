@@ -143,11 +143,11 @@ Result<PythonCompiler::EvalResult> PythonCompiler::evaluate(
                                     ->m_symtab->get_symbol(run_fn);
             LCOMPILERS_ASSERT(fn)
             if (ASRUtils::get_FunctionType(fn)->m_return_var_type->type == ASR::ttypeType::UnsignedInteger) {
-                uint8_t r = e->execfn<uint8_t>(run_fn);
+                uint8_t r = e->execfn<int>(run_fn);
                 result.type = EvalResult::unsignedInteger1;
                 result.u32 = r;
             } else {
-                int8_t r = e->execfn<int8_t>(run_fn);
+                int8_t r = e->execfn<int>(run_fn);
                 result.type = EvalResult::integer1;
                 result.i32 = r;
             }
@@ -156,11 +156,11 @@ Result<PythonCompiler::EvalResult> PythonCompiler::evaluate(
                                     ->m_symtab->get_symbol(run_fn);
             LCOMPILERS_ASSERT(fn)
             if (ASRUtils::get_FunctionType(fn)->m_return_var_type->type == ASR::ttypeType::UnsignedInteger) {
-                uint16_t r = e->execfn<uint16_t>(run_fn);
+                uint16_t r = e->execfn<int>(run_fn);
                 result.type = EvalResult::unsignedInteger2;
                 result.u32 = r;
             } else {
-                int16_t r = e->execfn<int16_t>(run_fn);
+                int16_t r = e->execfn<int>(run_fn);
                 result.type = EvalResult::integer2;
                 result.i32 = r;
             }
