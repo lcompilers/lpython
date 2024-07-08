@@ -459,7 +459,7 @@ jobs:
             cmake=3.21.1
             make=4.3
             python=${{ matrix.python-version }}
-            numpy=1.23.4
+            numpy=1.26.4
 
       - uses: hendrikmuhs/ccache-action@main
         with:
