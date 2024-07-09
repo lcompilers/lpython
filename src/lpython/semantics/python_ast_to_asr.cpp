@@ -1913,6 +1913,8 @@ public:
                 current_scope->add_symbol(import_name, import_struct_member);
             }
             return ASRUtils::TYPE(ASR::make_Union_t(al, attr_annotation->base.base.loc, import_struct_member));
+        } else if () { 
+            //intent inout
         }
 
         throw SemanticError("Only Name, Subscript, and Call supported for now in annotation of annotated assignment.", loc);
@@ -2930,7 +2932,7 @@ public:
         assign_asr_target = assign_asr_target_copy;
     }
 
-    virtual void handle_init_method(const AST::FunctionDef_t &/*x*/,
+    virtual void handle_init_method(AST::FunctionDef_t &/*x*/,
         Vec<char*>& /*member_names*/, Vec<ASR::call_arg_t> &/*member_init*/) = 0;
     void visit_ClassMembers(const AST::ClassDef_t& x,
         Vec<char*>& member_names, Vec<char*>& member_fn_names,
@@ -2959,8 +2961,8 @@ public:
                         *f = AST::down_cast<AST::FunctionDef_t>(x.m_body[i]);
                     std::string f_name = f->m_name;
                     if (f_name == "__init__") {
-                        this->handle_init_method(*f, member_names, member_init);
-                        this->handle_class_method(*f);
+                        // this->handle_init_method(*f, member_names, member_init);//members 
+                        this->handle_class_method(*f);//Handle both in single fn
                         member_fn_names.push_back(al, f->m_name);
                     } else {
                         this->handle_class_method(*f);
@@ -3275,6 +3277,7 @@ public:
                     }
                 }
             } else {
+                //SymTab self
                 current_scope = al.make_new<SymbolTable>(parent_scope);
                 Vec<char*> member_names;
                 Vec<char*> member_fn_names;
@@ -3290,9 +3293,6 @@ public:
                     "instead use the dataclass decorator ",
                     x.base.base.loc);
                 }
-                visit_ClassMembers(x, member_names, member_fn_names,
-                    struct_dependencies, member_init, false, class_abi, true);
-                LCOMPILERS_ASSERT(member_init.size() == member_names.size());
                 ASR::symbol_t* class_sym = ASR::down_cast<ASR::symbol_t>(
                     ASR::make_Struct_t(al, x.base.base.loc, current_scope,
                     x.m_name, struct_dependencies.p, struct_dependencies.size(),
@@ -3300,12 +3300,19 @@ public:
                     member_fn_names.size(), class_abi, ASR::accessType::Public,
                     false, false, member_init.p, member_init.size(),
                     nullptr, nullptr));
-                std::string self_name = "self";
-                if ( current_scope->get_symbol(self_name) ) {
-                    throw SemanticError("`self` cannot be used as a data member "
-                    "for now", x.base.base.loc);
-                }
                 parent_scope->add_symbol(x.m_name, class_sym);
+                visit_ClassMembers(x, member_names, member_fn_names,
+                    struct_dependencies, member_init, false, class_abi, true);
+                LCOMPILERS_ASSERT(member_init.size() == member_names.size());
+                ASR::Struct_t* struct_ = ASR::down_cast<ASR::Struct_t>(class_sym);
+                struct_->m_dependencies;
+                struct_->m_members;
+                struct_->m_member_functions;
+                // std::string self_name = "self";
+                // if ( current_scope->get_symbol(self_name) ) {
+                //     throw SemanticError("`self` cannot be used as a data member "
+                //     "for now", x.base.base.loc);
+                // }
             }
             current_scope = parent_scope;
         }
@@ -4246,7 +4253,7 @@ public:
         global_scope = nullptr;
         tmp = tmp0;
     }
-
+    self:"coord"
     void handle_class_method(AST::FunctionDef_t& x){
         AST::arguments_t old_args = x.m_args;
         AST::arguments_t* new_args = al.make_new<AST::arguments_t>();
@@ -4280,17 +4287,17 @@ public:
         visit_FunctionDef(x);
     }
 
-    void handle_init_method(const AST::FunctionDef_t &x,
+    void handle_init_method(AST::FunctionDef_t &x,
         Vec<char*>& member_names, Vec<ASR::call_arg_t> &member_init){
         if(x.n_decorator_list > 0) {
             throw SemanticError("Decorators for __init__ not implemented",
                 x.base.base.loc);
         }
         std::string obj_name = "self";
-        if ( std::string(x.m_args.m_args[0].m_arg) != obj_name) {
-            throw SemanticError("Only `self` can be used as object name for now",
-            x.base.base.loc);
-        }
+        // if ( std::string(x.m_args.m_args[0].m_arg) != obj_name) {
+        //     throw SemanticError("Only `self` can be used as object name for now",
+        //     x.base.base.loc);
+        // }
         for(size_t i = 0; i < x.n_body; i++) {
             std::string var_name;
             if (! AST::is_a<AST::AnnAssign_t>(*x.m_body[i]) ){
@@ -4323,34 +4330,32 @@ public:
             create_add_variable_to_scope(var_name, type,
                     ann_assign.base.base.loc, abi, storage_type);
 
-            if (ann_assign.m_value == nullptr) {
-                throw SemanticError("Missing an initialiser for the data member",
-                    x.m_body[i]->base.loc);
-            }
-            this->visit_expr(*ann_assign.m_value);
-            if (tmp && ASR::is_a<ASR::expr_t>(*tmp)) {
-                ASR::expr_t* value = ASRUtils::EXPR(tmp);
-                ASR::ttype_t* underlying_type = type;
-                cast_helper(underlying_type, value, value->base.loc);
-                if (!ASRUtils::check_equal_type(underlying_type, ASRUtils::expr_type(value), true)) {
-                    std::string ltype = ASRUtils::type_to_str_python(underlying_type);
-                    std::string rtype = ASRUtils::type_to_str_python(ASRUtils::expr_type(value));
-                    diag.add(diag::Diagnostic(
-                        "Type mismatch in annotation-assignment, the types must be compatible",
-                        diag::Level::Error, diag::Stage::Semantic, {
-                            diag::Label("type mismatch ('" + ltype + "' and '" + rtype + "')",
-                                    {ann_assign.m_target->base.loc, value->base.loc})
-                        })
-                    );
-                    throw SemanticAbort();
+            if (ann_assign.m_value != nullptr) {
+                this->visit_expr(*ann_assign.m_value);
+                if (tmp && ASR::is_a<ASR::expr_t>(*tmp)) {
+                    ASR::expr_t* value = ASRUtils::EXPR(tmp);
+                    ASR::ttype_t* underlying_type = type;
+                    cast_helper(underlying_type, value, value->base.loc);
+                    if (!ASRUtils::check_equal_type(underlying_type, ASRUtils::expr_type(value), true)) {
+                        std::string ltype = ASRUtils::type_to_str_python(underlying_type);
+                        std::string rtype = ASRUtils::type_to_str_python(ASRUtils::expr_type(value));
+                        diag.add(diag::Diagnostic(
+                            "Type mismatch in annotation-assignment, the types must be compatible",
+                            diag::Level::Error, diag::Stage::Semantic, {
+                                diag::Label("type mismatch ('" + ltype + "' and '" + rtype + "')",
+                                        {ann_assign.m_target->base.loc, value->base.loc})
+                            })
+                        );
+                        throw SemanticAbort();
+                    }
+                    init_expr = value;
                 }
-                init_expr = value;
             }
-            ASR::symbol_t* var_sym = current_scope->resolve_symbol(var_name);
-            ASR::call_arg_t c_arg;
-            c_arg.loc = var_sym->base.loc;
-            c_arg.m_value = init_expr;
-            member_init.push_back(al, c_arg);
+            // ASR::symbol_t* var_sym = current_scope->resolve_symbol(var_name);
+            // ASR::call_arg_t c_arg;
+            // c_arg.loc = var_sym->base.loc;
+            // c_arg.m_value = init_expr;
+            // member_init.push_back(al, c_arg);
         }
 
     }
@@ -4547,6 +4552,7 @@ public:
         bool is_allocatable = false, is_const = false;
         size_t default_arg_index_start = x.m_args.n_args - x.m_args.n_defaults;
         for (size_t i=0; i<x.m_args.n_args; i++) {
+            
             char *arg=x.m_args.m_args[i].m_arg;
             Location loc = x.m_args.m_args[i].loc;
             if (x.m_args.m_args[i].m_annotation == nullptr) {
@@ -5193,20 +5199,26 @@ public:
         
     }
 
-    void handle_init_method(const AST::FunctionDef_t &x,
-        Vec<char*>& /*member_names*/ , Vec<ASR::call_arg_t> &/*member_init*/){
-        for (size_t i = 0 ; i < x.n_body; i++){
-            if (! AST::is_a<AST::AnnAssign_t>(*x.m_body[i]) ){
-                throw SemanticError("Only AnnAssign implemented in __init__ ",
-                    x.m_body[i]->base.loc);
-            }
-            AST::AnnAssign_t ann_assign = *AST::down_cast<AST::AnnAssign_t>(x.m_body[i]);
-            AST::ast_t* assgn_ast = AST::make_Assign_t(al,ann_assign.base.base.loc,
-                &ann_assign.m_target,1,ann_assign.m_value,nullptr);
-            AST::stmt_t* assgn = AST::down_cast<AST::stmt_t>(assgn_ast);
-            x.m_body[i] = assgn;
-        }
-    }
+    // void handle_init_method(AST::FunctionDef_t &x,
+    //     Vec<char*>& /*member_names*/ , Vec<ASR::call_arg_t> &/*member_init*/){
+    //     Vec<AST::stmt_t*> new_m_body;
+    //     new_m_body.reserve(al, 1);
+    //     for (size_t i = 0 ; i < x.n_body; i++){
+    //         if ( !AST::is_a<AST::AnnAssign_t>(*x.m_body[i]) ){
+    //             throw SemanticError("Only AnnAssign implemented in __init__ ",
+    //                 x.m_body[i]->base.loc);
+    //         }
+    //         AST::AnnAssign_t ann_assign = *AST::down_cast<AST::AnnAssign_t>(x.m_body[i]);
+    //         if ( ann_assign.m_value != nullptr ) {
+    //             AST::ast_t* assgn_ast = AST::make_Assign_t(al,ann_assign.base.base.loc,
+    //                 &ann_assign.m_target,1,ann_assign.m_value,nullptr);
+    //             AST::stmt_t* assgn = AST::down_cast<AST::stmt_t>(assgn_ast);
+    //             new_m_body.push_back(al, assgn);
+    //         }
+    //     }
+    //     x.n_body = new_m_body.n;
+    //     x.m_body = new_m_body.p;
+    // }
 
 
     void visit_FunctionDef(const AST::FunctionDef_t &x) {
