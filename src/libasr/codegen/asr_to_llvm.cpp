@@ -2712,9 +2712,9 @@ public:
     }
 
     void visit_Variable(const ASR::Variable_t &x) {
-        if ((compiler_options.interactive) && 
-            (std::strcmp(x.m_name, "_") == 0) && 
-            (x.m_abi == ASR::abiType::Interactive)) {
+        if (compiler_options.interactive &&
+            std::strcmp(x.m_name, "_") == 0 &&
+            x.m_abi == ASR::abiType::Interactive) {
             return;
         }
         if (x.m_value && x.m_storage == ASR::storage_typeType::Parameter) {
@@ -2722,8 +2722,8 @@ public:
             return;
         }
         uint32_t h = get_hash((ASR::asr_t*)&x);
-        if ((compiler_options.interactive) &&
-            (std::strcmp(x.m_name, compiler_options.po.global_underscore.c_str()) == 0)) {
+        if (compiler_options.interactive &&
+            std::strcmp(x.m_name, compiler_options.po.global_underscore.c_str()) == 0) {
                 global_underscore_hash = h;
         }
         // This happens at global scope, so the intent can only be either local
@@ -6978,10 +6978,10 @@ public:
 
     inline void fetch_val(ASR::Variable_t* x) {
         uint32_t x_h = get_hash((ASR::asr_t*)x);
-        if ((compiler_options.interactive) && 
-            (std::strcmp(x->m_name, "_") == 0) && 
-            (x->m_abi == ASR::abiType::Interactive) &&
-            (llvm_symtab.find(x_h) == llvm_symtab.end())) {
+        if (compiler_options.interactive &&
+            std::strcmp(x->m_name, "_") == 0 &&
+            x->m_abi == ASR::abiType::Interactive &&
+            llvm_symtab.find(x_h) == llvm_symtab.end()) {
             x_h = global_underscore_hash;
         }
         llvm::Value* x_v;
@@ -8490,9 +8490,9 @@ public:
                 if (ASR::is_a<ASR::Variable_t>(*var_sym)) {
                     ASR::Variable_t *arg = EXPR2VAR(x.m_args[i].m_value);
                     uint32_t h = get_hash((ASR::asr_t*)arg);
-                    if ((compiler_options.interactive) && 
-                        (std::strcmp(arg->m_name, "_") == 0) && 
-                        (arg->m_abi == ASR::abiType::Interactive)) {
+                    if (compiler_options.interactive &&
+                        std::strcmp(arg->m_name, "_") == 0 &&
+                        arg->m_abi == ASR::abiType::Interactive) {
                         h = global_underscore_hash;
                     }
                     if (llvm_symtab.find(h) != llvm_symtab.end()) {
