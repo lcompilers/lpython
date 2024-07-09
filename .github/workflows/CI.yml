@@ -537,7 +537,7 @@ jobs:
 
             cmake --build . -j16 --target install
 
-      - name: Test Linux LLVM 10-16
+      - name: Test Linux LLVM ${{ matrix.llvm-version }}
         shell: bash -e -l {0}
         run: |
             ctest --output-on-failure
