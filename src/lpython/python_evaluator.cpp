@@ -39,7 +39,8 @@ PythonCompiler::PythonCompiler(CompilerOptions compiler_options)
     e{std::make_unique<LLVMEvaluator>()},
 #endif
     eval_count{1},
-    symbol_table{nullptr}
+    symbol_table{nullptr},
+    global_underscore_name{""}
 {
 }
 
@@ -122,13 +123,18 @@ Result<PythonCompiler::EvalResult> PythonCompiler::evaluate(
         result.llvm_ir = m->str();
     }
 
+    ASR::symbol_t *global_underscore_symbol = symbol_table->get_symbol("_" + run_fn);
+    if (global_underscore_symbol) {
+        global_underscore_name = "_" + run_fn;
+    }
+
     bool call_run_fn = false;
     std::string return_type = m->get_return_type(run_fn);
     if (return_type != "none") {
       call_run_fn = true;
     }
 
-    ASR::symbol_t *global_underscore_sym = symbol_table->get_symbol("_" + run_fn);
+    ASR::symbol_t *global_underscore_sym = symbol_table->get_symbol(global_underscore_name);
     if ((return_type == "struct") && (global_underscore_sym)) {
         // we compute the offsets of the struct's attribute here
         // we will be using it later in aggregate_type_to_string to print the struct
@@ -233,7 +239,7 @@ Result<PythonCompiler::EvalResult> PythonCompiler::evaluate(
         } else if (return_type == "struct") {
             e->execfn<void>(run_fn);
             if (global_underscore_sym) {
-                void *r = (void*)e->get_symbol_address("_" + run_fn);
+                void *r = (void*)e->get_symbol_address(global_underscore_name);
                 LCOMPILERS_ASSERT(r)
                 result.structure.structure = r;
                 result.type = EvalResult::struct_type;
@@ -251,6 +257,18 @@ Result<PythonCompiler::EvalResult> PythonCompiler::evaluate(
     if (call_run_fn) {
         ASR::down_cast<ASR::Module_t>(symbol_table->resolve_symbol(module_name))->m_symtab
             ->erase_symbol(run_fn);
+    }
+    if (global_underscore_symbol) {
+        if (symbol_table->resolve_symbol("_")) {
+            symbol_table->erase_symbol("_");
+        }
+        ASR::Variable_t *a = ASR::down_cast<ASR::Variable_t>(global_underscore_symbol);
+        ASR::Variable_t *b = al.make_new<ASR::Variable_t>();
+        *b = *a;
+        Str s;
+        s.from_str(al, "_");
+        b->m_name = s.c_str(al);
+        symbol_table->add_symbol("_", ASR::down_cast<ASR::symbol_t>((ASR::asr_t*)b));
     }
 
     eval_count++;
@@ -429,7 +447,7 @@ Result<std::unique_ptr<LLVMModule>> PythonCompiler::get_llvm3(
     Result<std::unique_ptr<LCompilers::LLVMModule>> res
         = asr_to_llvm(asr, diagnostics,
             e->get_context(), al, lpm, compiler_options,
-            run_fn, infile);
+            run_fn, global_underscore_name, infile);
     if (res.ok) {
         m = std::move(res.result);
     } else {

@@ -1506,6 +1506,152 @@ TEST_CASE("PythonCompiler lists") {
     CHECK(e.aggregate_type_to_string(r.result) == "[\"lfortran\", \"lpython\", \"lc\"]");
 }
 
+TEST_CASE("PythonCompiler underscore 1") {
+    CompilerOptions cu;
+    cu.po.disable_main = true;
+    cu.emit_debug_line_column = false;
+    cu.generate_object_code = false;
+    cu.interactive = true;
+    cu.po.runtime_library_dir = LCompilers::LPython::get_runtime_library_dir();
+    PythonCompiler e(cu);
+    LCompilers::Result<PythonCompiler::EvalResult>
+
+    r = e.evaluate2("2");
+    CHECK(r.ok);
+    CHECK(r.result.type == PythonCompiler::EvalResult::integer4);
+    CHECK(r.result.i32 == 2);
+    
+    r = e.evaluate2("_");
+    CHECK(r.ok);
+    CHECK(r.result.type == PythonCompiler::EvalResult::integer4);
+    CHECK(r.result.i32 == 2);
+    
+    r = e.evaluate2("_ + 4");
+    CHECK(r.ok);
+    CHECK(r.result.type == PythonCompiler::EvalResult::integer4);
+    CHECK(r.result.i32 == 6);
+    
+    r = e.evaluate2("_ * 2");
+    CHECK(r.ok);
+    CHECK(r.result.type == PythonCompiler::EvalResult::integer4);
+    CHECK(r.result.i32 == 12);
+}
+
+TEST_CASE("PythonCompiler underscore 2") {
+    CompilerOptions cu;
+    cu.po.disable_main = true;
+    cu.emit_debug_line_column = false;
+    cu.generate_object_code = false;
+    cu.interactive = true;
+    cu.po.runtime_library_dir = LCompilers::LPython::get_runtime_library_dir();
+    PythonCompiler e(cu);
+    LCompilers::Result<PythonCompiler::EvalResult>
+
+    r = e.evaluate2("2");
+    CHECK(r.ok);
+    CHECK(r.result.type == PythonCompiler::EvalResult::integer4);
+    CHECK(r.result.i32 == 2);
+    r = e.evaluate2("_");
+    CHECK(r.ok);
+    CHECK(r.result.type == PythonCompiler::EvalResult::integer4);
+    CHECK(r.result.i32 == 2);
+    
+    r = e.evaluate2("2.5");
+    CHECK(r.ok);
+    CHECK(r.result.type == PythonCompiler::EvalResult::real8);
+    CHECK(r.result.f64 == 2.5);
+    r = e.evaluate2("_");
+    CHECK(r.ok);
+    CHECK(r.result.type == PythonCompiler::EvalResult::real8);
+    CHECK(r.result.f64 == 2.5);
+    
+    r = e.evaluate2("\"lpython\"");
+    CHECK(r.ok);
+    CHECK(r.result.type == PythonCompiler::EvalResult::string);
+    CHECK(std::strcmp(r.result.str, "lpython") == 0);
+    r = e.evaluate2("_");
+    CHECK(r.ok);
+    CHECK(r.result.type == PythonCompiler::EvalResult::string);
+    CHECK(std::strcmp(r.result.str, "lpython") == 0);
+    
+    r = e.evaluate2("[1, 2, 3]");
+    CHECK(r.ok);
+    CHECK(r.result.type == PythonCompiler::EvalResult::struct_type);
+    CHECK(LCompilers::ASRUtils::get_type_code(r.result.structure.ttype) == "list[i32]");
+    CHECK(e.aggregate_type_to_string(r.result) == "[1, 2, 3]");
+    r = e.evaluate2("_");
+    CHECK(r.ok);
+    CHECK(r.result.type == PythonCompiler::EvalResult::struct_type);
+    CHECK(LCompilers::ASRUtils::get_type_code(r.result.structure.ttype) == "list[i32]");
+    CHECK(e.aggregate_type_to_string(r.result) == "[1, 2, 3]");
+}
+
+TEST_CASE("PythonCompiler underscore 3") {
+    CompilerOptions cu;
+    cu.po.disable_main = true;
+    cu.emit_debug_line_column = false;
+    cu.generate_object_code = false;
+    cu.interactive = true;
+    cu.po.runtime_library_dir = LCompilers::LPython::get_runtime_library_dir();
+    PythonCompiler e(cu);
+    LCompilers::Result<PythonCompiler::EvalResult>
+    
+    r = e.evaluate2("[1, 2, 3]");
+    CHECK(r.ok);
+    CHECK(r.result.type == PythonCompiler::EvalResult::struct_type);
+    CHECK(LCompilers::ASRUtils::get_type_code(r.result.structure.ttype) == "list[i32]");
+    CHECK(e.aggregate_type_to_string(r.result) == "[1, 2, 3]");
+    
+    r = e.evaluate2("_ + [1, 2, 3]");
+    CHECK(r.ok);
+    CHECK(r.result.type == PythonCompiler::EvalResult::struct_type);
+    CHECK(LCompilers::ASRUtils::get_type_code(r.result.structure.ttype) == "list[i32]");
+    CHECK(e.aggregate_type_to_string(r.result) == "[1, 2, 3, 1, 2, 3]");
+    
+    r = e.evaluate2(R"(
+_.append(5)
+x: list[i32] = _
+x
+)");
+    CHECK(r.ok);
+    CHECK(r.result.type == PythonCompiler::EvalResult::struct_type);
+    CHECK(LCompilers::ASRUtils::get_type_code(r.result.structure.ttype) == "list[i32]");
+    CHECK(e.aggregate_type_to_string(r.result) == "[1, 2, 3, 1, 2, 3, 5]");
+}
+
+TEST_CASE("PythonCompiler underscore 4") {
+    CompilerOptions cu;
+    cu.po.disable_main = true;
+    cu.emit_debug_line_column = false;
+    cu.generate_object_code = false;
+    cu.interactive = true;
+    cu.po.runtime_library_dir = LCompilers::LPython::get_runtime_library_dir();
+    PythonCompiler e(cu);
+    LCompilers::Result<PythonCompiler::EvalResult>
+    
+    r = e.evaluate2("[1, 2, 3]");
+    CHECK(r.ok);
+    CHECK(r.result.type == PythonCompiler::EvalResult::struct_type);
+    CHECK(LCompilers::ASRUtils::get_type_code(r.result.structure.ttype) == "list[i32]");
+    CHECK(e.aggregate_type_to_string(r.result) == "[1, 2, 3]");
+    
+    r = e.evaluate2("_");
+    CHECK(r.ok);
+    CHECK(r.result.type == PythonCompiler::EvalResult::struct_type);
+    CHECK(LCompilers::ASRUtils::get_type_code(r.result.structure.ttype) == "list[i32]");
+    CHECK(e.aggregate_type_to_string(r.result) == "[1, 2, 3]");
+
+    r = e.evaluate2("f: bool = False");
+    CHECK(r.ok);
+    CHECK(r.result.type == PythonCompiler::EvalResult::none);
+    
+    r = e.evaluate2("_");
+    CHECK(r.ok);
+    CHECK(r.result.type == PythonCompiler::EvalResult::struct_type);
+    CHECK(LCompilers::ASRUtils::get_type_code(r.result.structure.ttype) == "list[i32]");
+    CHECK(e.aggregate_type_to_string(r.result) == "[1, 2, 3]");
+}
+
 TEST_CASE("PythonCompiler asr verify 1") {
     CompilerOptions cu;
     cu.po.disable_main = true;
