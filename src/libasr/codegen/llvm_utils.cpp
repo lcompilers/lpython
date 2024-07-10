@@ -3305,7 +3305,7 @@ namespace LCompilers {
                                         llvm_utils->create_ptr_gep(key_mask, key_hash));
         llvm::Value* is_prob_not_neeeded = builder->CreateICmpEQ(key_mask_value,
             llvm::ConstantInt::get(llvm::Type::getInt8Ty(context), llvm::APInt(8, 1)));
-        llvm::AllocaInst *flag_ptr = builder->CreateAlloca(llvm::Type::getInt1Ty(context), nullptr);
+        llvm::AllocaInst *flag_ptr = builder0.CreateAlloca(llvm::Type::getInt1Ty(context), nullptr);
         LLVM::CreateStore(*builder, llvm::ConstantInt::get(llvm::Type::getInt1Ty(context), 0), flag_ptr);
         LLVM::CreateStore(*builder, llvm::ConstantInt::get(llvm::Type::getInt32Ty(context), 0), pos_ptr);
         builder->CreateCondBr(is_prob_not_neeeded, thenBB, elseBB);
@@ -3347,7 +3347,7 @@ namespace LCompilers {
         llvm_utils->start_new_block(mergeBB);
         llvm::Value *flag = LLVM::CreateLoad(*builder, flag_ptr);
         llvm::Value *pos = LLVM::CreateLoad(*builder, pos_ptr);
-        llvm::AllocaInst *is_key_matching_ptr = builder->CreateAlloca(llvm::Type::getInt1Ty(context), nullptr);
+        llvm::AllocaInst *is_key_matching_ptr = builder0.CreateAlloca(llvm::Type::getInt1Ty(context), nullptr);
 
         llvm_utils->create_if_else(flag, [&](){
         LLVM::CreateStore(*builder, llvm::ConstantInt::get(llvm::Type::getInt1Ty(context), 0), is_key_matching_ptr);
@@ -6513,7 +6513,7 @@ namespace LCompilers {
                                         llvm_utils->create_ptr_gep(el_mask, el_hash));
         llvm::Value* is_prob_not_needed = builder->CreateICmpEQ(el_mask_value,
             llvm::ConstantInt::get(llvm::Type::getInt8Ty(context), llvm::APInt(8, 1)));
-        llvm::AllocaInst *flag_ptr = builder->CreateAlloca(llvm::Type::getInt1Ty(context), nullptr);
+        llvm::AllocaInst *flag_ptr = builder0.CreateAlloca(llvm::Type::getInt1Ty(context), nullptr);
         LLVM::CreateStore(*builder, llvm::ConstantInt::get(llvm::Type::getInt32Ty(context), 0), pos_ptr);
         LLVM::CreateStore(*builder, llvm::ConstantInt::get(llvm::Type::getInt1Ty(context), 0), flag_ptr);
         builder->CreateCondBr(is_prob_not_needed, thenBB, elseBB);
@@ -6551,7 +6551,7 @@ namespace LCompilers {
         }
         llvm_utils->start_new_block(mergeBB);
         llvm::Value *flag = LLVM::CreateLoad(*builder, flag_ptr);
-        llvm::AllocaInst *is_el_matching_ptr = builder->CreateAlloca(llvm::Type::getInt1Ty(context), nullptr);
+        llvm::AllocaInst *is_el_matching_ptr = builder0.CreateAlloca(llvm::Type::getInt1Ty(context), nullptr);
 
         llvm_utils->create_if_else(flag, [&](){
         LLVM::CreateStore(*builder, llvm::ConstantInt::get(llvm::Type::getInt1Ty(context), 0), is_el_matching_ptr);
