@@ -1656,6 +1656,10 @@ public:
             } else {
                 throw SemanticError("Only Name in Subscript supported for now in annotation", annotation->base.loc);
             }
+        } else if ( AST::is_a<AST::ConstantStr_t>(*annotation) ) {
+            //self case in methods
+            intent = ASRUtils::intent_inout;
+            return annotation;    
         }
         return annotation;
     }
@@ -1913,6 +1917,15 @@ public:
                 current_scope->add_symbol(import_name, import_struct_member);
             }
             return ASRUtils::TYPE(ASR::make_Union_t(al, attr_annotation->base.base.loc, import_struct_member));
+        } else if ( AST::is_a<AST::ConstantStr_t>(annotation) ) {
+            AST::ConstantStr_t *n = AST::down_cast<AST::ConstantStr_t>(&annotation);
+            ASR::symbol_t *sym = current_scope->parent->parent->resolve_symbol(n->m_value);
+            if ( sym == nullptr || !ASR::is_a<ASR::Struct_t>(*sym) ) {
+                throw SemanticError("Only Struct implemented for constant" 
+                " str annotation", loc);        
+            }
+            //TODO: Change the returned type from Class to Struct
+            return ASRUtils::TYPE(ASR::make_Class_t(al,loc,sym));
         }
 
         throw SemanticError("Only Name, Subscript, and Call supported for now in annotation of annotated assignment.", loc);
@@ -2930,22 +2943,13 @@ public:
         assign_asr_target = assign_asr_target_copy;
     }
 
-    void handle_init_method(const AST::FunctionDef_t &x,
-        Vec<char*>& member_names, Vec<ASR::call_arg_t> &member_init){
+    void get_members_init (const AST::FunctionDef_t &x,
+        Vec<char*>& member_names, Vec<ASR::call_arg_t> &/*member_init*/){
         if(x.n_decorator_list > 0) {
             throw SemanticError("Decorators for __init__ not implemented",
                 x.base.base.loc);
         }
-        if( x.m_args.n_args > 1 ) {
-            throw SemanticError("Only default constructors implemented ",
-                x.base.base.loc);
-        }
-        // TODO: the obj_name can be anything
-        std::string obj_name = "self";
-        if ( std::string(x.m_args.m_args[0].m_arg) != obj_name) {
-            throw SemanticError("Only `self` can be used as object name for now",
-            x.base.base.loc);
-        }
+        std::string obj_name = x.m_args.m_args->m_arg;
         for(size_t i = 0; i < x.n_body; i++) {
             std::string var_name;
             if (! AST::is_a<AST::AnnAssign_t>(*x.m_body[i]) ){
@@ -2958,7 +2962,7 @@ public:
                 if(AST::is_a<AST::Name_t>(*a->m_value)) {
                     AST::Name_t* n = AST::down_cast<AST::Name_t>(a->m_value);
                     if(std::string(n->m_id) != obj_name) {
-                        throw SemanticError("Object name doesn't matach",
+                        throw SemanticError("Object name doesn't match",
                             x.m_body[i]->base.loc);
                     }
                 }
@@ -2968,7 +2972,6 @@ public:
                 throw SemanticError("Only Attribute supported as target in "
                     "AnnAssign inside Class", x.m_body[i]->base.loc);
             }
-            ASR::expr_t* init_expr = nullptr;
             ASR::abiType abi = ASR::abiType::Source;
             bool is_allocatable = false, is_const = false;
             ASR::ttype_t *type = ast_expr_to_asr_type(ann_assign.m_annotation->base.loc,
@@ -2976,38 +2979,8 @@ public:
 
             ASR::storage_typeType storage_type = ASR::storage_typeType::Default;
             create_add_variable_to_scope(var_name, type,
-                    ann_assign.base.base.loc, abi, storage_type);
-
-            if (ann_assign.m_value == nullptr) {
-                throw SemanticError("Missing an initialiser for the data member",
-                    x.m_body[i]->base.loc);
-            }
-            this->visit_expr(*ann_assign.m_value);
-            if (tmp && ASR::is_a<ASR::expr_t>(*tmp)) {
-                ASR::expr_t* value = ASRUtils::EXPR(tmp);
-                ASR::ttype_t* underlying_type = type;
-                cast_helper(underlying_type, value, value->base.loc);
-                if (!ASRUtils::check_equal_type(underlying_type, ASRUtils::expr_type(value), true)) {
-                    std::string ltype = ASRUtils::type_to_str_python(underlying_type);
-                    std::string rtype = ASRUtils::type_to_str_python(ASRUtils::expr_type(value));
-                    diag.add(diag::Diagnostic(
-                        "Type mismatch in annotation-assignment, the types must be compatible",
-                        diag::Level::Error, diag::Stage::Semantic, {
-                            diag::Label("type mismatch ('" + ltype + "' and '" + rtype + "')",
-                                    {ann_assign.m_target->base.loc, value->base.loc})
-                        })
-                    );
-                    throw SemanticAbort();
-                }
-                init_expr = value;
-            }
-            ASR::symbol_t* var_sym = current_scope->resolve_symbol(var_name);
-            ASR::call_arg_t c_arg;
-            c_arg.loc = var_sym->base.loc;
-            c_arg.m_value = init_expr;
-            member_init.push_back(al, c_arg);
+                    ann_assign.base.base.loc, abi, storage_type);   
         }
-
     }
 
     void visit_ClassMembers(const AST::ClassDef_t& x,
@@ -3037,7 +3010,9 @@ public:
                         *f = AST::down_cast<AST::FunctionDef_t>(x.m_body[i]);
                     std::string f_name = f->m_name;
                     if (f_name == "__init__") {
-                        this->handle_init_method(*f, member_names, member_init);
+                        this->get_members_init(*f, member_names, member_init);
+                        this->visit_stmt(*x.m_body[i]);
+                        member_fn_names.push_back(al, f->m_name);
                         // This seems hackish, as struct depends on itself
                         // We need to handle this later.
                         // Removing this throws a ASR verify error
@@ -3312,7 +3287,9 @@ public:
                     if ( AST::is_a<AST::FunctionDef_t>(*x.m_body[i]) ) {
                         AST::FunctionDef_t*
                             f = AST::down_cast<AST::FunctionDef_t>(x.m_body[i]);
-                        if ( std::string(f->m_name) != std::string("__init__") ) {
+                        if ( std::string(f->m_name) == std::string("__init__") ) {
+                            this->visit_init_body(*f);
+                        } else {
                             this->visit_stmt(*x.m_body[i]);
                         }
                     }
@@ -3333,9 +3310,6 @@ public:
                     "instead use the dataclass decorator ",
                     x.base.base.loc);
                 }
-                visit_ClassMembers(x, member_names, member_fn_names,
-                    struct_dependencies, member_init, false, class_abi, true);
-                LCOMPILERS_ASSERT(member_init.size() == member_names.size());
                 ASR::symbol_t* class_sym = ASR::down_cast<ASR::symbol_t>(
                     ASR::make_Struct_t(al, x.base.base.loc, current_scope,
                     x.m_name, struct_dependencies.p, struct_dependencies.size(),
@@ -3343,21 +3317,23 @@ public:
                     member_fn_names.size(), class_abi, ASR::accessType::Public,
                     false, false, member_init.p, member_init.size(),
                     nullptr, nullptr));
-                ASR::ttype_t*  class_type = ASRUtils::TYPE(
-                    ASRUtils::make_StructType_t_util(al, x.base.base.loc,
-                    class_sym));
-                std::string self_name = "self";
-                if ( current_scope->get_symbol(self_name) ) {
-                    throw SemanticError("`self` cannot be used as a data member "
-                    "for now", x.base.base.loc);
-                }
-                create_add_variable_to_scope(self_name, class_type,
-                    x.base.base.loc, class_abi);
                 parent_scope->add_symbol(x.m_name, class_sym);
+                visit_ClassMembers(x, member_names, member_fn_names,
+                    struct_dependencies, member_init, false, class_abi, true);
+                ASR::Struct_t* st = ASR::down_cast<ASR::Struct_t>(class_sym);
+                st->m_dependencies = struct_dependencies.p;
+                st->n_dependencies = struct_dependencies.n;
+                st->m_member_functions = member_fn_names.p;
+                st->n_member_functions = member_fn_names.n;
+                st->m_members = member_names.p;
+                st->n_members = member_names.n;
+
             }
             current_scope = parent_scope;
         }
     }
+
+    virtual void visit_init_body (const AST::FunctionDef_t &/*x*/) = 0;
 
     void add_name(const Location &loc) {
         std::string var_name = "__name__";
@@ -4391,6 +4367,10 @@ public:
     // Implement visit_Global for Symbol Table visitor.
     void visit_Global(const AST::Global_t &/*x*/) {}
 
+    void visit_init_body (const AST::FunctionDef_t &/*x*/) {
+        //Implemented in BodyVisitor
+    }
+
     void visit_FunctionDef(const AST::FunctionDef_t &x) {
         dependencies.clear(al);
         SymbolTable *parent_scope = current_scope;
@@ -5107,6 +5087,50 @@ public:
         }
 
         tmp = asr;
+    }
+
+    void visit_init_body (const AST::FunctionDef_t &x) {
+        SymbolTable *old_scope = current_scope;
+        ASR::symbol_t *t = current_scope->get_symbol("__init__");
+        if ( t==nullptr ) {
+            throw SemanticError("__init__ fn not declared", x.base.base.loc);
+        }
+        if ( !ASR::is_a<ASR::Function_t>(*t) ) {
+            throw SemanticError("__init__ is not a function", x.base.base.loc);
+        }
+        ASR::Function_t *f = ASR::down_cast<ASR::Function_t>(t);
+        //Transform statements into correct format
+        Vec<AST::stmt_t*> new_body;
+        new_body.reserve(al, 1);
+        for (size_t i=0; i<x.n_body; i++) {
+            AST::AnnAssign_t ann_assign = *AST::down_cast<AST::AnnAssign_t>(x.m_body[i]);
+            if ( ann_assign.m_value != nullptr ) {
+                Vec<AST::expr_t*>target;
+                target.reserve(al, 1);
+                target.push_back(al, ann_assign.m_target);
+                AST::ast_t* assgn_ast = AST::make_Assign_t(al, ann_assign.base.base.loc,
+                    target.p, 1, ann_assign.m_value, nullptr);
+                AST::stmt_t* assgn = AST::down_cast<AST::stmt_t>(assgn_ast);
+                new_body.push_back(al, assgn);
+            }
+        }
+        current_scope = f->m_symtab;
+        Vec<ASR::stmt_t*> body;
+        body.reserve(al, x.n_body);
+        Vec<ASR::symbol_t*> rts;
+        rts.reserve(al, 4);
+        dependencies.clear(al);
+        transform_stmts(body, new_body.n, new_body.p);
+        for (const auto &rt: rt_vec) { rts.push_back(al, rt); }
+        f->m_body = body.p;
+        f->n_body = body.size();
+        ASR::FunctionType_t* func_type = ASR::down_cast<ASR::FunctionType_t>(f->m_function_signature);
+        func_type->m_restrictions = rts.p;
+        func_type->n_restrictions = rts.size();
+        f->m_dependencies = dependencies.p;
+        f->n_dependencies = dependencies.size();
+        rt_vec.clear();
+        current_scope = old_scope;
     }
 
     void handle_fn(const AST::FunctionDef_t &x, ASR::Function_t &v) {
@@ -6113,9 +6137,62 @@ public:
                 throw SemanticError("'" + attr + "' is not implemented for Complex type",
                     loc);
             }
-        } else if( ASR::is_a<ASR::StructType_t>(*type) ) {
+        } else if( ASR::is_a<ASR::StructType_t>(*type)) { 
             ASR::StructType_t* der = ASR::down_cast<ASR::StructType_t>(type);
             ASR::symbol_t* der_sym = ASRUtils::symbol_get_past_external(der->m_derived_type);
+            ASR::Struct_t* der_type = ASR::down_cast<ASR::Struct_t>(der_sym);
+            bool member_found = false;
+            std::string member_name = attr_char;
+            for( size_t i = 0; i < der_type->n_members && !member_found; i++ ) {
+                member_found = std::string(der_type->m_members[i]) == member_name;
+            }
+            if( !member_found ) {
+                throw SemanticError("No member " + member_name +
+                                    " found in " + std::string(der_type->m_name),
+                                    loc);
+            }
+            ASR::expr_t *val = ASR::down_cast<ASR::expr_t>(ASR::make_Var_t(al, loc, t));
+            ASR::symbol_t* member_sym = der_type->m_symtab->resolve_symbol(member_name);
+            LCOMPILERS_ASSERT(ASR::is_a<ASR::Variable_t>(*member_sym));
+            ASR::Variable_t* member_var = ASR::down_cast<ASR::Variable_t>(member_sym);
+            ASR::ttype_t* member_var_type = member_var->m_type;
+            if( ASR::is_a<ASR::StructType_t>(*member_var->m_type) ) {
+                ASR::StructType_t* member_var_struct_t = ASR::down_cast<ASR::StructType_t>(member_var->m_type);
+                if( !ASR::is_a<ASR::ExternalSymbol_t>(*member_var_struct_t->m_derived_type) ) {
+                    ASR::Struct_t* struct_type = ASR::down_cast<ASR::Struct_t>(member_var_struct_t->m_derived_type);
+                    ASR::symbol_t* struct_type_asr_owner = ASRUtils::get_asr_owner(member_var_struct_t->m_derived_type);
+                    if( struct_type_asr_owner && ASR::is_a<ASR::Struct_t>(*struct_type_asr_owner) ) {
+                        std::string struct_var_name = ASR::down_cast<ASR::Struct_t>(struct_type_asr_owner)->m_name;
+                        std::string struct_member_name = struct_type->m_name;
+                        std::string import_name = struct_var_name + "_" + struct_member_name;
+                        ASR::symbol_t* import_struct_member = current_scope->resolve_symbol(import_name);
+                        bool import_from_struct = true;
+                        if( import_struct_member ) {
+                            if( ASR::is_a<ASR::ExternalSymbol_t>(*import_struct_member) ) {
+                                ASR::ExternalSymbol_t* ext_sym = ASR::down_cast<ASR::ExternalSymbol_t>(import_struct_member);
+                                if( ext_sym->m_external == member_var_struct_t->m_derived_type &&
+                                    std::string(ext_sym->m_module_name) == struct_var_name ) {
+                                    import_from_struct = false;
+                                }
+                            }
+                        }
+                        if( import_from_struct ) {
+                            import_name = current_scope->get_unique_name(import_name, false);
+                            import_struct_member = ASR::down_cast<ASR::symbol_t>(ASR::make_ExternalSymbol_t(al,
+                                                                    loc, current_scope, s2c(al, import_name),
+                                                                    member_var_struct_t->m_derived_type, s2c(al, struct_var_name), nullptr, 0,
+                                                                    s2c(al, struct_member_name), ASR::accessType::Public));
+                            current_scope->add_symbol(import_name, import_struct_member);
+                        }
+                        member_var_type = ASRUtils::TYPE(ASRUtils::make_StructType_t_util(al, loc, import_struct_member));
+                    }
+                }
+            }
+            tmp = ASR::make_StructInstanceMember_t(al, loc, val, member_sym,
+                                            member_var_type, nullptr);
+        } else if( ASR::is_a<ASR::Class_t>(*type) ) { //TODO: Remove Class_t from here 
+            ASR::Class_t* der = ASR::down_cast<ASR::Class_t>(type);
+            ASR::symbol_t* der_sym = ASRUtils::symbol_get_past_external(der->m_class_type);
             ASR::Struct_t* der_type = ASR::down_cast<ASR::Struct_t>(der_sym);
             bool member_found = false;
             std::string member_name = attr_char;
@@ -7891,8 +7968,22 @@ we will have to use something else.
                     ASR::Variable_t* var = ASR::down_cast<ASR::Variable_t>(st);
                     if (ASR::is_a<ASR::StructType_t>(*var->m_type)) {
                         // call to struct member function
+                        // modifying args to pass the object as self
                         ASR::StructType_t* var_struct = ASR::down_cast<ASR::StructType_t>(var->m_type);
                         st = get_struct_member(var_struct->m_derived_type, call_name, loc);
+                        Vec<ASR::call_arg_t> new_args;
+                        new_args.reserve(al, args.n+1);
+std::cout<<"Var name => "<<var->m_name<<"\n";
+                        ASR::expr_t* self_expr = ASRUtils::EXPR(&(var->base.base));
+                        ASR::call_arg_t* self_arg = al.make_new<ASR::call_arg_t>();
+                        self_arg->loc = args[0].loc;
+                        self_arg->m_value =self_expr;
+                        new_args.push_back(al, *self_arg);
+                        for (size_t i=0; i<args.n; i++){
+                            new_args.push_back(al,args[i]);
+                        }
+                        tmp = make_call_helper(al, st, current_scope, new_args, call_name, loc);
+                        return;
                     } else {
                         // this case when we have variable and attribute
                         st = current_scope->resolve_symbol(mod_name);
