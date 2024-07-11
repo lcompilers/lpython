@@ -132,7 +132,7 @@ jobs:
 
       - uses: hendrikmuhs/ccache-action@main
         with:
-          variant: sccache
+          # variant: sccache
           key: ${{ github.job }}-${{ matrix.os }}
 
       - name : Remove existing node
@@ -514,7 +514,6 @@ jobs:
 
       - uses: hendrikmuhs/ccache-action@main
         with:
-          create-symlink: true
           variant: sccache
           key: ${{ github.job }}-${{ matrix.os }}
 
@@ -529,8 +528,8 @@ jobs:
               -DWITH_XEUS=yes \
               -DCMAKE_PREFIX_PATH="$CONDA_PREFIX" \
               -DCMAKE_INSTALL_PREFIX="$CONDA_PREFIX" \
-              -DCMAKE_C_COMPILER_LAUNCHER=ccache \
-              -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+              -DCMAKE_C_COMPILER_LAUNCHER=sccache \
+              -DCMAKE_CXX_COMPILER_LAUNCHER=sccache
 
             ninja install
             ctest --output-on-failure
