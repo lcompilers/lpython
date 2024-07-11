@@ -3032,10 +3032,6 @@ public:
                         this->get_members_init(*f, member_names, member_init);
                         this->visit_stmt(*x.m_body[i]);
                         member_fn_names.push_back(al, f->m_name);
-                        // This seems hackish, as struct depends on itself
-                        // We need to handle this later.
-                        // Removing this throws a ASR verify error
-                        struct_dependencies.push_back(al, x.m_name);
                     } else {
                         this->visit_stmt(*x.m_body[i]);
                         member_fn_names.push_back(al, f->m_name);
