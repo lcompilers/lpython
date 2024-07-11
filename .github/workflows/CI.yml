@@ -527,7 +527,9 @@ jobs:
               -DWITH_LLVM=yes \
               -DWITH_XEUS=yes \
               -DCMAKE_PREFIX_PATH="$CONDA_PREFIX" \
-              -DCMAKE_INSTALL_PREFIX="$CONDA_PREFIX"
+              -DCMAKE_INSTALL_PREFIX="$CONDA_PREFIX" \
+              -DCMAKE_C_COMPILER_LAUNCHER=ccache \
+              -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
 
             ninja install
             ctest --output-on-failure
