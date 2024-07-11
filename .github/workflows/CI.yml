@@ -132,7 +132,6 @@ jobs:
 
       - uses: hendrikmuhs/ccache-action@main
         with:
-          # variant: sccache
           key: ${{ github.job }}-${{ matrix.os }}
 
       - name : Remove existing node
