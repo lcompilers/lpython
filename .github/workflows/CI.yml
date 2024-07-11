@@ -514,6 +514,7 @@ jobs:
 
       - uses: hendrikmuhs/ccache-action@main
         with:
+          create-symlink: true
           variant: sccache
           key: ${{ github.job }}-${{ matrix.os }}
 
