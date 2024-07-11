@@ -1281,8 +1281,20 @@ public:
                 visit_expr_list(pos_args, n_pos_args, kwargs, n_kwargs,
                                          args, st, loc);
             }
+            if ( st->n_member_functions > 0 ) {
+                // Empty struct constructor
+                // Initializers handled in init proc call
+                Vec<ASR::call_arg_t>empty_args;
+                empty_args.reserve(al, 1);
+                for (size_t i = 0; i < st->n_members; i++) {
+                    empty_args.push_back(al, st->m_initializers[i]);
+                }
+                ASR::ttype_t* der_type = ASRUtils::TYPE(ASRUtils::make_StructType_t_util(al, loc, stemp));
+                return ASR::make_StructConstructor_t(al, loc, stemp, empty_args.p,
+                    empty_args.size(), der_type, nullptr);
+            }
 
-            if (args.size() > 0 && args.size() > st->n_members) {
+            if ( args.size() > 0 && args.size() > st->n_members ) {
                 throw SemanticError("StructConstructor has more arguments than the number of struct members",
                                     loc);
             }
@@ -1312,6 +1324,8 @@ public:
             for (size_t i = args.size(); i < st->n_members; i++) {
                 args.push_back(al, st->m_initializers[i]);
             }
+
+
             ASR::ttype_t* der_type = ASRUtils::TYPE(ASRUtils::make_StructType_t_util(al, loc, stemp));
             return ASR::make_StructConstructor_t(al, loc, stemp, args.p, args.size(), der_type, nullptr);
         } else if( ASR::is_a<ASR::EnumType_t>(*s) ) {
@@ -2944,7 +2958,7 @@ public:
     }
 
     void get_members_init (const AST::FunctionDef_t &x,
-        Vec<char*>& member_names, Vec<ASR::call_arg_t> &/*member_init*/){
+        Vec<char*>& member_names, Vec<ASR::call_arg_t> &member_init){
         if(x.n_decorator_list > 0) {
             throw SemanticError("Decorators for __init__ not implemented",
                 x.base.base.loc);
@@ -2980,6 +2994,11 @@ public:
             ASR::storage_typeType storage_type = ASR::storage_typeType::Default;
             create_add_variable_to_scope(var_name, type,
                     ann_assign.base.base.loc, abi, storage_type);   
+            ASR::symbol_t* var_sym = current_scope->resolve_symbol(var_name);
+            ASR::call_arg_t c_arg;
+            c_arg.loc = var_sym->base.loc;
+            c_arg.m_value = nullptr;
+            member_init.push_back(al, c_arg);
         }
     }
 
@@ -3327,6 +3346,8 @@ public:
                 st->n_member_functions = member_fn_names.n;
                 st->m_members = member_names.p;
                 st->n_members = member_names.n;
+                st->m_initializers = member_init.p;
+                st->n_initializers = member_init.n;
 
             }
             current_scope = parent_scope;
@@ -5236,6 +5257,29 @@ public:
         }
         ASR::expr_t *init_expr = nullptr;
         visit_AnnAssignUtil(x, var_name, init_expr);
+        ASR::symbol_t* sym = current_scope->get_symbol(var_name);
+        if ( sym && ASR::is_a<ASR::Variable_t>(*sym) ) {
+            ASR::Variable_t* var = ASR::down_cast<ASR::Variable_t>(sym);
+            if ( ASR::is_a<ASR::StructType_t>(*(var->m_type)) && 
+                !ASR::down_cast<ASR::StructType_t>((var->m_type))->m_is_cstruct &&
+                ASR::is_a<ASR::StructConstructor_t>(*init_expr) ) {
+                    AST::Call_t* call = AST::down_cast<AST::Call_t>(x.m_value);
+                    if ( call->n_keywords>0 ) {
+                        throw SemanticError("Kwargs not implemented yet", x.base.base.loc);
+                    }
+                    Vec<ASR::call_arg_t> args;
+                    args.reserve(al, call->n_args + 1);
+                    ASR::call_arg_t self_arg;
+                    self_arg.loc = x.base.base.loc;
+                    self_arg.m_value = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, sym));
+                    args.push_back(al, self_arg);
+                    visit_expr_list(call->m_args, call->n_args, args);
+                    ASR::symbol_t* der = ASR::down_cast<ASR::StructType_t>((var->m_type))->m_derived_type;
+                    std::string call_name = "__init__";
+                    ASR::symbol_t* call_sym = get_struct_member(der, call_name, x.base.base.loc);
+                    tmp = make_call_helper(al, call_sym, current_scope, args, call_name, x.base.base.loc);
+                }
+        }
     }
 
     void visit_Delete(const AST::Delete_t &x) {
@@ -7970,18 +8014,15 @@ we will have to use something else.
                         // call to struct member function
                         // modifying args to pass the object as self
                         ASR::StructType_t* var_struct = ASR::down_cast<ASR::StructType_t>(var->m_type);
-                        st = get_struct_member(var_struct->m_derived_type, call_name, loc);
-                        Vec<ASR::call_arg_t> new_args;
-                        new_args.reserve(al, args.n+1);
-std::cout<<"Var name => "<<var->m_name<<"\n";
-                        ASR::expr_t* self_expr = ASRUtils::EXPR(&(var->base.base));
-                        ASR::call_arg_t* self_arg = al.make_new<ASR::call_arg_t>();
-                        self_arg->loc = args[0].loc;
-                        self_arg->m_value =self_expr;
-                        new_args.push_back(al, *self_arg);
-                        for (size_t i=0; i<args.n; i++){
-                            new_args.push_back(al,args[i]);
+                        Vec<ASR::call_arg_t> new_args; new_args.reserve(al, args.n + 1);
+                        ASR::call_arg_t self_arg;
+                        self_arg.loc = args[0].loc;
+                        self_arg.m_value = ASRUtils::EXPR(ASR::make_Var_t(al, loc, st));
+                        new_args.push_back(al, self_arg);
+                        for (size_t i=0; i<args.n; i++) {
+                            new_args.push_back(al, args[i]);
                         }
+                        st = get_struct_member(var_struct->m_derived_type, call_name, loc);
                         tmp = make_call_helper(al, st, current_scope, new_args, call_name, loc);
                         return;
                     } else {
