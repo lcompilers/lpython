@@ -8622,6 +8622,20 @@ we will have to use something else.
                                         ASRUtils::type_to_str(type) + " type.", x.base.base.loc);
                 }
                 return;
+            } else if( call_name == "set" ) {
+                parse_args(x, args);
+                if (args.size() == 0) {
+                    if( assign_asr_target != nullptr ) {
+                        tmp = ASR::make_SetConstant_t(al, x.base.base.loc, nullptr, 0,
+                                                      ASRUtils::expr_type(assign_asr_target));
+                    }
+                    else {
+                        tmp = nullptr;
+                    }
+                    return ;
+                }
+
+                throw SemanticError("set is only used for an empty set for now.", x.base.base.loc);
             } else if( call_name == "deepcopy" ) {
                 parse_args(x, args);
                 if( args.size() != 1 ) {
