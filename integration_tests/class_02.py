@@ -10,16 +10,15 @@ class Character:
         other.health -= self.attack_power
         return self.name+" attacks "+ other.name+" for "+str(self.attack_power)+" damage."
 
-        
     def is_alive(self:"Character")->bool:
         if self.is_immortal:
             return True
         else:
             return self.health > 0
+
 def main():
     hero : Character = Character("Hero", 10, 20)
     monster : Character = Character("Monster", 50, 15)
-
     print(hero.attack(monster))
     print(monster.health)  
     assert monster.health == 30
@@ -36,5 +35,10 @@ def main():
     hero.is_immortal = False
     print(hero.is_alive())
     assert hero.is_alive() == False
+    print("Restarting")
+    hero = Character("Hero", 10, 20)
+    print(hero.is_alive())
+    assert hero.is_alive() == True
 
 main()
+ 
