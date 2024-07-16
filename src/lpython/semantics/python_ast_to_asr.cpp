@@ -1324,8 +1324,6 @@ public:
             for (size_t i = args.size(); i < st->n_members; i++) {
                 args.push_back(al, st->m_initializers[i]);
             }
-
-
             ASR::ttype_t* der_type = ASRUtils::TYPE(ASRUtils::make_StructType_t_util(al, loc, stemp));
             return ASR::make_StructConstructor_t(al, loc, stemp, args.p, args.size(), der_type, nullptr);
         } else if( ASR::is_a<ASR::EnumType_t>(*s) ) {
