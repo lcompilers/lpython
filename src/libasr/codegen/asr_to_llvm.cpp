@@ -2208,13 +2208,14 @@ public:
     }
 
     void visit_ListClear(const ASR::ListClear_t& x) {
+        ASR::List_t* asr_list = ASR::down_cast<ASR::List_t>(ASRUtils::expr_type(x.m_a));
         int64_t ptr_loads_copy = ptr_loads;
         ptr_loads = 0;
         this->visit_expr(*x.m_a);
         llvm::Value* plist = tmp;
         ptr_loads = ptr_loads_copy;
 
-        list_api->list_clear(plist);
+        list_api->list_clear(plist, asr_list->m_type, module.get());
     }
 
     void visit_ListRepeat(const ASR::ListRepeat_t& x) {
