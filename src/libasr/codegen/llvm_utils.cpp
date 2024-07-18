@@ -6699,6 +6699,7 @@ namespace LCompilers {
         llvm::Value* el_hash = get_el_hash(current_capacity, el, el_asr_type, *module);
         this->resolve_collision_for_write(set, el_hash, el, module,
                                           el_asr_type, name2memidx);
+        rehash_all_at_once_if_needed(set, module, el_asr_type, name2memidx);
     }
 
     llvm::Value* LLVMSetLinearProbing::resolve_collision_for_read_with_bound_check(
