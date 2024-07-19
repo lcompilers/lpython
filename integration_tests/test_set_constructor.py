@@ -13,3 +13,5 @@ def test_empty_set():
     b.remove('a')
     b.add('b')
     assert b.pop() == 3
+
+test_empty_set()
