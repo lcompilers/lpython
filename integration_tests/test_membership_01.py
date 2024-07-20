@@ -26,7 +26,7 @@ def test_str_set():
     a: set[str] = {'a', 'b', 'c', 'e', 'f'}
     i: str
     assert ('a' in a)
-    # assert ('d' not in a)
+    assert ('d' not in a)
     i = 'c'
     assert (i in a)
 
