@@ -1931,7 +1931,7 @@ public:
             return ASRUtils::TYPE(ASR::make_Union_t(al, attr_annotation->base.base.loc, import_struct_member));
         } else if ( AST::is_a<AST::ConstantStr_t>(annotation) ) {
             AST::ConstantStr_t *n = AST::down_cast<AST::ConstantStr_t>(&annotation);
-            ASR::symbol_t *sym = current_scope->parent->parent->resolve_symbol(n->m_value);
+            ASR::symbol_t *sym = current_scope->resolve_symbol(n->m_value);
             if ( sym == nullptr || !ASR::is_a<ASR::Struct_t>(*sym) ) {
                 throw SemanticError("Only Struct implemented for constant" 
                 " str annotation", loc);        
@@ -3300,6 +3300,7 @@ public:
                     if ( AST::is_a<AST::FunctionDef_t>(*x.m_body[i]) ) {
                         AST::FunctionDef_t*
                             f = AST::down_cast<AST::FunctionDef_t>(x.m_body[i]);
+                        init_self_type(*f, sym, x.base.base.loc);
                         if ( std::string(f->m_name) == std::string("__init__") ) {
                             this->visit_init_body(*f);
                         } else {
@@ -3346,6 +3347,30 @@ public:
             }
             current_scope = parent_scope;
         }
+    }
+
+    void init_self_type (const AST::FunctionDef_t &x, 
+                            ASR::symbol_t* class_sym, Location loc) {
+        SymbolTable* parent_scope = current_scope;
+        ASR::symbol_t *t = current_scope->get_symbol(x.m_name);
+        if (t==nullptr) {
+            throw SemanticError("Function not found in current symbol table",
+                                    x.base.base.loc);
+        }
+        if ( !ASR::is_a<ASR::Function_t>(*t) ) {
+            throw SemanticError("Only functions implemented in classes",
+                                    x.base.base.loc);
+        }
+        ASR::Function_t *f = ASR::down_cast<ASR::Function_t>(t);
+        current_scope = f->m_symtab;
+        if ( f->n_args==0 ) {
+            return;
+        }
+        std::string self_name = x.m_args.m_args[0].m_arg;
+        ASR::symbol_t* sym = current_scope->get_symbol(self_name);
+        ASR::Variable_t* self_var = ASR::down_cast<ASR::Variable_t>(sym);
+        self_var->m_type = ASRUtils::TYPE(ASRUtils::make_StructType_t_util(al,loc, class_sym));
+        current_scope = parent_scope;
     }
 
     virtual void visit_init_body (const AST::FunctionDef_t &/*x*/) = 0;
@@ -5139,7 +5164,8 @@ public:
         for (const auto &rt: rt_vec) { rts.push_back(al, rt); }
         f->m_body = body.p;
         f->n_body = body.size();
-        ASR::FunctionType_t* func_type = ASR::down_cast<ASR::FunctionType_t>(f->m_function_signature);
+        ASR::FunctionType_t* func_type = ASR::down_cast<ASR::FunctionType_t>(
+                                                        f->m_function_signature);
         func_type->m_restrictions = rts.p;
         func_type->n_restrictions = rts.size();
         f->m_dependencies = dependencies.p;
@@ -8024,10 +8050,12 @@ we will have to use something else.
                     st = get_struct_member(st, call_name, loc);
                 } else if ( ASR::is_a<ASR::Variable_t>(*st)) {
                     ASR::Variable_t* var = ASR::down_cast<ASR::Variable_t>(st);
-                    if (ASR::is_a<ASR::StructType_t>(*var->m_type)) {
+                    if (ASR::is_a<ASR::StructType_t>(*var->m_type) || 
+                            ASR::is_a<ASR::Class_t>(*var->m_type) ) {
+                        //TODO: Correct Class and ClassType
                         // call to struct member function
                         // modifying args to pass the object as self
-                        ASR::StructType_t* var_struct = ASR::down_cast<ASR::StructType_t>(var->m_type);
+                        ASR::symbol_t* der = ASR::down_cast<ASR::StructType_t>(var->m_type)->m_derived_type;
                         Vec<ASR::call_arg_t> new_args; new_args.reserve(al, args.n + 1);
                         ASR::call_arg_t self_arg;
                         self_arg.loc = args[0].loc;
@@ -8036,7 +8064,7 @@ we will have to use something else.
                         for (size_t i=0; i<args.n; i++) {
                             new_args.push_back(al, args[i]);
                         }
-                        st = get_struct_member(var_struct->m_derived_type, call_name, loc);
+                        st = get_struct_member(der, call_name, loc);
                         tmp = make_call_helper(al, st, current_scope, new_args, call_name, loc);
                         return;
                     } else {

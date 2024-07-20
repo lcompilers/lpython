@@ -6,7 +6,7 @@ class Character:
         self.attack_power : i32 = attack_power
         self.is_immortal : bool = False
     
-    def attack(self:"Character", other:"Character") -> str:
+    def attack(self:"Character", other:"Character")->str:
         other.health -= self.attack_power
         return self.name+" attacks "+ other.name+" for "+str(self.attack_power)+" damage."
 
@@ -41,4 +41,3 @@ def main():
     assert hero.is_alive() == True
 
 main()
- 
