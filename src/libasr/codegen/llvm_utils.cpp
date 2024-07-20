@@ -3393,8 +3393,13 @@ namespace LCompilers {
                            module, key_asr_type, true);
         }
         llvm_utils->start_new_block(mergeBB);
-        llvm::Value *flag = LLVM::CreateLoad(*builder, flag_ptr);
         llvm::Value *pos = LLVM::CreateLoad(*builder, pos_ptr);
+        llvm::Value* pos_mask_value = LLVM::CreateLoad(*builder,
+                                        llvm_utils->create_ptr_gep(key_mask, pos));
+        llvm::Value *flag = builder->CreateOr(
+            builder->CreateICmpEQ(pos_mask_value,
+            llvm::ConstantInt::get(llvm::Type::getInt8Ty(context), llvm::APInt(8, 0))),
+            LLVM::CreateLoad(*builder, flag_ptr));
         llvm::AllocaInst *is_key_matching_ptr = builder0.CreateAlloca(llvm::Type::getInt1Ty(context), nullptr);
 
         llvm_utils->create_if_else(flag, [&](){
@@ -6783,14 +6788,20 @@ namespace LCompilers {
                                     module, el_asr_type, true);
         }
         llvm_utils->start_new_block(mergeBB);
-        llvm::Value *flag = LLVM::CreateLoad(*builder, flag_ptr);
+
+        llvm::Value* pos = LLVM::CreateLoad(*builder, pos_ptr);
+        llvm::Value* pos_mask_value = LLVM::CreateLoad(*builder,
+                                        llvm_utils->create_ptr_gep(el_mask, pos));
+        llvm::Value *flag = builder->CreateOr(
+            builder->CreateICmpEQ(pos_mask_value,
+            llvm::ConstantInt::get(llvm::Type::getInt8Ty(context), llvm::APInt(8, 0))),
+            LLVM::CreateLoad(*builder, flag_ptr));
         llvm::AllocaInst *is_el_matching_ptr = builder0.CreateAlloca(llvm::Type::getInt1Ty(context), nullptr);
 
         llvm_utils->create_if_else(flag, [&](){
         LLVM::CreateStore(*builder, llvm::ConstantInt::get(llvm::Type::getInt1Ty(context), 0), is_el_matching_ptr);
             }, [&](){
         // Check if the actual element is present or not
-        llvm::Value* pos = LLVM::CreateLoad(*builder, pos_ptr);
         llvm::Value* item = llvm_utils->list_api->read_item(el_list, pos, false, module,
                     LLVM::is_llvm_struct(el_asr_type)) ;
         llvm::Value *iseq =llvm_utils->is_equal_by_value(el,
