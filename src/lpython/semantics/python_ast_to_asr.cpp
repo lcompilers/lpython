@@ -5255,24 +5255,26 @@ public:
         if ( sym && ASR::is_a<ASR::Variable_t>(*sym) ) {
             ASR::Variable_t* var = ASR::down_cast<ASR::Variable_t>(sym);
             if ( ASR::is_a<ASR::StructType_t>(*(var->m_type)) && 
-                !ASR::down_cast<ASR::StructType_t>((var->m_type))->m_is_cstruct &&
-                ASR::is_a<ASR::StructConstructor_t>(*init_expr) ) {
-                    AST::Call_t* call = AST::down_cast<AST::Call_t>(x.m_value);
-                    if ( call->n_keywords>0 ) {
-                        throw SemanticError("Kwargs not implemented yet", x.base.base.loc);
-                    }
-                    Vec<ASR::call_arg_t> args;
-                    args.reserve(al, call->n_args + 1);
-                    ASR::call_arg_t self_arg;
-                    self_arg.loc = x.base.base.loc;
-                    self_arg.m_value = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, sym));
-                    args.push_back(al, self_arg);
-                    visit_expr_list(call->m_args, call->n_args, args);
-                    ASR::symbol_t* der = ASR::down_cast<ASR::StructType_t>((var->m_type))->m_derived_type;
-                    std::string call_name = "__init__";
-                    ASR::symbol_t* call_sym = get_struct_member(der, call_name, x.base.base.loc);
-                    tmp = make_call_helper(al, call_sym, current_scope, args, call_name, x.base.base.loc);
+                !ASR::down_cast<ASR::StructType_t>((var->m_type))->m_is_cstruct ) {
+                if ( !ASR::is_a<ASR::StructConstructor_t>(*init_expr) ) {
+                    throw SemanticError("References are not implemented", x.base.base.loc);
                 }
+                AST::Call_t* call = AST::down_cast<AST::Call_t>(x.m_value);
+                if ( call->n_keywords>0 ) {
+                    throw SemanticError("Kwargs not implemented yet", x.base.base.loc);
+                }
+                Vec<ASR::call_arg_t> args;
+                args.reserve(al, call->n_args + 1);
+                ASR::call_arg_t self_arg;
+                self_arg.loc = x.base.base.loc;
+                self_arg.m_value = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, sym));
+                args.push_back(al, self_arg);
+                visit_expr_list(call->m_args, call->n_args, args);
+                ASR::symbol_t* der = ASR::down_cast<ASR::StructType_t>((var->m_type))->m_derived_type;
+                std::string call_name = "__init__";
+                ASR::symbol_t* call_sym = get_struct_member(der, call_name, x.base.base.loc);
+                tmp = make_call_helper(al, call_sym, current_scope, args, call_name, x.base.base.loc);
+            }
         }
     }
 
@@ -5539,10 +5541,17 @@ public:
             if (target->type == ASR::exprType::Var) {
                 ASR::Var_t *var = ASR::down_cast<ASR::Var_t>(target);
                 ASR::symbol_t *sym = var->m_v;
+                ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(sym);
                 if (do_loop_variables.size() > 0 && std::find(do_loop_variables.begin(), do_loop_variables.end(), sym) != do_loop_variables.end()) {
-                    ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(sym);
                     std::string var_name = std::string(v->m_name);
                     throw SemanticError("Assignment to loop variable `" + std::string(to_lower(var_name)) +"` is not allowed", target->base.loc);
+                }
+                if ( ASR::is_a<ASR::StructType_t>(*(v->m_type)) && 
+                    !ASR::down_cast<ASR::StructType_t>((v->m_type))->m_is_cstruct &&
+                    !(tmp_value->type == ASR::exprType::StructConstructor) ) {
+                    ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(sym);
+                    std::string var_name = std::string(v->m_name);
+                    throw SemanticError("References are not implemented", target->base.loc);
                 }
             }
             tmp_vec.push_back(ASR::make_Assignment_t(al, x.base.base.loc, target, tmp_value,
