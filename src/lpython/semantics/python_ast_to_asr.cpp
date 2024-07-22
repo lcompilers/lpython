@@ -5122,6 +5122,16 @@ public:
                 // Erase the function in TranslationUnit
                 unit->m_symtab->erase_symbol(func_name);
             }
+            ASR::symbol_t *g_sym = unit->m_symtab->get_symbol("_" + func_name);
+            if (g_sym) {
+                // Move the `global_underscore` variable into the
+                // Module from TranslationUnit
+                ASR::Variable_t *f = ASR::down_cast<ASR::Variable_t>(g_sym);
+                f->m_parent_symtab = mod->m_symtab;
+                mod->m_symtab->add_symbol("_" + func_name, (ASR::symbol_t *) f);
+                // Erase the function in TranslationUnit
+                unit->m_symtab->erase_symbol("_" + func_name);
+            }
             items.p = nullptr;
             items.n = 0;
         }

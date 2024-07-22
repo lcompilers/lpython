@@ -16,6 +16,7 @@
 #ifdef HAVE_LFORTRAN_LLVM
 #include <libasr/codegen/evaluator.h>
 #include <libasr/codegen/asr_to_llvm.h>
+#include <llvm/IR/GlobalVariable.h>
 #include <llvm/IR/Function.h>
 #include <llvm/IR/Type.h>
 #include <llvm/IR/DataLayout.h>
@@ -123,7 +124,8 @@ Result<PythonCompiler::EvalResult> PythonCompiler::evaluate(
         result.llvm_ir = m->str();
     }
 
-    ASR::symbol_t *global_underscore_symbol = symbol_table->get_symbol("_" + run_fn);
+    ASR::symbol_t *global_underscore_symbol = ASR::down_cast<ASR::Module_t>(symbol_table->resolve_symbol(module_name))
+                                    ->m_symtab->get_symbol("_" + run_fn);
     if (global_underscore_symbol) {
         global_underscore_name = "_" + run_fn;
     }
@@ -134,8 +136,10 @@ Result<PythonCompiler::EvalResult> PythonCompiler::evaluate(
       call_run_fn = true;
     }
 
-    ASR::symbol_t *global_underscore_sym = symbol_table->get_symbol(global_underscore_name);
-    if ((return_type == "struct") && (global_underscore_sym)) {
+    bool struct_to_print = false;
+    ASR::symbol_t *global_underscore_sym = ASR::down_cast<ASR::Module_t>(symbol_table->resolve_symbol(module_name))
+                                    ->m_symtab->get_symbol("_" + run_fn);
+    if ((return_type == "void") && (global_underscore_sym)) {
         // we compute the offsets of the struct's attribute here
         // we will be using it later in aggregate_type_to_string to print the struct
 
@@ -143,10 +147,13 @@ Result<PythonCompiler::EvalResult> PythonCompiler::evaluate(
         // because once we call `e->add_module`, internally LLVM may deallocate all the
         // type info after compiling the IR into machine code
 
-        llvm::Function *fn = m->get_function(run_fn);
-        llvm::Type *llvm_type = fn->getReturnType();
-        LCOMPILERS_ASSERT(llvm_type->isStructTy())
-        compute_offsets(llvm_type, global_underscore_sym, result);
+        llvm::GlobalVariable *g = m->get_global("_" + run_fn);
+        LCOMPILERS_ASSERT(g)
+        llvm::Type *llvm_type = g->getValueType();
+        if (llvm_type->isStructTy()) {
+            struct_to_print = true;
+            compute_offsets(llvm_type, global_underscore_sym, result);
+        }
     }
 
     e->add_module(std::move(m));
@@ -246,7 +253,14 @@ Result<PythonCompiler::EvalResult> PythonCompiler::evaluate(
             }
         } else if (return_type == "void") {
             e->execfn<void>(run_fn);
-            result.type = EvalResult::statement;
+            if (global_underscore_sym && struct_to_print) {
+                void *r = (void*)e->get_symbol_address("_" + run_fn);
+                LCOMPILERS_ASSERT(r)
+                result.structure.structure = r;
+                result.type = EvalResult::struct_type;
+            } else {
+                result.type = EvalResult::statement;
+            }
         } else if (return_type == "none") {
             result.type = EvalResult::none;
         } else {
@@ -259,8 +273,9 @@ Result<PythonCompiler::EvalResult> PythonCompiler::evaluate(
             ->erase_symbol(run_fn);
     }
     if (global_underscore_symbol) {
-        if (symbol_table->resolve_symbol("_")) {
-            symbol_table->erase_symbol("_");
+        if (ASR::down_cast<ASR::Module_t>(symbol_table->resolve_symbol(module_name))->m_symtab->resolve_symbol("_")) {
+            ASR::down_cast<ASR::Module_t>(symbol_table->resolve_symbol(module_name))->m_symtab
+                    ->erase_symbol("_");
         }
         ASR::Variable_t *a = ASR::down_cast<ASR::Variable_t>(global_underscore_symbol);
         ASR::Variable_t *b = al.make_new<ASR::Variable_t>();
@@ -268,7 +283,8 @@ Result<PythonCompiler::EvalResult> PythonCompiler::evaluate(
         Str s;
         s.from_str(al, "_");
         b->m_name = s.c_str(al);
-        symbol_table->add_symbol("_", ASR::down_cast<ASR::symbol_t>((ASR::asr_t*)b));
+        ASR::down_cast<ASR::Module_t>(symbol_table->resolve_symbol(module_name))->m_symtab
+                ->add_symbol("_", ASR::down_cast<ASR::symbol_t>((ASR::asr_t*)b));
     }
 
     eval_count++;
@@ -514,6 +530,33 @@ std::string PythonCompiler::aggregate_type_to_string(const struct EvalResult &r)
         }
         print_type(element_ttype, ((char*)array)+((size - 1)*element_size), result);
         result += "]";
+
+    } else if (asr_type->type == ASR::ttypeType::Tuple) {
+        ASR::Tuple_t *tuple_type = ASR::down_cast<ASR::Tuple_t>(asr_type);
+        result += "(";
+        for (size_t i = 0; i < tuple_type->n_type - 1; i++) {
+            print_type(tuple_type->m_type[i], ((char*)data)+offsets[i], result);
+            result += ", ";
+        }
+        print_type(tuple_type->m_type[tuple_type->n_type - 1], ((char*)data)+offsets[tuple_type->n_type - 1], result);
+        result += ")";
+
+    } else if (asr_type->type == ASR::ttypeType::StructType) {
+        ASR::StructType_t *class_type = ASR::down_cast<ASR::StructType_t>(asr_type);
+        ASR::Struct_t *struct_info = ASR::down_cast<ASR::Struct_t>(class_type->m_derived_type);
+        LCOMPILERS_ASSERT(class_type->n_data_member_types == struct_info->n_members)
+        result += struct_info->m_name;
+        result += "(";
+        for (size_t i = 0; i < struct_info->n_members - 1; i++) {
+            result += struct_info->m_members[i];
+            result += "=";
+            print_type(class_type->m_data_member_types[i], ((char*)data)+offsets[i], result);
+            result += ", ";
+        }
+        result += struct_info->m_members[struct_info->n_members - 1];
+        result += "=";
+        print_type(class_type->m_data_member_types[struct_info->n_members - 1], ((char*)data)+offsets[struct_info->n_members - 1], result);
+        result += ")";
 
     } else {
         throw LCompilersException("PythonCompiler::evaluate(): Return type not supported");
