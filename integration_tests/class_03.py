@@ -13,9 +13,12 @@ class Circle:
         print("Circle: r = ",str(self.radius)," area = ",str(area))
 
 def main():
-    c : Circle = Circle(1.0)  
-    c.circle_print() 
+    c : Circle = Circle(1.0)
+    c.circle_print()  
+    assert abs(c.circle_area() - 3.141593) <= 1e-6
     c.radius = 1.5   
     c.circle_print()
+    assert abs(c.circle_area() - 7.068583) < 1e-6
+
 if __name__ == "__main__":
     main()
