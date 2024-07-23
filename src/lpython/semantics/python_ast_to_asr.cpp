@@ -2956,7 +2956,8 @@ public:
     }
 
     void get_members_init (const AST::FunctionDef_t &x,
-        Vec<char*>& member_names, Vec<ASR::call_arg_t> &member_init){
+        Vec<char*>& member_names, Vec<ASR::call_arg_t> &member_init,
+        SetChar& struct_dependencies){
         if(x.n_decorator_list > 0) {
             throw SemanticError("Decorators for __init__ not implemented",
                 x.base.base.loc);
@@ -2997,6 +2998,22 @@ public:
             c_arg.loc = var_sym->base.loc;
             c_arg.m_value = nullptr;
             member_init.push_back(al, c_arg);
+            ASR::ttype_t* var_type = ASRUtils::type_get_past_pointer(ASRUtils::symbol_type(var_sym));
+            char* aggregate_type_name = nullptr;
+            if( ASR::is_a<ASR::StructType_t>(*var_type) ) {
+                aggregate_type_name = ASRUtils::symbol_name(
+                    ASR::down_cast<ASR::StructType_t>(var_type)->m_derived_type);
+            } else if( ASR::is_a<ASR::Enum_t>(*var_type) ) {
+                aggregate_type_name = ASRUtils::symbol_name(
+                    ASR::down_cast<ASR::Enum_t>(var_type)->m_enum_type);
+            } else if( ASR::is_a<ASR::Union_t>(*var_type) ) {
+                aggregate_type_name = ASRUtils::symbol_name(
+                    ASR::down_cast<ASR::Union_t>(var_type)->m_union_type);
+            }
+            if( aggregate_type_name &&
+                !current_scope->get_symbol(std::string(aggregate_type_name)) ) {
+                struct_dependencies.push_back(al, aggregate_type_name);
+            }
         }
     }
 
@@ -3027,7 +3044,7 @@ public:
                         *f = AST::down_cast<AST::FunctionDef_t>(x.m_body[i]);
                     std::string f_name = f->m_name;
                     if (f_name == "__init__") {
-                        this->get_members_init(*f, member_names, member_init);
+                        this->get_members_init(*f, member_names, member_init, struct_dependencies);
                         this->visit_stmt(*x.m_body[i]);
                         member_fn_names.push_back(al, f->m_name);
                     } else {
