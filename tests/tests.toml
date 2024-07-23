@@ -362,6 +362,10 @@ pass = "class_constructor"
 cumulative = true
 
 [[test]]
+filename = "errors/class_04.py"
+asr = true
+
+[[test]]
 filename = "../integration_tests/callback_01.py"
 asr = true
 

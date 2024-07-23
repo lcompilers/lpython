@@ -1,0 +1,5 @@
+semantic error: References are not implemented
+ --> tests/errors/class_04.py:9:1
+  |
+9 | p2: coord = p1
+  | ^^^^^^^^^^^^^^ 
