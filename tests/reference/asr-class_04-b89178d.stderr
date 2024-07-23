@@ -1,4 +1,4 @@
-semantic error: References are not implemented
+semantic error: Only Class constructor is allowed in the object assignment for now
  --> tests/errors/class_04.py:9:1
   |
 9 | p2: coord = p1

@@ -5257,7 +5257,7 @@ public:
             if ( ASR::is_a<ASR::StructType_t>(*(var->m_type)) && 
                 !ASR::down_cast<ASR::StructType_t>((var->m_type))->m_is_cstruct ) {
                 if ( !ASR::is_a<ASR::StructConstructor_t>(*init_expr) ) {
-                    throw SemanticError("References are not implemented", x.base.base.loc);
+                    throw SemanticError("Only Class constructor is allowed in the object assignment for now", x.base.base.loc);
                 }
                 AST::Call_t* call = AST::down_cast<AST::Call_t>(x.m_value);
                 if ( call->n_keywords>0 ) {
@@ -5551,7 +5551,7 @@ public:
                     !(tmp_value->type == ASR::exprType::StructConstructor) ) {
                     ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(sym);
                     std::string var_name = std::string(v->m_name);
-                    throw SemanticError("References are not implemented", target->base.loc);
+                    throw SemanticError("Only Class constructor is allowed in the object assignment for now", target->base.loc);
                 }
             }
             tmp_vec.push_back(ASR::make_Assignment_t(al, x.base.base.loc, target, tmp_value,
