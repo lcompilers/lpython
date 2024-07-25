@@ -54,6 +54,7 @@ def main():
 
     # Setup
     global DEFAULT_THREADS_TO_USE, fast_tests, python_libs_req
+
     os.environ["PATH"] = LPYTHON_PATH + os.pathsep + os.environ["PATH"]
     # delete previously created directories (if any)
     for backend in SUPPORTED_BACKENDS:

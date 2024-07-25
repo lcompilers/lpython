@@ -30,10 +30,13 @@ zstd-static = "1.5.5.*"
 cxx-compiler = "*"
 cmake = "*"
 ninja = "*"
+python = "3.10.2.*"
 
 [feature.compiler.tasks]
-build_1 = { cmd = "sh build1.sh", depends-on = ["build_0"] }
+build_1 = { cmd = "sh build1.sh" }
 build = { depends-on = ["build_0", "build_1"] }
+test = { cmd = "python ./integration_tests/run_tests.py"}
+
 
 [environments]
 compiler = ["compiler"]
