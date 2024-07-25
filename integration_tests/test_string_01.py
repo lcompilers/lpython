@@ -5,3 +5,5 @@ def test_string():
     assert ascii_letters == 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
 
     print(ascii_lowercase)
+
+test_string()
