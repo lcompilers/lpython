@@ -1244,6 +1244,15 @@ PyMODINIT_FUNC PyInit_lpython_module_)" + fn_name + R"((void) {
         src = "_lfortran_strrepeat_c(" + s + ", " + n + ")";
     }
 
+    void visit_StringContains(const ASR::StringRepeat_t &x) {
+        CHECK_FAST_C_CPP(compiler_options, x)
+        self().visit_expr(*x.m_left);
+        std::string substr = src;
+        self().visit_expr(*x.m_right);
+        std::string str = src;
+        src = "_lfortran_str_contains(" + str + ", " + substr + ")";
+    }
+
     void visit_Assignment(const ASR::Assignment_t &x) {
         std::string target;
         ASR::ttype_t* m_target_type = ASRUtils::expr_type(x.m_target);
