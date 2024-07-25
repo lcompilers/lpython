@@ -16,10 +16,10 @@ return:                                           ; preds = %.entry
 
 define void @__module___main___main0() {
 .entry:
-  %x = alloca i32, align 4
-  %x2 = alloca i64, align 8
-  %y = alloca float, align 4
   %y2 = alloca double, align 8
+  %y = alloca float, align 4
+  %x2 = alloca i64, align 8
+  %x = alloca i32, align 4
   store i32 25, i32* %x, align 4
   %0 = load i32, i32* %x, align 4
   call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([5 x i8], [5 x i8]* @2, i32 0, i32 0), i32 %0, i8* getelementptr inbounds ([2 x i8], [2 x i8]* @1, i32 0, i32 0))
