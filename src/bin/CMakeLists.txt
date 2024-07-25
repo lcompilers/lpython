@@ -99,13 +99,13 @@ if (WITH_INTRINSIC_MODULES)
     add_custom_target(lpython_intrinsics
         ALL
         DEPENDS
-        ${CMAKE_CURRENT_SOURCE_DIR}/../runtime/lpython_intrinsic_numpy.pyc
-        ${CMAKE_CURRENT_SOURCE_DIR}/../runtime/lpython_builtin.pyc
+        ${CMAKE_CURRENT_BINARY_DIR}/../runtime/lpython_intrinsic_numpy.pyc
+        ${CMAKE_CURRENT_BINARY_DIR}/../runtime/lpython_builtin.pyc
     )
 
     install(
-        FILES ${CMAKE_CURRENT_SOURCE_DIR}/../runtime/lpython_intrinsic_numpy.pyc
-            ${CMAKE_CURRENT_SOURCE_DIR}/../runtime/lpython_builtin.pyc
+        FILES ${CMAKE_CURRENT_BINARY_DIR}/../runtime/lpython_intrinsic_numpy.pyc
+            ${CMAKE_CURRENT_BINARY_DIR}/../runtime/lpython_builtin.pyc
         DESTINATION share/lfortran/lib
     )
 endif()
