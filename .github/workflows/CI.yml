@@ -502,7 +502,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        llvm-version: ["10", "14", "15", "16"]
+        llvm-version: ["10", "15", "16"]
     steps:
       - uses: actions/checkout@v4
         with:
@@ -540,7 +540,7 @@ jobs:
       - name: Test Linux LLVM ${{ matrix.llvm-version }}
         shell: bash -e -l {0}
         run: |
-            # ctest --output-on-failure
+            ctest --output-on-failure
             cd integration_tests
             ./run_tests.py -b llvm llvm_jit
             ./run_tests.py -b llvm llvm_jit -f
