@@ -1,3 +1,5 @@
+from lpython import i32
+
 def takes_set(a: set[i32]) -> set[i32]:
     return {1, 2, 3}
 
