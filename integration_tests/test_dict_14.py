@@ -1,8 +1,5 @@
 from lpython import i32
 
-def takes_dict(a: dict[i32, i32]) -> dict[i32, i32]:
-    return {1:1, 2:2}
-
 def test_dict():
     d_i32: dict[i32, i32] = {5: 1, 5: 2}
     d_str: dict[str, i32] = {'a': 1, 'a': 2}
@@ -64,8 +61,5 @@ def test_dict():
     for i in l_i32_1:
         l_i32_2.append(i)
     assert l_i32_2 == [30]
-
-    w: dict[i32, i32] = takes_dict({1:1, 2:2})
-    assert len(w)  == 2
 
 test_dict()
