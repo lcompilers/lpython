@@ -3154,7 +3154,9 @@ public:
                 visit_EnumType(*et);
             } else if (is_a<ASR::Struct_t>(*item.second)) {
                 ASR::Struct_t *st = down_cast<ASR::Struct_t>(item.second);
+                mangle_prefix = mangle_prefix + "__class_" + st->m_name + "_";
                 instantiate_methods(*st);
+                mangle_prefix = "__module_" + std::string(x.m_name) + "_";
             }
         }
         finish_module_init_function_prototype(x);

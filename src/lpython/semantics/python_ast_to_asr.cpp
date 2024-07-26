@@ -8251,6 +8251,17 @@ we will have to use something else.
             }
             handle_builtin_attribute(subscript_expr, at->m_attr, loc, eles);
             return;
+        } else if ( AST::is_a<AST::Attribute_t>(*(at->m_value)) ) {
+            AST::Attribute_t* inner_at = AST::down_cast<AST::Attribute_t>(at->m_value);
+            if ( AST::is_a<AST::Name_t>(*inner_at->m_value) ) {
+                AST::Name_t *n = AST::down_cast<AST::Name_t>(at->m_value);
+                std::string mod_name = n->m_id;
+                std::string call_name = at->m_attr;
+                std::string call_name_store = "__" + mod_name + "_" + call_name;
+                ASR::symbol_t *st = nullptr; 
+                }
+                tmp = make_call_helper(al, st, current_scope, args, call_name, loc);
+                return;
         } else {
             throw SemanticError("Only Name type and constant integers supported in Call", loc);
         }
