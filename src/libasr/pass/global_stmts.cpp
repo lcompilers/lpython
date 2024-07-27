@@ -52,7 +52,8 @@ void pass_wrap_global_stmts(Allocator &al,
                 (ASRUtils::expr_type(value)->type == ASR::ttypeType::Complex) ||
                 (ASRUtils::expr_type(value)->type == ASR::ttypeType::Character) ||
                 (ASRUtils::expr_type(value)->type == ASR::ttypeType::List) ||
-                (ASRUtils::expr_type(value)->type == ASR::ttypeType::Tuple)) {
+                (ASRUtils::expr_type(value)->type == ASR::ttypeType::Tuple) ||
+                (ASRUtils::expr_type(value)->type == ASR::ttypeType::StructType)) {
                 s.from_str(al, fn_name_s + std::to_string(idx));
                 var_name = s.c_str(al);
                 type = ASRUtils::expr_type(value);
@@ -102,6 +103,13 @@ void pass_wrap_global_stmts(Allocator &al,
         unit.m_symtab->add_symbol(global_underscore_name, down_cast<ASR::symbol_t>(global_underscore));
         ASR::stmt_t* asr_stmt = ASRUtils::STMT(ASR::make_Assignment_t(al, loc, global_underscore_ref, return_var_ref, nullptr));
         body.push_back(al, asr_stmt);
+
+        if ((ASRUtils::expr_type(return_var_ref)->type == ASR::ttypeType::List) ||
+            (ASRUtils::expr_type(return_var_ref)->type == ASR::ttypeType::Tuple) ||
+            (ASRUtils::expr_type(return_var_ref)->type == ASR::ttypeType::StructType)) {
+            return_var_ref = nullptr;
+            return_var = nullptr;
+        }
     }
 
     ASR::asr_t *fn = ASRUtils::make_Function_t_util(
