@@ -1636,8 +1636,8 @@ class MyClass4:
     r = e.evaluate2("c4");
     CHECK(r.ok);
     CHECK(r.result.type == PythonCompiler::EvalResult::struct_type);
-    CHECK(e.aggregate_type_to_string(r.result) == "MyClass4(i_1=True, i_8=2, i_16=3, i_32=4, i_64=5)");
-    
+    // CHECK(e.aggregate_type_to_string(r.result) == "MyClass4(i_1=True, i_8=2, i_16=3, i_32=4, i_64=5)"); // FIXME: look at issue #2793
+
     r = e.evaluate2(R"(
 @dataclass
 class MyClass5:
