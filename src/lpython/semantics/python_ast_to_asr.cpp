@@ -8251,17 +8251,31 @@ we will have to use something else.
             }
             handle_builtin_attribute(subscript_expr, at->m_attr, loc, eles);
             return;
-        } else if ( AST::is_a<AST::Attribute_t>(*(at->m_value)) ) {
-            AST::Attribute_t* inner_at = AST::down_cast<AST::Attribute_t>(at->m_value);
-            if ( AST::is_a<AST::Name_t>(*inner_at->m_value) ) {
-                AST::Name_t *n = AST::down_cast<AST::Name_t>(at->m_value);
-                std::string mod_name = n->m_id;
-                std::string call_name = at->m_attr;
-                std::string call_name_store = "__" + mod_name + "_" + call_name;
-                ASR::symbol_t *st = nullptr; 
-                }
-                tmp = make_call_helper(al, st, current_scope, args, call_name, loc);
-                return;
+        } else if ( AST::is_a<AST::Attribute_t>(*at->m_value) ) {
+            AST::Attribute_t* at_m_value = AST::down_cast<AST::Attribute_t>(at->m_value);
+            visit_Attribute(*at_m_value);
+            ASR::expr_t* e = ASRUtils::EXPR(tmp);
+            if ( !ASR::is_a<ASR::StructInstanceMember_t>(*e) ) {
+                throw SemanticError("Expected a class variable here", loc);
+            }
+            if ( !ASR::is_a<ASR::StructType_t>(*ASRUtils::expr_type(e)) ) {
+                throw SemanticError("Only Classes supported in nested attribute call", loc);
+            }
+            ASR::StructType_t* der = ASR::down_cast<ASR::StructType_t>(ASRUtils::expr_type(e));
+            ASR::symbol_t* der_sym = ASRUtils::symbol_get_past_external(der->m_derived_type);
+            std::string call_name = at->m_attr;
+
+            Vec<ASR::call_arg_t> new_args; new_args.reserve(al, args.n + 1);
+            ASR::call_arg_t self_arg;
+            self_arg.loc = args[0].loc;
+            self_arg.m_value = e;
+            new_args.push_back(al, self_arg);
+            for (size_t i=0; i<args.n; i++) {
+                new_args.push_back(al, args[i]);
+            }
+            ASR::symbol_t* st = get_struct_member(der_sym, call_name, loc);
+            tmp = make_call_helper(al, st, current_scope, new_args, call_name, loc);
+            return;
         } else {
             throw SemanticError("Only Name type and constant integers supported in Call", loc);
         }
