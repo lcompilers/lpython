@@ -2197,6 +2197,12 @@ LFORTRAN_API char* _lfortran_str_item(char* s, int32_t idx) {
     return res;
 }
 
+/// Find a substring in a string
+LFORTRAN_API bool _lfortran_str_contains(char* str, char* substr) {
+    char* res = strstr(str, substr);
+    return res != NULL;
+}
+
 // idx1 and idx2 both start from 1
 LFORTRAN_API char* _lfortran_str_copy(char* s, int32_t idx1, int32_t idx2) {
 

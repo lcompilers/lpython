@@ -1506,6 +1506,160 @@ TEST_CASE("PythonCompiler lists") {
     CHECK(e.aggregate_type_to_string(r.result) == "[\"lfortran\", \"lpython\", \"lc\"]");
 }
 
+TEST_CASE("PythonCompiler tuples") {
+    CompilerOptions cu;
+    cu.po.disable_main = true;
+    cu.emit_debug_line_column = false;
+    cu.generate_object_code = false;
+    cu.interactive = true;
+    cu.po.runtime_library_dir = LCompilers::LPython::get_runtime_library_dir();
+    PythonCompiler e(cu);
+    LCompilers::Result<PythonCompiler::EvalResult>
+    
+    r = e.evaluate2("(1, 2)");
+    CHECK(r.ok);
+    CHECK(r.result.type == PythonCompiler::EvalResult::struct_type);
+    CHECK(LCompilers::ASRUtils::get_type_code(r.result.structure.ttype) == "tuple[i32, i32]");
+    CHECK(e.aggregate_type_to_string(r.result) == "(1, 2)");
+
+    r = e.evaluate2("(1, 2, 2.5)");
+    CHECK(r.ok);
+    CHECK(r.result.type == PythonCompiler::EvalResult::struct_type);
+    CHECK(LCompilers::ASRUtils::get_type_code(r.result.structure.ttype) == "tuple[i32, i32, r64]");
+    CHECK(e.aggregate_type_to_string(r.result) == "(1, 2, 2.500000)");
+
+    r = e.evaluate2("(1, 2, 2.5, \"LPython\")");
+    CHECK(r.ok);
+    CHECK(r.result.type == PythonCompiler::EvalResult::struct_type);
+    CHECK(LCompilers::ASRUtils::get_type_code(r.result.structure.ttype) == "tuple[i32, i32, r64, str]");
+    CHECK(e.aggregate_type_to_string(r.result) == "(1, 2, 2.500000, \"LPython\")");
+
+    r = e.evaluate2("(1, 2, 2.5, \"LPython\", True)");
+    CHECK(r.ok);
+    CHECK(r.result.type == PythonCompiler::EvalResult::struct_type);
+    CHECK(LCompilers::ASRUtils::get_type_code(r.result.structure.ttype) == "tuple[i32, i32, r64, str, i1]");
+    CHECK(e.aggregate_type_to_string(r.result) == "(1, 2, 2.500000, \"LPython\", True)");
+
+    r = e.evaluate2("(i8(1), i16(1), i64(1))");
+    CHECK(r.ok);
+    CHECK(r.result.type == PythonCompiler::EvalResult::struct_type);
+    CHECK(LCompilers::ASRUtils::get_type_code(r.result.structure.ttype) == "tuple[i8, i16, i64]");
+    CHECK(e.aggregate_type_to_string(r.result) == "(1, 1, 1)");
+
+    r = e.evaluate2("(f32(1.0),)");
+    CHECK(r.ok);
+    CHECK(r.result.type == PythonCompiler::EvalResult::struct_type);
+    CHECK(LCompilers::ASRUtils::get_type_code(r.result.structure.ttype) == "tuple[r32]");
+    CHECK(e.aggregate_type_to_string(r.result) == "(1.000000)");
+}
+
+TEST_CASE("PythonCompiler classes") {
+    CompilerOptions cu;
+    cu.po.disable_main = true;
+    cu.emit_debug_line_column = false;
+    cu.generate_object_code = false;
+    cu.interactive = true;
+    cu.po.runtime_library_dir = LCompilers::LPython::get_runtime_library_dir();
+    PythonCompiler e(cu);
+    LCompilers::Result<PythonCompiler::EvalResult>
+
+    r = e.evaluate2(R"(
+@dataclass
+class MyClass1:
+    x: i32
+)");
+    CHECK(r.ok);
+    CHECK(r.result.type == PythonCompiler::EvalResult::none);
+
+    r = e.evaluate2("c1: MyClass1 = MyClass1(12)");
+    CHECK(r.ok);
+    CHECK(r.result.type == PythonCompiler::EvalResult::statement);
+    
+    r = e.evaluate2("c1");
+    CHECK(r.ok);
+    CHECK(r.result.type == PythonCompiler::EvalResult::struct_type);
+    CHECK(e.aggregate_type_to_string(r.result) == "MyClass1(x=12)");
+    
+    r = e.evaluate2(R"(
+@dataclass
+class MyClass2:
+    i: i32
+    f: f64
+)");
+    CHECK(r.ok);
+    CHECK(r.result.type == PythonCompiler::EvalResult::none);
+
+    r = e.evaluate2("c2: MyClass2 = MyClass2(12, 2.5)");
+    CHECK(r.ok);
+    CHECK(r.result.type == PythonCompiler::EvalResult::statement);
+    
+    r = e.evaluate2("c2");
+    CHECK(r.ok);
+    CHECK(r.result.type == PythonCompiler::EvalResult::struct_type);
+    CHECK(e.aggregate_type_to_string(r.result) == "MyClass2(i=12, f=2.500000)");
+    
+    r = e.evaluate2(R"(
+@dataclass
+class MyClass3:
+    i: i32
+    f: f64
+    s: str
+)");
+    CHECK(r.ok);
+    CHECK(r.result.type == PythonCompiler::EvalResult::none);
+
+    r = e.evaluate2("c3: MyClass3 = MyClass3(12, 2.5, \"LPython\")");
+    CHECK(r.ok);
+    CHECK(r.result.type == PythonCompiler::EvalResult::statement);
+    
+    r = e.evaluate2("c3");
+    CHECK(r.ok);
+    CHECK(r.result.type == PythonCompiler::EvalResult::struct_type);
+    CHECK(e.aggregate_type_to_string(r.result) == "MyClass3(i=12, f=2.500000, s=\"LPython\")");
+    
+    r = e.evaluate2(R"(
+@dataclass
+class MyClass4:
+    i_1: bool
+    i_8: i8
+    i_16: i16
+    i_32: i32
+    i_64: i64
+)");
+    CHECK(r.ok);
+    CHECK(r.result.type == PythonCompiler::EvalResult::none);
+
+    r = e.evaluate2("c4: MyClass4 = MyClass4(True, i8(2), i16(3), i32(4), i64(5))");
+    CHECK(r.ok);
+    CHECK(r.result.type == PythonCompiler::EvalResult::statement);
+    
+    r = e.evaluate2("c4");
+    CHECK(r.ok);
+    CHECK(r.result.type == PythonCompiler::EvalResult::struct_type);
+    // CHECK(e.aggregate_type_to_string(r.result) == "MyClass4(i_1=True, i_8=2, i_16=3, i_32=4, i_64=5)"); // FIXME: look at issue #2793
+
+    r = e.evaluate2(R"(
+@dataclass
+class MyClass5:
+    u_1: bool
+    u_8: u8
+    u_16: u16
+    u_32: u32
+    u_64: u64
+)");
+    CHECK(r.ok);
+    CHECK(r.result.type == PythonCompiler::EvalResult::none);
+
+    r = e.evaluate2("c5: MyClass5 = MyClass5(False, u8(2), u16(3), u32(4), u64(5))");
+    CHECK(r.ok);
+    CHECK(r.result.type == PythonCompiler::EvalResult::statement);
+    
+    r = e.evaluate2("c5");
+    CHECK(r.ok);
+    CHECK(r.result.type == PythonCompiler::EvalResult::struct_type);
+    CHECK(e.aggregate_type_to_string(r.result) == "MyClass5(u_1=False, u_8=2, u_16=3, u_32=4, u_64=5)");
+}
+
 TEST_CASE("PythonCompiler underscore 1") {
     CompilerOptions cu;
     cu.po.disable_main = true;

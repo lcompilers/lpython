@@ -723,6 +723,21 @@ public:
         return builder->CreateCall(fn, {str, idx1});
     }
 
+    llvm::Value* lfortran_str_contains(llvm::Value* str, llvm::Value* substr)
+    {
+        std::string runtime_func_name = "_lfortran_str_contains";
+        llvm::Function *fn = module->getFunction(runtime_func_name);
+        if (!fn) {
+            llvm::FunctionType *function_type = llvm::FunctionType::get(
+                    llvm::Type::getInt1Ty(context), {
+                        character_type, character_type
+                    }, false);
+            fn = llvm::Function::Create(function_type,
+                    llvm::Function::ExternalLinkage, runtime_func_name, *module);
+        }
+        return builder->CreateCall(fn, {str, substr});
+    }
+
     llvm::Value* lfortran_str_copy(llvm::Value* str, llvm::Value* idx1, llvm::Value* idx2)
     {
         std::string runtime_func_name = "_lfortran_str_copy";
@@ -6416,6 +6431,22 @@ public:
             tmp = lfortran_str_item(str, idx);
             strings_to_be_deallocated.push_back(al, tmp);
         }
+    }
+
+    void visit_StringContains(const ASR::StringContains_t& x) {
+        if (x.m_value) {
+            this->visit_expr_wrapper(x.m_value, true);
+            return;
+        }
+
+        this->visit_expr_wrapper(x.m_left, true);
+        llvm::Value *substr = tmp;
+
+        this->visit_expr_wrapper(x.m_right, true);
+        llvm::Value *right = tmp;
+
+        tmp = lfortran_str_contains(right, substr);
+        strings_to_be_deallocated.push_back(al, tmp);
     }
 
     void visit_StringSection(const ASR::StringSection_t& x) {
