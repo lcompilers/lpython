@@ -4248,6 +4248,7 @@ public:
     bool is_interface = false;
     std::string interface_name = "";
     bool is_derived_type = false;
+    bool contains_bindpython = false;
     std::vector<std::string> current_procedure_args;
     ASR::abiType current_procedure_abi_type = ASR::abiType::Source;
     std::map<SymbolTable*, ASR::accessType> assgn;
@@ -4489,6 +4490,94 @@ public:
                             current_procedure_abi_type = ASR::abiType::BindPython;
                             current_procedure_interface = true;
                             module_file = extract_keyword_val_from_decorator(call_d, "module");
+
+                            if (!contains_bindpython) {
+                                size_t cpython_bindings_function_count = 13;
+                                size_t tmp_cpython_bindings_function_count = 0;
+                                Str s;
+                                AST::alias_t *module_symbols =
+                                    al.allocate<AST::alias_t>(cpython_bindings_function_count);
+                                
+                                s.from_str(al, "Py_Initialize");
+                                (module_symbols + tmp_cpython_bindings_function_count)->loc = x.base.base.loc;
+                                (module_symbols + tmp_cpython_bindings_function_count)->m_name = s.c_str(al);
+                                (module_symbols + tmp_cpython_bindings_function_count++)->m_asname = nullptr;
+                                
+                                s.from_str(al, "Py_IsInitialized");
+                                (module_symbols + tmp_cpython_bindings_function_count)->loc = x.base.base.loc;
+                                (module_symbols + tmp_cpython_bindings_function_count)->m_name = s.c_str(al);
+                                (module_symbols + tmp_cpython_bindings_function_count++)->m_asname = nullptr;
+                                
+                                s.from_str(al, "Py_DecodeLocale");
+                                (module_symbols + tmp_cpython_bindings_function_count)->loc = x.base.base.loc;
+                                (module_symbols + tmp_cpython_bindings_function_count)->m_name = s.c_str(al);
+                                (module_symbols + tmp_cpython_bindings_function_count++)->m_asname = nullptr;
+                                
+                                s.from_str(al, "PySys_SetArgv");
+                                (module_symbols + tmp_cpython_bindings_function_count)->loc = x.base.base.loc;
+                                (module_symbols + tmp_cpython_bindings_function_count)->m_name = s.c_str(al);
+                                (module_symbols + tmp_cpython_bindings_function_count++)->m_asname = nullptr;
+                                
+                                s.from_str(al, "Py_FinalizeEx");
+                                (module_symbols + tmp_cpython_bindings_function_count)->loc = x.base.base.loc;
+                                (module_symbols + tmp_cpython_bindings_function_count)->m_name = s.c_str(al);
+                                (module_symbols + tmp_cpython_bindings_function_count++)->m_asname = nullptr;
+                                
+                                s.from_str(al, "PyUnicode_FromString");
+                                (module_symbols + tmp_cpython_bindings_function_count)->loc = x.base.base.loc;
+                                (module_symbols + tmp_cpython_bindings_function_count)->m_name = s.c_str(al);
+                                (module_symbols + tmp_cpython_bindings_function_count++)->m_asname = nullptr;
+                                
+                                s.from_str(al, "PyImport_Import");
+                                (module_symbols + tmp_cpython_bindings_function_count)->loc = x.base.base.loc;
+                                (module_symbols + tmp_cpython_bindings_function_count)->m_name = s.c_str(al);
+                                (module_symbols + tmp_cpython_bindings_function_count++)->m_asname = nullptr;
+                                
+                                s.from_str(al, "Py_DecRef");
+                                (module_symbols + tmp_cpython_bindings_function_count)->loc = x.base.base.loc;
+                                (module_symbols + tmp_cpython_bindings_function_count)->m_name = s.c_str(al);
+                                (module_symbols + tmp_cpython_bindings_function_count++)->m_asname = nullptr;
+                                
+                                s.from_str(al, "Py_IncRef");
+                                (module_symbols + tmp_cpython_bindings_function_count)->loc = x.base.base.loc;
+                                (module_symbols + tmp_cpython_bindings_function_count)->m_name = s.c_str(al);
+                                (module_symbols + tmp_cpython_bindings_function_count++)->m_asname = nullptr;
+                                
+                                s.from_str(al, "PyObject_GetAttrString");
+                                (module_symbols + tmp_cpython_bindings_function_count)->loc = x.base.base.loc;
+                                (module_symbols + tmp_cpython_bindings_function_count)->m_name = s.c_str(al);
+                                (module_symbols + tmp_cpython_bindings_function_count++)->m_asname = nullptr;
+                                
+                                s.from_str(al, "PyTuple_New");
+                                (module_symbols + tmp_cpython_bindings_function_count)->loc = x.base.base.loc;
+                                (module_symbols + tmp_cpython_bindings_function_count)->m_name = s.c_str(al);
+                                (module_symbols + tmp_cpython_bindings_function_count++)->m_asname = nullptr;
+                                
+                                s.from_str(al, "PyObject_CallObject");
+                                (module_symbols + tmp_cpython_bindings_function_count)->loc = x.base.base.loc;
+                                (module_symbols + tmp_cpython_bindings_function_count)->m_name = s.c_str(al);
+                                (module_symbols + tmp_cpython_bindings_function_count++)->m_asname = nullptr;
+                                
+                                s.from_str(al, "PyLong_AsLongLong");
+                                (module_symbols + tmp_cpython_bindings_function_count)->loc = x.base.base.loc;
+                                (module_symbols + tmp_cpython_bindings_function_count)->m_name = s.c_str(al);
+                                (module_symbols + tmp_cpython_bindings_function_count++)->m_asname = nullptr;
+
+                                LCOMPILERS_ASSERT(cpython_bindings_function_count == tmp_cpython_bindings_function_count);
+
+                                AST::ImportFrom_t *imports =
+                                    (AST::ImportFrom_t*)AST::make_ImportFrom_t(
+                                        al, x.base.base.loc,
+                                        (char*)"cpython_bindings", module_symbols,
+                                        cpython_bindings_function_count, 0);
+                                
+                                SymbolTable *function_scope = current_scope;
+                                current_scope = parent_scope;
+                                visit_ImportFrom(*imports);
+                                current_scope = function_scope;
+                            }
+                            contains_bindpython = true;
+
                         } else {
                             throw SemanticError("Unsupported Decorator type",
                                     x.base.base.loc);
