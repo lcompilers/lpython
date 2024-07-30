@@ -202,6 +202,9 @@ public:
     std::unique_ptr<LLVMSetInterface> set_api_sc;
     std::unique_ptr<LLVMArrUtils::Descriptor> arr_descr;
     std::vector<llvm::Value*> heap_arrays;
+    std::map<llvm::Value*, ASR::ttype_t*> lists;
+    std::map<llvm::Value*, ASR::ttype_t*> dictionaries;
+    std::map<llvm::Value*, ASR::ttype_t*> sets;
     std::map<llvm::Value*, llvm::Value*> strings_to_be_allocated; // (array, size)
     Vec<llvm::Value*> strings_to_be_deallocated;
 
@@ -1120,6 +1123,18 @@ public:
         // }
     }
 
+    inline void free_heap_structures() {
+        for (auto &value : lists) {
+            llvm_utils->free_data(value.first, value.second, module.get());
+        }
+        for (auto &value : dictionaries) {
+            llvm_utils->free_data(value.first, value.second, module.get());
+        }
+        for (auto &value : sets) {
+            llvm_utils->free_data(value.first, value.second, module.get());
+        }
+    }
+
     llvm::Function* _Allocate(bool realloc_lhs) {
         std::string func_name = "_lfortran_alloc";
         if( realloc_lhs ) {
@@ -1274,6 +1289,7 @@ public:
         llvm::Type* const_list_type = list_api->get_list_type(llvm_el_type, type_code, type_size);
         llvm::Value* const_list = builder0.CreateAlloca(const_list_type, nullptr, "const_list");
         list_api->list_init(type_code, const_list, *module, x.n_args, x.n_args);
+        lists[const_list] = x.m_type;
         int64_t ptr_loads_copy = ptr_loads;
         for( size_t i = 0; i < x.n_args; i++ ) {
             if (is_argument_of_type_CPtr(x.m_args[i])) {
@@ -1300,6 +1316,7 @@ public:
         std::string key_type_code = ASRUtils::get_type_code(x_dict->m_key_type);
         std::string value_type_code = ASRUtils::get_type_code(x_dict->m_value_type);
         llvm_utils->dict_api->dict_init(key_type_code, value_type_code, const_dict, module.get(), x.n_keys);
+        dictionaries[const_dict] = x.m_type;
         int64_t ptr_loads_key = !LLVM::is_llvm_struct(x_dict->m_key_type);
         int64_t ptr_loads_value = !LLVM::is_llvm_struct(x_dict->m_value_type);
         int64_t ptr_loads_copy = ptr_loads;
@@ -1325,6 +1342,7 @@ public:
         llvm_utils->set_set_api(x_set);
         std::string el_type_code = ASRUtils::get_type_code(x_set->m_type);
         llvm_utils->set_api->set_init(el_type_code, const_set, module.get(), x.n_elements);
+        sets[const_set] = x.m_type;
         int64_t ptr_loads_el = !LLVM::is_llvm_struct(x_set->m_type);
         int64_t ptr_loads_copy = ptr_loads;
         ptr_loads = ptr_loads_el;
@@ -2270,6 +2288,7 @@ public:
         ptr_loads = 1;
         list_api->list_repeat_copy(repeat_list, left, right, left_len, module.get());
         ptr_loads = ptr_loads_copy;
+        lists[repeat_list] = x.m_type;
         tmp = repeat_list;
     }
 
@@ -3185,6 +3204,9 @@ public:
         loop_or_block_end.clear();
         loop_or_block_end_names.clear();
         heap_arrays.clear();
+        lists.clear();
+        dictionaries.clear();
+        sets.clear();
         strings_to_be_deallocated.reserve(al, 1);
         SymbolTable* current_scope_copy = current_scope;
         current_scope = x.m_symtab;
@@ -3260,6 +3282,7 @@ public:
             LLVM::lfortran_free(context, *module, *builder, value);
         }
         call_lcompilers_free_strings();
+        free_heap_structures();
 
         llvm::Value *ret_val2 = llvm::ConstantInt::get(context,
             llvm::APInt(32, 0));
@@ -3277,6 +3300,9 @@ public:
         loop_or_block_end.clear();
         loop_or_block_end_names.clear();
         heap_arrays.clear();
+        lists.clear();
+        dictionaries.clear();
+        sets.clear();
         strings_to_be_deallocated.reserve(al, 1);
     }
 
@@ -3875,6 +3901,7 @@ public:
                             ASR::List_t* asr_list = ASR::down_cast<ASR::List_t>(v->m_type);
                             std::string type_code = ASRUtils::get_type_code(asr_list->m_type);
                             list_api->list_init(type_code, ptr, *module);
+                            lists[ptr] = asr_list->m_type;
                         }
                     }
                 }
@@ -3955,6 +3982,9 @@ public:
         loop_or_block_end.clear();
         loop_or_block_end_names.clear();
         heap_arrays.clear();
+        lists.clear();
+        dictionaries.clear();
+        sets.clear();
         strings_to_be_deallocated.reserve(al, 1);
         SymbolTable* current_scope_copy = current_scope;
         current_scope = x.m_symtab;
@@ -3989,6 +4019,9 @@ public:
         loop_or_block_end.clear();
         loop_or_block_end_names.clear();
         heap_arrays.clear();
+        sets.clear();
+        dictionaries.clear();
+        lists.clear();
         strings_to_be_deallocated.reserve(al, 1);
     }
 
@@ -4139,6 +4172,7 @@ public:
                 ret_val2 = tmp;
                 }
             }
+            free_heap_structures();
             for( auto& value: heap_arrays ) {
                 LLVM::lfortran_free(context, *module, *builder, value);
             }
@@ -4146,6 +4180,7 @@ public:
             builder->CreateRet(ret_val2);
         } else {
             start_new_block(proc_return);
+            free_heap_structures();
             for( auto& value: heap_arrays ) {
                 LLVM::lfortran_free(context, *module, *builder, value);
             }
@@ -5416,6 +5451,15 @@ public:
         std::vector<llvm::Value*> heap_arrays_copy;
         heap_arrays_copy = heap_arrays;
         heap_arrays.clear();
+        std::map<llvm::Value*, ASR::ttype_t*> lists_copy;
+        lists_copy = lists;
+        lists.clear();
+        std::map<llvm::Value*, ASR::ttype_t*> dictionaries_copy;
+        dictionaries_copy = dictionaries;
+        dictionaries.clear();
+        std::map<llvm::Value*, ASR::ttype_t*> sets_copy;
+        sets_copy = sets;
+        sets.clear();
         if( x.m_label != -1 ) {
             if( llvm_goto_targets.find(x.m_label) == llvm_goto_targets.end() ) {
                 llvm::BasicBlock *new_target = llvm::BasicBlock::Create(context, "goto_target");
@@ -5456,7 +5500,11 @@ public:
         for( auto& value: heap_arrays ) {
             LLVM::lfortran_free(context, *module, *builder, value);
         }
+        free_heap_structures();
         heap_arrays = heap_arrays_copy;
+        lists = lists_copy;
+        dictionaries = dictionaries_copy;
+        sets = sets_copy;
         if (block_terminator == nullptr) {
             // The previous block is not terminated --- terminate it by jumping
             // to blockend
