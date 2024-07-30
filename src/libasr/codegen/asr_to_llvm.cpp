@@ -4846,6 +4846,7 @@ public:
             list_api->list_deepcopy(value_list, target_list,
                                     value_asr_list, module.get(),
                                     name2memidx);
+            lists[target_list] = ASRUtils::expr_type(x.m_target);
             return ;
         } else if( is_target_tuple && is_value_tuple ) {
             int64_t ptr_loads_copy = ptr_loads;
@@ -4914,6 +4915,7 @@ public:
             llvm_utils->set_dict_api(value_dict_type);
             llvm_utils->dict_api->dict_deepcopy(value_dict, target_dict,
                                     value_dict_type, module.get(), name2memidx);
+            dictionaries[target_dict] = ASRUtils::expr_type(x.m_target);
             return ;
         } else if( is_target_set && is_value_set ) {
             int64_t ptr_loads_copy = ptr_loads;
@@ -4927,6 +4929,7 @@ public:
             llvm_utils->set_set_api(value_set_type);
             llvm_utils->set_api->set_deepcopy(value_set, target_set,
                                     value_set_type, module.get(), name2memidx);
+            sets[target_set] = ASRUtils::expr_type(x.m_target);
             return ;
         } else if( is_target_struct && is_value_struct ) {
             int64_t ptr_loads_copy = ptr_loads;
