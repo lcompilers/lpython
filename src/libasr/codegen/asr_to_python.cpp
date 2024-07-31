@@ -576,6 +576,36 @@ public:
         s = r;
     }
 
+    void visit_ComplexConstructor(const ASR::ComplexConstructor_t &x) {
+        visit_expr(*x.m_re);
+        std::string re = s;
+        visit_expr(*x.m_im);
+        std::string im = s;
+        s = "complex(" + re + ", " + im + ")";
+    }
+
+    void visit_ComplexBinOp(const ASR::ComplexBinOp_t &x) {
+        std::string r;
+        int current_precedence = last_expr_precedence;
+        visit_expr_with_precedence(*x.m_left, current_precedence);
+        r += s;
+        r += binop2str(x.m_op);
+        visit_expr_with_precedence(*x.m_right, current_precedence);
+        r += s;
+        last_expr_precedence = current_precedence;
+        s = r;
+    }
+
+    void visit_ComplexRe(const ASR::ComplexRe_t &x) {
+        visit_expr(*x.m_arg);
+        s = s + ".real";
+    }
+
+    void visit_ComplexIm(const ASR::ComplexIm_t &x) {
+        visit_expr(*x.m_arg);
+        s = s + ".imag";
+    }
+
     void visit_Assert(const ASR::Assert_t &x) {
         std::string r = indent;
         r += "assert ";
