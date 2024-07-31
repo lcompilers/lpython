@@ -1960,7 +1960,8 @@ namespace LCompilers {
                 while( struct_type_t != nullptr ) {
                     for( auto item: struct_type_t->m_symtab->get_scope() ) {
                         if( ASR::is_a<ASR::ClassProcedure_t>(*item.second) ||
-                            ASR::is_a<ASR::CustomOperator_t>(*item.second) ) {
+                            ASR::is_a<ASR::CustomOperator_t>(*item.second) ||
+                            ASR::is_a<ASR::Function_t>(*item.second) ) {
                             continue ;
                         }
                         std::string mem_name = item.first;

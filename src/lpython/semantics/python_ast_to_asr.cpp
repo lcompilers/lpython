@@ -2956,7 +2956,8 @@ public:
     }
 
     void get_members_init (const AST::FunctionDef_t &x,
-        Vec<char*>& member_names, Vec<ASR::call_arg_t> &member_init){
+        Vec<char*>& member_names, Vec<ASR::call_arg_t> &member_init,
+        SetChar& struct_dependencies){
         if(x.n_decorator_list > 0) {
             throw SemanticError("Decorators for __init__ not implemented",
                 x.base.base.loc);
@@ -2997,6 +2998,22 @@ public:
             c_arg.loc = var_sym->base.loc;
             c_arg.m_value = nullptr;
             member_init.push_back(al, c_arg);
+            ASR::ttype_t* var_type = ASRUtils::type_get_past_pointer(ASRUtils::symbol_type(var_sym));
+            char* aggregate_type_name = nullptr;
+            if( ASR::is_a<ASR::StructType_t>(*var_type) ) {
+                aggregate_type_name = ASRUtils::symbol_name(
+                    ASR::down_cast<ASR::StructType_t>(var_type)->m_derived_type);
+            } else if( ASR::is_a<ASR::Enum_t>(*var_type) ) {
+                aggregate_type_name = ASRUtils::symbol_name(
+                    ASR::down_cast<ASR::Enum_t>(var_type)->m_enum_type);
+            } else if( ASR::is_a<ASR::Union_t>(*var_type) ) {
+                aggregate_type_name = ASRUtils::symbol_name(
+                    ASR::down_cast<ASR::Union_t>(var_type)->m_union_type);
+            }
+            if( aggregate_type_name &&
+                !current_scope->get_symbol(std::string(aggregate_type_name)) ) {
+                struct_dependencies.push_back(al, aggregate_type_name);
+            }
         }
     }
 
@@ -3027,7 +3044,7 @@ public:
                         *f = AST::down_cast<AST::FunctionDef_t>(x.m_body[i]);
                     std::string f_name = f->m_name;
                     if (f_name == "__init__") {
-                        this->get_members_init(*f, member_names, member_init);
+                        this->get_members_init(*f, member_names, member_init, struct_dependencies);
                         this->visit_stmt(*x.m_body[i]);
                         member_fn_names.push_back(al, f->m_name);
                     } else {
@@ -8243,6 +8260,31 @@ we will have to use something else.
                 eles.push_back(al, args[i].m_value);
             }
             handle_builtin_attribute(subscript_expr, at->m_attr, loc, eles);
+            return;
+        } else if ( AST::is_a<AST::Attribute_t>(*at->m_value) ) {
+            AST::Attribute_t* at_m_value = AST::down_cast<AST::Attribute_t>(at->m_value);
+            visit_Attribute(*at_m_value);
+            ASR::expr_t* e = ASRUtils::EXPR(tmp);
+            if ( !ASR::is_a<ASR::StructInstanceMember_t>(*e) ) {
+                throw SemanticError("Expected a class variable here", loc);
+            }
+            if ( !ASR::is_a<ASR::StructType_t>(*ASRUtils::expr_type(e)) ) {
+                throw SemanticError("Only Classes supported in nested attribute call", loc);
+            }
+            ASR::StructType_t* der = ASR::down_cast<ASR::StructType_t>(ASRUtils::expr_type(e));
+            ASR::symbol_t* der_sym = ASRUtils::symbol_get_past_external(der->m_derived_type);
+            std::string call_name = at->m_attr;
+
+            Vec<ASR::call_arg_t> new_args; new_args.reserve(al, args.n + 1);
+            ASR::call_arg_t self_arg;
+            self_arg.loc = args[0].loc;
+            self_arg.m_value = e;
+            new_args.push_back(al, self_arg);
+            for (size_t i=0; i<args.n; i++) {
+                new_args.push_back(al, args[i]);
+            }
+            ASR::symbol_t* st = get_struct_member(der_sym, call_name, loc);
+            tmp = make_call_helper(al, st, current_scope, new_args, call_name, loc);
             return;
         } else {
             throw SemanticError("Only Name type and constant integers supported in Call", loc);

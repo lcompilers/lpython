@@ -838,6 +838,7 @@ RUN(NAME c_mangling        LABELS cpython llvm llvm_jit c)
 RUN(NAME class_01          LABELS cpython llvm llvm_jit)
 RUN(NAME class_02          LABELS cpython llvm llvm_jit)
 RUN(NAME class_03          LABELS cpython llvm llvm_jit)
+RUN(NAME class_04          LABELS cpython llvm llvm_jit)
 
 # callback_04 is to test emulation. So just run with cpython
 RUN(NAME callback_04       IMPORT_PATH .. LABELS cpython)
