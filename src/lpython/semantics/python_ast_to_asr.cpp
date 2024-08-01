@@ -1282,16 +1282,13 @@ public:
                                          args, st, loc);
             }
             if ( st->n_member_functions > 0 ) {
-                // Empty struct constructor
                 // Initializers handled in init proc call
-                Vec<ASR::call_arg_t>empty_args;
-                empty_args.reserve(al, 1);
-                for (size_t i = 0; i < st->n_members; i++) {
-                    empty_args.push_back(al, st->m_initializers[i]);
+                if ( n_kwargs>0 ) {
+                    throw SemanticError("Keyword args are not supported", loc);
                 }
                 ASR::ttype_t* der_type = ASRUtils::TYPE(ASRUtils::make_StructType_t_util(al, loc, stemp));
-                return ASR::make_StructConstructor_t(al, loc, stemp, empty_args.p,
-                    empty_args.size(), der_type, nullptr);
+                return ASR::make_StructConstructor_t(al, loc, stemp, args.p,
+                    args.size(), der_type, nullptr);
             }
 
             if ( args.size() > 0 && args.size() > st->n_members ) {
@@ -5609,26 +5606,26 @@ public:
             }
             tmp_vec.push_back(ASR::make_Assignment_t(al, x.base.base.loc, target, tmp_value,
                                     overloaded));
-            if ( target->type == ASR::exprType::Var &&
-                    tmp_value->type == ASR::exprType::StructConstructor ) {
-                Vec<ASR::call_arg_t> new_args; new_args.reserve(al, 1);
-                ASR::call_arg_t self_arg;
-                self_arg.loc = x.base.base.loc;
-                ASR::symbol_t* st = ASR::down_cast<ASR::Var_t>(target)->m_v;
-                self_arg.m_value = target;
-                new_args.push_back(al,self_arg);
-                AST::Call_t* call = AST::down_cast<AST::Call_t>(x.m_value);
-                if ( call->n_keywords>0 ) {
-                    throw SemanticError("Kwargs not implemented yet", x.base.base.loc);
-                }
-                visit_expr_list(call->m_args, call->n_args, new_args);
-                ASR::symbol_t* der = ASR::down_cast<ASR::StructType_t>(
-                    ASR::down_cast<ASR::Variable_t>(st)->m_type)->m_derived_type;
-                std::string call_name = "__init__";
-                ASR::symbol_t* call_sym = get_struct_member(der, call_name, x.base.base.loc);
-                tmp_vec.push_back(make_call_helper(al, call_sym,
-                    current_scope, new_args, call_name, x.base.base.loc));
-            }
+            // if ( target->type == ASR::exprType::Var &&
+            //         tmp_value->type == ASR::exprType::StructConstructor ) {
+            //     Vec<ASR::call_arg_t> new_args; new_args.reserve(al, 1);
+            //     ASR::call_arg_t self_arg;
+            //     self_arg.loc = x.base.base.loc;
+            //     ASR::symbol_t* st = ASR::down_cast<ASR::Var_t>(target)->m_v;
+            //     self_arg.m_value = target;
+            //     new_args.push_back(al,self_arg);
+            //     AST::Call_t* call = AST::down_cast<AST::Call_t>(x.m_value);
+            //     if ( call->n_keywords>0 ) {
+            //         throw SemanticError("Kwargs not implemented yet", x.base.base.loc);
+            //     }
+            //     visit_expr_list(call->m_args, call->n_args, new_args);
+            //     ASR::symbol_t* der = ASR::down_cast<ASR::StructType_t>(
+            //         ASR::down_cast<ASR::Variable_t>(st)->m_type)->m_derived_type;
+            //     std::string call_name = "__init__";
+            //     ASR::symbol_t* call_sym = get_struct_member(der, call_name, x.base.base.loc);
+            //     tmp_vec.push_back(make_call_helper(al, call_sym,
+            //         current_scope, new_args, call_name, x.base.base.loc));
+            // }
         }
         // to make sure that we add only those statements in tmp_vec
         tmp = nullptr;
@@ -8085,25 +8082,25 @@ we will have to use something else.
                 } else if( ASR::is_a<ASR::Struct_t>(*st) ) {
                     st = get_struct_member(st, call_name, loc);
                 } else if ( ASR::is_a<ASR::Variable_t>(*st)) {
-                    ASR::Variable_t* var = ASR::down_cast<ASR::Variable_t>(st);
-                    if (ASR::is_a<ASR::StructType_t>(*var->m_type) || 
-                            ASR::is_a<ASR::Class_t>(*var->m_type) ) {
-                        //TODO: Correct Class and ClassType
-                        // call to struct member function
-                        // modifying args to pass the object as self
-                        ASR::symbol_t* der = ASR::down_cast<ASR::StructType_t>(var->m_type)->m_derived_type;
-                        Vec<ASR::call_arg_t> new_args; new_args.reserve(al, args.n + 1);
-                        ASR::call_arg_t self_arg;
-                        self_arg.loc = args[0].loc;
-                        self_arg.m_value = ASRUtils::EXPR(ASR::make_Var_t(al, loc, st));
-                        new_args.push_back(al, self_arg);
-                        for (size_t i=0; i<args.n; i++) {
-                            new_args.push_back(al, args[i]);
-                        }
-                        st = get_struct_member(der, call_name, loc);
-                        tmp = make_call_helper(al, st, current_scope, new_args, call_name, loc);
-                        return;
-                    } else {
+                    // ASR::Variable_t* var = ASR::down_cast<ASR::Variable_t>(st);
+                    // if (ASR::is_a<ASR::StructType_t>(*var->m_type) || 
+                    //         ASR::is_a<ASR::Class_t>(*var->m_type) ) {
+                    //     //TODO: Correct Class and ClassType
+                    //     // call to struct member function
+                    //     // modifying args to pass the object as self
+                    //     ASR::symbol_t* der = ASR::down_cast<ASR::StructType_t>(var->m_type)->m_derived_type;
+                    //     Vec<ASR::call_arg_t> new_args; new_args.reserve(al, args.n + 1);
+                    //     ASR::call_arg_t self_arg;
+                    //     self_arg.loc = args[0].loc;
+                    //     self_arg.m_value = ASRUtils::EXPR(ASR::make_Var_t(al, loc, st));
+                    //     new_args.push_back(al, self_arg);
+                    //     for (size_t i=0; i<args.n; i++) {
+                    //         new_args.push_back(al, args[i]);
+                    //     }
+                    //     st = get_struct_member(der, call_name, loc);
+                    //     tmp = make_call_helper(al, st, current_scope, new_args, call_name, loc);
+                    //     return;
+                    // } else {
                         // this case when we have variable and attribute
                         st = current_scope->resolve_symbol(mod_name);
                         Vec<ASR::expr_t*> eles;
@@ -8124,7 +8121,7 @@ we will have to use something else.
                         }
                         handle_builtin_attribute(se, at->m_attr, loc, eles);
                         return;
-                    }
+                    // }
                 }
             }
             tmp = make_call_helper(al, st, current_scope, args, call_name, loc);
@@ -8261,31 +8258,31 @@ we will have to use something else.
             }
             handle_builtin_attribute(subscript_expr, at->m_attr, loc, eles);
             return;
-        } else if ( AST::is_a<AST::Attribute_t>(*at->m_value) ) {
-            AST::Attribute_t* at_m_value = AST::down_cast<AST::Attribute_t>(at->m_value);
-            visit_Attribute(*at_m_value);
-            ASR::expr_t* e = ASRUtils::EXPR(tmp);
-            if ( !ASR::is_a<ASR::StructInstanceMember_t>(*e) ) {
-                throw SemanticError("Expected a class variable here", loc);
-            }
-            if ( !ASR::is_a<ASR::StructType_t>(*ASRUtils::expr_type(e)) ) {
-                throw SemanticError("Only Classes supported in nested attribute call", loc);
-            }
-            ASR::StructType_t* der = ASR::down_cast<ASR::StructType_t>(ASRUtils::expr_type(e));
-            ASR::symbol_t* der_sym = ASRUtils::symbol_get_past_external(der->m_derived_type);
-            std::string call_name = at->m_attr;
+        // } else if ( AST::is_a<AST::Attribute_t>(*at->m_value) ) {
+        //     AST::Attribute_t* at_m_value = AST::down_cast<AST::Attribute_t>(at->m_value);
+        //     visit_Attribute(*at_m_value);
+        //     ASR::expr_t* e = ASRUtils::EXPR(tmp);
+        //     if ( !ASR::is_a<ASR::StructInstanceMember_t>(*e) ) {
+        //         throw SemanticError("Expected a class variable here", loc);
+        //     }
+        //     if ( !ASR::is_a<ASR::StructType_t>(*ASRUtils::expr_type(e)) ) {
+        //         throw SemanticError("Only Classes supported in nested attribute call", loc);
+        //     }
+        //     ASR::StructType_t* der = ASR::down_cast<ASR::StructType_t>(ASRUtils::expr_type(e));
+        //     ASR::symbol_t* der_sym = ASRUtils::symbol_get_past_external(der->m_derived_type);
+        //     std::string call_name = at->m_attr;
 
-            Vec<ASR::call_arg_t> new_args; new_args.reserve(al, args.n + 1);
-            ASR::call_arg_t self_arg;
-            self_arg.loc = args[0].loc;
-            self_arg.m_value = e;
-            new_args.push_back(al, self_arg);
-            for (size_t i=0; i<args.n; i++) {
-                new_args.push_back(al, args[i]);
-            }
-            ASR::symbol_t* st = get_struct_member(der_sym, call_name, loc);
-            tmp = make_call_helper(al, st, current_scope, new_args, call_name, loc);
-            return;
+        //     Vec<ASR::call_arg_t> new_args; new_args.reserve(al, args.n + 1);
+        //     ASR::call_arg_t self_arg;
+        //     self_arg.loc = args[0].loc;
+        //     self_arg.m_value = e;
+        //     new_args.push_back(al, self_arg);
+        //     for (size_t i=0; i<args.n; i++) {
+        //         new_args.push_back(al, args[i]);
+        //     }
+        //     ASR::symbol_t* st = get_struct_member(der_sym, call_name, loc);
+        //     tmp = make_call_helper(al, st, current_scope, new_args, call_name, loc);
+        //     return;
         } else {
             throw SemanticError("Only Name type and constant integers supported in Call", loc);
         }

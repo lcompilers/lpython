@@ -570,6 +570,105 @@ namespace LCompilers {
             */
         };
 
+    ASR::symbol_t* get_struct_member(Allocator& al, ASR::symbol_t* struct_type_sym, std::string &call_name,
+            const Location &loc, SymbolTable* current_scope) {
+        ASR::Struct_t* struct_type = ASR::down_cast<ASR::Struct_t>(struct_type_sym);
+        std::string struct_var_name = struct_type->m_name;
+        std::string struct_member_name = call_name;
+        ASR::symbol_t* struct_member = struct_type->m_symtab->resolve_symbol(struct_member_name);
+        ASR::symbol_t* struct_mem_asr_owner = ASRUtils::get_asr_owner(struct_member);
+        if( !struct_member || !struct_mem_asr_owner ||
+            !ASR::is_a<ASR::Struct_t>(*struct_mem_asr_owner) ) {
+            throw LCompilersException(struct_member_name + " not present in " +
+                                struct_var_name + " dataclass");
+        }
+        std::string import_name = struct_var_name + "_" + struct_member_name;
+        ASR::symbol_t* import_struct_member = current_scope->resolve_symbol(import_name);
+        bool import_from_struct = true;
+        if( import_struct_member ) {
+            if( ASR::is_a<ASR::ExternalSymbol_t>(*import_struct_member) ) {
+                ASR::ExternalSymbol_t* ext_sym = ASR::down_cast<ASR::ExternalSymbol_t>(import_struct_member);
+                if( ext_sym->m_external == struct_member &&
+                    std::string(ext_sym->m_module_name) == struct_var_name ) {
+                    import_from_struct = false;
+                }
+            }
+        }
+        if( import_from_struct ) {
+            import_name = current_scope->get_unique_name(import_name, false);
+            import_struct_member = ASR::down_cast<ASR::symbol_t>(ASR::make_ExternalSymbol_t(al,
+                                        loc, current_scope, s2c(al, import_name),
+                                        struct_member, s2c(al, struct_var_name), nullptr, 0,
+                                        s2c(al, struct_member_name), ASR::accessType::Public));
+            current_scope->add_symbol(import_name, import_struct_member);
+        }
+        return import_struct_member;
+    }
+
+    ASR::asr_t* make_call_helper(Allocator &al, ASR::symbol_t* s, Vec<ASR::call_arg_t> args, 
+                    std::string call_name, const Location &loc) {
+
+        ASR::symbol_t *s_generic = nullptr, *stemp = s;
+        // Type map for generic functions
+        std::map<std::string, ASR::ttype_t*> subs;
+        std::map<std::string, ASR::symbol_t*> rt_subs;
+        // handling ExternalSymbol
+        s = ASRUtils::symbol_get_past_external(s);
+        
+        if (ASR::is_a<ASR::Function_t>(*s)) {
+            ASR::Function_t *func = ASR::down_cast<ASR::Function_t>(s);
+            if (args.size() < func->n_args) {
+                std::string missed_args_names =" ";
+                size_t missed_args_count =0;
+                for (size_t def_arg = args.size(); def_arg < func->n_args; def_arg++){
+                    ASR::Variable_t* var = ASRUtils::EXPR2VAR(func->m_args[def_arg]);
+                    if(var->m_symbolic_value == nullptr) {
+                        missed_args_names+= "'" + std::string(var->m_name) + "' and ";
+                        missed_args_count++;
+                    } else {
+                        ASR::call_arg_t call_arg;
+                        call_arg.m_value = var->m_symbolic_value;
+                        call_arg.loc = (var->m_symbolic_value->base).loc;
+                        args.push_back(al,call_arg);
+                    }
+                }
+                if(missed_args_count > 0){
+                    missed_args_names = missed_args_names.substr(0,missed_args_names.length() - 5);
+                    LCompilersException("Number of arguments does not match in the function call");
+                    
+                }
+            }
+            // Vec<ASR::call_arg_t> args_new;
+            // args_new.reserve(al, func->n_args);
+            // cast_args(al,func->m_args, func->n_args, args_new, args, true);
+            return ASRUtils::make_SubroutineCall_t_util(al, loc, stemp,
+                s_generic, args.p, args.size(), nullptr, nullptr, false, false);
+        } else {
+            throw LCompilersException("Unsupported call type for " + call_name);
+        }
+    }
+
+    void cast_args(Allocator& al, ASR::expr_t** m_args, size_t n_args,
+                                   Vec<ASR::call_arg_t>& call_args_vec,
+                                   Vec<ASR::call_arg_t>& args,
+                                   bool check_type_equality=true) {
+        LCOMPILERS_ASSERT(call_args_vec.reserve_called);
+        for (size_t i = 0; i < n_args; i++) {
+            ASR::call_arg_t c_arg;
+            c_arg.loc = args[i].loc;
+            c_arg.m_value = args[i].m_value;
+            // cast_helper(m_args[i], c_arg.m_value, true);
+            ASR::ttype_t* left_type = ASRUtils::expr_type(m_args[i]);
+            ASR::ttype_t* right_type = ASRUtils::expr_type(c_arg.m_value);
+            if( check_type_equality && !ASRUtils::check_equal_type(left_type, right_type) ) {
+                std::string ltype = ASRUtils::type_to_str_python(left_type);
+                std::string rtype = ASRUtils::type_to_str_python(right_type);
+                LCompilersException("Type mismatch in procedure call; the types must be compatible");
+            }
+            call_args_vec.push_back(al, c_arg);
+        }
+    }
+
     namespace ReplacerUtils {
         template <typename T>
         void replace_StructConstructor(ASR::StructConstructor_t* x,
@@ -578,6 +677,30 @@ namespace LCompilers {
             bool perform_cast=false,
             ASR::cast_kindType cast_kind=ASR::cast_kindType::IntegerToInteger,
             ASR::ttype_t* casted_type=nullptr) {
+            ASR::Struct_t* st = ASR::down_cast<ASR::Struct_t>(x->m_dt_sym);
+            if ( st->n_member_functions > 0 ) {
+                remove_original_statement = true;
+                if ( !ASR::is_a<ASR::Var_t>(*(replacer->result_var)) ) { 
+                    throw LCompilersException("Expected a var here");
+                }
+                ASR::Var_t* target = ASR::down_cast<ASR::Var_t>(replacer->result_var);
+                ASR::call_arg_t first_arg;
+                first_arg.loc = x->base.base.loc; first_arg.m_value = replacer->result_var;
+                Vec<ASR::call_arg_t> new_args; new_args.reserve(replacer->al,1);
+                new_args.push_back(replacer->al, first_arg);
+                for( size_t i = 0; i < x->n_args; i++ ) {
+                    new_args.push_back(replacer->al, x->m_args[i]);
+                }
+                ASR::StructType_t* type =  ASR::down_cast<ASR::StructType_t>(
+                                        (ASR::down_cast<ASR::Variable_t>(target->m_v))->m_type);
+                std::string call_name = "__init__";
+                ASR::symbol_t* call_sym = get_struct_member(replacer->al,type->m_derived_type, call_name,
+                                            x->base.base.loc, replacer->current_scope);
+                result_vec->push_back(replacer->al, 
+                                    ASRUtils::STMT(make_call_helper(replacer->al,call_sym,
+                                        new_args,call_name,x->base.base.loc)));
+                return;
+            }
             if( x->n_args == 0 ) {
                 if( !inside_symtab ) {
                     remove_original_statement = true;
