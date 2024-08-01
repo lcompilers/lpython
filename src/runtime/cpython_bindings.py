@@ -9,6 +9,10 @@ def Py_IsInitialized() -> i32:
     pass
 
 @ccall(header="Python.h")
+def PyRun_SimpleString(s: str) -> i32:
+    pass
+
+@ccall(header="Python.h")
 def Py_DecodeLocale(s: str, p: CPtr) -> CPtr:
     pass
 

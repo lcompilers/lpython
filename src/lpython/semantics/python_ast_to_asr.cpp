@@ -4492,7 +4492,7 @@ public:
                             module_file = extract_keyword_val_from_decorator(call_d, "module");
 
                             if (!contains_bindpython) {
-                                size_t cpython_bindings_function_count = 13;
+                                size_t cpython_bindings_function_count = 14;
                                 size_t tmp_cpython_bindings_function_count = 0;
                                 Str s;
                                 AST::alias_t *module_symbols =
@@ -4504,6 +4504,11 @@ public:
                                 (module_symbols + tmp_cpython_bindings_function_count++)->m_asname = nullptr;
                                 
                                 s.from_str(al, "Py_IsInitialized");
+                                (module_symbols + tmp_cpython_bindings_function_count)->loc = x.base.base.loc;
+                                (module_symbols + tmp_cpython_bindings_function_count)->m_name = s.c_str(al);
+                                (module_symbols + tmp_cpython_bindings_function_count++)->m_asname = nullptr;
+                                
+                                s.from_str(al, "PyRun_SimpleString");
                                 (module_symbols + tmp_cpython_bindings_function_count)->loc = x.base.base.loc;
                                 (module_symbols + tmp_cpython_bindings_function_count)->m_name = s.c_str(al);
                                 (module_symbols + tmp_cpython_bindings_function_count++)->m_asname = nullptr;
