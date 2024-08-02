@@ -1,4 +1,4 @@
-from lpython import ccall, Pointer, i32, i64, empty_c_void_p, CPtr, pointer
+from lpython import ccall, Pointer, i32, i64, u64, f64, empty_c_void_p, CPtr, pointer
 
 @ccall(header="Python.h")
 def Py_Initialize():
@@ -49,9 +49,33 @@ def PyTuple_New(n: i32) -> CPtr:
     pass
 
 @ccall(header="Python.h")
+def PyTuple_SetItem(t: CPtr, p: i32, o: CPtr) -> i32:
+    pass
+
+@ccall(header="Python.h")
 def PyObject_CallObject(a: CPtr, b: CPtr) -> CPtr:
     pass
 
 @ccall(header="Python.h")
-def PyLong_AsLongLong(a: CPtr) -> i32:
+def PyLong_AsLongLong(a: CPtr) -> i64:
+    pass
+
+@ccall(header="Python.h")
+def PyLong_AsUnsignedLongLong(a: CPtr) -> u64:
+    pass
+
+@ccall(header="Python.h")
+def PyLong_FromLongLong(a: i64) -> CPtr:
+    pass
+
+@ccall(header="Python.h")
+def PyLong_FromUnsignedLongLong(a: u64) -> CPtr:
+    pass
+
+@ccall(header="Python.h")
+def PyFloat_FromDouble(a: f64) -> CPtr:
+    pass
+
+@ccall(header="Python.h")
+def PyFloat_AsDouble(a: CPtr) -> f64:
     pass

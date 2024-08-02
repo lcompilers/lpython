@@ -25,7 +25,7 @@ namespace LCompilers {
                         if (ASRUtils::get_FunctionType(f)->m_abi == ASR::abiType::BindPython) {
                             bindpython_used = true;
                             {
-                                LCOMPILERS_ASSERT_MSG(f->n_args == 0, "BindPython with arguments not supported yet");
+                                // LCOMPILERS_ASSERT_MSG(f->n_args == 0, "BindPython with arguments not supported yet");
                                 LCOMPILERS_ASSERT_MSG(f->m_return_var == nullptr, "BindPython with return types not supported yet");
 
                                 Vec<ASR::stmt_t*> body;
@@ -42,6 +42,9 @@ namespace LCompilers {
                                 ASR::symbol_t *sym_Py_Initialize = module->m_symtab->get_symbol("Py_Initialize");
                                 LCOMPILERS_ASSERT(sym_Py_IsInitialized)
                                 ASR::ttype_t *i4_type = ASRUtils::TYPE(ASR::make_Integer_t(al, f->base.base.loc, 4));
+                                ASR::ttype_t *i8_type = ASRUtils::TYPE(ASR::make_Integer_t(al, f->base.base.loc, 8));
+                                ASR::ttype_t *u8_type = ASRUtils::TYPE(ASR::make_UnsignedInteger_t(al, f->base.base.loc, 8));
+                                ASR::ttype_t *f8_type = ASRUtils::TYPE(ASR::make_Real_t(al, f->base.base.loc, 8));
                                 ASR::asr_t *call_Py_IsInitialized = ASRUtils::make_FunctionCall_t_util(al, f->base.base.loc, sym_Py_IsInitialized, nullptr, nullptr, 0, i4_type, nullptr, nullptr);
                                 ASR::asr_t * if_cond = ASR::make_IntegerCompare_t(al, f->base.base.loc, ASRUtils::EXPR(call_Py_IsInitialized), ASR::cmpopType::Eq, ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, f->base.base.loc, 0, i4_type)), i4_type, nullptr);
                                 Vec<ASR::stmt_t*> if_body;
@@ -159,7 +162,64 @@ namespace LCompilers {
                                         nullptr)));
                                 
                                 /*
-                                    Arg's type conversions goes here
+                                    TODO: Arg's type conversions goes here
+                                */
+                                ASR::symbol_t *sym_PyTuple_SetItem = module->m_symtab->get_symbol("PyTuple_SetItem");
+
+                                for (size_t i = 0; i < f->n_args; i++) {
+                                    ASR::ttype_t *arg_type = ASRUtils::expr_type(f->m_args[i]);
+                                    Vec<ASR::call_arg_t> args_PyTuple_SetItem;
+                                    args_PyTuple_SetItem.reserve(al, 3);
+                                    args_PyTuple_SetItem.push_back(al, {f->base.base.loc, pArgs_ref});
+                                    args_PyTuple_SetItem.push_back(al, {f->base.base.loc, ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, f->base.base.loc, i, i4_type))});
+                                    
+                                    ASR::expr_t *conv_result = nullptr;
+                                    if (arg_type->type == ASR::ttypeType::Integer) {
+                                        ASR::symbol_t *sym_PyLong_FromLongLong = module->m_symtab->get_symbol("PyLong_FromLongLong");
+                                        Vec<ASR::call_arg_t> args_PyLong_FromLongLong;
+                                        args_PyLong_FromLongLong.reserve(al, 1);
+                                        args_PyLong_FromLongLong.push_back(al, {f->base.base.loc, ASRUtils::EXPR(ASR::make_Cast_t(al, f->base.base.loc, f->m_args[i], ASR::cast_kindType::IntegerToInteger, i8_type, nullptr))});
+                                        conv_result = ASRUtils::EXPR(ASRUtils::make_FunctionCall_t_util(al, f->base.base.loc, sym_PyLong_FromLongLong, nullptr, args_PyLong_FromLongLong.p, args_PyLong_FromLongLong.n, ptr_t, nullptr, nullptr));
+                                    } else if (arg_type->type == ASR::ttypeType::UnsignedInteger) {
+                                        ASR::symbol_t *sym_PyLong_FromUnsignedLongLong = module->m_symtab->get_symbol("PyLong_FromUnsignedLongLong");
+                                        Vec<ASR::call_arg_t> args_PyLong_FromUnsignedLongLong;
+                                        args_PyLong_FromUnsignedLongLong.reserve(al, 1);
+                                        args_PyLong_FromUnsignedLongLong.push_back(al, {f->base.base.loc, ASRUtils::EXPR(ASR::make_Cast_t(al, f->base.base.loc, f->m_args[i], ASR::cast_kindType::UnsignedIntegerToUnsignedInteger, u8_type, nullptr))});
+                                        conv_result = ASRUtils::EXPR(ASRUtils::make_FunctionCall_t_util(al, f->base.base.loc, sym_PyLong_FromUnsignedLongLong, nullptr, args_PyLong_FromUnsignedLongLong.p, args_PyLong_FromUnsignedLongLong.n, ptr_t, nullptr, nullptr));
+                                    } else if (arg_type->type == ASR::ttypeType::Logical) {
+                                        LCOMPILERS_ASSERT_MSG(false, "Not Implemented");
+                                    } else if (arg_type->type == ASR::ttypeType::Real) {
+                                        ASR::symbol_t *sym_PyFloat_FromDouble = module->m_symtab->get_symbol("PyFloat_FromDouble");
+                                        Vec<ASR::call_arg_t> args_PyFloat_FromDouble;
+                                        args_PyFloat_FromDouble.reserve(al, 1);
+                                        args_PyFloat_FromDouble.push_back(al, {f->base.base.loc, ASRUtils::EXPR(ASR::make_Cast_t(al, f->base.base.loc, f->m_args[i], ASR::cast_kindType::RealToReal, f8_type, nullptr))});
+                                        conv_result = ASRUtils::EXPR(ASRUtils::make_FunctionCall_t_util(al, f->base.base.loc, sym_PyFloat_FromDouble, nullptr, args_PyFloat_FromDouble.p, args_PyFloat_FromDouble.n, ptr_t, nullptr, nullptr));
+                                    } else if (arg_type->type == ASR::ttypeType::Complex) {
+                                        LCOMPILERS_ASSERT_MSG(false, "Not Implemented");
+                                    } else if (arg_type->type == ASR::ttypeType::Character) {
+                                        LCOMPILERS_ASSERT_MSG(false, "Not Implemented");
+                                    } else {
+                                        LCOMPILERS_ASSERT_MSG(false, "Not Implemented");
+                                    }
+                                    LCOMPILERS_ASSERT(conv_result);
+                                    args_PyTuple_SetItem.push_back(al, {f->base.base.loc, conv_result});
+                                    std::string p = "pA" + std::to_string(i);
+                                    s.from_str(al, p);
+                                    ASR::asr_t *pA = ASR::make_Variable_t(al, f->base.base.loc, f->m_symtab, s.c_str(al),
+                                                        nullptr, 0, ASRUtils::intent_local, nullptr, nullptr,
+                                                        ASR::storage_typeType::Default, i4_type,
+                                                        nullptr, ASR::abiType::BindC,
+                                                        ASR::Public, ASR::presenceType::Required, false);
+                                    ASR::expr_t *pA_ref = ASRUtils::EXPR(ASR::make_Var_t(al, f->base.base.loc, ASR::down_cast<ASR::symbol_t>(pA)));
+                                    f->m_symtab->add_symbol(p, ASR::down_cast<ASR::symbol_t>(pA));
+                                    body.push_back(al,
+                                        ASRUtils::STMT(ASR::make_Assignment_t(al, f->base.base.loc, pA_ref,
+                                            ASRUtils::EXPR(ASRUtils::make_FunctionCall_t_util(al, f->base.base.loc, sym_PyTuple_SetItem, nullptr, args_PyTuple_SetItem.p, args_PyTuple_SetItem.n, i4_type, nullptr, nullptr)),
+                                            nullptr)));
+                                }
+
+                                /*
+                                    END Arg's type conversions goes here
                                 */
 
                                 ASR::symbol_t *sym_PyObject_CallObject = module->m_symtab->get_symbol("PyObject_CallObject");

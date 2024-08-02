@@ -4492,7 +4492,7 @@ public:
                             module_file = extract_keyword_val_from_decorator(call_d, "module");
 
                             if (!contains_bindpython) {
-                                size_t cpython_bindings_function_count = 14;
+                                size_t cpython_bindings_function_count = 20;
                                 size_t tmp_cpython_bindings_function_count = 0;
                                 Str s;
                                 AST::alias_t *module_symbols =
@@ -4558,12 +4558,42 @@ public:
                                 (module_symbols + tmp_cpython_bindings_function_count)->m_name = s.c_str(al);
                                 (module_symbols + tmp_cpython_bindings_function_count++)->m_asname = nullptr;
                                 
+                                s.from_str(al, "PyTuple_SetItem");
+                                (module_symbols + tmp_cpython_bindings_function_count)->loc = x.base.base.loc;
+                                (module_symbols + tmp_cpython_bindings_function_count)->m_name = s.c_str(al);
+                                (module_symbols + tmp_cpython_bindings_function_count++)->m_asname = nullptr;
+                                
                                 s.from_str(al, "PyObject_CallObject");
                                 (module_symbols + tmp_cpython_bindings_function_count)->loc = x.base.base.loc;
                                 (module_symbols + tmp_cpython_bindings_function_count)->m_name = s.c_str(al);
                                 (module_symbols + tmp_cpython_bindings_function_count++)->m_asname = nullptr;
                                 
                                 s.from_str(al, "PyLong_AsLongLong");
+                                (module_symbols + tmp_cpython_bindings_function_count)->loc = x.base.base.loc;
+                                (module_symbols + tmp_cpython_bindings_function_count)->m_name = s.c_str(al);
+                                (module_symbols + tmp_cpython_bindings_function_count++)->m_asname = nullptr;
+                                
+                                s.from_str(al, "PyLong_AsUnsignedLongLong");
+                                (module_symbols + tmp_cpython_bindings_function_count)->loc = x.base.base.loc;
+                                (module_symbols + tmp_cpython_bindings_function_count)->m_name = s.c_str(al);
+                                (module_symbols + tmp_cpython_bindings_function_count++)->m_asname = nullptr;
+                                
+                                s.from_str(al, "PyLong_FromLongLong");
+                                (module_symbols + tmp_cpython_bindings_function_count)->loc = x.base.base.loc;
+                                (module_symbols + tmp_cpython_bindings_function_count)->m_name = s.c_str(al);
+                                (module_symbols + tmp_cpython_bindings_function_count++)->m_asname = nullptr;
+                                
+                                s.from_str(al, "PyLong_FromUnsignedLongLong");
+                                (module_symbols + tmp_cpython_bindings_function_count)->loc = x.base.base.loc;
+                                (module_symbols + tmp_cpython_bindings_function_count)->m_name = s.c_str(al);
+                                (module_symbols + tmp_cpython_bindings_function_count++)->m_asname = nullptr;
+                                
+                                s.from_str(al, "PyFloat_FromDouble");
+                                (module_symbols + tmp_cpython_bindings_function_count)->loc = x.base.base.loc;
+                                (module_symbols + tmp_cpython_bindings_function_count)->m_name = s.c_str(al);
+                                (module_symbols + tmp_cpython_bindings_function_count++)->m_asname = nullptr;
+                                
+                                s.from_str(al, "PyFloat_AsDouble");
                                 (module_symbols + tmp_cpython_bindings_function_count)->loc = x.base.base.loc;
                                 (module_symbols + tmp_cpython_bindings_function_count)->m_name = s.c_str(al);
                                 (module_symbols + tmp_cpython_bindings_function_count++)->m_asname = nullptr;
