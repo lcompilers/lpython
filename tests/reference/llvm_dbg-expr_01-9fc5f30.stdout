@@ -16,21 +16,21 @@ return:                                           ; preds = %.entry
 
 define void @__module___main___main0() !dbg !7 {
 .entry:
-  %x = alloca i32, align 4, !dbg !8
-  call void @llvm.dbg.declare(metadata i32* %x, metadata !9, metadata !DIExpression()), !dbg !11
-  %x2 = alloca i64, align 8
-  call void @llvm.dbg.declare(metadata i64* %x2, metadata !12, metadata !DIExpression()), !dbg !14
-  %y = alloca float, align 4
-  call void @llvm.dbg.declare(metadata float* %y, metadata !15, metadata !DIExpression()), !dbg !17
   %y2 = alloca double, align 8
-  call void @llvm.dbg.declare(metadata double* %y2, metadata !18, metadata !DIExpression()), !dbg !20
-  store i32 25, i32* %x, align 4, !dbg !21
-  %0 = load i32, i32* %x, align 4, !dbg !21
-  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([5 x i8], [5 x i8]* @2, i32 0, i32 0), i32 %0, i8* getelementptr inbounds ([2 x i8], [2 x i8]* @1, i32 0, i32 0)), !dbg !21
-  br label %return, !dbg !21
+  %y = alloca float, align 4
+  %x2 = alloca i64, align 8
+  %x = alloca i32, align 4
+  call void @llvm.dbg.declare(metadata i32* %x, metadata !8, metadata !DIExpression()), !dbg !10
+  call void @llvm.dbg.declare(metadata i64* %x2, metadata !11, metadata !DIExpression()), !dbg !13
+  call void @llvm.dbg.declare(metadata float* %y, metadata !14, metadata !DIExpression()), !dbg !16
+  call void @llvm.dbg.declare(metadata double* %y2, metadata !17, metadata !DIExpression()), !dbg !19
+  store i32 25, i32* %x, align 4, !dbg !20
+  %0 = load i32, i32* %x, align 4, !dbg !20
+  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([5 x i8], [5 x i8]* @2, i32 0, i32 0), i32 %0, i8* getelementptr inbounds ([2 x i8], [2 x i8]* @1, i32 0, i32 0)), !dbg !20
+  br label %return, !dbg !20
 
 return:                                           ; preds = %.entry
-  ret void, !dbg !21
+  ret void, !dbg !20
 }
 
 ; Function Attrs: nounwind readnone speculatable willreturn
@@ -38,11 +38,11 @@ declare void @llvm.dbg.declare(metadata, metadata, metadata) #0
 
 declare void @_lfortran_printf(i8*, ...)
 
-define i32 @main(i32 %0, i8** %1) !dbg !22 {
+define i32 @main(i32 %0, i8** %1) !dbg !21 {
 .entry:
-  call void @_lpython_call_initial_functions(i32 %0, i8** %1), !dbg !25
-  call void @__module___main_____main__global_stmts(), !dbg !25
-  ret i32 0, !dbg !25
+  call void @_lpython_call_initial_functions(i32 %0, i8** %1), !dbg !24
+  call void @__module___main_____main__global_stmts(), !dbg !24
+  ret i32 0, !dbg !24
 }
 
 declare void @_lpython_call_initial_functions(i32, i8**)
@@ -59,21 +59,20 @@ attributes #0 = { nounwind readnone speculatable willreturn }
 !5 = !{null}
 !6 = !DILocation(line: 9, column: 1, scope: !3)
 !7 = distinct !DISubprogram(name: "main0", scope: !1, file: !1, line: 1, type: !4, flags: DIFlagPrototyped, spFlags: DISPFlagDefinition, unit: !0, retainedNodes: !2)
-!8 = !DILocation(line: 1, column: 1, scope: !7)
-!9 = !DILocalVariable(name: "x", arg: 1, scope: !7, file: !1, line: 2, type: !10)
-!10 = !DIBasicType(name: "integer", size: 32, encoding: DW_ATE_signed)
-!11 = !DILocation(line: 2, scope: !7)
-!12 = !DILocalVariable(name: "x2", arg: 2, scope: !7, file: !1, line: 3, type: !13)
-!13 = !DIBasicType(name: "integer", size: 64, encoding: DW_ATE_signed)
-!14 = !DILocation(line: 3, scope: !7)
-!15 = !DILocalVariable(name: "y", arg: 3, scope: !7, file: !1, line: 4, type: !16)
-!16 = !DIBasicType(name: "float", size: 32, encoding: DW_ATE_float)
-!17 = !DILocation(line: 4, scope: !7)
-!18 = !DILocalVariable(name: "y2", arg: 4, scope: !7, file: !1, line: 5, type: !19)
-!19 = !DIBasicType(name: "double", size: 64, encoding: DW_ATE_float)
-!20 = !DILocation(line: 5, scope: !7)
-!21 = !DILocation(line: 6, column: 5, scope: !7)
-!22 = distinct !DISubprogram(name: "main_program", scope: !1, file: !1, line: 1, type: !23, flags: DIFlagPrototyped, spFlags: DISPFlagDefinition, unit: !0, retainedNodes: !2)
-!23 = !DISubroutineType(types: !24)
-!24 = !{!10}
-!25 = !DILocation(line: 1, column: 1, scope: !22)
+!8 = !DILocalVariable(name: "x", arg: 1, scope: !7, file: !1, line: 2, type: !9)
+!9 = !DIBasicType(name: "integer", size: 32, encoding: DW_ATE_signed)
+!10 = !DILocation(line: 2, scope: !7)
+!11 = !DILocalVariable(name: "x2", arg: 2, scope: !7, file: !1, line: 3, type: !12)
+!12 = !DIBasicType(name: "integer", size: 64, encoding: DW_ATE_signed)
+!13 = !DILocation(line: 3, scope: !7)
+!14 = !DILocalVariable(name: "y", arg: 3, scope: !7, file: !1, line: 4, type: !15)
+!15 = !DIBasicType(name: "float", size: 32, encoding: DW_ATE_float)
+!16 = !DILocation(line: 4, scope: !7)
+!17 = !DILocalVariable(name: "y2", arg: 4, scope: !7, file: !1, line: 5, type: !18)
+!18 = !DIBasicType(name: "double", size: 64, encoding: DW_ATE_float)
+!19 = !DILocation(line: 5, scope: !7)
+!20 = !DILocation(line: 6, column: 5, scope: !7)
+!21 = distinct !DISubprogram(name: "main_program", scope: !1, file: !1, line: 1, type: !22, flags: DIFlagPrototyped, spFlags: DISPFlagDefinition, unit: !0, retainedNodes: !2)
+!22 = !DISubroutineType(types: !23)
+!23 = !{!9}
+!24 = !DILocation(line: 1, column: 1, scope: !21)

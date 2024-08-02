@@ -6,7 +6,7 @@
     "outfile": null,
     "outfile_hash": null,
     "stdout": "llvm-test_unary_op_03-046fb86.stdout",
-    "stdout_hash": "8ae64ade26bcceb59c961b87142054ab443d47b4467569b01d9d24f9",
+    "stdout_hash": "64ad587abac8ae2bc570c04dc969a26374e4abcba7a02f051325c816",
     "stderr": null,
     "stderr_hash": null,
     "returncode": 0
