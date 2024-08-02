@@ -5597,12 +5597,6 @@ public:
                                     overloaded));
             if ( target->type == ASR::exprType::Var &&
                     tmp_value->type == ASR::exprType::StructConstructor ) {
-                Vec<ASR::call_arg_t> new_args; new_args.reserve(al, 1);
-                ASR::call_arg_t self_arg;
-                self_arg.loc = x.base.base.loc;
-                ASR::symbol_t* st = ASR::down_cast<ASR::Var_t>(target)->m_v;
-                self_arg.m_value = target;
-                new_args.push_back(al,self_arg);
                 AST::Call_t* call = AST::down_cast<AST::Call_t>(x.m_value);
                 if ( call->n_keywords>0 ) {
                     throw SemanticError("Kwargs not implemented yet", x.base.base.loc);
