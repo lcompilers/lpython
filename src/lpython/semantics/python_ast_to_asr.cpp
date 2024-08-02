@@ -5313,17 +5313,6 @@ public:
                 if ( call->n_keywords>0 ) {
                     throw SemanticError("Kwargs not implemented yet", x.base.base.loc);
                 }
-                Vec<ASR::call_arg_t> args;
-                args.reserve(al, call->n_args + 1);
-                ASR::call_arg_t self_arg;
-                self_arg.loc = x.base.base.loc;
-                self_arg.m_value = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, sym));
-                args.push_back(al, self_arg);
-                visit_expr_list(call->m_args, call->n_args, args);
-                ASR::symbol_t* der = ASR::down_cast<ASR::StructType_t>((var->m_type))->m_derived_type;
-                std::string call_name = "__init__";
-                ASR::symbol_t* call_sym = get_struct_member(der, call_name, x.base.base.loc);
-                tmp = make_call_helper(al, call_sym, current_scope, args, call_name, x.base.base.loc);
             }
         }
     }
@@ -5618,13 +5607,6 @@ public:
                 if ( call->n_keywords>0 ) {
                     throw SemanticError("Kwargs not implemented yet", x.base.base.loc);
                 }
-                visit_expr_list(call->m_args, call->n_args, new_args);
-                ASR::symbol_t* der = ASR::down_cast<ASR::StructType_t>(
-                    ASR::down_cast<ASR::Variable_t>(st)->m_type)->m_derived_type;
-                std::string call_name = "__init__";
-                ASR::symbol_t* call_sym = get_struct_member(der, call_name, x.base.base.loc);
-                tmp_vec.push_back(make_call_helper(al, call_sym,
-                    current_scope, new_args, call_name, x.base.base.loc));
             }
         }
         // to make sure that we add only those statements in tmp_vec

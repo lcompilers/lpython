@@ -584,6 +584,32 @@ namespace LCompilers {
             bool perform_cast=false,
             ASR::cast_kindType cast_kind=ASR::cast_kindType::IntegerToInteger,
             ASR::ttype_t* casted_type=nullptr) {
+            if ( x->m_dt_sym && ASR::is_a<ASR::Struct_t>(*(x->m_dt_sym)) ) {
+                ASR::Struct_t* st = ASR::down_cast<ASR::Struct_t>(x->m_dt_sym);
+                if ( st->n_member_functions > 0 ) {
+                    remove_original_statement = true;
+                    if ( !ASR::is_a<ASR::Var_t>(*(replacer->result_var)) ) { 
+                        throw LCompilersException("Expected a var here");
+                    }
+                    ASR::Var_t* target = ASR::down_cast<ASR::Var_t>(replacer->result_var);
+                    ASR::call_arg_t first_arg;
+                    first_arg.loc = x->base.base.loc; first_arg.m_value = replacer->result_var;
+                    Vec<ASR::call_arg_t> new_args; new_args.reserve(replacer->al,1);
+                    new_args.push_back(replacer->al, first_arg);
+                    for( size_t i = 0; i < x->n_args; i++ ) {
+                        new_args.push_back(replacer->al, x->m_args[i]);
+                    }
+                    ASR::StructType_t* type =  ASR::down_cast<ASR::StructType_t>(
+                                            (ASR::down_cast<ASR::Variable_t>(target->m_v))->m_type);
+                    std::string call_name = "__init__";
+                    ASR::symbol_t* call_sym = get_struct_member(replacer->al,type->m_derived_type, call_name,
+                                                x->base.base.loc, replacer->current_scope);
+                    result_vec->push_back(replacer->al, 
+                                        ASRUtils::STMT(make_call_helper(replacer->al,call_sym,
+                                            new_args,call_name,x->base.base.loc)));
+                    return;
+                }
+            }
             if( x->n_args == 0 ) {
                 if( !inside_symtab ) {
                     remove_original_statement = true;
