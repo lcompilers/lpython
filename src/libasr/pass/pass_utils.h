@@ -584,30 +584,6 @@ namespace LCompilers {
             bool perform_cast=false,
             ASR::cast_kindType cast_kind=ASR::cast_kindType::IntegerToInteger,
             ASR::ttype_t* casted_type=nullptr) {
-            ASR::Struct_t* st = ASR::down_cast<ASR::Struct_t>(x->m_dt_sym);
-            if ( st->n_member_functions > 0 ) {
-                remove_original_statement = true;
-                if ( !ASR::is_a<ASR::Var_t>(*(replacer->result_var)) ) { 
-                    throw LCompilersException("Expected a var here");
-                }
-                ASR::Var_t* target = ASR::down_cast<ASR::Var_t>(replacer->result_var);
-                ASR::call_arg_t first_arg;
-                first_arg.loc = x->base.base.loc; first_arg.m_value = replacer->result_var;
-                Vec<ASR::call_arg_t> new_args; new_args.reserve(replacer->al,1);
-                new_args.push_back(replacer->al, first_arg);
-                for( size_t i = 0; i < x->n_args; i++ ) {
-                    new_args.push_back(replacer->al, x->m_args[i]);
-                }
-                ASR::StructType_t* type =  ASR::down_cast<ASR::StructType_t>(
-                                        (ASR::down_cast<ASR::Variable_t>(target->m_v))->m_type);
-                std::string call_name = "__init__";
-                ASR::symbol_t* call_sym = get_struct_member(replacer->al,type->m_derived_type, call_name,
-                                            x->base.base.loc, replacer->current_scope);
-                result_vec->push_back(replacer->al, 
-                                    ASRUtils::STMT(make_call_helper(replacer->al,call_sym,
-                                        new_args,call_name,x->base.base.loc)));
-                return;
-            }
             if( x->n_args == 0 ) {
                 if( !inside_symtab ) {
                     remove_original_statement = true;
@@ -628,22 +604,22 @@ namespace LCompilers {
             }
 
             std::deque<ASR::symbol_t*> constructor_arg_syms;
-            ASR::StructType_t* dt_der = ASR::down_cast<ASR::StructType_t>(x->m_type);
-            ASR::Struct_t* dt_dertype = ASR::down_cast<ASR::Struct_t>(
-                                            ASRUtils::symbol_get_past_external(dt_der->m_derived_type));
-            while( dt_dertype ) {
-                for( int i = (int) dt_dertype->n_members - 1; i >= 0; i-- ) {
+            ASR::StructType_t* dt_dertype = ASR::down_cast<ASR::StructType_t>(x->m_type);
+            ASR::Struct_t* dt_der = ASR::down_cast<ASR::Struct_t>(
+                                            ASRUtils::symbol_get_past_external(dt_dertype->m_derived_type));
+            while( dt_der ) {
+                for( int i = (int) dt_der->n_members - 1; i >= 0; i-- ) {
                     constructor_arg_syms.push_front(
-                        dt_dertype->m_symtab->get_symbol(
-                            dt_dertype->m_members[i]));
+                        dt_der->m_symtab->get_symbol(
+                            dt_der->m_members[i]));
                 }
-                if( dt_dertype->m_parent != nullptr ) {
+                if( dt_der->m_parent != nullptr ) {
                     ASR::symbol_t* dt_der_sym = ASRUtils::symbol_get_past_external(
-                                            dt_dertype->m_parent);
+                                            dt_der->m_parent);
                     LCOMPILERS_ASSERT(ASR::is_a<ASR::Struct_t>(*dt_der_sym));
-                    dt_dertype = ASR::down_cast<ASR::Struct_t>(dt_der_sym);
+                    dt_der = ASR::down_cast<ASR::Struct_t>(dt_der_sym);
                 } else {
-                    dt_dertype = nullptr;
+                    dt_der = nullptr;
                 }
             }
             LCOMPILERS_ASSERT(constructor_arg_syms.size() == x->n_args);

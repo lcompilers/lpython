@@ -5301,31 +5301,31 @@ public:
         }
         ASR::expr_t *init_expr = nullptr;
         visit_AnnAssignUtil(x, var_name, init_expr);
-        // ASR::symbol_t* sym = current_scope->get_symbol(var_name);
-        // if ( sym && ASR::is_a<ASR::Variable_t>(*sym) ) {
-        //     ASR::Variable_t* var = ASR::down_cast<ASR::Variable_t>(sym);
-        //     if ( ASR::is_a<ASR::StructType_t>(*(var->m_type)) && 
-        //         !ASR::down_cast<ASR::StructType_t>((var->m_type))->m_is_cstruct ) {
-        //         if ( !ASR::is_a<ASR::StructConstructor_t>(*init_expr) ) {
-        //             throw SemanticError("Only Class constructor is allowed in the object assignment for now", x.base.base.loc);
-        //         }
-        //         AST::Call_t* call = AST::down_cast<AST::Call_t>(x.m_value);
-        //         if ( call->n_keywords>0 ) {
-        //             throw SemanticError("Kwargs not implemented yet", x.base.base.loc);
-        //         }
-        //         Vec<ASR::call_arg_t> args;
-        //         args.reserve(al, call->n_args + 1);
-        //         ASR::call_arg_t self_arg;
-        //         self_arg.loc = x.base.base.loc;
-        //         self_arg.m_value = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, sym));
-        //         args.push_back(al, self_arg);
-        //         visit_expr_list(call->m_args, call->n_args, args);
-        //         ASR::symbol_t* der = ASR::down_cast<ASR::StructType_t>((var->m_type))->m_derived_type;
-        //         std::string call_name = "__init__";
-        //         ASR::symbol_t* call_sym = get_struct_member(der, call_name, x.base.base.loc);
-        //         tmp = make_call_helper(al, call_sym, current_scope, args, call_name, x.base.base.loc);
-        //     }
-        // }
+        ASR::symbol_t* sym = current_scope->get_symbol(var_name);
+        if ( sym && ASR::is_a<ASR::Variable_t>(*sym) ) {
+            ASR::Variable_t* var = ASR::down_cast<ASR::Variable_t>(sym);
+            if ( ASR::is_a<ASR::StructType_t>(*(var->m_type)) && 
+                !ASR::down_cast<ASR::StructType_t>((var->m_type))->m_is_cstruct ) {
+                if ( !ASR::is_a<ASR::StructConstructor_t>(*init_expr) ) {
+                    throw SemanticError("Only Class constructor is allowed in the object assignment for now", x.base.base.loc);
+                }
+                AST::Call_t* call = AST::down_cast<AST::Call_t>(x.m_value);
+                if ( call->n_keywords>0 ) {
+                    throw SemanticError("Kwargs not implemented yet", x.base.base.loc);
+                }
+                Vec<ASR::call_arg_t> args;
+                args.reserve(al, call->n_args + 1);
+                ASR::call_arg_t self_arg;
+                self_arg.loc = x.base.base.loc;
+                self_arg.m_value = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, sym));
+                args.push_back(al, self_arg);
+                visit_expr_list(call->m_args, call->n_args, args);
+                ASR::symbol_t* der = ASR::down_cast<ASR::StructType_t>((var->m_type))->m_derived_type;
+                std::string call_name = "__init__";
+                ASR::symbol_t* call_sym = get_struct_member(der, call_name, x.base.base.loc);
+                tmp = make_call_helper(al, call_sym, current_scope, args, call_name, x.base.base.loc);
+            }
+        }
     }
 
     void visit_Delete(const AST::Delete_t &x) {
@@ -5606,26 +5606,26 @@ public:
             }
             tmp_vec.push_back(ASR::make_Assignment_t(al, x.base.base.loc, target, tmp_value,
                                     overloaded));
-            // if ( target->type == ASR::exprType::Var &&
-            //         tmp_value->type == ASR::exprType::StructConstructor ) {
-            //     Vec<ASR::call_arg_t> new_args; new_args.reserve(al, 1);
-            //     ASR::call_arg_t self_arg;
-            //     self_arg.loc = x.base.base.loc;
-            //     ASR::symbol_t* st = ASR::down_cast<ASR::Var_t>(target)->m_v;
-            //     self_arg.m_value = target;
-            //     new_args.push_back(al,self_arg);
-            //     AST::Call_t* call = AST::down_cast<AST::Call_t>(x.m_value);
-            //     if ( call->n_keywords>0 ) {
-            //         throw SemanticError("Kwargs not implemented yet", x.base.base.loc);
-            //     }
-            //     visit_expr_list(call->m_args, call->n_args, new_args);
-            //     ASR::symbol_t* der = ASR::down_cast<ASR::StructType_t>(
-            //         ASR::down_cast<ASR::Variable_t>(st)->m_type)->m_derived_type;
-            //     std::string call_name = "__init__";
-            //     ASR::symbol_t* call_sym = get_struct_member(der, call_name, x.base.base.loc);
-            //     tmp_vec.push_back(make_call_helper(al, call_sym,
-            //         current_scope, new_args, call_name, x.base.base.loc));
-            // }
+            if ( target->type == ASR::exprType::Var &&
+                    tmp_value->type == ASR::exprType::StructConstructor ) {
+                Vec<ASR::call_arg_t> new_args; new_args.reserve(al, 1);
+                ASR::call_arg_t self_arg;
+                self_arg.loc = x.base.base.loc;
+                ASR::symbol_t* st = ASR::down_cast<ASR::Var_t>(target)->m_v;
+                self_arg.m_value = target;
+                new_args.push_back(al,self_arg);
+                AST::Call_t* call = AST::down_cast<AST::Call_t>(x.m_value);
+                if ( call->n_keywords>0 ) {
+                    throw SemanticError("Kwargs not implemented yet", x.base.base.loc);
+                }
+                visit_expr_list(call->m_args, call->n_args, new_args);
+                ASR::symbol_t* der = ASR::down_cast<ASR::StructType_t>(
+                    ASR::down_cast<ASR::Variable_t>(st)->m_type)->m_derived_type;
+                std::string call_name = "__init__";
+                ASR::symbol_t* call_sym = get_struct_member(der, call_name, x.base.base.loc);
+                tmp_vec.push_back(make_call_helper(al, call_sym,
+                    current_scope, new_args, call_name, x.base.base.loc));
+            }
         }
         // to make sure that we add only those statements in tmp_vec
         tmp = nullptr;

@@ -1315,36 +1315,12 @@ namespace LCompilers {
                     
                 }
             }
-            // Vec<ASR::call_arg_t> args_new;
-            // args_new.reserve(al, func->n_args);
-            // cast_args(al,func->m_args, func->n_args, args_new, args, true);
             return ASRUtils::make_SubroutineCall_t_util(al, loc, stemp,
                 s_generic, args.p, args.size(), nullptr, nullptr, false, false);
         } else {
             throw LCompilersException("Unsupported call type for " + call_name);
         }
     }
-
-    // void cast_args(Allocator& al, ASR::expr_t** m_args, size_t n_args,
-    //                                Vec<ASR::call_arg_t>& call_args_vec,
-    //                                Vec<ASR::call_arg_t>& args,
-    //                                bool check_type_equality=true) {
-    //     LCOMPILERS_ASSERT(call_args_vec.reserve_called);
-    //     for (size_t i = 0; i < n_args; i++) {
-    //         ASR::call_arg_t c_arg;
-    //         c_arg.loc = args[i].loc;
-    //         c_arg.m_value = args[i].m_value;
-    //         // cast_helper(m_args[i], c_arg.m_value, true);
-    //         ASR::ttype_t* left_type = ASRUtils::expr_type(m_args[i]);
-    //         ASR::ttype_t* right_type = ASRUtils::expr_type(c_arg.m_value);
-    //         if( check_type_equality && !ASRUtils::check_equal_type(left_type, right_type) ) {
-    //             std::string ltype = ASRUtils::type_to_str_python(left_type);
-    //             std::string rtype = ASRUtils::type_to_str_python(right_type);
-    //             LCompilersException("Type mismatch in procedure call; the types must be compatible");
-    //         }
-    //         call_args_vec.push_back(al, c_arg);
-    //     }
-    // }
     } // namespace PassUtils
 
 } // namespace LCompilers
