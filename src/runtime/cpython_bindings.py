@@ -79,3 +79,7 @@ def PyFloat_FromDouble(a: f64) -> CPtr:
 @ccall(header="Python.h")
 def PyFloat_AsDouble(a: CPtr) -> f64:
     pass
+
+@ccall(header="Python.h")
+def PyBool_FromLong(a: i32) -> CPtr:
+    pass

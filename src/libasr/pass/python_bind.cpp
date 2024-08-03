@@ -187,19 +187,25 @@ namespace LCompilers {
                                         args_PyLong_FromUnsignedLongLong.push_back(al, {f->base.base.loc, ASRUtils::EXPR(ASR::make_Cast_t(al, f->base.base.loc, f->m_args[i], ASR::cast_kindType::UnsignedIntegerToUnsignedInteger, u8_type, nullptr))});
                                         conv_result = ASRUtils::EXPR(ASRUtils::make_FunctionCall_t_util(al, f->base.base.loc, sym_PyLong_FromUnsignedLongLong, nullptr, args_PyLong_FromUnsignedLongLong.p, args_PyLong_FromUnsignedLongLong.n, ptr_t, nullptr, nullptr));
                                     } else if (arg_type->type == ASR::ttypeType::Logical) {
-                                        LCOMPILERS_ASSERT_MSG(false, "Not Implemented");
+                                        ASR::symbol_t *sym_PyBool_FromLong = module->m_symtab->get_symbol("PyBool_FromLong");
+                                        Vec<ASR::call_arg_t> args_PyBool_FromLong;
+                                        args_PyBool_FromLong.reserve(al, 1);
+                                        args_PyBool_FromLong.push_back(al, {f->base.base.loc, ASRUtils::EXPR(ASR::make_Cast_t(al, f->base.base.loc, f->m_args[i], ASR::cast_kindType::LogicalToInteger, i4_type, nullptr))});
+                                        conv_result = ASRUtils::EXPR(ASRUtils::make_FunctionCall_t_util(al, f->base.base.loc, sym_PyBool_FromLong, nullptr, args_PyBool_FromLong.p, args_PyBool_FromLong.n, ptr_t, nullptr, nullptr));
                                     } else if (arg_type->type == ASR::ttypeType::Real) {
                                         ASR::symbol_t *sym_PyFloat_FromDouble = module->m_symtab->get_symbol("PyFloat_FromDouble");
                                         Vec<ASR::call_arg_t> args_PyFloat_FromDouble;
                                         args_PyFloat_FromDouble.reserve(al, 1);
                                         args_PyFloat_FromDouble.push_back(al, {f->base.base.loc, ASRUtils::EXPR(ASR::make_Cast_t(al, f->base.base.loc, f->m_args[i], ASR::cast_kindType::RealToReal, f8_type, nullptr))});
                                         conv_result = ASRUtils::EXPR(ASRUtils::make_FunctionCall_t_util(al, f->base.base.loc, sym_PyFloat_FromDouble, nullptr, args_PyFloat_FromDouble.p, args_PyFloat_FromDouble.n, ptr_t, nullptr, nullptr));
-                                    } else if (arg_type->type == ASR::ttypeType::Complex) {
-                                        LCOMPILERS_ASSERT_MSG(false, "Not Implemented");
                                     } else if (arg_type->type == ASR::ttypeType::Character) {
-                                        LCOMPILERS_ASSERT_MSG(false, "Not Implemented");
+                                        ASR::symbol_t *sym_PyUnicode_FromString = module->m_symtab->get_symbol("PyUnicode_FromString");
+                                        Vec<ASR::call_arg_t> args_PyUnicode_FromString;
+                                        args_PyUnicode_FromString.reserve(al, 1);
+                                        args_PyUnicode_FromString.push_back(al, {f->base.base.loc, f->m_args[i]});
+                                        conv_result = ASRUtils::EXPR(ASRUtils::make_FunctionCall_t_util(al, f->base.base.loc, sym_PyUnicode_FromString, nullptr, args_PyUnicode_FromString.p, args_PyUnicode_FromString.n, ptr_t, nullptr, nullptr));
                                     } else {
-                                        LCOMPILERS_ASSERT_MSG(false, "Not Implemented");
+                                        throw LCompilersException("Calling CPython with " + ASRUtils::get_type_code(ASRUtils::expr_type(f->m_args[i])) + " type not supported");
                                     }
                                     LCOMPILERS_ASSERT(conv_result);
                                     args_PyTuple_SetItem.push_back(al, {f->base.base.loc, conv_result});

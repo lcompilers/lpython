@@ -4513,6 +4513,7 @@ public:
                                     "PyLong_FromUnsignedLongLong",
                                     "PyFloat_FromDouble",
                                     "PyFloat_AsDouble",
+                                    "PyBool_FromLong",
                                 };
                                 Str s;
                                 AST::alias_t *module_symbols =
