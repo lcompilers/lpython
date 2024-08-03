@@ -25,9 +25,6 @@ namespace LCompilers {
                         if (ASRUtils::get_FunctionType(f)->m_abi == ASR::abiType::BindPython) {
                             bindpython_used = true;
                             {
-                                // LCOMPILERS_ASSERT_MSG(f->n_args == 0, "BindPython with arguments not supported yet");
-                                LCOMPILERS_ASSERT_MSG(f->m_return_var == nullptr, "BindPython with return types not supported yet");
-
                                 Vec<ASR::stmt_t*> body;
                                 body.reserve(al, 1);
                                 Str s;
@@ -41,6 +38,8 @@ namespace LCompilers {
                                 ASR::symbol_t *sym_Py_IsInitialized = module->m_symtab->get_symbol("Py_IsInitialized");
                                 ASR::symbol_t *sym_Py_Initialize = module->m_symtab->get_symbol("Py_Initialize");
                                 LCOMPILERS_ASSERT(sym_Py_IsInitialized)
+                                ASR::ttype_t *i1_type = ASRUtils::TYPE(ASR::make_Integer_t(al, f->base.base.loc, 1));
+                                ASR::ttype_t *i1ptr_type = ASRUtils::TYPE(ASR::make_Pointer_t(al, f->base.base.loc, i1_type));
                                 ASR::ttype_t *i4_type = ASRUtils::TYPE(ASR::make_Integer_t(al, f->base.base.loc, 4));
                                 ASR::ttype_t *i8_type = ASRUtils::TYPE(ASR::make_Integer_t(al, f->base.base.loc, 8));
                                 ASR::ttype_t *u8_type = ASRUtils::TYPE(ASR::make_UnsignedInteger_t(al, f->base.base.loc, 8));
@@ -250,6 +249,64 @@ namespace LCompilers {
                                     Return type conversion goes here
                                 */
 
+
+                                ASR::ttype_t *ret_type = ASRUtils::get_FunctionType(f)->m_return_var_type;
+                                if (ret_type) {
+                                    std::string return_var_name = "_lpython_return_variable";
+                                    ASR::asr_t *ret_var = (ASR::asr_t*)f->m_symtab->get_symbol(return_var_name);
+                                    LCOMPILERS_ASSERT(ret_var);
+                                    ASR::expr_t *ret_var_ref = ASRUtils::EXPR(ASR::make_Var_t(al, f->base.base.loc, ASR::down_cast<ASR::symbol_t>(ret_var)));
+
+                                    ASR::expr_t *ret_conv_result = nullptr;
+                                    if (ret_type->type == ASR::ttypeType::Integer) {
+                                        ASR::symbol_t *sym_PyLong_AsLongLong = module->m_symtab->get_symbol("PyLong_AsLongLong");
+                                        Vec<ASR::call_arg_t> args_PyLong_AsLongLong;
+                                        args_PyLong_AsLongLong.reserve(al, 1);
+                                        args_PyLong_AsLongLong.push_back(al, {f->base.base.loc, pReturn_ref});
+                                        ret_conv_result = ASRUtils::EXPR(ASR::make_Cast_t(al, f->base.base.loc, 
+                                                            ASRUtils::EXPR(ASRUtils::make_FunctionCall_t_util(al, f->base.base.loc, sym_PyLong_AsLongLong, nullptr, args_PyLong_AsLongLong.p, args_PyLong_AsLongLong.n, i8_type, nullptr, nullptr)),
+                                                            ASR::IntegerToInteger, ret_type, nullptr));
+                                    } else if (ret_type->type == ASR::ttypeType::UnsignedInteger) {
+                                        ASR::symbol_t *sym_PyLong_AsUnsignedLongLong = module->m_symtab->get_symbol("PyLong_AsUnsignedLongLong");
+                                        Vec<ASR::call_arg_t> args_PyLong_AsUnsignedLongLong;
+                                        args_PyLong_AsUnsignedLongLong.reserve(al, 1);
+                                        args_PyLong_AsUnsignedLongLong.push_back(al, {f->base.base.loc, pReturn_ref});
+                                        ret_conv_result = ASRUtils::EXPR(ASR::make_Cast_t(al, f->base.base.loc, 
+                                                            ASRUtils::EXPR(ASRUtils::make_FunctionCall_t_util(al, f->base.base.loc, sym_PyLong_AsUnsignedLongLong, nullptr, args_PyLong_AsUnsignedLongLong.p, args_PyLong_AsUnsignedLongLong.n, u8_type, nullptr, nullptr)),
+                                                            ASR::UnsignedIntegerToUnsignedInteger, ret_type, nullptr));
+                                    } else if (ret_type->type == ASR::ttypeType::Real) {
+                                        ASR::symbol_t *sym_PyFloat_AsDouble = module->m_symtab->get_symbol("PyFloat_AsDouble");
+                                        Vec<ASR::call_arg_t> args_PyFloat_AsDouble;
+                                        args_PyFloat_AsDouble.reserve(al, 1);
+                                        args_PyFloat_AsDouble.push_back(al, {f->base.base.loc, pReturn_ref});
+                                        ret_conv_result = ASRUtils::EXPR(ASR::make_Cast_t(al, f->base.base.loc,
+                                                            ASRUtils::EXPR(ASRUtils::make_FunctionCall_t_util(al, f->base.base.loc, sym_PyFloat_AsDouble, nullptr, args_PyFloat_AsDouble.p, args_PyFloat_AsDouble.n, f8_type, nullptr, nullptr)),
+                                                            ASR::RealToReal, ret_type, nullptr));
+                                    } else if (ret_type->type == ASR::ttypeType::Logical) {
+                                        ASR::symbol_t *sym_PyObject_IsTrue = module->m_symtab->get_symbol("PyObject_IsTrue");
+                                        Vec<ASR::call_arg_t> args_PyObject_IsTrue;
+                                        args_PyObject_IsTrue.reserve(al, 1);
+                                        args_PyObject_IsTrue.push_back(al, {f->base.base.loc, pReturn_ref});
+                                        ret_conv_result = ASRUtils::EXPR(ASR::make_Cast_t(al, f->base.base.loc, 
+                                                            ASRUtils::EXPR(ASRUtils::make_FunctionCall_t_util(al, f->base.base.loc, sym_PyObject_IsTrue, nullptr, args_PyObject_IsTrue.p, args_PyObject_IsTrue.n, i4_type, nullptr, nullptr)),
+                                                            ASR::IntegerToLogical, ret_type, nullptr));
+                                    } else if (ret_type->type == ASR::ttypeType::Character) {
+                                        ASR::symbol_t *sym_PyUnicode_AsUTF8AndSize = module->m_symtab->get_symbol("PyUnicode_AsUTF8AndSize");
+                                        Vec<ASR::call_arg_t> args_PyUnicode_AsUTF8AndSize;
+                                        args_PyUnicode_AsUTF8AndSize.reserve(al, 1);
+                                        args_PyUnicode_AsUTF8AndSize.push_back(al, {f->base.base.loc, pReturn_ref});
+                                        args_PyUnicode_AsUTF8AndSize.push_back(al, {f->base.base.loc, ASRUtils::EXPR(ASR::make_PointerNullConstant_t(al, f->base.base.loc, ptr_t))});
+                                        ret_conv_result = ASRUtils::EXPR(ASR::make_Cast_t(al, f->base.base.loc,
+                                                            ASRUtils::EXPR(ASRUtils::make_FunctionCall_t_util(al, f->base.base.loc, sym_PyUnicode_AsUTF8AndSize, nullptr, args_PyUnicode_AsUTF8AndSize.p, args_PyUnicode_AsUTF8AndSize.n, i1ptr_type, nullptr, nullptr)),
+                                                            ASR::RealToReal, ret_type, nullptr));
+                                    } else {
+                                        throw LCompilersException("Returning from CPython with " + ASRUtils::get_type_code(ret_type) + " type not supported");
+                                    }
+
+                                    LCOMPILERS_ASSERT(ret_conv_result);
+                                    body.push_back(al, ASRUtils::STMT(ASR::make_Assignment_t(al, f->base.base.loc, ret_var_ref, ret_conv_result, nullptr)));
+                                }
+
                                 ASR::symbol_t *sym_Py_DecRef = module->m_symtab->get_symbol("Py_DecRef");
 
                                 Vec<ASR::call_arg_t> args_Py_DecRef;
@@ -278,9 +335,10 @@ namespace LCompilers {
                 }
             }
 
-            if (bindpython_used) { 
-                break;
-            }
+        }
+        if (bindpython_used) { 
+            PassUtils::UpdateDependenciesVisitor u(al);
+            u.visit_TranslationUnit(unit);
         }
     }
 }

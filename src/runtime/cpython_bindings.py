@@ -29,6 +29,10 @@ def PyUnicode_FromString(s: str) -> CPtr:
     pass
 
 @ccall(header="Python.h")
+def PyUnicode_AsUTF8AndSize(s: CPtr, l: CPtr) -> str:
+    pass
+
+@ccall(header="Python.h")
 def PyImport_Import(name: CPtr) -> CPtr:
     pass
 
@@ -82,4 +86,8 @@ def PyFloat_AsDouble(a: CPtr) -> f64:
 
 @ccall(header="Python.h")
 def PyBool_FromLong(a: i32) -> CPtr:
+    pass
+
+@ccall(header="Python.h")
+def PyObject_IsTrue(a: CPtr) -> i32:
     pass

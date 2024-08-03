@@ -4500,6 +4500,7 @@ public:
                                     "PySys_SetArgv", 
                                     "Py_FinalizeEx",
                                     "PyUnicode_FromString",
+                                    "PyUnicode_AsUTF8AndSize",
                                     "PyImport_Import",
                                     "Py_DecRef",
                                     "Py_IncRef",
@@ -4514,6 +4515,7 @@ public:
                                     "PyFloat_FromDouble",
                                     "PyFloat_AsDouble",
                                     "PyBool_FromLong",
+                                    "PyObject_IsTrue",
                                 };
                                 Str s;
                                 AST::alias_t *module_symbols =
