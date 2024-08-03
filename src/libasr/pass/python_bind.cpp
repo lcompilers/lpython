@@ -361,7 +361,7 @@ void generate_body(Allocator &al, ASR::Function_t &f, SymbolTable &parent_scope)
     ASRUtils::get_FunctionType(f)->m_deftype = ASR::deftypeType::Implementation;
 }
 
-void pass_python_bind(Allocator &al, ASR::TranslationUnit_t &unit, const PassOptions &pass_options) {
+void pass_python_bind(Allocator &al, ASR::TranslationUnit_t &unit, const PassOptions &/*pass_options*/) {
     bool bindpython_used = false;
     for (auto &item : unit.m_symtab->get_scope()) {
         if (ASR::is_a<ASR::Function_t>(*item.second)) {
