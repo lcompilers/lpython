@@ -367,7 +367,10 @@ void pass_python_bind(Allocator &al, ASR::TranslationUnit_t &unit, const PassOpt
         if (ASR::is_a<ASR::Function_t>(*item.second)) {
             ASR::Function_t *f = ASR::down_cast<ASR::Function_t>(item.second);
             if (ASRUtils::get_FunctionType(f)->m_abi == ASR::abiType::BindPython) {
-                bindpython_used = true;
+                if (f->n_body == 0 && f->m_module_file) {
+                    bindpython_used = true;
+                    generate_body(al, *f, *unit.m_symtab);
+                }
             }
         }
         else if (ASR::is_a<ASR::Module_t>(*item.second)) {
@@ -376,8 +379,10 @@ void pass_python_bind(Allocator &al, ASR::TranslationUnit_t &unit, const PassOpt
                 if (ASR::is_a<ASR::Function_t>(*module_item.second)) {
                     ASR::Function_t *f = ASR::down_cast<ASR::Function_t>(module_item.second);
                     if (ASRUtils::get_FunctionType(f)->m_abi == ASR::abiType::BindPython) {
-                        bindpython_used = true;
-                        generate_body(al, *f, *module->m_symtab);
+                        if (f->n_body == 0 && f->m_module_file) {
+                            bindpython_used = true;
+                            generate_body(al, *f, *module->m_symtab);
+                        }
                     }
                 }
             }
