@@ -660,7 +660,7 @@ RUN(NAME bindc_05   LABELS llvm c
         EXTRAFILES bindc_05b.c)
 RUN(NAME bindc_06   LABELS llvm c
         EXTRAFILES bindc_06b.c)
-RUN(NAME bindpy_01           LABELS cpython c_py EXTRA_ARGS --enable-cpython NOFAST COPY_TO_BIN bindpy_01_module.py)
+RUN(NAME bindpy_01           LABELS cpython llvm_py c_py EXTRA_ARGS --enable-cpython NOFAST COPY_TO_BIN bindpy_01_module.py)
 RUN(NAME bindpy_02           LABELS cpython c_py EXTRA_ARGS --link-numpy COPY_TO_BIN bindpy_02_module.py)
 RUN(NAME bindpy_03           LABELS cpython c_py EXTRA_ARGS --link-numpy NOFAST COPY_TO_BIN bindpy_03_module.py)
 RUN(NAME bindpy_04           LABELS cpython c_py EXTRA_ARGS --link-numpy NOFAST COPY_TO_BIN bindpy_04_module.py)

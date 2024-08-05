@@ -37,6 +37,7 @@ set(SRC
     pass/for_all.cpp
     pass/while_else.cpp
     pass/global_stmts.cpp
+    pass/python_bind.cpp
     pass/select_case.cpp
     pass/init_expr.cpp
     pass/implied_do_loops.cpp

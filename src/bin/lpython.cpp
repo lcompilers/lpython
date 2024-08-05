@@ -321,6 +321,7 @@ int emit_c(const std::string &infile,
     pass_manager.use_default_passes(true);
     compiler_options.po.always_run = true;
     compiler_options.po.run_fun = "f";
+    compiler_options.po.c_backend = true;
 
     pass_manager.apply_passes(al, asr, compiler_options.po, diagnostics);
 
