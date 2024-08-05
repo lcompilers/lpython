@@ -361,7 +361,16 @@ void generate_body(Allocator &al, ASR::Function_t &f, SymbolTable &parent_scope)
     ASRUtils::get_FunctionType(f)->m_deftype = ASR::deftypeType::Implementation;
 }
 
-void pass_python_bind(Allocator &al, ASR::TranslationUnit_t &unit, const PassOptions &/*pass_options*/) {
+void pass_python_bind(Allocator &al, ASR::TranslationUnit_t &unit, const PassOptions &pass_options) {
+    if (pass_options.c_backend) {
+        // FIXME: C backend supports arrays, it is used in bindpy_02 to bindpy_04 tests.
+        //  This pass currently does not handle any aggregate types.
+        //  Once we include support for aggregate types, we should remove this check, and
+        //  remove the `c_backend` variable from PassOptions.
+        //  We will also need to remove the special handling of BindPython ABI in C
+        //  backend as it would be handled by this ASR pass.
+        return;
+    }
     bool bindpython_used = false;
     for (auto &item : unit.m_symtab->get_scope()) {
         if (ASR::is_a<ASR::Function_t>(*item.second)) {
