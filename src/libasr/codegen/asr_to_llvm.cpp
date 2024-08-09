@@ -3793,6 +3793,14 @@ public:
                         }
                     }
 
+                    if (ASR::is_a<ASR::List_t>(*v->m_type)) {
+                      lists[ptr] = v->m_type;
+                    } else if (ASR::is_a<ASR::Dict_t>(*v->m_type)) {
+                      dictionaries[ptr] = v->m_type;
+                    } else if (ASR::is_a<ASR::Set_t>(*v->m_type)) {
+                      sets[ptr] = v->m_type;
+                    }
+
                     llvm_symtab[h] = ptr;
                     if( (ASRUtils::is_array(v->m_type) &&
                         ((ASRUtils::extract_physical_type(v->m_type) == ASR::array_physical_typeType::DescriptorArray) ||
@@ -3901,7 +3909,6 @@ public:
                             ASR::List_t* asr_list = ASR::down_cast<ASR::List_t>(v->m_type);
                             std::string type_code = ASRUtils::get_type_code(asr_list->m_type);
                             list_api->list_init(type_code, ptr, *module);
-                            lists[ptr] = asr_list->m_type;
                         }
                     }
                 }
@@ -4172,6 +4179,9 @@ public:
                 ret_val2 = tmp;
                 }
             }
+            lists.erase(ret_val);
+            dictionaries.erase(ret_val);
+            sets.erase(ret_val);
             free_heap_structures();
             for( auto& value: heap_arrays ) {
                 LLVM::lfortran_free(context, *module, *builder, value);
@@ -4846,7 +4856,6 @@ public:
             list_api->list_deepcopy(value_list, target_list,
                                     value_asr_list, module.get(),
                                     name2memidx);
-            lists[target_list] = ASRUtils::expr_type(x.m_target);
             return ;
         } else if( is_target_tuple && is_value_tuple ) {
             int64_t ptr_loads_copy = ptr_loads;
@@ -4915,7 +4924,6 @@ public:
             llvm_utils->set_dict_api(value_dict_type);
             llvm_utils->dict_api->dict_deepcopy(value_dict, target_dict,
                                     value_dict_type, module.get(), name2memidx);
-            dictionaries[target_dict] = ASRUtils::expr_type(x.m_target);
             return ;
         } else if( is_target_set && is_value_set ) {
             int64_t ptr_loads_copy = ptr_loads;
@@ -4929,7 +4937,6 @@ public:
             llvm_utils->set_set_api(value_set_type);
             llvm_utils->set_api->set_deepcopy(value_set, target_set,
                                     value_set_type, module.get(), name2memidx);
-            sets[target_set] = ASRUtils::expr_type(x.m_target);
             return ;
         } else if( is_target_struct && is_value_struct ) {
             int64_t ptr_loads_copy = ptr_loads;
