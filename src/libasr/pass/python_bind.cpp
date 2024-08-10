@@ -149,7 +149,7 @@ void generate_body(Allocator &al, ASR::Function_t &f, SymbolTable &parent_scope)
     Vec<ASR::stmt_t*> body;
     body.reserve(al, 1);
     Str s;
-    
+
     /*
         if (!Py_IsInitialized()) {
             Py_Initialize();
@@ -182,11 +182,11 @@ void generate_body(Allocator &al, ASR::Function_t &f, SymbolTable &parent_scope)
     s.from_str(al, "pS");
     ASR::asr_t *pS = ASR::make_Variable_t(al, f.base.base.loc, f.m_symtab, s.c_str(al), nullptr, 0,
                         ASRUtils::intent_local, nullptr, nullptr, ASR::storage_typeType::Default, i4_type, nullptr,
-                        ASR::abiType::BindC, ASR::Public, ASR::presenceType::Required, false);
+                        ASR::abiType::Source, ASR::Public, ASR::presenceType::Required, false);
     ASR::expr_t *pS_ref = ASRUtils::EXPR(ASR::make_Var_t(al, f.base.base.loc, ASR::down_cast<ASR::symbol_t>(pS)));
     f.m_symtab->add_symbol(std::string("pS"), ASR::down_cast<ASR::symbol_t>(pS));
     if_body.push_back(al, ASRUtils::STMT(
-        ASR::make_Assignment_t(al, f.base.base.loc, pS_ref, 
+        ASR::make_Assignment_t(al, f.base.base.loc, pS_ref,
             ASRUtils::EXPR(ASRUtils::make_FunctionCall_t_util(al, f.base.base.loc, sym_PyRun_SimpleString, nullptr,
                                 args_PyRun_SimpleString.p, args_PyRun_SimpleString.n, i4_type, nullptr, nullptr)),
                                 nullptr)));
@@ -211,15 +211,15 @@ void generate_body(Allocator &al, ASR::Function_t &f, SymbolTable &parent_scope)
     s.from_str(al, "pName");
     ASR::asr_t *pName = ASR::make_Variable_t(al, f.base.base.loc, f.m_symtab, s.c_str(al), nullptr, 0,
                             ASRUtils::intent_local, nullptr, nullptr, ASR::storage_typeType::Default, ptr_t, nullptr,
-                            ASR::abiType::BindC, ASR::Public, ASR::presenceType::Required, false);
+                            ASR::abiType::Source, ASR::Public, ASR::presenceType::Required, false);
     ASR::expr_t *pName_ref = ASRUtils::EXPR(ASR::make_Var_t(al, f.base.base.loc, ASR::down_cast<ASR::symbol_t>(pName)));
     f.m_symtab->add_symbol(std::string("pName"), ASR::down_cast<ASR::symbol_t>(pName));
     body.push_back(al, ASRUtils::STMT(
-        ASR::make_Assignment_t(al, f.base.base.loc, pName_ref, 
+        ASR::make_Assignment_t(al, f.base.base.loc, pName_ref,
             ASRUtils::EXPR(ASRUtils::make_FunctionCall_t_util(al, f.base.base.loc, sym_PyUnicode_FromString, nullptr,
                             args_PyUnicode_FromString.p, args_PyUnicode_FromString.n, ptr_t, nullptr, nullptr)),
                             nullptr)));
-    
+
     ASR::symbol_t *sym_PyImport_Import = parent_scope.get_symbol("PyImport_Import");
     Vec<ASR::call_arg_t> args_PyImport_Import;
     args_PyImport_Import.reserve(al, 1);
@@ -227,7 +227,7 @@ void generate_body(Allocator &al, ASR::Function_t &f, SymbolTable &parent_scope)
     s.from_str(al, "pModule");
     ASR::asr_t *pModule = ASR::make_Variable_t(al, f.base.base.loc, f.m_symtab, s.c_str(al), nullptr, 0,
                             ASRUtils::intent_local, nullptr, nullptr, ASR::storage_typeType::Default, ptr_t, nullptr,
-                            ASR::abiType::BindC, ASR::Public, ASR::presenceType::Required, false);
+                            ASR::abiType::Source, ASR::Public, ASR::presenceType::Required, false);
     ASR::expr_t *pModule_ref = ASRUtils::EXPR(ASR::make_Var_t(al, f.base.base.loc,
                                     ASR::down_cast<ASR::symbol_t>(pModule)));
     f.m_symtab->add_symbol(std::string("pModule"), ASR::down_cast<ASR::symbol_t>(pModule));
@@ -236,7 +236,7 @@ void generate_body(Allocator &al, ASR::Function_t &f, SymbolTable &parent_scope)
             ASRUtils::EXPR(ASRUtils::make_FunctionCall_t_util(al, f.base.base.loc, sym_PyImport_Import, nullptr,
                             args_PyImport_Import.p, args_PyImport_Import.n, ptr_t, nullptr, nullptr)),
                             nullptr)));
-    
+
     ASR::symbol_t *sym_PyObject_GetAttrString = parent_scope.get_symbol("PyObject_GetAttrString");
     Vec<ASR::call_arg_t> args_PyObject_GetAttrString;
     s.from_str(al, f.m_module_file);
@@ -249,7 +249,7 @@ void generate_body(Allocator &al, ASR::Function_t &f, SymbolTable &parent_scope)
     s.from_str(al, "pFunc");
     ASR::asr_t *pFunc = ASR::make_Variable_t(al, f.base.base.loc, f.m_symtab, s.c_str(al), nullptr, 0,
                             ASRUtils::intent_local, nullptr, nullptr, ASR::storage_typeType::Default, ptr_t, nullptr,
-                            ASR::abiType::BindC, ASR::Public, ASR::presenceType::Required, false);
+                            ASR::abiType::Source, ASR::Public, ASR::presenceType::Required, false);
     ASR::expr_t *pFunc_ref = ASRUtils::EXPR(ASR::make_Var_t(al, f.base.base.loc, ASR::down_cast<ASR::symbol_t>(pFunc)));
     f.m_symtab->add_symbol(std::string("pFunc"), ASR::down_cast<ASR::symbol_t>(pFunc));
     body.push_back(al, ASRUtils::STMT(
@@ -267,7 +267,7 @@ void generate_body(Allocator &al, ASR::Function_t &f, SymbolTable &parent_scope)
     s.from_str(al, "pArgs");
     ASR::asr_t *pArgs = ASR::make_Variable_t(al, f.base.base.loc, f.m_symtab, s.c_str(al), nullptr, 0,
                             ASRUtils::intent_local, nullptr, nullptr, ASR::storage_typeType::Default, ptr_t, nullptr,
-                            ASR::abiType::BindC, ASR::Public, ASR::presenceType::Required, false);
+                            ASR::abiType::Source, ASR::Public, ASR::presenceType::Required, false);
     ASR::expr_t *pArgs_ref = ASRUtils::EXPR(ASR::make_Var_t(al, f.base.base.loc, ASR::down_cast<ASR::symbol_t>(pArgs)));
     f.m_symtab->add_symbol(std::string("pArgs"), ASR::down_cast<ASR::symbol_t>(pArgs));
     body.push_back(al, ASRUtils::STMT(
@@ -281,19 +281,19 @@ void generate_body(Allocator &al, ASR::Function_t &f, SymbolTable &parent_scope)
         Vec<ASR::call_arg_t> args_PyTuple_SetItem;
         args_PyTuple_SetItem.reserve(al, 3);
         args_PyTuple_SetItem.push_back(al, {f.base.base.loc, pArgs_ref});
-        args_PyTuple_SetItem.push_back(al, {f.base.base.loc, ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, 
+        args_PyTuple_SetItem.push_back(al, {f.base.base.loc, ASRUtils::EXPR(ASR::make_IntegerConstant_t(al,
                                                                 f.base.base.loc, i, i4_type))});
         args_PyTuple_SetItem.push_back(al, {f.base.base.loc, native_to_cpython(al, f.m_args[i], f, parent_scope)});
         std::string p = "pA" + std::to_string(i);
         s.from_str(al, p);
         ASR::asr_t *pA = ASR::make_Variable_t(al, f.base.base.loc, f.m_symtab, s.c_str(al), nullptr, 0,
                             ASRUtils::intent_local, nullptr, nullptr, ASR::storage_typeType::Default, i4_type, nullptr,
-                            ASR::abiType::BindC, ASR::Public, ASR::presenceType::Required, false);
+                            ASR::abiType::Source, ASR::Public, ASR::presenceType::Required, false);
         ASR::expr_t *pA_ref = ASRUtils::EXPR(ASR::make_Var_t(al, f.base.base.loc, ASR::down_cast<ASR::symbol_t>(pA)));
         f.m_symtab->add_symbol(p, ASR::down_cast<ASR::symbol_t>(pA));
         body.push_back(al,
             ASRUtils::STMT(ASR::make_Assignment_t(al, f.base.base.loc, pA_ref,
-                ASRUtils::EXPR(ASRUtils::make_FunctionCall_t_util(al, f.base.base.loc, sym_PyTuple_SetItem, nullptr, 
+                ASRUtils::EXPR(ASRUtils::make_FunctionCall_t_util(al, f.base.base.loc, sym_PyTuple_SetItem, nullptr,
                             args_PyTuple_SetItem.p, args_PyTuple_SetItem.n, i4_type, nullptr, nullptr)), nullptr)));
     }
 
@@ -306,12 +306,12 @@ void generate_body(Allocator &al, ASR::Function_t &f, SymbolTable &parent_scope)
     s.from_str(al, "pReturn");
     ASR::asr_t *pReturn = ASR::make_Variable_t(al, f.base.base.loc, f.m_symtab, s.c_str(al), nullptr, 0,
                             ASRUtils::intent_local, nullptr, nullptr, ASR::storage_typeType::Default, ptr_t, nullptr,
-                            ASR::abiType::BindC, ASR::Public, ASR::presenceType::Required, false);
+                            ASR::abiType::Source, ASR::Public, ASR::presenceType::Required, false);
     ASR::expr_t *pReturn_ref = ASRUtils::EXPR(ASR::make_Var_t(al, f.base.base.loc,
                                     ASR::down_cast<ASR::symbol_t>(pReturn)));
     f.m_symtab->add_symbol(std::string("pReturn"), ASR::down_cast<ASR::symbol_t>(pReturn));
     body.push_back(al, ASRUtils::STMT(
-        ASR::make_Assignment_t(al, f.base.base.loc, pReturn_ref, 
+        ASR::make_Assignment_t(al, f.base.base.loc, pReturn_ref,
             ASRUtils::EXPR(ASRUtils::make_FunctionCall_t_util(al, f.base.base.loc, sym_PyObject_CallObject, nullptr,
                                 args_PyObject_CallObject.p, args_PyObject_CallObject.n, ptr_t, nullptr, nullptr)),
                             nullptr)));
@@ -337,7 +337,7 @@ void generate_body(Allocator &al, ASR::Function_t &f, SymbolTable &parent_scope)
     ASR::symbol_t *sym_Py_DecRef = parent_scope.get_symbol("Py_DecRef");
 
     Vec<ASR::call_arg_t> args_Py_DecRef;
-    args_Py_DecRef.reserve(al, 1);                                
+    args_Py_DecRef.reserve(al, 1);
     args_Py_DecRef.push_back(al, {f.base.base.loc, pName_ref});
     body.push_back(al, ASRUtils::STMT(ASRUtils::make_SubroutineCall_t_util(al, f.base.base.loc, sym_Py_DecRef, nullptr,
                         args_Py_DecRef.p, args_Py_DecRef.n, nullptr, nullptr, false, false)));
@@ -357,12 +357,12 @@ void generate_body(Allocator &al, ASR::Function_t &f, SymbolTable &parent_scope)
     // reassignment
     f.m_body = body.p;
     f.n_body = body.n;
-    ASRUtils::get_FunctionType(f)->m_abi = ASR::abiType::BindC;
+    ASRUtils::get_FunctionType(f)->m_abi = ASR::abiType::Source;
     ASRUtils::get_FunctionType(f)->m_deftype = ASR::deftypeType::Implementation;
 }
 
 void pass_python_bind(Allocator &al, ASR::TranslationUnit_t &unit, const PassOptions &pass_options) {
-    if (pass_options.c_backend) {
+    if (pass_options.c_skip_bindpy_pass) {
         // FIXME: C backend supports arrays, it is used in bindpy_02 to bindpy_04 tests.
         //  This pass currently does not handle any aggregate types.
         //  Once we include support for aggregate types, we should remove this check, and
@@ -371,13 +371,12 @@ void pass_python_bind(Allocator &al, ASR::TranslationUnit_t &unit, const PassOpt
         //  backend as it would be handled by this ASR pass.
         return;
     }
-    bool bindpython_used = false;
+
     for (auto &item : unit.m_symtab->get_scope()) {
         if (ASR::is_a<ASR::Function_t>(*item.second)) {
             ASR::Function_t *f = ASR::down_cast<ASR::Function_t>(item.second);
             if (ASRUtils::get_FunctionType(f)->m_abi == ASR::abiType::BindPython) {
                 if (f->n_body == 0 && f->m_module_file) {
-                    bindpython_used = true;
                     generate_body(al, *f, *unit.m_symtab);
                 }
             }
@@ -389,7 +388,6 @@ void pass_python_bind(Allocator &al, ASR::TranslationUnit_t &unit, const PassOpt
                     ASR::Function_t *f = ASR::down_cast<ASR::Function_t>(module_item.second);
                     if (ASRUtils::get_FunctionType(f)->m_abi == ASR::abiType::BindPython) {
                         if (f->n_body == 0 && f->m_module_file) {
-                            bindpython_used = true;
                             generate_body(al, *f, *module->m_symtab);
                         }
                     }
@@ -398,9 +396,8 @@ void pass_python_bind(Allocator &al, ASR::TranslationUnit_t &unit, const PassOpt
         }
 
     }
-    if (bindpython_used) { 
-        PassUtils::UpdateDependenciesVisitor u(al);
-        u.visit_TranslationUnit(unit);
-    }
+
+    PassUtils::UpdateDependenciesVisitor u(al);
+    u.visit_TranslationUnit(unit);
 }
 }

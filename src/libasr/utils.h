@@ -59,7 +59,7 @@ struct PassOptions {
     bool tree = false;
     bool with_intrinsic_mods = false;
     bool c_mangling = false;
-    bool c_backend = false;
+    bool c_skip_bindpy_pass = false;
 };
 
 struct CompilerOptions {

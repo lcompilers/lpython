@@ -321,7 +321,7 @@ int emit_c(const std::string &infile,
     pass_manager.use_default_passes(true);
     compiler_options.po.always_run = true;
     compiler_options.po.run_fun = "f";
-    compiler_options.po.c_backend = true;
+    compiler_options.po.c_skip_bindpy_pass = true;
 
     pass_manager.apply_passes(al, asr, compiler_options.po, diagnostics);
 
@@ -371,6 +371,7 @@ int emit_c_to_file(const std::string &infile, const std::string &outfile,
 
     compiler_options.po.run_fun = "f";
     compiler_options.po.always_run = true;
+    compiler_options.po.c_skip_bindpy_pass = true;
 
     pass_manager.use_default_passes(true);
     pass_manager.apply_passes(al, asr, compiler_options.po, diagnostics);
