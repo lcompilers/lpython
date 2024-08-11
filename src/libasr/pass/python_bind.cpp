@@ -593,13 +593,17 @@ void pass_python_bind(Allocator &al, ASR::TranslationUnit_t &unit, const PassOpt
     fns.push_back({"PyBool_FromLong", {I32}, PTR});
     fns.push_back({"PyObject_IsTrue", {PTR}, I32});
 
-    declare_cpython_functions(al, fns, unit.m_symtab);
+    bool included_cpython_funcs = false;
 
     for (auto &item : unit.m_symtab->get_scope()) {
         if (ASR::is_a<ASR::Function_t>(*item.second)) {
             ASR::Function_t *f = ASR::down_cast<ASR::Function_t>(item.second);
             if (ASRUtils::get_FunctionType(f)->m_abi == ASR::abiType::BindPython) {
                 if (f->n_body == 0 && f->m_module_file) {
+                    if (!included_cpython_funcs) {
+                        declare_cpython_functions(al, fns, unit.m_symtab);
+                        included_cpython_funcs = true;
+                    }
                     generate_body(al, *f, *unit.m_symtab);
                 }
             }
@@ -611,6 +615,10 @@ void pass_python_bind(Allocator &al, ASR::TranslationUnit_t &unit, const PassOpt
                     ASR::Function_t *f = ASR::down_cast<ASR::Function_t>(module_item.second);
                     if (ASRUtils::get_FunctionType(f)->m_abi == ASR::abiType::BindPython) {
                         if (f->n_body == 0 && f->m_module_file) {
+                            if (!included_cpython_funcs) {
+                                declare_cpython_functions(al, fns, unit.m_symtab);
+                                included_cpython_funcs = true;
+                            }
                             generate_body(al, *f, *module->m_symtab);
                         }
                     }
@@ -620,7 +628,9 @@ void pass_python_bind(Allocator &al, ASR::TranslationUnit_t &unit, const PassOpt
 
     }
 
-    PassUtils::UpdateDependenciesVisitor u(al);
-    u.visit_TranslationUnit(unit);
+    if (included_cpython_funcs) {
+        PassUtils::UpdateDependenciesVisitor u(al);
+        u.visit_TranslationUnit(unit);
+    }
 }
 }
