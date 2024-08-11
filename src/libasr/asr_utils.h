@@ -5415,6 +5415,41 @@ static inline bool is_argument_of_type_CPtr(ASR::expr_t *var) {
     return is_argument;
 }
 
+enum TTYPE_T {
+    VOID,
+    I1,
+    I8,
+    STR,
+    I32,
+    I64,
+    U8,
+    U32,
+    U64,
+    F32,
+    F64,
+    PTR,
+    PTR_TO_PTR,
+};
+
+typedef struct {
+    std::string m_name;
+    std::vector<enum TTYPE_T> args;
+    enum TTYPE_T retvar;
+} ASRFunc;
+
+// Create a variable with name `n` and type `t` and add the symbol into `currect_scope`
+// Returns the variable
+ASR::expr_t *type_enum_to_asr_expr(Allocator &al, enum TTYPE_T t, const Location &l, std::string n,
+    SymbolTable *current_scope, ASR::intentType intent);
+
+// created a BindC Interface function decleration in the `parent_scope`
+void declare_function(Allocator &al, ASRFunc fn, const Location &l, SymbolTable *parent_scope,
+    std::string header_name="");
+
+// created a BindC Interface functions decleration in the `parent_scope`
+void declare_functions(Allocator &al, std::vector<ASRFunc> fns, const Location &l, SymbolTable *parent_scope,
+    std::string header_name="");
+
 } // namespace ASRUtils
 
 } // namespace LCompilers

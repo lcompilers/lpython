@@ -376,118 +376,6 @@ void generate_body(Allocator &al, ASR::Function_t &f, SymbolTable &parent_scope)
     ASRUtils::get_FunctionType(f)->m_deftype = ASR::deftypeType::Implementation;
 }
 
-enum T {
-    VOID,
-    I1,
-    I8,
-    STR,
-    I32,
-    I64,
-    U8,
-    U32,
-    U64,
-    F32,
-    F64,
-    PTR,
-    PTR_TO_PTR,
-};
-
-struct F {
-    std::string m_name;
-    std::vector<enum T> args;
-    enum T retvar;
-};
-
-ASR::expr_t *type_enum_to_asr_expr(Allocator &al, enum T t, Location &l, std::string n, SymbolTable *current_scope, ASR::intentType intent) {
-    ASR::ttype_t *type = nullptr;
-
-    Str s;
-    s.from_str(al, n);
-
-    switch (t) {
-    case VOID:
-        return nullptr;
-    case I1:
-        type = ASRUtils::TYPE(ASR::make_Logical_t(al, l, 4));
-        break;
-    case I8:
-        type = ASRUtils::TYPE(ASR::make_Integer_t(al, l, 1));
-        break;
-    case I32:
-        type = ASRUtils::TYPE(ASR::make_Integer_t(al, l, 4));
-        break;
-    case I64:
-        type = ASRUtils::TYPE(ASR::make_Integer_t(al, l, 8));
-        break;
-    case U8:
-        type = ASRUtils::TYPE(ASR::make_UnsignedInteger_t(al, l, 1));
-        break;
-    case U32:
-        type = ASRUtils::TYPE(ASR::make_UnsignedInteger_t(al, l, 4));
-        break;
-    case U64:
-        type = ASRUtils::TYPE(ASR::make_UnsignedInteger_t(al, l, 8));
-        break;
-    case F32:
-        type = ASRUtils::TYPE(ASR::make_Real_t(al, l, 4));
-        break;
-    case F64:
-        type = ASRUtils::TYPE(ASR::make_Real_t(al, l, 8));
-        break;
-    case STR:
-        type = ASRUtils::TYPE(ASR::make_Character_t(al, l, 1, -2, nullptr));
-        break;
-    case PTR:
-        type = ASRUtils::TYPE(ASR::make_CPtr_t(al, l));
-        break;
-    case PTR_TO_PTR:
-        type = ASRUtils::TYPE(ASR::make_Pointer_t(al, l, ASRUtils::TYPE(ASR::make_CPtr_t(al, l))));
-        break;
-    }
-    LCOMPILERS_ASSERT(type);
-    ASR::symbol_t *v = ASR::down_cast<ASR::symbol_t>(ASR::make_Variable_t(al, l, current_scope, s.c_str(al), nullptr,
-                                                            0, intent, nullptr, nullptr, ASR::storage_typeType::Default,
-                                                            type, nullptr, ASR::abiType::BindC, ASR::Public,
-                                                            ASR::presenceType::Required, true));
-    current_scope->add_symbol(n, v);
-    return ASRUtils::EXPR(ASR::make_Var_t(al, l, v));
-}
-
-void declare_functions(Allocator &al, std::vector<struct F> fns, SymbolTable *parent_scope,
-                                std::string header_name="") {
-    Location *l = al.make_new<Location>();
-    l->first = 0;
-    l->last = 0;
-
-    Str s;
-    char *c_header = nullptr;
-    if (header_name != "") {
-        s.from_str(al, header_name);
-        c_header = s.c_str(al);
-    }
-
-    for (auto i: fns) {
-        Vec<ASR::expr_t*> args;
-        args.reserve(al, i.args.size());
-        s.from_str(al, i.m_name);
-        SymbolTable *current_scope = al.make_new<SymbolTable>(parent_scope);
-        int c = 0;
-        for (auto j: i.args) {
-            args.push_back(al, type_enum_to_asr_expr(al, j, *l, i.m_name + std::to_string(++c), current_scope,
-                                    ASRUtils::intent_in));
-        }
-        ASR::expr_t *retval = type_enum_to_asr_expr(al, i.retvar, *l, "_lpython_return_variable", current_scope,
-                                    ASRUtils::intent_return_var);
-        char *fn_name = s.c_str(al);
-        ASR::asr_t *f = ASRUtils::make_Function_t_util(al, *l, current_scope, fn_name, nullptr, 0, args.p, args.n,
-                                    nullptr, 0, retval, ASR::abiType::BindC, ASR::accessType::Public,
-                                    ASR::deftypeType::Interface, nullptr, false, false, false, false, false, nullptr, 0,
-                                    false, false, false, c_header);
-
-        parent_scope->add_symbol(i.m_name, ASR::down_cast<ASR::symbol_t>(f));
-    }
-}
-
 void pass_python_bind(Allocator &al, ASR::TranslationUnit_t &unit, const PassOptions &pass_options) {
     if (pass_options.c_skip_bindpy_pass) {
         // FIXME: C backend supports arrays, it is used in bindpy_02 to bindpy_04 tests.
@@ -499,32 +387,36 @@ void pass_python_bind(Allocator &al, ASR::TranslationUnit_t &unit, const PassOpt
         return;
     }
 
-    std::vector<struct F> fns;
-    fns.push_back({"Py_Initialize", {}, VOID});
-    fns.push_back({"Py_IsInitialized", {}, I32});
-    // fns.push_back({"PyRun_SimpleString", {STR}, I32});
-    fns.push_back({"Py_DecodeLocale", {STR, PTR}, PTR});
-    fns.push_back({"PySys_SetArgv", {I32, PTR_TO_PTR}, VOID});
-    fns.push_back({"Py_FinalizeEx", {}, I32});
-    fns.push_back({"PyUnicode_FromString", {STR}, PTR});
-    fns.push_back({"PyUnicode_AsUTF8AndSize", {PTR, PTR}, STR});
-    fns.push_back({"PyImport_Import", {PTR}, PTR});
-    fns.push_back({"Py_DecRef", {PTR}, VOID});
-    fns.push_back({"Py_IncRef", {PTR}, VOID});
-    fns.push_back({"PyObject_GetAttrString", {PTR, STR}, PTR});
-    fns.push_back({"PyTuple_New", {I32}, PTR});
-    fns.push_back({"PyTuple_SetItem", {PTR, I32, PTR}, I32});
-    fns.push_back({"PyObject_CallObject", {PTR, PTR}, PTR});
-    fns.push_back({"PyLong_AsLongLong", {PTR}, I64});
-    fns.push_back({"PyLong_AsUnsignedLongLong", {PTR}, U64});
-    fns.push_back({"PyLong_FromLongLong", {I64}, PTR});
-    fns.push_back({"PyLong_FromUnsignedLongLong", {U64}, PTR});
-    fns.push_back({"PyFloat_FromDouble", {F64}, PTR});
-    fns.push_back({"PyFloat_AsDouble", {PTR}, F64});
-    fns.push_back({"PyBool_FromLong", {I32}, PTR});
-    fns.push_back({"PyObject_IsTrue", {PTR}, I32});
+    std::vector<ASRUtils::ASRFunc> fns;
+    fns.push_back({"Py_Initialize", {}, ASRUtils::VOID});
+    fns.push_back({"Py_IsInitialized", {}, ASRUtils::I32});
+    // fns.push_back({"PyRun_SimpleString", {STR}, ASRUtils::I32});
+    fns.push_back({"Py_DecodeLocale", {ASRUtils::STR, ASRUtils::PTR}, ASRUtils::PTR});
+    fns.push_back({"PySys_SetArgv", {ASRUtils::I32, ASRUtils::PTR_TO_PTR}, ASRUtils::VOID});
+    fns.push_back({"Py_FinalizeEx", {}, ASRUtils::I32});
+    fns.push_back({"PyUnicode_FromString", {ASRUtils::STR}, ASRUtils::PTR});
+    fns.push_back({"PyUnicode_AsUTF8AndSize", {ASRUtils::PTR, ASRUtils::PTR}, ASRUtils::STR});
+    fns.push_back({"PyImport_Import", {ASRUtils::PTR}, ASRUtils::PTR});
+    fns.push_back({"Py_DecRef", {ASRUtils::PTR}, ASRUtils::VOID});
+    fns.push_back({"Py_IncRef", {ASRUtils::PTR}, ASRUtils::VOID});
+    fns.push_back({"PyObject_GetAttrString", {ASRUtils::PTR, ASRUtils::STR}, ASRUtils::PTR});
+    fns.push_back({"PyTuple_New", {ASRUtils::I32}, ASRUtils::PTR});
+    fns.push_back({"PyTuple_SetItem", {ASRUtils::PTR, ASRUtils::I32, ASRUtils::PTR}, ASRUtils::I32});
+    fns.push_back({"PyObject_CallObject", {ASRUtils::PTR, ASRUtils::PTR}, ASRUtils::PTR});
+    fns.push_back({"PyLong_AsLongLong", {ASRUtils::PTR}, ASRUtils::I64});
+    fns.push_back({"PyLong_AsUnsignedLongLong", {ASRUtils::PTR}, ASRUtils::U64});
+    fns.push_back({"PyLong_FromLongLong", {ASRUtils::I64}, ASRUtils::PTR});
+    fns.push_back({"PyLong_FromUnsignedLongLong", {ASRUtils::U64}, ASRUtils::PTR});
+    fns.push_back({"PyFloat_FromDouble", {ASRUtils::F64}, ASRUtils::PTR});
+    fns.push_back({"PyFloat_AsDouble", {ASRUtils::PTR}, ASRUtils::F64});
+    fns.push_back({"PyBool_FromLong", {ASRUtils::I32}, ASRUtils::PTR});
+    fns.push_back({"PyObject_IsTrue", {ASRUtils::PTR}, ASRUtils::I32});
 
     bool included_cpython_funcs = false;
+
+    Location *l = al.make_new<Location>();
+    l->first = 0;
+    l->last = 0;
 
     for (auto &item : unit.m_symtab->get_scope()) {
         if (ASR::is_a<ASR::Function_t>(*item.second)) {
@@ -532,7 +424,7 @@ void pass_python_bind(Allocator &al, ASR::TranslationUnit_t &unit, const PassOpt
             if (ASRUtils::get_FunctionType(f)->m_abi == ASR::abiType::BindPython) {
                 if (f->n_body == 0 && f->m_module_file) {
                     if (!included_cpython_funcs) {
-                        declare_functions(al, fns, unit.m_symtab, "Python.h");
+                        ASRUtils::declare_functions(al, fns, *l, unit.m_symtab, "Python.h");
                         included_cpython_funcs = true;
                     }
                     generate_body(al, *f, *unit.m_symtab);
@@ -547,7 +439,7 @@ void pass_python_bind(Allocator &al, ASR::TranslationUnit_t &unit, const PassOpt
                     if (ASRUtils::get_FunctionType(f)->m_abi == ASR::abiType::BindPython) {
                         if (f->n_body == 0 && f->m_module_file) {
                             if (!included_cpython_funcs) {
-                                declare_functions(al, fns, unit.m_symtab, "Python.h");
+                                ASRUtils::declare_functions(al, fns, *l, unit.m_symtab, "Python.h");
                                 included_cpython_funcs = true;
                             }
                             generate_body(al, *f, *module->m_symtab);
