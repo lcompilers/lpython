@@ -153,10 +153,12 @@ void generate_body(Allocator &al, ASR::Function_t &f, SymbolTable &parent_scope)
     /*
         if (!Py_IsInitialized()) {
             Py_Initialize();
-            int pS = PyRun_SimpleString("import sys; sys.path.append('.')");
+            void *pA = Py_DecodeLocale("", NULL);
+            PySys_SetArgv(1, &pA);
         }
     */
     ASR::ttype_t *i4_type = ASRUtils::TYPE(ASR::make_Integer_t(al, f.base.base.loc, 4));
+    ASR::ttype_t *ptr_t = ASRUtils::TYPE(ASR::make_CPtr_t(al, f.base.base.loc));
 
     ASR::symbol_t *sym_Py_IsInitialized = parent_scope.resolve_symbol("Py_IsInitialized");
     ASR::symbol_t *sym_Py_Initialize = parent_scope.resolve_symbol("Py_Initialize");
@@ -172,24 +174,38 @@ void generate_body(Allocator &al, ASR::Function_t &f, SymbolTable &parent_scope)
                                         nullptr, nullptr, 0, nullptr, nullptr, false, false);
     if_body.push_back(al, ASRUtils::STMT(call_Py_Initialize));
 
-    ASR::symbol_t *sym_PyRun_SimpleString = parent_scope.resolve_symbol("PyRun_SimpleString");
-    Vec<ASR::call_arg_t> args_PyRun_SimpleString;
-    s.from_str(al, "import sys; sys.path.append(\".\")");
-    args_PyRun_SimpleString.reserve(al, 1);
+    ASR::symbol_t *sym_Py_DecodeLocale = parent_scope.resolve_symbol("Py_DecodeLocale");
+    Vec<ASR::call_arg_t> args_Py_DecodeLocale;
+    s.from_str(al, "");
+    args_Py_DecodeLocale.reserve(al, 1);
     ASR::ttype_t *str_type = ASRUtils::TYPE(ASR::make_Character_t(al, f.base.base.loc, 1, s.size(), nullptr));
-    args_PyRun_SimpleString.push_back(al, {f.base.base.loc, ASRUtils::EXPR(ASR::make_StringConstant_t(al,
+    args_Py_DecodeLocale.push_back(al, {f.base.base.loc, ASRUtils::EXPR(ASR::make_StringConstant_t(al,
                                                                 f.base.base.loc, s.c_str(al), str_type))});
-    s.from_str(al, "pS");
-    ASR::asr_t *pS = ASR::make_Variable_t(al, f.base.base.loc, f.m_symtab, s.c_str(al), nullptr, 0,
-                        ASRUtils::intent_local, nullptr, nullptr, ASR::storage_typeType::Default, i4_type, nullptr,
+    args_Py_DecodeLocale.push_back(al, {f.base.base.loc, ASRUtils::EXPR(ASR::make_PointerNullConstant_t(al,
+                                                                                f.base.base.loc, ptr_t))});
+    s.from_str(al, "pA");
+    ASR::asr_t *pA = ASR::make_Variable_t(al, f.base.base.loc, f.m_symtab, s.c_str(al), nullptr, 0,
+                        ASRUtils::intent_local, nullptr, nullptr, ASR::storage_typeType::Default, ptr_t, nullptr,
                         ASR::abiType::Source, ASR::Public, ASR::presenceType::Required, false);
-    ASR::expr_t *pS_ref = ASRUtils::EXPR(ASR::make_Var_t(al, f.base.base.loc, ASR::down_cast<ASR::symbol_t>(pS)));
-    f.m_symtab->add_symbol(std::string("pS"), ASR::down_cast<ASR::symbol_t>(pS));
+    ASR::expr_t *pA_ref = ASRUtils::EXPR(ASR::make_Var_t(al, f.base.base.loc, ASR::down_cast<ASR::symbol_t>(pA)));
+    f.m_symtab->add_symbol(std::string("pA"), ASR::down_cast<ASR::symbol_t>(pA));
     if_body.push_back(al, ASRUtils::STMT(
-        ASR::make_Assignment_t(al, f.base.base.loc, pS_ref,
-            ASRUtils::EXPR(ASRUtils::make_FunctionCall_t_util(al, f.base.base.loc, sym_PyRun_SimpleString, nullptr,
-                                args_PyRun_SimpleString.p, args_PyRun_SimpleString.n, i4_type, nullptr, nullptr)),
+        ASR::make_Assignment_t(al, f.base.base.loc, pA_ref,
+            ASRUtils::EXPR(ASRUtils::make_FunctionCall_t_util(al, f.base.base.loc, sym_Py_DecodeLocale, nullptr,
+                                args_Py_DecodeLocale.p, args_Py_DecodeLocale.n, ptr_t, nullptr, nullptr)),
                                 nullptr)));
+    
+    ASR::symbol_t *sym_PySys_SetArgv = parent_scope.resolve_symbol("PySys_SetArgv");
+    Vec<ASR::call_arg_t> args_PySys_SetArgv;
+    s.from_str(al, "");
+    args_PySys_SetArgv.reserve(al, 1);
+    args_PySys_SetArgv.push_back(al, {f.base.base.loc, ASRUtils::EXPR(ASR::make_IntegerConstant_t(al,  f.base.base.loc,
+                                                                                1, i4_type))});
+    args_PySys_SetArgv.push_back(al, {f.base.base.loc, ASRUtils::EXPR(ASR::make_GetPointer_t(al, f.base.base.loc,
+                                                                        pA_ref, ptr_t, nullptr))});
+    if_body.push_back(al, ASRUtils::STMT((ASRUtils::make_SubroutineCall_t_util(al, f.base.base.loc, sym_PySys_SetArgv,
+                                                nullptr, args_PySys_SetArgv.p, args_PySys_SetArgv.n, nullptr, nullptr,
+                                                false, false))));
 
     body.push_back(al, ASRUtils::STMT(ASR::make_If_t(al, f.base.base.loc, ASRUtils::EXPR(if_cond), if_body.p, if_body.n,
                                              nullptr, 0)));
@@ -199,7 +215,6 @@ void generate_body(Allocator &al, ASR::Function_t &f, SymbolTable &parent_scope)
         void *pModule = PyImport_Import(pName);
         void *pFunc = PyObject_GetAttrString(pModule, func_name);
     */
-    ASR::ttype_t *ptr_t = ASRUtils::TYPE(ASR::make_CPtr_t(al, f.base.base.loc));
 
     ASR::symbol_t *sym_PyUnicode_FromString = parent_scope.resolve_symbol("PyUnicode_FromString");
     Vec<ASR::call_arg_t> args_PyUnicode_FromString;
@@ -373,7 +388,8 @@ enum T {
     U64,
     F32,
     F64,
-    PTR
+    PTR,
+    PTR_TO_PTR,
 };
 
 struct F {
@@ -383,17 +399,7 @@ struct F {
 };
 
 ASR::expr_t *type_enum_to_asr_expr(Allocator &al, enum T t, Location &l, std::string n, SymbolTable *current_scope, ASR::intentType intent) {
-    ASR::ttype_t *i1_type = ASRUtils::TYPE(ASR::make_Logical_t(al, l, 4));
-    ASR::ttype_t *i8_type = ASRUtils::TYPE(ASR::make_Integer_t(al, l, 1));
-    ASR::ttype_t *i32_type = ASRUtils::TYPE(ASR::make_Integer_t(al, l, 4));
-    ASR::ttype_t *i64_type = ASRUtils::TYPE(ASR::make_Integer_t(al, l, 8));
-    ASR::ttype_t *u8_type = ASRUtils::TYPE(ASR::make_UnsignedInteger_t(al, l, 1));
-    ASR::ttype_t *u32_type = ASRUtils::TYPE(ASR::make_UnsignedInteger_t(al, l, 4));
-    ASR::ttype_t *u64_type = ASRUtils::TYPE(ASR::make_UnsignedInteger_t(al, l, 8));
-    ASR::ttype_t *f32_type = ASRUtils::TYPE(ASR::make_Real_t(al, l, 4));
-    ASR::ttype_t *f64_type = ASRUtils::TYPE(ASR::make_Real_t(al, l, 8));
-    ASR::ttype_t *ptr_t = ASRUtils::TYPE(ASR::make_CPtr_t(al, l));
-    ASR::ttype_t *str_t = ASRUtils::TYPE(ASR::make_Character_t(al, l, 1, -2, nullptr));
+    ASR::ttype_t *type = nullptr;
 
     Str s;
     s.from_str(al, n);
@@ -401,140 +407,65 @@ ASR::expr_t *type_enum_to_asr_expr(Allocator &al, enum T t, Location &l, std::st
     switch (t) {
     case VOID:
         return nullptr;
-    case I1: {
-        ASR::symbol_t *v = ASR::down_cast<ASR::symbol_t>(
-                ASR::make_Variable_t(al, l,
-                current_scope, s.c_str(al), nullptr,
-                0, intent,
-                nullptr, nullptr, ASR::storage_typeType::Default, i1_type,
-                nullptr, ASR::abiType::BindC, ASR::Public, ASR::presenceType::Required,
-                intent == ASRUtils::intent_in ? true : false));
-        current_scope->add_symbol(n, v);
-        return ASRUtils::EXPR(ASR::make_Var_t(al, l, v));
+    case I1:
+        type = ASRUtils::TYPE(ASR::make_Logical_t(al, l, 4));
+        break;
+    case I8:
+        type = ASRUtils::TYPE(ASR::make_Integer_t(al, l, 1));
+        break;
+    case I32:
+        type = ASRUtils::TYPE(ASR::make_Integer_t(al, l, 4));
+        break;
+    case I64:
+        type = ASRUtils::TYPE(ASR::make_Integer_t(al, l, 8));
+        break;
+    case U8:
+        type = ASRUtils::TYPE(ASR::make_UnsignedInteger_t(al, l, 1));
+        break;
+    case U32:
+        type = ASRUtils::TYPE(ASR::make_UnsignedInteger_t(al, l, 4));
+        break;
+    case U64:
+        type = ASRUtils::TYPE(ASR::make_UnsignedInteger_t(al, l, 8));
+        break;
+    case F32:
+        type = ASRUtils::TYPE(ASR::make_Real_t(al, l, 4));
+        break;
+    case F64:
+        type = ASRUtils::TYPE(ASR::make_Real_t(al, l, 8));
+        break;
+    case STR:
+        type = ASRUtils::TYPE(ASR::make_Character_t(al, l, 1, -2, nullptr));
+        break;
+    case PTR:
+        type = ASRUtils::TYPE(ASR::make_CPtr_t(al, l));
+        break;
+    case PTR_TO_PTR:
+        type = ASRUtils::TYPE(ASR::make_Pointer_t(al, l, ASRUtils::TYPE(ASR::make_CPtr_t(al, l))));
+        break;
     }
-    case I8: {
-        ASR::symbol_t *v = ASR::down_cast<ASR::symbol_t>(
-                ASR::make_Variable_t(al, l,
-                current_scope, s.c_str(al), nullptr,
-                0, intent,
-                nullptr, nullptr, ASR::storage_typeType::Default, i8_type,
-                nullptr, ASR::abiType::BindC, ASR::Public, ASR::presenceType::Required,
-                intent == ASRUtils::intent_in ? true : false));
-        current_scope->add_symbol(n, v);
-        return ASRUtils::EXPR(ASR::make_Var_t(al, l, v));
-    }
-    case I32: {
-        ASR::symbol_t *v = ASR::down_cast<ASR::symbol_t>(
-                ASR::make_Variable_t(al, l,
-                current_scope, s.c_str(al), nullptr,
-                0, intent,
-                nullptr, nullptr, ASR::storage_typeType::Default, i32_type,
-                nullptr, ASR::abiType::BindC, ASR::Public, ASR::presenceType::Required,
-                intent == ASRUtils::intent_in ? true : false));
-        current_scope->add_symbol(n, v);
-        return ASRUtils::EXPR(ASR::make_Var_t(al, l, v));
-    }
-    case I64: {
-        ASR::symbol_t *v = ASR::down_cast<ASR::symbol_t>(
-                ASR::make_Variable_t(al, l,
-                current_scope, s.c_str(al), nullptr,
-                0, intent,
-                nullptr, nullptr, ASR::storage_typeType::Default, i64_type,
-                nullptr, ASR::abiType::BindC, ASR::Public, ASR::presenceType::Required,
-                intent == ASRUtils::intent_in ? true : false));
-        current_scope->add_symbol(n, v);
-        return ASRUtils::EXPR(ASR::make_Var_t(al, l, v));
-    }
-    case U8: {
-        ASR::symbol_t *v = ASR::down_cast<ASR::symbol_t>(
-                ASR::make_Variable_t(al, l,
-                current_scope, s.c_str(al), nullptr,
-                0, intent,
-                nullptr, nullptr, ASR::storage_typeType::Default, u8_type,
-                nullptr, ASR::abiType::BindC, ASR::Public, ASR::presenceType::Required,
-                intent == ASRUtils::intent_in ? true : false));
-        current_scope->add_symbol(n, v);
-        return ASRUtils::EXPR(ASR::make_Var_t(al, l, v));
-    }
-    case U32: {
-        ASR::symbol_t *v = ASR::down_cast<ASR::symbol_t>(
-                ASR::make_Variable_t(al, l,
-                current_scope, s.c_str(al), nullptr,
-                0, intent,
-                nullptr, nullptr, ASR::storage_typeType::Default, u32_type,
-                nullptr, ASR::abiType::BindC, ASR::Public, ASR::presenceType::Required,
-                intent == ASRUtils::intent_in ? true : false));
-        current_scope->add_symbol(n, v);
-        return ASRUtils::EXPR(ASR::make_Var_t(al, l, v));
-    }
-    case U64: {
-        ASR::symbol_t *v = ASR::down_cast<ASR::symbol_t>(
-                ASR::make_Variable_t(al, l,
-                current_scope, s.c_str(al), nullptr,
-                0, intent,
-                nullptr, nullptr, ASR::storage_typeType::Default, u64_type,
-                nullptr, ASR::abiType::BindC, ASR::Public, ASR::presenceType::Required,
-                intent == ASRUtils::intent_in ? true : false));
-        current_scope->add_symbol(n, v);
-        return ASRUtils::EXPR(ASR::make_Var_t(al, l, v));
-    }
-    case F32: {
-        ASR::symbol_t *v = ASR::down_cast<ASR::symbol_t>(
-                ASR::make_Variable_t(al, l,
-                current_scope, s.c_str(al), nullptr,
-                0, intent,
-                nullptr, nullptr, ASR::storage_typeType::Default, f32_type,
-                nullptr, ASR::abiType::BindC, ASR::Public, ASR::presenceType::Required,
-                intent == ASRUtils::intent_in ? true : false));
-        current_scope->add_symbol(n, v);
-        return ASRUtils::EXPR(ASR::make_Var_t(al, l, v));
-    }
-    case F64: {
-        ASR::symbol_t *v = ASR::down_cast<ASR::symbol_t>(
-                ASR::make_Variable_t(al, l,
-                current_scope, s.c_str(al), nullptr,
-                0, intent,
-                nullptr, nullptr, ASR::storage_typeType::Default, f64_type,
-                nullptr, ASR::abiType::BindC, ASR::Public, ASR::presenceType::Required,
-                intent == ASRUtils::intent_in ? true : false));
-        current_scope->add_symbol(n, v);
-        return ASRUtils::EXPR(ASR::make_Var_t(al, l, v));
-    }
-    case STR: {
-        ASR::symbol_t *v = ASR::down_cast<ASR::symbol_t>(
-                ASR::make_Variable_t(al, l,
-                current_scope, s.c_str(al), nullptr,
-                0, intent,
-                nullptr, nullptr, ASR::storage_typeType::Default, str_t,
-                nullptr, ASR::abiType::BindC, ASR::Public, ASR::presenceType::Required,
-                intent == ASRUtils::intent_in ? true : false));
-        current_scope->add_symbol(n, v);
-        return ASRUtils::EXPR(ASR::make_Var_t(al, l, v));
-    }
-    case PTR: {
-        ASR::symbol_t *v = ASR::down_cast<ASR::symbol_t>(
-                ASR::make_Variable_t(al, l,
-                current_scope, s.c_str(al), nullptr,
-                0, intent,
-                nullptr, nullptr, ASR::storage_typeType::Default, ptr_t,
-                nullptr, ASR::abiType::BindC, ASR::Public, ASR::presenceType::Required,
-                intent == ASRUtils::intent_in ? true : false));
-        current_scope->add_symbol(n, v);
-        return ASRUtils::EXPR(ASR::make_Var_t(al, l, v));
-    }
-    }
-    // should be unreachable
-    return nullptr;
+    LCOMPILERS_ASSERT(type);
+    ASR::symbol_t *v = ASR::down_cast<ASR::symbol_t>(ASR::make_Variable_t(al, l, current_scope, s.c_str(al), nullptr,
+                                                            0, intent, nullptr, nullptr, ASR::storage_typeType::Default,
+                                                            type, nullptr, ASR::abiType::BindC, ASR::Public,
+                                                            ASR::presenceType::Required, true)); // intent == ASRUtils::intent_in ? true : false
+    current_scope->add_symbol(n, v);
+    return ASRUtils::EXPR(ASR::make_Var_t(al, l, v));
 }
 
-void declare_cpython_functions(Allocator &al, std::vector<struct F> fns, SymbolTable *parent_scope) {
+void declare_functions(Allocator &al, std::vector<struct F> fns, SymbolTable *parent_scope,
+                                std::string header_name="") {
     Location *l = al.make_new<Location>();
     l->first = 0;
     l->last = 0;
 
     Str s;
-    s.from_str(al, "Python.h");
-    char *c_header = s.c_str(al);
+    char *c_header = nullptr;
+    if (header_name != "") {
+        s.from_str(al, header_name);
+        c_header = s.c_str(al);
+    }
+
     for (auto i: fns) {
         Vec<ASR::expr_t*> args;
         args.reserve(al, i.args.size());
@@ -571,9 +502,9 @@ void pass_python_bind(Allocator &al, ASR::TranslationUnit_t &unit, const PassOpt
     std::vector<struct F> fns;
     fns.push_back({"Py_Initialize", {}, VOID});
     fns.push_back({"Py_IsInitialized", {}, I32});
-    fns.push_back({"PyRun_SimpleString", {STR}, I32});
+    // fns.push_back({"PyRun_SimpleString", {STR}, I32});
     fns.push_back({"Py_DecodeLocale", {STR, PTR}, PTR});
-    // fns.push_back({"PySys_SetArgv", {...}, VOID});
+    fns.push_back({"PySys_SetArgv", {I32, PTR_TO_PTR}, VOID});
     fns.push_back({"Py_FinalizeEx", {}, I32});
     fns.push_back({"PyUnicode_FromString", {STR}, PTR});
     fns.push_back({"PyUnicode_AsUTF8AndSize", {PTR, PTR}, STR});
@@ -601,7 +532,7 @@ void pass_python_bind(Allocator &al, ASR::TranslationUnit_t &unit, const PassOpt
             if (ASRUtils::get_FunctionType(f)->m_abi == ASR::abiType::BindPython) {
                 if (f->n_body == 0 && f->m_module_file) {
                     if (!included_cpython_funcs) {
-                        declare_cpython_functions(al, fns, unit.m_symtab);
+                        declare_functions(al, fns, unit.m_symtab, "Python.h");
                         included_cpython_funcs = true;
                     }
                     generate_body(al, *f, *unit.m_symtab);
@@ -616,7 +547,7 @@ void pass_python_bind(Allocator &al, ASR::TranslationUnit_t &unit, const PassOpt
                     if (ASRUtils::get_FunctionType(f)->m_abi == ASR::abiType::BindPython) {
                         if (f->n_body == 0 && f->m_module_file) {
                             if (!included_cpython_funcs) {
-                                declare_cpython_functions(al, fns, unit.m_symtab);
+                                declare_functions(al, fns, unit.m_symtab, "Python.h");
                                 included_cpython_funcs = true;
                             }
                             generate_body(al, *f, *module->m_symtab);
