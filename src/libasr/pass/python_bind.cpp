@@ -448,7 +448,7 @@ ASR::expr_t *type_enum_to_asr_expr(Allocator &al, enum T t, Location &l, std::st
     ASR::symbol_t *v = ASR::down_cast<ASR::symbol_t>(ASR::make_Variable_t(al, l, current_scope, s.c_str(al), nullptr,
                                                             0, intent, nullptr, nullptr, ASR::storage_typeType::Default,
                                                             type, nullptr, ASR::abiType::BindC, ASR::Public,
-                                                            ASR::presenceType::Required, true)); // intent == ASRUtils::intent_in ? true : false
+                                                            ASR::presenceType::Required, true));
     current_scope->add_symbol(n, v);
     return ASRUtils::EXPR(ASR::make_Var_t(al, l, v));
 }
