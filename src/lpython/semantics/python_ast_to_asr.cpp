@@ -4248,7 +4248,6 @@ public:
     bool is_interface = false;
     std::string interface_name = "";
     bool is_derived_type = false;
-    bool contains_bindpython = false;
     std::vector<std::string> current_procedure_args;
     ASR::abiType current_procedure_abi_type = ASR::abiType::Source;
     std::map<SymbolTable*, ASR::accessType> assgn;
@@ -4429,55 +4428,6 @@ public:
         //Implemented in BodyVisitor
     }
 
-    void import_cpython(const AST::FunctionDef_t &x, SymbolTable *parent_scope) {
-        std::vector<std::string> pybind_funcs = {
-            "Py_Initialize",
-            "Py_IsInitialized", 
-            "PyRun_SimpleString", 
-            "Py_DecodeLocale", 
-            "PySys_SetArgv", 
-            "Py_FinalizeEx",
-            "PyUnicode_FromString",
-            "PyUnicode_AsUTF8AndSize",
-            "PyImport_Import",
-            "Py_DecRef",
-            "Py_IncRef",
-            "PyObject_GetAttrString",
-            "PyTuple_New",
-            "PyTuple_SetItem",
-            "PyObject_CallObject",
-            "PyLong_AsLongLong",
-            "PyLong_AsUnsignedLongLong",
-            "PyLong_FromLongLong",
-            "PyLong_FromUnsignedLongLong",
-            "PyFloat_FromDouble",
-            "PyFloat_AsDouble",
-            "PyBool_FromLong",
-            "PyObject_IsTrue",
-        };
-        Str s;
-        AST::alias_t *module_symbols =
-            al.allocate<AST::alias_t>(pybind_funcs.size());
-        
-        for (size_t i = 0; i < pybind_funcs.size(); i++) {
-            s.from_str(al, pybind_funcs.at(i));
-            (module_symbols + i)->loc = x.base.base.loc;
-            (module_symbols + i)->m_name = s.c_str(al);
-            (module_symbols + i)->m_asname = nullptr;
-        }
-
-        AST::ImportFrom_t *imports =
-            (AST::ImportFrom_t*)AST::make_ImportFrom_t(
-                al, x.base.base.loc,
-                (char*)"cpython_bindings", module_symbols,
-                pybind_funcs.size(), 0);
-        
-        SymbolTable *function_scope = current_scope;
-        current_scope = parent_scope;
-        visit_ImportFrom(*imports);
-        current_scope = function_scope;
-    }
-
     void visit_FunctionDef(const AST::FunctionDef_t &x) {
         dependencies.clear(al);
         SymbolTable *parent_scope = current_scope;
@@ -4539,13 +4489,6 @@ public:
                             current_procedure_abi_type = ASR::abiType::BindPython;
                             current_procedure_interface = true;
                             module_file = extract_keyword_val_from_decorator(call_d, "module");
-
-                            if (!contains_bindpython) {
-                                
-                                import_cpython(x, parent_scope);
-                            }
-                            contains_bindpython = true;
-
                         } else {
                             throw SemanticError("Unsupported Decorator type",
                                     x.base.base.loc);
