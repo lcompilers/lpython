@@ -41,7 +41,7 @@ def PyObject_CallObject(a: CPtr, b: CPtr) -> CPtr:
     pass
 
 @ccall(header="Python.h")
-def PyLong_AsLongLong(a: CPtr) -> i32:
+def PyLong_AsLongLong(a: CPtr) -> i64:
     pass
 
 def my_f():
@@ -62,9 +62,9 @@ def my_f():
     _Py_DecRef(pArgs)
     assert bool(pValue), "Call to my_f failed\n"
 
-    ans: i32 = PyLong_AsLongLong(pValue)
+    ans: i64 = PyLong_AsLongLong(pValue)
     print("Ans is", ans)
-    assert ans == 5
+    assert ans == i64(5)
 
 
 def main0():

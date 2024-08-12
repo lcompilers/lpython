@@ -1707,6 +1707,97 @@ void append_error(diag::Diagnostics& diag, const std::string& msg,
 //Initialize pointer to zero so that it can be initialized in first call to get_instance
 ASRUtils::LabelGenerator* ASRUtils::LabelGenerator::label_generator = nullptr;
 
+ASR::expr_t *type_enum_to_asr_expr(Allocator &al, enum TTYPE_T t, const Location &l, std::string n,
+    SymbolTable *current_scope, ASR::intentType intent) {
+    ASR::ttype_t *type = nullptr;
+
+    Str s;
+    s.from_str(al, n);
+
+    switch (t) {
+    case VOID:
+        return nullptr;
+    case I1:
+        type = ASRUtils::TYPE(ASR::make_Logical_t(al, l, 4));
+        break;
+    case I8:
+        type = ASRUtils::TYPE(ASR::make_Integer_t(al, l, 1));
+        break;
+    case I32:
+        type = ASRUtils::TYPE(ASR::make_Integer_t(al, l, 4));
+        break;
+    case I64:
+        type = ASRUtils::TYPE(ASR::make_Integer_t(al, l, 8));
+        break;
+    case U8:
+        type = ASRUtils::TYPE(ASR::make_UnsignedInteger_t(al, l, 1));
+        break;
+    case U32:
+        type = ASRUtils::TYPE(ASR::make_UnsignedInteger_t(al, l, 4));
+        break;
+    case U64:
+        type = ASRUtils::TYPE(ASR::make_UnsignedInteger_t(al, l, 8));
+        break;
+    case F32:
+        type = ASRUtils::TYPE(ASR::make_Real_t(al, l, 4));
+        break;
+    case F64:
+        type = ASRUtils::TYPE(ASR::make_Real_t(al, l, 8));
+        break;
+    case STR:
+        type = ASRUtils::TYPE(ASR::make_Character_t(al, l, 1, -2, nullptr));
+        break;
+    case PTR:
+        type = ASRUtils::TYPE(ASR::make_CPtr_t(al, l));
+        break;
+    case PTR_TO_PTR:
+        type = ASRUtils::TYPE(ASR::make_Pointer_t(al, l, ASRUtils::TYPE(ASR::make_CPtr_t(al, l))));
+        break;
+    }
+    LCOMPILERS_ASSERT(type);
+    ASR::symbol_t *v = ASR::down_cast<ASR::symbol_t>(ASR::make_Variable_t(al, l, current_scope, s.c_str(al), nullptr,
+                                                            0, intent, nullptr, nullptr, ASR::storage_typeType::Default,
+                                                            type, nullptr, ASR::abiType::BindC, ASR::Public,
+                                                            ASR::presenceType::Required, true));
+    current_scope->add_symbol(n, v);
+    return ASRUtils::EXPR(ASR::make_Var_t(al, l, v));
+}
+
+void declare_function(Allocator &al, ASRFunc fn, const Location &l, SymbolTable *parent_scope,
+    std::string header_name) {
+    Str s;
+    char *c_header = nullptr;
+    if (header_name != "") {
+        s.from_str(al, header_name);
+        c_header = s.c_str(al);
+    }
+    s.from_str(al, fn.m_name);
+    Vec<ASR::expr_t*> args;
+    args.reserve(al, fn.args.size());
+    SymbolTable *current_scope = al.make_new<SymbolTable>(parent_scope);
+    int c = 0;
+    for (auto j: fn.args) {
+        args.push_back(al, type_enum_to_asr_expr(al, j, l, fn.m_name + std::to_string(++c), current_scope,
+                                ASRUtils::intent_in));
+    }
+    ASR::expr_t *retval = type_enum_to_asr_expr(al, fn.retvar, l, "_lpython_return_variable", current_scope,
+                                ASRUtils::intent_return_var);
+    char *fn_name = s.c_str(al);
+    ASR::asr_t *f = ASRUtils::make_Function_t_util(al, l, current_scope, fn_name, nullptr, 0, args.p, args.n,
+                                nullptr, 0, retval, ASR::abiType::BindC, ASR::accessType::Public,
+                                ASR::deftypeType::Interface, nullptr, false, false, false, false, false, nullptr, 0,
+                                false, false, false, c_header);
+
+    parent_scope->add_symbol(fn.m_name, ASR::down_cast<ASR::symbol_t>(f));
+}
+
+void declare_functions(Allocator &al, std::vector<ASRFunc> fns, const Location &l, SymbolTable *parent_scope,
+    std::string header_name) {
+    for (auto i: fns) {
+        declare_function(al, i, l, parent_scope, header_name);
+    }
+}
+
 } // namespace ASRUtils
 
 
