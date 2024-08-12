@@ -1132,7 +1132,7 @@ int compile_python_using_llvm(
         LCompilers::LPython::DynamicLibrary cpython_lib;
         LCompilers::LPython::DynamicLibrary symengine_lib;
 
-        if (compiler_options.enable_cpython) {
+        if (compiler_options.po.enable_cpython) {
             LCompilers::LPython::open_cpython_library(cpython_lib);
         }
         if (compiler_options.enable_symengine) {
@@ -1151,7 +1151,7 @@ int compile_python_using_llvm(
             e.execfn<void>("__module___main_____main__global_stmts");
         }
 
-        if (compiler_options.enable_cpython) {
+        if (compiler_options.po.enable_cpython) {
             LCompilers::LPython::close_cpython_library(cpython_lib);
         }
         if (compiler_options.enable_symengine) {
@@ -1921,7 +1921,7 @@ int main(int argc, char *argv[])
         app.add_flag("--dump-all-passes", compiler_options.po.dump_all_passes, "Apply all the passes and dump the ASR into a file");
         app.add_flag("--dump-all-passes-fortran", compiler_options.po.dump_fortran, "Apply all passes and dump the ASR after each pass into fortran file");
         app.add_flag("--cumulative", compiler_options.po.pass_cumulative, "Apply all the passes cumulatively till the given pass");
-        app.add_flag("--enable-cpython", compiler_options.enable_cpython, "Enable CPython runtime");
+        app.add_flag("--enable-cpython", compiler_options.po.enable_cpython, "Enable CPython runtime");
         app.add_flag("--enable-symengine", compiler_options.enable_symengine, "Enable Symengine runtime");
         app.add_flag("--link-numpy", compiler_options.link_numpy, "Enable NumPy runtime (implies --enable-cpython)");
         app.add_flag("--separate-compilation", separate_compilation, "Generates unique names for all the symbols");
@@ -1983,7 +1983,7 @@ int main(int argc, char *argv[])
         }
 
         if (compiler_options.link_numpy) {
-            compiler_options.enable_cpython = true;
+            compiler_options.po.enable_cpython = true;
         }
 
         if (arg_version) {

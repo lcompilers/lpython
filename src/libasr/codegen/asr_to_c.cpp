@@ -820,7 +820,7 @@ R"(
         }
 
         std::string body;
-        if (compiler_options.enable_cpython) {
+        if (compiler_options.po.enable_cpython) {
             headers.insert("Python.h");
             body += R"(
     Py_Initialize();
@@ -851,7 +851,7 @@ R"(    // Initialise Numpy
             body += src;
         }
 
-        if (compiler_options.enable_cpython) {
+        if (compiler_options.po.enable_cpython) {
             body += R"(
     if (Py_FinalizeEx() < 0) {
         fprintf(stderr,"BindPython: Unknown Error\n");

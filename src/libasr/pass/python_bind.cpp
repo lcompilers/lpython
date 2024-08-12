@@ -387,6 +387,11 @@ void pass_python_bind(Allocator &al, ASR::TranslationUnit_t &unit, const PassOpt
         return;
     }
 
+    if (!pass_options.enable_cpython) {
+        // python_bind pass is skipped if CPython is not enabled
+        return;
+    }
+
     std::vector<ASRUtils::ASRFunc> fns;
     fns.push_back({"Py_Initialize", {}, ASRUtils::VOID});
     fns.push_back({"Py_IsInitialized", {}, ASRUtils::I32});
@@ -412,21 +417,17 @@ void pass_python_bind(Allocator &al, ASR::TranslationUnit_t &unit, const PassOpt
     fns.push_back({"PyBool_FromLong", {ASRUtils::I32}, ASRUtils::PTR});
     fns.push_back({"PyObject_IsTrue", {ASRUtils::PTR}, ASRUtils::I32});
 
-    bool included_cpython_funcs = false;
-
     Location *l = al.make_new<Location>();
     l->first = 0;
     l->last = 0;
+
+    ASRUtils::declare_functions(al, fns, *l, unit.m_symtab, "Python.h");
 
     for (auto &item : unit.m_symtab->get_scope()) {
         if (ASR::is_a<ASR::Function_t>(*item.second)) {
             ASR::Function_t *f = ASR::down_cast<ASR::Function_t>(item.second);
             if (ASRUtils::get_FunctionType(f)->m_abi == ASR::abiType::BindPython) {
                 if (f->n_body == 0 && f->m_module_file) {
-                    if (!included_cpython_funcs) {
-                        ASRUtils::declare_functions(al, fns, *l, unit.m_symtab, "Python.h");
-                        included_cpython_funcs = true;
-                    }
                     generate_body(al, *f, *unit.m_symtab);
                 }
             }
@@ -438,10 +439,6 @@ void pass_python_bind(Allocator &al, ASR::TranslationUnit_t &unit, const PassOpt
                     ASR::Function_t *f = ASR::down_cast<ASR::Function_t>(module_item.second);
                     if (ASRUtils::get_FunctionType(f)->m_abi == ASR::abiType::BindPython) {
                         if (f->n_body == 0 && f->m_module_file) {
-                            if (!included_cpython_funcs) {
-                                ASRUtils::declare_functions(al, fns, *l, unit.m_symtab, "Python.h");
-                                included_cpython_funcs = true;
-                            }
                             generate_body(al, *f, *module->m_symtab);
                         }
                     }
@@ -451,10 +448,8 @@ void pass_python_bind(Allocator &al, ASR::TranslationUnit_t &unit, const PassOpt
 
     }
 
-    if (included_cpython_funcs) {
-        PassUtils::UpdateDependenciesVisitor u(al);
-        u.visit_TranslationUnit(unit);
-    }
+    PassUtils::UpdateDependenciesVisitor u(al);
+    u.visit_TranslationUnit(unit);
 }
 
 }  // namespace LCompilers
