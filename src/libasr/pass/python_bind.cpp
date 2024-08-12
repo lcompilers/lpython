@@ -456,4 +456,5 @@ void pass_python_bind(Allocator &al, ASR::TranslationUnit_t &unit, const PassOpt
         u.visit_TranslationUnit(unit);
     }
 }
-}
+
+}  // namespace LCompilers
