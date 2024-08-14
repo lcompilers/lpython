@@ -584,7 +584,7 @@ namespace LCompilers {
             bool perform_cast=false,
             ASR::cast_kindType cast_kind=ASR::cast_kindType::IntegerToInteger,
             ASR::ttype_t* casted_type=nullptr) {
-            if ( x->m_dt_sym && ASR::is_a<ASR::Struct_t>(*(x->m_dt_sym)) ) {
+            if ( ASR::is_a<ASR::Struct_t>(*(x->m_dt_sym)) ) {
                 ASR::Struct_t* st = ASR::down_cast<ASR::Struct_t>(x->m_dt_sym);
                 if ( st->n_member_functions > 0 ) {
                     remove_original_statement = true;
