@@ -54,6 +54,7 @@
 #include <libasr/pass/replace_print_struct_type.h>
 #include <libasr/pass/promote_allocatable_to_nonallocatable.h>
 #include <libasr/pass/replace_function_call_in_declaration.h>
+#include <libasr/pass/python_bind.h>
 #include <libasr/codegen/asr_to_fortran.h>
 #include <libasr/asr_verify.h>
 #include <libasr/pickle.h>
@@ -79,6 +80,7 @@ namespace LCompilers {
             {"do_loops", &pass_replace_do_loops},
             {"while_else", &pass_while_else},
             {"global_stmts", &pass_wrap_global_stmts},
+            {"python_bind", &pass_python_bind},
             {"implied_do_loops", &pass_replace_implied_do_loops},
             {"array_op", &pass_replace_array_op},
             {"symbolic", &pass_replace_symbolic},
@@ -206,6 +208,7 @@ namespace LCompilers {
         PassManager(): apply_default_passes{false},
             c_skip_pass{false} {
             _passes = {
+                "python_bind",
                 "nested_vars",
                 "global_stmts",
                 "transform_optional_argument_functions",

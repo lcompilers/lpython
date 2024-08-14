@@ -321,6 +321,7 @@ int emit_c(const std::string &infile,
     pass_manager.use_default_passes(true);
     compiler_options.po.always_run = true;
     compiler_options.po.run_fun = "f";
+    compiler_options.po.c_skip_bindpy_pass = true;
 
     pass_manager.apply_passes(al, asr, compiler_options.po, diagnostics);
 
@@ -370,6 +371,7 @@ int emit_c_to_file(const std::string &infile, const std::string &outfile,
 
     compiler_options.po.run_fun = "f";
     compiler_options.po.always_run = true;
+    compiler_options.po.c_skip_bindpy_pass = true;
 
     pass_manager.use_default_passes(true);
     pass_manager.apply_passes(al, asr, compiler_options.po, diagnostics);
@@ -1130,7 +1132,7 @@ int compile_python_using_llvm(
         LCompilers::LPython::DynamicLibrary cpython_lib;
         LCompilers::LPython::DynamicLibrary symengine_lib;
 
-        if (compiler_options.enable_cpython) {
+        if (compiler_options.po.enable_cpython) {
             LCompilers::LPython::open_cpython_library(cpython_lib);
         }
         if (compiler_options.enable_symengine) {
@@ -1149,7 +1151,7 @@ int compile_python_using_llvm(
             e.execfn<void>("__module___main_____main__global_stmts");
         }
 
-        if (compiler_options.enable_cpython) {
+        if (compiler_options.po.enable_cpython) {
             LCompilers::LPython::close_cpython_library(cpython_lib);
         }
         if (compiler_options.enable_symengine) {
@@ -1533,7 +1535,7 @@ int link_executable(const std::vector<std::string> &infiles,
                 cmd += " -L$CONDA_PREFIX/lib -Wl,-rpath -Wl,$CONDA_PREFIX/lib -lsymengine";
             }
 
-            if (compiler_options.enable_cpython) {
+            if (compiler_options.po.enable_cpython) {
                 std::string py_version = "3.10";
                 std::string py_flags = R"(-I $CONDA_PREFIX/include/python)" + py_version + R"( -L$CONDA_PREFIX/lib -Wl,-rpath -Wl,$CONDA_PREFIX/lib -lpython)" + py_version + R"()";
                 if (compiler_options.link_numpy) {
@@ -1592,7 +1594,7 @@ int link_executable(const std::vector<std::string> &infiles,
         if (compiler_options.enable_symengine) {
             cmd += " -L$CONDA_PREFIX/lib -Wl,-rpath -Wl,$CONDA_PREFIX/lib -lsymengine";
         }
-        if (compiler_options.enable_cpython) {
+        if (compiler_options.po.enable_cpython) {
             std::string py_version = "3.10";
             std::string py_flags = R"(-I $CONDA_PREFIX/include/python)" + py_version + R"( -L$CONDA_PREFIX/lib -Wl,-rpath -Wl,$CONDA_PREFIX/lib -lpython)" + py_version + R"()";
             if (compiler_options.link_numpy) {
@@ -1919,7 +1921,7 @@ int main(int argc, char *argv[])
         app.add_flag("--dump-all-passes", compiler_options.po.dump_all_passes, "Apply all the passes and dump the ASR into a file");
         app.add_flag("--dump-all-passes-fortran", compiler_options.po.dump_fortran, "Apply all passes and dump the ASR after each pass into fortran file");
         app.add_flag("--cumulative", compiler_options.po.pass_cumulative, "Apply all the passes cumulatively till the given pass");
-        app.add_flag("--enable-cpython", compiler_options.enable_cpython, "Enable CPython runtime");
+        app.add_flag("--enable-cpython", compiler_options.po.enable_cpython, "Enable CPython runtime");
         app.add_flag("--enable-symengine", compiler_options.enable_symengine, "Enable Symengine runtime");
         app.add_flag("--link-numpy", compiler_options.link_numpy, "Enable NumPy runtime (implies --enable-cpython)");
         app.add_flag("--separate-compilation", separate_compilation, "Generates unique names for all the symbols");
@@ -1981,7 +1983,7 @@ int main(int argc, char *argv[])
         }
 
         if (compiler_options.link_numpy) {
-            compiler_options.enable_cpython = true;
+            compiler_options.po.enable_cpython = true;
         }
 
         if (arg_version) {
