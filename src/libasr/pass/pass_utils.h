@@ -594,7 +594,7 @@ namespace LCompilers {
                     ASR::Var_t* target = ASR::down_cast<ASR::Var_t>(replacer->result_var);
                     ASR::call_arg_t first_arg;
                     first_arg.loc = x->base.base.loc; first_arg.m_value = replacer->result_var;
-                    Vec<ASR::call_arg_t> new_args; new_args.reserve(replacer->al,1);
+                    Vec<ASR::call_arg_t> new_args; new_args.reserve(replacer->al,x->n_args+1);
                     new_args.push_back(replacer->al, first_arg);
                     for( size_t i = 0; i < x->n_args; i++ ) {
                         new_args.push_back(replacer->al, x->m_args[i]);
