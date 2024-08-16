@@ -604,9 +604,10 @@ namespace LCompilers {
                     std::string call_name = "__init__";
                     ASR::symbol_t* call_sym = get_struct_member(replacer->al,type->m_derived_type, call_name,
                                                 x->base.base.loc, replacer->current_scope);
-                    result_vec->push_back(replacer->al, 
-                                        ASRUtils::STMT(make_call_helper(replacer->al,call_sym,
-                                            new_args,call_name,x->base.base.loc)));
+                    result_vec->push_back(replacer->al, ASRUtils::STMT(
+                        ASRUtils::make_SubroutineCall_t_util(replacer->al,
+                        x->base.base.loc, call_sym, nullptr, new_args.p, new_args.size(),
+                        nullptr, nullptr, false, false)));
                     return;
                 }
             }
