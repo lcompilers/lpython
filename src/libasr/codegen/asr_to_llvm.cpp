@@ -3541,7 +3541,6 @@ public:
 
     template<typename T>
     void declare_vars(const T &x, bool create_vtabs=true) {
-        get_builder0()
         llvm::Value *target_var;
         uint32_t debug_arg_count = 0;
         std::vector<std::string> var_order = ASRUtils::determine_variable_declaration_order(x.m_symtab);
@@ -3666,7 +3665,8 @@ public:
                             llvm::Constant *init_value = llvm::Constant::getNullValue(type);
                             gptr->setInitializer(init_value);
                         } else {
-                            ptr = builder->CreateAlloca(type, array_size, v->m_name);
+                            get_builder0()
+                            ptr = builder0.CreateAlloca(type, array_size, v->m_name);
                         }
                     }
                     set_pointer_variable_to_null(llvm::ConstantPointerNull::get(
@@ -8859,6 +8859,14 @@ public:
                         target_type = llvm_utils->get_type_from_ttype_t_util(arg_type_, module.get());
                         break;
                     }
+                    case (ASR::ttypeType::Dict): {
+                        target_type = llvm_utils->get_type_from_ttype_t_util(arg_type_, module.get());
+                        break;
+                    }
+                    case (ASR::ttypeType::Set): {
+                        target_type = llvm_utils->get_type_from_ttype_t_util(arg_type_, module.get());
+                        break;
+                    }
                     default :
                         throw CodeGenError("Type " + ASRUtils::type_to_str(arg_type) + " not implemented yet.");
                 }
@@ -8913,7 +8921,9 @@ public:
                                     llvm::AllocaInst *target = builder0.CreateAlloca(
                                         target_type, nullptr, "call_arg_value");
                                     if( ASR::is_a<ASR::Tuple_t>(*arg_type) ||
-                                        ASR::is_a<ASR::List_t>(*arg_type) ) {
+                                        ASR::is_a<ASR::List_t>(*arg_type)  ||
+                                        ASR::is_a<ASR::Set_t>(*arg_type)   ||
+                                        ASR::is_a<ASR::Dict_t>(*arg_type)) {
                                         llvm_utils->deepcopy(value, target, arg_type, module.get(), name2memidx);
                                     } else {
                                         builder->CreateStore(value, target);
