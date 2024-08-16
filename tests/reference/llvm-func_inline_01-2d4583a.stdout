@@ -58,8 +58,8 @@ return:                                           ; preds = %unreachable_after_r
 
 define void @__module___main____xx_lcompilers_changed_main_xx() {
 .entry:
-  %ans = alloca i64, align 8
   %x = alloca i64, align 8
+  %ans = alloca i64, align 8
   store i64 40, i64* %x, align 4
   %0 = call i64 @__module___main___fib(i64* %x)
   store i64 %0, i64* %ans, align 4

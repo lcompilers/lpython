@@ -3541,7 +3541,6 @@ public:
 
     template<typename T>
     void declare_vars(const T &x, bool create_vtabs=true) {
-        get_builder0()
         llvm::Value *target_var;
         uint32_t debug_arg_count = 0;
         std::vector<std::string> var_order = ASRUtils::determine_variable_declaration_order(x.m_symtab);
@@ -3666,7 +3665,8 @@ public:
                             llvm::Constant *init_value = llvm::Constant::getNullValue(type);
                             gptr->setInitializer(init_value);
                         } else {
-                            ptr = builder->CreateAlloca(type, array_size, v->m_name);
+                            get_builder0()
+                            ptr = builder0.CreateAlloca(type, array_size, v->m_name);
                         }
                     }
                     set_pointer_variable_to_null(llvm::ConstantPointerNull::get(
