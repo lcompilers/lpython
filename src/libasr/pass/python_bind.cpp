@@ -86,6 +86,7 @@ ASR::expr_t *cpython_to_native(Allocator &al, ASR::expr_t *exp, ASR::ttype_t *ty
 }
 
 ASR::expr_t *native_to_cpython(Allocator &al, ASR::expr_t *exp, const ASR::Function_t &f, Vec<ASR::stmt_t*> &body) {
+    ASR::ttype_t *i1_type = ASRUtils::TYPE(ASR::make_Logical_t(al, f.base.base.loc, 1));
     ASR::ttype_t *i4_type = ASRUtils::TYPE(ASR::make_Integer_t(al, f.base.base.loc, 4));
     ASR::ttype_t *i8_type = ASRUtils::TYPE(ASR::make_Integer_t(al, f.base.base.loc, 8));
     ASR::ttype_t *u8_type = ASRUtils::TYPE(ASR::make_UnsignedInteger_t(al, f.base.base.loc, 8));
@@ -142,8 +143,6 @@ ASR::expr_t *native_to_cpython(Allocator &al, ASR::expr_t *exp, const ASR::Funct
                         ptr_t, nullptr, nullptr));
     } else if (type->type == ASR::ttypeType::Tuple) {
         ASR::Tuple_t *tuple = ASR::down_cast<ASR::Tuple_t>(type);
-        LCOMPILERS_ASSERT(tuple)
-        
         Str s;
 
         ASR::symbol_t *sym_PyTuple_New = f.m_symtab->resolve_symbol("PyTuple_New");
@@ -154,9 +153,10 @@ ASR::expr_t *native_to_cpython(Allocator &al, ASR::expr_t *exp, const ASR::Funct
         std::string p = "_" + std::to_string(get_random_number());
         s.from_str(al, p);
         ASR::asr_t *pArgs = ASR::make_Variable_t(al, f.base.base.loc, f.m_symtab, s.c_str(al), nullptr, 0,
-                                ASRUtils::intent_local, nullptr, nullptr, ASR::storage_typeType::Default, ptr_t, nullptr,
-                                ASR::abiType::Source, ASR::Public, ASR::presenceType::Required, false);
-        ASR::expr_t *pArgs_ref = ASRUtils::EXPR(ASR::make_Var_t(al, f.base.base.loc, ASR::down_cast<ASR::symbol_t>(pArgs)));
+                                ASRUtils::intent_local, nullptr, nullptr, ASR::storage_typeType::Default, ptr_t,
+                                nullptr, ASR::abiType::Source, ASR::Public, ASR::presenceType::Required, false);
+        ASR::expr_t *pArgs_ref = ASRUtils::EXPR(ASR::make_Var_t(al, f.base.base.loc,
+                                                    ASR::down_cast<ASR::symbol_t>(pArgs)));
         f.m_symtab->add_symbol(p, ASR::down_cast<ASR::symbol_t>(pArgs));
         body.push_back(al, ASRUtils::STMT(
             ASR::make_Assignment_t(al, f.base.base.loc, pArgs_ref, 
@@ -179,15 +179,102 @@ ASR::expr_t *native_to_cpython(Allocator &al, ASR::expr_t *exp, const ASR::Funct
             std::string p = "_" + std::to_string(get_random_number());
             s.from_str(al, p);
             ASR::asr_t *pA = ASR::make_Variable_t(al, f.base.base.loc, f.m_symtab, s.c_str(al), nullptr, 0,
-                                ASRUtils::intent_local, nullptr, nullptr, ASR::storage_typeType::Default, i4_type, nullptr,
-                                ASR::abiType::Source, ASR::Public, ASR::presenceType::Required, false);
-            ASR::expr_t *pA_ref = ASRUtils::EXPR(ASR::make_Var_t(al, f.base.base.loc, ASR::down_cast<ASR::symbol_t>(pA)));
+                                ASRUtils::intent_local, nullptr, nullptr, ASR::storage_typeType::Default, i4_type,
+                                nullptr, ASR::abiType::Source, ASR::Public, ASR::presenceType::Required, false);
+            ASR::expr_t *pA_ref = ASRUtils::EXPR(ASR::make_Var_t(al, f.base.base.loc,
+                                                    ASR::down_cast<ASR::symbol_t>(pA)));
             f.m_symtab->add_symbol(p, ASR::down_cast<ASR::symbol_t>(pA));
             body.push_back(al,
                 ASRUtils::STMT(ASR::make_Assignment_t(al, f.base.base.loc, pA_ref,
                     ASRUtils::EXPR(ASRUtils::make_FunctionCall_t_util(al, f.base.base.loc, sym_PyTuple_SetItem, nullptr,
                                 args_PyTuple_SetItem.p, args_PyTuple_SetItem.n, i4_type, nullptr, nullptr)), nullptr)));
         }
+    } else if (type->type == ASR::ttypeType::List) {
+        ASR::List_t *list = ASR::down_cast<ASR::List_t>(type);
+        Str s;
+
+        ASR::symbol_t *sym_PyList_New = f.m_symtab->resolve_symbol("PyList_New");
+        Vec<ASR::call_arg_t> args_PyList_New;
+        args_PyList_New.reserve(al, 1);
+        args_PyList_New.push_back(al, {f.base.base.loc, ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, f.base.base.loc,
+                                                            0, i8_type))});
+        std::string p = "_" + std::to_string(get_random_number());
+        s.from_str(al, p);
+        ASR::asr_t *pArgs = ASR::make_Variable_t(al, f.base.base.loc, f.m_symtab, s.c_str(al), nullptr, 0,
+                                ASRUtils::intent_local, nullptr, nullptr, ASR::storage_typeType::Default, ptr_t,
+                                nullptr, ASR::abiType::Source, ASR::Public, ASR::presenceType::Required, false);
+        ASR::expr_t *pArgs_ref = ASRUtils::EXPR(ASR::make_Var_t(al, f.base.base.loc,
+                                    ASR::down_cast<ASR::symbol_t>(pArgs)));
+        f.m_symtab->add_symbol(p, ASR::down_cast<ASR::symbol_t>(pArgs));
+        body.push_back(al, ASRUtils::STMT(
+            ASR::make_Assignment_t(al, f.base.base.loc, pArgs_ref, 
+                ASRUtils::EXPR(ASRUtils::make_FunctionCall_t_util(al, f.base.base.loc, sym_PyList_New, nullptr,
+                                    args_PyList_New.p, args_PyList_New.n, ptr_t, nullptr, nullptr)), nullptr)));
+        conv_result = pArgs_ref;
+
+        p = "_size" + std::to_string(get_random_number());
+        s.from_str(al, p);
+        ASR::asr_t *pSize = ASR::make_Variable_t(al, f.base.base.loc, f.m_symtab, s.c_str(al), nullptr, 0,
+                                ASRUtils::intent_local, nullptr, nullptr, ASR::storage_typeType::Default, i4_type,
+                                nullptr, ASR::abiType::Source, ASR::Public, ASR::presenceType::Required, false);
+        ASR::expr_t *pSize_ref = ASRUtils::EXPR(ASR::make_Var_t(al, f.base.base.loc,
+                                                        ASR::down_cast<ASR::symbol_t>(pSize)));
+        f.m_symtab->add_symbol(p, ASR::down_cast<ASR::symbol_t>(pSize));
+        body.push_back(al, ASRUtils::STMT(ASR::make_Assignment_t(al, f.base.base.loc, pSize_ref,
+                            ASRUtils::EXPR(ASR::make_ListLen_t(al, f.base.base.loc, exp, i4_type, nullptr)), nullptr)));
+
+        p = "_i" + std::to_string(get_random_number());
+        s.from_str(al, p);
+        ASR::asr_t *pI = ASR::make_Variable_t(al, f.base.base.loc, f.m_symtab, s.c_str(al), nullptr, 0,
+                                ASRUtils::intent_local, nullptr, nullptr, ASR::storage_typeType::Default, i4_type,
+                                nullptr, ASR::abiType::Source, ASR::Public, ASR::presenceType::Required, false);
+        ASR::expr_t *pI_ref = ASRUtils::EXPR(ASR::make_Var_t(al, f.base.base.loc,
+                                                        ASR::down_cast<ASR::symbol_t>(pI)));
+        f.m_symtab->add_symbol(p, ASR::down_cast<ASR::symbol_t>(pI));
+        body.push_back(al, ASRUtils::STMT(ASR::make_Assignment_t(al, f.base.base.loc, pI_ref,
+                            ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, f.base.base.loc, 0, i4_type)), nullptr)));
+
+        ASR::symbol_t *sym_PyList_Append = f.m_symtab->resolve_symbol("PyList_Append");
+        p = "_item" + std::to_string(get_random_number());
+        s.from_str(al, p);
+        ASR::asr_t *pItem = ASR::make_Variable_t(al, f.base.base.loc, f.m_symtab, s.c_str(al), nullptr, 0,
+                                ASRUtils::intent_local, nullptr, nullptr, ASR::storage_typeType::Default, list->m_type,
+                                nullptr, ASR::abiType::Source, ASR::Public, ASR::presenceType::Required, false);
+        ASR::expr_t *pItem_ref = ASRUtils::EXPR(ASR::make_Var_t(al, f.base.base.loc,
+                                                        ASR::down_cast<ASR::symbol_t>(pItem)));
+        f.m_symtab->add_symbol(p, ASR::down_cast<ASR::symbol_t>(pItem));
+        
+        Vec<ASR::stmt_t*> while_body;
+        while_body.reserve(al, 3);
+        
+        while_body.push_back(al, ASRUtils::STMT(
+            ASR::make_Assignment_t(al, f.base.base.loc, 
+                pItem_ref,
+                ASRUtils::EXPR(ASR::make_ListItem_t(al, f.base.base.loc, exp, pI_ref, type, nullptr)),
+            nullptr)));
+        
+        while_body.push_back(al, ASRUtils::STMT(
+            ASR::make_Assignment_t(al, f.base.base.loc,
+                pI_ref,
+                ASRUtils::EXPR(ASR::make_IntegerBinOp_t(al, f.base.base.loc, pI_ref, ASR::binopType::Add,
+                    ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, f.base.base.loc, 1, i4_type)), i4_type, nullptr)),
+            nullptr)));
+
+        Vec<ASR::call_arg_t> args_PyList_Append;
+        args_PyList_Append.reserve(al, 2);
+        args_PyList_Append.push_back(al, {f.base.base.loc, pArgs_ref});
+        args_PyList_Append.push_back(al, {f.base.base.loc, native_to_cpython(al, pItem_ref, f, while_body)});
+
+        while_body.push_back(al, ASRUtils::STMT((ASRUtils::make_SubroutineCall_t_util(al, f.base.base.loc,
+                                                    sym_PyList_Append, nullptr, args_PyList_Append.p,
+                                                    args_PyList_Append.n, nullptr, nullptr, false, false))));
+
+        body.push_back(al, ASRUtils::STMT(
+            ASR::make_WhileLoop_t(al, f.base.base.loc, nullptr,
+                ASRUtils::EXPR(ASR::make_IntegerCompare_t(al, f.base.base.loc, pI_ref, ASR::cmpopType::Lt, pSize_ref,
+                    i1_type, nullptr)),
+                while_body.p, while_body.n, nullptr, 0)));
+
     } else {
         throw LCompilersException(
             "Calling CPython with " + ASRUtils::get_type_code(ASRUtils::expr_type(exp)) + " type not supported");
@@ -468,6 +555,8 @@ void pass_python_bind(Allocator &al, ASR::TranslationUnit_t &unit, const PassOpt
     fns.push_back({"PyFloat_AsDouble", {ASRUtils::PTR}, ASRUtils::F64});
     fns.push_back({"PyBool_FromLong", {ASRUtils::I32}, ASRUtils::PTR});
     fns.push_back({"PyObject_IsTrue", {ASRUtils::PTR}, ASRUtils::I32});
+    fns.push_back({"PyList_New", {ASRUtils::I64}, ASRUtils::PTR});
+    fns.push_back({"PyList_Append", {ASRUtils::PTR, ASRUtils::PTR}, ASRUtils::I32});
 
     Location *l = al.make_new<Location>();
     l->first = 0;
