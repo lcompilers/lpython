@@ -573,9 +573,6 @@ namespace LCompilers {
     ASR::symbol_t* get_struct_member(Allocator& al, ASR::symbol_t* struct_type_sym, std::string &call_name,
             const Location &loc, SymbolTable* current_scope);
 
-    ASR::asr_t* make_call_helper(Allocator &al, ASR::symbol_t* s, Vec<ASR::call_arg_t> args, 
-                    std::string call_name, const Location &loc);
-
     namespace ReplacerUtils {
         template <typename T>
         void replace_StructConstructor(ASR::StructConstructor_t* x,
