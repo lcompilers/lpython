@@ -8859,6 +8859,14 @@ public:
                         target_type = llvm_utils->get_type_from_ttype_t_util(arg_type_, module.get());
                         break;
                     }
+                    case (ASR::ttypeType::Dict): {
+                        target_type = llvm_utils->get_type_from_ttype_t_util(arg_type_, module.get());
+                        break;
+                    }
+                    case (ASR::ttypeType::Set): {
+                        target_type = llvm_utils->get_type_from_ttype_t_util(arg_type_, module.get());
+                        break;
+                    }
                     default :
                         throw CodeGenError("Type " + ASRUtils::type_to_str(arg_type) + " not implemented yet.");
                 }
@@ -8913,7 +8921,9 @@ public:
                                     llvm::AllocaInst *target = builder0.CreateAlloca(
                                         target_type, nullptr, "call_arg_value");
                                     if( ASR::is_a<ASR::Tuple_t>(*arg_type) ||
-                                        ASR::is_a<ASR::List_t>(*arg_type) ) {
+                                        ASR::is_a<ASR::List_t>(*arg_type)  ||
+                                        ASR::is_a<ASR::Set_t>(*arg_type)   ||
+                                        ASR::is_a<ASR::Dict_t>(*arg_type)) {
                                         llvm_utils->deepcopy(value, target, arg_type, module.get(), name2memidx);
                                     } else {
                                         builder->CreateStore(value, target);
