@@ -1282,45 +1282,6 @@ namespace LCompilers {
         return import_struct_member;
     }
 
-    ASR::asr_t* make_call_helper(Allocator &al, ASR::symbol_t* s, Vec<ASR::call_arg_t> args, 
-                    std::string call_name, const Location &loc) {
-
-        ASR::symbol_t *s_generic = nullptr, *stemp = s;
-        // Type map for generic functions
-        std::map<std::string, ASR::ttype_t*> subs;
-        std::map<std::string, ASR::symbol_t*> rt_subs;
-        // handling ExternalSymbol
-        s = ASRUtils::symbol_get_past_external(s);
-        
-        if (ASR::is_a<ASR::Function_t>(*s)) {
-            ASR::Function_t *func = ASR::down_cast<ASR::Function_t>(s);
-            if (args.size() < func->n_args) {
-                std::string missed_args_names =" ";
-                size_t missed_args_count =0;
-                for (size_t def_arg = args.size(); def_arg < func->n_args; def_arg++){
-                    ASR::Variable_t* var = ASRUtils::EXPR2VAR(func->m_args[def_arg]);
-                    if(var->m_symbolic_value == nullptr) {
-                        missed_args_names+= "'" + std::string(var->m_name) + "' and ";
-                        missed_args_count++;
-                    } else {
-                        ASR::call_arg_t call_arg;
-                        call_arg.m_value = var->m_symbolic_value;
-                        call_arg.loc = (var->m_symbolic_value->base).loc;
-                        args.push_back(al,call_arg);
-                    }
-                }
-                if(missed_args_count > 0){
-                    missed_args_names = missed_args_names.substr(0,missed_args_names.length() - 5);
-                    LCompilersException("Number of arguments does not match in the function call");
-                    
-                }
-            }
-            return ASRUtils::make_SubroutineCall_t_util(al, loc, stemp,
-                s_generic, args.p, args.size(), nullptr, nullptr, false, false);
-        } else {
-            throw LCompilersException("Unsupported call type for " + call_name);
-        }
-    }
     } // namespace PassUtils
 
 } // namespace LCompilers
