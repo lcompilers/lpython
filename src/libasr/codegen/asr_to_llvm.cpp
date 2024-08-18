@@ -1726,9 +1726,17 @@ public:
         ptr_loads = ptr_loads_copy;
         llvm::Value *capacity = LLVM::CreateLoad(*builder,
             llvm_utils->dict_api->get_pointer_to_capacity(right));
-        llvm::Value *key_hash = llvm_utils->dict_api->get_key_hash(capacity, left, dict_type->m_key_type, *module);
-
-        tmp = llvm_utils->dict_api->resolve_collision_for_read_with_bound_check(right, key_hash, left, *module, dict_type->m_key_type, dict_type->m_value_type, true);
+        get_builder0();
+        llvm::AllocaInst *res = builder0.CreateAlloca(llvm::Type::getInt1Ty(context), nullptr);
+        llvm_utils->create_if_else(builder->CreateICmpEQ(
+            capacity, llvm::ConstantInt::get(llvm::Type::getInt32Ty(context), llvm::APInt(32, 0))),
+        [&]() {
+            LLVM::CreateStore(*builder, llvm::ConstantInt::get(llvm::Type::getInt1Ty(context), llvm::APInt(1, 0)), res);
+        }, [&]() {
+            llvm::Value *key_hash = llvm_utils->dict_api->get_key_hash(capacity, left, dict_type->m_key_type, *module);
+            LLVM::CreateStore(*builder, llvm_utils->dict_api->resolve_collision_for_read_with_bound_check(right, key_hash, left, *module, dict_type->m_key_type, dict_type->m_value_type, true), res);
+        });
+        tmp = LLVM::CreateLoad(*builder, res);
     }
 
     void visit_SetContains(const ASR::SetContains_t &x) {
@@ -1748,9 +1756,17 @@ public:
         ptr_loads = ptr_loads_copy;
         llvm::Value *capacity = LLVM::CreateLoad(*builder,
             llvm_utils->set_api->get_pointer_to_capacity(right));
-        llvm::Value *el_hash = llvm_utils->set_api->get_el_hash(capacity, left, el_type, *module);
-
-        tmp = llvm_utils->set_api->resolve_collision_for_read_with_bound_check(right, el_hash, left, *module, el_type, false, true);
+        get_builder0();
+        llvm::AllocaInst *res = builder0.CreateAlloca(llvm::Type::getInt1Ty(context), nullptr);
+        llvm_utils->create_if_else(builder->CreateICmpEQ(
+            capacity, llvm::ConstantInt::get(llvm::Type::getInt32Ty(context), llvm::APInt(32, 0))),
+        [&]() {
+            LLVM::CreateStore(*builder, llvm::ConstantInt::get(llvm::Type::getInt1Ty(context), llvm::APInt(1, 0)), res);
+        }, [&]() {
+            llvm::Value *el_hash = llvm_utils->set_api->get_el_hash(capacity, left, el_type, *module);
+            LLVM::CreateStore(*builder, llvm_utils->set_api->resolve_collision_for_read_with_bound_check(right, el_hash, left, *module, el_type, false, true), res);
+        });
+        tmp = LLVM::CreateLoad(*builder, res);
     }
 
     void visit_DictLen(const ASR::DictLen_t& x) {
