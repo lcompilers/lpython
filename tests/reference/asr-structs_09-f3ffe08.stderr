@@ -1,4 +1,4 @@
-semantic error: read not present in StringIO dataclass
+semantic error: Method not found in the class StringIO or it's parents
   --> tests/errors/structs_09.py:13:23
    |
 13 |     bytes_read: i32 = fd.read()
