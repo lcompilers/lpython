@@ -7725,6 +7725,11 @@ public:
                 tmp = LLVM::CreateLoad(*builder, list_api->get_pointer_to_list_data(tmp));
                 break;
             }
+            case (ASR::cast_kindType::DerivedToBase) : {
+                this->visit_expr(*x.m_arg);
+                tmp = llvm_utils->create_gep(tmp, 0);
+                break;
+            }
             default : throw CodeGenError("Cast kind not implemented");
         }
     }
