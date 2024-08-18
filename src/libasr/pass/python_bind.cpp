@@ -319,6 +319,50 @@ ASR::expr_t *native_to_cpython(Allocator &al, ASR::expr_t *exp, const ASR::Funct
                                                     args_PySet_Add.n, nullptr, nullptr, false, false))));
 
         body.push_back(al, ASRUtils::STMT(ASR::make_ForEach_t(al, f.base.base.loc, pItem_ref, exp, for_body.p, for_body.n)));
+    
+    } else if (type->type == ASR::ttypeType::Dict) {
+        ASR::Dict_t *dict = ASR::down_cast<ASR::Dict_t>(type);
+        Str s;
+
+        ASR::symbol_t *sym_PyDict_New = f.m_symtab->resolve_symbol("PyDict_New"); // TODO: decrement
+        std::string p = "_" + std::to_string(get_random_number());
+        s.from_str(al, p);
+        ASR::asr_t *pArgs = ASR::make_Variable_t(al, f.base.base.loc, f.m_symtab, s.c_str(al), nullptr, 0,
+                                ASRUtils::intent_local, nullptr, nullptr, ASR::storage_typeType::Default, ptr_t,
+                                nullptr, ASR::abiType::Source, ASR::Public, ASR::presenceType::Required, false);
+        ASR::expr_t *pArgs_ref = ASRUtils::EXPR(ASR::make_Var_t(al, f.base.base.loc,
+                                    ASR::down_cast<ASR::symbol_t>(pArgs)));
+        f.m_symtab->add_symbol(p, ASR::down_cast<ASR::symbol_t>(pArgs));
+        body.push_back(al, ASRUtils::STMT(
+            ASR::make_Assignment_t(al, f.base.base.loc, pArgs_ref, 
+                ASRUtils::EXPR(ASRUtils::make_FunctionCall_t_util(al, f.base.base.loc, sym_PyDict_New, nullptr,
+                                    nullptr, 0, ptr_t, nullptr, nullptr)), nullptr)));
+        conv_result = pArgs_ref;
+
+        p = "_" + std::to_string(get_random_number());
+        s.from_str(al, p);
+        ASR::asr_t *pItem = ASR::make_Variable_t(al, f.base.base.loc, f.m_symtab, s.c_str(al), nullptr, 0,
+                                ASRUtils::intent_local, nullptr, nullptr, ASR::storage_typeType::Default, dict->m_key_type,
+                                nullptr, ASR::abiType::Source, ASR::Public, ASR::presenceType::Required, false);
+        ASR::expr_t *pItem_ref = ASRUtils::EXPR(ASR::make_Var_t(al, f.base.base.loc,
+                                    ASR::down_cast<ASR::symbol_t>(pItem)));
+        f.m_symtab->add_symbol(p, ASR::down_cast<ASR::symbol_t>(pItem));
+
+        Vec<ASR::stmt_t*> for_body;
+        for_body.reserve(al, 1);
+        ASR::symbol_t *sym_PyDict_SetItem = f.m_symtab->resolve_symbol("PyDict_SetItem");
+        Vec<ASR::call_arg_t> args_PyDict_SetItem;
+        args_PyDict_SetItem.reserve(al, 3);
+        args_PyDict_SetItem.push_back(al, {f.base.base.loc, pArgs_ref});
+        args_PyDict_SetItem.push_back(al, {f.base.base.loc, native_to_cpython(al, pItem_ref, f, for_body)}); // TODO: decrement the reference count of the return value of native_to_cpython after the PyList_Append subroutine call in next line
+        args_PyDict_SetItem.push_back(al, {f.base.base.loc, native_to_cpython(al, 
+            ASRUtils::EXPR(ASR::make_DictItem_t(al, f.base.base.loc, exp, pItem_ref, nullptr, dict->m_value_type, nullptr))
+        , f, for_body)}); // TODO: decrement the reference count of the return value of native_to_cpython after the PyList_Append subroutine call in next line
+        for_body.push_back(al, ASRUtils::STMT((ASRUtils::make_SubroutineCall_t_util(al, f.base.base.loc,
+                                                    sym_PyDict_SetItem, nullptr, args_PyDict_SetItem.p,
+                                                    args_PyDict_SetItem.n, nullptr, nullptr, false, false))));
+
+        body.push_back(al, ASRUtils::STMT(ASR::make_ForEach_t(al, f.base.base.loc, pItem_ref, exp, for_body.p, for_body.n)));
 
     } else {
         throw LCompilersException(
@@ -604,6 +648,8 @@ void pass_python_bind(Allocator &al, ASR::TranslationUnit_t &unit, const PassOpt
     fns.push_back({"PyList_Append", {ASRUtils::PTR, ASRUtils::PTR}, ASRUtils::I32});
     fns.push_back({"PySet_New", {ASRUtils::PTR}, ASRUtils::PTR});
     fns.push_back({"PySet_Add", {ASRUtils::PTR, ASRUtils::PTR}, ASRUtils::PTR});
+    fns.push_back({"PyDict_New", {}, ASRUtils::PTR});
+    fns.push_back({"PyDict_SetItem", {ASRUtils::PTR, ASRUtils::PTR, ASRUtils::PTR}, ASRUtils::I32});
 
     Location *l = al.make_new<Location>();
     l->first = 0;
