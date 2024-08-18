@@ -120,7 +120,6 @@ ASR::expr_t *cpython_to_native(Allocator &al, ASR::expr_t *exp, ASR::ttype_t *ty
         f.m_symtab->add_symbol(p, ASR::down_cast<ASR::symbol_t>(pResult));
         body.push_back(al, ASRUtils::STMT(ASR::make_Assignment_t(al, f.base.base.loc, pResult_ref,
                             ASRUtils::EXPR(ASR::make_ListConstant_t(al, f.base.base.loc, nullptr, 0, type)), nullptr)));
-        
 
         Vec<ASR::stmt_t*> while_body;
         while_body.reserve(al, 2);
@@ -150,6 +149,40 @@ ASR::expr_t *cpython_to_native(Allocator &al, ASR::expr_t *exp, ASR::ttype_t *ty
                     i1_type, nullptr)),
                 while_body.p, while_body.n, nullptr, 0)));
         
+        conv_result = pResult_ref;
+
+    } else if (type->type == ASR::ttypeType::Tuple) {
+        ASR::Tuple_t *tuple = ASR::down_cast<ASR::Tuple_t>(type);
+        Str s;
+
+        std::string p = "_result" + std::to_string(get_random_number());
+        s.from_str(al, p);
+        ASR::asr_t *pResult = ASR::make_Variable_t(al, f.base.base.loc, f.m_symtab, s.c_str(al), nullptr, 0,
+                                ASRUtils::intent_local, nullptr, nullptr, ASR::storage_typeType::Default, type,
+                                nullptr, ASR::abiType::Source, ASR::Public, ASR::presenceType::Required, false);
+        ASR::expr_t *pResult_ref = ASRUtils::EXPR(ASR::make_Var_t(al, f.base.base.loc,
+                                                        ASR::down_cast<ASR::symbol_t>(pResult)));
+        f.m_symtab->add_symbol(p, ASR::down_cast<ASR::symbol_t>(pResult));
+
+        ASR::symbol_t *sym_PyTuple_GetItem = f.m_symtab->resolve_symbol("PyTuple_GetItem");
+        Vec<ASR::expr_t*> tuple_elements;
+        tuple_elements.reserve(al, tuple->n_type);
+        for (size_t i = 0; i < tuple->n_type; i++) {
+            Vec<ASR::call_arg_t> args_PyTuple_GetItem;
+            args_PyTuple_GetItem.reserve(al, 2);
+            args_PyTuple_GetItem.push_back(al, {f.base.base.loc, exp});
+            args_PyTuple_GetItem.push_back(al, {f.base.base.loc, ASRUtils::EXPR(ASR::make_IntegerConstant_t(al,
+                                                                                    f.base.base.loc, i, i8_type))});
+            tuple_elements.push_back(al, cpython_to_native(al,  ASRUtils::EXPR(ASRUtils::make_FunctionCall_t_util(al,
+                                                                    f.base.base.loc, sym_PyTuple_GetItem, nullptr,
+                                                                    args_PyTuple_GetItem.p, args_PyTuple_GetItem.n,
+                                                                    ptr_t, nullptr, nullptr)),
+                                                                tuple->m_type[i], f, body));
+        }
+
+        body.push_back(al, ASRUtils::STMT(ASR::make_Assignment_t(al, f.base.base.loc, pResult_ref,
+            ASRUtils::EXPR(ASR::make_TupleConstant_t(al, f.base.base.loc, tuple_elements.p, tuple_elements.n, type)),
+            nullptr)));
         conv_result = pResult_ref;
 
     } else {
@@ -711,6 +744,7 @@ void pass_python_bind(Allocator &al, ASR::TranslationUnit_t &unit, const PassOpt
     fns.push_back({"PyObject_GetAttrString", {ASRUtils::PTR, ASRUtils::STR}, ASRUtils::PTR});
     fns.push_back({"PyTuple_New", {ASRUtils::I32}, ASRUtils::PTR});
     fns.push_back({"PyTuple_SetItem", {ASRUtils::PTR, ASRUtils::I32, ASRUtils::PTR}, ASRUtils::I32});
+    fns.push_back({"PyTuple_GetItem", {ASRUtils::PTR, ASRUtils::I64}, ASRUtils::PTR});
     fns.push_back({"PyObject_CallObject", {ASRUtils::PTR, ASRUtils::PTR}, ASRUtils::PTR});
     fns.push_back({"PyLong_AsLongLong", {ASRUtils::PTR}, ASRUtils::I64});
     fns.push_back({"PyLong_AsUnsignedLongLong", {ASRUtils::PTR}, ASRUtils::U64});
