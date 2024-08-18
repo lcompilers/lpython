@@ -666,6 +666,7 @@ RUN(NAME bindpy_02           LABELS cpython c_py EXTRA_ARGS --link-numpy COPY_TO
 RUN(NAME bindpy_03           LABELS cpython c_py EXTRA_ARGS --link-numpy NOFAST COPY_TO_BIN bindpy_03_module.py)
 RUN(NAME bindpy_04           LABELS cpython c_py EXTRA_ARGS --link-numpy NOFAST COPY_TO_BIN bindpy_04_module.py)
 RUN(NAME bindpy_05           LABELS llvm_py c_py EXTRA_ARGS --enable-cpython COPY_TO_BIN bindpy_05_module.py REQ_PY_VER 3.10)
+RUN(NAME bindpy_06           LABELS llvm_py EXTRA_ARGS --enable-cpython COPY_TO_BIN bindpy_06_module.py REQ_PY_VER 3.10)
 RUN(NAME test_generics_01    LABELS cpython llvm llvm_jit c NOFAST)
 RUN(NAME test_cmath          LABELS cpython llvm llvm_jit c NOFAST)
 RUN(NAME test_complex_01        LABELS cpython llvm llvm_jit c wasm wasm_x64)
