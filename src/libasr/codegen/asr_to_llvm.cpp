@@ -6455,10 +6455,10 @@ public:
             return;
         }
 
-        this->visit_expr_wrapper(x.m_left, true);
+        this->visit_expr_wrapper(x.m_substr, true);
         llvm::Value *substr = tmp;
 
-        this->visit_expr_wrapper(x.m_right, true);
+        this->visit_expr_wrapper(x.m_str, true);
         llvm::Value *right = tmp;
 
         tmp = lfortran_str_contains(right, substr);
