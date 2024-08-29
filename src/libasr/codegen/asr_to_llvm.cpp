@@ -8451,9 +8451,7 @@ public:
         for (size_t i=0; i<x.n_values; i++) {
             if (i != 0) {
                 fmt.push_back("%s");
-                if (global_sep_space &&
-                    !(ASRUtils::is_character(*ASRUtils::expr_type(x.m_values[i]))
-                        && ASRUtils::is_character(*ASRUtils::expr_type(x.m_values[i - 1])))) {
+                if (global_sep_space) {
                     args.push_back(sep);
                 } else {
                     sep_no_space = sep_no_space != nullptr ? sep_no_space : builder->CreateGlobalStringPtr("");
