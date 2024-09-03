@@ -136,7 +136,7 @@ expr
     | StringItem(expr arg, expr idx, ttype type, expr? value)
     | StringSection(expr arg, expr? start, expr? end, expr? step, ttype type, expr? value)
     | StringCompare(expr left, cmpop op, expr right, ttype type, expr? value)
-    | StringContains(expr left, expr right, ttype type, expr? value)
+    | StringContains(expr substr, expr str, ttype type, expr? value)
     | StringOrd(expr arg, ttype type, expr? value)
     | StringChr(expr arg, ttype type, expr? value)
     | StringFormat(expr fmt, expr* args, string_format_kind kind, ttype type, expr? value)
