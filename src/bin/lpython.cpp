@@ -886,6 +886,8 @@ int interactive_python_repl(
             res = fe.evaluate(code_string, verbose, lm, pass_manager, diagnostics);
             if (res.ok) {
                 r = res.result;
+                std::cerr << diagnostics.render(lm, compiler_options);
+                diagnostics.clear();
             } else {
                 LCOMPILERS_ASSERT(diagnostics.has_error())
                 std::cerr << diagnostics.render(lm, compiler_options);
