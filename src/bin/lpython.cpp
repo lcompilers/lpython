@@ -56,6 +56,7 @@ namespace {
 using LCompilers::endswith;
 using LCompilers::CompilerOptions;
 using LCompilers::LPython::parse_python_file;
+using LCompilers::LPython::parse_python_source;
 
 enum class Backend {
     llvm, cpp, c, x86, wasm, wasm_x86, wasm_x64, python
@@ -193,16 +194,17 @@ int emit_asr(const std::string &infile,
     Allocator al(4*1024);
     LCompilers::diag::Diagnostics diagnostics;
     LCompilers::LocationManager lm;
+    std::string input;
     {
         LCompilers::LocationManager::FileLocations fl;
         fl.in_filename = infile;
         lm.files.push_back(fl);
-        std::string input = LCompilers::read_file(infile);
+        input = LCompilers::read_file(infile);
         lm.init_simple(input);
         lm.file_ends.push_back(input.size());
     }
-    LCompilers::Result<LCompilers::LPython::AST::ast_t*> r1 = parse_python_file(
-        al, runtime_library_dir, infile, diagnostics, 0, compiler_options.new_parser);
+    LCompilers::Result<LCompilers::LPython::AST::ast_t*> r1 = parse_python_source(
+        al, runtime_library_dir, input, diagnostics, 0, compiler_options.new_parser);
     std::cerr << diagnostics.render(lm, compiler_options);
     if (!r1.ok) {
         return 1;
