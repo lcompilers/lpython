@@ -5,37 +5,41 @@
                 "Hello, "
                 ()
             )
-            (FormattedValue
-                (Name
-                    first_name
-                    Load
+            (JoinedStr
+                [(JoinedStr
+                    [(FormattedValue
+                        (Name
+                            first_name
+                            Load
+                        )
+                        -1
+                        ()
+                    )
+                    (ConstantStr
+                        " "
+                        ()
+                    )
+                    (FormattedValue
+                        (Name
+                            last_name
+                            Load
+                        )
+                        -1
+                        ()
+                    )]
                 )
-                -1
-                ()
-            )
-            (ConstantStr
-                " "
-                ()
-            )
-            (FormattedValue
-                (Name
-                    last_name
-                    Load
+                (ConstantStr
+                    ". You are "
+                    ()
                 )
-                -1
-                ()
-            )
-            (ConstantStr
-                ". You are "
-                ()
-            )
-            (FormattedValue
-                (Name
-                    age
-                    Load
-                )
-                -1
-                ()
+                (FormattedValue
+                    (Name
+                        age
+                        Load
+                    )
+                    -1
+                    ()
+                )]
             )
             (ConstantStr
                 " years old."
@@ -50,25 +54,31 @@
                 Load
             )
             [(JoinedStr
-                [(FormattedValue
-                    (Name
-                        __file__
-                        Load
-                    )
-                    -1
+                [(ConstantStr
+                    ""
                     ()
                 )
-                (ConstantStr
-                    " executed in "
-                    ()
-                )
-                (FormattedValue
-                    (Name
-                        elapsed
-                        Load
+                (JoinedStr
+                    [(FormattedValue
+                        (Name
+                            __file__
+                            Load
+                        )
+                        -1
+                        ()
                     )
-                    -1
-                    ()
+                    (ConstantStr
+                        " executed in "
+                        ()
+                    )
+                    (FormattedValue
+                        (Name
+                            elapsed
+                            Load
+                        )
+                        -1
+                        ()
+                    )]
                 )
                 (ConstantStr
                     " seconds."
@@ -145,37 +155,9 @@
                 )
                 -1
                 ()
-            )]
-        )
-    )
-    (Expr
-        (JoinedStr
-            [(ConstantStr
-                "Text "
-                ()
             )
-            (FormattedValue
-                (Name
-                    id
-                    Load
-                )
-                -1
-                ()
-            )]
-        )
-    )
-    (Expr
-        (JoinedStr
-            [(ConstantStr
-                "Text "
-                ()
-            )
-            (FormattedValue
-                (Name
-                    id
-                    Load
-                )
-                -1
+            (ConstantStr
+                ""
                 ()
             )]
         )
@@ -193,6 +175,10 @@
                 )
                 -1
                 ()
+            )
+            (ConstantStr
+                ""
+                ()
             )]
         )
     )
@@ -208,6 +194,50 @@
                     Load
                 )
                 -1
+                ()
+            )
+            (ConstantStr
+                ""
+                ()
+            )]
+        )
+    )
+    (Expr
+        (JoinedStr
+            [(ConstantStr
+                "Text "
+                ()
+            )
+            (FormattedValue
+                (Name
+                    id
+                    Load
+                )
+                -1
+                ()
+            )
+            (ConstantStr
+                ""
+                ()
+            )]
+        )
+    )
+    (Expr
+        (JoinedStr
+            [(ConstantStr
+                "Text "
+                ()
+            )
+            (FormattedValue
+                (Name
+                    id
+                    Load
+                )
+                -1
+                ()
+            )
+            (ConstantStr
+                ""
                 ()
             )]
         )
@@ -245,6 +275,10 @@
                 )
                 -1
                 ()
+            )
+            (ConstantStr
+                ""
+                ()
             )]
         )
     )
@@ -260,6 +294,10 @@
                     Load
                 )
                 -1
+                ()
+            )
+            (ConstantStr
+                ""
                 ()
             )]
         )
@@ -325,6 +363,10 @@
                 )
                 -1
                 ()
+            )
+            (ConstantStr
+                ""
+                ()
             )]
         )
     )
@@ -334,24 +376,30 @@
                 "Text"
                 ()
             )
-            (FormattedValue
-                (Name
-                    a
-                    Load
+            (JoinedStr
+                [(FormattedValue
+                    (Name
+                        a
+                        Load
+                    )
+                    -1
+                    ()
                 )
-                -1
-                ()
+                (ConstantStr
+                    ", "
+                    ()
+                )
+                (FormattedValue
+                    (Name
+                        b
+                        Load
+                    )
+                    -1
+                    ()
+                )]
             )
             (ConstantStr
-                ", "
-                ()
-            )
-            (FormattedValue
-                (Name
-                    b
-                    Load
-                )
-                -1
+                ""
                 ()
             )
             (ConstantStr
@@ -365,6 +413,10 @@
                 )
                 -1
                 ()
+            )
+            (ConstantStr
+                ""
+                ()
             )]
         )
     )
@@ -374,24 +426,30 @@
                 "Text"
                 ()
             )
-            (FormattedValue
-                (Name
-                    a
-                    Load
+            (JoinedStr
+                [(FormattedValue
+                    (Name
+                        a
+                        Load
+                    )
+                    -1
+                    ()
                 )
-                -1
-                ()
+                (ConstantStr
+                    ", "
+                    ()
+                )
+                (FormattedValue
+                    (Name
+                        b
+                        Load
+                    )
+                    -1
+                    ()
+                )]
             )
             (ConstantStr
-                ", "
-                ()
-            )
-            (FormattedValue
-                (Name
-                    b
-                    Load
-                )
-                -1
+                ""
                 ()
             )
             (ConstantStr
@@ -404,6 +462,10 @@
         (JoinedStr
             [(ConstantStr
                 "Text"
+                ()
+            )
+            (ConstantStr
+                ""
                 ()
             )
             (FormattedValue
@@ -435,6 +497,10 @@
                 ()
             )
             (ConstantStr
+                ""
+                ()
+            )
+            (ConstantStr
                 "Text"
                 ()
             )]
@@ -456,6 +522,10 @@
         (JoinedStr
             [(ConstantStr
                 "Text"
+                ()
+            )
+            (ConstantStr
+                ""
                 ()
             )
             (FormattedValue
@@ -497,11 +567,9 @@
         )
     )
     (Expr
-        (JoinedStr
-            [(ConstantStr
-                "\\n"
-                ()
-            )]
+        (ConstantStr
+            "\\n"
+            ()
         )
     )
     (Expr

@@ -1,0 +1,13 @@
+{
+    "basename": "runtime-fstring1-20a9192",
+    "cmd": "lpython {infile}",
+    "infile": "tests/fstring1.py",
+    "infile_hash": "ddceb6a09b5bc556ae8d2db18908c8f60af3ee96cc971bed1f5f9ae9",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "runtime-fstring1-20a9192.stdout",
+    "stdout_hash": "2c65ae0b9a4e18369a1421c44c5269ddd5a2c57e86f598b1a35ef4b1",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}
