@@ -154,6 +154,19 @@ public:
         return SubroutineCall(loc, basic_free_stack_sym, {x});
     }
 
+    ASR::stmt_t *basic_free_stack_if_not_null(const Location &loc, ASR::expr_t *x) {
+        Vec<ASR::stmt_t*> func_body;
+        func_body.reserve(al, 1);
+        func_body.push_back(al, basic_free_stack(loc, x));
+        ASR::ttype_t *CPtr_type = ASRUtils::TYPE(ASR::make_CPtr_t(al, loc));
+        ASR::ttype_t *Logical_type = ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4));
+        ASR::expr_t* null = ASRUtils::EXPR(ASR::make_PointerNullConstant_t(al, loc, CPtr_type));
+        ASR::expr_t* cond = ASRUtils::EXPR(ASR::make_CPtrCompare_t(al, loc, x, ASR::cmpopType::NotEq,
+                null, Logical_type, nullptr));
+        return ASRUtils::STMT(ASR::make_If_t(al, loc, cond,
+                func_body.p, func_body.size(), nullptr, 0));
+    }
+
     ASR::expr_t *basic_new_heap(const Location& loc) {
         ASR::symbol_t* basic_new_heap_sym = create_bindc_function(loc,
             "basic_new_heap", {}, ASRUtils::TYPE((ASR::make_CPtr_t(al, loc))));
@@ -351,7 +364,7 @@ public:
             func_body.from_pointer_n_copy(al, xx.m_body, xx.n_body);
 
             for (ASR::symbol_t* symbol : symbolic_vars_to_free) {
-                func_body.push_back(al, basic_free_stack(x.base.base.loc,
+                func_body.push_back(al, basic_free_stack_if_not_null(x.base.base.loc,
                     ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, symbol))));
             }
 
@@ -1114,7 +1127,7 @@ public:
         // freeing out variables
         if (!symbolic_vars_to_free.empty()){
             for (ASR::symbol_t* symbol : symbolic_vars_to_free) {
-                pass_result.push_back(al, basic_free_stack(x.base.base.loc,
+                pass_result.push_back(al, basic_free_stack_if_not_null(x.base.base.loc,
                     ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, symbol))));
             }
             pass_result.push_back(al, ASRUtils::STMT(ASR::make_Return_t(al, x.base.base.loc)));
