@@ -171,6 +171,7 @@ MANIFEST
 ## Editor Files
 .vscode/
 .vs/
+.idea/
 
 ## Build Files
 */bin/lpython
