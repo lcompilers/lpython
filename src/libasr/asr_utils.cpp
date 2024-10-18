@@ -1459,6 +1459,16 @@ ASR::asr_t* make_Cast_t_value(Allocator &al, const Location &a_loc,
             double real = value_complex->m_re;
             value = ASR::down_cast<ASR::expr_t>(
                     ASR::make_RealConstant_t(al, a_loc, real, a_type));
+        } else if (a_kind == ASR::cast_kindType::CharacterToInteger) {
+            int64_t value_integer;
+            int integer_type = ASRUtils::extract_kind_from_ttype_t(a_type);
+            std::string src_string = ASR::down_cast<ASR::StringConstant_t>(ASRUtils::expr_value(a_arg))->m_s;
+            if (integer_type <= 4) {
+                value_integer = std::stoi(src_string);
+            } else {
+                value_integer = std::stol(src_string);
+            }
+            value = ASR::down_cast<ASR::expr_t>(ASR::make_IntegerConstant_t(al, a_loc, value_integer, a_type));
         } else if (a_kind == ASR::cast_kindType::IntegerToSymbolicExpression) {
             Vec<ASR::expr_t*> args;
             args.reserve(al, 1);
