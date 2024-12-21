@@ -1,7 +1,7 @@
 -- Abstract Semantic Representation (ASR) definition
 
--- Documenations are available at:
--- https://github.com/lfortran/lfortran/tree/main/doc/src/asr/asr.md
+-- Documentation is available at:
+-- https://github.com/lcompilers/lpython/tree/main/doc/src/asr/asr.md
 
 module ASR {
 
@@ -87,7 +87,7 @@ expr
     | IntrinsicElementalFunction(int intrinsic_id, expr* args, int overload_id, ttype? type, expr? value)
     | IntrinsicArrayFunction(int arr_intrinsic_id, expr* args, int overload_id, ttype? type, expr? value)
     | IntrinsicImpureFunction(int impure_intrinsic_id, expr* args, int overload_id, ttype? type, expr? value)
-    | TypeInquiry(int inquiry_id, ttype arg_type, expr? arg, ttype type, expr value)
+    | TypeInquiry(int inquiry_id, ttype arg_type, expr? arg, ttype type, expr? value)
     | StructConstructor(symbol dt_sym, call_arg* args, ttype type, expr? value)
     | EnumTypeConstructor(symbol dt_sym, expr* args, ttype type, expr? value)
     | UnionTypeConstructor(symbol dt_sym, expr* args, ttype type, expr? value)
@@ -125,7 +125,7 @@ expr
     | SetConstant(expr* elements, ttype type)
     | SetLen(expr arg, ttype type, expr? value)
     | TupleConstant(expr* elements, ttype type)
-    | TupleLen(expr arg, ttype type, expr value)
+    | TupleLen(expr arg, ttype type, expr? value)
     | TupleCompare(expr left, cmpop op, expr right, ttype type, expr? value)
     | TupleConcat(expr left, expr right, ttype type, expr? value)
     | TupleContains(expr left, expr right, ttype type, expr? value)
@@ -216,12 +216,13 @@ ttype
     | FunctionType(ttype* arg_types, ttype? return_var_type, abi abi, deftype deftype, string? bindc_name, bool elemental, bool pure, bool module, bool inline, bool static, symbol* restrictions, bool is_restriction)
 
 cast_kind = RealToInteger | IntegerToReal | LogicalToReal | RealToReal | IntegerToInteger | RealToComplex | IntegerToComplex | IntegerToLogical | RealToLogical | CharacterToLogical | CharacterToInteger | CharacterToList | ComplexToLogical | ComplexToComplex | ComplexToReal | ComplexToInteger | LogicalToInteger | RealToCharacter | IntegerToCharacter | LogicalToCharacter | UnsignedIntegerToInteger | UnsignedIntegerToUnsignedInteger | UnsignedIntegerToReal | UnsignedIntegerToLogical | IntegerToUnsignedInteger | RealToUnsignedInteger | CPtrToUnsignedInteger | UnsignedIntegerToCPtr | IntegerToSymbolicExpression | ListToArray | DerivedToBase
+
 storage_type = Default | Save | Parameter
 access = Public | Private
 intent = Local | In | Out | InOut | ReturnVar | Unspecified
 deftype = Implementation | Interface
 presence = Required | Optional
-abi = Source | LFortranModule | GFortranModule | BindC | BindPython | BindJS | Interactive | Intrinsic
+abi = Source | Module | BindC | BindPython | BindJS | Interactive | Intrinsic | External
 dimension = (expr? start, expr? length)
 alloc_arg = (expr a, dimension* dims, expr? len_expr, ttype? type)
 attribute = Attribute(identifier name, attribute_arg *args)
@@ -241,6 +242,7 @@ cmpop = Eq | NotEq | Lt | LtE | Gt | GtE
 integerboz = Binary | Hex | Octal
 arraybound = LBound | UBound
 arraystorage = RowMajor | ColMajor
-string_format_kind = FormatFortran | FormatC | FormatPythonPercent | FormatPythonFString | FormatPythonFormat
+string_format_kind = FormatCustom1 | FormatC | FormatPythonPercent | FormatPythonFString | FormatPythonFormat
+
 
 }
