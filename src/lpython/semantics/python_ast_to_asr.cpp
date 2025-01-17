@@ -2927,6 +2927,9 @@ public:
         if( !init_expr ) {
             tmp = nullptr;
             if (x.m_value) {
+                if (AST::is_a<AST::JoinedStr_t>(*x.m_value)) {
+                    throw SemanticError("f-strings are not implemented yet", x.m_value->base.loc);
+                }
                 this->visit_expr(*x.m_value);
             } else {
                 if (ASR::is_a<ASR::StructType_t>(*type)) {
@@ -7247,6 +7250,8 @@ public:
             AST::Call_t *c = AST::down_cast<AST::Call_t>(x.m_value);
             visit_Call(*c);
             return;
+        } else if (AST::is_a<AST::JoinedStr_t>(*x.m_value)) {
+            throw SemanticError("f-strings are not implemented yet", x.m_value->base.loc);
         }
         this->visit_expr(*x.m_value);
 
