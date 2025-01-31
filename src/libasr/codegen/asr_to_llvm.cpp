@@ -2732,6 +2732,11 @@ public:
         }
         ASR::Variable_t* member = down_cast<ASR::Variable_t>(symbol_get_past_external(x.m_m));
         std::string member_name = std::string(member->m_name);
+        if (member->m_intent == ASRUtils::intent_classmember) {
+            llvm::Constant *ptr = module->getNamedGlobal(member_name);
+            tmp = ptr;
+            return;
+        }
         LCOMPILERS_ASSERT(current_der_type_name.size() != 0);
         while( name2memidx[current_der_type_name].find(member_name) == name2memidx[current_der_type_name].end() ) {
             if( dertype2parent.find(current_der_type_name) == dertype2parent.end() ) {
@@ -2763,6 +2768,24 @@ public:
         }
     }
 
+
+    void visit_StructStaticMember(const ASR::StructStaticMember_t& x) {
+        if (x.m_value) {
+            this->visit_expr_wrapper(x.m_value, true);
+            return;
+        }
+
+        ASR::Variable_t* member = down_cast<ASR::Variable_t>(symbol_get_past_external(x.m_m));
+        std::string member_name = std::string(member->m_name);
+
+        llvm::Constant *ptr = module->getNamedGlobal(member_name);
+        if (is_assignment_target) {
+            tmp = ptr;
+            return;
+        }
+        tmp = CreateLoad(ptr);
+    }
+
     void visit_Variable(const ASR::Variable_t &x) {
         if (compiler_options.interactive &&
             std::strcmp(x.m_name, "_") == 0 &&
@@ -2782,7 +2805,7 @@ public:
         // (global variable declared/initialized in this translation unit), or
         // external (global variable not declared/initialized in this
         // translation unit, just referenced).
-        LCOMPILERS_ASSERT(x.m_intent == intent_local || x.m_intent == ASRUtils::intent_unspecified
+        LCOMPILERS_ASSERT(x.m_intent == intent_local || x.m_intent == ASRUtils::intent_classmember || x.m_intent == ASRUtils::intent_unspecified
             || x.m_abi == ASR::abiType::Interactive);
         bool external = (x.m_abi != ASR::abiType::Source);
         llvm::Constant* init_value = nullptr;
@@ -3125,6 +3148,15 @@ public:
             if ( is_a<ASR::Function_t>(*item.second) ) {
                 ASR::Function_t *v = down_cast<ASR::Function_t>(item.second);
                 instantiate_function(*v);
+            }
+        }
+        for (size_t i = 0; i < x.n_members; i++) {
+            ASR::Variable_t *v = down_cast<ASR::Variable_t>(x.m_symtab->get_symbol(x.m_members[i]));
+            if (v->m_intent == ASRUtils::intent_classmember) {
+                v->m_name = s2c(al, mangle_prefix + v->m_name);
+                if (!v->m_symbolic_value)
+                    v->m_symbolic_value = x.m_initializers[i].m_value;
+                visit_Variable(*v);
             }
         }
         current_scope = current_scope_copy;
@@ -4956,6 +4988,7 @@ public:
             x.m_target->type == ASR::exprType::StringItem ||
             x.m_target->type == ASR::exprType::ArraySection ||
             x.m_target->type == ASR::exprType::StructInstanceMember ||
+            x.m_target->type == ASR::exprType::StructStaticMember ||
             x.m_target->type == ASR::exprType::ListItem ||
             x.m_target->type == ASR::exprType::DictItem ||
             x.m_target->type == ASR::exprType::UnionInstanceMember ) {

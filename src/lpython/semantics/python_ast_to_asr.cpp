@@ -2669,9 +2669,9 @@ public:
 
     void create_add_variable_to_scope(std::string& var_name,
         ASR::ttype_t* type, const Location& loc, ASR::abiType abi,
-        ASR::storage_typeType storage_type=ASR::storage_typeType::Default) {
+        ASR::storage_typeType storage_type=ASR::storage_typeType::Default,
+        ASR::intentType s_intent = ASRUtils::intent_local) {
 
-        ASR::intentType s_intent = ASRUtils::intent_local;
         ASR::abiType current_procedure_abi_type = abi;
         ASR::accessType s_access = ASR::accessType::Public;
         ASR::presenceType s_presence = ASR::presenceType::Required;
@@ -2891,7 +2891,7 @@ public:
                              ASR::expr_t* &init_expr,
                              bool wrap_derived_type_in_pointer=false,
                              ASR::abiType abi=ASR::abiType::Source,
-                             bool inside_struct=false) {
+                             bool inside_struct=false, bool inside_class=false) {
         bool is_allocatable = false, is_const = false;
         ASR::ttype_t *type = nullptr;
         if( inside_struct ) {
@@ -2917,8 +2917,13 @@ public:
             storage_type = ASR::storage_typeType::Parameter;
         }
 
-        create_add_variable_to_scope(var_name, type,
-                x.base.base.loc, abi, storage_type);
+        if ( inside_class ) {
+            create_add_variable_to_scope(var_name, type,
+                    x.base.base.loc, abi, storage_type, ASRUtils::intent_classmember);
+        } else {
+            create_add_variable_to_scope(var_name, type,
+                    x.base.base.loc, abi, storage_type);
+        }
 
         ASR::expr_t* assign_asr_target_copy = assign_asr_target;
         this->visit_expr(*x.m_target);
@@ -3082,7 +3087,7 @@ public:
                 ASR::ttype_t* i64_type = ASRUtils::TYPE(ASR::make_Integer_t(al, x.base.base.loc, 8));
                 init_expr = ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, x.base.base.loc, -1, i64_type));
             }
-            visit_AnnAssignUtil(*ann_assign, var_name, init_expr, false, abi, true);
+            visit_AnnAssignUtil(*ann_assign, var_name, init_expr, false, abi, true, is_class_scope);
             ASR::symbol_t* var_sym = current_scope->resolve_symbol(var_name);
             ASR::call_arg_t c_arg;
             c_arg.loc = var_sym->base.loc;
@@ -5425,20 +5430,22 @@ public:
                 throw SemanticError("Variable: '" + std::string(n->m_id) + "' is not declared",
                         x->base.loc);
             }
-            ASR::Variable_t* v =  ASR::down_cast<ASR::Variable_t>(s);
-            if (v->m_intent == ASR::intentType::In) {
-                std::string msg = "Hint: create a new local variable with a different name";
-                if (ASRUtils::is_aggregate_type(v->m_type)) {
-                    msg = "Use InOut[" + ASRUtils::type_to_str_python(v->m_type) + "] to allow assignment";
+            if (ASR::is_a<ASR::Variable_t>(*s)) {
+                ASR::Variable_t* v =  ASR::down_cast<ASR::Variable_t>(s);
+                if (v->m_intent == ASR::intentType::In) {
+                    std::string msg = "Hint: create a new local variable with a different name";
+                    if (ASRUtils::is_aggregate_type(v->m_type)) {
+                        msg = "Use InOut[" + ASRUtils::type_to_str_python(v->m_type) + "] to allow assignment";
+                    }
+                    diag.add(diag::Diagnostic(
+                        "Assignment to an input function parameter `"
+                        + std::string(v->m_name) + "` is not allowed",
+                        diag::Level::Error, diag::Stage::Semantic, {
+                            diag::Label(msg, {x->base.loc})
+                        })
+                    );
+                    throw SemanticAbort();
                 }
-                diag.add(diag::Diagnostic(
-                    "Assignment to an input function parameter `"
-                    + std::string(v->m_name) + "` is not allowed",
-                    diag::Level::Error, diag::Stage::Semantic, {
-                        diag::Label(msg, {x->base.loc})
-                    })
-                );
-                throw SemanticAbort();
             }
             return true;
         } else if (AST::is_a<AST::Subscript_t>(*x)) {
@@ -5583,15 +5590,17 @@ public:
                 AST::Attribute_t *attr = AST::down_cast<AST::Attribute_t>(x.m_targets[i]);
                 if (AST::is_a<AST::Name_t>(*attr->m_value)) {
                     std::string name = AST::down_cast<AST::Name_t>(attr->m_value)->m_id;
-                    ASR::symbol_t *s = current_scope->get_symbol(name);
+                    ASR::symbol_t *s = current_scope->resolve_symbol(name);
                     if (!s) {
                         throw SemanticError("Variable: '" + name + "' is not declared",
                                 x.base.base.loc);
                     }
-                    ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(s);
-                    ASR::ttype_t *type = v->m_type;
-                    if (ASRUtils::is_immutable(type)) {
-                        throw SemanticError("readonly attribute", x.base.base.loc);
+                    if (ASR::is_a<ASR::Variable_t>(*s)) {
+                        ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(s);
+                        ASR::ttype_t *type = v->m_type;
+                        if (ASRUtils::is_immutable(type)) {
+                            throw SemanticError("readonly attribute", x.base.base.loc);
+                        }
                     }
                 }
             }
