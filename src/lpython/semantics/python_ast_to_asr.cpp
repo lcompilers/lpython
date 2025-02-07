@@ -8789,9 +8789,24 @@ we will have to use something else.
                         tmp = nullptr;
                     }
                     return ;
+                } else if (args.size() > 1) {
+                    throw SemanticError("set() accepts only 1 argument for now, got " +
+                                        std::to_string(args.size()) + " arguments instead.",
+                                        x.base.base.loc);
                 }
+                ASR::expr_t *arg = args[0].m_value; 
+                ASR::ttype_t *type = ASRUtils::expr_type(arg);
+                if(ASR::is_a<ASR::ListConstant_t>(*arg)) {
+                    ASR::ListConstant_t* list = ASR::down_cast<ASR::ListConstant_t>(arg);
+                    ASR::expr_t **m_args = list->m_args;
+                    size_t n_args = list->n_args;
 
-                throw SemanticError("set is only used for an empty set for now.", x.base.base.loc);
+                    tmp = ASR::make_SetConstant_t(al, x.base.base.loc, m_args, n_args, 
+                                                      ASRUtils::expr_type(assign_asr_target));
+                    return ;
+                }
+                throw SemanticError("set() accepts only list for now, got " +
+                                        ASRUtils::type_to_str(type) + " type.", x.base.base.loc);
             } else if( call_name == "deepcopy" ) {
                 parse_args(x, args);
                 if( args.size() != 1 ) {
