@@ -153,8 +153,8 @@ jobs:
 
             ./emsdk install 3.1.35
             ./emsdk activate 3.1.35
-            ./emsdk install node-14.18.2-64bit
-            ./emsdk activate node-14.18.2-64bit
+            ./emsdk install node-18.20.3-64bit
+            ./emsdk activate node-18.20.3-64bit
 
       - name: Show Emscripten and Node Info
         shell: bash -l {0}
@@ -181,7 +181,7 @@ jobs:
             source $HOME/ext/emsdk/emsdk_env.sh # Activate Emscripten
             which node
             node -v
-            node --experimental-wasm-bigint src/lpython/tests/test_lpython.js
+            node src/lpython/tests/test_lpython.js
 
   test_pip_pkgs:
     name: Test PIP Installable Packages
