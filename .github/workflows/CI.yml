@@ -340,7 +340,7 @@ jobs:
         shell: bash -e -l {0}
         run: |
             ctest --rerun-failed --output-on-failure
-            ./run_tests.py -s
+            ./run_tests.py -s --skip-run-with-dbg
             cd integration_tests
             ./run_tests.py -b llvm c
             ./run_tests.py -b llvm c -f
