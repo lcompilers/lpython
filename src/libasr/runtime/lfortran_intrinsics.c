@@ -2304,7 +2304,7 @@ LFORTRAN_API char* _lfortran_str_slice_assign(char* s, char *r, int32_t idx1, in
         return s;
     }
 
-    char* dest_char = (char*)malloc(s_len);
+    char* dest_char = (char*)malloc(s_len + 1);
     strcpy(dest_char, s);
     int s_i = idx1, d_i = 0;
     while((step > 0 && s_i >= idx1 && s_i < idx2) ||
@@ -3367,7 +3367,7 @@ uint32_t get_file_size(int64_t fp) {
 void get_local_info_dwarfdump(struct Stacktrace *d) {
     // TODO: Read the contents of lines.dat from here itself.
     char *base_name = get_base_name(source_filename);
-    char *filename = malloc(strlen(base_name) + 14);
+    char *filename = malloc(strlen(base_name) + 15);
     strcpy(filename, base_name);
     strcat(filename, "_lines.dat.txt");
     int64_t fd = _lpython_open(filename, "r");
