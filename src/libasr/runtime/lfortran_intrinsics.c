@@ -2135,12 +2135,18 @@ LFORTRAN_API int32_t _lpython_bit_length8(int64_t num)
 //repeat str for n time
 LFORTRAN_API void _lfortran_strrepeat(char** s, int32_t n, char** dest)
 {
+    // Return empty string for non-positive n
+    if (n <= 0) {
+        char* dest_char = (char*)malloc(1);
+        dest_char[0] = '\0';
+        *dest = dest_char;
+        return;
+    }
+
     char trmn = '\0';
     int s_len = strlen(*s);
     int trmn_size = sizeof(trmn);
     int f_len = s_len*n;
-    if (f_len < 0)
-        f_len = 0;
     char* dest_char = (char*)malloc(f_len+trmn_size);
 
     if (s_len == 1) {
