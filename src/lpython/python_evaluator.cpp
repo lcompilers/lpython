@@ -162,7 +162,7 @@ Result<PythonCompiler::EvalResult> PythonCompiler::evaluate(
             ASR::symbol_t *fn = ASR::down_cast<ASR::Module_t>(symbol_table->resolve_symbol(module_name))
                                     ->m_symtab->get_symbol(run_fn);
             LCOMPILERS_ASSERT(fn)
-            if (ASRUtils::get_FunctionType(fn)->m_return_var_type->type == ASR::ttypeType::Character) {
+            if (ASRUtils::get_FunctionType(fn)->m_return_var_type->type == ASR::ttypeType::String) {
                 char *r = e->execfn<char*>(run_fn);
                 result.type = EvalResult::string;
                 result.str = r;
@@ -655,7 +655,7 @@ void print_type(ASR::ttype_t *t, void *data, std::string &result) {
             }
             break;
         }
-        case ASR::ttypeType::Character:
+        case ASR::ttypeType::String:
             result += '"';
             result += std::string(*(char**)data); // TODO: replace \n with \\n
             result += '"';

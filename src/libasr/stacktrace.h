@@ -51,6 +51,8 @@ void get_local_addresses(std::vector<StacktraceItem> &d);
 // `source_filename` and `line_number` if available
 void get_local_info(std::vector<StacktraceItem> &d);
 
+void get_llvm_info(std::vector<StacktraceItem> &d);
+
 // Converts the information stored in `d` into a string
 std::string stacktrace2str(const std::vector<StacktraceItem> &d,
     int skip);

@@ -32,9 +32,11 @@ public:
         Vec<ASR::stmt_t*> body;
         body.reserve(al, 1);
         body.push_back(al, assign_stmt);
-
+        Vec<ASR::do_loop_head_t> heads;  // Create a vector of loop heads
+        heads.reserve(al,1);
+        heads.push_back(al, x.m_head);
         ASR::stmt_t *stmt = ASRUtils::STMT(
-            ASR::make_DoConcurrentLoop_t(al, loc, x.m_head, body.p, body.size())
+            ASR::make_DoConcurrentLoop_t(al, loc, heads.p, heads.n, nullptr, 0, nullptr, 0, nullptr, 0, body.p, body.size())
         );
         Vec<ASR::stmt_t*> result;
         result.reserve(al, 1);

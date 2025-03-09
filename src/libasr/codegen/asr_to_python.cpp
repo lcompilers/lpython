@@ -129,6 +129,35 @@ public:
         }
     }
 
+    std::string get_type(const ASR::ttype_t *t) {
+        std::string r = "";
+        switch (t->type) {
+            case ASR::ttypeType::Integer : {
+                r += "i";
+                r += std::to_string(ASRUtils::extract_kind_from_ttype_t(t)*8);
+                break;
+            } case ASR::ttypeType::Real : {
+                r += "f";
+                r += std::to_string(ASRUtils::extract_kind_from_ttype_t(t)*8);
+                break;
+            } case ASR::ttypeType::Complex : {
+                r += "c";
+                r += std::to_string(ASRUtils::extract_kind_from_ttype_t(t)*8);
+                break;
+            } case ASR::ttypeType::String : {
+                r = "str";
+                break;
+            } case ASR::ttypeType::Logical : {
+                r = "bool";
+                break;
+            } default : {
+                throw LCompilersException("The type `"
+                    + ASRUtils::type_to_str_python(t) + "` is not handled yet");
+            }
+        }
+        return r;
+    }
+
     void visit_TranslationUnit(const ASR::TranslationUnit_t &x) {
         std::string r = "";
 
@@ -216,7 +245,7 @@ public:
         std::string r = indent;
         r += x.m_name;
         r += ": ";
-        r += ASRUtils::type_to_str_python(x.m_type);
+        r += get_type(x.m_type);
         r += "\n";
         s = r;
     }
@@ -224,11 +253,20 @@ public:
     void visit_Print(const ASR::Print_t &x) {
         std::string r = indent;
         r += "print(";
-        for (size_t i = 0; i < x.n_values; i++) {
-            visit_expr(*x.m_values[i]);
+         if (ASR::is_a<ASR::StringFormat_t>(*x.m_text)) {
+            ASR::StringFormat_t str_fmt = *ASR::down_cast<ASR::StringFormat_t>(x.m_text);
+            for (size_t i = 0; i < str_fmt.n_args; i++) {
+                visit_expr(*str_fmt.m_args[i]);
+                r += s;
+                if (i < str_fmt.n_args-1)
+                    r += ", ";
+            }
+        } else if (ASR::is_a<ASR::String_t>(*ASRUtils::expr_type(x.m_text))){
+            visit_expr(*x.m_text);
             r += s;
-            if (i < x.n_values-1)
-                r += ", ";
+        } else {
+            throw CodeGenError("print statment supported for stringformat and single character argument",
+                x.base.base.loc);
         }
         r += ")";
         r += "\n";
@@ -587,102 +625,6 @@ public:
             r += s;
         }
         r += "\n";
-        s = r;
-    }
-
-    void visit_DictConstant(const ASR::DictConstant_t &x) {
-        LCOMPILERS_ASSERT(x.n_keys == x.n_values);
-        std::string r = "";
-        r += "{";
-        for (size_t i = 0; i < x.n_keys; i++) {
-            visit_expr(*x.m_keys[i]);
-            r += s;
-            r += ": ";
-            visit_expr(*x.m_values[i]);
-            r += s; 
-            if (i < x.n_keys - 1) {
-                r += ", ";
-            }
-        }
-        r += "}";
-
-        s = r;
-    }
-
-    // An aggregate visitor for `ListConstant`, `TupleConstant` & `SetConstant`
-    void visit_AggregateConstant(size_t n_args, ASR::expr_t** m_args,
-            std::string opening_braces, std::string closing_braces) {
-        std::string r = "";
-        r += opening_braces;
-        for (size_t i = 0; i < n_args; i++) {
-            this->visit_expr(*m_args[i]);
-            r.append(s);
-            if (i < n_args - 1) {
-                r.append(", ");
-            }
-        }
-        r += closing_braces;
-        s = r;
-    }
-
-    void visit_ListConstant(const ASR::ListConstant_t &x) {
-        visit_AggregateConstant(x.n_args, x.m_args, "[", "]");
-    }
-
-    void visit_TupleConstant(const ASR::TupleConstant_t &x) {
-        visit_AggregateConstant(x.n_elements, x.m_elements, "(", ")");
-    }
-
-    void visit_SetConstant(const ASR::SetConstant_t &x) {
-        visit_AggregateConstant(x.n_elements, x.m_elements, "{", "}");
-    }
-
-    // An aggregate visitor for list methods with 0 or 1 argument
-    void visit_UnaryListMethods(ASR::expr_t* list, std::string method_name,
-                ASR::expr_t* arg=nullptr, bool has_return_value=false) {
-        std::string r = "";
-        visit_expr(*list);
-        r += s;
-        r += "." + method_name + "(";
-        if (arg != nullptr) {
-            visit_expr(*arg);
-            r += s;
-        }
-        r += ")";
-        if (!has_return_value) {
-            r = indent + r + "\n";
-        }
-
-        s = r;
-    }
-
-    void visit_ListAppend(const ASR::ListAppend_t &x) {
-       visit_UnaryListMethods(x.m_a, "append", x.m_ele);
-    }
-
-    void visit_ListCount(const ASR::ListCount_t &x) {
-        visit_UnaryListMethods(x.m_arg, "count", x.m_ele, true);
-    }
-
-    void visit_ListRemove(const ASR::ListRemove_t &x) {
-        visit_UnaryListMethods(x.m_a, "remove", x.m_ele);
-    }
-
-    void visit_ListClear(const ASR::ListClear_t &x) {
-        visit_UnaryListMethods(x.m_a, "clear");
-    }
-
-    void visit_ListInsert(const ASR::ListInsert_t &x) {
-        std::string r = indent;
-        visit_expr(*x.m_a);
-        r += s;
-        r += ".insert(";
-        visit_expr(*x.m_pos);
-        r += s + ", ";
-        visit_expr(*x.m_ele);
-        r += s;
-        r += ")\n";
-
         s = r;
     }
 

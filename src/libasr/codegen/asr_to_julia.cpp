@@ -307,7 +307,7 @@ public:
                     sub = format_type(type_name, v.m_name, use_ref);
                 }
             } else {
-                diag.codegen_error_label("Type number '" + std::to_string(v.m_type->type)
+                diag.codegen_error_label("Type '" + ASRUtils::type_to_str_python(v.m_type)
                                              + "' not supported",
                                          { v.base.base.loc },
                                          "");
@@ -404,7 +404,7 @@ public:
                     sub = format_type(der_type_name, v.m_name, use_ref);
                 }
             } else {
-                diag.codegen_error_label("Type number '" + std::to_string(v_m_type->type)
+                diag.codegen_error_label("Type '" + ASRUtils::type_to_str_python(v_m_type)
                                              + "' not supported",
                                          { v.base.base.loc },
                                          "");
@@ -937,7 +937,7 @@ public:
                 tmp_sym = tmp_var->m_v;
             } else {
                 throw CodeGenError("Cannot deallocate variables in expression " +
-                                    std::to_string(tmp_expr->type),
+                                    ASRUtils::type_to_str_python(ASRUtils::expr_type(tmp_expr)),
                                     tmp_expr->base.loc);
             }
             const ASR::Variable_t* v = ASR::down_cast<ASR::Variable_t>(
@@ -984,7 +984,7 @@ public:
                 generate_array_decl(
                     out, std::string(v->m_name), der_type_name, _dims, nullptr, n_dims, true, true);
             } else {
-                diag.codegen_error_label("Type number '" + std::to_string(v->m_type->type)
+                diag.codegen_error_label("Type '" + ASRUtils::type_to_str_python(v->m_type)
                                              + "' not supported",
                                          { v->base.base.loc },
                                          "");
@@ -1237,8 +1237,11 @@ public:
 
     void visit_DoConcurrentLoop(const ASR::DoConcurrentLoop_t& x)
     {
-        const ASR::DoLoop_t do_loop = ASR::DoLoop_t{ x.base, nullptr, x.m_head, x.m_body, x.n_body, nullptr, 0 };
+        // LCOMPILERS_ASSERT(x.n_head == 1);
+        for (size_t i = 0; i < x.n_head; i++) {
+        const ASR::DoLoop_t do_loop = ASR::DoLoop_t{ x.base, nullptr, x.m_head[i], x.m_body, x.n_body, nullptr, 0 };
         visit_DoLoop(do_loop, true);
+        }
     }
 
     void visit_If(const ASR::If_t& x)
@@ -1435,10 +1438,9 @@ public:
     {
         std::string indent(indentation_level * indentation_spaces, ' ');
         std::string out = "[";
-        for (size_t i = 0; i < x.n_args; i++) {
-            visit_expr(*x.m_args[i]);
-            out += src;
-            if (i < x.n_args - 1)
+        for (size_t i = 0; i < (size_t) ASRUtils::get_fixed_size_of_array(x.m_type); i++) {
+            out += ASRUtils::fetch_ArrayConstant_value(x, i);
+            if (i < (size_t) ASRUtils::get_fixed_size_of_array(x.m_type) - 1)
                 out += ", ";
         }
         out += "]";
@@ -1843,24 +1845,28 @@ public:
     {
         std::string indent(indentation_level * indentation_spaces, ' ');
         std::string out = indent + "println(", sep;
-        if (x.m_separator) {
-            visit_expr(*x.m_separator);
-            sep = src;
-        } else {
-            sep = "\" \"";
-        }
-        for (size_t i = 0; i < x.n_values; i++) {
-            visit_expr(*x.m_values[i]);
+        sep = "\" \"";
+        //HACKISH way to handle print refactoring (always using stringformat).
+        // TODO : Implement stringformat visitor.
+        ASR::StringFormat_t* str_fmt;
+        size_t n_values = 0;
+        if(ASR::is_a<ASR::StringFormat_t>(*x.m_text)){
+            str_fmt = ASR::down_cast<ASR::StringFormat_t>(x.m_text);
+            n_values = str_fmt->n_args;
+        } else if (ASR::is_a<ASR::String_t>(*ASRUtils::expr_type(x.m_text))){
+            visit_expr(*x.m_text);
             out += src;
-            if (i + 1 != x.n_values) {
+        } else {
+            throw CodeGenError("print statment supported for stringformat and single character argument",
+                x.base.base.loc);
+        } 
+        for (size_t i = 0; i < n_values; i++) {
+            visit_expr(*str_fmt->m_args[i]);
+            out += src;
+            if (i + 1 != n_values) {
                 out += ", " + sep + ", ";
             }
         }
-        if (x.m_end) {
-            visit_expr(*x.m_end);
-            out += src;
-        }
-
         out += ")\n";
         src = out;
     }
@@ -1901,11 +1907,12 @@ public:
             SET_INTRINSIC_NAME(Expm1, "expm1");
             SET_INTRINSIC_NAME(Trunc, "trunc");
             SET_INTRINSIC_NAME(Fix, "fix");
-            SET_INTRINSIC_NAME(Kind, "kind");
             SET_INTRINSIC_NAME(StringContainsSet, "verify");
             SET_INTRINSIC_NAME(StringFindSet, "scan");
             SET_INTRINSIC_NAME(SubstrIndex, "index");
             SET_INTRINSIC_NAME(Modulo, "modulo");
+            SET_INTRINSIC_NAME(StringLenTrim, "len_trim");
+            SET_INTRINSIC_NAME(StringTrim, "trim");
             default : {
                 throw LCompilersException("IntrinsicFunction: `"
                     + ASRUtils::get_intrinsic_name(x.m_intrinsic_id)

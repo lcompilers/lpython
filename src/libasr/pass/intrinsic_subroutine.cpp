@@ -38,12 +38,13 @@ class ReplaceIntrinsicSubroutines : public ASR::CallReplacerOnExpressionsVisitor
 
         ReplaceIntrinsicSubroutines(Allocator& al_) :
         al(al_), remove_original_statement(false) {
+            parent_body = nullptr;
             pass_result.n = 0;
         }
 
         void visit_IntrinsicImpureSubroutine(const ASR::IntrinsicImpureSubroutine_t &x) {
             Vec<ASR::call_arg_t> new_args; new_args.reserve(al, x.n_args);
-            // Replace any IntrinsicImpureSubroutinesin the argument first:
+            // Replace any IntrinsicImpureSubroutines in the argument first:
             for( size_t i = 0; i < x.n_args; i++ ) {
                 ASR::call_arg_t arg0;
                 arg0.loc = x.m_args[i]->base.loc;
@@ -51,7 +52,7 @@ class ReplaceIntrinsicSubroutines : public ASR::CallReplacerOnExpressionsVisitor
                 new_args.push_back(al, arg0);
             }
             ASRUtils::impl_subroutine instantiate_subroutine =
-                ASRUtils::IntrinsicImpureSubroutineRegistry::get_instantiate_subroutine(x.m_intrinsic_id);
+                ASRUtils::IntrinsicImpureSubroutineRegistry::get_instantiate_subroutine(x.m_sub_intrinsic_id);
             if( instantiate_subroutine == nullptr ) {
                 return ;
             }

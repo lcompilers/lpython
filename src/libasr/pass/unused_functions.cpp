@@ -36,6 +36,20 @@ public:
             if( ASR::is_a<ASR::Function_t>(*arg_var->m_v) ) {
                 uint64_t h = get_hash((ASR::asr_t*)arg_var->m_v);
                 fn_used[h] = ASR::down_cast<ASR::Function_t>(arg_var->m_v)->m_name;
+            } else if( ASR::is_a<ASR::Variable_t>(*arg_var->m_v) ){
+                ASR::Variable_t* v = ASR::down_cast<ASR::Variable_t>(arg_var->m_v);
+                if(v->m_type_declaration){
+                    ASR::symbol_t* func = v->m_type_declaration;
+                    if(ASR::is_a<ASR::ExternalSymbol_t>(*func)){
+                        uint64_t h = get_hash((ASR::asr_t*)func);
+                        fn_used[h] = ASR::down_cast<ASR::ExternalSymbol_t>(func)->m_name;
+                        func = ASR::down_cast<ASR::ExternalSymbol_t>(func)->m_external;
+                    }
+                    if(ASR::is_a<ASR::Function_t>(*func)){
+                        uint64_t h = get_hash((ASR::asr_t*)func);
+                        fn_used[h] = ASR::down_cast<ASR::Function_t>(func)->m_name;
+                    }
+                }
             }
         }
 

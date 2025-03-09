@@ -1,5 +1,4 @@
 #include <iostream>
-#include <memory>
 #include <chrono>
 
 #include <libasr/asr.h>
@@ -378,8 +377,13 @@ public:
     }
 
     void visit_Print(const ASR::Print_t &x) {
-        LCOMPILERS_ASSERT(x.n_values == 1);
-        ASR::expr_t *e = x.m_values[0];
+        LCOMPILERS_ASSERT(x.m_text != nullptr);
+        ASR::expr_t *e = x.m_text;
+        //HACKISH way to handle print refactoring (always using stringformat).
+        // TODO : Implement stringformat visitor.
+        if(e && ASR::is_a<ASR::StringFormat_t>(*e)){
+            e = ASR::down_cast<ASR::StringFormat_t>(e)->m_args[0];
+        }
         if (e->type == ASR::exprType::StringConstant) {
             ASR::StringConstant_t *s = down_cast<ASR::StringConstant_t>(e);
             std::string msg = s->m_s;
@@ -396,7 +400,7 @@ public:
                 m_a.asm_add_r32_imm8(X86Reg::esp, 4);
             } else if (t->type == ASR::ttypeType::Real) {
                 throw LCompilersException("Type not implemented");
-            } else if (t->type == ASR::ttypeType::Character) {
+            } else if (t->type == ASR::ttypeType::String) {
                 throw LCompilersException("Type not implemented");
             } else {
                 throw LCompilersException("Type not implemented");

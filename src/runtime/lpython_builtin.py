@@ -636,7 +636,7 @@ def _lpython_str_count(s: str, sub: str) -> i32:
     sub_len = len(sub)
 
     if sub_len == 0:
-        return s_len + 1 
+        return s_len + 1
 
     count = 0
 
@@ -777,7 +777,7 @@ def _lpython_str_istitle(s: str) -> bool:
 
     word_start: bool = True  # Flag to track the start of a word
     ch: str
-    only_whitespace: bool = True 
+    only_whitespace: bool = True
     for ch in s:
         if ch.isalpha() and (ord('A') <= ord(ch) and ord(ch) <= ord('Z')):
             only_whitespace = False
@@ -873,7 +873,7 @@ def _lpython_str_split(x: str) -> list[str]:
     start:i32 = 0
     ind: i32
     x_strip: str = _lpython_str_strip(x)
-    if (x_strip == ""): 
+    if (x_strip == ""):
         return res
     while True:
         while (start < len(x_strip) and x_strip[start] == ' '):
@@ -886,7 +886,7 @@ def _lpython_str_split(x: str) -> list[str]:
             res.append(x_strip[start:start + ind])
             start += ind + len(sep)
     return res
-    
+
 @overload
 def _lpython_str_split(x: str, sep:str) -> list[str]:
     if len(sep) == 0:
@@ -907,7 +907,7 @@ def _lpython_str_split(x: str, sep:str) -> list[str]:
 @overload
 def _lpython_str_replace(x: str, old:str, new:str) -> str:
     return _lpython_str_replace(x, old, new, len(x))
-    
+
 
 @overload
 def _lpython_str_replace(x: str, old:str, new:str, count: i32) -> str:
@@ -1045,7 +1045,7 @@ def _lpython_str_isspace(s: str) -> bool:
     # type 'WS', 'B' or 'S'; or the category 'Zs'.
     if len(s) == 0:
         return False
-    
+
     ch: str
     for ch in s:
         if not (ch == " "  or   # SPACE
@@ -1077,12 +1077,13 @@ def _lpython_str_isspace(s: str) -> bool:
     return True
 
 @overload
-def _lpython_str_center(s: str, width: i32, fillchar: str) -> str:
+def _lpython_str_center(s: str, width_: i32, fillchar: str) -> str:
     """
-    Return centered in a string of length width. 
-    Padding is done using the specified fillchar (default is an ASCII space). 
+    Return centered in a string of length width.
+    Padding is done using the specified fillchar (default is an ASCII space).
     The original string is returned if width is less than or equal to len(s).
     """
+    width: i32 = width_
     if(len(fillchar) != 1):
         raise TypeError("The fill character must be exactly one character long")
     str_len: i32 = len(s)
@@ -1091,7 +1092,7 @@ def _lpython_str_center(s: str, width: i32, fillchar: str) -> str:
     width -= str_len
     result: str = ""
     left_padding: i32 = i32(width/2) + _mod(width,2)
-    i: i32 
+    i: i32
     for i in range(left_padding):
         result += fillchar
     right_padding: i32 = width - left_padding
@@ -1107,7 +1108,7 @@ def _lpython_str_center(s: str, width: i32) -> str:
 @overload
 def _lpython_str_expandtabs(s: str, tabsize: i32) -> str:
     """
-    Return a copy of the string where all tab characters are replaced 
+    Return a copy of the string where all tab characters are replaced
     by one or more spaces, depending on the current column and the given tab size.
     """
     if len(s) == 0:

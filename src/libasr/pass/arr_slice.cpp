@@ -7,7 +7,6 @@
 #include <libasr/pass/replace_arr_slice.h>
 
 #include <vector>
-#include <utility>
 
 
 namespace LCompilers {
@@ -103,7 +102,7 @@ class ReplaceArraySection: public ASR::BaseExprReplacer<ReplaceArraySection> {
         slice_counter += 1;
         char* new_var_name = s2c(al, new_name);
         ASR::ttype_t* slice_asr_type = get_array_from_slice(x, x_arr_var);
-        ASR::asr_t* slice_asr = ASR::make_Variable_t(al, x->base.base.loc, current_scope, new_var_name, nullptr, 0,
+        ASR::asr_t* slice_asr = ASRUtils::make_Variable_t_util(al, x->base.base.loc, current_scope, new_var_name, nullptr, 0,
                                     ASR::intentType::Local, nullptr, nullptr, ASR::storage_typeType::Default,
                                     slice_asr_type, nullptr, ASR::abiType::Source, ASR::accessType::Public,
                                     ASR::presenceType::Required, false);

@@ -55,8 +55,15 @@ public:
             *ASRUtils::expr_type(value)) )    \
 
         bool is_struct_type_present = false;
-        for( size_t i = 0; i < x.n_values; i++ ) {
-            is_struct_type(x.m_values[i])
+        ASR::StringFormat_t* fmt;
+        if(ASR::is_a<ASR::StringFormat_t>(*x.m_text)){
+            fmt = (ASR::down_cast<ASR::StringFormat_t>(x.m_text));
+        } else {
+            return;
+        }
+
+        for( size_t i = 0; i < (fmt->n_args); i++ ) {
+            is_struct_type(fmt->m_args[i])
             {
 
             is_struct_type_present = true;
@@ -73,8 +80,8 @@ public:
         */
         Vec<ASR::expr_t*> new_values;
         new_values.reserve(al, 1);
-        for( size_t i = 0; i < x.n_values; i++ ) {
-            ASR::expr_t* x_m_value = x.m_values[i];
+        for( size_t i = 0; i < fmt->n_args; i++ ) {
+            ASR::expr_t* x_m_value = fmt->m_args[i];
             if( ASR::is_a<ASR::OverloadedUnaryMinus_t>(*x_m_value) ) {
                 x_m_value = ASR::down_cast<ASR::OverloadedUnaryMinus_t>(x_m_value)->m_overloaded;
             }
@@ -92,14 +99,15 @@ public:
 
             } else {
 
-            new_values.push_back(al, x.m_values[i]);
+            new_values.push_back(al, x_m_value);
 
             }
         }
-
-        ASR::Print_t& xx = const_cast<ASR::Print_t&>(x);
-        xx.m_values = new_values.p;
-        xx.n_values = new_values.size();
+        fmt->m_args = new_values.p;
+        fmt->n_args = new_values.size();
+        // ASR::Print_t& xx = const_cast<ASR::Print_t&>(x);
+        // xx.m_values = new_values.p;
+        // xx.n_values = new_values.size();
     }
 
 };

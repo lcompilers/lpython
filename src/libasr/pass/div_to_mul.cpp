@@ -6,9 +6,6 @@
 #include <libasr/pass/replace_div_to_mul.h>
 #include <libasr/pass/pass_utils.h>
 
-#include <vector>
-#include <utility>
-
 
 namespace LCompilers {
 

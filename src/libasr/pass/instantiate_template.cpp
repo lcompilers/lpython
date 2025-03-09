@@ -68,7 +68,7 @@ public:
             return current_scope->get_symbol(new_sym_name);
         }
 
-        ASR::symbol_t* new_v = ASR::down_cast<ASR::symbol_t>(ASR::make_Variable_t(
+        ASR::symbol_t* new_v = ASR::down_cast<ASR::symbol_t>(ASRUtils::make_Variable_t_util(
             al, x->base.base.loc,
             current_scope, s2c(al, new_sym_name), x->m_dependencies,
             x->n_dependencies, x->m_intent, x->m_symbolic_value,
@@ -140,7 +140,7 @@ public:
             t = ASRUtils::duplicate_type(al, type_subs[tp->m_param]);
         }
 
-        ASR::symbol_t* new_v = ASR::down_cast<ASR::symbol_t>(ASR::make_Variable_t(
+        ASR::symbol_t* new_v = ASR::down_cast<ASR::symbol_t>(ASRUtils::make_Variable_t_util(
             al, x->base.base.loc, current_scope, x->m_name, x->m_dependencies,
             x->n_dependencies, x->m_intent, x->m_symbolic_value,
             x->m_value, x->m_storage, t, x->m_type_declaration,
@@ -397,7 +397,7 @@ public:
         variable_dependencies_vec.reserve(al, 1);
         ASRUtils::collect_variable_dependencies(al, variable_dependencies_vec, new_type);
 
-        ASR::symbol_t* s = ASR::down_cast<ASR::symbol_t>(ASR::make_Variable_t(al,
+        ASR::symbol_t* s = ASR::down_cast<ASR::symbol_t>(ASRUtils::make_Variable_t_util(al,
             x->base.base.loc, current_scope, s2c(al, x->m_name), variable_dependencies_vec.p,
             variable_dependencies_vec.size(), x->m_intent, nullptr, nullptr, x->m_storage,
             new_type, nullptr, x->m_abi, x->m_access, x->m_presence, x->m_value_attr));
@@ -474,12 +474,12 @@ public:
 
     ASR::asr_t* duplicate_ArrayConstant(ASR::ArrayConstant_t *x) {
         Vec<ASR::expr_t*> m_args;
-        m_args.reserve(al, x->n_args);
-        for (size_t i = 0; i < x->n_args; i++) {
-            m_args.push_back(al, self().duplicate_expr(x->m_args[i]));
+        m_args.reserve(al, ASRUtils::get_fixed_size_of_array(x->m_type));
+        for (size_t i = 0; i < (size_t) ASRUtils::get_fixed_size_of_array(x->m_type); i++) {
+            m_args.push_back(al, self().duplicate_expr(ASRUtils::fetch_ArrayConstant_value(al, x, i)));
         }
         ASR::ttype_t* m_type = substitute_type(x->m_type);
-        return make_ArrayConstant_t(al, x->base.base.loc, m_args.p, x->n_args, m_type, x->m_storage_format);
+        return ASRUtils::make_ArrayConstructor_t_util(al, x->base.base.loc, m_args.p, ASRUtils::get_fixed_size_of_array(x->m_type), m_type, x->m_storage_format);
     }
 
     ASR::asr_t* duplicate_ArrayConstructor(ASR::ArrayConstructor_t *x) {
@@ -587,7 +587,7 @@ public:
             ADD_ASR_DEPENDENCIES(current_scope, name, dependencies);
         }
         return ASRUtils::make_FunctionCall_t_util(al, x->base.base.loc, name, x->m_original_name,
-            args.p, args.size(), type, value, dt);
+            args.p, args.size(), type, value, dt, false);
     }
 
     ASR::asr_t* duplicate_SubroutineCall(ASR::SubroutineCall_t *x) {
@@ -667,10 +667,10 @@ public:
                         t = ASRUtils::TYPE(ASR::make_Real_t(al, t->base.loc, tnew->m_kind));
                         break;
                     }
-                    case ASR::ttypeType::Character: {
-                        ASR::Character_t* tnew = ASR::down_cast<ASR::Character_t>(t);
-                        t = ASRUtils::TYPE(ASR::make_Character_t(al, t->base.loc,
-                                    tnew->m_kind, tnew->m_len, tnew->m_len_expr));
+                    case ASR::ttypeType::String: {
+                        ASR::String_t* tnew = ASR::down_cast<ASR::String_t>(t);
+                        t = ASRUtils::TYPE(ASR::make_String_t(al, t->base.loc,
+                                    tnew->m_kind, tnew->m_len, tnew->m_len_expr, ASR::string_physical_typeType::PointerString));
                         break;
                     }
                     case ASR::ttypeType::Complex: {
@@ -726,15 +726,15 @@ public:
             }
             case (ASR::ttypeType::Allocatable): {
                 ASR::Allocatable_t *a = ASR::down_cast<ASR::Allocatable_t>(ttype);
-                return ASRUtils::TYPE(ASR::make_Allocatable_t(al, ttype->base.loc,
+                return ASRUtils::TYPE(ASRUtils::make_Allocatable_t_util(al, ttype->base.loc,
                     substitute_type(a->m_type)));
             }
-            case (ASR::ttypeType::Class): {
-                ASR::Class_t *c = ASR::down_cast<ASR::Class_t>(ttype);
+            case (ASR::ttypeType::ClassType): {
+                ASR::ClassType_t *c = ASR::down_cast<ASR::ClassType_t>(ttype);
                 std::string c_name = ASRUtils::symbol_name(c->m_class_type);
                 if (context_map.find(c_name) != context_map.end()) {
                     std::string new_c_name = context_map[c_name];
-                    return ASRUtils::TYPE(ASR::make_Class_t(al,
+                    return ASRUtils::TYPE(ASR::make_ClassType_t(al,
                         ttype->base.loc, func_scope->get_symbol(new_c_name)));
                 }
                 return ttype;
@@ -849,10 +849,10 @@ void report_check_restriction(std::map<std::string, ASR::ttype_t*> type_subs,
                 = ASR::down_cast<ASR::TypeParameter_t>(f_param);
             if (!ASRUtils::check_equal_type(type_subs[f_tp->m_param],
                                             arg_param)) {
-                std::string rtype = ASRUtils::type_to_str(type_subs[f_tp->m_param]);
+                std::string rtype = ASRUtils::type_to_str_fortran(type_subs[f_tp->m_param]);
                 std::string rvar = ASRUtils::symbol_name(
                                     ASR::down_cast<ASR::Var_t>(f->m_args[i])->m_v);
-                std::string atype = ASRUtils::type_to_str(arg_param);
+                std::string atype = ASRUtils::type_to_str_fortran(arg_param);
                 std::string avar = ASRUtils::symbol_name(
                                     ASR::down_cast<ASR::Var_t>(arg->m_args[i])->m_v);
                 diagnostics.add(diag::Diagnostic(
@@ -871,9 +871,12 @@ void report_check_restriction(std::map<std::string, ASR::ttype_t*> type_subs,
     }
     if (f->m_return_var) {
         if (!arg->m_return_var) {
-            std::string msg = "The restriction argument " + arg_name
-                + " should have a return value";
-            throw SemanticError(msg, loc);
+            diagnostics.add(diag::Diagnostic(
+                "The restriction argument " + arg_name
+                + " should have a return value",
+                diag::Level::Error, diag::Stage::Semantic, {
+                    diag::Label("", {loc})}));
+            throw SemanticAbort();
         }
         ASR::ttype_t *f_ret = ASRUtils::expr_type(f->m_return_var);
         ASR::ttype_t *arg_ret = ASRUtils::expr_type(arg->m_return_var);
@@ -881,8 +884,8 @@ void report_check_restriction(std::map<std::string, ASR::ttype_t*> type_subs,
             ASR::TypeParameter_t *return_tp
                 = ASR::down_cast<ASR::TypeParameter_t>(f_ret);
             if (!ASRUtils::check_equal_type(type_subs[return_tp->m_param], arg_ret)) {
-                std::string rtype = ASRUtils::type_to_str(type_subs[return_tp->m_param]);
-                std::string atype = ASRUtils::type_to_str(arg_ret);
+                std::string rtype = ASRUtils::type_to_str_fortran(type_subs[return_tp->m_param]);
+                std::string atype = ASRUtils::type_to_str_fortran(arg_ret);
                 diagnostics.add(diag::Diagnostic(
                     "Restriction type mismatch with provided function argument",
                     diag::Level::Error, diag::Stage::Semantic, {
@@ -898,9 +901,12 @@ void report_check_restriction(std::map<std::string, ASR::ttype_t*> type_subs,
         }
     } else {
         if (arg->m_return_var) {
-            std::string msg = "The restriction argument " + arg_name
-                + " should not have a return value";
-            throw SemanticError(msg, loc);
+            diagnostics.add(diag::Diagnostic(
+                "The restriction argument " + arg_name
+                + " should not have a return value",
+                diag::Level::Error, diag::Stage::Semantic, {
+                    diag::Label("", {loc})}));
+            throw SemanticAbort();
         }
     }
     symbol_subs[f_name] = sym_arg;
@@ -969,7 +975,7 @@ public:
             return current_scope->get_symbol(new_sym_name);
         }
 
-        ASR::symbol_t* new_v = ASR::down_cast<ASR::symbol_t>(ASR::make_Variable_t(
+        ASR::symbol_t* new_v = ASR::down_cast<ASR::symbol_t>(ASRUtils::make_Variable_t_util(
             al, x->base.base.loc,
             current_scope, s2c(al, new_sym_name), x->m_dependencies,
             x->n_dependencies, x->m_intent, x->m_symbolic_value,
@@ -1036,7 +1042,7 @@ public:
         ASR::symbol_t *v = current_scope->get_symbol(x->m_name);
         if (!v) {
             ASR::ttype_t *t = substitute_type(x->m_type);
-            v = ASR::down_cast<ASR::symbol_t>(ASR::make_Variable_t(
+            v = ASR::down_cast<ASR::symbol_t>(ASRUtils::make_Variable_t_util(
                 al, x->base.base.loc, current_scope, x->m_name, x->m_dependencies,
                 x->n_dependencies, x->m_intent, x->m_symbolic_value,
                 x->m_value, x->m_storage, t, x->m_type_declaration,
@@ -1211,7 +1217,7 @@ public:
         variable_dependencies_vec.reserve(al, 1);
         ASRUtils::collect_variable_dependencies(al, variable_dependencies_vec, new_type);
 
-        ASR::symbol_t* s = ASR::down_cast<ASR::symbol_t>(ASR::make_Variable_t(al,
+        ASR::symbol_t* s = ASR::down_cast<ASR::symbol_t>(ASRUtils::make_Variable_t_util(al,
             x->base.base.loc, target_scope, s2c(al, x->m_name), variable_dependencies_vec.p,
             variable_dependencies_vec.size(), x->m_intent, nullptr, nullptr, x->m_storage,
             new_type, nullptr, x->m_abi, x->m_access, x->m_presence, x->m_value_attr));
@@ -1404,15 +1410,15 @@ public:
             }
             case (ASR::ttypeType::Allocatable) : {
                 ASR::Allocatable_t *a = ASR::down_cast<ASR::Allocatable_t>(ttype);
-                return ASRUtils::TYPE(ASR::make_Allocatable_t(al, ttype->base.loc,
+                return ASRUtils::TYPE(ASRUtils::make_Allocatable_t_util(al, ttype->base.loc,
                     substitute_type(a->m_type)));
             }
-            case (ASR::ttypeType::Class) : {
-                ASR::Class_t *c = ASR::down_cast<ASR::Class_t>(ttype);
+            case (ASR::ttypeType::ClassType) : {
+                ASR::ClassType_t *c = ASR::down_cast<ASR::ClassType_t>(ttype);
                 std::string class_name = ASRUtils::symbol_name(c->m_class_type);
                 if (symbol_subs.find(class_name) != symbol_subs.end()) {
                     ASR::symbol_t *new_c = symbol_subs[class_name];
-                    return ASRUtils::TYPE(ASR::make_Class_t(al, ttype->base.loc, new_c));
+                    return ASRUtils::TYPE(ASR::make_ClassType_t(al, ttype->base.loc, new_c));
                 }
                 return ttype;
             }
@@ -1615,7 +1621,7 @@ public:
         }
 
         return ASRUtils::make_FunctionCall_t_util(al, x->base.base.loc, name,
-            x->m_original_name, args.p, args.size(), type, value, dt);
+            x->m_original_name, args.p, args.size(), type, value, dt, false);
     }
 
     ASR::asr_t* duplicate_SubroutineCall(ASR::SubroutineCall_t* x) {
@@ -1696,12 +1702,12 @@ public:
 
     ASR::asr_t* duplicate_ArrayConstant(ASR::ArrayConstant_t *x) {
         Vec<ASR::expr_t*> m_args;
-        m_args.reserve(al, x->n_args);
-        for (size_t i = 0; i < x->n_args; i++) {
-            m_args.push_back(al, self().duplicate_expr(x->m_args[i]));
+        m_args.reserve(al,ASRUtils::get_fixed_size_of_array(x->m_type));
+        for (size_t i = 0; i < (size_t) ASRUtils::get_fixed_size_of_array(x->m_type); i++) {
+            m_args.push_back(al, self().duplicate_expr(ASRUtils::fetch_ArrayConstant_value(al, x, i)));
         }
         ASR::ttype_t* m_type = substitute_type(x->m_type);
-        return make_ArrayConstant_t(al, x->base.base.loc, m_args.p, x->n_args, m_type, x->m_storage_format);
+        return ASRUtils::make_ArrayConstructor_t_util(al, x->base.base.loc, m_args.p, ASRUtils::get_fixed_size_of_array(x->m_type), m_type, x->m_storage_format);
     }
 
     ASR::asr_t* duplicate_ArrayPhysicalCast(ASR::ArrayPhysicalCast_t *x) {
@@ -1824,15 +1830,15 @@ public:
             }
             case (ASR::ttypeType::Allocatable): {
                 ASR::Allocatable_t *a = ASR::down_cast<ASR::Allocatable_t>(ttype);
-                return ASRUtils::TYPE(ASR::make_Allocatable_t(al, ttype->base.loc,
+                return ASRUtils::TYPE(ASRUtils::make_Allocatable_t_util(al, ttype->base.loc,
                     substitute_type(a->m_type)));
             }
-            case (ASR::ttypeType::Class) : {
-                ASR::Class_t *c = ASR::down_cast<ASR::Class_t>(ttype);
+            case (ASR::ttypeType::ClassType) : {
+                ASR::ClassType_t *c = ASR::down_cast<ASR::ClassType_t>(ttype);
                 std::string class_name = ASRUtils::symbol_name(c->m_class_type);
                 if (symbol_subs.find(class_name) != symbol_subs.end()) {
                     ASR::symbol_t *new_c = symbol_subs[class_name];
-                    return ASRUtils::TYPE(ASR::make_Class_t(al, ttype->base.loc, new_c));
+                    return ASRUtils::TYPE(ASR::make_ClassType_t(al, ttype->base.loc, new_c));
                 }
                 return ttype;
             }
@@ -1900,7 +1906,7 @@ bool check_restriction(std::map<std::string, ASR::ttype_t*> type_subs,
                 std::string rtype = ASRUtils::type_to_str_with_substitution(f_param, type_subs);
                 std::string rvar = ASRUtils::symbol_name(
                                     ASR::down_cast<ASR::Var_t>(f->m_args[i])->m_v);
-                std::string atype = ASRUtils::type_to_str(arg_param);
+                std::string atype = ASRUtils::type_to_str_fortran(arg_param);
                 std::string avar = ASRUtils::symbol_name(
                                     ASR::down_cast<ASR::Var_t>(arg->m_args[i])->m_v);
                 diagnostics.add(diag::Diagnostic(
@@ -1934,7 +1940,7 @@ bool check_restriction(std::map<std::string, ASR::ttype_t*> type_subs,
         if (!ASRUtils::types_equal_with_substitution(f_ret, arg_ret, type_subs)) {
             if (report) {
                 std::string rtype = ASRUtils::type_to_str_with_substitution(f_ret, type_subs);
-                std::string atype = ASRUtils::type_to_str(arg_ret);
+                std::string atype = ASRUtils::type_to_str_fortran(arg_ret);
                 diagnostics.add(diag::Diagnostic(
                     "Restriction type mismatch with provided function argument",
                     diag::Level::Error, diag::Stage::Semantic, {

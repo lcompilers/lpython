@@ -119,6 +119,21 @@ struct Vec {
         n++;
     }
 
+    void push_front(Allocator &al, T x) {
+        LCOMPILERS_ASSERT(reserve_called == vec_called_const);
+        if (n == max) {
+            size_t max2 = 2*max;
+            T* p2 = al.allocate<T>(max2);
+            std::memcpy(p2+1, p, sizeof(T) * n);
+            p = p2;
+            max = max2;
+        } else {
+            std::memmove(p+1, p, sizeof(T) * n);
+        }
+        p[0] = x;
+        n++;
+    }
+
     size_t size() const {
         return n;
     }

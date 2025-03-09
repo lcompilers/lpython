@@ -1,4 +1,3 @@
-#include <iostream>
 #include <memory>
 
 #include <libasr/asr.h>
@@ -260,7 +259,7 @@ public:
                 handle_array(t2, type_name, true)
             } else {
                 diag.codegen_error_label("Type number '"
-                    + std::to_string(v.m_type->type)
+                    + ASRUtils::type_to_str_python(v.m_type)
                     + "' not supported", {v.base.base.loc}, "");
                 throw Abort();
             }
@@ -307,7 +306,7 @@ public:
                                     false, false);
             } else {
                 diag.codegen_error_label("Type number '"
-                    + std::to_string(v.m_type->type)
+                    + ASRUtils::type_to_str_python(v.m_type)
                     + "' not supported", {v.base.base.loc}, "");
                 throw Abort();
             }
@@ -537,10 +536,9 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         std::string indent(indentation_level * indentation_spaces, ' ');
         from_std_vector_helper = indent + "Kokkos::View<float*> r;\n";
         std::string out = "from_std_vector<float>({";
-        for (size_t i=0; i<x.n_args; i++) {
-            this->visit_expr(*x.m_args[i]);
-            out += src;
-            if (i < x.n_args-1) out += ", ";
+        for (size_t i=0; i<(size_t) ASRUtils::get_fixed_size_of_array(x.m_type); i++) {
+            out += ASRUtils::fetch_ArrayConstant_value(x, i);
+            if (i < (size_t) ASRUtils::get_fixed_size_of_array(x.m_type)-1) out += ", ";
         }
         out += "})";
         from_std_vector_helper += indent + "r = " + out + ";\n";
@@ -603,33 +601,46 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
     void visit_Print(const ASR::Print_t &x) {
         std::string indent(indentation_level*indentation_spaces, ' ');
         std::string out = indent + "std::cout ", sep;
-        if (x.m_separator) {
-            this->visit_expr(*x.m_separator);
-            sep = src;
+        //HACKISH way to handle print refactoring (always using stringformat).
+        // TODO : Implement stringformat visitor.
+        ASR::StringFormat_t* str_fmt;
+        size_t n_values = 0;
+        sep = "\" \"";
+        if(ASR::is_a<ASR::StringFormat_t>(*x.m_text)) {
+            str_fmt = ASR::down_cast<ASR::StringFormat_t>(x.m_text);
+            n_values = str_fmt->n_args;
+        } else if(ASR::is_a<ASR::String_t>(*ASRUtils::expr_type(x.m_text))){
+            this->visit_expr(*x.m_text);
+            src = "std::cout<< " + src + "<<std::endl;\n";
+            return;
         } else {
-            sep = "\" \"";
+            throw CodeGenError("print statment supported for stringformat and single character argument",
+                x.base.base.loc);
         }
-        for (size_t i=0; i<x.n_values; i++) {
-            this->visit_expr(*x.m_values[i]);
+        for (size_t i=0; i<n_values; i++) {
+            this->visit_expr(*(str_fmt->m_args[i]));
             out += "<< " + src + " ";
-            if (i+1 != x.n_values) {
+            if (i+1 != n_values) {
                 out += "<< " + sep + " ";
             }
         }
-        if (x.m_end) {
-            this->visit_expr(*x.m_end);
-            out += "<< " + src + ";\n";
-        } else {
-            out += "<< std::endl;\n";
-        }
+        out += "<< std::endl;\n";
         src = out;
     }
 
     void visit_FileWrite(const ASR::FileWrite_t &x) {
         std::string indent(indentation_level*indentation_spaces, ' ');
         std::string out = indent + "std::cout ";
-        for (size_t i=0; i<x.n_values; i++) {
-            this->visit_expr(*x.m_values[i]);
+        //HACKISH way to handle print refactoring (always using stringformat).
+        // TODO : Implement stringformat visitor.
+        ASR::StringFormat_t* str_fmt = nullptr;
+        size_t n_values = x.n_values;
+        if(x.m_values[0] && ASR::is_a<ASR::StringFormat_t>(*x.m_values[0])) {
+            str_fmt = ASR::down_cast<ASR::StringFormat_t>(x.m_values[0]);
+            n_values = str_fmt->n_args;
+        }
+        for (size_t i=0; i<n_values; i++) {
+            str_fmt? this->visit_expr(*(str_fmt->m_args[i])): this->visit_expr(*x.m_values[i]);
             out += "<< " + src + " ";
         }
         out += "<< std::endl;\n";
@@ -651,11 +662,12 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         std::string indent(indentation_level*indentation_spaces, ' ');
         std::string out = indent + "Kokkos::parallel_for(";
         out += "Kokkos::RangePolicy<Kokkos::DefaultExecutionSpace>(";
-        visit_expr(*x.m_head.m_start);
+        LCOMPILERS_ASSERT(x.n_head == 1);
+        visit_expr(*x.m_head[0].m_start);
         out += src + ", ";
-        visit_expr(*x.m_head.m_end);
+        visit_expr(*x.m_head[0].m_end);
         out += src + "+1)";
-        ASR::Variable_t *loop_var = ASRUtils::EXPR2VAR(x.m_head.m_v);
+        ASR::Variable_t *loop_var = ASRUtils::EXPR2VAR(x.m_head[0].m_v);
         sym_info[get_hash((ASR::asr_t*) loop_var)].needs_declaration = false;
         out += ", KOKKOS_LAMBDA(const long " + std::string(loop_var->m_name)
                 + ") {\n";

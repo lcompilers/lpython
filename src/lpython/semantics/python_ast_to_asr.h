@@ -11,7 +11,7 @@ namespace LCompilers::LPython {
             bool main_module, std::string module_name, std::string file_path, bool allow_implicit_casting=false, size_t eval_count=0);
 
     int save_pyc_files(const ASR::TranslationUnit_t &u,
-                       std::string infile);
+                       std::string infile, LocationManager& lm);
 
 } // namespace LCompilers::LPython
 

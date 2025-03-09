@@ -276,7 +276,7 @@ namespace CUtils {
                 }
                 break;
             }
-            case ASR::ttypeType::Character: {
+            case ASR::ttypeType::String: {
                 type_src = "char*";
                 break;
             }
@@ -409,7 +409,7 @@ class CCPPDSUtils {
                     result = func + "(&" + value + ", &" + target + ");";
                     break;
                 }
-                case ASR::ttypeType::Character : {
+                case ASR::ttypeType::String : {
                     if (is_c) {
                         result = "_lfortran_strcpy(&" + target + ", " + value + ", 1);";
                     } else {
@@ -503,7 +503,7 @@ class CCPPDSUtils {
                 case ASR::ttypeType::Logical: {
                     return "%d";
                 }
-                case ASR::ttypeType::Character: {
+                case ASR::ttypeType::String: {
                     return "%s";
                 }
                 case ASR::ttypeType::CPtr: {
@@ -523,7 +523,7 @@ class CCPPDSUtils {
                         return get_print_type(type_ptr->m_type, false);
                     }
                 }
-                case ASR::ttypeType::Enum: {
+                case ASR::ttypeType::EnumType: {
                     ASR::ttype_t* enum_underlying_type = ASRUtils::get_contained_type(t);
                     return get_print_type(enum_underlying_type, deref_ptr);
                 }
@@ -720,7 +720,7 @@ class CCPPDSUtils {
                 tmp_gen += indent + signature + " {\n";
                 std::string print_type = get_print_type(t, false);
                 tmp_gen += indent + tab + "printf(\"" + print_type + "\", creal(a), cimag(a));\n";
-            } else if (ASR::is_a<ASR::Character_t>(*t)) {
+            } else if (ASR::is_a<ASR::String_t>(*t)) {
                 tmp_gen += indent + signature + " {\n";
                 std::string print_type = get_print_type(t, false);
                 tmp_gen += indent + tab + "printf(\"'" + print_type + "'\", a);\n";
@@ -777,7 +777,7 @@ class CCPPDSUtils {
                                 num + ", " + "b.element_" + num + ");\n";
                 }
                 tmp_gen += indent + tab + "return ans;\n";
-            } else if (ASR::is_a<ASR::Character_t>(*t)) {
+            } else if (ASR::is_a<ASR::String_t>(*t)) {
                 std::string signature = "bool " + cmp_func + "(" + element_type + " a, " + element_type + " b)";
                 func_decls += indent + "inline " + signature + ";\n";
                 signature = indent + signature;
@@ -851,7 +851,7 @@ class CCPPDSUtils {
                 ASR::symbol_t* member = struct_type_t->m_symtab->get_symbol(mem_name);
                 ASR::ttype_t* member_type_asr = ASRUtils::symbol_type(member);
                 if( CUtils::is_non_primitive_DT(member_type_asr) ||
-                    ASR::is_a<ASR::Character_t>(*member_type_asr) ) {
+                    ASR::is_a<ASR::String_t>(*member_type_asr) ) {
                     tmp_generated += indent + tab + get_deepcopy(member_type_asr, "&(src->" + mem_name + ")",
                                  "&(dest->" + mem_name + ")") + ";\n";
                 } else if( ASRUtils::is_array(member_type_asr) ) {
@@ -1004,7 +1004,7 @@ class CCPPDSUtils {
             generated_code += indent + signature + " {\n";
             std::string list_resize_func = get_list_resize_func(list_type_code);
             generated_code += indent + tab + list_resize_func + "(x);\n";
-            if( ASR::is_a<ASR::Character_t>(*m_type) ) {
+            if( ASR::is_a<ASR::String_t>(*m_type) ) {
                 generated_code += indent + tab + "x->data[x->current_end_point] = NULL;\n";
             }
             generated_code += indent + tab + \
@@ -1039,7 +1039,7 @@ class CCPPDSUtils {
             generated_code += indent + tab + tab + "pos_ptr++;\n";
             generated_code += indent + tab + "}\n\n";
 
-            if( ASR::is_a<ASR::Character_t>(*m_type) ) {
+            if( ASR::is_a<ASR::String_t>(*m_type) ) {
                 generated_code += indent + tab + "x->data[pos] = NULL;\n";
             }
             generated_code += indent + tab + get_deepcopy(m_type, "element", "x->data[pos]") + "\n";
@@ -1176,7 +1176,7 @@ class CCPPDSUtils {
             tmp_gen += indent + signature + " {\n";
             for (size_t i=0; i<t->n_type; i++) {
                 std::string n = std::to_string(i);
-                if (ASR::is_a<ASR::Character_t>(*t->m_type[i])) {
+                if (ASR::is_a<ASR::String_t>(*t->m_type[i])) {
                     tmp_gen += indent + tab + "dest->element_" + n + " = " + \
                                 "NULL;\n";
                 }
@@ -1718,7 +1718,7 @@ namespace BindPyUtils {
                 util_func_decls += indent + signature + ";\n";
                 std::string body = indent + signature + " {\n";
                 body += indent + tab + "char *s = (char*)PyUnicode_AsUTF8(pValue);\n";
-                body += indent + tab + "return _lfortran_str_copy(s, 1, 0);\n";
+                body += indent + tab + "return _lfortran_str_copy(s, 1, 0, -1, -1);\n";
                 body += indent + "}\n\n";
                 util_funcs += body;
             }
@@ -1756,7 +1756,7 @@ namespace BindPyUtils {
                 }
                 break;
             }
-            case ASR::ttypeType::Character: {
+            case ASR::ttypeType::String: {
                 type_src = "NPY_STRING";
                 break;
             }
@@ -1809,7 +1809,7 @@ namespace BindPyUtils {
                 type_src = "PyFloat_FromDouble";
                 break;
             }
-            case ASR::ttypeType::Character: {
+            case ASR::ttypeType::String: {
                 type_src = "PyUnicode_FromString";
                 break;
             }
@@ -1863,7 +1863,7 @@ namespace BindPyUtils {
                 type_src = "PyFloat_AsDouble";
                 break;
             }
-            case ASR::ttypeType::Character: {
+            case ASR::ttypeType::String: {
                 type_src = bind_py_utils_functions->get_conv_py_str_to_c();
                 break;
             }

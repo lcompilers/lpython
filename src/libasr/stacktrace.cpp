@@ -9,6 +9,14 @@
 #include <string>
 #include <vector>
 
+#ifdef HAVE_LFORTRAN_LLVM_STACKTRACE
+#include <llvm/DebugInfo/Symbolize/Symbolize.h>
+#include <llvm/Support/CommandLine.h>
+#include <llvm/Support/raw_ostream.h>
+#include <llvm/Support/TargetSelect.h>
+#include <llvm/Object/ELFObjectFile.h>
+#endif
+
 // free() and abort() functions
 #include <cstdlib>
 
@@ -324,7 +332,7 @@ void get_symbol_info_bfd(std::string binary_filename, uintptr_t addr,
   abfd = bfd_openr(binary_filename.c_str(), NULL);
   if (abfd == NULL) {
     std::cout << "Cannot open the binary file '" + binary_filename + "'\n";
-    abort();
+    exit(1);
   }
   if (bfd_check_format(abfd, bfd_archive)) {
 #ifdef __APPLE__
@@ -336,19 +344,19 @@ void get_symbol_info_bfd(std::string binary_filename, uintptr_t addr,
 #else
     // On Linux this should work for any file, so we generate an error
     std::cout << "Cannot get addresses from the archive '" + binary_filename + "'\n";
-    abort();
+    exit(1);
 #endif
   }
   char **matching;
   if (!bfd_check_format_matches(abfd, bfd_object, &matching)) {
     std::cout << "Unknown format of the binary file '" + binary_filename + "'\n";
-    abort();
+    exit(1);
   }
   data.symbol_table = NULL;
   // This allocates the symbol_table:
   if (load_symbol_table(abfd, &data) == 1) {
     std::cout << "Failed to load the symbol table from '" + binary_filename + "'\n";
-    abort();
+    exit(1);
   }
   // Loops over all sections and try to find the line
   bfd_map_over_sections(abfd, process_section, &data);
@@ -489,6 +497,63 @@ std::string addr2str(const StacktraceItem &i)
   return s.str();
 }
 
+#ifdef HAVE_LFORTRAN_LLVM_STACKTRACE
+void get_symbol_info_llvm(StacktraceItem &item, llvm::symbolize::LLVMSymbolizer &symbolizer) {
+  auto binary_file = llvm::object::ObjectFile::createObjectFile(item.binary_filename);
+
+  if (!binary_file) {
+#ifdef __APPLE__
+    // This can happen for dynamic libraries in macOS,
+    // like /usr/lib/system/libsystem_c.dylib
+    return;
+#endif
+    std::cout << "Cannot open the binary file '" + item.binary_filename + "'\n";
+    exit(1);
+  }
+
+  llvm::object::ObjectFile *obj_file = binary_file.get().getBinary();
+
+  uint64_t section_index;
+  bool found = false;
+  for (const auto& section : obj_file->sections()) {
+    if (section.getAddress() <= item.local_pc && item.local_pc < section.getAddress() + section.getSize()) {
+      section_index = section.getIndex();
+      found = true;
+      break;
+    }
+  }
+
+  if (!found) {
+    std::cout << "Cannot find the section for the address " << item.local_pc << " in the binary file '" + item.binary_filename + "'\n";
+    exit(1);
+  }
+
+  llvm::object::SectionedAddress sa = {item.local_pc, section_index};
+  auto result = symbolizer.symbolizeCode(item.binary_filename, sa);
+  
+  if (result) {
+    // If there is no filename, at least we can show the binary file
+    item.source_filename = (result->FileName == "<invalid>") ? "" : result->FileName;
+    item.function_name = result->FunctionName;
+    item.line_number = result->Line;
+  } else {
+    std::cout << "Cannot open the symbol table of '" + item.binary_filename + "'\n";
+    exit(1);
+  }
+}
+
+void get_llvm_info(std::vector<StacktraceItem> &d)
+{
+  llvm::symbolize::LLVMSymbolizer::Options opts;
+  opts.Demangle = true;
+  llvm::symbolize::LLVMSymbolizer symbolizer(opts);
+
+  for (auto &item : d) {
+    get_symbol_info_llvm(item, symbolizer);
+  }
+}
+
+#endif
 
 /*
   Returns a std::string with the stacktrace corresponding to the
@@ -563,6 +628,11 @@ void address_to_line_number(const std::vector<std::string> &filenames,
           uintptr_t address,
           std::string &filename,
           int &line_number) {
+    if (addresses.size() == 0) {
+      line_number = -1;
+      filename = "";
+      return;
+    }
     uintptr_t actual_address = address-16;
     int n = addresses.size() / 3;
     // Bisection-Search
@@ -623,21 +693,26 @@ void get_local_info_dwarfdump(std::vector<StacktraceItem> &d)
   }
 }
 
+
 void get_local_info(std::vector<StacktraceItem> &d)
 {
+#ifdef HAVE_LFORTRAN_LLVM_STACKTRACE
+    get_llvm_info(d);
+#else
 #ifdef HAVE_LFORTRAN_DWARFDUMP
   get_local_info_dwarfdump(d);
 #else
-#  ifdef HAVE_LFORTRAN_BFD
+#ifdef HAVE_LFORTRAN_BFD
   bfd_init();
-#  endif
   for (size_t i=0; i < d.size(); i++) {
-#  ifdef HAVE_LFORTRAN_BFD
     get_symbol_info_bfd(d[i].binary_filename, d[i].local_pc,
       d[i].source_filename, d[i].function_name, d[i].line_number);
-#  endif
   }
-#endif
+#else
+  (void)d;
+#endif // HAVE_LFORTRAN_BFD
+#endif // HAVE_LFOTRAN_DWARFDUMP
+#endif // HAVE_LFORTRAN_LLVM_STACKTRACE
 }
 
 std::string error_stacktrace(const std::vector<StacktraceItem> &stacktrace)

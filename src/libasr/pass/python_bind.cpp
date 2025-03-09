@@ -41,7 +41,7 @@ ASR::expr_t *cpython_to_native(Allocator &al, ASR::expr_t *exp, ASR::ttype_t *ty
         Vec<ASR::call_arg_t> args_PyLong_AsUnsignedLongLong;
         args_PyLong_AsUnsignedLongLong.reserve(al, 1);
         args_PyLong_AsUnsignedLongLong.push_back(al, {f.base.base.loc, exp});
-        conv_result = ASRUtils::EXPR(ASR::make_Cast_t(al, f.base.base.loc, 
+        conv_result = ASRUtils::EXPR(ASR::make_Cast_t(al, f.base.base.loc,
                             ASRUtils::EXPR(ASRUtils::make_FunctionCall_t_util(al, f.base.base.loc,
                                 sym_PyLong_AsUnsignedLongLong, nullptr, args_PyLong_AsUnsignedLongLong.p,
                                 args_PyLong_AsUnsignedLongLong.n, u8_type, nullptr, nullptr)),
@@ -61,12 +61,12 @@ ASR::expr_t *cpython_to_native(Allocator &al, ASR::expr_t *exp, ASR::ttype_t *ty
         Vec<ASR::call_arg_t> args_PyObject_IsTrue;
         args_PyObject_IsTrue.reserve(al, 1);
         args_PyObject_IsTrue.push_back(al, {f.base.base.loc, exp});
-        conv_result = ASRUtils::EXPR(ASR::make_Cast_t(al, f.base.base.loc, 
+        conv_result = ASRUtils::EXPR(ASR::make_Cast_t(al, f.base.base.loc,
                             ASRUtils::EXPR(ASRUtils::make_FunctionCall_t_util(al, f.base.base.loc,
                                 sym_PyObject_IsTrue, nullptr, args_PyObject_IsTrue.p, args_PyObject_IsTrue.n,
                                 i4_type, nullptr, nullptr)),
                             ASR::IntegerToLogical, type, nullptr));
-    } else if (type->type == ASR::ttypeType::Character) {
+    } else if (type->type == ASR::ttypeType::String) {
         ASR::symbol_t *sym_PyUnicode_AsUTF8AndSize = f.m_symtab->resolve_symbol("PyUnicode_AsUTF8AndSize");
         Vec<ASR::call_arg_t> args_PyUnicode_AsUTF8AndSize;
         args_PyUnicode_AsUTF8AndSize.reserve(al, 1);
@@ -78,7 +78,7 @@ ASR::expr_t *cpython_to_native(Allocator &al, ASR::expr_t *exp, ASR::ttype_t *ty
                                 sym_PyUnicode_AsUTF8AndSize, nullptr, args_PyUnicode_AsUTF8AndSize.p,
                                 args_PyUnicode_AsUTF8AndSize.n, i1ptr_type, nullptr, nullptr)),
                             ASR::RealToReal, type, nullptr));
-    
+
     } else if (type->type == ASR::ttypeType::List) {
         ASR::List_t *list = ASR::down_cast<ASR::List_t>(type);
         Str s;
@@ -91,7 +91,7 @@ ASR::expr_t *cpython_to_native(Allocator &al, ASR::expr_t *exp, ASR::ttype_t *ty
         s.from_str(al, p);
         ASR::asr_t *pSize = ASR::make_Variable_t(al, f.base.base.loc, f.m_symtab, s.c_str(al), nullptr, 0,
                                 ASRUtils::intent_local, nullptr, nullptr, ASR::storage_typeType::Default, i8_type,
-                                nullptr, ASR::abiType::Source, ASR::Public, ASR::presenceType::Required, false);
+                                nullptr, ASR::abiType::Source, ASR::Public, ASR::presenceType::Required, false, false);
         ASR::expr_t *pSize_ref = ASRUtils::EXPR(ASR::make_Var_t(al, f.base.base.loc,
                                                         ASR::down_cast<ASR::symbol_t>(pSize)));
         f.m_symtab->add_symbol(p, ASR::down_cast<ASR::symbol_t>(pSize));
@@ -99,23 +99,23 @@ ASR::expr_t *cpython_to_native(Allocator &al, ASR::expr_t *exp, ASR::ttype_t *ty
                             ASRUtils::EXPR(ASRUtils::make_FunctionCall_t_util(al, f.base.base.loc,
                                 sym_PyList_Size, nullptr, args_PyList_Size.p,
                                 args_PyList_Size.n, i8_type, nullptr, nullptr)), nullptr)));
-        
+
         p = "_i" + std::to_string(get_random_number());
         s.from_str(al, p);
         ASR::asr_t *pI = ASR::make_Variable_t(al, f.base.base.loc, f.m_symtab, s.c_str(al), nullptr, 0,
                                 ASRUtils::intent_local, nullptr, nullptr, ASR::storage_typeType::Default, i8_type,
-                                nullptr, ASR::abiType::Source, ASR::Public, ASR::presenceType::Required, false);
+                                nullptr, ASR::abiType::Source, ASR::Public, ASR::presenceType::Required, false, false);
         ASR::expr_t *pI_ref = ASRUtils::EXPR(ASR::make_Var_t(al, f.base.base.loc,
                                                         ASR::down_cast<ASR::symbol_t>(pI)));
         f.m_symtab->add_symbol(p, ASR::down_cast<ASR::symbol_t>(pI));
         body.push_back(al, ASRUtils::STMT(ASR::make_Assignment_t(al, f.base.base.loc, pI_ref,
                             ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, f.base.base.loc, 0, i8_type)), nullptr)));
-        
+
         p = "_result" + std::to_string(get_random_number());
         s.from_str(al, p);
         ASR::asr_t *pResult = ASR::make_Variable_t(al, f.base.base.loc, f.m_symtab, s.c_str(al), nullptr, 0,
                                 ASRUtils::intent_local, nullptr, nullptr, ASR::storage_typeType::Default, type,
-                                nullptr, ASR::abiType::Source, ASR::Public, ASR::presenceType::Required, false);
+                                nullptr, ASR::abiType::Source, ASR::Public, ASR::presenceType::Required, false, false);
         ASR::expr_t *pResult_ref = ASRUtils::EXPR(ASR::make_Var_t(al, f.base.base.loc,
                                                         ASR::down_cast<ASR::symbol_t>(pResult)));
         f.m_symtab->add_symbol(p, ASR::down_cast<ASR::symbol_t>(pResult));
@@ -124,14 +124,14 @@ ASR::expr_t *cpython_to_native(Allocator &al, ASR::expr_t *exp, ASR::ttype_t *ty
 
         Vec<ASR::stmt_t*> while_body;
         while_body.reserve(al, 2);
-        
+
         ASR::symbol_t *sym_PyList_GetItem = f.m_symtab->resolve_symbol("PyList_GetItem");
         Vec<ASR::call_arg_t> args_PyList_GetItem;
         args_PyList_GetItem.reserve(al, 2);
         args_PyList_GetItem.push_back(al, {f.base.base.loc, exp});
         args_PyList_GetItem.push_back(al, {f.base.base.loc, pI_ref});
 
-        while_body.push_back(al, ASRUtils::STMT(ASR::make_ListAppend_t(al, f.base.base.loc, pResult_ref, 
+        while_body.push_back(al, ASRUtils::STMT(ASR::make_ListAppend_t(al, f.base.base.loc, pResult_ref,
                 cpython_to_native(al,  ASRUtils::EXPR(ASRUtils::make_FunctionCall_t_util(al, f.base.base.loc,
                                 sym_PyList_GetItem, nullptr, args_PyList_GetItem.p,
                                 args_PyList_GetItem.n, ptr_t, nullptr, nullptr)), list->m_type, f, while_body)
@@ -149,7 +149,7 @@ ASR::expr_t *cpython_to_native(Allocator &al, ASR::expr_t *exp, ASR::ttype_t *ty
                 ASRUtils::EXPR(ASR::make_IntegerCompare_t(al, f.base.base.loc, pI_ref, ASR::cmpopType::Lt, pSize_ref,
                     i1_type, nullptr)),
                 while_body.p, while_body.n, nullptr, 0)));
-        
+
         conv_result = pResult_ref;
 
     } else if (type->type == ASR::ttypeType::Tuple) {
@@ -160,7 +160,7 @@ ASR::expr_t *cpython_to_native(Allocator &al, ASR::expr_t *exp, ASR::ttype_t *ty
         s.from_str(al, p);
         ASR::asr_t *pResult = ASR::make_Variable_t(al, f.base.base.loc, f.m_symtab, s.c_str(al), nullptr, 0,
                                 ASRUtils::intent_local, nullptr, nullptr, ASR::storage_typeType::Default, type,
-                                nullptr, ASR::abiType::Source, ASR::Public, ASR::presenceType::Required, false);
+                                nullptr, ASR::abiType::Source, ASR::Public, ASR::presenceType::Required, false, false);
         ASR::expr_t *pResult_ref = ASRUtils::EXPR(ASR::make_Var_t(al, f.base.base.loc,
                                                         ASR::down_cast<ASR::symbol_t>(pResult)));
         f.m_symtab->add_symbol(p, ASR::down_cast<ASR::symbol_t>(pResult));
@@ -194,7 +194,7 @@ ASR::expr_t *cpython_to_native(Allocator &al, ASR::expr_t *exp, ASR::ttype_t *ty
         s.from_str(al, p);
         ASR::asr_t *pResult = ASR::make_Variable_t(al, f.base.base.loc, f.m_symtab, s.c_str(al), nullptr, 0,
                                 ASRUtils::intent_local, nullptr, nullptr, ASR::storage_typeType::Default, type,
-                                nullptr, ASR::abiType::Source, ASR::Public, ASR::presenceType::Required, false);
+                                nullptr, ASR::abiType::Source, ASR::Public, ASR::presenceType::Required, false, false);
         ASR::expr_t *pResult_ref = ASRUtils::EXPR(ASR::make_Var_t(al, f.base.base.loc,
                                                         ASR::down_cast<ASR::symbol_t>(pResult)));
         f.m_symtab->add_symbol(p, ASR::down_cast<ASR::symbol_t>(pResult));
@@ -202,7 +202,7 @@ ASR::expr_t *cpython_to_native(Allocator &al, ASR::expr_t *exp, ASR::ttype_t *ty
         body.push_back(al, ASRUtils::STMT(ASR::make_Assignment_t(al, f.base.base.loc, pResult_ref,
             ASRUtils::EXPR(ASR::make_SetConstant_t(al, f.base.base.loc, nullptr, 0, type)),
             nullptr)));
-        
+
         ASR::symbol_t *sym_PySet_Size = f.m_symtab->resolve_symbol("PySet_Size");
         Vec<ASR::call_arg_t> args_PySet_Size;
         args_PySet_Size.reserve(al, 1);
@@ -211,7 +211,7 @@ ASR::expr_t *cpython_to_native(Allocator &al, ASR::expr_t *exp, ASR::ttype_t *ty
         s.from_str(al, p);
         ASR::asr_t *pSize = ASR::make_Variable_t(al, f.base.base.loc, f.m_symtab, s.c_str(al), nullptr, 0,
                                 ASRUtils::intent_local, nullptr, nullptr, ASR::storage_typeType::Default, i8_type,
-                                nullptr, ASR::abiType::Source, ASR::Public, ASR::presenceType::Required, false);
+                                nullptr, ASR::abiType::Source, ASR::Public, ASR::presenceType::Required, false, false);
         ASR::expr_t *pSize_ref = ASRUtils::EXPR(ASR::make_Var_t(al, f.base.base.loc,
                                                         ASR::down_cast<ASR::symbol_t>(pSize)));
         f.m_symtab->add_symbol(p, ASR::down_cast<ASR::symbol_t>(pSize));
@@ -224,7 +224,7 @@ ASR::expr_t *cpython_to_native(Allocator &al, ASR::expr_t *exp, ASR::ttype_t *ty
         s.from_str(al, p);
         ASR::asr_t *pI = ASR::make_Variable_t(al, f.base.base.loc, f.m_symtab, s.c_str(al), nullptr, 0,
                                 ASRUtils::intent_local, nullptr, nullptr, ASR::storage_typeType::Default, i8_type,
-                                nullptr, ASR::abiType::Source, ASR::Public, ASR::presenceType::Required, false);
+                                nullptr, ASR::abiType::Source, ASR::Public, ASR::presenceType::Required, false, false);
         ASR::expr_t *pI_ref = ASRUtils::EXPR(ASR::make_Var_t(al, f.base.base.loc,
                                                         ASR::down_cast<ASR::symbol_t>(pI)));
         f.m_symtab->add_symbol(p, ASR::down_cast<ASR::symbol_t>(pI));
@@ -235,7 +235,7 @@ ASR::expr_t *cpython_to_native(Allocator &al, ASR::expr_t *exp, ASR::ttype_t *ty
         s.from_str(al, p);
         ASR::asr_t *pIterator = ASR::make_Variable_t(al, f.base.base.loc, f.m_symtab, s.c_str(al), nullptr, 0,
                                 ASRUtils::intent_local, nullptr, nullptr, ASR::storage_typeType::Default, ptr_t,
-                                nullptr, ASR::abiType::Source, ASR::Public, ASR::presenceType::Required, false);
+                                nullptr, ASR::abiType::Source, ASR::Public, ASR::presenceType::Required, false, false);
         ASR::expr_t *pIterator_ref = ASRUtils::EXPR(ASR::make_Var_t(al, f.base.base.loc,
                                                         ASR::down_cast<ASR::symbol_t>(pIterator)));
         f.m_symtab->add_symbol(p, ASR::down_cast<ASR::symbol_t>(pIterator));
@@ -244,7 +244,7 @@ ASR::expr_t *cpython_to_native(Allocator &al, ASR::expr_t *exp, ASR::ttype_t *ty
         Vec<ASR::call_arg_t> args_PyObject_GetIter;
         args_PyObject_GetIter.reserve(al, 1);
         args_PyObject_GetIter.push_back(al, {f.base.base.loc, exp});
-        body.push_back(al, 
+        body.push_back(al,
             ASRUtils::STMT(ASR::make_Assignment_t(al, f.base.base.loc, pIterator_ref,
                 ASRUtils::EXPR(ASRUtils::make_FunctionCall_t_util(al, f.base.base.loc, sym_PyObject_GetIter, nullptr,
                     args_PyObject_GetIter.p, args_PyObject_GetIter.n, ptr_t, nullptr, nullptr)), nullptr)));
@@ -253,11 +253,11 @@ ASR::expr_t *cpython_to_native(Allocator &al, ASR::expr_t *exp, ASR::ttype_t *ty
         s.from_str(al, p);
         ASR::asr_t *pItem = ASR::make_Variable_t(al, f.base.base.loc, f.m_symtab, s.c_str(al), nullptr, 0,
                                 ASRUtils::intent_local, nullptr, nullptr, ASR::storage_typeType::Default, ptr_t,
-                                nullptr, ASR::abiType::Source, ASR::Public, ASR::presenceType::Required, false);
+                                nullptr, ASR::abiType::Source, ASR::Public, ASR::presenceType::Required, false, false);
         ASR::expr_t *pItem_ref = ASRUtils::EXPR(ASR::make_Var_t(al, f.base.base.loc,
                                                         ASR::down_cast<ASR::symbol_t>(pItem)));
         f.m_symtab->add_symbol(p, ASR::down_cast<ASR::symbol_t>(pItem));
-        
+
         Vec<ASR::stmt_t*> while_body;
         while_body.reserve(al, 3);
 
@@ -267,7 +267,7 @@ ASR::expr_t *cpython_to_native(Allocator &al, ASR::expr_t *exp, ASR::ttype_t *ty
                 ASRUtils::EXPR(ASR::make_IntegerBinOp_t(al, f.base.base.loc, pI_ref, ASR::binopType::Add,
                     ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, f.base.base.loc, 1, i8_type)), i8_type, nullptr)),
             nullptr)));
-        
+
         ASR::symbol_t *sym_PyIter_Next = f.m_symtab->resolve_symbol("PyIter_Next"); // TODO: decrement
         Vec<ASR::call_arg_t> args_PyIter_Next;
         args_PyIter_Next.reserve(al, 1);
@@ -288,7 +288,7 @@ ASR::expr_t *cpython_to_native(Allocator &al, ASR::expr_t *exp, ASR::ttype_t *ty
             static_cast<int64_t>(ASRUtils::IntrinsicElementalFunctions::SetAdd),
             args_Set_add.p, args_Set_add.n, 0, nullptr, nullptr)))));
 
-        body.push_back(al, ASRUtils::STMT(ASR::make_WhileLoop_t(al, f.base.base.loc, nullptr, 
+        body.push_back(al, ASRUtils::STMT(ASR::make_WhileLoop_t(al, f.base.base.loc, nullptr,
             ASRUtils::EXPR(ASR::make_IntegerCompare_t(al, f.base.base.loc, pI_ref, ASR::cmpopType::Lt, pSize_ref,
                     i1_type, nullptr)),
             while_body.p, while_body.n, nullptr, 0)));
@@ -303,7 +303,7 @@ ASR::expr_t *cpython_to_native(Allocator &al, ASR::expr_t *exp, ASR::ttype_t *ty
         s.from_str(al, p);
         ASR::asr_t *pResult = ASR::make_Variable_t(al, f.base.base.loc, f.m_symtab, s.c_str(al), nullptr, 0,
                                 ASRUtils::intent_local, nullptr, nullptr, ASR::storage_typeType::Default, type,
-                                nullptr, ASR::abiType::Source, ASR::Public, ASR::presenceType::Required, false);
+                                nullptr, ASR::abiType::Source, ASR::Public, ASR::presenceType::Required, false, false);
         ASR::expr_t *pResult_ref = ASRUtils::EXPR(ASR::make_Var_t(al, f.base.base.loc,
                                                         ASR::down_cast<ASR::symbol_t>(pResult)));
         f.m_symtab->add_symbol(p, ASR::down_cast<ASR::symbol_t>(pResult));
@@ -311,7 +311,7 @@ ASR::expr_t *cpython_to_native(Allocator &al, ASR::expr_t *exp, ASR::ttype_t *ty
         body.push_back(al, ASRUtils::STMT(ASR::make_Assignment_t(al, f.base.base.loc, pResult_ref,
             ASRUtils::EXPR(ASR::make_DictConstant_t(al, f.base.base.loc, nullptr, 0, nullptr, 0, type)),
             nullptr)));
-        
+
         ASR::symbol_t *sym_PyDict_Size = f.m_symtab->resolve_symbol("PyDict_Size");
         Vec<ASR::call_arg_t> args_PyDict_Size;
         args_PyDict_Size.reserve(al, 1);
@@ -320,7 +320,7 @@ ASR::expr_t *cpython_to_native(Allocator &al, ASR::expr_t *exp, ASR::ttype_t *ty
         s.from_str(al, p);
         ASR::asr_t *pSize = ASR::make_Variable_t(al, f.base.base.loc, f.m_symtab, s.c_str(al), nullptr, 0,
                                 ASRUtils::intent_local, nullptr, nullptr, ASR::storage_typeType::Default, i8_type,
-                                nullptr, ASR::abiType::Source, ASR::Public, ASR::presenceType::Required, false);
+                                nullptr, ASR::abiType::Source, ASR::Public, ASR::presenceType::Required, false, false);
         ASR::expr_t *pSize_ref = ASRUtils::EXPR(ASR::make_Var_t(al, f.base.base.loc,
                                                         ASR::down_cast<ASR::symbol_t>(pSize)));
         f.m_symtab->add_symbol(p, ASR::down_cast<ASR::symbol_t>(pSize));
@@ -333,7 +333,7 @@ ASR::expr_t *cpython_to_native(Allocator &al, ASR::expr_t *exp, ASR::ttype_t *ty
         s.from_str(al, p);
         ASR::asr_t *pI = ASR::make_Variable_t(al, f.base.base.loc, f.m_symtab, s.c_str(al), nullptr, 0,
                                 ASRUtils::intent_local, nullptr, nullptr, ASR::storage_typeType::Default, i8_type,
-                                nullptr, ASR::abiType::Source, ASR::Public, ASR::presenceType::Required, false);
+                                nullptr, ASR::abiType::Source, ASR::Public, ASR::presenceType::Required, false, false);
         ASR::expr_t *pI_ref = ASRUtils::EXPR(ASR::make_Var_t(al, f.base.base.loc,
                                                         ASR::down_cast<ASR::symbol_t>(pI)));
         f.m_symtab->add_symbol(p, ASR::down_cast<ASR::symbol_t>(pI));
@@ -344,7 +344,7 @@ ASR::expr_t *cpython_to_native(Allocator &al, ASR::expr_t *exp, ASR::ttype_t *ty
         s.from_str(al, p);
         ASR::asr_t *pIterator = ASR::make_Variable_t(al, f.base.base.loc, f.m_symtab, s.c_str(al), nullptr, 0,
                                 ASRUtils::intent_local, nullptr, nullptr, ASR::storage_typeType::Default, ptr_t,
-                                nullptr, ASR::abiType::Source, ASR::Public, ASR::presenceType::Required, false);
+                                nullptr, ASR::abiType::Source, ASR::Public, ASR::presenceType::Required, false, false);
         ASR::expr_t *pIterator_ref = ASRUtils::EXPR(ASR::make_Var_t(al, f.base.base.loc,
                                                         ASR::down_cast<ASR::symbol_t>(pIterator)));
         f.m_symtab->add_symbol(p, ASR::down_cast<ASR::symbol_t>(pIterator));
@@ -353,7 +353,7 @@ ASR::expr_t *cpython_to_native(Allocator &al, ASR::expr_t *exp, ASR::ttype_t *ty
         Vec<ASR::call_arg_t> args_PyObject_GetIter;
         args_PyObject_GetIter.reserve(al, 1);
         args_PyObject_GetIter.push_back(al, {f.base.base.loc, exp});
-        body.push_back(al, 
+        body.push_back(al,
             ASRUtils::STMT(ASR::make_Assignment_t(al, f.base.base.loc, pIterator_ref,
                 ASRUtils::EXPR(ASRUtils::make_FunctionCall_t_util(al, f.base.base.loc, sym_PyObject_GetIter, nullptr,
                     args_PyObject_GetIter.p, args_PyObject_GetIter.n, ptr_t, nullptr, nullptr)), nullptr)));
@@ -362,11 +362,11 @@ ASR::expr_t *cpython_to_native(Allocator &al, ASR::expr_t *exp, ASR::ttype_t *ty
         s.from_str(al, p);
         ASR::asr_t *pKey = ASR::make_Variable_t(al, f.base.base.loc, f.m_symtab, s.c_str(al), nullptr, 0,
                                 ASRUtils::intent_local, nullptr, nullptr, ASR::storage_typeType::Default, ptr_t,
-                                nullptr, ASR::abiType::Source, ASR::Public, ASR::presenceType::Required, false);
+                                nullptr, ASR::abiType::Source, ASR::Public, ASR::presenceType::Required, false, false);
         ASR::expr_t *pKey_ref = ASRUtils::EXPR(ASR::make_Var_t(al, f.base.base.loc,
                                                         ASR::down_cast<ASR::symbol_t>(pKey)));
         f.m_symtab->add_symbol(p, ASR::down_cast<ASR::symbol_t>(pKey));
-        
+
         Vec<ASR::stmt_t*> while_body;
         while_body.reserve(al, 3);
 
@@ -376,7 +376,7 @@ ASR::expr_t *cpython_to_native(Allocator &al, ASR::expr_t *exp, ASR::ttype_t *ty
                 ASRUtils::EXPR(ASR::make_IntegerBinOp_t(al, f.base.base.loc, pI_ref, ASR::binopType::Add,
                     ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, f.base.base.loc, 1, i8_type)), i8_type, nullptr)),
             nullptr)));
-        
+
         ASR::symbol_t *sym_PyIter_Next = f.m_symtab->resolve_symbol("PyIter_Next"); // TODO: decrement
         Vec<ASR::call_arg_t> args_PyIter_Next;
         args_PyIter_Next.reserve(al, 1);
@@ -400,7 +400,7 @@ ASR::expr_t *cpython_to_native(Allocator &al, ASR::expr_t *exp, ASR::ttype_t *ty
                     nullptr)),
                 dict->m_value_type, f, while_body))));
 
-        body.push_back(al, ASRUtils::STMT(ASR::make_WhileLoop_t(al, f.base.base.loc, nullptr, 
+        body.push_back(al, ASRUtils::STMT(ASR::make_WhileLoop_t(al, f.base.base.loc, nullptr,
             ASRUtils::EXPR(ASR::make_IntegerCompare_t(al, f.base.base.loc, pI_ref, ASR::cmpopType::Lt, pSize_ref,
                     i1_type, nullptr)),
             while_body.p, while_body.n, nullptr, 0)));
@@ -464,7 +464,7 @@ ASR::expr_t *native_to_cpython(Allocator &al, ASR::expr_t *exp, const ASR::Funct
                 ASR::cast_kindType::RealToReal, f8_type, nullptr))});
         conv_result = ASRUtils::EXPR(ASRUtils::make_FunctionCall_t_util(al, f.base.base.loc, sym_PyFloat_FromDouble,
                         nullptr, args_PyFloat_FromDouble.p, args_PyFloat_FromDouble.n, ptr_t, nullptr, nullptr));
-    } else if (type->type == ASR::ttypeType::Character) {
+    } else if (type->type == ASR::ttypeType::String) {
         ASR::symbol_t *sym_PyUnicode_FromString = f.m_symtab->resolve_symbol("PyUnicode_FromString");
         Vec<ASR::call_arg_t> args_PyUnicode_FromString;
         args_PyUnicode_FromString.reserve(al, 1);
@@ -485,12 +485,12 @@ ASR::expr_t *native_to_cpython(Allocator &al, ASR::expr_t *exp, const ASR::Funct
         s.from_str(al, p);
         ASR::asr_t *pArgs = ASR::make_Variable_t(al, f.base.base.loc, f.m_symtab, s.c_str(al), nullptr, 0,
                                 ASRUtils::intent_local, nullptr, nullptr, ASR::storage_typeType::Default, ptr_t,
-                                nullptr, ASR::abiType::Source, ASR::Public, ASR::presenceType::Required, false);
+                                nullptr, ASR::abiType::Source, ASR::Public, ASR::presenceType::Required, false, false);
         ASR::expr_t *pArgs_ref = ASRUtils::EXPR(ASR::make_Var_t(al, f.base.base.loc,
                                                     ASR::down_cast<ASR::symbol_t>(pArgs)));
         f.m_symtab->add_symbol(p, ASR::down_cast<ASR::symbol_t>(pArgs));
         body.push_back(al, ASRUtils::STMT(
-            ASR::make_Assignment_t(al, f.base.base.loc, pArgs_ref, 
+            ASR::make_Assignment_t(al, f.base.base.loc, pArgs_ref,
                 ASRUtils::EXPR(ASRUtils::make_FunctionCall_t_util(al, f.base.base.loc, sym_PyTuple_New, nullptr,
                                     args_PyTuple_New.p, args_PyTuple_New.n, ptr_t, nullptr, nullptr)), nullptr)));
         conv_result = pArgs_ref;
@@ -502,7 +502,7 @@ ASR::expr_t *native_to_cpython(Allocator &al, ASR::expr_t *exp, const ASR::Funct
             args_PyTuple_SetItem.push_back(al, {f.base.base.loc, pArgs_ref});
             ASR::expr_t *n = ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, f.base.base.loc, i, i4_type));
             args_PyTuple_SetItem.push_back(al, {f.base.base.loc, n});
-            args_PyTuple_SetItem.push_back(al, {f.base.base.loc, native_to_cpython(al, 
+            args_PyTuple_SetItem.push_back(al, {f.base.base.loc, native_to_cpython(al,
                                                                     ASRUtils::EXPR(ASR::make_TupleItem_t(al,
                                                                         f.base.base.loc, exp, n, tuple->m_type[i],
                                                                         nullptr)),
@@ -511,7 +511,7 @@ ASR::expr_t *native_to_cpython(Allocator &al, ASR::expr_t *exp, const ASR::Funct
             s.from_str(al, p);
             ASR::asr_t *pA = ASR::make_Variable_t(al, f.base.base.loc, f.m_symtab, s.c_str(al), nullptr, 0,
                                 ASRUtils::intent_local, nullptr, nullptr, ASR::storage_typeType::Default, i4_type,
-                                nullptr, ASR::abiType::Source, ASR::Public, ASR::presenceType::Required, false);
+                                nullptr, ASR::abiType::Source, ASR::Public, ASR::presenceType::Required, false, false);
             ASR::expr_t *pA_ref = ASRUtils::EXPR(ASR::make_Var_t(al, f.base.base.loc,
                                                     ASR::down_cast<ASR::symbol_t>(pA)));
             f.m_symtab->add_symbol(p, ASR::down_cast<ASR::symbol_t>(pA));
@@ -533,12 +533,12 @@ ASR::expr_t *native_to_cpython(Allocator &al, ASR::expr_t *exp, const ASR::Funct
         s.from_str(al, p);
         ASR::asr_t *pArgs = ASR::make_Variable_t(al, f.base.base.loc, f.m_symtab, s.c_str(al), nullptr, 0,
                                 ASRUtils::intent_local, nullptr, nullptr, ASR::storage_typeType::Default, ptr_t,
-                                nullptr, ASR::abiType::Source, ASR::Public, ASR::presenceType::Required, false);
+                                nullptr, ASR::abiType::Source, ASR::Public, ASR::presenceType::Required, false, false);
         ASR::expr_t *pArgs_ref = ASRUtils::EXPR(ASR::make_Var_t(al, f.base.base.loc,
                                     ASR::down_cast<ASR::symbol_t>(pArgs)));
         f.m_symtab->add_symbol(p, ASR::down_cast<ASR::symbol_t>(pArgs));
         body.push_back(al, ASRUtils::STMT(
-            ASR::make_Assignment_t(al, f.base.base.loc, pArgs_ref, 
+            ASR::make_Assignment_t(al, f.base.base.loc, pArgs_ref,
                 ASRUtils::EXPR(ASRUtils::make_FunctionCall_t_util(al, f.base.base.loc, sym_PyList_New, nullptr,
                                     args_PyList_New.p, args_PyList_New.n, ptr_t, nullptr, nullptr)), nullptr)));
         conv_result = pArgs_ref;
@@ -547,7 +547,7 @@ ASR::expr_t *native_to_cpython(Allocator &al, ASR::expr_t *exp, const ASR::Funct
         s.from_str(al, p);
         ASR::asr_t *pSize = ASR::make_Variable_t(al, f.base.base.loc, f.m_symtab, s.c_str(al), nullptr, 0,
                                 ASRUtils::intent_local, nullptr, nullptr, ASR::storage_typeType::Default, i4_type,
-                                nullptr, ASR::abiType::Source, ASR::Public, ASR::presenceType::Required, false);
+                                nullptr, ASR::abiType::Source, ASR::Public, ASR::presenceType::Required, false, false);
         ASR::expr_t *pSize_ref = ASRUtils::EXPR(ASR::make_Var_t(al, f.base.base.loc,
                                                         ASR::down_cast<ASR::symbol_t>(pSize)));
         f.m_symtab->add_symbol(p, ASR::down_cast<ASR::symbol_t>(pSize));
@@ -558,7 +558,7 @@ ASR::expr_t *native_to_cpython(Allocator &al, ASR::expr_t *exp, const ASR::Funct
         s.from_str(al, p);
         ASR::asr_t *pI = ASR::make_Variable_t(al, f.base.base.loc, f.m_symtab, s.c_str(al), nullptr, 0,
                                 ASRUtils::intent_local, nullptr, nullptr, ASR::storage_typeType::Default, i4_type,
-                                nullptr, ASR::abiType::Source, ASR::Public, ASR::presenceType::Required, false);
+                                nullptr, ASR::abiType::Source, ASR::Public, ASR::presenceType::Required, false, false);
         ASR::expr_t *pI_ref = ASRUtils::EXPR(ASR::make_Var_t(al, f.base.base.loc,
                                                         ASR::down_cast<ASR::symbol_t>(pI)));
         f.m_symtab->add_symbol(p, ASR::down_cast<ASR::symbol_t>(pI));
@@ -570,20 +570,20 @@ ASR::expr_t *native_to_cpython(Allocator &al, ASR::expr_t *exp, const ASR::Funct
         s.from_str(al, p);
         ASR::asr_t *pItem = ASR::make_Variable_t(al, f.base.base.loc, f.m_symtab, s.c_str(al), nullptr, 0,
                                 ASRUtils::intent_local, nullptr, nullptr, ASR::storage_typeType::Default, list->m_type,
-                                nullptr, ASR::abiType::Source, ASR::Public, ASR::presenceType::Required, false);
+                                nullptr, ASR::abiType::Source, ASR::Public, ASR::presenceType::Required, false, false);
         ASR::expr_t *pItem_ref = ASRUtils::EXPR(ASR::make_Var_t(al, f.base.base.loc,
                                                         ASR::down_cast<ASR::symbol_t>(pItem)));
         f.m_symtab->add_symbol(p, ASR::down_cast<ASR::symbol_t>(pItem));
-        
+
         Vec<ASR::stmt_t*> while_body;
         while_body.reserve(al, 3);
-        
+
         while_body.push_back(al, ASRUtils::STMT(
-            ASR::make_Assignment_t(al, f.base.base.loc, 
+            ASR::make_Assignment_t(al, f.base.base.loc,
                 pItem_ref,
                 ASRUtils::EXPR(ASR::make_ListItem_t(al, f.base.base.loc, exp, pI_ref, type, nullptr)),
             nullptr)));
-        
+
         while_body.push_back(al, ASRUtils::STMT(
             ASR::make_Assignment_t(al, f.base.base.loc,
                 pI_ref,
@@ -619,12 +619,12 @@ ASR::expr_t *native_to_cpython(Allocator &al, ASR::expr_t *exp, const ASR::Funct
         s.from_str(al, p);
         ASR::asr_t *pArgs = ASR::make_Variable_t(al, f.base.base.loc, f.m_symtab, s.c_str(al), nullptr, 0,
                                 ASRUtils::intent_local, nullptr, nullptr, ASR::storage_typeType::Default, ptr_t,
-                                nullptr, ASR::abiType::Source, ASR::Public, ASR::presenceType::Required, false);
+                                nullptr, ASR::abiType::Source, ASR::Public, ASR::presenceType::Required, false, false);
         ASR::expr_t *pArgs_ref = ASRUtils::EXPR(ASR::make_Var_t(al, f.base.base.loc,
                                     ASR::down_cast<ASR::symbol_t>(pArgs)));
         f.m_symtab->add_symbol(p, ASR::down_cast<ASR::symbol_t>(pArgs));
         body.push_back(al, ASRUtils::STMT(
-            ASR::make_Assignment_t(al, f.base.base.loc, pArgs_ref, 
+            ASR::make_Assignment_t(al, f.base.base.loc, pArgs_ref,
                 ASRUtils::EXPR(ASRUtils::make_FunctionCall_t_util(al, f.base.base.loc, sym_PySet_New, nullptr,
                                     args_PySet_New.p, args_PySet_New.n, ptr_t, nullptr, nullptr)), nullptr)));
         conv_result = pArgs_ref;
@@ -633,7 +633,7 @@ ASR::expr_t *native_to_cpython(Allocator &al, ASR::expr_t *exp, const ASR::Funct
         s.from_str(al, p);
         ASR::asr_t *pItem = ASR::make_Variable_t(al, f.base.base.loc, f.m_symtab, s.c_str(al), nullptr, 0,
                                 ASRUtils::intent_local, nullptr, nullptr, ASR::storage_typeType::Default, set->m_type,
-                                nullptr, ASR::abiType::Source, ASR::Public, ASR::presenceType::Required, false);
+                                nullptr, ASR::abiType::Source, ASR::Public, ASR::presenceType::Required, false, false);
         ASR::expr_t *pItem_ref = ASRUtils::EXPR(ASR::make_Var_t(al, f.base.base.loc,
                                     ASR::down_cast<ASR::symbol_t>(pItem)));
         f.m_symtab->add_symbol(p, ASR::down_cast<ASR::symbol_t>(pItem));
@@ -650,7 +650,7 @@ ASR::expr_t *native_to_cpython(Allocator &al, ASR::expr_t *exp, const ASR::Funct
                                                     args_PySet_Add.n, nullptr, nullptr, false, false))));
 
         body.push_back(al, ASRUtils::STMT(ASR::make_ForEach_t(al, f.base.base.loc, pItem_ref, exp, for_body.p, for_body.n)));
-    
+
     } else if (type->type == ASR::ttypeType::Dict) {
         ASR::Dict_t *dict = ASR::down_cast<ASR::Dict_t>(type);
         Str s;
@@ -660,12 +660,12 @@ ASR::expr_t *native_to_cpython(Allocator &al, ASR::expr_t *exp, const ASR::Funct
         s.from_str(al, p);
         ASR::asr_t *pArgs = ASR::make_Variable_t(al, f.base.base.loc, f.m_symtab, s.c_str(al), nullptr, 0,
                                 ASRUtils::intent_local, nullptr, nullptr, ASR::storage_typeType::Default, ptr_t,
-                                nullptr, ASR::abiType::Source, ASR::Public, ASR::presenceType::Required, false);
+                                nullptr, ASR::abiType::Source, ASR::Public, ASR::presenceType::Required, false, false);
         ASR::expr_t *pArgs_ref = ASRUtils::EXPR(ASR::make_Var_t(al, f.base.base.loc,
                                     ASR::down_cast<ASR::symbol_t>(pArgs)));
         f.m_symtab->add_symbol(p, ASR::down_cast<ASR::symbol_t>(pArgs));
         body.push_back(al, ASRUtils::STMT(
-            ASR::make_Assignment_t(al, f.base.base.loc, pArgs_ref, 
+            ASR::make_Assignment_t(al, f.base.base.loc, pArgs_ref,
                 ASRUtils::EXPR(ASRUtils::make_FunctionCall_t_util(al, f.base.base.loc, sym_PyDict_New, nullptr,
                                     nullptr, 0, ptr_t, nullptr, nullptr)), nullptr)));
         conv_result = pArgs_ref;
@@ -674,7 +674,7 @@ ASR::expr_t *native_to_cpython(Allocator &al, ASR::expr_t *exp, const ASR::Funct
         s.from_str(al, p);
         ASR::asr_t *pItem = ASR::make_Variable_t(al, f.base.base.loc, f.m_symtab, s.c_str(al), nullptr, 0,
                                 ASRUtils::intent_local, nullptr, nullptr, ASR::storage_typeType::Default, dict->m_key_type,
-                                nullptr, ASR::abiType::Source, ASR::Public, ASR::presenceType::Required, false);
+                                nullptr, ASR::abiType::Source, ASR::Public, ASR::presenceType::Required, false, false);
         ASR::expr_t *pItem_ref = ASRUtils::EXPR(ASR::make_Var_t(al, f.base.base.loc,
                                     ASR::down_cast<ASR::symbol_t>(pItem)));
         f.m_symtab->add_symbol(p, ASR::down_cast<ASR::symbol_t>(pItem));
@@ -686,7 +686,7 @@ ASR::expr_t *native_to_cpython(Allocator &al, ASR::expr_t *exp, const ASR::Funct
         args_PyDict_SetItem.reserve(al, 3);
         args_PyDict_SetItem.push_back(al, {f.base.base.loc, pArgs_ref});
         args_PyDict_SetItem.push_back(al, {f.base.base.loc, native_to_cpython(al, pItem_ref, f, for_body)}); // TODO: decrement the reference count of the return value of native_to_cpython after the PyList_Append subroutine call in next line
-        args_PyDict_SetItem.push_back(al, {f.base.base.loc, native_to_cpython(al, 
+        args_PyDict_SetItem.push_back(al, {f.base.base.loc, native_to_cpython(al,
             ASRUtils::EXPR(ASR::make_DictItem_t(al, f.base.base.loc, exp, pItem_ref, nullptr, dict->m_value_type, nullptr))
         , f, for_body)}); // TODO: decrement the reference count of the return value of native_to_cpython after the PyList_Append subroutine call in next line
         for_body.push_back(al, ASRUtils::STMT((ASRUtils::make_SubroutineCall_t_util(al, f.base.base.loc,
@@ -725,7 +725,7 @@ void generate_body(Allocator &al, ASR::Function_t &f) {
     ASR::asr_t *call_Py_IsInitialized = ASRUtils::make_FunctionCall_t_util(al, f.base.base.loc,
                                             sym_Py_IsInitialized, nullptr, nullptr, 0, i4_type, nullptr, nullptr);
     ASR::asr_t * if_cond = ASR::make_IntegerCompare_t(al, f.base.base.loc, ASRUtils::EXPR(call_Py_IsInitialized),
-                                ASR::cmpopType::Eq, ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, 
+                                ASR::cmpopType::Eq, ASRUtils::EXPR(ASR::make_IntegerConstant_t(al,
                                                         f.base.base.loc, 0, i4_type)), i4_type, nullptr);
     Vec<ASR::stmt_t*> if_body;
     if_body.reserve(al, 2);
@@ -737,7 +737,7 @@ void generate_body(Allocator &al, ASR::Function_t &f) {
     Vec<ASR::call_arg_t> args_Py_DecodeLocale;
     s.from_str(al, "");
     args_Py_DecodeLocale.reserve(al, 1);
-    ASR::ttype_t *str_type = ASRUtils::TYPE(ASR::make_Character_t(al, f.base.base.loc, 1, s.size(), nullptr));
+    ASR::ttype_t *str_type = ASRUtils::TYPE(ASR::make_String_t(al, f.base.base.loc, 1, s.size(), nullptr, ASR::string_physical_typeType::PointerString));
     args_Py_DecodeLocale.push_back(al, {f.base.base.loc, ASRUtils::EXPR(ASR::make_StringConstant_t(al,
                                                                 f.base.base.loc, s.c_str(al), str_type))});
     args_Py_DecodeLocale.push_back(al, {f.base.base.loc, ASRUtils::EXPR(ASR::make_PointerNullConstant_t(al,
@@ -745,7 +745,7 @@ void generate_body(Allocator &al, ASR::Function_t &f) {
     s.from_str(al, "pA");
     ASR::asr_t *pA = ASR::make_Variable_t(al, f.base.base.loc, f.m_symtab, s.c_str(al), nullptr, 0,
                         ASRUtils::intent_local, nullptr, nullptr, ASR::storage_typeType::Default, ptr_t, nullptr,
-                        ASR::abiType::Source, ASR::Public, ASR::presenceType::Required, false);
+                        ASR::abiType::Source, ASR::Public, ASR::presenceType::Required, false, false);
     ASR::expr_t *pA_ref = ASRUtils::EXPR(ASR::make_Var_t(al, f.base.base.loc, ASR::down_cast<ASR::symbol_t>(pA)));
     f.m_symtab->add_symbol(std::string("pA"), ASR::down_cast<ASR::symbol_t>(pA));
     if_body.push_back(al, ASRUtils::STMT(
@@ -753,7 +753,7 @@ void generate_body(Allocator &al, ASR::Function_t &f) {
             ASRUtils::EXPR(ASRUtils::make_FunctionCall_t_util(al, f.base.base.loc, sym_Py_DecodeLocale, nullptr,
                                 args_Py_DecodeLocale.p, args_Py_DecodeLocale.n, ptr_t, nullptr, nullptr)),
                                 nullptr)));
-    
+
     ASR::symbol_t *sym_PySys_SetArgv = f.m_symtab->resolve_symbol("PySys_SetArgv");
     Vec<ASR::call_arg_t> args_PySys_SetArgv;
     s.from_str(al, "");
@@ -779,13 +779,13 @@ void generate_body(Allocator &al, ASR::Function_t &f) {
     Vec<ASR::call_arg_t> args_PyUnicode_FromString;
     s.from_str(al, f.m_module_file);
     args_PyUnicode_FromString.reserve(al, 1);
-    str_type = ASRUtils::TYPE(ASR::make_Character_t(al, f.base.base.loc, 1, s.size(), nullptr));
+    str_type = ASRUtils::TYPE(ASR::make_String_t(al, f.base.base.loc, 1, s.size(), nullptr, ASR::string_physical_typeType::PointerString));
     args_PyUnicode_FromString.push_back(al, {f.base.base.loc, ASRUtils::EXPR(ASR::make_StringConstant_t(al,
                                                                 f.base.base.loc, s.c_str(al), str_type))});
     s.from_str(al, "pName");
     ASR::asr_t *pName = ASR::make_Variable_t(al, f.base.base.loc, f.m_symtab, s.c_str(al), nullptr, 0,
                             ASRUtils::intent_local, nullptr, nullptr, ASR::storage_typeType::Default, ptr_t, nullptr,
-                            ASR::abiType::Source, ASR::Public, ASR::presenceType::Required, false);
+                            ASR::abiType::Source, ASR::Public, ASR::presenceType::Required, false, false);
     ASR::expr_t *pName_ref = ASRUtils::EXPR(ASR::make_Var_t(al, f.base.base.loc, ASR::down_cast<ASR::symbol_t>(pName)));
     f.m_symtab->add_symbol(std::string("pName"), ASR::down_cast<ASR::symbol_t>(pName));
     body.push_back(al, ASRUtils::STMT(
@@ -801,12 +801,12 @@ void generate_body(Allocator &al, ASR::Function_t &f) {
     s.from_str(al, "pModule");
     ASR::asr_t *pModule = ASR::make_Variable_t(al, f.base.base.loc, f.m_symtab, s.c_str(al), nullptr, 0,
                             ASRUtils::intent_local, nullptr, nullptr, ASR::storage_typeType::Default, ptr_t, nullptr,
-                            ASR::abiType::Source, ASR::Public, ASR::presenceType::Required, false);
+                            ASR::abiType::Source, ASR::Public, ASR::presenceType::Required, false, false);
     ASR::expr_t *pModule_ref = ASRUtils::EXPR(ASR::make_Var_t(al, f.base.base.loc,
                                     ASR::down_cast<ASR::symbol_t>(pModule)));
     f.m_symtab->add_symbol(std::string("pModule"), ASR::down_cast<ASR::symbol_t>(pModule));
     body.push_back(al, ASRUtils::STMT(
-        ASR::make_Assignment_t(al, f.base.base.loc, pModule_ref, 
+        ASR::make_Assignment_t(al, f.base.base.loc, pModule_ref,
             ASRUtils::EXPR(ASRUtils::make_FunctionCall_t_util(al, f.base.base.loc, sym_PyImport_Import, nullptr,
                             args_PyImport_Import.p, args_PyImport_Import.n, ptr_t, nullptr, nullptr)),
                             nullptr)));
@@ -817,17 +817,17 @@ void generate_body(Allocator &al, ASR::Function_t &f) {
     args_PyObject_GetAttrString.reserve(al, 2);
     args_PyObject_GetAttrString.push_back(al, {f.base.base.loc, pModule_ref});
     s.from_str(al, f.m_name);
-    str_type = ASRUtils::TYPE(ASR::make_Character_t(al, f.base.base.loc, 1, s.size(), nullptr));
+    str_type = ASRUtils::TYPE(ASR::make_String_t(al, f.base.base.loc, 1, s.size(), nullptr, ASR::string_physical_typeType::PointerString));
     args_PyObject_GetAttrString.push_back(al, {f.base.base.loc, ASRUtils::EXPR(ASR::make_StringConstant_t(al,
                                                                     f.base.base.loc, s.c_str(al), str_type))});
     s.from_str(al, "pFunc");
     ASR::asr_t *pFunc = ASR::make_Variable_t(al, f.base.base.loc, f.m_symtab, s.c_str(al), nullptr, 0,
                             ASRUtils::intent_local, nullptr, nullptr, ASR::storage_typeType::Default, ptr_t, nullptr,
-                            ASR::abiType::Source, ASR::Public, ASR::presenceType::Required, false);
+                            ASR::abiType::Source, ASR::Public, ASR::presenceType::Required, false, false);
     ASR::expr_t *pFunc_ref = ASRUtils::EXPR(ASR::make_Var_t(al, f.base.base.loc, ASR::down_cast<ASR::symbol_t>(pFunc)));
     f.m_symtab->add_symbol(std::string("pFunc"), ASR::down_cast<ASR::symbol_t>(pFunc));
     body.push_back(al, ASRUtils::STMT(
-        ASR::make_Assignment_t(al, f.base.base.loc, pFunc_ref, 
+        ASR::make_Assignment_t(al, f.base.base.loc, pFunc_ref,
             ASRUtils::EXPR(ASRUtils::make_FunctionCall_t_util(al, f.base.base.loc, sym_PyObject_GetAttrString, nullptr,
                                         args_PyObject_GetAttrString.p, args_PyObject_GetAttrString.n, ptr_t, nullptr,
                                         nullptr)), nullptr)));
@@ -841,11 +841,11 @@ void generate_body(Allocator &al, ASR::Function_t &f) {
     s.from_str(al, "pArgs");
     ASR::asr_t *pArgs = ASR::make_Variable_t(al, f.base.base.loc, f.m_symtab, s.c_str(al), nullptr, 0,
                             ASRUtils::intent_local, nullptr, nullptr, ASR::storage_typeType::Default, ptr_t, nullptr,
-                            ASR::abiType::Source, ASR::Public, ASR::presenceType::Required, false);
+                            ASR::abiType::Source, ASR::Public, ASR::presenceType::Required, false, false);
     ASR::expr_t *pArgs_ref = ASRUtils::EXPR(ASR::make_Var_t(al, f.base.base.loc, ASR::down_cast<ASR::symbol_t>(pArgs)));
     f.m_symtab->add_symbol(std::string("pArgs"), ASR::down_cast<ASR::symbol_t>(pArgs));
     body.push_back(al, ASRUtils::STMT(
-        ASR::make_Assignment_t(al, f.base.base.loc, pArgs_ref, 
+        ASR::make_Assignment_t(al, f.base.base.loc, pArgs_ref,
             ASRUtils::EXPR(ASRUtils::make_FunctionCall_t_util(al, f.base.base.loc, sym_PyTuple_New, nullptr,
                                 args_PyTuple_New.p, args_PyTuple_New.n, ptr_t, nullptr, nullptr)), nullptr)));
 
@@ -862,7 +862,7 @@ void generate_body(Allocator &al, ASR::Function_t &f) {
         s.from_str(al, p);
         ASR::asr_t *pA = ASR::make_Variable_t(al, f.base.base.loc, f.m_symtab, s.c_str(al), nullptr, 0,
                             ASRUtils::intent_local, nullptr, nullptr, ASR::storage_typeType::Default, i4_type, nullptr,
-                            ASR::abiType::Source, ASR::Public, ASR::presenceType::Required, false);
+                            ASR::abiType::Source, ASR::Public, ASR::presenceType::Required, false, false);
         ASR::expr_t *pA_ref = ASRUtils::EXPR(ASR::make_Var_t(al, f.base.base.loc, ASR::down_cast<ASR::symbol_t>(pA)));
         f.m_symtab->add_symbol(p, ASR::down_cast<ASR::symbol_t>(pA));
         body.push_back(al,
@@ -880,7 +880,7 @@ void generate_body(Allocator &al, ASR::Function_t &f) {
     s.from_str(al, "pReturn");
     ASR::asr_t *pReturn = ASR::make_Variable_t(al, f.base.base.loc, f.m_symtab, s.c_str(al), nullptr, 0,
                             ASRUtils::intent_local, nullptr, nullptr, ASR::storage_typeType::Default, ptr_t, nullptr,
-                            ASR::abiType::Source, ASR::Public, ASR::presenceType::Required, false);
+                            ASR::abiType::Source, ASR::Public, ASR::presenceType::Required, false, false);
     ASR::expr_t *pReturn_ref = ASRUtils::EXPR(ASR::make_Var_t(al, f.base.base.loc,
                                     ASR::down_cast<ASR::symbol_t>(pReturn)));
     f.m_symtab->add_symbol(std::string("pReturn"), ASR::down_cast<ASR::symbol_t>(pReturn));

@@ -1,5 +1,3 @@
-#include <iostream>
-#include <memory>
 #include <libasr/asr.h>
 #include <libasr/containers.h>
 #include <libasr/exception.h>
@@ -44,7 +42,7 @@
     _X(ASR::Complex_t, 8, "double _Complex" ) \
     \
     _X(ASR::Logical_t, 1,   "_Bool" ) \
-    _X(ASR::Character_t, 1, "char" )
+    _X(ASR::String_t, 1, "char" )
 
 
 /*
@@ -86,7 +84,7 @@
     _X(ASR::Complex_t, "c_long_double_complex", "long double _Complex" ) \
     \
     _X(ASR::Logical_t, "c_bool",          "_Bool" ) \
-    _X(ASR::Character_t, "c_char",        "char" )
+    _X(ASR::String_t, "c_char",        "char" )
  */
 
 namespace LCompilers {

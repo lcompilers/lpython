@@ -115,6 +115,7 @@ struct LocationManager {
     // imported then the location starts from the size of the previous file.
     // For example: file_ends = [120, 200, 350]
     std::vector<uint32_t> file_ends; // position of all ends of files
+    // TODO: store file_ends of input files
     // For a given Location, we use the `file_ends` and `bisection` to determine
     // the file (files' index), which the location is from. Then we use this index into
     // the `files` vector and use `in_newlines` and other information to
@@ -128,7 +129,7 @@ struct LocationManager {
     uint32_t output_to_input_pos(uint32_t out_pos, bool show_last) const {
         // Determine where the error is from using position, i.e., loc
         uint32_t index = bisection(file_ends, out_pos);
-        if (index == file_ends.size()) index -= 1;
+        if (index != 0 && index == file_ends.size()) index -= 1;
         if (files[index].out_start.size() == 0) return 0;
         uint32_t interval = bisection(files[index].out_start, out_pos)-1;
         uint32_t rel_pos = out_pos - files[index].out_start[interval];
@@ -159,6 +160,59 @@ struct LocationManager {
         }
     }
 
+    uint32_t input_to_output_pos(uint32_t in_pos, bool show_last) const {
+
+        // Determine where the error is from using position, i.e., loc
+        uint32_t index = bisection(file_ends, in_pos); // seems this is with respect to output, TODO: change it to input file ends
+        if (index != 0 && index == file_ends.size()) index -= 1;
+        if (files[index].in_start.size() == 0) return 0;
+        uint32_t interval = bisection(files[index].in_start, in_pos)-1;
+        uint32_t rel_pos = in_pos - files[index].in_start[interval];
+        uint32_t out_pos = files[index].out_start[interval] + rel_pos;
+        if (files[index].preprocessor) {
+            // If preprocessor was used, do one more remapping
+            uint32_t interval0 = bisection(files[index].in_start0, in_pos)-1;
+            if (files[index].interval_type0[interval0] == 0) {
+                // 1:1 interval
+                uint32_t rel_pos0 = in_pos - files[index].in_start0[interval0];
+                uint32_t out_pos0 = files[index].out_start0[interval0] + rel_pos0;
+                return out_pos0;
+            } else {
+                // many to many interval
+                uint32_t out_pos0;
+                if (in_pos == files[index].in_start0[interval0+1]-1 || show_last) {
+                    // The end of the interval in "out" code
+                    // Return the end of the interval in "in" code
+                    out_pos0 = files[index].out_start0[interval0]+files[index].out_start0[interval0]-1;
+                } else {
+                    // Otherwise return the beginning of the interval in "in"
+                    out_pos0 = files[index].out_start0[interval0];
+                }
+                return out_pos0;
+            }
+        } else {
+            return out_pos;
+        }
+    }
+
+    // Converts given line and column to the position in the original code
+    // `line` and `col` starts from 1
+    // uses precomputed `in_newlines` to compute the position
+    uint64_t linecol_to_pos(uint16_t line, uint16_t col) {
+        // use in_newlines and compute pos
+        uint64_t pos = 0;
+        uint64_t l = 1;
+        while(true) {
+            if (l == line) break;
+            if (l >= files[0].in_newlines.size()) return 0;
+            l++;
+        }
+        if ( l == 1 ) pos = 0;
+        else pos = files[0].in_newlines[l-2];
+        pos = pos + col;
+        return pos;
+    }
+
     // Converts a linear position `position` to a (line, col) tuple
     // `position` starts from 0
     // `line` and `col` starts from 1
@@ -167,7 +221,7 @@ struct LocationManager {
             std::string &filename) const {
         // Determine where the error is from using position, i.e., loc
         uint32_t index = bisection(file_ends, position);
-        if (index == file_ends.size()) index -= 1;
+        if (index != 0 && index == file_ends.size()) index -= 1;
         filename = files[index].in_filename;
         // Get the actual location by subtracting the previous file size.
         if (index > 0) position -= file_ends[index - 1];

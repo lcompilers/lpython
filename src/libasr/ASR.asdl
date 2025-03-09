@@ -9,17 +9,17 @@ unit
     = TranslationUnit(symbol_table symtab, node* items)
 
 symbol
-    = Program(symbol_table symtab, identifier name, identifier* dependencies, stmt* body)
-    | Module(symbol_table symtab, identifier name, identifier* dependencies, bool loaded_from_mod, bool intrinsic)
-    | Function(symbol_table symtab, identifier name, ttype function_signature, identifier* dependencies, expr* args, stmt* body, expr? return_var, access access, bool deterministic, bool side_effect_free, string? module_file)
+    = Program(symbol_table symtab, identifier name, identifier* dependencies, stmt* body, location start_name, location end_name)
+    | Module(symbol_table symtab, identifier name, identifier* dependencies, bool loaded_from_mod, bool intrinsic, location start_name, location end_name)
+    | Function(symbol_table symtab, identifier name, ttype function_signature, identifier* dependencies, expr* args, stmt* body, expr? return_var, access access, bool deterministic, bool side_effect_free, string? module_file, location start_name, location end_name)
     | GenericProcedure(symbol_table parent_symtab, identifier name, symbol* procs, access access)
     | CustomOperator(symbol_table parent_symtab, identifier name, symbol* procs, access access)
     | ExternalSymbol(symbol_table parent_symtab, identifier name, symbol external, identifier module_name, identifier* scope_names, identifier original_name, access access)
     | Struct(symbol_table symtab, identifier name, identifier* dependencies, identifier* members, identifier* member_functions, abi abi, access access, bool is_packed, bool is_abstract, call_arg* initializers, expr? alignment, symbol? parent)
-    | EnumType(symbol_table symtab, identifier name, identifier* dependencies, identifier* members, abi abi, access access, enumtype enum_value_type, ttype type, symbol? parent)
-    | UnionType(symbol_table symtab, identifier name, identifier* dependencies, identifier* members, abi abi, access access, call_arg* initializers, symbol? parent)
-    | Variable(symbol_table parent_symtab, identifier name, identifier* dependencies, intent intent, expr? symbolic_value, expr? value, storage_type storage, ttype type, symbol? type_declaration, abi abi, access access, presence presence, bool value_attr)
-    | ClassType(symbol_table symtab, identifier name, abi abi, access access)
+    | Enum(symbol_table symtab, identifier name, identifier* dependencies, identifier* members, abi abi, access access, enumtype enum_value_type, ttype type, symbol? parent)
+    | Union(symbol_table symtab, identifier name, identifier* dependencies, identifier* members, abi abi, access access, call_arg* initializers, symbol? parent)
+    | Variable(symbol_table parent_symtab, identifier name, identifier* dependencies, intent intent, expr? symbolic_value, expr? value, storage_type storage, ttype type, symbol? type_declaration, abi abi, access access, presence presence, bool value_attr, bool target_attr)
+    | Class(symbol_table symtab, identifier name, abi abi, access access)
     | ClassProcedure(symbol_table parent_symtab, identifier name, identifier? self_argument, identifier proc_name, symbol proc, abi abi, bool is_deferred, bool is_nopass)
     | AssociateBlock(symbol_table symtab, identifier name, stmt* body)
     | Block(symbol_table symtab, identifier name, stmt* body)
@@ -35,7 +35,7 @@ stmt
     | Cycle(identifier? stmt_name)
     | ExplicitDeallocate(expr* vars)
     | ImplicitDeallocate(expr* vars)
-    | DoConcurrentLoop(do_loop_head head, stmt* body)
+    | DoConcurrentLoop(do_loop_head* head, expr* shared, expr* local, reduction_expr* reduction, stmt* body)
     | DoLoop(identifier? name, do_loop_head head, stmt* body, stmt* orelse)
     | ErrorStop(expr? code)
     | Exit(identifier? stmt_name)
@@ -45,23 +45,23 @@ stmt
     | GoToTarget(int id, identifier name)
     | If(expr test, stmt* body, stmt* orelse)
     | IfArithmetic(expr test, int lt_label, int eq_label, int gt_label)
-    | Print(expr* values, expr? separator, expr? end)
+    | Print(expr text)
     | FileOpen(int label, expr? newunit, expr? filename, expr? status, expr? form)
     | FileClose(int label, expr? unit, expr? iostat, expr? iomsg, expr? err, expr? status)
     | FileRead(int label, expr? unit, expr? fmt, expr? iomsg, expr? iostat, expr? size, expr? id, expr* values, stmt? overloaded)
     | FileBackspace(int label, expr? unit, expr? iostat, expr? err)
     | FileRewind(int label, expr? unit, expr? iostat, expr? err)
-    | FileInquire(int label, expr? unit, expr? file, expr? iostat, expr? err, expr? exist, expr? opened, expr? number, expr? named, expr? name, expr? access, expr? sequential, expr? direct, expr? form, expr? formatted, expr? unformatted, expr? recl, expr? nextrec, expr? blank, expr? position, expr? action, expr? read, expr? write, expr? readwrite, expr? delim, expr? pad, expr? flen, expr? blocksize, expr? convert, expr? carriagecontrol, expr? iolength)
+    | FileInquire(int label, expr? unit, expr? file, expr? iostat, expr? err, expr? exist, expr? opened, expr? number, expr? named, expr? name, expr? access, expr? sequential, expr? direct, expr? form, expr? formatted, expr? unformatted, expr? recl, expr? nextrec, expr? blank, expr? position, expr? action, expr? read, expr? write, expr? readwrite, expr? delim, expr? pad, expr? flen, expr? blocksize, expr? convert, expr? carriagecontrol, expr? size, expr? iolength)
     | FileWrite(int label, expr? unit, expr? iomsg, expr? iostat, expr? id, expr* values, expr? separator, expr? end, stmt? overloaded)
     | Return()
     | Select(expr test, case_stmt* body, stmt* default, bool enable_fall_through)
     | Stop(expr? code)
     | Assert(expr test, expr? msg)
     | SubroutineCall(symbol name, symbol? original_name, call_arg* args, expr? dt)
-    | IntrinsicImpureSubroutine(int intrinsic_id, expr* args, int overload_id)
+    | IntrinsicImpureSubroutine(int sub_intrinsic_id, expr* args, int overload_id)
     | Where(expr test, stmt* body, stmt* orelse)
     | WhileLoop(identifier? name, expr test, stmt* body, stmt* orelse)
-    | Nullify(symbol* vars)
+    | Nullify(expr* vars)
     | Flush(int label, expr unit, expr? err, expr? iomsg, expr? iostat)
     | ListAppend(expr a, expr ele)
     | AssociateBlockCall(symbol m)
@@ -89,11 +89,11 @@ expr
     | IntrinsicImpureFunction(int impure_intrinsic_id, expr* args, int overload_id, ttype? type, expr? value)
     | TypeInquiry(int inquiry_id, ttype arg_type, expr? arg, ttype type, expr value)
     | StructConstructor(symbol dt_sym, call_arg* args, ttype type, expr? value)
-    | EnumTypeConstructor(symbol dt_sym, expr* args, ttype type, expr? value)
-    | UnionTypeConstructor(symbol dt_sym, expr* args, ttype type, expr? value)
+    | StructConstant(symbol dt_sym, call_arg* args, ttype type)
+    | EnumConstructor(symbol dt_sym, expr* args, ttype type, expr? value)
+    | UnionConstructor(symbol dt_sym, expr* args, ttype type, expr? value)
     | ImpliedDoLoop(expr* values, expr var, expr start, expr end, expr? increment, ttype type, expr? value)
-    | IntegerConstant(int n, ttype type)
-    | IntegerBOZ(int v, integerboz intboz_type, ttype? type)
+    | IntegerConstant(int n, ttype type, integerboz intboz_type)
     | IntegerBitNot(expr arg, ttype type, expr? value)
     | IntegerUnaryMinus(expr arg, ttype type, expr? value)
     | IntegerCompare(expr left, cmpop op, expr right, ttype type, expr? value)
@@ -139,7 +139,8 @@ expr
     | StringContains(expr substr, expr str, ttype type, expr? value)
     | StringOrd(expr arg, ttype type, expr? value)
     | StringChr(expr arg, ttype type, expr? value)
-    | StringFormat(expr fmt, expr* args, string_format_kind kind, ttype type, expr? value)
+    | StringFormat(expr? fmt, expr* args, string_format_kind kind, ttype type, expr? value)
+    | StringPhysicalCast(expr arg, string_physical_type old, string_physical_type new, ttype type, expr? value)
     | CPtrCompare(expr left, cmpop op, expr right, ttype type, expr? value)
     | SymbolicCompare(expr left, cmpop op, expr right, ttype type, expr? value)
     | DictConstant(expr* keys, expr* values, ttype type)
@@ -147,7 +148,7 @@ expr
     | Var(symbol v)
     | FunctionParam(int param_number, ttype type, expr? value)
     | ArrayConstructor(expr* args, ttype type, expr? value, arraystorage storage_format)
-    | ArrayConstant(expr* args, ttype type, arraystorage storage_format)
+    | ArrayConstant(int n_data, void data, ttype type, arraystorage storage_format)
     | ArrayItem(expr v, array_index* args, ttype type, arraystorage storage_format, expr? value)
     | ArraySection(expr v, array_index* args, ttype type, expr? value)
     | ArraySize(expr v, expr? dim, ttype type, expr? value)
@@ -191,21 +192,22 @@ expr
     | PointerNullConstant(ttype type)
     | PointerAssociated(expr ptr, expr? tgt, ttype type, expr? value)
     | RealSqrt(expr arg, ttype type, expr? value)
+    | ArrayIsContiguous(expr array, ttype type, expr? value)
 
 ttype
     = Integer(int kind)
     | UnsignedInteger(int kind)
     | Real(int kind)
     | Complex(int kind)
-    | Character(int kind, int len, expr? len_expr)
+    | String(int kind, int len, expr? len_expr, string_physical_type physical_type)
     | Logical(int kind)
     | Set(ttype type)
     | List(ttype type)
     | Tuple(ttype* type)
     | StructType(ttype* data_member_types, ttype* member_function_types, bool is_cstruct, symbol derived_type)
-    | Enum(symbol enum_type)
-    | Union(symbol union_type)
-    | Class(symbol class_type)
+    | EnumType(symbol enum_type)
+    | UnionType(symbol union_type)
+    | ClassType(symbol class_type)
     | Dict(ttype key_type, ttype value_type)
     | Pointer(ttype type)
     | Allocatable(ttype type)
@@ -215,7 +217,7 @@ ttype
     | Array(ttype type, dimension* dims, array_physical_type physical_type)
     | FunctionType(ttype* arg_types, ttype? return_var_type, abi abi, deftype deftype, string? bindc_name, bool elemental, bool pure, bool module, bool inline, bool static, symbol* restrictions, bool is_restriction)
 
-cast_kind = RealToInteger | IntegerToReal | LogicalToReal | RealToReal | IntegerToInteger | RealToComplex | IntegerToComplex | IntegerToLogical | RealToLogical | CharacterToLogical | CharacterToInteger | CharacterToList | ComplexToLogical | ComplexToComplex | ComplexToReal | ComplexToInteger | LogicalToInteger | RealToCharacter | IntegerToCharacter | LogicalToCharacter | UnsignedIntegerToInteger | UnsignedIntegerToUnsignedInteger | UnsignedIntegerToReal | UnsignedIntegerToLogical | IntegerToUnsignedInteger | RealToUnsignedInteger | CPtrToUnsignedInteger | UnsignedIntegerToCPtr | IntegerToSymbolicExpression | ListToArray | DerivedToBase
+cast_kind = RealToInteger | IntegerToReal | LogicalToReal | RealToReal | IntegerToInteger | RealToComplex | IntegerToComplex | IntegerToLogical | RealToLogical | StringToLogical | StringToInteger | StringToList | ComplexToLogical | ComplexToComplex | ComplexToReal | ComplexToInteger | LogicalToInteger | RealToString | IntegerToString | LogicalToString | UnsignedIntegerToInteger | UnsignedIntegerToUnsignedInteger | UnsignedIntegerToReal | UnsignedIntegerToLogical | IntegerToUnsignedInteger | RealToUnsignedInteger | CPtrToUnsignedInteger | UnsignedIntegerToCPtr | IntegerToSymbolicExpression | ListToArray
 storage_type = Default | Save | Parameter
 access = Public | Private
 intent = Local | In | Out | InOut | ReturnVar | Unspecified
@@ -227,6 +229,7 @@ alloc_arg = (expr a, dimension* dims, expr? len_expr, ttype? type)
 attribute = Attribute(identifier name, attribute_arg *args)
 attribute_arg = (identifier arg)
 call_arg = (expr? value)
+reduction_expr = (reduction_op op, expr arg)
 tbind = Bind(string lang, string name)
 array_index = (expr? left, expr? right, expr? step)
 do_loop_head = (expr? v, expr? start, expr? end, expr? increment)
@@ -234,11 +237,13 @@ case_stmt = CaseStmt(expr* test, stmt* body, bool fall_through) | CaseStmt_Range
 type_stmt = TypeStmtName(symbol sym, stmt* body) | ClassStmt(symbol sym, stmt* body) | TypeStmtType(ttype type, stmt* body)
 enumtype = IntegerConsecutiveFromZero | IntegerUnique | IntegerNotUnique | NonInteger
 require_instantiation = Require(identifier name, identifier* args)
-array_physical_type = DescriptorArray | PointerToDataArray | UnboundedPointerToDataArray | FixedSizeArray | CharacterArraySinglePointer | NumPyArray | ISODescriptorArray | SIMDArray
+array_physical_type = DescriptorArray | PointerToDataArray | UnboundedPointerToDataArray | FixedSizeArray | StringArraySinglePointer | NumPyArray | ISODescriptorArray | SIMDArray
+string_physical_type = PointerString | DescriptorString
 binop = Add | Sub | Mul | Div | Pow | BitAnd | BitOr | BitXor | BitLShift | BitRShift
+reduction_op = ReduceAdd | ReduceSub | ReduceMul | ReduceMIN | ReduceMAX
 logicalbinop = And | Or | Xor | NEqv | Eqv
 cmpop = Eq | NotEq | Lt | LtE | Gt | GtE
-integerboz = Binary | Hex | Octal
+integerboz = Binary | Hex | Octal | Decimal
 arraybound = LBound | UBound
 arraystorage = RowMajor | ColMajor
 string_format_kind = FormatFortran | FormatC | FormatPythonPercent | FormatPythonFString | FormatPythonFormat

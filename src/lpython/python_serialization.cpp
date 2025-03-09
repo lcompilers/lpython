@@ -23,7 +23,7 @@ public:
 #else
         TextReader(s),
 #endif
-        DeserializationBaseVisitor(al, true) {}
+        DeserializationBaseVisitor(al, true, 0) {}
 
     bool read_bool() {
         uint8_t b = read_int8();
