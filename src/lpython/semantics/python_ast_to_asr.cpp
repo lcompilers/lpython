@@ -8789,9 +8789,33 @@ we will have to use something else.
                         tmp = nullptr;
                     }
                     return ;
+                } else if (args.size() > 1) {
+                    throw SemanticError("set accepts only 1 argument for now, got " +
+                                        std::to_string(args.size()) + " arguments instead.",
+                                        x.base.base.loc);
                 }
-
-                throw SemanticError("set is only used for an empty set for now.", x.base.base.loc);
+                if ( assign_asr_target == nullptr ) {
+                    throw SemanticError("set from list cannot be called without target type for now", x.base.base.loc);
+                }
+                ASR::expr_t *arg = args[0].m_value; 
+                ASR::ttype_t *type = ASRUtils::expr_type(arg);
+                if(!ASR::is_a<ASR::ListConstant_t>(*arg)) {
+                    throw SemanticError("set accepts only list constant for now, got " +
+                                        ASRUtils::type_to_str(type) + " type.", x.base.base.loc);
+                }
+                ASR::ListConstant_t* list = ASR::down_cast<ASR::ListConstant_t>(arg);
+                ASR::expr_t **m_args = list->m_args;
+                size_t n_args = list->n_args;
+                ASR::ttype_t* value_type = ASRUtils::get_contained_type(type);
+                ASR::ttype_t* target_type = ASRUtils::get_contained_type(ASRUtils::expr_type(assign_asr_target));
+                if (!ASRUtils::check_equal_type(target_type, value_type)){
+                    std::string ltype = ASRUtils::type_to_str_python(target_type);
+                    std::string rtype = ASRUtils::type_to_str_python(value_type);
+                    throw SemanticError("type mismatch ('" + ltype + "' and '" + rtype + "')", x.base.base.loc);
+                } 
+                tmp = ASR::make_SetConstant_t(al, x.base.base.loc, m_args, n_args, 
+                                                  ASRUtils::expr_type(assign_asr_target));
+                return ;
             } else if( call_name == "deepcopy" ) {
                 parse_args(x, args);
                 if( args.size() != 1 ) {
