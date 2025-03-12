@@ -8800,7 +8800,7 @@ we will have to use something else.
                 ASR::expr_t *arg = args[0].m_value; 
                 ASR::ttype_t *type = ASRUtils::expr_type(arg);
                 if(!ASR::is_a<ASR::ListConstant_t>(*arg)) {
-                    throw SemanticError("set accepts only list for now, got " +
+                    throw SemanticError("set accepts only list constant for now, got " +
                                         ASRUtils::type_to_str(type) + " type.", x.base.base.loc);
                 }
                 ASR::ListConstant_t* list = ASR::down_cast<ASR::ListConstant_t>(arg);
