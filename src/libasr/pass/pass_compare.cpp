@@ -6,8 +6,6 @@
 #include <libasr/pass/compare.h>
 #include <libasr/pass/pass_utils.h>
 
-#include <vector>
-#include <utility>
 
 
 namespace LCompilers {
@@ -61,7 +59,7 @@ public:
 
     #define create_args(x, type, symtab, vec_exprs) { \
         ASR::symbol_t* arg = ASR::down_cast<ASR::symbol_t>( \
-            ASR::make_Variable_t(al, loc, symtab, \
+            ASRUtils::make_Variable_t_util(al, loc, symtab, \
             s2c(al, x), nullptr, 0, ASR::intentType::In, nullptr, nullptr, \
             ASR::storage_typeType::Default, type, nullptr, \
             ASR::abiType::Source, ASR::accessType::Public, \
@@ -102,7 +100,7 @@ public:
                 return ASRUtils::EXPR(ASR::make_RealCompare_t(al,
                     loc, left, ASR::cmpopType::Eq, rig, bool_type, nullptr));
             }
-            case ASR::ttypeType::Character: {
+            case ASR::ttypeType::String: {
                 return ASRUtils::EXPR(ASR::make_StringCompare_t(al,
                     loc, left, ASR::cmpopType::Eq, rig, bool_type, nullptr));
             }
@@ -128,7 +126,8 @@ public:
 
                 return ASRUtils::EXPR(ASRUtils::make_FunctionCall_t_util(al, loc,
                     fn, nullptr, args.p, args.n,
-                    bool_type, nullptr, nullptr));
+                    bool_type, nullptr, nullptr,
+                    false));
             }
             case ASR::ttypeType::List: {
                 ASR::symbol_t *fn = get_list_compare_func(loc, global_scope, type);
@@ -144,7 +143,8 @@ public:
 
                 return ASRUtils::EXPR(ASRUtils::make_FunctionCall_t_util(al, loc,
                     fn, nullptr, args.p, args.n,
-                    bool_type, nullptr, nullptr));
+                    bool_type, nullptr, nullptr,
+                    false));
             }
             default: {
                 LCOMPILERS_ASSERT(false);
@@ -182,7 +182,7 @@ public:
 
         // Declare `result`
         ASR::symbol_t* arg = ASR::down_cast<ASR::symbol_t>(
-            ASR::make_Variable_t(al, loc, tup_compare_symtab,
+            ASRUtils::make_Variable_t_util(al, loc, tup_compare_symtab,
             s2c(al, "result"), nullptr, 0, ASR::intentType::ReturnVar, nullptr, nullptr,
             ASR::storage_typeType::Default, bool_type, nullptr,
             ASR::abiType::Source, ASR::accessType::Public,
@@ -262,7 +262,7 @@ public:
         ASR::symbol_t *fn_sym = get_tuple_compare_func(unit.base.base.loc,
                 unit.m_symtab, ASRUtils::expr_type(x->m_left));
         *current_expr = ASRUtils::EXPR(ASRUtils::make_FunctionCall_t_util(al, loc,
-            fn_sym, nullptr, args.p, args.n, bool_type, nullptr, nullptr));
+            fn_sym, nullptr, args.p, args.n, bool_type, nullptr, nullptr, false));
         if (x->m_op == ASR::cmpopType::NotEq) {
             *current_expr = ASRUtils::EXPR(ASR::make_LogicalNot_t(al, loc,
                         *current_expr, bool_type, nullptr));
@@ -354,7 +354,7 @@ public:
 
         // Declare `result`
         ASR::symbol_t* res_arg = ASR::down_cast<ASR::symbol_t>(
-            ASR::make_Variable_t(al, loc, list_compare_symtab,
+            ASRUtils::make_Variable_t_util(al, loc, list_compare_symtab,
             s2c(al, "result"), nullptr, 0, ASR::intentType::ReturnVar, nullptr, nullptr,
             ASR::storage_typeType::Default, bool_type, nullptr,
             ASR::abiType::Source, ASR::accessType::Public,
@@ -447,7 +447,8 @@ public:
         ASR::symbol_t *fn_sym = get_list_compare_func(unit.base.base.loc,
                 unit.m_symtab, ASRUtils::expr_type(x->m_left));
         *current_expr = ASRUtils::EXPR(ASRUtils::make_FunctionCall_t_util(al, loc,
-            fn_sym, nullptr, args.p, args.n, bool_type, nullptr, nullptr));
+            fn_sym, nullptr, args.p, args.n, bool_type, nullptr, nullptr,
+            false));
         if (x->m_op == ASR::cmpopType::NotEq) {
             *current_expr = ASRUtils::EXPR(ASR::make_LogicalNot_t(al, loc,
                         *current_expr, bool_type, nullptr));

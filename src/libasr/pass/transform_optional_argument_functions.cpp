@@ -9,8 +9,54 @@
 
 #include <vector>
 #include <string>
+#include <set>
 
+/*
+Need for the pass
+==================
 
+Since LLVM IR does not directly support optional arguments, this ASR pass converts optional
+arguments of a function/subroutine and function call or subroutine call to two
+non-optional arguments, the first argument is same as the original argument and the second
+boolean argument to denote the presence of the original optional argument (i.e. `is_var_present_`).
+
+Transformation by the pass
+==========================
+
+Consider a function named 'square' with one integer argument 'x' and 'integer(4)' return type,
+and with call made to it, it's Fortran code before this pass would look like:
+
+```fortran
+integer(4) function square(x)
+    integer(4), intent(in), optional :: x   ! one optional argument
+    if (present(x)) then
+        square = x*x
+    else
+        square = 1
+    end if
+end function square
+
+print *, square(4)                          ! function call with present optional argument '4'
+```
+
+and after `transform_optional_argument_functions` pass it would look like:
+
+```fortran
+integer(4) function square(x, is_x_present_)
+    logical(4), intent(in) :: is_x_present_     ! boolean non-optional argument
+    integer(4), intent(in) :: x             ! optional argument 'x' is now non-optional argument
+    if (is_x_present_) then
+        square = x*x
+    else
+        square = 1
+    end if
+end function square
+
+print *, square(4, .true.)                  ! function call with second boolean argument set to .true.
+```
+
+This same change is done for every optional argument(s) present in the function/subroutine.
+*/
 namespace LCompilers {
 
 using ASR::down_cast;
@@ -27,6 +73,34 @@ class ReplacePresentCalls: public ASR::BaseExprReplacer<ReplacePresentCalls> {
 
     ReplacePresentCalls(Allocator& al_, ASR::Function_t* f_) : al{al_}, f{f_}
     {}
+
+    void replace_IntrinsicElementalFunction(ASR::IntrinsicElementalFunction_t* x) {
+        if (x->m_intrinsic_id == static_cast<int64_t>(ASRUtils::IntrinsicElementalFunctions::Present)) {
+            ASR::symbol_t* present_arg = ASR::down_cast<ASR::Var_t>(x->m_args[0])->m_v;
+            size_t i;
+            for( i = 0; i < f->n_args; i++ ) {
+                if( ASR::down_cast<ASR::Var_t>(f->m_args[i])->m_v == present_arg ) {
+                    i++;
+                    break;
+                }
+            }
+
+            *current_expr = ASRUtils::EXPR(ASR::make_Var_t(al, x->base.base.loc,
+                                ASR::down_cast<ASR::Var_t>(f->m_args[i])->m_v));
+            return;
+        }
+        for (size_t i = 0; i < x->n_args; i++) {
+            ASR::expr_t** current_expr_copy_12 = current_expr;
+            current_expr = &(x->m_args[i]);
+            replace_expr(x->m_args[i]);
+            current_expr = current_expr_copy_12;
+        }
+        replace_ttype(x->m_type);
+        ASR::expr_t** current_expr_copy_13 = current_expr;
+        current_expr = &(x->m_value);
+        replace_expr(x->m_value);
+        current_expr = current_expr_copy_13;
+    }
 
     void replace_FunctionCall(ASR::FunctionCall_t* x) {
         ASR::symbol_t* x_sym = x->m_name;
@@ -258,8 +332,26 @@ bool fill_new_args(Vec<ASR::call_arg_t>& new_args, Allocator& al,
         owning_function = ASR::down_cast<ASR::Function_t>(
             ASR::down_cast<ASR::symbol_t>(scope->asr_owner));
     }
+
     ASR::symbol_t* func_sym = ASRUtils::symbol_get_past_external(x.m_name);
-    if( !ASR::is_a<ASR::Function_t>(*func_sym) ) {
+    if (ASR::is_a<ASR::Variable_t>(*x.m_name)) {
+        // possible it is a `procedure(cb) :: call_back`
+        ASR::Variable_t* v = ASR::down_cast<ASR::Variable_t>(x.m_name);
+        LCOMPILERS_ASSERT(ASR::is_a<ASR::FunctionType_t>(*v->m_type));
+        func_sym = ASRUtils::symbol_get_past_external(v->m_type_declaration);
+        v->m_type = ASRUtils::duplicate_type(al, ASR::down_cast<ASR::Function_t>(
+            ASRUtils::symbol_get_past_external(v->m_type_declaration))->m_function_signature);
+    }
+    bool is_nopass { false };
+    bool is_class_procedure { false };
+    if (ASR::is_a<ASR::ClassProcedure_t>(*func_sym)) {
+        ASR::ClassProcedure_t* class_proc = ASR::down_cast<ASR::ClassProcedure_t>(func_sym);
+        func_sym = class_proc->m_proc;
+        is_nopass = class_proc->m_is_nopass;
+        is_class_procedure = true;
+    }
+
+    if (!ASR::is_a<ASR::Function_t>(*func_sym)) {
         return false;
     }
 
@@ -278,16 +370,23 @@ bool fill_new_args(Vec<ASR::call_arg_t>& new_args, Allocator& al,
         return false;
     }
 
+    // when `func` is a ClassProcedure **without** nopass, then the
+    // first argument of FunctionType is "this" (i.e. the class instance)
+    // which is depicted in `func.n_args` while isn't depicted in
+    // `x.n_args` (as it only represents the "FunctionCall" arguments)
+    // hence to adjust for that, `is_method` introduces an offset
+    bool is_method = is_class_procedure && (!is_nopass);
+
     new_args.reserve(al, func->n_args);
     for( size_t i = 0, j = 0; j < func->n_args; j++, i++ ) {
-        LCOMPILERS_ASSERT(i < x.n_args);
         if( std::find(sym2optionalargidx[func_sym].begin(),
                       sym2optionalargidx[func_sym].end(), j)
             != sym2optionalargidx[func_sym].end() ) {
             ASR::Variable_t* func_arg_j = ASRUtils::EXPR2VAR(func->m_args[j]);
-            if( x.m_args[i].m_value == nullptr ) {
+            if( i - is_method >= x.n_args || x.m_args[i - is_method].m_value == nullptr ) {
                 std::string m_arg_i_name = scope->get_unique_name("__libasr_created_variable_");
                 ASR::ttype_t* arg_type = func_arg_j->m_type;
+                ASR::symbol_t* arg_decl = func_arg_j->m_type_declaration;
                 if( ASR::is_a<ASR::Array_t>(*arg_type) ) {
                     ASR::Array_t* array_t = ASR::down_cast<ASR::Array_t>(arg_type);
                     Vec<ASR::dimension_t> dims;
@@ -305,7 +404,7 @@ bool fill_new_args(Vec<ASR::call_arg_t>& new_args, Allocator& al,
                                 array_t->m_type, dims.p, dims.size(), ASR::array_physical_typeType::FixedSizeArray));
                 }
                 ASR::expr_t* m_arg_i = PassUtils::create_auxiliary_variable(
-                    x.m_args[i].loc, m_arg_i_name, al, scope, arg_type);
+                    x.m_args[i - is_method].loc, m_arg_i_name, al, scope, arg_type, ASR::intentType::Local, arg_decl);
                 arg_type = ASRUtils::expr_type(m_arg_i);
                 if( ASRUtils::is_array(arg_type) &&
                     ASRUtils::extract_physical_type(arg_type) !=
@@ -317,36 +416,36 @@ bool fill_new_args(Vec<ASR::call_arg_t>& new_args, Allocator& al,
                         ASRUtils::extract_physical_type(func_arg_j->m_type), m_type, nullptr));
                 }
                 ASR::call_arg_t m_call_arg_i;
-                m_call_arg_i.loc = x.m_args[i].loc;
+                m_call_arg_i.loc = x.m_args[i - is_method].loc;
                 m_call_arg_i.m_value = m_arg_i;
                 new_args.push_back(al, m_call_arg_i);
             } else {
-                new_args.push_back(al, x.m_args[i]);
+                new_args.push_back(al, x.m_args[i - is_method]);
             }
             ASR::ttype_t* logical_t = ASRUtils::TYPE(ASR::make_Logical_t(al,
-                                        x.m_args[i].loc, 4));
+                                        x.m_args[i - is_method].loc, 4));
             ASR::expr_t* is_present = nullptr;
-            if( x.m_args[i].m_value == nullptr ) {
+            if( i - is_method >= x.n_args || x.m_args[i - is_method].m_value == nullptr ) {
                 is_present = ASRUtils::EXPR(ASR::make_LogicalConstant_t(
-                    al, x.m_args[i].loc, false, logical_t));
+                    al, x.m_args[0].loc, false, logical_t));
             } else {
                 if( owning_function != nullptr ) {
                     size_t k;
                     bool k_found = false;
+                    ASR::expr_t* original_expr = nullptr;
+                    if (ASR::is_a<ASR::ArrayPhysicalCast_t>(*x.m_args[i - is_method].m_value)) {
+                        ASR::ArrayPhysicalCast_t *x_array_cast = ASR::down_cast<ASR::ArrayPhysicalCast_t>(x.m_args[i - is_method].m_value);
+                        original_expr = x_array_cast->m_arg;
+                    }
                     for( k = 0; k < owning_function->n_args; k++ ) {
-                        ASR::expr_t* original_expr = nullptr;
-                        if (ASR::is_a<ASR::ArrayPhysicalCast_t>(*x.m_args[i].m_value)) {
-                            ASR::ArrayPhysicalCast_t *x_array_cast = ASR::down_cast<ASR::ArrayPhysicalCast_t>(x.m_args[i].m_value);
-                            original_expr = x_array_cast->m_arg;
-                        }
                         if( original_expr && ASR::is_a<ASR::Var_t>(*original_expr) && ASR::down_cast<ASR::Var_t>(owning_function->m_args[k])->m_v ==
                             ASR::down_cast<ASR::Var_t>(original_expr)->m_v ) {
                             k_found = true;
                             break ;
                         }
 
-                        if( ASR::is_a<ASR::Var_t>(*x.m_args[i].m_value) && ASR::down_cast<ASR::Var_t>(owning_function->m_args[k])->m_v ==
-                            ASR::down_cast<ASR::Var_t>(x.m_args[i].m_value)->m_v ) {
+                        if( ASR::is_a<ASR::Var_t>(*x.m_args[i - is_method].m_value) && ASR::down_cast<ASR::Var_t>(owning_function->m_args[k])->m_v ==
+                            ASR::down_cast<ASR::Var_t>(x.m_args[i - is_method].m_value)->m_v ) {
                             k_found = true;
                             break ;
                         }
@@ -361,28 +460,35 @@ bool fill_new_args(Vec<ASR::call_arg_t>& new_args, Allocator& al,
 
                 if( is_present == nullptr ) {
                     is_present = ASRUtils::EXPR(ASR::make_LogicalConstant_t(
-                        al, x.m_args[i].loc, true, logical_t));
+                        al, x.m_args[i - is_method].loc, true, logical_t));
                 }
             }
             ASR::call_arg_t present_arg;
-            present_arg.loc = x.m_args[i].loc;
-            if( x.m_args[i].m_value &&
-                ASRUtils::is_allocatable(x.m_args[i].m_value) &&
+            present_arg.loc = x.m_args[i - is_method].loc;
+            if( i - is_method < x.n_args && 
+                x.m_args[i - is_method].m_value &&
+                ASRUtils::is_allocatable(x.m_args[i - is_method].m_value) &&
                 !ASRUtils::is_allocatable(func_arg_j->m_type) ) {
                 ASR::expr_t* is_allocated = ASRUtils::EXPR(ASR::make_IntrinsicImpureFunction_t(
-                    al, x.m_args[i].loc, static_cast<int64_t>(ASRUtils::IntrinsicImpureFunctions::Allocated),
-                    &x.m_args[i].m_value, 1, 0, logical_t, nullptr));
-                is_present = ASRUtils::EXPR(ASR::make_LogicalBinOp_t(al, x.m_args[i].loc,
+                    al, x.m_args[i - is_method].loc, static_cast<int64_t>(ASRUtils::IntrinsicImpureFunctions::Allocated),
+                    &x.m_args[i - is_method].m_value, 1, 0, logical_t, nullptr));
+                is_present = ASRUtils::EXPR(ASR::make_LogicalBinOp_t(al, x.m_args[i - is_method].loc,
                     is_allocated, ASR::logicalbinopType::And, is_present, logical_t, nullptr));
             }
             present_arg.m_value = is_present;
             new_args.push_back(al, present_arg);
             j++;
-        } else {
-            new_args.push_back(al, x.m_args[i]);
+        } else if (!is_method) {
+            // not needed to have `i - is_method` can be simply
+            // `i` as well, just for consistency with code above
+            new_args.push_back(al, x.m_args[i - is_method]);
         }
+        // not needed to pass the class instance to `new_args`
     }
-    LCOMPILERS_ASSERT(func->n_args == new_args.size());
+    // new_args.size() is either
+    //      - equal to func->n_args
+    //      - one less than func->n_args (in case of ClassProcedure without nopass)
+    LCOMPILERS_ASSERT(func->n_args == new_args.size() + is_method);
     return true;
 }
 
@@ -412,7 +518,7 @@ class ReplaceFunctionCallsWithOptionalArguments: public ASR::BaseExprReplacer<Re
         *current_expr = ASRUtils::EXPR(ASRUtils::make_FunctionCall_t_util(al,
                             x->base.base.loc, x->m_name, x->m_original_name,
                             new_args.p, new_args.size(), x->m_type, x->m_value,
-                            x->m_dt));
+                            x->m_dt, ASRUtils::get_class_proc_nopass_val((*x).m_name)));
         new_func_calls.insert(*current_expr);
     }
 

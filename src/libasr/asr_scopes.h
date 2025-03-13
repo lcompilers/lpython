@@ -5,6 +5,7 @@
 
 #include <libasr/alloc.h>
 #include <libasr/containers.h>
+extern std::string lcompilers_commandline_options;
 
 namespace LCompilers  {
 
@@ -47,6 +48,14 @@ struct SymbolTable {
             }
         }
         return scope[name];
+    }
+
+    SymbolTable* get_global_scope() {
+        SymbolTable* global_scope = this;
+        while (global_scope->parent) {
+            global_scope = global_scope->parent;
+        }
+        return global_scope;
     }
 
     const std::map<std::string, ASR::symbol_t*>& get_scope() const {

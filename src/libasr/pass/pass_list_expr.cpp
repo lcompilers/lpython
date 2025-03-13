@@ -6,9 +6,6 @@
 #include <libasr/pass/list_expr.h>
 #include <libasr/pass/pass_utils.h>
 
-#include <vector>
-#include <utility>
-
 
 namespace LCompilers {
 
@@ -98,7 +95,7 @@ public:
 
     #define create_args(x, type, symtab) { \
         ASR::symbol_t* arg = ASR::down_cast<ASR::symbol_t>( \
-            ASR::make_Variable_t(al, loc, symtab, \
+            ASRUtils::make_Variable_t_util(al, loc, symtab, \
             s2c(al, x), nullptr, 0, ASR::intentType::In, nullptr, nullptr, \
             ASR::storage_typeType::Default, type, nullptr, \
             ASR::abiType::Source, ASR::accessType::Public, \
@@ -172,7 +169,7 @@ public:
 
         // Declare `result_list`
         ASR::symbol_t* arg = ASR::down_cast<ASR::symbol_t>(
-            ASR::make_Variable_t(al, loc, list_section_symtab,
+            ASRUtils::make_Variable_t_util(al, loc, list_section_symtab,
             s2c(al, "result_list"), nullptr, 0, ASR::intentType::Local, nullptr, nullptr,
             ASR::storage_typeType::Default, list_type, nullptr,
             ASR::abiType::Source, ASR::accessType::Public,
@@ -409,7 +406,7 @@ public:
         }
         ASR::symbol_t *fn_sym = list_section_func_map[list_type_name];
         *current_expr = ASRUtils::EXPR(ASRUtils::make_FunctionCall_t_util(al, loc,
-            fn_sym, nullptr, args.p, args.n, x->m_type, nullptr, nullptr));
+            fn_sym, nullptr, args.p, args.n, x->m_type, nullptr, nullptr, false));
     }
 
     void create_concat_function(Location& loc,
@@ -445,7 +442,7 @@ public:
 
         // Declare `result_list`
         ASR::symbol_t* arg = ASR::down_cast<ASR::symbol_t>(
-            ASR::make_Variable_t(al, loc, list_concat_symtab,
+            ASRUtils::make_Variable_t_util(al, loc, list_concat_symtab,
             s2c(al, "result_list"), nullptr, 0, ASR::intentType::Local, nullptr, nullptr,
             ASR::storage_typeType::Default, list_type, nullptr,
             ASR::abiType::Source, ASR::accessType::Public,
@@ -533,7 +530,7 @@ public:
         }
         ASR::symbol_t *fn_sym = list_concat_func_map[list_type_name];
         *current_expr = ASRUtils::EXPR(ASRUtils::make_FunctionCall_t_util(al, loc,
-            fn_sym, nullptr, args.p, 2, x->m_type, nullptr, nullptr));
+            fn_sym, nullptr, args.p, 2, x->m_type, nullptr, nullptr, false));
     }
 
 };

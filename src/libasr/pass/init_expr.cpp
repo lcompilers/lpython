@@ -7,7 +7,6 @@
 #include <libasr/pass/pass_utils.h>
 
 #include <vector>
-#include <utility>
 
 namespace LCompilers {
 
@@ -59,13 +58,11 @@ class ReplaceInitExpr: public ASR::BaseExprReplacer<ReplaceInitExpr> {
             symtab2decls[current_scope] = result_vec_;
         }
         Vec<ASR::stmt_t*>* result_vec = &symtab2decls[current_scope];
-        bool remove_original_statement = false;
         if( casted_type != nullptr ) {
             casted_type = ASRUtils::type_get_past_array(casted_type);
         }
-        PassUtils::ReplacerUtils::replace_ArrayConstructor(x, this,
-            remove_original_statement, result_vec,
-            perform_cast, cast_kind, casted_type);
+        PassUtils::ReplacerUtils::replace_ArrayConstructor_(al, x, result_var, result_vec,
+            current_scope, perform_cast, cast_kind, casted_type);
         *current_expr = nullptr;
     }
 
@@ -186,7 +183,9 @@ class InitExprVisitor : public ASR::CallReplacerOnExpressionsVisitor<InitExprVis
                    ASR::is_a<ASR::ArrayConstructor_t>(*symbolic_value))) ||
                  (ASR::is_a<ASR::Module_t>(*asr_owner) &&
                   (ASR::is_a<ASR::ArrayConstant_t>(*symbolic_value) ||
-                  ASR::is_a<ASR::ArrayConstructor_t>(*symbolic_value)))) {
+                  ASR::is_a<ASR::ArrayConstructor_t>(*symbolic_value))) ||
+                (x.m_storage == ASR::storage_typeType::Save &&
+                ASR::is_a<ASR::Function_t>(*ASR::down_cast<ASR::symbol_t>(current_scope->asr_owner)))) {
                 return ;
             }
 

@@ -11,7 +11,6 @@
  * for both C and C++ code generation.
  */
 
-#include <iostream>
 #include <memory>
 #include <set>
 
@@ -28,7 +27,6 @@
 
 
 #include <map>
-#include <tuple>
 
 #define CHECK_FAST_C_CPP(compiler_options, x)                   \
         if (compiler_options.po.fast && x.m_value != nullptr) { \
@@ -565,7 +563,6 @@ R"(#include <stdio.h>
                 if( is_c ) {
                     CDeclarationOptions c_decl_options;
                     c_decl_options.pre_initialise_derived_type = false;
-                    c_decl_options.do_not_initialize = true;
                     func += self().convert_variable_decl(*arg, &c_decl_options);
                 } else {
                     CPPDeclarationOptions cpp_decl_options;
@@ -1069,11 +1066,13 @@ PyMODINIT_FUNC PyInit_lpython_module_)" + fn_name + R"((void) {
         bracket_open++;
         std::string args = "";
         for (size_t i=0; i<n_args; i++) {
-            self().visit_expr(*m_args[i].m_value);
-            ASR::ttype_t* type = ASRUtils::expr_type(m_args[i].m_value);
-            if (ASR::is_a<ASR::Var_t>(*m_args[i].m_value) &&
-                ASR::is_a<ASR::Variable_t>(
-                    *(ASR::down_cast<ASR::Var_t>(m_args[i].m_value)->m_v))) {
+            ASR::expr_t* call_arg = m_args[i].m_value;
+            self().visit_expr(*call_arg);
+            ASR::ttype_t* type = ASRUtils::expr_type(call_arg);
+            if (ASR::is_a<ASR::Var_t>(*call_arg)
+                && ASR::is_a<ASR::Variable_t>(
+                    *ASRUtils::symbol_get_past_external(
+                        ASR::down_cast<ASR::Var_t>(m_args[i].m_value)->m_v))) {
                 ASR::Variable_t* param = ASRUtils::EXPR2VAR(f->m_args[i]);
                 if( (is_c && (param->m_intent == ASRUtils::intent_inout
                     || param->m_intent == ASRUtils::intent_out)
@@ -1091,7 +1090,7 @@ PyMODINIT_FUNC PyInit_lpython_module_)" + fn_name + R"((void) {
                 } else {
                     args += src;
                 }
-            } else if (ASR::is_a<ASR::ArrayItem_t>(*m_args[i].m_value)) {
+            } else if (ASR::is_a<ASR::ArrayItem_t>(*call_arg)) {
                 ASR::Variable_t* param = ASRUtils::EXPR2VAR(f->m_args[i]);
                 if (param->m_intent == ASRUtils::intent_inout
                     || param->m_intent == ASRUtils::intent_out || ASR::is_a<ASR::StructType_t>(*type)) {
@@ -1244,15 +1243,6 @@ PyMODINIT_FUNC PyInit_lpython_module_)" + fn_name + R"((void) {
         src = "_lfortran_strrepeat_c(" + s + ", " + n + ")";
     }
 
-    void visit_StringContains(const ASR::StringContains_t &x) {
-        CHECK_FAST_C_CPP(compiler_options, x)
-        self().visit_expr(*x.m_substr);
-        std::string substr = src;
-        self().visit_expr(*x.m_str);
-        std::string str = src;
-        src = "_lfortran_str_contains(" + str + ", " + substr + ")";
-    }
-
     void visit_Assignment(const ASR::Assignment_t &x) {
         std::string target;
         ASR::ttype_t* m_target_type = ASRUtils::expr_type(x.m_target);
@@ -1356,7 +1346,7 @@ PyMODINIT_FUNC PyInit_lpython_module_)" + fn_name + R"((void) {
             LCOMPILERS_ASSERT(false)
         }
         from_std_vector_helper.clear();
-        if( ASR::is_a<ASR::UnionTypeConstructor_t>(*x.m_value) ) {
+        if( ASR::is_a<ASR::UnionConstructor_t>(*x.m_value) ) {
             src = "";
             return ;
         }
@@ -1563,7 +1553,7 @@ PyMODINIT_FUNC PyInit_lpython_module_)" + fn_name + R"((void) {
             std::string stride = "1";
             for( int i = value_rank - 1; i >= 0; i-- ) {
                 if( ds[i] != "" ) {
-                    std::string dim_length = "(((" + ubs[i] + " - " + lbs[i] + ")" + "/" + ds[i] + ") + 1)";
+                    std::string dim_length = "((( (" + ubs[i] + ") - (" + lbs[i] + ") )" + "/" + ds[i] + ") + 1)";
                     std::string target_dim_des = target_dim_des_array + "[" + std::to_string(j) + "]";
                     update_target_desc += indent + target_dim_des + ".stride = " + stride + ";\n";
                     update_target_desc += indent + target_dim_des + ".lower_bound = 1;\n";
@@ -1694,7 +1684,7 @@ PyMODINIT_FUNC PyInit_lpython_module_)" + fn_name + R"((void) {
                std::to_string(x.n_args) + ");\n";
         for( size_t i = 0; i < x.n_args; i++ ) {
             self().visit_expr(*x.m_args[i]);
-            if( ASR::is_a<ASR::Character_t>(*t->m_type) ) {
+            if( ASR::is_a<ASR::String_t>(*t->m_type) ) {
                 src_tmp += indent + var_name + ".data[" + std::to_string(i) +"] = NULL;\n";
             }
             src_tmp += indent + c_ds_api->get_deepcopy(t->m_type, src,
@@ -1720,7 +1710,7 @@ PyMODINIT_FUNC PyInit_lpython_module_)" + fn_name + R"((void) {
         for (size_t i = 0; i < x.n_elements; i++) {
             self().visit_expr(*x.m_elements[i]);
             std::string ele = ".element_" + std::to_string(i);
-            if (ASR::is_a<ASR::Character_t>(*t->m_type[i])) {
+            if (ASR::is_a<ASR::String_t>(*t->m_type[i])) {
                 src_tmp += indent + var_name + ele + " = NULL;\n";
             }
             src_tmp += indent + c_ds_api->get_deepcopy(t->m_type[i], src, var_name + ele) + "\n";
@@ -2180,7 +2170,7 @@ PyMODINIT_FUNC PyInit_lpython_module_)" + fn_name + R"((void) {
                 last_expr_precedence = 2;
                 break;
             }
-            case (ASR::cast_kindType::LogicalToCharacter) : {
+            case (ASR::cast_kindType::LogicalToString) : {
                 src = "(" + src + " ? \"True\" : \"False\")";
                 last_expr_precedence = 2;
                 break;
@@ -2206,7 +2196,7 @@ PyMODINIT_FUNC PyInit_lpython_module_)" + fn_name + R"((void) {
                 last_expr_precedence = 2;
                 break;
             }
-            case (ASR::cast_kindType::CharacterToLogical) : {
+            case (ASR::cast_kindType::StringToLogical) : {
                 src = "(bool)(strlen(" + src + ") > 0)";
                 last_expr_precedence = 2;
                 break;
@@ -2216,7 +2206,7 @@ PyMODINIT_FUNC PyInit_lpython_module_)" + fn_name + R"((void) {
                 last_expr_precedence = 2;
                 break;
             }
-            case (ASR::cast_kindType::IntegerToCharacter) : {
+            case (ASR::cast_kindType::IntegerToString) : {
                 if (is_c) {
                     ASR::ttype_t *arg_type = ASRUtils::expr_type(x.m_arg);
                     int arg_kind = ASRUtils::extract_kind_from_ttype_t(arg_type);
@@ -2225,7 +2215,7 @@ PyMODINIT_FUNC PyInit_lpython_module_)" + fn_name + R"((void) {
                         case 2: src = "_lfortran_int_to_str2(" + src + ")"; break;
                         case 4: src = "_lfortran_int_to_str4(" + src + ")"; break;
                         case 8: src = "_lfortran_int_to_str8(" + src + ")"; break;
-                        default: throw CodeGenError("Cast IntegerToCharacter: Unsupported Kind " + \
+                        default: throw CodeGenError("Cast IntegerToString: Unsupported Kind " + \
                                         std::to_string(arg_kind));
                     }
 
@@ -2235,7 +2225,7 @@ PyMODINIT_FUNC PyInit_lpython_module_)" + fn_name + R"((void) {
                 last_expr_precedence = 2;
                 break;
             }
-            case (ASR::cast_kindType::CharacterToInteger) : {
+            case (ASR::cast_kindType::StringToInteger) : {
                 if (is_c) {
                     src = "atoi(" + src + ")";
                 } else {
@@ -2244,14 +2234,14 @@ PyMODINIT_FUNC PyInit_lpython_module_)" + fn_name + R"((void) {
                 last_expr_precedence = 2;
                 break;
             }
-            case (ASR::cast_kindType::RealToCharacter) : {
+            case (ASR::cast_kindType::RealToString) : {
                 if (is_c) {
                     ASR::ttype_t *arg_type = ASRUtils::expr_type(x.m_arg);
                     int arg_kind = ASRUtils::extract_kind_from_ttype_t(arg_type);
                     switch (arg_kind) {
                         case 4: src = "_lfortran_float_to_str4(" + src + ")"; break;
                         case 8: src = "_lfortran_float_to_str8(" + src + ")"; break;
-                        default: throw CodeGenError("Cast RealToCharacter: Unsupported Kind " + \
+                        default: throw CodeGenError("Cast RealToString: Unsupported Kind " + \
                                         std::to_string(arg_kind));
                     }
                 } else {
@@ -2618,7 +2608,7 @@ PyMODINIT_FUNC PyInit_lpython_module_)" + fn_name + R"((void) {
                 type = ASRUtils::expr_type(tmp_expr);
             } else {
                 throw CodeGenError("Cannot deallocate variables in expression " +
-                                    std::to_string(tmp_expr->type),
+                                    ASRUtils::type_to_str_python(ASRUtils::expr_type(tmp_expr)),
                                     tmp_expr->base.loc);
             }
             std::string sym = ASRUtils::symbol_name(tmp_sym);
@@ -2703,7 +2693,7 @@ PyMODINIT_FUNC PyInit_lpython_module_)" + fn_name + R"((void) {
                 tmp_sym = tmp_var->m_v;
             } else {
                 throw CodeGenError("Cannot deallocate variables in expression " +
-                                    std::to_string(tmp_expr->type),
+                                    ASRUtils::type_to_str_python(ASRUtils::expr_type(tmp_expr)),
                                     tmp_expr->base.loc);
             }
             out += std::string(ASRUtils::symbol_name(tmp_sym)) + ", ";
@@ -2723,7 +2713,7 @@ PyMODINIT_FUNC PyInit_lpython_module_)" + fn_name + R"((void) {
                 tmp_sym = tmp_var->m_v;
             } else {
                 throw CodeGenError("Cannot deallocate variables in expression " +
-                                    std::to_string(tmp_expr->type),
+                                    ASRUtils::type_to_str_python(ASRUtils::expr_type(tmp_expr)),
                                     tmp_expr->base.loc);
             }
             out += std::string(ASRUtils::symbol_name(tmp_sym)) + ", ";
@@ -3069,6 +3059,8 @@ PyMODINIT_FUNC PyInit_lpython_module_)" + fn_name + R"((void) {
             SET_INTRINSIC_NAME(StringContainsSet, "verify");
             SET_INTRINSIC_NAME(StringFindSet, "scan");
             SET_INTRINSIC_NAME(SubstrIndex, "index");
+            SET_INTRINSIC_NAME(StringLenTrim, "len_trim");
+            SET_INTRINSIC_NAME(StringTrim, "trim");
             case (static_cast<int64_t>(ASRUtils::IntrinsicElementalFunctions::FMA)) : {
                 this->visit_expr(*x.m_args[0]);
                 std::string a = src;

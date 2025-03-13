@@ -29,12 +29,18 @@ intrinsic_funcs_args = {
     "Mod": [
         {
             "args": [("int", "int"), ("real", "real")],
-            "ret_type_arg_idx": 0
+            "ret_type_arg_idx": "dynamic"
         },
     ],
     "Trailz": [
         {
             "args": [("int",)],
+            "ret_type_arg_idx": 0
+        },
+    ],
+    "Spacing": [
+        {
+            "args": [("real",)],
             "ret_type_arg_idx": 0
         },
     ],
@@ -44,28 +50,28 @@ intrinsic_funcs_args = {
             "ret_type_arg_idx": 0
         },
     ],
-    "BesselJ0": [
+    "BesselJN": [
         {
-            "args": [("real",)],
-            "ret_type_arg_idx": 0
+            "args": [("int", "real")],
+            "ret_type_arg_idx": 1
         },
     ],
-    "BesselJ1": [
+    "BesselYN": [
         {
-            "args": [("real",)],
-            "ret_type_arg_idx": 0
-        },
-    ],
-    "BesselY0": [
-        {
-            "args": [("real",)],
-            "ret_type_arg_idx": 0
+            "args": [("int", "real")],
+            "ret_type_arg_idx": 1
         },
     ],
     "Mvbits": [
         {
             "args": [("int", "int", "int", "int", "int")],
             "ret_type_arg_idx": 3
+        },
+    ],
+    "MoveAlloc": [
+        {
+            "args": [("any", "any")],
+            "ret_type_arg_idx": 0
         },
     ],
     "Leadz": [
@@ -83,6 +89,79 @@ intrinsic_funcs_args = {
     "Hypot": [
         {
             "args": [("real", "real")],
+            "ret_type_arg_idx": 0,
+            "same_kind_arg" : 2
+        }
+    ],
+    "Trunc": [
+        {
+            "args": [("real",)],
+            "ret_type_arg_idx": 0
+        }
+    ],
+    "Gamma": [
+        {
+            "args": [("real",)],
+            "ret_type_arg_idx": 0
+        }
+    ],
+    "LogGamma": [
+        {
+            "args": [("real",)],
+            "ret_type_arg_idx": 0
+        }
+    ],
+    "Log10": [
+        {
+            "args": [("real",)],
+            "ret_type_arg_idx": 0
+        }
+    ],
+    "Erf": [
+        {
+            "args": [("real",)],
+            "ret_type_arg_idx": 0
+        }
+    ],
+    "Erfc": [
+        {
+            "args": [("real",)],
+            "ret_type_arg_idx": 0
+        }
+    ],
+    "Exp": [
+        {
+            "args": [("real",), ("complex",)],
+            "ret_type_arg_idx": 0
+        },
+    ],
+    "ErfcScaled": [
+        {
+            "args": [("real",)],
+            "ret_type_arg_idx": 0
+        },
+    ],
+    "Atan2": [
+        {
+            "args": [("real", "real")],
+            "ret_type_arg_idx": 0
+        }
+    ],
+    "Fix": [
+        {
+            "args": [("real",)],
+            "ret_type_arg_idx": 0
+        }
+    ],
+    "Exp2": [
+        {
+            "args": [("real",)],
+            "ret_type_arg_idx": 0
+        }
+    ],
+    "Expm1": [
+        {
+            "args": [("real",)],
             "ret_type_arg_idx": 0
         }
     ],
@@ -102,6 +181,13 @@ intrinsic_funcs_args = {
         {
             "args": [("char",)],
             "return": "int32"
+        }
+    ],
+    "Logical": [
+        {
+            "args": [("bool", )],
+            "ret_type_arg_idx": 0,
+            "kind_arg": True
         }
     ],
     "Digits": [
@@ -167,7 +253,8 @@ intrinsic_funcs_args = {
     "Sign": [
         {
             "args": [("int", "int"), ("real", "real")],
-            "ret_type_arg_idx": 0
+            "ret_type_arg_idx": 0,
+            "same_kind_arg": 2
         },
     ],
     "Radix": [
@@ -176,16 +263,35 @@ intrinsic_funcs_args = {
             "return": "int32"
         },
     ],
+    "OutOfRange": [
+        {
+            "args": [("int", "real", "bool"), ("real", "real", "bool"), ("int", "int", "bool"), ("real", "int", "bool")],
+            "return": "logical"
+        },
+    ],
+    "StorageSize": [
+        {
+            "args": [("any",)],
+            "return": "int32",
+            "kind_arg": True
+        },
+    ],
+    "Nearest": [
+        {
+            "args": [("real", "real")],
+            "ret_type_arg_idx": 0
+        },
+    ],
     "Adjustl": [
         {
             "args": [("char",)],
-            "return": "character(-1)"
+            "ret_type_arg_idx": 0
         }
     ],
     "Adjustr": [
         {
             "args": [("char",)],
-            "return": "character(-1)"
+            "ret_type_arg_idx": 0
         }
     ],
     "Aint": [
@@ -195,11 +301,29 @@ intrinsic_funcs_args = {
             "kind_arg": True
         }
     ],
+    "Isnan": [
+        {
+            "args": [("real",)],
+            "return": "logical",
+        }
+    ],
+    "SameTypeAs": [
+        {
+            "args": [("any", "any")],
+            "return": "logical"
+        }
+    ],
     "Nint": [
         {
             "args": [("real",)],
             "return": "int32",
             "kind_arg": True
+        }
+    ],
+    "Idnint": [
+        {
+            "args": [("real",)],
+            "return": "int32"
         }
     ],
     "Anint": [
@@ -223,7 +347,145 @@ intrinsic_funcs_args = {
             "kind_arg": True
         }
     ],
+    "Asind": [
+        {
+            "args": [("real",)],
+            "ret_type_arg_idx": 0
+        }
+    ],
+    "Acosd": [
+        {
+            "args": [("real",)],
+            "ret_type_arg_idx": 0
+        }
+    ],
+    "Atand": [
+        {
+            "args": [("real",)],
+            "ret_type_arg_idx": 0
+        }
+    ],
+    "Sind": [
+        {
+            "args": [("real",)],
+            "ret_type_arg_idx": 0
+        }
+    ],
+    "Cosd": [
+        {
+            "args": [("real",)],
+            "ret_type_arg_idx": 0
+        }
+    ],
+    "Tand": [
+        {
+            "args": [("real",)],
+            "ret_type_arg_idx": 0
+        }
+    ],
+    "BesselJ0": [
+        {
+            "args": [("real",)],
+            "ret_type_arg_idx": 0
+        },
+    ],
+    "BesselJ1": [
+        {
+            "args": [("real",)],
+            "ret_type_arg_idx": 0
+        },
+    ],
+    "BesselY0": [
+        {
+            "args": [("real",)],
+            "ret_type_arg_idx": 0
+        },
+    ],
+    "BesselY1": [
+        {
+            "args": [("real",)],
+            "ret_type_arg_idx": 0
+        },
+    ],
     "Sqrt": [
+        {
+            "args": [("real",), ("complex",)],
+            "ret_type_arg_idx": 0
+        },
+    ],
+    "Sin": [
+        {
+            "args": [("real",), ("complex",)],
+            "ret_type_arg_idx": 0
+        },
+    ],
+    "Cos": [
+        {
+            "args": [("real",), ("complex",)],
+            "ret_type_arg_idx": 0
+        },
+    ],
+    "Tan": [
+        {
+            "args": [("real",), ("complex",)],
+            "ret_type_arg_idx": 0
+        },
+    ],
+    "Asin": [
+        {
+            "args": [("real",), ("complex",)],
+            "ret_type_arg_idx": 0
+        },
+    ],
+    "Acos": [
+        {
+            "args": [("real",), ("complex",)],
+            "ret_type_arg_idx": 0
+        },
+    ],
+    "Atan": [
+        {
+            "args": [("real",), ("complex",)],
+            "ret_type_arg_idx": 0
+        },
+    ],
+    "Sinh": [
+        {
+            "args": [("real",), ("complex",)],
+            "ret_type_arg_idx": 0
+        },
+    ],
+    "Cosh": [
+        {
+            "args": [("real",), ("complex",)],
+            "ret_type_arg_idx": 0
+        },
+    ],
+    "Tanh": [
+        {
+            "args": [("real",), ("complex",)],
+            "ret_type_arg_idx": 0
+        },
+    ],
+    "Asinh": [
+        {
+            "args": [("real",), ("complex",)],
+            "ret_type_arg_idx": 0
+        },
+    ],
+    "Acosh": [
+        {
+            "args": [("real",), ("complex",)],
+            "ret_type_arg_idx": 0
+        },
+    ],
+    "Atanh": [
+        {
+            "args": [("real",), ("complex",)],
+            "ret_type_arg_idx": 0
+        },
+    ],
+    "Log": [
         {
             "args": [("real",), ("complex",)],
             "ret_type_arg_idx": 0
@@ -232,7 +494,7 @@ intrinsic_funcs_args = {
     "Sngl": [
         {
             "args": [("real",)],
-            "return": "real32"
+            "return": "real32",
         }
     ],
     "SignFromValue": [
@@ -316,19 +578,40 @@ intrinsic_funcs_args = {
     "Iand": [
         {
             "args": [("int", "int")],
-            "ret_type_arg_idx": 0
+            "ret_type_arg_idx": 0,
+            "same_kind_arg": 2
+        },
+    ],
+    "And": [
+        {
+            "args": [("int", "int"),("bool","bool")],
+            "ret_type_arg_idx": 0,
         },
     ],
     "Ior": [
         {
             "args": [("int", "int")],
-            "ret_type_arg_idx": 0
+            "ret_type_arg_idx": 0,
+            "same_kind_arg": 2
+        },
+    ],
+    "Or": [
+        {
+            "args": [("int", "int"), ("bool", "bool")],
+            "ret_type_arg_idx": 0,
         },
     ],
     "Ieor": [
         {
             "args": [("int", "int")],
-            "ret_type_arg_idx": 0
+            "ret_type_arg_idx": 0,
+            "same_kind_arg": 2
+        },
+    ],
+    "Xor": [
+        {
+            "args": [("int", "int"), ("bool", "bool")],
+            "ret_type_arg_idx": 0,
         },
     ],
     "Ibclr": [
@@ -380,10 +663,28 @@ intrinsic_funcs_args = {
             "kind_arg": True
         },
     ],
+    "Dreal": [
+        {
+            "args": [("complex64",)],
+            "return": "real64",
+        },
+    ],
     "Rank": [
         {
             "args": [("any",)],
             "return": "int32"
+        }
+    ],
+    "BitSize": [
+        {
+            "args": [("int",)],
+            "ret_type_arg_idx": 0
+        }
+    ],
+    "NewLine": [
+        {
+            "args": [("char",)],
+            "return": "character(-1)"
         }
     ],
     "Range": [
@@ -454,9 +755,22 @@ intrinsic_funcs_args = {
             "kind_arg": True
         }
     ],
+    "Merge": [
+        {
+            "args": [("any", "any", "bool")],
+            "ret_type_arg_idx": 0
+        }
+    ],
+    "Mergebits": [
+        {
+            "args": [("int", "int", "int")],
+            "ret_type_arg_idx": 0,
+            "same_kind_arg": 3
+        }
+    ],
     "Ishftc": [
         {
-            "args": [("int", "int")],
+            "args": [("int", "int", "int")],
             "ret_type_arg_idx": 0
         },
     ],
@@ -468,6 +782,13 @@ intrinsic_funcs_args = {
         },
     ],
     "Char": [
+        {
+            "args": [("int",)],
+            "return": "character(1)",
+            "kind_arg": True
+        }
+    ],
+    "Achar": [
         {
             "args": [("int",)],
             "return": "character(1)",
@@ -501,33 +822,76 @@ intrinsic_funcs_args = {
     "Dshiftl": [
        {
            "args": [("int", "int", "int",)],
-           "ret_type_arg_idx": 0
+           "ret_type_arg_idx": 0,
+           "same_kind_arg": 2
        },
-   ],
-   "Popcnt": [
-       {
-           "args": [("int",)],
-           "return": "int32",
-       },
-   ],
-   "Poppar": [
-       {
-           "args": [("int",)],
-           "return": "int32",
-       },
-   ],
-
+    ],
+    "Dshiftr": [
+        {
+            "args": [("int", "int", "int",)],
+            "ret_type_arg_idx": 0
+        },
+    ],
+    "Popcnt": [
+        {
+            "args": [("int",)],
+            "return": "int32",
+        },
+    ],
+    "Poppar": [
+        {
+            "args": [("int",)],
+            "return": "int32",
+        },
+    ],
+    "Real": [
+        {
+            "args": [("int",), ("real",), ("complex",)],
+            "return": "real32",
+            "kind_arg": True,
+            "real_32_except_complex": True
+        },
+    ],
+    "Int": [
+        {
+            "args": [("int",), ("real",), ("complex",)],
+            "return": "int32",
+            "kind_arg": True
+        }
+    ],
+    "StringLenTrim": [
+        {
+            "args": [("char",)],
+            "return": "int32",
+            "kind_arg": True
+        }
+    ],
+    "StringTrim": [
+        {
+            "args": [("char",)],
+            "ret_type_arg_idx": 0
+        }
+    ],
 }
 
 skip_create_func = ["Partition"]
 compile_time_only_fn = [
     "Epsilon",
     "Radix",
+    "IsContiguous",
+    "StorageSize",
     "Range",
     "Precision",
     "Rank",
     "Tiny",
     "Huge",
+    "BitSize",
+    "NewLine",
+    "Kind",
+    "MaxExponent",
+    "MinExponent",
+    "SameTypeAs",
+    "Digits",
 ]
 
 type_to_asr_type_check = {
@@ -538,6 +902,7 @@ type_to_asr_type_check = {
     "bool": "is_logical",
     "char": "is_character",
     "complex": "is_complex",
+    "complex64": "is_complex<8>",
     "dict": "ASR::is_a<ASR::Dict_t>",
     "list": "ASR::is_a<ASR::List_t>",
     "tuple": "ASR::is_a<ASR::Tuple_t>"
@@ -559,6 +924,11 @@ def compute_arg_types(indent, no_of_args, args_arr):
     for i in range(no_of_args):
         src += indent + f"ASR::ttype_t *arg_type{i} = ASRUtils::expr_type({args_arr}[{i}]);\n"
 
+def compute_arg_kinds(indent, no_of_args):
+    global src
+    for i in range(no_of_args):
+        src += indent + f"int kind{i} = ASRUtils::extract_kind_from_ttype_t(arg_type{i});\n"
+
 def compute_arg_condition(no_of_args, args_lists):
     condition = []
     cond_in_msg = []
@@ -573,9 +943,16 @@ def compute_arg_condition(no_of_args, args_lists):
         cond_in_msg.append(", ".join(subcond_in_msg))
     return (f"({') || ('.join(condition)})", f"({') or ('.join(cond_in_msg)})")
 
+def compute_kind_condition(no_of_args):
+    condition = []
+    for i in range(1, no_of_args):
+        condition.append(f"kind0 == kind{i}")
+    return f"({') && ('.join(condition)})"
+
 def add_verify_arg_type_src(func_name):
     global src
     arg_infos = intrinsic_funcs_args[func_name]
+    same_kind_arg = arg_infos[0].get("same_kind_arg", False)
     no_of_args_msg = ""
     for i, arg_info in enumerate(arg_infos):
         args_lists = arg_info["args"]
@@ -588,6 +965,10 @@ def add_verify_arg_type_src(func_name):
         compute_arg_types(3 * indent, no_of_args, "x.m_args")
         condition, cond_in_msg = compute_arg_condition(no_of_args, args_lists)
         src += 3 * indent + f'ASRUtils::require_impl({condition}, "Unexpected args, {func_name} expects {cond_in_msg} as arguments", x.base.base.loc, diagnostics);\n'
+        if same_kind_arg:
+            compute_arg_kinds(3 * indent, same_kind_arg)
+            condition = compute_kind_condition(same_kind_arg)
+            src += 3 * indent + f'ASRUtils::require_impl({condition}, "Kind of all the arguments of {func_name} must be the same", x.base.base.loc, diagnostics);\n'
         src += 2 * indent + "}\n"
     src += 2 * indent + "else {\n"
     src += 3 * indent + f'ASRUtils::require_impl(false, "Unexpected number of args, {func_name} takes {no_of_args_msg} arguments, found " + std::to_string(x.n_args), x.base.base.loc, diagnostics);\n'
@@ -617,6 +998,7 @@ def add_create_func_arg_type_src(func_name):
     for i, arg_info in enumerate(arg_infos):
         args_lists = arg_info["args"]
         kind_arg = arg_info.get("kind_arg", False)
+        same_kind_arg = arg_info.get("same_kind_arg", False)
         no_of_args = len(args_lists[0])
         no_of_args_msg += " or " if i > 0 else ""
         no_of_args_msg += f"{no_of_args + int(kind_arg)}"
@@ -628,6 +1010,13 @@ def add_create_func_arg_type_src(func_name):
         src += 4 * indent + f'append_error(diag, "Unexpected args, {func_name} expects {cond_in_msg} as arguments", loc);\n'
         src += 4 * indent + f'return nullptr;\n'
         src += 3 * indent + '}\n'
+        if same_kind_arg:
+            compute_arg_kinds(3 * indent, same_kind_arg)
+            condition = compute_kind_condition(same_kind_arg)
+            src += 3 * indent + f'if(!({condition}))' + ' {\n'
+            src += 4 * indent + f'append_error(diag, "Kind of all the arguments of {func_name} must be the same", loc);\n'
+            src += 4 * indent + f'return nullptr;\n'
+            src += 3 * indent + '}\n'
         src += 2 * indent + "}\n"
     src += 2 * indent + "else {\n"
     src += 3 * indent + f'append_error(diag, "Unexpected number of args, {func_name} takes {no_of_args_msg} arguments, found " + std::to_string(args.size()), loc);\n'
@@ -647,19 +1036,37 @@ def add_create_func_return_src(func_name):
     else:
         src += indent * 2 + "ASRUtils::ExprStmtDuplicator expr_duplicator(al);\n"
         src += indent * 2 + "expr_duplicator.allow_procedure_calls = true;\n"
-        src += indent * 2 + f"ASR::ttype_t* type_ = expr_duplicator.duplicate_ttype(expr_type(args[{ret_type_arg_idx}]));\n"
+        if ( ret_type_arg_idx == "dynamic"):
+            src += indent * 2 + f"int upper_kind = 0;\n"
+            src += indent * 2 + f"for(size_t i=0;i<args.size();i++){{\n"
+            src += indent * 3 + f"upper_kind = std::max(upper_kind,ASRUtils::extract_kind_from_ttype_t(expr_type(args[i])));\n"
+            src += indent * 2 + f"}}\n"
+            src += indent * 2 + f"ASR::ttype_t* type_ = expr_duplicator.duplicate_ttype(ASRUtils::extract_type(expr_type(args[0])));\n"
+            src += indent * 2 + f"set_kind_to_ttype_t(type_,upper_kind);\n"
+        else:
+            src += indent * 2 + "ASR::ttype_t* type_ = nullptr;\n"
+            src += indent * 2 + f"type_ = expr_duplicator.duplicate_ttype(ASRUtils::extract_type(expr_type(args[{ret_type_arg_idx}])));\n"
         ret_type = "type_"
     kind_arg = arg_infos[0].get("kind_arg", False)
     src += indent * 2 + f"ASR::ttype_t *return_type = {ret_type};\n"
     if kind_arg:
         src += indent * 2 + "if ( args[1] != nullptr ) {\n"
         src += indent * 3 +     "int kind = -1;\n"
-        src += indent * 3 +     "if (!ASR::is_a<ASR::Integer_t>(*expr_type(args[1])) || !extract_value(args[1], kind)) {\n"
+        src += indent * 3 +     "if (!ASR::is_a<ASR::Integer_t>(*expr_type(args[1])) || !extract_value(ASRUtils::expr_value(args[1]), kind)) {\n"
         src += indent * 4 +         f'append_error(diag, "`kind` argument of the `{func_name}` function must be a scalar Integer constant", args[1]->base.loc);\n'
         src += indent * 4 +         "return nullptr;\n"
         src += indent * 3 +     "}\n"
         src += indent * 3 +     "set_kind_to_ttype_t(return_type, kind);\n"
         src += indent * 2 + "}\n"
+    real_32_except_complex = arg_infos[0].get("real_32_except_complex", False)
+    if real_32_except_complex:
+        src += indent * 2 + "else { \n"
+        src += indent * 3 + "ASR::ttype_t* arg_type = ASRUtils::expr_type(args[0]);\n"
+        src += indent * 3 + "if (is_complex(*arg_type)) { \n"
+        src += indent * 4 + "int kind = ASRUtils::extract_kind_from_ttype_t(arg_type); \n"
+        src += indent * 4 + "set_kind_to_ttype_t(return_type, kind); \n"
+        src += indent * 3 + "} \n"
+        src += indent * 2 + "} \n"
     src += indent * 2 + "ASR::expr_t *m_value = nullptr;\n"
     src += indent * 2 + f"Vec<ASR::expr_t*> m_args; m_args.reserve(al, {no_of_args});\n"
     for _i in range(no_of_args):
@@ -667,16 +1074,34 @@ def add_create_func_return_src(func_name):
     if func_name in compile_time_only_fn:
         src += indent * 2 + f"return_type = ASRUtils::extract_type(return_type);\n"
         src += indent * 2 + f"m_value = eval_{func_name}(al, loc, return_type, args, diag);\n"
+        src += indent * 3 +     "if (diag.has_error()) {\n"
+        src += indent * 4 +         f"return nullptr;\n"
+        src += indent * 3 +     "}\n"
         src += indent * 2 + "return ASR::make_TypeInquiry_t(al, loc, "\
             f"static_cast<int64_t>(IntrinsicElementalFunctions::{func_name}), "\
             "ASRUtils::expr_type(m_args[0]), m_args[0], return_type, m_value);\n"
 
     else:
+        src += indent * 2 +     f"for( size_t i = 0; i < {no_of_args}; i++ ) " + "{\n"
+        src += indent * 3 +         "ASR::ttype_t* type = ASRUtils::expr_type(args[i]);\n"
+        src += indent * 3 +         "if (ASRUtils::is_array(type)) {\n"
+        src += indent * 4 +             "ASR::dimension_t* m_dims = nullptr;\n"
+        src += indent * 4 +             "size_t n_dims = ASRUtils::extract_dimensions_from_ttype(type, m_dims);\n"
+        src += indent * 4 +             "return_type = ASRUtils::make_Array_t_util(al, type->base.loc, "
+        src +=                              "return_type, m_dims, n_dims, ASR::abiType::Source, false, "
+        src +=                              "ASR::array_physical_typeType::DescriptorArray);\n"
+        src += indent * 4 +             "break;\n"
+        src += indent * 3 +         "}\n"
+        src += indent * 2 +     "}\n"
+
         src += indent * 2 + "if (all_args_evaluated(m_args)) {\n"
         src += indent * 3 +     f"Vec<ASR::expr_t*> args_values; args_values.reserve(al, {no_of_args});\n"
         for _i in range(no_of_args):
             src += indent * 3 + f"args_values.push_back(al, expr_value(m_args[{_i}]));\n"
         src += indent * 3 +     f"m_value = eval_{func_name}(al, loc, return_type, args_values, diag);\n"
+        src += indent * 3 +     "if (diag.has_error()) {\n"
+        src += indent * 4 +         f"return nullptr;\n"
+        src += indent * 3 +     "}\n"
         src += indent * 2 + "}\n"
         if "null" in intrinsic_funcs_ret_type.get(func_name, []):
             src += indent * 2 + f"return ASR::make_Expr_t(al, loc, ASRUtils::EXPR(ASR::make_IntrinsicElementalFunction_t(al, loc, static_cast<int64_t>(IntrinsicElementalFunctions::{func_name}), m_args.p, m_args.n, 0, return_type, m_value)));\n"
@@ -717,6 +1142,7 @@ def get_registry_funcs_src():
 HEAD = """#ifndef LIBASR_PASS_INTRINSIC_FUNC_REG_UTIL_H
 #define LIBASR_PASS_INTRINSIC_FUNC_REG_UTIL_H
 
+#include <libasr/asr_utils.h>
 #include <libasr/pass/intrinsic_functions.h>
 
 namespace LCompilers {

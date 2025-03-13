@@ -6,8 +6,6 @@
 #include <libasr/pass/loop_vectorise.h>
 #include <libasr/pass/pass_utils.h>
 
-#include <vector>
-#include <utility>
 #include <cmath>
 
 
