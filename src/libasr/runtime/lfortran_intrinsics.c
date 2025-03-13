@@ -833,7 +833,7 @@ bool check_array_iteration(int* count, int* current_arg_type_int, va_list* args,
                 state->current_arr_element_int64 = state->arr_ptr_int64[state->current_arr_index++];
             } else {
                 state->array_size = va_arg(*args,int64_t);
-                state->current_arr_index = 0; 
+                state->current_arr_index = 0;
                 state->arr_ptr_int64 = va_arg(*args,int64_t*);
                 state->current_arr_element_int64 = state->arr_ptr_int64[state->current_arr_index++];
                 *count+= state->array_size - 2;
@@ -858,7 +858,7 @@ bool check_array_iteration(int* count, int* current_arg_type_int, va_list* args,
                 state->current_arr_element_int64 = (int64_t)temp_val;
             } else {
                 state->array_size = va_arg(*args,int64_t);
-                state->current_arr_index = 0; 
+                state->current_arr_index = 0;
                 state->arr_ptr_int16 = va_arg(*args,int16_t*);
                 int16_t temp_val = state->arr_ptr_int16[state->current_arr_index++];
                 state->current_arr_element_int64 = (int64_t)temp_val;
@@ -871,7 +871,7 @@ bool check_array_iteration(int* count, int* current_arg_type_int, va_list* args,
                 state->current_arr_element_int64 = (int64_t)temp_val;
             } else {
                 state->array_size = va_arg(*args,int64_t);
-                state->current_arr_index = 0; 
+                state->current_arr_index = 0;
                 state->arr_ptr_int8 = va_arg(*args,int8_t*);
                 int8_t temp_val = state->arr_ptr_int8[state->current_arr_index++];
                 state->current_arr_element_int64 = (int64_t)temp_val;
@@ -883,7 +883,7 @@ bool check_array_iteration(int* count, int* current_arg_type_int, va_list* args,
                 state->current_arr_element_double = state->arr_ptr_double[state->current_arr_index++];
             } else {
                 state->array_size = va_arg(*args,int64_t);
-                state->current_arr_index = 0; 
+                state->current_arr_index = 0;
                 state->arr_ptr_double = va_arg(*args,double*);
                 state->current_arr_element_double = state->arr_ptr_double[state->current_arr_index++];
                 *count+= state->array_size - 2;
@@ -895,7 +895,7 @@ bool check_array_iteration(int* count, int* current_arg_type_int, va_list* args,
                 state->current_arr_element_double = (double)temp_val;
             } else {
                 state->array_size = va_arg(*args,int64_t);
-                state->current_arr_index = 0; 
+                state->current_arr_index = 0;
                 state->arr_ptr_float = va_arg(*args,float*);
                 float temp_val = state->arr_ptr_float[state->current_arr_index++];
                 state->current_arr_element_double = (double)temp_val;
@@ -907,7 +907,7 @@ bool check_array_iteration(int* count, int* current_arg_type_int, va_list* args,
                 state->current_arr_element_char_ptr = state->arr_ptr_charPtr[state->current_arr_index++];
             } else {
                 state->array_size = va_arg(*args,int64_t);
-                state->current_arr_index = 0; 
+                state->current_arr_index = 0;
                 state->arr_ptr_charPtr = va_arg(*args,char**);
                 state->current_arr_element_char_ptr = state->arr_ptr_charPtr[state->current_arr_index++];
                 *count+= state->array_size - 2;
@@ -918,19 +918,19 @@ bool check_array_iteration(int* count, int* current_arg_type_int, va_list* args,
                 state->current_arr_element_bool = state->arr_ptr_bool[state->current_arr_index++];
             } else {
                 state->array_size = va_arg(*args,int64_t);
-                state->current_arr_index = 0; 
+                state->current_arr_index = 0;
                 state->arr_ptr_bool = va_arg(*args,bool*);
                 state->current_arr_element_bool = state->arr_ptr_bool[state->current_arr_index++];
                 *count+= state->array_size - 2;
             }
             break;
-        //To DO : handle --> arr[cptr], arr[enumType] 
+        //To DO : handle --> arr[cptr], arr[enumType]
         default:
             is_array = false;
             break;
     }
     return is_array;
-    
+
 }
 char* int_to_format_specifier(int32_t type_as_int){
     switch(type_as_int){
@@ -1147,7 +1147,7 @@ LFORTRAN_API char* _lcompilers_string_format_fortran(int count, const char* form
                         result = (char*)malloc(150 * sizeof(char));
                         sprintf(result, " Runtime Error : Got argument of type (%s), while the format specifier is (%c)\n",type ,value[0]);
                         // Special indication for error --> "\b" to be handled by `lfortran_print` or `lfortran_file_write`
-                        result[0] = '\b'; 
+                        result[0] = '\b';
                         count = 0; // Break while loop.
                         break;
                     }
@@ -1158,7 +1158,7 @@ LFORTRAN_API char* _lcompilers_string_format_fortran(int count, const char* form
                     count--;
                     char* arg = NULL;
                     if(is_array){
-                        arg = array_state.current_arr_element_char_ptr; 
+                        arg = array_state.current_arr_element_char_ptr;
                     } else {
                         arg = va_arg(args, char*);
                     }
@@ -2032,7 +2032,7 @@ LFORTRAN_API void _lfortran_strcat(char** s1, char** s2, char** dest)
     dest_char[cntr] = trmn;
     *dest = &(dest_char[0]);
 }
-// Allocate_allocatable-strings + Extend String ----------------------------------------------------------- 
+// Allocate_allocatable-strings + Extend String -----------------------------------------------------------
 
 void extend_string(char** ptr, int32_t new_size /*Null-Character Counted*/, int64_t* string_capacity){
     ASSERT_MSG(string_capacity != NULL, "%s", "string capacity is NULL");
@@ -2057,7 +2057,7 @@ LFORTRAN_API void _lfortran_alloc(char** ptr, int32_t desired_size /*Null-Charac
         if(100 < desired_size){
             inital_capacity = desired_size;
         } else {
-            inital_capacity = 100; 
+            inital_capacity = 100;
         }
         *ptr = (char*)malloc(inital_capacity);
         *string_capacity = inital_capacity;
@@ -2082,14 +2082,14 @@ LFORTRAN_API void _lfortran_strcpy_descriptor_string(char** x, char *y, int64_t*
     ASSERT_MSG(((*x != NULL) && (*x_string_size <= (*x_string_capacity - 1))) ||
         (*x == NULL && *x_string_size == 0 && *x_string_capacity == 0) , "%s",
     "compiler-behavior error : string x_string_capacity < string size");
-    
+
     if(y == NULL){
         fprintf(stderr,
         "Runtime Error : RHS allocatable-character variable must be allocated before assignment.\n");
         exit(1);
     }
-    size_t y_len, x_len; 
-    y_len = strlen(y); 
+    size_t y_len, x_len;
+    y_len = strlen(y);
     x_len = y_len;
 
     if (*x == NULL) {
@@ -2101,7 +2101,7 @@ LFORTRAN_API void _lfortran_strcpy_descriptor_string(char** x, char *y, int64_t*
         }
     }
     int64_t null_character_index = x_len;
-    (*x)[null_character_index] = '\0'; 
+    (*x)[null_character_index] = '\0';
     for (size_t i = 0; i < x_len; i++) {
         (*x)[i] = y[i];
     }
@@ -2116,7 +2116,7 @@ LFORTRAN_API void _lfortran_strcpy_pointer_string(char** x, char *y)
         exit(1);
     }
     size_t y_len;
-    y_len = strlen(y); 
+    y_len = strlen(y);
     // A workaround :
     // every LHS string that's not allocatable should have been
     // allocated a fixed-size-memory space that stays there for the whole life time of the program.
@@ -2282,8 +2282,6 @@ LFORTRAN_API void _lfortran_strrepeat(char** s, int32_t n, char** dest)
     int s_len = strlen(*s);
     int trmn_size = sizeof(trmn);
     int f_len = s_len*n;
-    if (f_len < 0)
-        f_len = 0;
     char* dest_char = (char*)malloc(f_len+trmn_size);
     for (int i = 0; i < n; i++) {
         for (int j = 0; j < s_len; j++) {
@@ -2673,10 +2671,10 @@ LFORTRAN_API char* _lfortran_zone() {
     // Windows doesn't provide timezone offset directly, so we calculate it
     TIME_ZONE_INFORMATION tzinfo;
     DWORD retval = GetTimeZoneInformation(&tzinfo);
-    
+
     // Calculate the total offset in minutes
     int offset_minutes = -tzinfo.Bias; // Bias is in minutes; negative for UTC+
-    
+
     if (retval == TIME_ZONE_ID_DAYLIGHT) {
         offset_minutes -= tzinfo.DaylightBias; // Apply daylight saving if applicable
     } else if (retval == TIME_ZONE_ID_STANDARD) {
@@ -3651,7 +3649,7 @@ LFORTRAN_API void _lfortran_string_write(char **str_holder, int64_t* size, int64
     char *s = (char *) malloc(strlen(str)*sizeof(char) + strlen(end)*sizeof(char) + 1);
     sprintf(s, format, str, end);
 
-    if(((*size) == -1) && ((*capacity) == -1)){ 
+    if(((*size) == -1) && ((*capacity) == -1)){
         _lfortran_strcpy_pointer_string(str_holder, s);
     } else {
         _lfortran_strcpy_descriptor_string(str_holder, s, size, capacity);
