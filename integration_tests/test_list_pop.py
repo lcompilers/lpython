@@ -4,6 +4,7 @@ def test_list_pop():
     l1: list[i32]
     l2: list[tuple[i32, f64]]
     l3: list[list[str]]
+    l4: list[i32]
     i: i32
     j: i32
     total: i32
@@ -44,6 +45,10 @@ def test_list_pop():
     assert l1.pop(0) == 0
     assert l1.pop(len(l1) - 1) == 4
     assert l1 == [1, 2]
+
+    l4 = [1, 2, 3, 4, 5]
+    assert l4.pop(-5) == 1
+    assert l4.pop(-1) == 5
 
     total = 10
     l1 = []
