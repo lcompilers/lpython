@@ -1852,6 +1852,7 @@ const ASR::intentType intent_local=ASR::intentType::Local; // local variable (no
 const ASR::intentType intent_in   =ASR::intentType::In; // dummy argument, intent(in)
 const ASR::intentType intent_out  =ASR::intentType::Out; // dummy argument, intent(out)
 const ASR::intentType intent_inout=ASR::intentType::InOut; // dummy argument, intent(inout)
+const ASR::intentType intent_classmember=ASR::intentType::ClassMember; // class variable
 const ASR::intentType intent_return_var=ASR::intentType::ReturnVar; // return variable of a function
 const ASR::intentType intent_unspecified=ASR::intentType::Unspecified; // dummy argument, ambiguous intent
 

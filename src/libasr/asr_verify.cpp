@@ -797,7 +797,7 @@ public:
             s = ASRUtils::symbol_get_past_external(x.m_v);
         }
         require(is_a<Variable_t>(*s) || is_a<Function_t>(*s)
-                || is_a<ASR::EnumType_t>(*s) || is_a<ASR::ExternalSymbol_t>(*s),
+                || is_a<ASR::EnumType_t>(*s) || is_a<ASR::ExternalSymbol_t>(*s) || is_a<ASR::Struct_t>(*s),
             "Var_t::m_v " + x_mv_name + " does not point to a Variable_t, " \
             "Function_t, or EnumType_t (possibly behind ExternalSymbol_t)");
         require(symtab_in_scope(current_symtab, x.m_v),
