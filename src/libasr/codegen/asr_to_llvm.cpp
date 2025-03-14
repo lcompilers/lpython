@@ -1111,13 +1111,13 @@ public:
     }
 
     inline void call_lcompilers_free_strings() {
-        // if (strings_to_be_deallocated.n > 0) {
-        //     llvm::Function* free_fn = _Deallocate();
-        //     for( auto &value: strings_to_be_deallocated ) {
-        //         builder->CreateCall(free_fn, {value});
-        //     }
-        //     strings_to_be_deallocated.reserve(al, 1);
-        // }
+        if (strings_to_be_deallocated.n > 0) {
+            llvm::Function* free_fn = _Deallocate();
+            for( auto &value: strings_to_be_deallocated ) {
+                builder->CreateCall(free_fn, {value});
+            }
+            strings_to_be_deallocated.reserve(al, 1);
+        }
     }
 
     llvm::Function* _Allocate(bool realloc_lhs) {
