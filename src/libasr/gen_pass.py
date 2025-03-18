@@ -1,6 +1,9 @@
 passes = [
+        "array_struct_temporary",
         "replace_arr_slice",
+        "replace_openmp",
         "replace_function_call_in_declaration",
+        "replace_array_passed_in_function_call",
         "replace_array_op",
         "replace_class_constructor",
         "dead_code_removal",
@@ -35,7 +38,8 @@ passes = [
         "replace_where",
         "unique_symbols",
         "insert_deallocate",
-        "promote_allocatable_to_nonallocatable"
+        "promote_allocatable_to_nonallocatable",
+        "replace_with_compile_time_values"
 ]
 
 

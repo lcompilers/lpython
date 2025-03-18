@@ -41,8 +41,7 @@ namespace LCompilers::CastingUtil {
         {ASR::ttypeType::Complex, ASR::cast_kindType::ComplexToComplex},
         {ASR::ttypeType::Real, ASR::cast_kindType::RealToReal},
         {ASR::ttypeType::Integer, ASR::cast_kindType::IntegerToInteger},
-        {ASR::ttypeType::UnsignedInteger, ASR::cast_kindType::UnsignedIntegerToUnsignedInteger},
-        {ASR::ttypeType::StructType, ASR::cast_kindType::DerivedToBase}
+        {ASR::ttypeType::UnsignedInteger, ASR::cast_kindType::UnsignedIntegerToUnsignedInteger}
     };
 
     int get_type_priority(ASR::ttypeType type) {

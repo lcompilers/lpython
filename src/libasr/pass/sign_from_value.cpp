@@ -6,7 +6,6 @@
 #include <libasr/pass/replace_sign_from_value.h>
 #include <libasr/pass/pass_utils.h>
 
-#include <vector>
 #include <string>
 
 
@@ -31,130 +30,87 @@ to:
     c = sign_from_value(a, b)
 
 */
-class SignFromValueVisitor : public PassUtils::SkipOptimizationFunctionVisitor<SignFromValueVisitor>
-{
+
+class SignFromValueReplacer : public ASR::BaseExprReplacer<SignFromValueReplacer>{
 private:
+    Allocator &al;
     ASR::TranslationUnit_t &unit;
-
-    LCompilers::PassOptions pass_options;
-
-    ASR::expr_t* sign_from_value_var;
-
-    // To make sure that SignFromValue is applied only for
-    // the nodes implemented in this class
-    bool from_sign_from_value;
-
-public:
-    SignFromValueVisitor(Allocator &al_, ASR::TranslationUnit_t &unit_,
-                         const LCompilers::PassOptions& pass_options_) : SkipOptimizationFunctionVisitor(al_),
-    unit(unit_), pass_options(pass_options_), sign_from_value_var(nullptr), from_sign_from_value(false)
-    {
-        pass_result.reserve(al, 1);
-    }
+    const LCompilers::PassOptions& pass_options;
 
     bool is_value_one(ASR::expr_t* expr) {
         double value;
-        if( ASRUtils::is_value_constant(expr, value) ) {
+        if( ASRUtils::is_value_constant(ASRUtils::expr_value(expr), value) && 
+            ASRUtils::is_real(*ASRUtils::expr_type(expr)) ) {
             return value == 1.0;
         }
         return false;
     }
 
     ASR::expr_t* is_extract_sign(ASR::expr_t* expr) {
-        if( !ASR::is_a<ASR::FunctionCall_t>(*expr) ) {
-            return nullptr;
+        if( ASR::is_a<ASR::RealCopySign_t>(*expr) ) {
+            ASR::RealCopySign_t *real_cpy_sign = ASR::down_cast<ASR::RealCopySign_t>(expr);
+            if( !is_value_one(real_cpy_sign->m_target) ) {return nullptr;}
+            return real_cpy_sign->m_source;
         }
-        ASR::FunctionCall_t* func_call = ASR::down_cast<ASR::FunctionCall_t>(expr);
-        ASR::symbol_t* func_sym = ASRUtils::symbol_get_past_external(func_call->m_name);
-        if( !ASR::is_a<ASR::Function_t>(*func_sym) ) {
-            return nullptr;
-        }
-        ASR::Function_t* func = ASR::down_cast<ASR::Function_t>(func_sym);
-        if( ASRUtils::is_intrinsic_procedure(func) &&
-            std::string(func->m_name).find("sign") == std::string::npos ) {
-            return nullptr;
-        }
-        ASR::expr_t *arg0 = func_call->m_args[0].m_value, *arg1 = func_call->m_args[1].m_value;
-        if( !is_value_one(arg0) ) {
-            return nullptr;
-        }
-        return arg1;
+        return nullptr;
     }
 
-    void visit_IntegerBinOp(const ASR::IntegerBinOp_t& x) {
-        handle_BinOp(x);
-    }
 
-    void visit_RealBinOp(const ASR::RealBinOp_t& x) {
-        handle_BinOp(x);
-    }
+public:
 
-    void visit_ComplexBinOp(const ASR::ComplexBinOp_t& x) {
-        handle_BinOp(x);
-    }
+    SignFromValueReplacer(Allocator &al, ASR::TranslationUnit_t &unit,
+                                  const LCompilers::PassOptions& pass_options) 
+                            :al(al),unit(unit), pass_options(pass_options){}
 
-    template <typename T>
-    void handle_BinOp(const T& x_const) {
-        if( !from_sign_from_value ) {
-            return ;
-        }
 
-        from_sign_from_value = true;
-        T& x = const_cast<T&>(x_const);
+    void replace_RealBinOp(ASR::RealBinOp_t* x) {
+        BaseExprReplacer::replace_RealBinOp(x);
 
-        sign_from_value_var = nullptr;
-        visit_expr(*x.m_left);
-        if( sign_from_value_var ) {
-            x.m_left = sign_from_value_var;
-        }
-
-        sign_from_value_var = nullptr;
-        visit_expr(*x.m_right);
-        if( sign_from_value_var ) {
-            x.m_right = sign_from_value_var;
-        }
-        sign_from_value_var = nullptr;
-
-        if( x.m_op != ASR::binopType::Mul ) {
-            return ;
-        }
-
+        if( x->m_op != ASR::binopType::Mul ) { return; }
         ASR::expr_t *first_arg = nullptr, *second_arg = nullptr;
-
-        first_arg = is_extract_sign(x.m_left);
-        second_arg = is_extract_sign(x.m_right);
+        first_arg = is_extract_sign(x->m_left);
+        second_arg = is_extract_sign(x->m_right);
 
         if( second_arg ) {
-            first_arg = x.m_left;
+            first_arg = x->m_left;
         } else if( first_arg ) {
-            second_arg = x.m_right;
+            second_arg = x->m_right;
         } else {
             return ;
         }
-
-        sign_from_value_var = PassUtils::get_sign_from_value(first_arg, second_arg,
-                                     al, unit, x.base.base.loc, pass_options);
-        from_sign_from_value = false;
+        *current_expr = PassUtils::get_sign_from_value(first_arg, second_arg,
+                                     al, unit, x->base.base.loc,
+                                    const_cast<LCompilers::PassOptions&>(pass_options));
     }
-
-    void visit_Assignment(const ASR::Assignment_t& x) {
-        from_sign_from_value = true;
-        ASR::Assignment_t& xx = const_cast<ASR::Assignment_t&>(x);
-        sign_from_value_var = nullptr;
-        visit_expr(*x.m_value);
-        if( sign_from_value_var ) {
-            xx.m_value = sign_from_value_var;
-        }
-        sign_from_value_var = nullptr;
-        from_sign_from_value = false;
-    }
-
+    
 };
 
+class SignFromValueVisitor : public ASR::CallReplacerOnExpressionsVisitor<SignFromValueVisitor>{
+private:
+    SignFromValueReplacer replacer;
+public:
+    SignFromValueVisitor(Allocator &al, ASR::TranslationUnit_t &unit,
+                                  const LCompilers::PassOptions& pass_options)
+                        :replacer{al, unit, pass_options}{}
+                        
+    void call_replacer(){
+        if( is_a<ASR::RealBinOp_t>(**current_expr) ){
+            replacer.current_expr = current_expr;
+            replacer.replace_expr(*current_expr);
+        }
+    }
+    void visit_Function(const ASR::Function_t &x){
+        if(std::string(x.m_name).find("_lcompilers_optimization_")
+            !=std::string::npos){ // Don't visit the optimization functions.
+            return;
+        }
+    }
+};
 void pass_replace_sign_from_value(Allocator &al, ASR::TranslationUnit_t &unit,
                                   const LCompilers::PassOptions& pass_options) {
-    SignFromValueVisitor v(al, unit, pass_options);
-    v.visit_TranslationUnit(unit);
+    SignFromValueVisitor sign_from_value_visitor(al, unit, pass_options);
+    sign_from_value_visitor.visit_TranslationUnit(unit);
+    
 }
 
 

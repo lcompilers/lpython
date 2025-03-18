@@ -1,4 +1,3 @@
-#include <fstream>
 
 #include <libasr/assert.h>
 #include <libasr/string_utils.h>

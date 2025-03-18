@@ -38,17 +38,41 @@ char *s2c(Allocator &al, const std::string &s) {
 }
 
 // Splits the string `s` using the separator `split_string`
-std::vector<std::string> string_split(const std::string &s, const std::string &split_string)
+std::vector<std::string> string_split(const std::string &s,
+    const std::string &split_string, bool strs_to_lower)
 {
     std::vector<std::string> result;
     size_t old_pos = 0;
     size_t new_pos;
+    std::string substr;
     while ((new_pos = s.find(split_string, old_pos)) != std::string::npos) {
-        std::string substr = s.substr(old_pos, new_pos-old_pos);
-        if (substr.size() > 0) result.push_back(substr);
+        substr = s.substr(old_pos, new_pos-old_pos);
+        if (substr.size() > 0)
+            result.push_back(strs_to_lower ? to_lower(substr) : substr);
         old_pos = new_pos+split_string.size();
     }
-    result.push_back(s.substr(old_pos));
+    substr = s.substr(old_pos);
+    result.push_back(strs_to_lower ? to_lower(substr) : substr);
+    return result;
+}
+
+std::vector<std::string> string_split_avoid_parentheses(const std::string &str, bool strs_to_lower) {
+    std::vector<std::string> result;
+    std::string word;
+    bool in_brackets = false;
+    for (char ch : str) {
+        if (ch == ' ' && !in_brackets) {
+            if (!word.empty()) {
+                result.push_back(strs_to_lower ? LCompilers::to_lower(word) : word);
+                word.clear();
+            }
+        } else {
+            if (ch == '(') in_brackets = true;
+            if (ch == ')') in_brackets = false;
+            word += ch;
+        }
+    }
+    if (!word.empty()) result.push_back(strs_to_lower ? LCompilers::to_lower(word) : word);
     return result;
 }
 
@@ -116,7 +140,7 @@ std::string read_file(const std::string &filename)
     std::vector<char> bytes(filesize);
     ifs.read(&bytes[0], filesize);
 
-    return replace(std::string(&bytes[0], filesize), "\r\n", "\n");
+    return std::string(&bytes[0], filesize);
 }
 
 std::string parent_path(const std::string &path) {
@@ -239,6 +263,24 @@ char* str_unescape_fortran(Allocator &al, LCompilers::Str &s, char ch) {
         x += s[idx];
     }
     return LCompilers::s2c(al, x);
+}
+
+bool str_compare(const unsigned char *pos, std::string s) {
+    for (size_t i = 0; i < s.size(); i++) {
+        if (pos[i] == '\0') {
+            return false;
+        }
+
+        if (pos[i] != s[i]) {
+            return false;
+        }
+    }
+    return true;
+}
+
+// trim trailing whitespace from a string in-place
+void rtrim(std::string& str) {
+    str.erase(std::find_if_not(str.rbegin(), str.rend(), ::isspace).base(), str.end());
 }
 
 } // namespace LCompilers

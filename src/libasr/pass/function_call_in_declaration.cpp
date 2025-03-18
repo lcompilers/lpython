@@ -46,6 +46,7 @@ class ReplaceFunctionCall : public ASR::BaseExprReplacer<ReplaceFunctionCall>
 {
 public:
     Allocator& al;
+    SymbolTable* new_function_scope = nullptr;
     SymbolTable* current_scope = nullptr;
     ASR::expr_t* assignment_value = nullptr;
     ASR::expr_t* call_for_return_var = nullptr;
@@ -60,6 +61,16 @@ public:
     };
 
     ReplaceFunctionCall(Allocator &al_) : al(al_) {}
+
+    void replace_Var(ASR::Var_t* x) {
+        if ( newargsp == nullptr) {
+            return ;
+        }
+        if ( new_function_scope == nullptr ) {
+            return ;
+        }
+        *current_expr = ASRUtils::EXPR(ASR::make_Var_t(al, x->base.base.loc, new_function_scope->get_symbol(ASRUtils::symbol_name(x->m_v))));
+    }
 
     void replace_FunctionParam(ASR::FunctionParam_t* x) {
         if( newargsp == nullptr ) {
@@ -80,51 +91,86 @@ public:
         newargsp = nullptr;
     }
 
-    bool exists_in_arginfo(int arg_number, std::vector<ArgInfo>& indicies) {
-        for (auto info: indicies) {
+    bool exists_in_arginfo(int arg_number, std::vector<ArgInfo>& indices) {
+        for (auto info: indices) {
             if (info.arg_number == arg_number) return true;
         }
         return false;
     }
 
-    void helper_get_arg_indices_used(ASR::expr_t* arg, std::vector<ArgInfo>& indicies) {
+    void helper_get_arg_indices_used(ASR::expr_t* arg, std::vector<ArgInfo>& indices) {
         if (is_a<ASR::ArrayPhysicalCast_t>(*arg)) {
             ASR::ArrayPhysicalCast_t* cast = ASR::down_cast<ASR::ArrayPhysicalCast_t>(arg);
             arg = cast->m_arg;
         }
         if (is_a<ASR::FunctionCall_t>(*arg)) {
-            get_arg_indices_used_functioncall(ASR::down_cast<ASR::FunctionCall_t>(arg), indicies);
+            get_arg_indices_used_functioncall(ASR::down_cast<ASR::FunctionCall_t>(arg), indices);
         } else if (is_a<ASR::IntrinsicArrayFunction_t>(*arg)) {
-            get_arg_indices_used(ASR::down_cast<ASR::IntrinsicArrayFunction_t>(arg), indicies);
+            get_arg_indices_used(ASR::down_cast<ASR::IntrinsicArrayFunction_t>(arg), indices);
+        } else if (is_a<ASR::IntrinsicElementalFunction_t>(*arg)) {
+            get_arg_indices_used(ASR::down_cast<ASR::IntrinsicElementalFunction_t>(arg), indices);
         } else if (is_a<ASR::FunctionParam_t>(*arg)) {
             ASR::FunctionParam_t* param = ASR::down_cast<ASR::FunctionParam_t>(arg);
             ArgInfo info = {static_cast<int>(param->m_param_number), param->m_type, current_function->m_args[param->m_param_number], arg};
-            if (!exists_in_arginfo(param->m_param_number, indicies)) {
-                indicies.push_back(info);
+            if (!exists_in_arginfo(param->m_param_number, indices)) {
+                indices.push_back(info);
             }
         } else if (is_a<ASR::ArraySize_t>(*arg)) {
             ASR::ArraySize_t* size = ASR::down_cast<ASR::ArraySize_t>(arg);
-            helper_get_arg_indices_used(size->m_v, indicies);
+            helper_get_arg_indices_used(size->m_v, indices);
         } else if (is_a<ASR::IntegerCompare_t>(*arg)) {
             ASR::IntegerCompare_t* comp = ASR::down_cast<ASR::IntegerCompare_t>(arg);
-            helper_get_arg_indices_used(comp->m_left, indicies);
-            helper_get_arg_indices_used(comp->m_right, indicies);
+            helper_get_arg_indices_used(comp->m_left, indices);
+            helper_get_arg_indices_used(comp->m_right, indices);
+        } else if (is_a<ASR::RealCompare_t>(*arg)) {
+            ASR::RealCompare_t* comp = ASR::down_cast<ASR::RealCompare_t>(arg);
+            helper_get_arg_indices_used(comp->m_left, indices);
+            helper_get_arg_indices_used(comp->m_right, indices);
+        } else if (is_a<ASR::RealBinOp_t>(*arg)) {
+            ASR::RealBinOp_t* binop = ASR::down_cast<ASR::RealBinOp_t>(arg);
+            helper_get_arg_indices_used(binop->m_left, indices);
+            helper_get_arg_indices_used(binop->m_right, indices);
+        } else if (is_a<ASR::IntegerBinOp_t>(*arg)) {
+            ASR::IntegerBinOp_t* binop = ASR::down_cast<ASR::IntegerBinOp_t>(arg);
+            helper_get_arg_indices_used(binop->m_left, indices);
+            helper_get_arg_indices_used(binop->m_right, indices);
+        } else if (is_a<ASR::RealUnaryMinus_t>(*arg)) {
+            ASR::RealUnaryMinus_t* r_minus = ASR::down_cast<ASR::RealUnaryMinus_t>(arg);
+            helper_get_arg_indices_used(r_minus->m_arg, indices);
+        } else if (is_a<ASR::IntegerUnaryMinus_t>(*arg)) {
+            ASR::IntegerUnaryMinus_t* i_minus = ASR::down_cast<ASR::IntegerUnaryMinus_t>(arg);
+            helper_get_arg_indices_used(i_minus->m_arg, indices);
+        } else if (is_a<ASR::Var_t>(*arg)) {
+            int arg_num = -1;
+            int i = 0;
+            std::map<std::string, LCompilers::ASR::symbol_t *> func_scope = current_function->m_symtab->get_scope();
+            for (auto sym: func_scope) {
+                if (sym.second == ASR::down_cast<ASR::Var_t>(arg)->m_v) { 
+                    arg_num = i;
+                    break;
+                }
+                i++;
+            }
+            ArgInfo info = {static_cast<int>(arg_num), ASRUtils::expr_type(arg), arg , arg};
+            if (!exists_in_arginfo(arg_num, indices)) {
+                indices.push_back(info);
+            }
         }
     }
 
-    void get_arg_indices_used_functioncall(ASR::FunctionCall_t* x, std::vector<ArgInfo>& indicies) {
+    void get_arg_indices_used_functioncall(ASR::FunctionCall_t* x, std::vector<ArgInfo>& indices) {
         for (size_t i = 0; i < x->n_args; i++) {
             ASR::expr_t* arg = x->m_args[i].m_value;
-            helper_get_arg_indices_used(arg, indicies);
+            helper_get_arg_indices_used(arg, indices);
         }
         return;
     }
 
     template<typename T>
-    void get_arg_indices_used(T* x, std::vector<ArgInfo>& indicies) {
+    void get_arg_indices_used(T* x, std::vector<ArgInfo>& indices) {
         for (size_t i = 0; i < x->n_args; i++) {
             ASR::expr_t* arg = x->m_args[i];
-            helper_get_arg_indices_used(arg, indicies);
+            helper_get_arg_indices_used(arg, indices);
         }
         return;
     }
@@ -136,34 +182,46 @@ public:
             BaseExprReplacer<ReplaceFunctionCall>::replace_IntrinsicArrayFunction(x);
             return ;
         }
+        std::vector<ArgInfo> indices;
+        get_arg_indices_used(x, indices);
 
-        std::vector<ArgInfo> indicies;
-        get_arg_indices_used(x, indicies);
-
-        SymbolTable* global_scope = current_scope;
-        while (global_scope->parent) {
-            global_scope = global_scope->parent;
-        }
+        SymbolTable* global_scope = current_scope->get_global_scope();
         SetChar current_function_dependencies; current_function_dependencies.clear(al);
         SymbolTable* new_scope = al.make_new<SymbolTable>(global_scope);
+        SymbolTable* new_function_scope_copy = new_function_scope;
+        new_function_scope = new_scope;
 
         ASRUtils::SymbolDuplicator sd(al);
         ASRUtils::ASRBuilder b(al, x->base.base.loc);
-        Vec<ASR::expr_t*> new_args; new_args.reserve(al, indicies.size());
-        Vec<ASR::call_arg_t> new_call_args; new_call_args.reserve(al, indicies.size());
-        Vec<ASR::call_arg_t> args_for_return_var; args_for_return_var.reserve(al, indicies.size());
+        Vec<ASR::expr_t*> new_args; new_args.reserve(al, indices.size());
+        Vec<ASR::call_arg_t> new_call_args; new_call_args.reserve(al, indices.size());
+        Vec<ASR::call_arg_t> args_for_return_var; args_for_return_var.reserve(al, indices.size());
 
         Vec<ASR::stmt_t*> new_body; new_body.reserve(al, 1);
         std::string new_function_name = global_scope->get_unique_name("__lcompilers_created_helper_function_", false);
         ASR::ttype_t* integer_type = ASRUtils::TYPE(ASR::make_Integer_t(al, x->base.base.loc, 4));
         ASR::expr_t* return_var = b.Variable(new_scope, new_scope->get_unique_name("__lcompilers_return_var_", false), integer_type, ASR::intentType::ReturnVar);
 
-        for (auto arg: indicies) {
+        for (auto arg: indices) {
             ASR::expr_t* arg_expr = arg.arg_expr;
             if (is_a<ASR::Var_t>(*arg_expr)) {
                 ASR::Var_t* var = ASR::down_cast<ASR::Var_t>(arg_expr);
-                sd.duplicate_symbol(var->m_v, new_scope);
-                ASR::expr_t* new_var_expr = ASRUtils::EXPR(ASR::make_Var_t(al, var->base.base.loc, new_scope->get_symbol(ASRUtils::symbol_name(var->m_v))));
+                sd.duplicate_symbol(ASRUtils::symbol_get_past_external(var->m_v), new_scope);
+                ASR::symbol_t* new_sym = new_scope->get_symbol(ASRUtils::symbol_name(ASRUtils::symbol_get_past_external(var->m_v)));
+                if (ASRUtils::symbol_intent(new_sym) == ASR::intentType::Local) {
+                    if (ASR::is_a<ASR::Variable_t>(*new_sym)) {
+                        ASR::Variable_t* temp_var = ASR::down_cast<ASR::Variable_t>(new_sym);
+                        ASR::symbol_t* updated_sym = ASR::down_cast<ASR::symbol_t>(
+                            ASRUtils::make_Variable_t_util(al, new_sym->base.loc, temp_var->m_parent_symtab, 
+                            temp_var->m_name, temp_var->m_dependencies, temp_var->n_dependencies, ASR::intentType::In, 
+                            nullptr, nullptr, ASR::storage_typeType::Default, temp_var->m_type, 
+                            temp_var->m_type_declaration, temp_var->m_abi, temp_var->m_access, 
+                            ASR::presenceType::Required, temp_var->m_value_attr, temp_var->m_target_attr));
+                        new_scope->add_or_overwrite_symbol(ASRUtils::symbol_name(new_sym), updated_sym);
+                        new_sym = updated_sym;
+                    }
+                }
+                ASR::expr_t* new_var_expr = ASRUtils::EXPR(ASR::make_Var_t(al, var->base.base.loc, new_sym));
                 new_args.push_back(al, new_var_expr);
             }
             ASR::call_arg_t new_call_arg; new_call_arg.loc = arg_expr->base.loc; new_call_arg.m_value = arg.arg_param;
@@ -172,6 +230,7 @@ public:
             ASR::call_arg_t arg_for_return_var; arg_for_return_var.loc = arg_expr->base.loc; arg_for_return_var.m_value = arg.arg_expr;
             args_for_return_var.push_back(al, arg_for_return_var);
         }
+
         replace_FunctionParam_with_FunctionArgs(assignment_value, new_args);
         new_body.push_back(al, b.Assignment(return_var, assignment_value));
         ASR::asr_t* new_function = ASRUtils::make_Function_t_util(al, current_function->base.base.loc,
@@ -192,7 +251,8 @@ public:
                         new_call_args.p, new_call_args.n,
                         integer_type,
                         nullptr,
-                        nullptr));
+                        nullptr,
+                        false));
         *current_expr = new_function_call;
 
         ASR::expr_t* function_call_for_return_var = ASRUtils::EXPR(ASRUtils::make_FunctionCall_t_util(al, x->base.base.loc,
@@ -201,8 +261,10 @@ public:
                         args_for_return_var.p, args_for_return_var.n,
                         integer_type,
                         nullptr,
-                        nullptr));
+                        nullptr,
+                        false));
         call_for_return_var = function_call_for_return_var;
+        new_function_scope = new_function_scope_copy;
     }
 
 };
@@ -262,6 +324,88 @@ public:
             replacer.replace_FunctionParam_with_FunctionArgs(array_t->m_dims[i].m_length, new_args);
         }
         ASRUtils::EXPR2VAR(func->m_return_var)->m_type = return_type_copy;
+    }
+
+    void visit_Array(const ASR::Array_t &x) {
+        if (!current_scope) return;
+        
+        if (is_function_call_or_intrinsic_array_function(x.m_dims->m_length)) {
+            ASR::expr_t** current_expr_copy = current_expr;
+            current_expr = const_cast<ASR::expr_t**>(&(x.m_dims->m_length));
+            this->call_replacer_(x.m_dims->m_length);
+            current_expr = current_expr_copy;
+        }
+
+        ASR::CallReplacerOnExpressionsVisitor<FunctionTypeVisitor>::visit_Array(x);
+    }
+
+    void visit_IntegerBinOp(const ASR::IntegerBinOp_t &x) {
+        if (!current_scope) return;
+
+        if (is_function_call_or_intrinsic_array_function(x.m_left)) {
+            ASR::expr_t** current_expr_copy = current_expr;
+            current_expr = const_cast<ASR::expr_t**>(&(x.m_left));
+            this->call_replacer_(x.m_left);
+            current_expr = current_expr_copy;
+        }
+
+        if (is_function_call_or_intrinsic_array_function(x.m_right)) {
+            ASR::expr_t** current_expr_copy = current_expr;
+            current_expr = const_cast<ASR::expr_t**>(&(x.m_right));
+            this->call_replacer_(x.m_right);
+            current_expr = current_expr_copy;
+        }
+
+        ASR::CallReplacerOnExpressionsVisitor<FunctionTypeVisitor>::visit_IntegerBinOp(x);
+    }
+
+    void visit_IntrinsicElementalFunction(const ASR::IntrinsicElementalFunction_t &x) {
+        if (!current_scope) return;
+
+        for (size_t i = 0; i < x.n_args; i++) {
+            ASR::expr_t* arg = x.m_args[i];
+            if (is_function_call_or_intrinsic_array_function(arg)) {
+                ASR::expr_t** current_expr_copy = current_expr;
+                current_expr = const_cast<ASR::expr_t**>(&(x.m_args[i]));
+                this->call_replacer_(x.m_args[i]);
+                current_expr = current_expr_copy;
+            }
+        }
+
+        ASR::CallReplacerOnExpressionsVisitor<FunctionTypeVisitor>::visit_IntrinsicElementalFunction(x);
+    }
+
+    void visit_RealBinOp(const ASR::RealBinOp_t &x) {
+        if (!current_scope) return;
+
+        if (is_function_call_or_intrinsic_array_function(x.m_left)) {
+            ASR::expr_t** current_expr_copy = current_expr;
+            current_expr = const_cast<ASR::expr_t**>(&(x.m_left));
+            this->call_replacer_(x.m_left);
+            current_expr = current_expr_copy;
+        }
+
+        if (is_function_call_or_intrinsic_array_function(x.m_right)) {
+            ASR::expr_t** current_expr_copy = current_expr;
+            current_expr = const_cast<ASR::expr_t**>(&(x.m_right));
+            this->call_replacer_(x.m_right);
+            current_expr = current_expr_copy;
+        }
+
+        ASR::CallReplacerOnExpressionsVisitor<FunctionTypeVisitor>::visit_RealBinOp(x);
+    }
+
+    void visit_Cast(const ASR::Cast_t &x) {
+        if (!current_scope) return;
+
+        if (is_function_call_or_intrinsic_array_function(x.m_arg)) {
+            ASR::expr_t** current_expr_copy = current_expr;
+            current_expr = const_cast<ASR::expr_t**>(&(x.m_arg));
+            this->call_replacer_(x.m_arg);
+            current_expr = current_expr_copy;
+        }
+
+        ASR::CallReplacerOnExpressionsVisitor<FunctionTypeVisitor>::visit_Cast(x);
     }
 
     void visit_FunctionType(const ASR::FunctionType_t &x) {
@@ -337,7 +481,16 @@ public:
     void visit_Function(const ASR::Function_t &x) {
         current_scope = x.m_symtab;
         this->visit_ttype(*x.m_function_signature);
+        for( auto sym: x.m_symtab->get_scope() ) {
+            if ( ASR::is_a<ASR::Variable_t>(*sym.second) ) {
+                ASR::Variable_t* sym_variable = ASR::down_cast<ASR::Variable_t>(sym.second);
+                this->visit_ttype(*sym_variable->m_type);
+            }
+        }
         current_scope = nullptr;
+        for( auto sym: x.m_symtab->get_scope() ) {
+            visit_symbol(*sym.second);
+        }
     }
 
 };

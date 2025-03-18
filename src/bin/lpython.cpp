@@ -856,9 +856,9 @@ int interactive_python_repl(
     std::cout << "    - History (Keys: Up, Down)" << std::endl;
 
     std::vector<std::string> history;
-    
+
     std::function<bool(std::string)> iscomplete = determine_completeness;
-    
+
     std::string code_string;
     size_t cell_count = 0;
     while (true) {
@@ -1013,8 +1013,8 @@ int interactive_python_repl(
             }
             case (LCompilers::PythonCompiler::EvalResult::struct_type) : {
                 if (verbose) {
-                    std::cout << "Return type: " 
-                        << LCompilers::ASRUtils::get_type_code(r.structure.ttype) 
+                    std::cout << "Return type: "
+                        << LCompilers::ASRUtils::get_type_code(r.structure.ttype)
                         << std::endl;
                 }
                 if (verbose) section("Result:");
@@ -1094,7 +1094,7 @@ int compile_python_using_llvm(
     }
     LCompilers::ASR::TranslationUnit_t* asr = r1.result;
     if( compiler_options.po.disable_main ) {
-        int err = LCompilers::LPython::save_pyc_files(*asr, infile);
+        int err = LCompilers::LPython::save_pyc_files(*asr, infile, lm);
         if( err ) {
             return err;
         }
@@ -1237,7 +1237,7 @@ int compile_to_binary_wasm(
     }
     LCompilers::ASR::TranslationUnit_t* asr = r1.result;
     if( compiler_options.po.disable_main ) {
-        int err = LCompilers::LPython::save_pyc_files(*asr, infile);
+        int err = LCompilers::LPython::save_pyc_files(*asr, infile, lm);
         if( err ) {
             return err;
         }
@@ -1310,7 +1310,7 @@ int compile_to_binary_x86(
     }
     LCompilers::ASR::TranslationUnit_t* asr = r1.result;
     if( compiler_options.po.disable_main ) {
-        int err = LCompilers::LPython::save_pyc_files(*asr, infile);
+        int err = LCompilers::LPython::save_pyc_files(*asr, infile, lm);
         if( err ) {
             return err;
         }
@@ -1384,7 +1384,7 @@ int compile_to_binary_wasm_to_x86(
     }
     LCompilers::ASR::TranslationUnit_t* asr = r1.result;
     if( compiler_options.po.disable_main ) {
-        int err = LCompilers::LPython::save_pyc_files(*asr, infile);
+        int err = LCompilers::LPython::save_pyc_files(*asr, infile, lm);
         if( err ) {
             return err;
         }

@@ -207,6 +207,7 @@ public:
         // Avoid inlining if function call accepts a callback argument
         for( size_t i = 0; i < x->n_args; i++ ) {
             if( x->m_args[i].m_value &&
+                ASRUtils::expr_type(x->m_args[i].m_value) &&
                 ASR::is_a<ASR::FunctionType_t>(
                     *ASRUtils::type_get_past_pointer(
                         ASRUtils::expr_type(x->m_args[i].m_value))) ) {
@@ -243,7 +244,9 @@ public:
         if( ASRUtils::is_intrinsic_function2(func) ||
                 std::string(func->m_name) == current_routine ||
                 // Never Inline BindC Function
-                ASRUtils::get_FunctionType(func)->m_abi == ASR::abiType::BindC) {
+                ASRUtils::get_FunctionType(func)->m_abi == ASR::abiType::BindC || 
+                // Never Inline Interface Function
+                ASRUtils::get_FunctionType(func)->m_deftype == ASR::deftypeType::Interface) {
             return ;
         }
 
@@ -314,7 +317,7 @@ public:
                  ASRUtils::is_character(*ASRUtils::symbol_type(itr.second)) ||
                  ASRUtils::is_array(ASRUtils::symbol_type(itr.second)) ||
                  ASR::is_a<ASR::StructType_t>(*ASRUtils::symbol_type(itr.second)) ||
-                 ASR::is_a<ASR::Class_t>(*ASRUtils::symbol_type(itr.second)) ) {
+                 ASR::is_a<ASR::ClassType_t>(*ASRUtils::symbol_type(itr.second)) ) {
                 arg2value.clear();
                 return ;
             }
@@ -335,7 +338,7 @@ public:
                     break;
                 }
                 ASR::ttype_t* local_var_type = func_var->m_type;
-                ASR::symbol_t* local_var = (ASR::symbol_t*) ASR::make_Variable_t(
+                ASR::symbol_t* local_var = (ASR::symbol_t*) ASRUtils::make_Variable_t_util(
                         al, func_var->base.base.loc, current_scope,
                         s2c(al, local_var_name), nullptr, 0, ASR::intentType::Local,
                         nullptr, nullptr, ASR::storage_typeType::Default,
@@ -525,7 +528,7 @@ public:
         pass_result.n = 0;
     }
 
-    void visit_Character(const ASR::Character_t& /*x*/) {
+    void visit_String(const ASR::String_t& /*x*/) {
 
     }
 

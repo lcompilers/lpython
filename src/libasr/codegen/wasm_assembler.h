@@ -1,6 +1,7 @@
 #include <libasr/assert.h>
 #include <libasr/codegen/wasm_utils.h>
 #include <libasr/wasm_visitor.h>
+#include <fstream>
 
 namespace LCompilers {
 
