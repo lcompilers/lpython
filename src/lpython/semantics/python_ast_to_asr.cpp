@@ -5114,6 +5114,14 @@ public:
             tmp = nullptr;
             tmp_vec.clear();
             visit_stmt(*x.m_body[i]);
+            
+            if (x.m_body[i]->type == LCompilers::LPython::AST::stmtType::Import){
+                AST::Import_t import = (const AST::Import_t &) *x.m_body[i];
+                for (size_t j=0;j<import.n_names;j++) {
+                    current_module_dependencies.push_back(al, import.m_names[i].m_name);
+                }
+            }
+            
             for (auto t: global_init) {
                 if (t) {
                     items.push_back(al, t);
