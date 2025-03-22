@@ -1,5 +1,6 @@
-from lpython import (i8, i16, i32, i64, f32, f64, c32, c64, overload, u8,
-                     u16, u32, u64)
+from lpython import (c32, c64, f32, f64, i8, i16, i32, i64, overload, u8, u16,
+                     u32, u64)
+
 #from sys import exit
 
 #: abs() as a generic procedure.
@@ -1134,6 +1135,21 @@ def _lpython_str_expandtabs(s: str, tabsize: i32) -> str:
 @overload
 def _lpython_str_expandtabs(s: str) -> str:
     return _lpython_str_expandtabs(s, 8)
+
+def _lpython_str_zfill(s: str, width: i32) -> str:
+    print(width)
+    
+    if (width <= len(s) ):
+        return s
+    ret: str 
+    ret = "0"*(width-len(s))
+
+    if (s[0] == '+' or s[0] == '-'):
+        ret = s[0] + ret + s[1:]
+    else:
+        ret = ret + s
+
+    return ret
 
 def list(s: str) -> list[str]:
     l: list[str] = []
