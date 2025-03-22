@@ -218,7 +218,7 @@ ttype
 cast_kind = RealToInteger | IntegerToReal | LogicalToReal | RealToReal | IntegerToInteger | RealToComplex | IntegerToComplex | IntegerToLogical | RealToLogical | CharacterToLogical | CharacterToInteger | CharacterToList | ComplexToLogical | ComplexToComplex | ComplexToReal | ComplexToInteger | LogicalToInteger | RealToCharacter | IntegerToCharacter | LogicalToCharacter | UnsignedIntegerToInteger | UnsignedIntegerToUnsignedInteger | UnsignedIntegerToReal | UnsignedIntegerToLogical | IntegerToUnsignedInteger | RealToUnsignedInteger | CPtrToUnsignedInteger | UnsignedIntegerToCPtr | IntegerToSymbolicExpression | ListToArray | DerivedToBase
 storage_type = Default | Save | Parameter
 access = Public | Private
-intent = Local | In | Out | InOut | ReturnVar | Unspecified
+intent = Local | In | Out | InOut | ReturnVar | ClassMember | Unspecified
 deftype = Implementation | Interface
 presence = Required | Optional
 abi = Source | LFortranModule | GFortranModule | BindC | BindPython | BindJS | Interactive | Intrinsic
