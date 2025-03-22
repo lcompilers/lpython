@@ -497,6 +497,17 @@ def expandtabs():
     assert s.expandtabs(0) == "testtest"
     assert s.expandtabs(-5) == "testtest"
 
+def zfill():
+    s1: str = "Teststr"
+    s2: str = "+12T8tr"
+    s3: str = "-!@)21"
+    assert s1.zfill(4) == "Teststr"
+    assert s1.zfill(-3) == "Teststr"
+    assert s1.zfill(10) == "000Teststr"
+    
+    assert s2.zfill(9) == "+0012T8tr"
+    assert s3.zfill(11) == "-00000!@)21"
+
 def check():
     capitalize()
     lower()
@@ -519,6 +530,7 @@ def check():
     is_numeric()
     center()
     expandtabs()
+    zfill()
 
 
 check()
