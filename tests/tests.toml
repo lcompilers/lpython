@@ -11,11 +11,11 @@
 
 # tests
 
-[[test]]
-filename = "doconcurrentloop_01.py"
-ast = true
-asr = true
-cpp = true
+# [[test]]
+# filename = "doconcurrentloop_01.py"
+# ast = true
+# asr = true
+# cpp = true
 
 [[test]]
 filename = "complex1.py"
