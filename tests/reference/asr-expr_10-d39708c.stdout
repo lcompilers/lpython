@@ -63,6 +63,7 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
                                                 )
                                         })
                                     g
@@ -84,7 +85,7 @@
                                     []
                                     [(Assignment
                                         (Var 3 _lpython_return_variable)
-                                        (IntegerConstant 5 (Integer 4))
+                                        (IntegerConstant 5 (Integer 4) Decimal)
                                         ()
                                     )
                                     (Return)]
@@ -114,6 +115,7 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
                                                 )
                                         })
                                     gsubrout
@@ -134,9 +136,13 @@
                                     []
                                     [(Var 4 x)]
                                     [(Print
-                                        [(Var 4 x)]
-                                        ()
-                                        ()
+                                        (StringFormat
+                                            ()
+                                            [(Var 4 x)]
+                                            FormatPythonFormat
+                                            (String -1 0 () PointerString)
+                                            ()
+                                        )
                                     )]
                                     ()
                                     Public
@@ -164,6 +170,7 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
                                                 ),
                                             i:
                                                 (Variable
@@ -180,6 +187,7 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
                                                 ),
                                             j:
                                                 (Variable
@@ -195,6 +203,7 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
                                                     .false.
                                                 )
                                         })

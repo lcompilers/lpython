@@ -21,11 +21,12 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Character 1 -2 ())
+                                                    (String 1 -2 () PointerString)
                                                     ()
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
                                                     .false.
                                                 )
                                         })
@@ -51,13 +52,13 @@
                                         (StringRepeat
                                             (StringConstant
                                                 "a"
-                                                (Character 1 1 ())
+                                                (String 1 1 () PointerString)
                                             )
-                                            (IntegerConstant 2 (Integer 4))
-                                            (Character 1 2 ())
+                                            (IntegerConstant 2 (Integer 4) Decimal)
+                                            (String 1 2 () PointerString)
                                             (StringConstant
                                                 "aa"
-                                                (Character 1 2 ())
+                                                (String 1 2 () PointerString)
                                             )
                                         )
                                         ()
@@ -67,17 +68,17 @@
                                         (StringRepeat
                                             (StringConstant
                                                 "a"
-                                                (Character 1 1 ())
+                                                (String 1 1 () PointerString)
                                             )
                                             (IntegerUnaryMinus
-                                                (IntegerConstant 1 (Integer 4))
+                                                (IntegerConstant 1 (Integer 4) Decimal)
                                                 (Integer 4)
-                                                (IntegerConstant -1 (Integer 4))
+                                                (IntegerConstant -1 (Integer 4) Decimal)
                                             )
-                                            (Character 1 0 ())
+                                            (String 1 0 () PointerString)
                                             (StringConstant
                                                 ""
-                                                (Character 1 0 ())
+                                                (String 1 0 () PointerString)
                                             )
                                         )
                                         ()
@@ -87,13 +88,13 @@
                                         (StringRepeat
                                             (StringConstant
                                                 "test"
-                                                (Character 1 4 ())
+                                                (String 1 4 () PointerString)
                                             )
-                                            (IntegerConstant 5 (Integer 4))
-                                            (Character 1 20 ())
+                                            (IntegerConstant 5 (Integer 4) Decimal)
+                                            (String 1 20 () PointerString)
                                             (StringConstant
                                                 "testtesttesttesttest"
-                                                (Character 1 20 ())
+                                                (String 1 20 () PointerString)
                                             )
                                         )
                                         ()
@@ -103,13 +104,13 @@
                                         (StringRepeat
                                             (StringConstant
                                                 "bb"
-                                                (Character 1 2 ())
+                                                (String 1 2 () PointerString)
                                             )
-                                            (IntegerConstant 4 (Integer 4))
-                                            (Character 1 8 ())
+                                            (IntegerConstant 4 (Integer 4) Decimal)
+                                            (String 1 8 () PointerString)
                                             (StringConstant
                                                 "bbbbbbbb"
-                                                (Character 1 8 ())
+                                                (String 1 8 () PointerString)
                                             )
                                         )
                                         ()
@@ -119,17 +120,17 @@
                                         (StringRepeat
                                             (StringConstant
                                                 "bb"
-                                                (Character 1 2 ())
+                                                (String 1 2 () PointerString)
                                             )
                                             (IntegerUnaryMinus
-                                                (IntegerConstant 40 (Integer 4))
+                                                (IntegerConstant 40 (Integer 4) Decimal)
                                                 (Integer 4)
-                                                (IntegerConstant -40 (Integer 4))
+                                                (IntegerConstant -40 (Integer 4) Decimal)
                                             )
-                                            (Character 1 0 ())
+                                            (String 1 0 () PointerString)
                                             (StringConstant
                                                 ""
-                                                (Character 1 0 ())
+                                                (String 1 0 () PointerString)
                                             )
                                         )
                                         ()
@@ -140,20 +141,20 @@
                                             (StringRepeat
                                                 (StringConstant
                                                     "a"
-                                                    (Character 1 1 ())
+                                                    (String 1 1 () PointerString)
                                                 )
-                                                (IntegerConstant 3 (Integer 4))
-                                                (Character 1 3 ())
+                                                (IntegerConstant 3 (Integer 4) Decimal)
+                                                (String 1 3 () PointerString)
                                                 (StringConstant
                                                     "aaa"
-                                                    (Character 1 3 ())
+                                                    (String 1 3 () PointerString)
                                                 )
                                             )
-                                            (IntegerConstant 3 (Integer 4))
-                                            (Character 1 9 ())
+                                            (IntegerConstant 3 (Integer 4) Decimal)
+                                            (String 1 9 () PointerString)
                                             (StringConstant
                                                 "aaaaaaaaa"
-                                                (Character 1 9 ())
+                                                (String 1 9 () PointerString)
                                             )
                                         )
                                         ()

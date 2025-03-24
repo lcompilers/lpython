@@ -23,14 +23,15 @@
                                                     Default
                                                     (Array
                                                         (Integer 4)
-                                                        [((IntegerConstant 0 (Integer 4))
-                                                        (IntegerConstant 5 (Integer 4)))]
+                                                        [((IntegerConstant 0 (Integer 4) Decimal)
+                                                        (IntegerConstant 5 (Integer 4) Decimal))]
                                                         FixedSizeArray
                                                     )
                                                     ()
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
                                                     .false.
                                                 ),
                                             B:
@@ -44,14 +45,15 @@
                                                     Default
                                                     (Array
                                                         (Integer 4)
-                                                        [((IntegerConstant 0 (Integer 4))
-                                                        (IntegerConstant 2 (Integer 4)))]
+                                                        [((IntegerConstant 0 (Integer 4) Decimal)
+                                                        (IntegerConstant 2 (Integer 4) Decimal))]
                                                         FixedSizeArray
                                                     )
                                                     ()
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
                                                     .false.
                                                 ),
                                             i:
@@ -69,6 +71,7 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
                                                 ),
                                             s:
                                                 (Variable
@@ -79,11 +82,12 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Character 1 -2 ())
+                                                    (String 1 -2 () PointerString)
                                                     ()
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
                                                     .false.
                                                 )
                                         })
@@ -108,7 +112,7 @@
                                         (Var 3 s)
                                         (StringConstant
                                             "abc"
-                                            (Character 1 3 ())
+                                            (String 1 3 () PointerString)
                                         )
                                         ()
                                     )
@@ -117,13 +121,13 @@
                                         (StringItem
                                             (Var 3 s)
                                             (IntegerBinOp
-                                                (IntegerConstant 0 (Integer 4))
+                                                (IntegerConstant 0 (Integer 4) Decimal)
                                                 Add
-                                                (IntegerConstant 1 (Integer 4))
+                                                (IntegerConstant 1 (Integer 4) Decimal)
                                                 (Integer 4)
                                                 ()
                                             )
-                                            (Character 1 -2 ())
+                                            (String 1 -2 () PointerString)
                                             ()
                                         )
                                         ()
@@ -132,10 +136,10 @@
                                         (Var 3 s)
                                         (StringSection
                                             (Var 3 s)
-                                            (IntegerConstant 1 (Integer 4))
-                                            (IntegerConstant 2 (Integer 4))
+                                            (IntegerConstant 1 (Integer 4) Decimal)
+                                            (IntegerConstant 2 (Integer 4) Decimal)
                                             ()
-                                            (Character 1 -2 ())
+                                            (String 1 -2 () PointerString)
                                             ()
                                         )
                                         ()
@@ -147,7 +151,7 @@
                                             ()
                                             ()
                                             ()
-                                            (Character 1 -2 ())
+                                            (String 1 -2 () PointerString)
                                             ()
                                         )
                                         ()
@@ -159,11 +163,11 @@
                                             ()
                                             ()
                                             (IntegerUnaryMinus
-                                                (IntegerConstant 1 (Integer 4))
+                                                (IntegerConstant 1 (Integer 4) Decimal)
                                                 (Integer 4)
-                                                (IntegerConstant -1 (Integer 4))
+                                                (IntegerConstant -1 (Integer 4) Decimal)
                                             )
-                                            (Character 1 -2 ())
+                                            (String 1 -2 () PointerString)
                                             ()
                                         )
                                         ()
@@ -174,8 +178,8 @@
                                             (Var 3 s)
                                             ()
                                             ()
-                                            (IntegerConstant 2 (Integer 4))
-                                            (Character 1 -2 ())
+                                            (IntegerConstant 2 (Integer 4) Decimal)
+                                            (String 1 -2 () PointerString)
                                             ()
                                         )
                                         ()
@@ -184,10 +188,10 @@
                                         (Var 3 s)
                                         (StringSection
                                             (Var 3 s)
-                                            (IntegerConstant 1 (Integer 4))
-                                            (IntegerConstant 88 (Integer 4))
-                                            (IntegerConstant 1 (Integer 4))
-                                            (Character 1 -2 ())
+                                            (IntegerConstant 1 (Integer 4) Decimal)
+                                            (IntegerConstant 88 (Integer 4) Decimal)
+                                            (IntegerConstant 1 (Integer 4) Decimal)
+                                            (String 1 -2 () PointerString)
                                             ()
                                         )
                                         ()
@@ -197,29 +201,13 @@
                                         (StringSection
                                             (Var 3 s)
                                             ()
-                                            (IntegerConstant 1 (Integer 4))
+                                            (IntegerConstant 1 (Integer 4) Decimal)
                                             (IntegerUnaryMinus
-                                                (IntegerConstant 4 (Integer 4))
+                                                (IntegerConstant 4 (Integer 4) Decimal)
                                                 (Integer 4)
-                                                (IntegerConstant -4 (Integer 4))
+                                                (IntegerConstant -4 (Integer 4) Decimal)
                                             )
-                                            (Character 1 -2 ())
-                                            ()
-                                        )
-                                        ()
-                                    )
-                                    (Assignment
-                                        (Var 3 s)
-                                        (StringSection
-                                            (Var 3 s)
-                                            (IntegerUnaryMinus
-                                                (IntegerConstant 89 (Integer 4))
-                                                (Integer 4)
-                                                (IntegerConstant -89 (Integer 4))
-                                            )
-                                            ()
-                                            (IntegerConstant 4 (Integer 4))
-                                            (Character 1 -2 ())
+                                            (String 1 -2 () PointerString)
                                             ()
                                         )
                                         ()
@@ -229,21 +217,13 @@
                                         (StringSection
                                             (Var 3 s)
                                             (IntegerUnaryMinus
-                                                (IntegerConstant 3 (Integer 4))
+                                                (IntegerConstant 89 (Integer 4) Decimal)
                                                 (Integer 4)
-                                                (IntegerConstant -3 (Integer 4))
+                                                (IntegerConstant -89 (Integer 4) Decimal)
                                             )
-                                            (IntegerUnaryMinus
-                                                (IntegerConstant 3 (Integer 4))
-                                                (Integer 4)
-                                                (IntegerConstant -3 (Integer 4))
-                                            )
-                                            (IntegerUnaryMinus
-                                                (IntegerConstant 3 (Integer 4))
-                                                (Integer 4)
-                                                (IntegerConstant -3 (Integer 4))
-                                            )
-                                            (Character 1 -2 ())
+                                            ()
+                                            (IntegerConstant 4 (Integer 4) Decimal)
+                                            (String 1 -2 () PointerString)
                                             ()
                                         )
                                         ()
@@ -252,10 +232,34 @@
                                         (Var 3 s)
                                         (StringSection
                                             (Var 3 s)
-                                            (IntegerConstant 2 (Integer 4))
-                                            (IntegerConstant 3 (Integer 4))
+                                            (IntegerUnaryMinus
+                                                (IntegerConstant 3 (Integer 4) Decimal)
+                                                (Integer 4)
+                                                (IntegerConstant -3 (Integer 4) Decimal)
+                                            )
+                                            (IntegerUnaryMinus
+                                                (IntegerConstant 3 (Integer 4) Decimal)
+                                                (Integer 4)
+                                                (IntegerConstant -3 (Integer 4) Decimal)
+                                            )
+                                            (IntegerUnaryMinus
+                                                (IntegerConstant 3 (Integer 4) Decimal)
+                                                (Integer 4)
+                                                (IntegerConstant -3 (Integer 4) Decimal)
+                                            )
+                                            (String 1 -2 () PointerString)
                                             ()
-                                            (Character 1 -2 ())
+                                        )
+                                        ()
+                                    )
+                                    (Assignment
+                                        (Var 3 s)
+                                        (StringSection
+                                            (Var 3 s)
+                                            (IntegerConstant 2 (Integer 4) Decimal)
+                                            (IntegerConstant 3 (Integer 4) Decimal)
+                                            ()
+                                            (String 1 -2 () PointerString)
                                             ()
                                         )
                                         ()
@@ -265,7 +269,7 @@
                                         (ArrayItem
                                             (Var 3 A)
                                             [(()
-                                            (IntegerConstant 0 (Integer 4))
+                                            (IntegerConstant 0 (Integer 4) Decimal)
                                             ())]
                                             (Integer 4)
                                             RowMajor
@@ -277,13 +281,13 @@
                                         (Var 3 B)
                                         (ArraySection
                                             (Var 3 A)
-                                            [((IntegerConstant 1 (Integer 4))
-                                            (IntegerConstant 3 (Integer 4))
+                                            [((IntegerConstant 1 (Integer 4) Decimal)
+                                            (IntegerConstant 3 (Integer 4) Decimal)
                                             ())]
                                             (Array
                                                 (Integer 4)
-                                                [((IntegerConstant 0 (Integer 4))
-                                                (IntegerConstant 5 (Integer 4)))]
+                                                [((IntegerConstant 0 (Integer 4) Decimal)
+                                                (IntegerConstant 5 (Integer 4) Decimal))]
                                                 FixedSizeArray
                                             )
                                             ()
@@ -294,13 +298,13 @@
                                         (Var 3 B)
                                         (ArraySection
                                             (Var 3 A)
-                                            [((IntegerConstant 1 (Integer 4))
-                                            (IntegerConstant 2 (Integer 4))
-                                            (IntegerConstant 3 (Integer 4)))]
+                                            [((IntegerConstant 1 (Integer 4) Decimal)
+                                            (IntegerConstant 2 (Integer 4) Decimal)
+                                            (IntegerConstant 3 (Integer 4) Decimal))]
                                             (Array
                                                 (Integer 4)
-                                                [((IntegerConstant 0 (Integer 4))
-                                                (IntegerConstant 5 (Integer 4)))]
+                                                [((IntegerConstant 0 (Integer 4) Decimal)
+                                                (IntegerConstant 5 (Integer 4) Decimal))]
                                                 FixedSizeArray
                                             )
                                             ()

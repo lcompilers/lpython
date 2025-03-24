@@ -27,6 +27,7 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
                                                 )
                                         })
                                     test_pass
@@ -48,7 +49,7 @@
                                     []
                                     [(Assignment
                                         (Var 3 a)
-                                        (IntegerConstant 1 (Integer 4))
+                                        (IntegerConstant 1 (Integer 4) Decimal)
                                         ()
                                     )
                                     (WhileLoop
@@ -56,7 +57,7 @@
                                         (IntegerCompare
                                             (Var 3 a)
                                             Gt
-                                            (IntegerConstant 0 (Integer 4))
+                                            (IntegerConstant 0 (Integer 4) Decimal)
                                             (Logical 4)
                                             ()
                                         )

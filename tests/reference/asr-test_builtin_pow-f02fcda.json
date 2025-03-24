@@ -6,7 +6,7 @@
     "outfile": null,
     "outfile_hash": null,
     "stdout": "asr-test_builtin_pow-f02fcda.stdout",
-    "stdout_hash": "656fc9a4c448dc71d7fc1c871155a05f0c4204bcfc6e9d32eab844f5",
+    "stdout_hash": "af283eed6b09edb9e5a4f03c65951556b884361b7e287d17a4931dc8",
     "stderr": "asr-test_builtin_pow-f02fcda.stderr",
     "stderr_hash": "859ce76c74748f2d32c7eab92cfbba789a78d4cbf5818646b99806ea",
     "returncode": 0

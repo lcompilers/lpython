@@ -24,6 +24,7 @@
                                     Public
                                     Required
                                     .false.
+                                    .false.
                                 ),
                             __asr_generic_mean_0:
                                 (Function
@@ -45,6 +46,7 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
                                                 ),
                                             i:
                                                 (Variable
@@ -60,6 +62,7 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
                                                     .false.
                                                 ),
                                             k:
@@ -77,6 +80,7 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
                                                 ),
                                             res:
                                                 (Variable
@@ -92,6 +96,7 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
                                                     .false.
                                                 ),
                                             x:
@@ -110,6 +115,7 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
                                                     .false.
                                                 )
                                         })
@@ -149,7 +155,7 @@
                                         (IntegerCompare
                                             (Var 17 k)
                                             Eq
-                                            (IntegerConstant 0 (Integer 4))
+                                            (IntegerConstant 0 (Integer 4) Decimal)
                                             (Logical 4)
                                             ()
                                         )
@@ -171,7 +177,7 @@
                                             ()
                                             [((ListItem
                                                 (Var 17 x)
-                                                (IntegerConstant 0 (Integer 4))
+                                                (IntegerConstant 0 (Integer 4) Decimal)
                                                 (Integer 4)
                                                 ()
                                             ))]
@@ -184,15 +190,15 @@
                                     (DoLoop
                                         ()
                                         ((Var 17 i)
-                                        (IntegerConstant 0 (Integer 4))
+                                        (IntegerConstant 0 (Integer 4) Decimal)
                                         (IntegerBinOp
                                             (Var 17 k)
                                             Sub
-                                            (IntegerConstant 1 (Integer 4))
+                                            (IntegerConstant 1 (Integer 4) Decimal)
                                             (Integer 4)
                                             ()
                                         )
-                                        (IntegerConstant 1 (Integer 4)))
+                                        (IntegerConstant 1 (Integer 4) Decimal))
                                         [(Assignment
                                             (Var 17 res)
                                             (FunctionCall
@@ -253,6 +259,7 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
                                                 ),
                                             i:
                                                 (Variable
@@ -268,6 +275,7 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
                                                     .false.
                                                 ),
                                             k:
@@ -285,6 +293,7 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
                                                 ),
                                             res:
                                                 (Variable
@@ -300,6 +309,7 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
                                                     .false.
                                                 ),
                                             x:
@@ -318,6 +328,7 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
                                                     .false.
                                                 )
                                         })
@@ -357,7 +368,7 @@
                                         (IntegerCompare
                                             (Var 18 k)
                                             Eq
-                                            (IntegerConstant 0 (Integer 4))
+                                            (IntegerConstant 0 (Integer 4) Decimal)
                                             (Logical 4)
                                             ()
                                         )
@@ -379,7 +390,7 @@
                                             ()
                                             [((ListItem
                                                 (Var 18 x)
-                                                (IntegerConstant 0 (Integer 4))
+                                                (IntegerConstant 0 (Integer 4) Decimal)
                                                 (Real 8)
                                                 ()
                                             ))]
@@ -392,15 +403,15 @@
                                     (DoLoop
                                         ()
                                         ((Var 18 i)
-                                        (IntegerConstant 0 (Integer 4))
+                                        (IntegerConstant 0 (Integer 4) Decimal)
                                         (IntegerBinOp
                                             (Var 18 k)
                                             Sub
-                                            (IntegerConstant 1 (Integer 4))
+                                            (IntegerConstant 1 (Integer 4) Decimal)
                                             (Integer 4)
                                             ()
                                         )
-                                        (IntegerConstant 1 (Integer 4)))
+                                        (IntegerConstant 1 (Integer 4) Decimal))
                                         [(Assignment
                                             (Var 18 res)
                                             (FunctionCall
@@ -461,6 +472,7 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
                                                 ),
                                             i:
                                                 (Variable
@@ -476,6 +488,7 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
                                                     .false.
                                                 ),
                                             k:
@@ -493,6 +506,7 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
                                                 ),
                                             res:
                                                 (Variable
@@ -503,11 +517,12 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Character 1 1 ())
+                                                    (String 1 1 () PointerString)
                                                     ()
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
                                                     .false.
                                                 ),
                                             x:
@@ -520,19 +535,20 @@
                                                     ()
                                                     Default
                                                     (List
-                                                        (Character 1 1 ())
+                                                        (String 1 1 () PointerString)
                                                     )
                                                     ()
                                                     Source
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
                                                 )
                                         })
                                     __asr_generic_mean_2
                                     (FunctionType
                                         [(List
-                                            (Character 1 1 ())
+                                            (String 1 1 () PointerString)
                                         )]
                                         (Real 8)
                                         Source
@@ -565,7 +581,7 @@
                                         (IntegerCompare
                                             (Var 19 k)
                                             Eq
-                                            (IntegerConstant 0 (Integer 4))
+                                            (IntegerConstant 0 (Integer 4) Decimal)
                                             (Logical 4)
                                             ()
                                         )
@@ -587,11 +603,11 @@
                                             ()
                                             [((ListItem
                                                 (Var 19 x)
-                                                (IntegerConstant 0 (Integer 4))
-                                                (Character 1 1 ())
+                                                (IntegerConstant 0 (Integer 4) Decimal)
+                                                (String 1 1 () PointerString)
                                                 ()
                                             ))]
-                                            (Character 1 1 ())
+                                            (String 1 1 () PointerString)
                                             ()
                                             ()
                                         )
@@ -600,15 +616,15 @@
                                     (DoLoop
                                         ()
                                         ((Var 19 i)
-                                        (IntegerConstant 0 (Integer 4))
+                                        (IntegerConstant 0 (Integer 4) Decimal)
                                         (IntegerBinOp
                                             (Var 19 k)
                                             Sub
-                                            (IntegerConstant 1 (Integer 4))
+                                            (IntegerConstant 1 (Integer 4) Decimal)
                                             (Integer 4)
                                             ()
                                         )
-                                        (IntegerConstant 1 (Integer 4)))
+                                        (IntegerConstant 1 (Integer 4) Decimal))
                                         [(Assignment
                                             (Var 19 res)
                                             (FunctionCall
@@ -618,10 +634,10 @@
                                                 ((ListItem
                                                     (Var 19 x)
                                                     (Var 19 i)
-                                                    (Character 1 1 ())
+                                                    (String 1 1 () PointerString)
                                                     ()
                                                 ))]
-                                                (Character 1 1 ())
+                                                (String 1 1 () PointerString)
                                                 ()
                                                 ()
                                             )
@@ -676,79 +692,91 @@
                                     __asr_generic_mean_2]
                                     []
                                     [(Print
-                                        [(FunctionCall
-                                            2 __asr_generic_mean_0
+                                        (StringFormat
                                             ()
-                                            [((ListConstant
-                                                [(IntegerConstant 1 (Integer 4))
-                                                (IntegerConstant 2 (Integer 4))
-                                                (IntegerConstant 3 (Integer 4))]
-                                                (List
-                                                    (Integer 4)
-                                                )
-                                            ))]
-                                            (Real 8)
+                                            [(FunctionCall
+                                                2 __asr_generic_mean_0
+                                                ()
+                                                [((ListConstant
+                                                    [(IntegerConstant 1 (Integer 4) Decimal)
+                                                    (IntegerConstant 2 (Integer 4) Decimal)
+                                                    (IntegerConstant 3 (Integer 4) Decimal)]
+                                                    (List
+                                                        (Integer 4)
+                                                    )
+                                                ))]
+                                                (Real 8)
+                                                ()
+                                                ()
+                                            )]
+                                            FormatPythonFormat
+                                            (String -1 0 () PointerString)
                                             ()
-                                            ()
-                                        )]
-                                        ()
-                                        ()
+                                        )
                                     )
                                     (Print
-                                        [(FunctionCall
-                                            2 __asr_generic_mean_1
+                                        (StringFormat
                                             ()
-                                            [((ListConstant
-                                                [(RealConstant
-                                                    1.000000
-                                                    (Real 8)
-                                                )
-                                                (RealConstant
-                                                    2.000000
-                                                    (Real 8)
-                                                )
-                                                (RealConstant
-                                                    3.000000
-                                                    (Real 8)
-                                                )]
-                                                (List
-                                                    (Real 8)
-                                                )
-                                            ))]
-                                            (Real 8)
+                                            [(FunctionCall
+                                                2 __asr_generic_mean_1
+                                                ()
+                                                [((ListConstant
+                                                    [(RealConstant
+                                                        1.000000
+                                                        (Real 8)
+                                                    )
+                                                    (RealConstant
+                                                        2.000000
+                                                        (Real 8)
+                                                    )
+                                                    (RealConstant
+                                                        3.000000
+                                                        (Real 8)
+                                                    )]
+                                                    (List
+                                                        (Real 8)
+                                                    )
+                                                ))]
+                                                (Real 8)
+                                                ()
+                                                ()
+                                            )]
+                                            FormatPythonFormat
+                                            (String -1 0 () PointerString)
                                             ()
-                                            ()
-                                        )]
-                                        ()
-                                        ()
+                                        )
                                     )
                                     (Print
-                                        [(FunctionCall
-                                            2 __asr_generic_mean_2
+                                        (StringFormat
                                             ()
-                                            [((ListConstant
-                                                [(StringConstant
-                                                    "a"
-                                                    (Character 1 1 ())
-                                                )
-                                                (StringConstant
-                                                    "b"
-                                                    (Character 1 1 ())
-                                                )
-                                                (StringConstant
-                                                    "c"
-                                                    (Character 1 1 ())
-                                                )]
-                                                (List
-                                                    (Character 1 1 ())
-                                                )
-                                            ))]
-                                            (Real 8)
+                                            [(FunctionCall
+                                                2 __asr_generic_mean_2
+                                                ()
+                                                [((ListConstant
+                                                    [(StringConstant
+                                                        "a"
+                                                        (String 1 1 () PointerString)
+                                                    )
+                                                    (StringConstant
+                                                        "b"
+                                                        (String 1 1 () PointerString)
+                                                    )
+                                                    (StringConstant
+                                                        "c"
+                                                        (String 1 1 () PointerString)
+                                                    )]
+                                                    (List
+                                                        (String 1 1 () PointerString)
+                                                    )
+                                                ))]
+                                                (Real 8)
+                                                ()
+                                                ()
+                                            )]
+                                            FormatPythonFormat
+                                            (String -1 0 () PointerString)
                                             ()
-                                            ()
-                                        )]
-                                        ()
-                                        ()
+                                        )
                                     )]
                                     ()
                                     Public
@@ -778,6 +806,7 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
                                                 ),
                                             x:
                                                 (Variable
@@ -796,6 +825,7 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
                                                 ),
                                             y:
                                                 (Variable
@@ -813,6 +843,7 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
                                                     .false.
                                                 )
                                         })
@@ -868,6 +899,7 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
                                                 ),
                                             x:
                                                 (Variable
@@ -884,6 +916,7 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
                                                 ),
                                             y:
                                                 (Variable
@@ -899,6 +932,7 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
                                                     .false.
                                                 )
                                         })
@@ -959,6 +993,7 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
                                                 ),
                                             x:
                                                 (Variable
@@ -975,6 +1010,7 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
                                                 ),
                                             y:
                                                 (Variable
@@ -990,6 +1026,7 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
                                                     .false.
                                                 )
                                         })
@@ -1044,11 +1081,12 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Character 1 -2 ())
+                                                    (String 1 -2 () PointerString)
                                                     ()
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
                                                     .false.
                                                 ),
                                             x:
@@ -1060,11 +1098,12 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Character 1 -2 ())
+                                                    (String 1 -2 () PointerString)
                                                     ()
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
                                                     .false.
                                                 ),
                                             y:
@@ -1076,19 +1115,20 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Character 1 -2 ())
+                                                    (String 1 -2 () PointerString)
                                                     ()
                                                     Source
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
                                                 )
                                         })
                                     add_string
                                     (FunctionType
-                                        [(Character 1 -2 ())
-                                        (Character 1 -2 ())]
-                                        (Character 1 -2 ())
+                                        [(String 1 -2 () PointerString)
+                                        (String 1 -2 () PointerString)]
+                                        (String 1 -2 () PointerString)
                                         Source
                                         Implementation
                                         ()
@@ -1108,7 +1148,7 @@
                                         (StringConcat
                                             (Var 13 x)
                                             (Var 13 y)
-                                            (Character 1 -4 ())
+                                            (String 1 -4 () PointerString)
                                             ()
                                         )
                                         ()
@@ -1140,6 +1180,7 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
                                                 ),
                                             k:
                                                 (Variable
@@ -1155,6 +1196,7 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
                                                     .false.
                                                 ),
                                             x:
@@ -1173,6 +1215,7 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
                                                     .false.
                                                 )
                                         })
@@ -1224,6 +1267,7 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
                                                 ),
                                             k:
                                                 (Variable
@@ -1240,6 +1284,7 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
                                                 ),
                                             x:
                                                 (Variable
@@ -1255,6 +1300,7 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
                                                     .false.
                                                 )
                                         })
@@ -1320,6 +1366,7 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
                                                 ),
                                             k:
                                                 (Variable
@@ -1336,6 +1383,7 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
                                                 ),
                                             x:
                                                 (Variable
@@ -1351,6 +1399,7 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
                                                     .false.
                                                 )
                                         })
@@ -1421,6 +1470,7 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
                                                 ),
                                             k:
                                                 (Variable
@@ -1437,6 +1487,7 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
                                                 ),
                                             x:
                                                 (Variable
@@ -1447,17 +1498,18 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Character 1 -2 ())
+                                                    (String 1 -2 () PointerString)
                                                     ()
                                                     Source
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
                                                 )
                                         })
                                     div_string
                                     (FunctionType
-                                        [(Character 1 -2 ())
+                                        [(String 1 -2 () PointerString)
                                         (Integer 4)]
                                         (Real 8)
                                         Source
@@ -1509,6 +1561,7 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
                                                 ),
                                             x:
                                                 (Variable
@@ -1524,6 +1577,7 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
                                                     .false.
                                                 )
                                         })
@@ -1579,6 +1633,7 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
                                                 ),
                                             x:
                                                 (Variable
@@ -1594,6 +1649,7 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
                                                     .false.
                                                 )
                                         })
@@ -1616,7 +1672,7 @@
                                     [(Var 6 x)]
                                     [(Assignment
                                         (Var 6 _lpython_return_variable)
-                                        (IntegerConstant 0 (Integer 4))
+                                        (IntegerConstant 0 (Integer 4) Decimal)
                                         ()
                                     )
                                     (Return)]
@@ -1640,11 +1696,12 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Character 1 -2 ())
+                                                    (String 1 -2 () PointerString)
                                                     ()
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
                                                     .false.
                                                 ),
                                             x:
@@ -1656,18 +1713,19 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Character 1 -2 ())
+                                                    (String 1 -2 () PointerString)
                                                     ()
                                                     Source
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
                                                 )
                                         })
                                     empty_string
                                     (FunctionType
-                                        [(Character 1 -2 ())]
-                                        (Character 1 -2 ())
+                                        [(String 1 -2 () PointerString)]
+                                        (String 1 -2 () PointerString)
                                         Source
                                         Implementation
                                         ()
@@ -1685,7 +1743,7 @@
                                         (Var 12 _lpython_return_variable)
                                         (StringConstant
                                             ""
-                                            (Character 1 0 ())
+                                            (String 1 0 () PointerString)
                                         )
                                         ()
                                     )
@@ -1716,6 +1774,7 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
                                                 ),
                                             i:
                                                 (Variable
@@ -1732,6 +1791,7 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
                                                 ),
                                             k:
                                                 (Variable
@@ -1747,6 +1807,7 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
                                                     .false.
                                                 ),
                                             res:
@@ -1765,6 +1826,7 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
                                                     .false.
                                                 ),
                                             x:
@@ -1785,6 +1847,7 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
                                                     .false.
                                                 )
                                         })
@@ -1826,7 +1889,7 @@
                                         (IntegerCompare
                                             (Var 15 k)
                                             Eq
-                                            (IntegerConstant 0 (Integer 4))
+                                            (IntegerConstant 0 (Integer 4) Decimal)
                                             (Logical 4)
                                             ()
                                         )
@@ -1848,7 +1911,7 @@
                                             ()
                                             [((ListItem
                                                 (Var 15 x)
-                                                (IntegerConstant 0 (Integer 4))
+                                                (IntegerConstant 0 (Integer 4) Decimal)
                                                 (TypeParameter
                                                     T
                                                 )
@@ -1865,15 +1928,15 @@
                                     (DoLoop
                                         ()
                                         ((Var 15 i)
-                                        (IntegerConstant 0 (Integer 4))
+                                        (IntegerConstant 0 (Integer 4) Decimal)
                                         (IntegerBinOp
                                             (Var 15 k)
                                             Sub
-                                            (IntegerConstant 1 (Integer 4))
+                                            (IntegerConstant 1 (Integer 4) Decimal)
                                             (Integer 4)
                                             ()
                                         )
-                                        (IntegerConstant 1 (Integer 4)))
+                                        (IntegerConstant 1 (Integer 4) Decimal))
                                         [(Assignment
                                             (Var 15 res)
                                             (FunctionCall
@@ -1940,6 +2003,7 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
                                                 ),
                                             x:
                                                 (Variable
@@ -1957,6 +2021,7 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
                                                     .false.
                                                 )
                                         })

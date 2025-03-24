@@ -27,6 +27,7 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
                                                 ),
                                             x:
                                                 (Variable
@@ -43,6 +44,7 @@
                                                     Public
                                                     Required
                                                     .true.
+                                                    .false.
                                                 )
                                         })
                                     f
@@ -89,6 +91,7 @@
                                                     Public
                                                     Required
                                                     .true.
+                                                    .false.
                                                 ),
                                             b:
                                                 (Variable
@@ -105,6 +108,7 @@
                                                     Public
                                                     Required
                                                     .true.
+                                                    .false.
                                                 ),
                                             c:
                                                 (Variable
@@ -121,6 +125,7 @@
                                                     Public
                                                     Required
                                                     .true.
+                                                    .false.
                                                 ),
                                             d:
                                                 (Variable
@@ -137,6 +142,7 @@
                                                     Public
                                                     Required
                                                     .true.
+                                                    .false.
                                                 )
                                         })
                                     g
@@ -189,6 +195,7 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
                                                 ),
                                             x:
                                                 (Variable
@@ -205,6 +212,7 @@
                                                     Public
                                                     Required
                                                     .true.
+                                                    .false.
                                                 )
                                         })
                                     h
@@ -265,6 +273,7 @@
                                                     Public
                                                     Required
                                                     .true.
+                                                    .false.
                                                 ),
                                             b:
                                                 (Variable
@@ -281,6 +290,7 @@
                                                     Public
                                                     Required
                                                     .true.
+                                                    .false.
                                                 ),
                                             c:
                                                 (Variable
@@ -297,6 +307,7 @@
                                                     Public
                                                     Required
                                                     .true.
+                                                    .false.
                                                 ),
                                             d:
                                                 (Variable
@@ -313,6 +324,7 @@
                                                     Public
                                                     Required
                                                     .true.
+                                                    .false.
                                                 )
                                         })
                                     l
@@ -339,12 +351,16 @@
                                     (Var 6 c)
                                     (Var 6 d)]
                                     [(Print
-                                        [(StringConstant
-                                            "OK"
-                                            (Character 1 2 ())
-                                        )]
-                                        ()
-                                        ()
+                                        (StringFormat
+                                            ()
+                                            [(StringConstant
+                                                "OK"
+                                                (String 1 2 () PointerString)
+                                            )]
+                                            FormatPythonFormat
+                                            (String -1 0 () PointerString)
+                                            ()
+                                        )
                                     )]
                                     ()
                                     Public
@@ -372,6 +388,7 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
                                                 ),
                                             x:
                                                 (Variable
@@ -387,6 +404,7 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
                                                     .false.
                                                 ),
                                             y:
@@ -404,6 +422,7 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
                                                 ),
                                             z:
                                                 (Variable
@@ -420,6 +439,7 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
                                                 ),
                                             zz:
                                                 (Variable
@@ -435,6 +455,7 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
                                                     .false.
                                                 )
                                         })
@@ -497,16 +518,16 @@
                                     (Assignment
                                         (Var 7 z)
                                         (Cast
-                                            (IntegerConstant 3 (Integer 4))
+                                            (IntegerConstant 3 (Integer 4) Decimal)
                                             IntegerToInteger
                                             (Integer 8)
-                                            (IntegerConstant 3 (Integer 8))
+                                            (IntegerConstant 3 (Integer 8) Decimal)
                                         )
                                         ()
                                     )
                                     (Assignment
                                         (Var 7 zz)
-                                        (IntegerConstant 2 (Integer 4))
+                                        (IntegerConstant 2 (Integer 4) Decimal)
                                         ()
                                     )
                                     (SubroutineCall

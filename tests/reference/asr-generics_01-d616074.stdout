@@ -24,6 +24,7 @@
                                     Public
                                     Required
                                     .false.
+                                    .false.
                                 ),
                             __asr_generic_f_0:
                                 (Function
@@ -45,6 +46,7 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
                                                 ),
                                             x:
                                                 (Variable
@@ -61,6 +63,7 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
                                                 ),
                                             y:
                                                 (Variable
@@ -76,6 +79,7 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
                                                     .false.
                                                 )
                                         })
@@ -132,11 +136,12 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Character 1 1 ())
+                                                    (String 1 1 () PointerString)
                                                     ()
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
                                                     .false.
                                                 ),
                                             x:
@@ -148,11 +153,12 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Character 1 1 ())
+                                                    (String 1 1 () PointerString)
                                                     ()
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
                                                     .false.
                                                 ),
                                             y:
@@ -164,19 +170,20 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Character 1 1 ())
+                                                    (String 1 1 () PointerString)
                                                     ()
                                                     Source
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
                                                 )
                                         })
                                     __asr_generic_f_1
                                     (FunctionType
-                                        [(Character 1 1 ())
-                                        (Character 1 1 ())]
-                                        (Character 1 1 ())
+                                        [(String 1 1 () PointerString)
+                                        (String 1 1 () PointerString)]
+                                        (String 1 1 () PointerString)
                                         Source
                                         Implementation
                                         ()
@@ -198,7 +205,7 @@
                                             ()
                                             [((Var 8 x))
                                             ((Var 8 y))]
-                                            (Character 1 1 ())
+                                            (String 1 1 () PointerString)
                                             ()
                                             ()
                                         )
@@ -237,55 +244,67 @@
                                     __asr_generic_f_1]
                                     []
                                     [(Print
-                                        [(FunctionCall
-                                            2 __asr_generic_f_0
+                                        (StringFormat
                                             ()
-                                            [((IntegerConstant 1 (Integer 4)))
-                                            ((IntegerConstant 2 (Integer 4)))]
-                                            (Integer 4)
+                                            [(FunctionCall
+                                                2 __asr_generic_f_0
+                                                ()
+                                                [((IntegerConstant 1 (Integer 4) Decimal))
+                                                ((IntegerConstant 2 (Integer 4) Decimal))]
+                                                (Integer 4)
+                                                ()
+                                                ()
+                                            )]
+                                            FormatPythonFormat
+                                            (String -1 0 () PointerString)
                                             ()
-                                            ()
-                                        )]
-                                        ()
-                                        ()
+                                        )
                                     )
                                     (Print
-                                        [(FunctionCall
-                                            2 __asr_generic_f_1
+                                        (StringFormat
                                             ()
-                                            [((StringConstant
-                                                "a"
-                                                (Character 1 1 ())
-                                            ))
-                                            ((StringConstant
-                                                "b"
-                                                (Character 1 1 ())
-                                            ))]
-                                            (Character 1 1 ())
+                                            [(FunctionCall
+                                                2 __asr_generic_f_1
+                                                ()
+                                                [((StringConstant
+                                                    "a"
+                                                    (String 1 1 () PointerString)
+                                                ))
+                                                ((StringConstant
+                                                    "b"
+                                                    (String 1 1 () PointerString)
+                                                ))]
+                                                (String 1 1 () PointerString)
+                                                ()
+                                                ()
+                                            )]
+                                            FormatPythonFormat
+                                            (String -1 0 () PointerString)
                                             ()
-                                            ()
-                                        )]
-                                        ()
-                                        ()
+                                        )
                                     )
                                     (Print
-                                        [(FunctionCall
-                                            2 __asr_generic_f_1
+                                        (StringFormat
                                             ()
-                                            [((StringConstant
-                                                "c"
-                                                (Character 1 1 ())
-                                            ))
-                                            ((StringConstant
-                                                "d"
-                                                (Character 1 1 ())
-                                            ))]
-                                            (Character 1 1 ())
+                                            [(FunctionCall
+                                                2 __asr_generic_f_1
+                                                ()
+                                                [((StringConstant
+                                                    "c"
+                                                    (String 1 1 () PointerString)
+                                                ))
+                                                ((StringConstant
+                                                    "d"
+                                                    (String 1 1 () PointerString)
+                                                ))]
+                                                (String 1 1 () PointerString)
+                                                ()
+                                                ()
+                                            )]
+                                            FormatPythonFormat
+                                            (String -1 0 () PointerString)
                                             ()
-                                            ()
-                                        )]
-                                        ()
-                                        ()
+                                        )
                                     )]
                                     ()
                                     Public
@@ -315,6 +334,7 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
                                                 ),
                                             x:
                                                 (Variable
@@ -333,6 +353,7 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
                                                 ),
                                             y:
                                                 (Variable
@@ -350,6 +371,7 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
                                                     .false.
                                                 )
                                         })
@@ -405,6 +427,7 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
                                                 ),
                                             x:
                                                 (Variable
@@ -421,6 +444,7 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
                                                 ),
                                             y:
                                                 (Variable
@@ -436,6 +460,7 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
                                                     .false.
                                                 )
                                         })
@@ -490,11 +515,12 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Character 1 -2 ())
+                                                    (String 1 -2 () PointerString)
                                                     ()
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
                                                     .false.
                                                 ),
                                             x:
@@ -506,11 +532,12 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Character 1 -2 ())
+                                                    (String 1 -2 () PointerString)
                                                     ()
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
                                                     .false.
                                                 ),
                                             y:
@@ -522,19 +549,20 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Character 1 -2 ())
+                                                    (String 1 -2 () PointerString)
                                                     ()
                                                     Source
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
                                                 )
                                         })
                                     add_string
                                     (FunctionType
-                                        [(Character 1 -2 ())
-                                        (Character 1 -2 ())]
-                                        (Character 1 -2 ())
+                                        [(String 1 -2 () PointerString)
+                                        (String 1 -2 () PointerString)]
+                                        (String 1 -2 () PointerString)
                                         Source
                                         Implementation
                                         ()
@@ -554,7 +582,7 @@
                                         (StringConcat
                                             (Var 5 x)
                                             (Var 5 y)
-                                            (Character 1 -4 ())
+                                            (String 1 -4 () PointerString)
                                             ()
                                         )
                                         ()
@@ -588,6 +616,7 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
                                                 ),
                                             x:
                                                 (Variable
@@ -606,6 +635,7 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
                                                 ),
                                             y:
                                                 (Variable
@@ -623,6 +653,7 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
                                                     .false.
                                                 )
                                         })

@@ -27,6 +27,7 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
                                                 ),
                                             b:
                                                 (Variable
@@ -43,6 +44,7 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
                                                 ),
                                             c:
                                                 (Variable
@@ -58,6 +60,7 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
                                                     .false.
                                                 )
                                         })
@@ -80,7 +83,7 @@
                                     []
                                     [(Assignment
                                         (Var 3 a)
-                                        (IntegerConstant 2 (Integer 4))
+                                        (IntegerConstant 2 (Integer 4) Decimal)
                                         ()
                                     )
                                     (Assignment
@@ -89,12 +92,12 @@
                                             (IntegerCompare
                                                 (Var 3 a)
                                                 Eq
-                                                (IntegerConstant 2 (Integer 4))
+                                                (IntegerConstant 2 (Integer 4) Decimal)
                                                 (Logical 4)
                                                 ()
                                             )
-                                            (IntegerConstant 6 (Integer 4))
-                                            (IntegerConstant 8 (Integer 4))
+                                            (IntegerConstant 6 (Integer 4) Decimal)
+                                            (IntegerConstant 8 (Integer 4) Decimal)
                                             (Integer 4)
                                             ()
                                         )
@@ -106,7 +109,7 @@
                                             (IntegerCompare
                                                 (Var 3 b)
                                                 Gt
-                                                (IntegerConstant 5 (Integer 4))
+                                                (IntegerConstant 5 (Integer 4) Decimal)
                                                 (Logical 4)
                                                 ()
                                             )

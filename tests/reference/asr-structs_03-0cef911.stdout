@@ -27,6 +27,7 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
                                                 ),
                                             y:
                                                 (Variable
@@ -42,6 +43,7 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
                                                     .false.
                                                 )
                                         })
@@ -123,6 +125,7 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
                                                 )
                                         })
                                     f
@@ -151,24 +154,32 @@
                                     []
                                     [(Var 4 pa)]
                                     [(Print
-                                        [(StructInstanceMember
-                                            (Var 4 pa)
-                                            3 x
-                                            (Integer 4)
+                                        (StringFormat
                                             ()
-                                        )]
-                                        ()
-                                        ()
+                                            [(StructInstanceMember
+                                                (Var 4 pa)
+                                                3 x
+                                                (Integer 4)
+                                                ()
+                                            )]
+                                            FormatPythonFormat
+                                            (String -1 0 () PointerString)
+                                            ()
+                                        )
                                     )
                                     (Print
-                                        [(StructInstanceMember
-                                            (Var 4 pa)
-                                            3 y
-                                            (Real 4)
+                                        (StringFormat
                                             ()
-                                        )]
-                                        ()
-                                        ()
+                                            [(StructInstanceMember
+                                                (Var 4 pa)
+                                                3 y
+                                                (Real 4)
+                                                ()
+                                            )]
+                                            FormatPythonFormat
+                                            (String -1 0 () PointerString)
+                                            ()
+                                        )
                                     )]
                                     ()
                                     Public
@@ -202,6 +213,7 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
                                                 ),
                                             xp:
                                                 (Variable
@@ -226,6 +238,7 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
                                                 )
                                         })
                                     g
@@ -249,7 +262,7 @@
                                         (Var 5 x)
                                         (StructConstructor
                                             2 A
-                                            [((IntegerConstant 3 (Integer 4)))
+                                            [((IntegerConstant 3 (Integer 4) Decimal))
                                             ((Cast
                                                 (RealConstant
                                                     3.250000
@@ -299,7 +312,7 @@
                                                 ()
                                             )
                                             Eq
-                                            (IntegerConstant 3 (Integer 4))
+                                            (IntegerConstant 3 (Integer 4) Decimal)
                                             (Logical 4)
                                             ()
                                         )
@@ -335,7 +348,7 @@
                                             (Integer 4)
                                             ()
                                         )
-                                        (IntegerConstant 5 (Integer 4))
+                                        (IntegerConstant 5 (Integer 4) Decimal)
                                         ()
                                     )
                                     (Assignment

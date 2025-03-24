@@ -59,14 +59,15 @@
                                                     Default
                                                     (Array
                                                         (Real 4)
-                                                        [((IntegerConstant 0 (Integer 4))
-                                                        (IntegerConstant 10000 (Integer 4)))]
+                                                        [((IntegerConstant 0 (Integer 4) Decimal)
+                                                        (IntegerConstant 10000 (Integer 4) Decimal))]
                                                         FixedSizeArray
                                                     )
                                                     ()
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
                                                     .false.
                                                 ),
                                             b:
@@ -80,14 +81,15 @@
                                                     Default
                                                     (Array
                                                         (Real 4)
-                                                        [((IntegerConstant 0 (Integer 4))
-                                                        (IntegerConstant 10000 (Integer 4)))]
+                                                        [((IntegerConstant 0 (Integer 4) Decimal)
+                                                        (IntegerConstant 10000 (Integer 4) Decimal))]
                                                         FixedSizeArray
                                                     )
                                                     ()
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
                                                     .false.
                                                 ),
                                             c:
@@ -101,14 +103,15 @@
                                                     Default
                                                     (Array
                                                         (Real 4)
-                                                        [((IntegerConstant 0 (Integer 4))
-                                                        (IntegerConstant 10000 (Integer 4)))]
+                                                        [((IntegerConstant 0 (Integer 4) Decimal)
+                                                        (IntegerConstant 10000 (Integer 4) Decimal))]
                                                         FixedSizeArray
                                                     )
                                                     ()
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
                                                     .false.
                                                 ),
                                             i:
@@ -126,6 +129,7 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
                                                 ),
                                             nsize:
                                                 (Variable
@@ -142,6 +146,7 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
                                                 ),
                                             scalar:
                                                 (Variable
@@ -157,6 +162,7 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
                                                     .false.
                                                 )
                                         })
@@ -204,16 +210,10 @@
                                         ()
                                     )
                                     (DoConcurrentLoop
-                                        ((Var 4 i)
-                                        (IntegerConstant 0 (Integer 4))
-                                        (IntegerBinOp
-                                            (Var 4 nsize)
-                                            Sub
-                                            (IntegerConstant 1 (Integer 4))
-                                            (Integer 4)
-                                            ()
-                                        )
-                                        (IntegerConstant 1 (Integer 4)))
+                                        []
+                                        []
+                                        []
+                                        []
                                         [(Assignment
                                             (ArrayItem
                                                 (Var 4 a)
@@ -272,8 +272,8 @@
                                             DescriptorArray
                                             (Array
                                                 (Real 4)
-                                                [((IntegerConstant 0 (Integer 4))
-                                                (IntegerConstant 10000 (Integer 4)))]
+                                                [((IntegerConstant 0 (Integer 4) Decimal)
+                                                (IntegerConstant 10000 (Integer 4) Decimal))]
                                                 DescriptorArray
                                             )
                                             ()
@@ -284,8 +284,8 @@
                                             DescriptorArray
                                             (Array
                                                 (Real 4)
-                                                [((IntegerConstant 0 (Integer 4))
-                                                (IntegerConstant 10000 (Integer 4)))]
+                                                [((IntegerConstant 0 (Integer 4) Decimal)
+                                                (IntegerConstant 10000 (Integer 4) Decimal))]
                                                 DescriptorArray
                                             )
                                             ()
@@ -297,8 +297,8 @@
                                             DescriptorArray
                                             (Array
                                                 (Real 4)
-                                                [((IntegerConstant 0 (Integer 4))
-                                                (IntegerConstant 10000 (Integer 4)))]
+                                                [((IntegerConstant 0 (Integer 4) Decimal)
+                                                (IntegerConstant 10000 (Integer 4) Decimal))]
                                                 DescriptorArray
                                             )
                                             ()
@@ -306,12 +306,16 @@
                                         ()
                                     )
                                     (Print
-                                        [(StringConstant
-                                            "End Stream Triad"
-                                            (Character 1 16 ())
-                                        )]
-                                        ()
-                                        ()
+                                        (StringFormat
+                                            ()
+                                            [(StringConstant
+                                                "End Stream Triad"
+                                                (String 1 16 () PointerString)
+                                            )]
+                                            FormatPythonFormat
+                                            (String -1 0 () PointerString)
+                                            ()
+                                        )
                                     )]
                                     ()
                                     Public
@@ -339,6 +343,7 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
                                                 ),
                                             a:
                                                 (Variable
@@ -359,6 +364,7 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
                                                     .false.
                                                 ),
                                             b:
@@ -381,6 +387,7 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
                                                 ),
                                             c:
                                                 (Variable
@@ -402,6 +409,7 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
                                                 ),
                                             i:
                                                 (Variable
@@ -418,6 +426,7 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
                                                 ),
                                             scalar:
                                                 (Variable
@@ -433,6 +442,7 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
                                                     .false.
                                                 )
                                         })
@@ -485,16 +495,10 @@
                                         ()
                                     )
                                     (DoConcurrentLoop
-                                        ((Var 3 i)
-                                        (IntegerConstant 0 (Integer 4))
-                                        (IntegerBinOp
-                                            (Var 3 N)
-                                            Sub
-                                            (IntegerConstant 1 (Integer 4))
-                                            (Integer 4)
-                                            ()
-                                        )
-                                        (IntegerConstant 1 (Integer 4)))
+                                        []
+                                        []
+                                        []
+                                        []
                                         [(Assignment
                                             (ArrayItem
                                                 (Var 3 c)

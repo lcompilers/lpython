@@ -63,6 +63,7 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
                                                 )
                                         })
                                     f
@@ -84,20 +85,24 @@
                                     []
                                     [(Assignment
                                         (Var 3 i)
-                                        (IntegerConstant 4 (Integer 4))
+                                        (IntegerConstant 4 (Integer 4) Decimal)
                                         ()
                                     )
                                     (Print
-                                        [(IntrinsicElementalFunction
-                                            FloorDiv
-                                            [(Var 3 i)
-                                            (IntegerConstant 0 (Integer 4))]
-                                            0
-                                            (Integer 4)
+                                        (StringFormat
                                             ()
-                                        )]
-                                        ()
-                                        ()
+                                            [(IntrinsicElementalFunction
+                                                FloorDiv
+                                                [(Var 3 i)
+                                                (IntegerConstant 0 (Integer 4) Decimal)]
+                                                0
+                                                (Integer 4)
+                                                ()
+                                            )]
+                                            FormatPythonFormat
+                                            (String -1 0 () PointerString)
+                                            ()
+                                        )
                                     )]
                                     ()
                                     Public
