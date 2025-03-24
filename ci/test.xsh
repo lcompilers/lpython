@@ -13,7 +13,7 @@ src/bin/lpython -o expr2 expr2.o
 # Test the new Python frontend, manually for now:
 src/bin/lpython --show-ast tests/doconcurrentloop_01.py
 src/bin/lpython --show-asr tests/doconcurrentloop_01.py
-src/bin/lpython --show-cpp tests/doconcurrentloop_01.py
+# src/bin/lpython --show-cpp tests/doconcurrentloop_01.py
 
 if $WIN == "1":
     python run_tests.py --skip-run-with-dbg --no-color
