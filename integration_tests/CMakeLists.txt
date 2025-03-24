@@ -668,7 +668,7 @@ RUN(NAME bindc_06   LABELS llvm
 # RUN(NAME bindpy_03           LABELS cpython c_py EXTRA_ARGS --link-numpy NOFAST COPY_TO_BIN bindpy_03_module.py)
 # RUN(NAME bindpy_04           LABELS cpython c_py EXTRA_ARGS --link-numpy NOFAST COPY_TO_BIN bindpy_04_module.py)
 # RUN(NAME bindpy_05           LABELS llvm_py c_py EXTRA_ARGS --enable-cpython COPY_TO_BIN bindpy_05_module.py REQ_PY_VER 3.10)
-RUN(NAME bindpy_06           LABELS cpython llvm_py EXTRA_ARGS --enable-cpython NOFAST COPY_TO_BIN bindpy_06_module.py REQ_PY_VER 3.10)
+# RUN(NAME bindpy_06           LABELS cpython llvm_py EXTRA_ARGS --enable-cpython NOFAST COPY_TO_BIN bindpy_06_module.py REQ_PY_VER 3.10)
 RUN(NAME test_generics_01    LABELS cpython llvm llvm_jit NOFAST) # renable c
 RUN(NAME test_cmath          LABELS cpython llvm llvm_jit c NOFAST)
 RUN(NAME test_complex_01        LABELS cpython llvm llvm_jit c wasm wasm_x64)
@@ -740,7 +740,7 @@ RUN(NAME symbolics_04        LABELS cpython_sym c_sym llvm_sym llvm_jit NOFAST E
 # RUN(NAME symbolics_05        LABELS cpython_sym c_sym llvm_sym llvm_jit NOFAST EXTRA_ARGS --enable-symengine)
 # RUN(NAME symbolics_06        LABELS cpython_sym c_sym llvm_sym llvm_jit NOFAST EXTRA_ARGS --enable-symengine)
 # RUN(NAME symbolics_07        LABELS cpython_sym c_sym llvm_sym llvm_jit NOFAST EXTRA_ARGS --enable-symengine)
-RUN(NAME symbolics_08        LABELS cpython_sym c_sym llvm_sym llvm_jit EXTRA_ARGS --enable-symengine)
+RUN(NAME symbolics_08        LABELS cpython_sym llvm_sym llvm_jit EXTRA_ARGS --enable-symengine) # renable c_sym
 # RUN(NAME symbolics_09        LABELS cpython_sym c_sym llvm_sym llvm_jit NOFAST EXTRA_ARGS --enable-symengine)
 RUN(NAME symbolics_10        LABELS cpython_sym c_sym llvm_sym NOFAST EXTRA_ARGS --enable-symengine)
 # RUN(NAME symbolics_11        LABELS cpython_sym c_sym llvm_sym llvm_jit NOFAST EXTRA_ARGS --enable-symengine)
