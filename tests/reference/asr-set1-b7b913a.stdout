@@ -29,6 +29,7 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
                                                 ),
                                             b:
                                                 (Variable
@@ -40,12 +41,13 @@
                                                     ()
                                                     Default
                                                     (Set
-                                                        (Character 1 -2 ())
+                                                        (String 1 -2 () PointerString)
                                                     )
                                                     ()
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
                                                     .false.
                                                 ),
                                             s:
@@ -57,11 +59,12 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Character 1 -2 ())
+                                                    (String 1 -2 () PointerString)
                                                     ()
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
                                                     .false.
                                                 )
                                         })
@@ -85,9 +88,9 @@
                                     [(Assignment
                                         (Var 3 a)
                                         (SetConstant
-                                            [(IntegerConstant 1 (Integer 4))
-                                            (IntegerConstant 2 (Integer 4))
-                                            (IntegerConstant 3 (Integer 4))]
+                                            [(IntegerConstant 1 (Integer 4) Decimal)
+                                            (IntegerConstant 2 (Integer 4) Decimal)
+                                            (IntegerConstant 3 (Integer 4) Decimal)]
                                             (Set
                                                 (Integer 4)
                                             )
@@ -97,11 +100,11 @@
                                     (Assignment
                                         (Var 3 a)
                                         (SetConstant
-                                            [(IntegerConstant 2 (Integer 4))
-                                            (IntegerConstant 3 (Integer 4))
-                                            (IntegerConstant 4 (Integer 4))
-                                            (IntegerConstant 5 (Integer 4))
-                                            (IntegerConstant 5 (Integer 4))]
+                                            [(IntegerConstant 2 (Integer 4) Decimal)
+                                            (IntegerConstant 3 (Integer 4) Decimal)
+                                            (IntegerConstant 4 (Integer 4) Decimal)
+                                            (IntegerConstant 5 (Integer 4) Decimal)
+                                            (IntegerConstant 5 (Integer 4) Decimal)]
                                             (Set
                                                 (Integer 4)
                                             )
@@ -112,7 +115,7 @@
                                         (IntrinsicElementalFunction
                                             SetAdd
                                             [(Var 3 a)
-                                            (IntegerConstant 9 (Integer 4))]
+                                            (IntegerConstant 9 (Integer 4) Decimal)]
                                             0
                                             ()
                                             ()
@@ -122,7 +125,7 @@
                                         (IntrinsicElementalFunction
                                             SetRemove
                                             [(Var 3 a)
-                                            (IntegerConstant 4 (Integer 4))]
+                                            (IntegerConstant 4 (Integer 4) Decimal)]
                                             0
                                             ()
                                             ()
@@ -133,18 +136,18 @@
                                         (SetConstant
                                             [(StringConstant
                                                 "a"
-                                                (Character 1 1 ())
+                                                (String 1 1 () PointerString)
                                             )
                                             (StringConstant
                                                 "b"
-                                                (Character 1 1 ())
+                                                (String 1 1 () PointerString)
                                             )
                                             (StringConstant
                                                 "c"
-                                                (Character 1 1 ())
+                                                (String 1 1 () PointerString)
                                             )]
                                             (Set
-                                                (Character 1 1 ())
+                                                (String 1 1 () PointerString)
                                             )
                                         )
                                         ()
@@ -153,7 +156,7 @@
                                         (Var 3 s)
                                         (SetPop
                                             (Var 3 b)
-                                            (Character 1 -2 ())
+                                            (String 1 -2 () PointerString)
                                             ()
                                         )
                                         ()

@@ -12,6 +12,7 @@
 
 /* Define if LLVM is enabled */
 #cmakedefine HAVE_LFORTRAN_LLVM
+#cmakedefine HAVE_LFORTRAN_MLIR
 
 /* Define if RAPIDJSON is found */
 #cmakedefine HAVE_LFORTRAN_RAPIDJSON
@@ -24,6 +25,7 @@
 #cmakedefine HAVE_LFORTRAN_LINK
 #cmakedefine HAVE_LFORTRAN_MACHO
 #cmakedefine HAVE_LFORTRAN_UNWIND
+#cmakedefine HAVE_LFORTRAN_LLVM_STACKTRACE
 
 /* Define if cxxabi.h is present */
 #cmakedefine HAVE_LFORTRAN_DEMANGLE

@@ -7,6 +7,8 @@
 #include <libasr/bwriter.h>
 #include <libasr/string_utils.h>
 #include <libasr/exception.h>
+#include <libasr/asr_serialization_visitor.h>
+#include <libasr/asr_deserialization_visitor.h>
 
 using LCompilers::ASRUtils::symbol_parent_symtab;
 using LCompilers::ASRUtils::symbol_name;
@@ -59,13 +61,13 @@ class ASRDeserializationVisitor :
 {
 public:
     ASRDeserializationVisitor(Allocator &al, const std::string &s,
-        bool load_symtab_id) :
+        bool load_symtab_id, uint32_t offset) :
 #ifdef WITH_LFORTRAN_BINARY_MODFILES
             BinaryReader(s),
 #else
             TextReader(s),
 #endif
-            DeserializationBaseVisitor(al, load_symtab_id) {}
+            DeserializationBaseVisitor(al, load_symtab_id, offset) {}
 
     bool read_bool() {
         uint8_t b = read_int8();
@@ -232,7 +234,7 @@ public:
         current_symtab = parent_symtab;
     }
 
-    void visit_EnumType(const EnumType_t &x) {
+    void visit_Enum(const Enum_t &x) {
         SymbolTable *parent_symtab = current_symtab;
         current_symtab = x.m_symtab;
         x.m_symtab->parent = parent_symtab;
@@ -361,8 +363,8 @@ public:
                 Struct_t *m = down_cast<Struct_t>(m_sym);
                 sym = m->m_symtab->find_scoped_symbol(original_name,
                         x.n_scope_names, x.m_scope_names);
-            } else if( ASR::is_a<ASR::EnumType_t>(*m_sym) ) {
-                EnumType_t *m = down_cast<EnumType_t>(m_sym);
+            } else if( ASR::is_a<ASR::Enum_t>(*m_sym) ) {
+                Enum_t *m = down_cast<Enum_t>(m_sym);
                 sym = m->m_symtab->find_scoped_symbol(original_name,
                         x.n_scope_names, x.m_scope_names);
             } else if( ASR::is_a<ASR::Function_t>(*m_sym) ) {
@@ -410,13 +412,13 @@ void fix_external_symbols(ASR::TranslationUnit_t &unit,
 }
 
 ASR::asr_t* deserialize_asr(Allocator &al, const std::string &s,
-        bool load_symtab_id, SymbolTable & /*external_symtab*/) {
-    return deserialize_asr(al, s, load_symtab_id);
+        bool load_symtab_id, SymbolTable & /*external_symtab*/, uint32_t offset) {
+    return deserialize_asr(al, s, load_symtab_id, offset);
 }
 
 ASR::asr_t* deserialize_asr(Allocator &al, const std::string &s,
-        bool load_symtab_id) {
-    ASRDeserializationVisitor v(al, s, load_symtab_id);
+        bool load_symtab_id, uint32_t offset) {
+    ASRDeserializationVisitor v(al, s, load_symtab_id, offset);
     ASR::asr_t *node = v.deserialize_node();
     ASR::TranslationUnit_t *tu = ASR::down_cast2<ASR::TranslationUnit_t>(node);
 

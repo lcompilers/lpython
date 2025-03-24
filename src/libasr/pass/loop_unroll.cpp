@@ -6,9 +6,6 @@
 #include <libasr/pass/loop_unroll.h>
 #include <libasr/pass/pass_utils.h>
 
-#include <vector>
-#include <map>
-#include <utility>
 #include <cmath>
 
 

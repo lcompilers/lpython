@@ -63,6 +63,7 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
                                                 ),
                                             b2:
                                                 (Variable
@@ -78,6 +79,7 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
                                                     .false.
                                                 ),
                                             f:
@@ -95,6 +97,7 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
                                                 ),
                                             i:
                                                 (Variable
@@ -110,6 +113,7 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
                                                     .false.
                                                 )
                                         })
@@ -161,7 +165,7 @@
                                         (IntegerCompare
                                             (Var 3 i)
                                             Eq
-                                            (IntegerConstant 2 (Integer 4))
+                                            (IntegerConstant 2 (Integer 4) Decimal)
                                             (Logical 4)
                                             ()
                                         )
@@ -198,7 +202,7 @@
                                         (IntegerCompare
                                             (Var 3 i)
                                             Eq
-                                            (IntegerConstant 1 (Integer 4))
+                                            (IntegerConstant 1 (Integer 4) Decimal)
                                             (Logical 4)
                                             ()
                                         )
@@ -235,7 +239,7 @@
                                         (IntegerCompare
                                             (Var 3 i)
                                             Eq
-                                            (IntegerConstant 0 (Integer 4))
+                                            (IntegerConstant 0 (Integer 4) Decimal)
                                             (Logical 4)
                                             ()
                                         )
@@ -271,7 +275,7 @@
                                         (IntegerCompare
                                             (Var 3 i)
                                             Eq
-                                            (IntegerConstant 1 (Integer 4))
+                                            (IntegerConstant 1 (Integer 4) Decimal)
                                             (Logical 4)
                                             ()
                                         )
@@ -307,7 +311,7 @@
                                         (IntegerCompare
                                             (Var 3 i)
                                             Eq
-                                            (IntegerConstant 0 (Integer 4))
+                                            (IntegerConstant 0 (Integer 4) Decimal)
                                             (Logical 4)
                                             ()
                                         )
@@ -344,7 +348,7 @@
                                         (IntegerCompare
                                             (Var 3 i)
                                             Eq
-                                            (IntegerConstant 1 (Integer 4))
+                                            (IntegerConstant 1 (Integer 4) Decimal)
                                             (Logical 4)
                                             ()
                                         )

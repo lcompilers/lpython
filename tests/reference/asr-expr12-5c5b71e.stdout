@@ -63,6 +63,7 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
                                                 ),
                                             a:
                                                 (Variable
@@ -78,6 +79,7 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
                                                     .false.
                                                 )
                                         })
@@ -103,8 +105,8 @@
                                         (FunctionCall
                                             2 test
                                             ()
-                                            [((IntegerConstant 2 (Integer 4)))
-                                            ((IntegerConstant 2 (Integer 4)))]
+                                            [((IntegerConstant 2 (Integer 4) Decimal))
+                                            ((IntegerConstant 2 (Integer 4) Decimal))]
                                             (Integer 4)
                                             ()
                                             ()
@@ -142,6 +144,7 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
                                                     .false.
                                                 )
                                         })
@@ -200,6 +203,7 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
                                                 ),
                                             a:
                                                 (Variable
@@ -216,6 +220,7 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
                                                 ),
                                             b:
                                                 (Variable
@@ -231,6 +236,7 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
                                                     .false.
                                                 )
                                         })

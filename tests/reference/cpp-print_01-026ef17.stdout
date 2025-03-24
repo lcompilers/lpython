@@ -31,12 +31,12 @@ void f()
     std::cout << "Hello World!" << std::endl;
     x = ",";
     y = "!!";
-    std::cout << "a" << x << "b" << std::endl;
+    std::cout << "a" << " " << "b" << std::endl;
     x = "-+-+-";
-    std::cout << "a" << x << "b" << x << "c" << std::endl;
-    std::cout << "d" << "=" << "e" << "=" << "f" << "+\n";
-    std::cout << "x" << "*\n" << "y" << "*\n" << "z" << y;
-    std::cout << "1" << ":" << "2" << std::endl;
+    std::cout << "a" << " " << "b" << " " << "c" << std::endl;
+    std::cout << "d" << " " << "e" << " " << "f" << std::endl;
+    std::cout << "x" << " " << "y" << " " << "z" << std::endl;
+    std::cout << "1" << " " << "2" << std::endl;
     std::cout << "LCompilers" << " " << "LPython" << std::endl;
 }
 

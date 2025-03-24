@@ -63,6 +63,7 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
                                                 ),
                                             s:
                                                 (Variable
@@ -73,11 +74,12 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Character 1 -2 ())
+                                                    (String 1 -2 () PointerString)
                                                     ()
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
                                                     .false.
                                                 )
                                         })
@@ -105,7 +107,7 @@
                                         (FunctionCall
                                             2 test_return_1
                                             ()
-                                            [((IntegerConstant 4 (Integer 4)))]
+                                            [((IntegerConstant 4 (Integer 4) Decimal))]
                                             (Integer 4)
                                             ()
                                             ()
@@ -117,8 +119,8 @@
                                         (FunctionCall
                                             2 test_return_2
                                             ()
-                                            [((IntegerConstant 4 (Integer 4)))]
-                                            (Character 1 -2 ())
+                                            [((IntegerConstant 4 (Integer 4) Decimal))]
+                                            (String 1 -2 () PointerString)
                                             ()
                                             ()
                                         )
@@ -129,7 +131,7 @@
                                         (FunctionCall
                                             2 test_return_3
                                             ()
-                                            [((IntegerConstant 4 (Integer 4)))]
+                                            [((IntegerConstant 4 (Integer 4) Decimal))]
                                             (Integer 4)
                                             ()
                                             ()
@@ -162,6 +164,7 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
                                                 ),
                                             a:
                                                 (Variable
@@ -178,6 +181,7 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
                                                 ),
                                             x:
                                                 (Variable
@@ -193,6 +197,7 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
                                                     .false.
                                                 )
                                         })
@@ -215,7 +220,7 @@
                                     [(Var 3 a)]
                                     [(Assignment
                                         (Var 3 x)
-                                        (IntegerConstant 5 (Integer 4))
+                                        (IntegerConstant 5 (Integer 4) Decimal)
                                         ()
                                     )
                                     (Assignment
@@ -244,11 +249,12 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Character 1 -2 ())
+                                                    (String 1 -2 () PointerString)
                                                     ()
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
                                                     .false.
                                                 ),
                                             a:
@@ -266,6 +272,7 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
                                                 ),
                                             x:
                                                 (Variable
@@ -276,18 +283,19 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Character 1 -2 ())
+                                                    (String 1 -2 () PointerString)
                                                     ()
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
                                                     .false.
                                                 )
                                         })
                                     test_return_2
                                     (FunctionType
                                         [(Integer 4)]
-                                        (Character 1 -2 ())
+                                        (String 1 -2 () PointerString)
                                         Source
                                         Implementation
                                         ()
@@ -305,7 +313,7 @@
                                         (Var 4 x)
                                         (StringConstant
                                             "test"
-                                            (Character 1 4 ())
+                                            (String 1 4 () PointerString)
                                         )
                                         ()
                                     )
@@ -341,6 +349,7 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
                                                 ),
                                             a:
                                                 (Variable
@@ -356,6 +365,7 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
                                                     .false.
                                                 )
                                         })

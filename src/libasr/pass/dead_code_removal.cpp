@@ -6,10 +6,6 @@
 #include <libasr/pass/dead_code_removal.h>
 #include <libasr/pass/pass_utils.h>
 
-#include <vector>
-#include <map>
-#include <utility>
-
 
 namespace LCompilers {
 

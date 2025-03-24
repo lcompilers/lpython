@@ -1,4 +1,3 @@
-#include <iostream>
 #include <fstream>
 #include <memory>
 
@@ -153,7 +152,7 @@ public:
         std::string indent, std::string name) {
         for( auto itr: der_type_t->m_symtab->get_scope() ) {
             ASR::symbol_t *sym = ASRUtils::symbol_get_past_external(itr.second);
-            if( ASR::is_a<ASR::UnionType_t>(*sym) ||
+            if( ASR::is_a<ASR::Union_t>(*sym) ||
                 ASR::is_a<ASR::Struct_t>(*sym) ) {
                 continue ;
             }
@@ -388,7 +387,7 @@ public:
                 sub = format_type_c("", "void**", v.m_name, false, false);
             } else {
                 diag.codegen_error_label("Type number '"
-                    + std::to_string(t2->type)
+                    + ASRUtils::type_to_str_python(t2)
                     + "' not supported", {v.base.base.loc}, "");
                 throw Abort();
             }
@@ -492,9 +491,9 @@ public:
                     sub = format_type_c(dims, "struct " + der_type_name + ptr_char,
                                         v.m_name, use_ref, dummy);
                 }
-            } else if (ASR::is_a<ASR::Union_t>(*v_m_type)) {
+            } else if (ASR::is_a<ASR::UnionType_t>(*v_m_type)) {
                 std::string indent(indentation_level*indentation_spaces, ' ');
-                ASR::Union_t *t = ASR::down_cast<ASR::Union_t>(v_m_type);
+                ASR::UnionType_t *t = ASR::down_cast<ASR::UnionType_t>(v_m_type);
                 std::string der_type_name = ASRUtils::symbol_name(
                     ASRUtils::symbol_get_past_external(t->m_union_type));
                 if( is_array ) {
@@ -543,16 +542,16 @@ public:
                                     false, false);
             } else if (ASR::is_a<ASR::CPtr_t>(*v_m_type)) {
                 sub = format_type_c("", "void*", v.m_name, false, false);
-            } else if (ASR::is_a<ASR::Enum_t>(*v_m_type)) {
-                ASR::Enum_t* enum_ = ASR::down_cast<ASR::Enum_t>(v_m_type);
-                ASR::EnumType_t* enum_type = ASR::down_cast<ASR::EnumType_t>(enum_->m_enum_type);
+            } else if (ASR::is_a<ASR::EnumType_t>(*v_m_type)) {
+                ASR::EnumType_t* enum_ = ASR::down_cast<ASR::EnumType_t>(v_m_type);
+                ASR::Enum_t* enum_type = ASR::down_cast<ASR::Enum_t>(enum_->m_enum_type);
                 sub = format_type_c("", "enum " + std::string(enum_type->m_name), v.m_name, false, false);
             } else if (ASR::is_a<ASR::TypeParameter_t>(*v_m_type)) {
                 // Ignore type variables
                 return "";
             } else {
                 diag.codegen_error_label("Type number '"
-                    + std::to_string(v_m_type->type)
+                    + ASRUtils::type_to_str_python(v_m_type)
                     + "' not supported", {v.base.base.loc}, "");
                 throw Abort();
             }
@@ -632,8 +631,8 @@ R"(
         std::map<std::string, std::vector<std::string>> struct_dep_graph;
         for (auto &item : x.m_symtab->get_scope()) {
             if (ASR::is_a<ASR::Struct_t>(*item.second) ||
-                ASR::is_a<ASR::EnumType_t>(*item.second) ||
-                ASR::is_a<ASR::UnionType_t>(*item.second)) {
+                ASR::is_a<ASR::Enum_t>(*item.second) ||
+                ASR::is_a<ASR::Union_t>(*item.second)) {
                 std::vector<std::string> struct_deps_vec;
                 std::pair<char**, size_t> struct_deps_ptr = ASRUtils::symbol_dependencies(item.second);
                 for( size_t i = 0; i < struct_deps_ptr.second; i++ ) {
@@ -754,8 +753,8 @@ R"(
         std::map<std::string, std::vector<std::string>> struct_dep_graph;
         for (auto &item : x.m_symtab->get_scope()) {
             if (ASR::is_a<ASR::Struct_t>(*item.second) ||
-                    ASR::is_a<ASR::EnumType_t>(*item.second) ||
-                    ASR::is_a<ASR::UnionType_t>(*item.second)) {
+                    ASR::is_a<ASR::Enum_t>(*item.second) ||
+                    ASR::is_a<ASR::Union_t>(*item.second)) {
                 std::vector<std::string> struct_deps_vec;
                 std::pair<char**, size_t> struct_deps_ptr = ASRUtils::symbol_dependencies(item.second);
                 for( size_t i = 0; i < struct_deps_ptr.second; i++ ) {
@@ -820,7 +819,7 @@ R"(
         }
 
         std::string body;
-        if (compiler_options.po.enable_cpython) {
+        if (compiler_options.enable_cpython) {
             headers.insert("Python.h");
             body += R"(
     Py_Initialize();
@@ -851,7 +850,7 @@ R"(    // Initialise Numpy
             body += src;
         }
 
-        if (compiler_options.po.enable_cpython) {
+        if (compiler_options.enable_cpython) {
             body += R"(
     if (Py_FinalizeEx() < 0) {
         fprintf(stderr,"BindPython: Unknown Error\n");
@@ -875,8 +874,8 @@ R"(    // Initialise Numpy
         std::string body = "";
         int indendation_level_copy = indentation_level;
         for( auto itr: x.m_symtab->get_scope() ) {
-            if( ASR::is_a<ASR::UnionType_t>(*itr.second) ) {
-                visit_AggregateTypeUtil(*ASR::down_cast<ASR::UnionType_t>(itr.second),
+            if( ASR::is_a<ASR::Union_t>(*itr.second) ) {
+                visit_AggregateTypeUtil(*ASR::down_cast<ASR::Union_t>(itr.second),
                                         "union", src_dest);
             } else if( ASR::is_a<ASR::Struct_t>(*itr.second) ) {
                 std::string struct_c_type_name = get_StructTypeCTypeName(
@@ -933,18 +932,18 @@ R"(    // Initialise Numpy
         src = "";
     }
 
-    void visit_UnionType(const ASR::UnionType_t& x) {
+    void visit_Union(const ASR::Union_t& x) {
         visit_AggregateTypeUtil(x, "union", array_types_decls);
     }
 
-    void visit_EnumType(const ASR::EnumType_t& x) {
+    void visit_Enum(const ASR::Enum_t& x) {
         if( x.m_enum_value_type == ASR::enumtypeType::NonInteger ) {
-            throw CodeGenError("C backend only supports integer valued Enum. " +
+            throw CodeGenError("C backend only supports integer valued EnumType. " +
                 std::string(x.m_name) + " is not integer valued.");
         }
         if( x.m_enum_value_type == ASR::enumtypeType::IntegerNotUnique ) {
-            throw CodeGenError("C backend only supports uniquely valued integer Enum. " +
-                std::string(x.m_name) + " Enum is having duplicate values for its members.");
+            throw CodeGenError("C backend only supports uniquely valued integer EnumType. " +
+                std::string(x.m_name) + " EnumType is having duplicate values for its members.");
         }
         if( x.m_enum_value_type == ASR::enumtypeType::IntegerUnique &&
             x.m_abi == ASR::abiType::BindC ) {
@@ -997,15 +996,15 @@ R"(    // Initialise Numpy
         src = "";
     }
 
-    void visit_EnumTypeConstructor(const ASR::EnumTypeConstructor_t& x) {
+    void visit_EnumConstructor(const ASR::EnumConstructor_t& x) {
         LCOMPILERS_ASSERT(x.n_args == 1);
         ASR::expr_t* m_arg = x.m_args[0];
         this->visit_expr(*m_arg);
-        ASR::EnumType_t* enum_type = ASR::down_cast<ASR::EnumType_t>(x.m_dt_sym);
+        ASR::Enum_t* enum_type = ASR::down_cast<ASR::Enum_t>(x.m_dt_sym);
         src = "(enum " + std::string(enum_type->m_name) + ") (" + src + ")";
     }
 
-    void visit_UnionTypeConstructor(const ASR::UnionTypeConstructor_t& /*x*/) {
+    void visit_UnionConstructor(const ASR::UnionConstructor_t& /*x*/) {
 
     }
 
@@ -1023,8 +1022,8 @@ R"(    // Initialise Numpy
     void visit_EnumName(const ASR::EnumName_t& x) {
         CHECK_FAST_C(compiler_options, x)
         int64_t min_value = INT64_MAX;
-        ASR::Enum_t* enum_t = ASR::down_cast<ASR::Enum_t>(x.m_enum_type);
-        ASR::EnumType_t* enum_type = ASR::down_cast<ASR::EnumType_t>(enum_t->m_enum_type);
+        ASR::EnumType_t* enum_t = ASR::down_cast<ASR::EnumType_t>(x.m_enum_type);
+        ASR::Enum_t* enum_type = ASR::down_cast<ASR::Enum_t>(enum_t->m_enum_type);
         for( auto itr: enum_type->m_symtab->get_scope() ) {
             ASR::Variable_t* itr_var = ASR::down_cast<ASR::Variable_t>(itr.second);
             ASR::expr_t* value = ASRUtils::expr_value(itr_var->m_symbolic_value);
@@ -1118,8 +1117,7 @@ R"(    // Initialise Numpy
             for (int i = n_dims - 1; i >= 0; i--) {
                 std::string start = "0", length = "0";
                 if( lower_bounds ) {
-                    visit_expr(*lower_bounds->m_args[i]);
-                    start = src;
+                    start = ASRUtils::fetch_ArrayConstant_value(lower_bounds, i);
                 }
                 if( m_dims[i].m_length ) {
                     this->visit_expr(*m_dims[i].m_length);
@@ -1147,15 +1145,26 @@ R"(    // Initialise Numpy
         bracket_open++;
         std::vector<std::string> v;
         std::string separator;
-        if (x.m_separator) {
-            this->visit_expr(*x.m_separator);
-            separator = src;
+        separator = "\" \"";
+        //HACKISH way to handle print refactoring (always using stringformat).
+        // TODO : Implement stringformat visitor.
+        ASR::StringFormat_t* str_fmt;
+        size_t n_values = 0;
+        if(ASR::is_a<ASR::StringFormat_t>(*x.m_text)){
+            str_fmt = ASR::down_cast<ASR::StringFormat_t>(x.m_text);
+            n_values = str_fmt->n_args;
+        } else if (ASR::is_a<ASR::String_t>(*ASRUtils::expr_type(x.m_text))) {
+            this->visit_expr(*x.m_text);
+            src = indent + "printf(\"%s\\n\"," + src + ");\n";
+            return;
         } else {
-            separator = "\" \"";
+            throw CodeGenError("print statment supported for stringformat and single character argument",
+            x.base.base.loc);
         }
-        for (size_t i=0; i<x.n_values; i++) {
-            this->visit_expr(*x.m_values[i]);
-            ASR::ttype_t* value_type = ASRUtils::expr_type(x.m_values[i]);
+
+        for (size_t i=0; i<n_values; i++) {
+            this->visit_expr(*(str_fmt->m_args[i]));
+            ASR::ttype_t* value_type = ASRUtils::expr_type(str_fmt->m_args[i]);
             if( ASRUtils::is_array(value_type) ) {
                 src += "->data";
             }
@@ -1175,25 +1184,19 @@ R"(    // Initialise Numpy
                 out += indent + p_func + "(" + src + ");\n";
                 continue;
             }
-            tmp_gen += c_ds_api->get_print_type(value_type, ASR::is_a<ASR::ArrayItem_t>(*x.m_values[i]));
+            tmp_gen +=c_ds_api->get_print_type(value_type, ASR::is_a<ASR::ArrayItem_t>(*(str_fmt->m_args[i])));
             v.push_back(src);
             if (ASR::is_a<ASR::Complex_t>(*value_type)) {
                 v.pop_back();
                 v.push_back("creal(" + src + ")");
                 v.push_back("cimag(" + src + ")");
             }
-            if (i+1!=x.n_values) {
+            if (i+1!=n_values) {
                 tmp_gen += "\%s";
                 v.push_back(separator);
             }
         }
-        if (x.m_end) {
-            this->visit_expr(*x.m_end);
-            tmp_gen += "\%s\"";
-            v.push_back(src);
-        } else {
-            tmp_gen += "\\n\"";
-        }
+        tmp_gen += "\\n\"";
         if (!v.empty()) {
             for (auto &s: v) {
                 tmp_gen += ", " + s;
@@ -1296,9 +1299,8 @@ R"(    // Initialise Numpy
         // TODO: Support and test for multi-dimensional array constants
         headers.insert("stdarg.h");
         std::string array_const = "";
-        for( size_t i = 0; i < x.n_args; i++ ) {
-            visit_expr(*x.m_args[i]);
-            array_const += src + ", ";
+        for( size_t i = 0; i < (size_t) ASRUtils::get_fixed_size_of_array(x.m_type); i++ ) {
+            array_const += ASRUtils::fetch_ArrayConstant_value(x, i) + ", ";
         }
         array_const.pop_back();
         array_const.pop_back();
@@ -1309,7 +1311,7 @@ R"(    // Initialise Numpy
         std::string return_type = c_ds_api->get_array_type(array_type_name, array_encoded_type_name,array_types_decls, false);
 
         src = c_utils_functions->get_array_constant(return_type, array_type_name, array_encoded_type_name) +
-                "(" + std::to_string(x.n_args) + ", " + array_const + ")";
+                "(" + std::to_string(ASRUtils::get_fixed_size_of_array(x.m_type)) + ", " + array_const + ")";
     }
 
     void visit_ArrayItem(const ASR::ArrayItem_t &x) {

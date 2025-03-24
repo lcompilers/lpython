@@ -1,14 +1,40 @@
-Hello
-This isLPython
-1 2 3 ... 3 4 5
-The first element is: 1
-The middle element is: 3
-3.14000000000000012e+00 * 2 = 6.28000000000000025e+00
-Total: 9.41999999999999993e+00
-(1, 2, 3) is a tuple, but 1 is a number.
-123
-1 # 2 # 3 # 4 # 5 # 
+    Hello
+This is    LPython
+1    2    3    ...    3    4    5
+The first element is:    1
+The middle element is:    3
+3.14000000000000012e+00    * 2 =    6.28000000000000025e+00
+Total:    9.41999999999999993e+00
+(
+1
+, 
+2
+, 
+3
+)
+1    2    3
+1
+2
+3
+4
+5
 
-List  0 : [1, 2]
-List  1 : [3, 4]
-List  2 : [5, 6]
+
+List     0    :
+[
+1
+, 
+2
+]
+List     1    :
+[
+3
+, 
+4
+]
+List     2    :
+[
+5
+, 
+6
+]

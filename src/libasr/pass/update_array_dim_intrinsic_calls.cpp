@@ -4,10 +4,8 @@
 #include <libasr/asr_utils.h>
 #include <libasr/asr_verify.h>
 #include <libasr/pass/pass_utils.h>
+#include <libasr/asr_builder.h>
 #include <libasr/pass/update_array_dim_intrinsic_calls.h>
-
-#include <vector>
-#include <utility>
 
 
 namespace LCompilers {
@@ -57,13 +55,20 @@ class ReplaceArrayDimIntrinsicCalls: public ASR::BaseExprReplacer<ReplaceArrayDi
     {}
 
     void replace_ArraySize(ASR::ArraySize_t* x) {
-        if( !ASR::is_a<ASR::Var_t>(*x->m_v) ||
+        ASR::expr_t* x_m_v = x->m_v;
+        if ( ASR::is_a<ASR::Cast_t>(*x_m_v) ) {
+            ASR::Cast_t* cast = ASR::down_cast<ASR::Cast_t>(x_m_v);
+            if( ASR::is_a<ASR::Var_t>(*cast->m_arg) ) {
+                x_m_v = cast->m_arg;
+            }
+        }
+        if( !ASR::is_a<ASR::Var_t>(*x_m_v) ||
             (x->m_dim != nullptr && !ASRUtils::is_value_constant(x->m_dim)) ) {
             return ;
         }
 
-        ASR::Variable_t* v = ASRUtils::EXPR2VAR(x->m_v);
-        ASR::ttype_t* array_type = ASRUtils::expr_type(x->m_v);
+        ASR::Variable_t* v = ASRUtils::EXPR2VAR(x_m_v);
+        ASR::ttype_t* array_type = ASRUtils::expr_type(x_m_v);
         ASR::dimension_t* dims = nullptr;
         int n = ASRUtils::extract_dimensions_from_ttype(array_type, dims);
         bool is_argument = v->m_intent == ASRUtils::intent_in || v->m_intent == ASRUtils::intent_out || v->m_intent == ASRUtils::intent_inout;
@@ -109,7 +114,9 @@ class ReplaceArrayDimIntrinsicCalls: public ASR::BaseExprReplacer<ReplaceArrayDi
         int64_t dim = -1;
         ASRUtils::extract_value(x->m_dim, dim);
         if( x->m_bound == ASR::arrayboundType::LBound ) {
+            ASRUtils::ASRBuilder b(al, x->base.base.loc);
             *current_expr = dims[dim - 1].m_start;
+            *current_expr = b.t2t(*current_expr, ASRUtils::expr_type(*current_expr), x->m_type);
         } else {
             ASR::expr_t* ub = ASRUtils::EXPR(ASR::make_IntegerBinOp_t(al,
                                 x->base.base.loc, dims[dim - 1].m_length,

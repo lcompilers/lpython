@@ -63,6 +63,7 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
                                                 ),
                                             x:
                                                 (Variable
@@ -79,6 +80,7 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
                                                 ),
                                             y:
                                                 (Variable
@@ -94,6 +96,7 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
                                                     .false.
                                                 )
                                         })
@@ -154,6 +157,7 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
                                                 ),
                                             x:
                                                 (Variable
@@ -170,6 +174,7 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
                                                 ),
                                             y:
                                                 (Variable
@@ -185,6 +190,7 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
                                                     .false.
                                                 )
                                         })
@@ -245,6 +251,7 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
                                                 ),
                                             y:
                                                 (Variable
@@ -261,6 +268,7 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
                                                 ),
                                             z:
                                                 (Variable
@@ -276,6 +284,7 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
                                                     .false.
                                                 )
                                         })
@@ -301,16 +310,16 @@
                                         (Var 5 x)
                                         (IntegerBinOp
                                             (IntegerBinOp
-                                                (IntegerConstant 2 (Integer 4))
+                                                (IntegerConstant 2 (Integer 4) Decimal)
                                                 Add
-                                                (IntegerConstant 3 (Integer 4))
+                                                (IntegerConstant 3 (Integer 4) Decimal)
                                                 (Integer 4)
-                                                (IntegerConstant 5 (Integer 4))
+                                                (IntegerConstant 5 (Integer 4) Decimal)
                                             )
                                             Mul
-                                            (IntegerConstant 5 (Integer 4))
+                                            (IntegerConstant 5 (Integer 4) Decimal)
                                             (Integer 4)
-                                            (IntegerConstant 25 (Integer 4))
+                                            (IntegerConstant 25 (Integer 4) Decimal)
                                         )
                                         ()
                                     )
@@ -321,13 +330,13 @@
                                                 2 add
                                                 ()
                                                 [((Var 5 x))
-                                                ((IntegerConstant 2 (Integer 4)))]
+                                                ((IntegerConstant 2 (Integer 4) Decimal))]
                                                 (Integer 4)
                                                 ()
                                                 ()
                                             )
                                             Mul
-                                            (IntegerConstant 2 (Integer 4))
+                                            (IntegerConstant 2 (Integer 4) Decimal)
                                             (Integer 4)
                                             ()
                                         )
@@ -337,7 +346,7 @@
                                         (IntegerCompare
                                             (Var 5 x)
                                             Eq
-                                            (IntegerConstant 25 (Integer 4))
+                                            (IntegerConstant 25 (Integer 4) Decimal)
                                             (Logical 4)
                                             ()
                                         )
@@ -347,7 +356,7 @@
                                         (IntegerCompare
                                             (Var 5 y)
                                             Eq
-                                            (IntegerConstant 54 (Integer 4))
+                                            (IntegerConstant 54 (Integer 4) Decimal)
                                             (Logical 4)
                                             ()
                                         )
@@ -370,7 +379,7 @@
                                         (IntegerCompare
                                             (Var 5 z)
                                             Eq
-                                            (IntegerConstant 16 (Integer 4))
+                                            (IntegerConstant 16 (Integer 4) Decimal)
                                             (Logical 4)
                                             ()
                                         )

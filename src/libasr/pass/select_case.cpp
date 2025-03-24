@@ -154,7 +154,7 @@ void case_to_if_with_fall_through(Allocator& al, const ASR::Select_t& x,
     ASR::expr_t* a_test, Vec<ASR::stmt_t*>& body, SymbolTable* scope) {
     body.reserve(al, x.n_body + 1);
     const Location& loc = x.base.base.loc;
-    ASR::symbol_t* case_found_sym = ASR::down_cast<ASR::symbol_t>(ASR::make_Variable_t(
+    ASR::symbol_t* case_found_sym = ASR::down_cast<ASR::symbol_t>(ASRUtils::make_Variable_t_util(
         al, loc, scope, s2c(al, scope->get_unique_name("case_found")), nullptr, 0,
         ASR::intentType::Local, nullptr, nullptr, ASR::storage_typeType::Default,
         ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4)), nullptr, ASR::abiType::Source,

@@ -1,4 +1,4 @@
-semantic error: StructConstructor has more arguments than the number of struct members
+semantic error: StructTypeConstructor has more arguments than the number of struct members
   --> tests/errors/structs_08.py:13:29
    |
 13 |     test_dude3 : StringIO = StringIO(integer_asr, 3, 5, 2)

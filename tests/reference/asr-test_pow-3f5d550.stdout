@@ -87,31 +87,39 @@
                                     []
                                     []
                                     [(Print
-                                        [(FunctionCall
-                                            3 pow@__lpython_overloaded_0__pow
-                                            3 pow
-                                            [((IntegerConstant 2 (Integer 4)))
-                                            ((IntegerConstant 2 (Integer 4)))]
-                                            (Real 8)
-                                            (RealConstant
-                                                4.000000
-                                                (Real 8)
-                                            )
+                                        (StringFormat
                                             ()
-                                        )]
-                                        ()
-                                        ()
+                                            [(FunctionCall
+                                                3 pow@__lpython_overloaded_0__pow
+                                                3 pow
+                                                [((IntegerConstant 2 (Integer 4) Decimal))
+                                                ((IntegerConstant 2 (Integer 4) Decimal))]
+                                                (Real 8)
+                                                (RealConstant
+                                                    4.000000
+                                                    (Real 8)
+                                                )
+                                                ()
+                                            )]
+                                            FormatPythonFormat
+                                            (String -1 0 () PointerString)
+                                            ()
+                                        )
                                     )
                                     (Print
-                                        [(IntegerBinOp
-                                            (IntegerConstant 2 (Integer 4))
-                                            Pow
-                                            (IntegerConstant 2 (Integer 4))
-                                            (Integer 4)
-                                            (IntegerConstant 4 (Integer 4))
-                                        )]
-                                        ()
-                                        ()
+                                        (StringFormat
+                                            ()
+                                            [(IntegerBinOp
+                                                (IntegerConstant 2 (Integer 4) Decimal)
+                                                Pow
+                                                (IntegerConstant 2 (Integer 4) Decimal)
+                                                (Integer 4)
+                                                (IntegerConstant 4 (Integer 4) Decimal)
+                                            )]
+                                            FormatPythonFormat
+                                            (String -1 0 () PointerString)
+                                            ()
+                                        )
                                     )]
                                     ()
                                     Public

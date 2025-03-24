@@ -33,10 +33,8 @@
 #include <llvm/Transforms/Scalar.h>
 #include <llvm/Transforms/Scalar/GVN.h>
 #include <llvm/Transforms/Scalar/InstSimplifyPass.h>
-#include <llvm/Transforms/Vectorize.h>
 #include <llvm/Transforms/IPO.h>
 #include <llvm/Transforms/IPO/AlwaysInliner.h>
-#include <llvm/Transforms/IPO/PassManagerBuilder.h>
 #include <llvm/Transforms/Instrumentation/AddressSanitizer.h>
 #include <llvm/Transforms/Instrumentation/ThreadSanitizer.h>
 #include <llvm/Transforms/InstCombine/InstCombine.h>
@@ -53,9 +51,18 @@
 #else
 #    include <llvm/Support/TargetRegistry.h>
 #endif
-#include <llvm/Support/Host.h>
-#include <libasr/codegen/KaleidoscopeJIT.h>
+#if LLVM_VERSION_MAJOR >= 17
+    // TODO: removed from LLVM 17
+#else
+#    include <llvm/Transforms/IPO/PassManagerBuilder.h>
+#endif
 
+#if LLVM_VERSION_MAJOR < 18
+#    include <llvm/Transforms/Vectorize.h>
+#    include <llvm/Support/Host.h>
+#endif
+
+#include <libasr/codegen/KaleidoscopeJIT.h>
 #include <libasr/codegen/evaluator.h>
 #include <libasr/codegen/asr_to_llvm.h>
 #include <libasr/codegen/asr_to_cpp.h>
@@ -63,6 +70,10 @@
 #include <libasr/asr.h>
 #include <libasr/string_utils.h>
 
+#ifdef HAVE_LFORTRAN_MLIR
+#include <mlir/IR/BuiltinOps.h>
+#include <mlir/Target/LLVMIR/Export.h>
+#endif
 
 namespace LCompilers {
 
@@ -114,16 +125,10 @@ std::string LLVMModule::get_return_type(const std::string &fn_name)
         return "real8";
     } else if (type->isIntegerTy(1)) {
         return "logical";
-    } else if (type->isIntegerTy(8)) {
-        return "integer1";
-    } else if (type->isIntegerTy(16)) {
-        return "integer2";
     } else if (type->isIntegerTy(32)) {
         return "integer4";
     } else if (type->isIntegerTy(64)) {
         return "integer8";
-    } else if (type->isPointerTy() && type->getPointerElementType()->isIntegerTy(8)) {
-        return "integer1ptr";
     } else if (type->isStructTy()) {
         llvm::StructType *st = llvm::cast<llvm::StructType>(type);
         if (st->hasName()) {
@@ -131,9 +136,12 @@ std::string LLVMModule::get_return_type(const std::string &fn_name)
                 return "complex4";
             } else if (startswith(std::string(st->getName()), "complex_8")) {
                 return "complex8";
+            } else {
+                throw LCompilersException("LLVMModule::get_return_type(): StructType return type `" + std::string(st->getName()) + "` not supported");
             }
+        } else {
+            throw LCompilersException("LLVMModule::get_return_type(): Noname struct return type not supported");
         }
-        return "struct";
     } else if (type->isVectorTy()) {
         // Used for passing complex_4 on some platforms
         return "complex4";
@@ -143,6 +151,44 @@ std::string LLVMModule::get_return_type(const std::string &fn_name)
         throw LCompilersException("LLVMModule::get_return_type(): Return type not supported");
     }
 }
+
+#ifdef HAVE_LFORTRAN_MLIR
+MLIRModule::MLIRModule(std::unique_ptr<mlir::ModuleOp> m,
+        std::unique_ptr<mlir::MLIRContext> ctx) {
+    mlir_m = std::move(m);
+    mlir_ctx = std::move(ctx);
+    llvm_ctx = std::make_unique<llvm::LLVMContext>();
+}
+
+MLIRModule::~MLIRModule() {
+    llvm_m.reset();
+    llvm_ctx.reset();
+};
+
+std::string MLIRModule::mlir_str() {
+    std::string mlir_str;
+    llvm::raw_string_ostream raw_os(mlir_str);
+    mlir_m->print(raw_os);
+    return mlir_str;
+}
+
+std::string MLIRModule::llvm_str() {
+    std::string mlir_str;
+    llvm::raw_string_ostream raw_os(mlir_str);
+    llvm_m->print(raw_os, nullptr);
+    return mlir_str;
+}
+
+void MLIRModule::mlir_to_llvm(llvm::LLVMContext &ctx) {
+    std::unique_ptr<llvm::Module> llvmModule = mlir::translateModuleToLLVMIR(
+        *mlir_m, ctx);
+    if (llvmModule) {
+        llvm_m = std::move(llvmModule);
+    } else {
+        throw LCompilersException("Failed to generate LLVM IR");
+    }
+}
+#endif
 
 extern "C" {
 
@@ -208,12 +254,17 @@ LLVMEvaluator::~LLVMEvaluator()
     context.reset();
 }
 
-std::unique_ptr<llvm::Module> LLVMEvaluator::parse_module(const std::string &source)
+std::unique_ptr<llvm::Module> LLVMEvaluator::parse_module(const std::string &source, const std::string &filename="")
 {
     llvm::SMDiagnostic err;
-    std::unique_ptr<llvm::Module> module
-        = llvm::parseAssemblyString(source, err, *context);
+    std::unique_ptr<llvm::Module> module;
+    if (!filename.empty()) {
+        module = llvm::parseAssemblyFile(filename, err, *context);
+    } else {
+        module = llvm::parseAssemblyString(source, err, *context);
+    }
     if (!module) {
+        err.print("", llvm::errs());
         throw LCompilersException("parse_module(): Invalid LLVM IR");
     }
     bool v = llvm::verifyModule(*module);
@@ -223,6 +274,10 @@ std::unique_ptr<llvm::Module> LLVMEvaluator::parse_module(const std::string &sou
     module->setTargetTriple(target_triple);
     module->setDataLayout(jit->getDataLayout());
     return module;
+}
+
+std::unique_ptr<LLVMModule> LLVMEvaluator::parse_module2(const std::string &source, const std::string &filename="") {
+    return std::make_unique<LLVMModule>(parse_module(source, filename));
 }
 
 void LLVMEvaluator::add_module(const std::string &source) {
@@ -260,7 +315,12 @@ void LLVMEvaluator::add_module(std::unique_ptr<LLVMModule> m) {
 }
 
 intptr_t LLVMEvaluator::get_symbol_address(const std::string &name) {
-    llvm::Expected<llvm::JITEvaluatedSymbol> s = jit->lookup(name);
+#if LLVM_VERSION_MAJOR < 17
+    llvm::Expected<llvm::JITEvaluatedSymbol>
+#else
+    llvm::Expected<llvm::orc::ExecutorSymbolDef>
+#endif
+        s = jit->lookup(name);
     if (!s) {
         llvm::Error e = s.takeError();
         llvm::SmallVector<char, 128> buf;
@@ -271,7 +331,11 @@ intptr_t LLVMEvaluator::get_symbol_address(const std::string &name) {
         throw LCompilersException("lookup() failed to find the symbol '"
             + name + "', error: " + msg);
     }
+#if LLVM_VERSION_MAJOR < 17
     llvm::Expected<uint64_t> addr0 = s->getAddress();
+#else
+    llvm::Expected<uint64_t> addr0 = s->getAddress().getValue();
+#endif
     if (!addr0) {
         llvm::Error e = addr0.takeError();
         llvm::SmallVector<char, 128> buf;
@@ -294,7 +358,11 @@ void write_file(const std::string &filename, const std::string &contents)
 std::string LLVMEvaluator::get_asm(llvm::Module &m)
 {
     llvm::legacy::PassManager pass;
+#if LLVM_VERSION_MAJOR < 18
     llvm::CodeGenFileType ft = llvm::CGFT_AssemblyFile;
+#else
+    llvm::CodeGenFileType ft = llvm::CodeGenFileType::AssemblyFile;
+#endif
     llvm::SmallVector<char, 128> buf;
     llvm::raw_svector_ostream dest(buf);
     if (TM->addPassesToEmitFile(pass, dest, nullptr, ft)) {
@@ -314,7 +382,11 @@ void LLVMEvaluator::save_object_file(llvm::Module &m, const std::string &filenam
     m.setDataLayout(TM->createDataLayout());
 
     llvm::legacy::PassManager pass;
+#if LLVM_VERSION_MAJOR < 18
     llvm::CodeGenFileType ft = llvm::CGFT_ObjectFile;
+#else
+    llvm::CodeGenFileType ft = llvm::CodeGenFileType::ObjectFile;
+#endif
     std::error_code EC;
     llvm::raw_fd_ostream dest(filename, EC, llvm::sys::fs::OF_None);
     if (EC) {
@@ -343,6 +415,9 @@ void LLVMEvaluator::opt(llvm::Module &m) {
     llvm::legacy::FunctionPassManager fpm(&m);
     fpm.add(llvm::createTargetTransformInfoWrapperPass(TM->getTargetIRAnalysis()));
 
+#if LLVM_VERSION_MAJOR >= 17
+    // TODO: https://llvm.org/docs/NewPassManager.html
+#else
     int optLevel = 3;
     int sizeLevel = 0;
     llvm::PassManagerBuilder builder;
@@ -355,6 +430,7 @@ void LLVMEvaluator::opt(llvm::Module &m) {
     builder.SLPVectorize = true;
     builder.populateFunctionPassManager(fpm);
     builder.populateModulePassManager(mpm);
+#endif
 
     fpm.doInitialization();
     for (llvm::Function &func : m) {
@@ -377,6 +453,11 @@ std::string LLVMEvaluator::module_to_string(llvm::Module &m) {
 void LLVMEvaluator::print_version_message()
 {
     llvm::cl::PrintVersionMessage();
+}
+
+std::string LLVMEvaluator::llvm_version()
+{
+    return LLVM_VERSION_STRING;
 }
 
 llvm::LLVMContext &LLVMEvaluator::get_context()
@@ -406,7 +487,7 @@ void LLVMEvaluator::print_targets()
 
 std::string LLVMEvaluator::get_default_target_triple()
 {
-    return llvm::sys::getDefaultTargetTriple();
+    return LLVMGetDefaultTargetTriple();
 }
 
 } // namespace LCompilers

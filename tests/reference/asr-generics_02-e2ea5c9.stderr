@@ -1,1 +1,5 @@
-/bin/sh: 1: lpython: not found
+semantic error: Simple Type T cannot be intent InOut/Out
+ --> tests/../integration_tests/generics_02.py:5:10
+  |
+5 | def swap(x: InOut[T], y: InOut[T]):
+  |          ^^^^^^^^^^^ 

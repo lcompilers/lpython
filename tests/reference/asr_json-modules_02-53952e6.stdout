@@ -145,7 +145,8 @@
                                                         "abi": "Source",
                                                         "access": "Public",
                                                         "presence": "Required",
-                                                        "value_attr": false
+                                                        "value_attr": false,
+                                                        "target_attr": false
                                                     },
                                                     "loc": {
                                                         "first": 68,
@@ -235,7 +236,8 @@
                                                                                     "last_line": 6,
                                                                                     "last_column": 10
                                                                                 }
-                                                                            }
+                                                                            },
+                                                                            "intboz_type": "Decimal"
                                                                         },
                                                                         "loc": {
                                                                             "first": 84,
@@ -268,7 +270,8 @@
                                                                                     "last_line": 6,
                                                                                     "last_column": 12
                                                                                 }
-                                                                            }
+                                                                            },
+                                                                            "intboz_type": "Decimal"
                                                                         },
                                                                         "loc": {
                                                                             "first": 86,
@@ -316,7 +319,8 @@
                                                                                     "last_line": 6,
                                                                                     "last_column": 10
                                                                                 }
-                                                                            }
+                                                                            },
+                                                                            "intboz_type": "Decimal"
                                                                         },
                                                                         "loc": {
                                                                             "first": 84,
@@ -361,7 +365,8 @@
                                                                             "last_line": 6,
                                                                             "last_column": 15
                                                                         }
-                                                                    }
+                                                                    },
+                                                                    "intboz_type": "Decimal"
                                                                 },
                                                                 "loc": {
                                                                     "first": 89,
@@ -409,7 +414,8 @@
                                                                             "last_line": 6,
                                                                             "last_column": 10
                                                                         }
-                                                                    }
+                                                                    },
+                                                                    "intboz_type": "Decimal"
                                                                 },
                                                                 "loc": {
                                                                     "first": 83,
@@ -489,7 +495,8 @@
                                                                             "last_line": 7,
                                                                             "last_column": 18
                                                                         }
-                                                                    }
+                                                                    },
+                                                                    "intboz_type": "Decimal"
                                                                 },
                                                                 "loc": {
                                                                     "first": 107,
@@ -734,17 +741,34 @@
                                             {
                                                 "node": "Print",
                                                 "fields": {
-                                                    "values": [
-                                                        {
-                                                            "node": "StringConstant",
-                                                            "fields": {
-                                                                "s": "f()",
-                                                                "type": {
-                                                                    "node": "Character",
+                                                    "text": {
+                                                        "node": "StringFormat",
+                                                        "fields": {
+                                                            "fmt": [],
+                                                            "args": [
+                                                                {
+                                                                    "node": "StringConstant",
                                                                     "fields": {
-                                                                        "kind": 1,
-                                                                        "len": 3,
-                                                                        "len_expr": []
+                                                                        "s": "f()",
+                                                                        "type": {
+                                                                            "node": "String",
+                                                                            "fields": {
+                                                                                "kind": 1,
+                                                                                "len": 3,
+                                                                                "len_expr": [],
+                                                                                "physical_type": "PointerString"
+                                                                            },
+                                                                            "loc": {
+                                                                                "first": 181,
+                                                                                "last": 185,
+                                                                                "first_filename": "tests/../integration_tests/modules_02b.py",
+                                                                                "first_line": 5,
+                                                                                "first_column": 11,
+                                                                                "last_filename": "tests/../integration_tests/modules_02b.py",
+                                                                                "last_line": 5,
+                                                                                "last_column": 15
+                                                                            }
+                                                                        }
                                                                     },
                                                                     "loc": {
                                                                         "first": 181,
@@ -757,21 +781,40 @@
                                                                         "last_column": 15
                                                                     }
                                                                 }
+                                                            ],
+                                                            "kind": "FormatPythonFormat",
+                                                            "type": {
+                                                                "node": "String",
+                                                                "fields": {
+                                                                    "kind": -1,
+                                                                    "len": 0,
+                                                                    "len_expr": [],
+                                                                    "physical_type": "PointerString"
+                                                                },
+                                                                "loc": {
+                                                                    "first": 175,
+                                                                    "last": 186,
+                                                                    "first_filename": "tests/../integration_tests/modules_02b.py",
+                                                                    "first_line": 5,
+                                                                    "first_column": 5,
+                                                                    "last_filename": "tests/../integration_tests/modules_02b.py",
+                                                                    "last_line": 5,
+                                                                    "last_column": 16
+                                                                }
                                                             },
-                                                            "loc": {
-                                                                "first": 181,
-                                                                "last": 185,
-                                                                "first_filename": "tests/../integration_tests/modules_02b.py",
-                                                                "first_line": 5,
-                                                                "first_column": 11,
-                                                                "last_filename": "tests/../integration_tests/modules_02b.py",
-                                                                "last_line": 5,
-                                                                "last_column": 15
-                                                            }
+                                                            "value": []
+                                                        },
+                                                        "loc": {
+                                                            "first": 175,
+                                                            "last": 186,
+                                                            "first_filename": "tests/../integration_tests/modules_02b.py",
+                                                            "first_line": 5,
+                                                            "first_column": 5,
+                                                            "last_filename": "tests/../integration_tests/modules_02b.py",
+                                                            "last_line": 5,
+                                                            "last_column": 16
                                                         }
-                                                    ],
-                                                    "separator": [],
-                                                    "end": []
+                                                    }
                                                 },
                                                 "loc": {
                                                     "first": 175,
@@ -891,17 +934,34 @@
                                             {
                                                 "node": "Print",
                                                 "fields": {
-                                                    "values": [
-                                                        {
-                                                            "node": "StringConstant",
-                                                            "fields": {
-                                                                "s": "g()",
-                                                                "type": {
-                                                                    "node": "Character",
+                                                    "text": {
+                                                        "node": "StringFormat",
+                                                        "fields": {
+                                                            "fmt": [],
+                                                            "args": [
+                                                                {
+                                                                    "node": "StringConstant",
                                                                     "fields": {
-                                                                        "kind": 1,
-                                                                        "len": 3,
-                                                                        "len_expr": []
+                                                                        "s": "g()",
+                                                                        "type": {
+                                                                            "node": "String",
+                                                                            "fields": {
+                                                                                "kind": 1,
+                                                                                "len": 3,
+                                                                                "len_expr": [],
+                                                                                "physical_type": "PointerString"
+                                                                            },
+                                                                            "loc": {
+                                                                                "first": 207,
+                                                                                "last": 211,
+                                                                                "first_filename": "tests/../integration_tests/modules_02c.py",
+                                                                                "first_line": 2,
+                                                                                "first_column": 11,
+                                                                                "last_filename": "tests/../integration_tests/modules_02c.py",
+                                                                                "last_line": 2,
+                                                                                "last_column": 15
+                                                                            }
+                                                                        }
                                                                     },
                                                                     "loc": {
                                                                         "first": 207,
@@ -914,21 +974,40 @@
                                                                         "last_column": 15
                                                                     }
                                                                 }
+                                                            ],
+                                                            "kind": "FormatPythonFormat",
+                                                            "type": {
+                                                                "node": "String",
+                                                                "fields": {
+                                                                    "kind": -1,
+                                                                    "len": 0,
+                                                                    "len_expr": [],
+                                                                    "physical_type": "PointerString"
+                                                                },
+                                                                "loc": {
+                                                                    "first": 201,
+                                                                    "last": 212,
+                                                                    "first_filename": "tests/../integration_tests/modules_02c.py",
+                                                                    "first_line": 2,
+                                                                    "first_column": 5,
+                                                                    "last_filename": "tests/../integration_tests/modules_02c.py",
+                                                                    "last_line": 2,
+                                                                    "last_column": 16
+                                                                }
                                                             },
-                                                            "loc": {
-                                                                "first": 207,
-                                                                "last": 211,
-                                                                "first_filename": "tests/../integration_tests/modules_02c.py",
-                                                                "first_line": 2,
-                                                                "first_column": 11,
-                                                                "last_filename": "tests/../integration_tests/modules_02c.py",
-                                                                "last_line": 2,
-                                                                "last_column": 15
-                                                            }
+                                                            "value": []
+                                                        },
+                                                        "loc": {
+                                                            "first": 201,
+                                                            "last": 212,
+                                                            "first_filename": "tests/../integration_tests/modules_02c.py",
+                                                            "first_line": 2,
+                                                            "first_column": 5,
+                                                            "last_filename": "tests/../integration_tests/modules_02c.py",
+                                                            "last_line": 2,
+                                                            "last_column": 16
                                                         }
-                                                    ],
-                                                    "separator": [],
-                                                    "end": []
+                                                    }
                                                 },
                                                 "loc": {
                                                     "first": 201,

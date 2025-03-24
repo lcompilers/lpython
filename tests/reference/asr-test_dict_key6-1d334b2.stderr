@@ -1,5 +1,5 @@
-semantic error: Unhashable type: 'set'
+semantic error: Unhashable type: 'set[i32]'
  --> tests/errors/test_dict_key6.py:2:12
   |
 2 |     print({{1, 2}: "first", {3, 4}: "second"})
-  |            ^^^^^^ Mutable type 'set' cannot become a key in dict. Hint: Use an immutable type for key.
+  |            ^^^^^^ Mutable type 'set[i32]' cannot become a key in dict. Hint: Use an immutable type for key.

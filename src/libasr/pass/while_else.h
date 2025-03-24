@@ -11,4 +11,3 @@ void pass_while_else(Allocator &al, ASR::TranslationUnit_t &unit,
 } // namespace LCompilers
 
 #endif // LIBASR_PASS_WHILE_ELSE_H
-

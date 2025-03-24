@@ -5,9 +5,9 @@
     "infile_hash": "2fe3769863a595a01e46a88bf55c944e61a0d141d5c75816ffa74d96",
     "outfile": null,
     "outfile_hash": null,
-    "stdout": "cpp-doconcurrentloop_01-4e9f274.stdout",
-    "stdout_hash": "8a4d62895106f08dea98f98b2bae7c3f27b6b324243e47df681eba3c",
-    "stderr": null,
-    "stderr_hash": null,
-    "returncode": 0
+    "stdout": null,
+    "stdout_hash": null,
+    "stderr": "cpp-doconcurrentloop_01-4e9f274.stderr",
+    "stderr_hash": "685bcb8d0a299f1c752182c503fc766c99c6c6de9aa19888382f20b9",
+    "returncode": 1
 }

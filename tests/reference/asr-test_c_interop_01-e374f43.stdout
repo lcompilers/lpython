@@ -63,6 +63,7 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
                                                 ),
                                             x:
                                                 (Variable
@@ -79,6 +80,7 @@
                                                     Public
                                                     Required
                                                     .true.
+                                                    .false.
                                                 )
                                         })
                                     _lfortran_dsin
@@ -125,6 +127,7 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
                                                 ),
                                             x:
                                                 (Variable
@@ -141,6 +144,7 @@
                                                     Public
                                                     Required
                                                     .true.
+                                                    .false.
                                                 )
                                         })
                                     _lfortran_ssin
@@ -186,6 +190,7 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
                                                     .false.
                                                 )
                                         })

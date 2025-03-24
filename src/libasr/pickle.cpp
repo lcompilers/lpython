@@ -2,7 +2,11 @@
 #include <libasr/location.h>
 #include <libasr/asr_utils.h>
 #include <libasr/pass/intrinsic_function_registry.h>
+#include <libasr/pass/intrinsic_subroutine_registry.h>
 #include <libasr/pass/intrinsic_array_function_registry.h>
+#include <libasr/asr_pickle_visitor.h>
+#include <libasr/asr_json_visitor.h>
+#include <libasr/asr_tree_visitor.h>
 
 namespace LCompilers {
 
@@ -48,6 +52,8 @@ public:
         }
         s.append(" ");
         this->visit_ttype(*x.m_type);
+        s.append(" ");
+        this->visit_integerbozType(x.m_intboz_type);
         s.append(")");
     }
     void visit_Module(const ASR::Module_t &x) {
@@ -70,6 +76,62 @@ public:
             ASR::PickleBaseVisitor<ASRPickleVisitor>::visit_Module(x);
         };
     }
+    void visit_ArrayConstant(const ASR::ArrayConstant_t &x) {
+        s.append("(");
+        if (use_colors) {
+            s.append(color(style::bold));
+            s.append(color(fg::magenta));
+        }
+        s.append("ArrayConstant");
+        if (use_colors) {
+            s.append(color(fg::reset));
+            s.append(color(style::reset));
+        }
+        if(indent) {
+            inc_indent();
+            s.append("\n" + indented);
+        } else {
+            s.append(" ");
+        }
+        s.append(std::to_string(x.m_n_data));
+        if(indent) s.append("\n" + indented);
+        else s.append(" ");
+        s.append("[");
+        int size = x.m_n_data / (ASRUtils::is_character(*x.m_type) ?
+                                ASR::down_cast<ASR::String_t>(ASRUtils::type_get_past_array(x.m_type))->m_len :
+                                ASRUtils::extract_kind_from_ttype_t(x.m_type));
+        int curr = 0;
+        for (int i = 0; i < 3; i++) {
+            if (curr < size) {
+                if (i > 0) s.append(", ");
+                s.append(ASRUtils::fetch_ArrayConstant_value(x, curr));
+                curr++;
+            }
+        }
+        if (size > 6) {
+            s.append(", ....");
+            curr = size - 3;
+        }
+        for (int i = 0; i < 3; i++) {
+            if (curr < size) {
+                s.append(", ");
+                s.append(ASRUtils::fetch_ArrayConstant_value(x, curr));
+                curr++;
+            }
+        }
+        s.append("]");
+        if(indent) s.append("\n" + indented);
+        else s.append(" ");
+        this->visit_ttype(*x.m_type);
+        if(indent) s.append("\n" + indented);
+        else s.append(" ");
+        visit_arraystorageType(x.m_storage_format);
+        if(indent) {
+            dec_indent();
+            s.append("\n" + indented);
+        }
+        s.append(")");
+    }
 
     std::string convert_intrinsic_id(int x) {
         std::string s;
@@ -78,6 +140,20 @@ public:
             s.append(color(fg::green));
         }
         s.append(ASRUtils::get_intrinsic_name(x));
+        if (use_colors) {
+            s.append(color(fg::reset));
+            s.append(color(style::reset));
+        }
+        return s;
+    }
+
+    std::string convert_sub_intrinsic_id(int x) {
+        std::string s;
+        if (use_colors) {
+            s.append(color(style::bold));
+            s.append(color(fg::green));
+        }
+        s.append(ASRUtils::get_intrinsic_subroutine_name(x));
         if (use_colors) {
             s.append(color(fg::reset));
             s.append(color(style::reset));

@@ -1,4 +1,4 @@
-from lpython import u8, u16, u32, u64
+from lpython import u8, u16, u32, u64, i8
 from numpy import uint8, uint16, uint32, uint64, array
 
 def g():
@@ -6,11 +6,6 @@ def g():
     a16: u16[3] = array([127, 3, 111], dtype=uint16)
     a32: u32[3] = array([127, 3, 111], dtype=uint32)
     a64: u64[3] = array([127, 3, 111], dtype=uint64)
-
-    print(a8)
-    print(a16)
-    print(a32)
-    print(a64)
 
     assert (a8[0] == u8(127))
     assert (a8[1] == u8(3))
@@ -27,5 +22,10 @@ def g():
     assert (a64[0] == u64(127))
     assert (a64[1] == u64(3))
     assert (a64[2] == u64(111))
+
+    print(a8)
+    print(a16)
+    print(a32)
+    print(a64)
 
 g()

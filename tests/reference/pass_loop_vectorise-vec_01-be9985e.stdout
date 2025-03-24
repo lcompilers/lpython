@@ -59,14 +59,15 @@
                                                     Default
                                                     (Array
                                                         (Real 8)
-                                                        [((IntegerConstant 0 (Integer 4))
-                                                        (IntegerConstant 9216 (Integer 4)))]
+                                                        [((IntegerConstant 0 (Integer 4) Decimal)
+                                                        (IntegerConstant 9216 (Integer 4) Decimal))]
                                                         FixedSizeArray
                                                     )
                                                     ()
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
                                                     .false.
                                                 ),
                                             b:
@@ -80,14 +81,15 @@
                                                     Default
                                                     (Array
                                                         (Real 8)
-                                                        [((IntegerConstant 0 (Integer 4))
-                                                        (IntegerConstant 9216 (Integer 4)))]
+                                                        [((IntegerConstant 0 (Integer 4) Decimal)
+                                                        (IntegerConstant 9216 (Integer 4) Decimal))]
                                                         FixedSizeArray
                                                     )
                                                     ()
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
                                                     .false.
                                                 ),
                                             i:
@@ -104,6 +106,7 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
                                                     .false.
                                                 ),
                                             vector_copy_f64[9216]f64[9216]i32@IntrinsicOptimization:
@@ -126,6 +129,7 @@
                                                                     Public
                                                                     Required
                                                                     .false.
+                                                                    .false.
                                                                 ),
                                                             arg0:
                                                                 (Variable
@@ -138,14 +142,15 @@
                                                                     Default
                                                                     (Array
                                                                         (Real 8)
-                                                                        [((IntegerConstant 0 (Integer 4))
-                                                                        (IntegerConstant 9216 (Integer 4)))]
+                                                                        [((IntegerConstant 0 (Integer 4) Decimal)
+                                                                        (IntegerConstant 9216 (Integer 4) Decimal))]
                                                                         FixedSizeArray
                                                                     )
                                                                     ()
                                                                     Source
                                                                     Public
                                                                     Required
+                                                                    .false.
                                                                     .false.
                                                                 ),
                                                             arg1:
@@ -159,14 +164,15 @@
                                                                     Default
                                                                     (Array
                                                                         (Real 8)
-                                                                        [((IntegerConstant 0 (Integer 4))
-                                                                        (IntegerConstant 9216 (Integer 4)))]
+                                                                        [((IntegerConstant 0 (Integer 4) Decimal)
+                                                                        (IntegerConstant 9216 (Integer 4) Decimal))]
                                                                         FixedSizeArray
                                                                     )
                                                                     ()
                                                                     Source
                                                                     Public
                                                                     Required
+                                                                    .false.
                                                                     .false.
                                                                 ),
                                                             arg2:
@@ -184,6 +190,7 @@
                                                                     Public
                                                                     Required
                                                                     .false.
+                                                                    .false.
                                                                 ),
                                                             arg3:
                                                                 (Variable
@@ -199,6 +206,7 @@
                                                                     Source
                                                                     Public
                                                                     Required
+                                                                    .false.
                                                                     .false.
                                                                 ),
                                                             arg4:
@@ -216,6 +224,7 @@
                                                                     Public
                                                                     Required
                                                                     .false.
+                                                                    .false.
                                                                 ),
                                                             arg5:
                                                                 (Variable
@@ -232,20 +241,21 @@
                                                                     Public
                                                                     Required
                                                                     .false.
+                                                                    .false.
                                                                 )
                                                         })
                                                     vector_copy_f64[9216]f64[9216]i32@IntrinsicOptimization
                                                     (FunctionType
                                                         [(Array
                                                             (Real 8)
-                                                            [((IntegerConstant 0 (Integer 4))
-                                                            (IntegerConstant 9216 (Integer 4)))]
+                                                            [((IntegerConstant 0 (Integer 4) Decimal)
+                                                            (IntegerConstant 9216 (Integer 4) Decimal))]
                                                             FixedSizeArray
                                                         )
                                                         (Array
                                                             (Real 8)
-                                                            [((IntegerConstant 0 (Integer 4))
-                                                            (IntegerConstant 9216 (Integer 4)))]
+                                                            [((IntegerConstant 0 (Integer 4) Decimal)
+                                                            (IntegerConstant 9216 (Integer 4) Decimal))]
                                                             FixedSizeArray
                                                         )
                                                         (Integer 4)
@@ -357,46 +367,72 @@
                                     []
                                     [(Assignment
                                         (Var 226 a)
-                                        (ArrayConstructor
-                                            []
+                                        (ArrayBroadcast
+                                            (RealConstant
+                                                0.000000
+                                                (Real 8)
+                                            )
+                                            (ArrayConstant
+                                                4
+                                                [9216]
+                                                (Array
+                                                    (Integer 4)
+                                                    [((IntegerConstant 1 (Integer 4) Decimal)
+                                                    (IntegerConstant 1 (Integer 4) Decimal))]
+                                                    FixedSizeArray
+                                                )
+                                                ColMajor
+                                            )
                                             (Array
                                                 (Real 8)
-                                                [((IntegerConstant 0 (Integer 4))
-                                                (IntegerConstant 9216 (Integer 4)))]
+                                                [((IntegerConstant 0 (Integer 4) Decimal)
+                                                (IntegerConstant 9216 (Integer 4) Decimal))]
                                                 FixedSizeArray
                                             )
                                             ()
-                                            RowMajor
                                         )
                                         ()
                                     )
                                     (Assignment
                                         (Var 226 b)
-                                        (ArrayConstructor
-                                            []
+                                        (ArrayBroadcast
+                                            (RealConstant
+                                                0.000000
+                                                (Real 8)
+                                            )
+                                            (ArrayConstant
+                                                4
+                                                [9216]
+                                                (Array
+                                                    (Integer 4)
+                                                    [((IntegerConstant 1 (Integer 4) Decimal)
+                                                    (IntegerConstant 1 (Integer 4) Decimal))]
+                                                    FixedSizeArray
+                                                )
+                                                ColMajor
+                                            )
                                             (Array
                                                 (Real 8)
-                                                [((IntegerConstant 0 (Integer 4))
-                                                (IntegerConstant 9216 (Integer 4)))]
+                                                [((IntegerConstant 0 (Integer 4) Decimal)
+                                                (IntegerConstant 9216 (Integer 4) Decimal))]
                                                 FixedSizeArray
                                             )
                                             ()
-                                            RowMajor
                                         )
                                         ()
                                     )
                                     (DoLoop
                                         ()
                                         ((Var 226 i)
-                                        (IntegerConstant 0 (Integer 4))
+                                        (IntegerConstant 0 (Integer 4) Decimal)
                                         (IntegerBinOp
-                                            (IntegerConstant 9216 (Integer 4))
+                                            (IntegerConstant 9216 (Integer 4) Decimal)
                                             Sub
-                                            (IntegerConstant 1 (Integer 4))
+                                            (IntegerConstant 1 (Integer 4) Decimal)
                                             (Integer 4)
-                                            (IntegerConstant 9215 (Integer 4))
+                                            (IntegerConstant 9215 (Integer 4) Decimal)
                                         )
-                                        (IntegerConstant 1 (Integer 4)))
+                                        (IntegerConstant 1 (Integer 4) Decimal))
                                         [(Assignment
                                             (ArrayItem
                                                 (Var 226 b)
@@ -418,9 +454,9 @@
                                     (DoLoop
                                         ()
                                         ((Var 226 i)
-                                        (IntegerConstant 0 (Integer 4))
-                                        (IntegerConstant 1151 (Integer 4))
-                                        (IntegerConstant 1 (Integer 4)))
+                                        (IntegerConstant 0 (Integer 4) Decimal)
+                                        (IntegerConstant 1151 (Integer 4) Decimal)
+                                        (IntegerConstant 1 (Integer 4) Decimal))
                                         [(SubroutineCall
                                             226 vector_copy_f64[9216]f64[9216]i32@IntrinsicOptimization
                                             ()
@@ -429,7 +465,7 @@
                                             ((IntegerBinOp
                                                 (Var 226 i)
                                                 Mul
-                                                (IntegerConstant 8 (Integer 4))
+                                                (IntegerConstant 8 (Integer 4) Decimal)
                                                 (Integer 4)
                                                 ()
                                             ))
@@ -437,17 +473,17 @@
                                                 (IntegerBinOp
                                                     (Var 226 i)
                                                     Add
-                                                    (IntegerConstant 1 (Integer 4))
+                                                    (IntegerConstant 1 (Integer 4) Decimal)
                                                     (Integer 4)
                                                     ()
                                                 )
                                                 Mul
-                                                (IntegerConstant 8 (Integer 4))
+                                                (IntegerConstant 8 (Integer 4) Decimal)
                                                 (Integer 4)
                                                 ()
                                             ))
-                                            ((IntegerConstant 1 (Integer 4)))
-                                            ((IntegerConstant 8 (Integer 4)))]
+                                            ((IntegerConstant 1 (Integer 4) Decimal))
+                                            ((IntegerConstant 8 (Integer 4) Decimal))]
                                             ()
                                         )]
                                         []
@@ -455,15 +491,15 @@
                                     (DoLoop
                                         ()
                                         ((Var 226 i)
-                                        (IntegerConstant 0 (Integer 4))
+                                        (IntegerConstant 0 (Integer 4) Decimal)
                                         (IntegerBinOp
-                                            (IntegerConstant 9216 (Integer 4))
+                                            (IntegerConstant 9216 (Integer 4) Decimal)
                                             Sub
-                                            (IntegerConstant 1 (Integer 4))
+                                            (IntegerConstant 1 (Integer 4) Decimal)
                                             (Integer 4)
-                                            (IntegerConstant 9215 (Integer 4))
+                                            (IntegerConstant 9215 (Integer 4) Decimal)
                                         )
-                                        (IntegerConstant 1 (Integer 4)))
+                                        (IntegerConstant 1 (Integer 4) Decimal))
                                         [(Assert
                                             (RealCompare
                                                 (ArrayItem

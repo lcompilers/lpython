@@ -7,9 +7,6 @@
 #include <libasr/pass/pass_utils.h>
 #include <libasr/pass/intrinsic_function_registry.h>
 
-#include <vector>
-#include <utility>
-
 
 namespace LCompilers {
 
@@ -187,8 +184,7 @@ public:
         }
         if( func_name && func_name->type == ASR::symbolType::ExternalSymbol ) {
             ASR::ExternalSymbol_t* ext_sym = ASR::down_cast<ASR::ExternalSymbol_t>(func_name);
-            if( std::string(ext_sym->m_original_name) == "modulo" &&
-                std::string(ext_sym->m_module_name) == "lfortran_intrinsic_math2" ) {
+            if( std::string(ext_sym->m_original_name) == "modulo" ) {
                 is_function_modulo = true;
             }
         }

@@ -61,6 +61,8 @@ struct PassOptions {
     bool c_mangling = false;
     bool enable_cpython = false;
     bool c_skip_bindpy_pass = false;
+    bool openmp = false;
+    bool enable_gpu_offloading = false;
 };
 
 struct CompilerOptions {
@@ -84,8 +86,17 @@ struct CompilerOptions {
     bool visualize = false;
     bool fast = false;
     bool openmp = false;
+    std::string openmp_lib_dir = "";
+    bool lookup_name = false;
+    bool rename_symbol = false;
+    std::string line = "";
+    std::string column = "";
+    bool continue_compilation = false;
+    bool semantics_only = false;
     bool generate_object_code = false;
     bool no_warnings = false;
+    bool disable_style = false;
+    bool logical_casting = false;
     bool no_error_banner = false;
     bool enable_bounds_checking = false;
     std::string error_format = "human";
@@ -100,12 +111,15 @@ struct CompilerOptions {
     std::string arg_o = "";
     bool emit_debug_info = false;
     bool emit_debug_line_column = false;
+    bool enable_cpython = false;
     bool enable_symengine = false;
     bool link_numpy = false;
     bool run = false;
     bool legacy_array_sections = false;
     bool ignore_pragma = false;
     bool stack_arrays = false;
+    bool wasm_html = false;
+    std::string emcc_embed;
     std::vector<std::string> import_paths;
     Platform platform;
 

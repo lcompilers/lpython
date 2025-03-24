@@ -63,6 +63,7 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
                                                 ),
                                             i:
                                                 (Variable
@@ -78,6 +79,7 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
                                                     .false.
                                                 ),
                                             i2:
@@ -95,6 +97,7 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
                                                 ),
                                             i3:
                                                 (Variable
@@ -110,6 +113,7 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
                                                     .false.
                                                 ),
                                             i4:
@@ -127,6 +131,7 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
                                                 ),
                                             x:
                                                 (Variable
@@ -143,6 +148,7 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
                                                 ),
                                             x2:
                                                 (Variable
@@ -158,6 +164,7 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
                                                     .false.
                                                 )
                                         })
@@ -355,9 +362,9 @@
                                     (Assignment
                                         (Var 3 i)
                                         (IntegerUnaryMinus
-                                            (IntegerConstant 5 (Integer 4))
+                                            (IntegerConstant 5 (Integer 4) Decimal)
                                             (Integer 4)
-                                            (IntegerConstant -5 (Integer 4))
+                                            (IntegerConstant -5 (Integer 4) Decimal)
                                         )
                                         ()
                                     )
@@ -371,7 +378,7 @@
                                                 ()
                                             )
                                             Eq
-                                            (IntegerConstant 5 (Integer 4))
+                                            (IntegerConstant 5 (Integer 4) Decimal)
                                             (Logical 4)
                                             ()
                                         )
@@ -382,16 +389,16 @@
                                             (IntrinsicElementalFunction
                                                 Abs
                                                 [(IntegerUnaryMinus
-                                                    (IntegerConstant 1 (Integer 4))
+                                                    (IntegerConstant 1 (Integer 4) Decimal)
                                                     (Integer 4)
-                                                    (IntegerConstant -1 (Integer 4))
+                                                    (IntegerConstant -1 (Integer 4) Decimal)
                                                 )]
                                                 0
                                                 (Integer 4)
-                                                (IntegerConstant 1 (Integer 4))
+                                                (IntegerConstant 1 (Integer 4) Decimal)
                                             )
                                             Eq
-                                            (IntegerConstant 1 (Integer 4))
+                                            (IntegerConstant 1 (Integer 4) Decimal)
                                             (Logical 4)
                                             (LogicalConstant
                                                 .true.
@@ -404,13 +411,13 @@
                                         (Var 3 i2)
                                         (IntegerUnaryMinus
                                             (Cast
-                                                (IntegerConstant 6 (Integer 4))
+                                                (IntegerConstant 6 (Integer 4) Decimal)
                                                 IntegerToInteger
                                                 (Integer 8)
-                                                (IntegerConstant 6 (Integer 8))
+                                                (IntegerConstant 6 (Integer 8) Decimal)
                                             )
                                             (Integer 8)
-                                            (IntegerConstant -6 (Integer 8))
+                                            (IntegerConstant -6 (Integer 8) Decimal)
                                         )
                                         ()
                                     )
@@ -425,10 +432,10 @@
                                             )
                                             Eq
                                             (Cast
-                                                (IntegerConstant 6 (Integer 4))
+                                                (IntegerConstant 6 (Integer 4) Decimal)
                                                 IntegerToInteger
                                                 (Integer 8)
-                                                (IntegerConstant 6 (Integer 8))
+                                                (IntegerConstant 6 (Integer 8) Decimal)
                                             )
                                             (Logical 4)
                                             ()
@@ -439,13 +446,13 @@
                                         (Var 3 i3)
                                         (IntegerUnaryMinus
                                             (Cast
-                                                (IntegerConstant 7 (Integer 4))
+                                                (IntegerConstant 7 (Integer 4) Decimal)
                                                 IntegerToInteger
                                                 (Integer 1)
-                                                (IntegerConstant 7 (Integer 1))
+                                                (IntegerConstant 7 (Integer 1) Decimal)
                                             )
                                             (Integer 1)
-                                            (IntegerConstant -7 (Integer 1))
+                                            (IntegerConstant -7 (Integer 1) Decimal)
                                         )
                                         ()
                                     )
@@ -460,10 +467,10 @@
                                             )
                                             Eq
                                             (Cast
-                                                (IntegerConstant 7 (Integer 4))
+                                                (IntegerConstant 7 (Integer 4) Decimal)
                                                 IntegerToInteger
                                                 (Integer 1)
-                                                (IntegerConstant 7 (Integer 1))
+                                                (IntegerConstant 7 (Integer 1) Decimal)
                                             )
                                             (Logical 4)
                                             ()
@@ -474,13 +481,13 @@
                                         (Var 3 i4)
                                         (IntegerUnaryMinus
                                             (Cast
-                                                (IntegerConstant 8 (Integer 4))
+                                                (IntegerConstant 8 (Integer 4) Decimal)
                                                 IntegerToInteger
                                                 (Integer 2)
-                                                (IntegerConstant 8 (Integer 2))
+                                                (IntegerConstant 8 (Integer 2) Decimal)
                                             )
                                             (Integer 2)
-                                            (IntegerConstant -8 (Integer 2))
+                                            (IntegerConstant -8 (Integer 2) Decimal)
                                         )
                                         ()
                                     )
@@ -495,10 +502,10 @@
                                             )
                                             Eq
                                             (Cast
-                                                (IntegerConstant 8 (Integer 4))
+                                                (IntegerConstant 8 (Integer 4) Decimal)
                                                 IntegerToInteger
                                                 (Integer 2)
-                                                (IntegerConstant 8 (Integer 2))
+                                                (IntegerConstant 8 (Integer 2) Decimal)
                                             )
                                             (Logical 4)
                                             ()
@@ -528,7 +535,7 @@
                                                 ()
                                             )
                                             Eq
-                                            (IntegerConstant 1 (Integer 4))
+                                            (IntegerConstant 1 (Integer 4) Decimal)
                                             (Logical 4)
                                             ()
                                         )
@@ -557,7 +564,7 @@
                                                 ()
                                             )
                                             Eq
-                                            (IntegerConstant 0 (Integer 4))
+                                            (IntegerConstant 0 (Integer 4) Decimal)
                                             (Logical 4)
                                             ()
                                         )
