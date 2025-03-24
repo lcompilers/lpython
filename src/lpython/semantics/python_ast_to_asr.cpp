@@ -8844,11 +8844,11 @@ we will have to use something else.
                 if ( assign_asr_target == nullptr ) {
                     throw SemanticError("set from list cannot be called without target type for now", x.base.base.loc);
                 }
-                ASR::expr_t *arg = args[0].m_value; 
+                ASR::expr_t *arg = args[0].m_value;
                 ASR::ttype_t *type = ASRUtils::expr_type(arg);
                 if(!ASR::is_a<ASR::ListConstant_t>(*arg)) {
                     throw SemanticError("set accepts only list constant for now, got " +
-                                        ASRUtils::type_to_str(type) + " type.", x.base.base.loc);
+                                        ASRUtils::type_to_str_python(type) + " type.", x.base.base.loc);
                 }
                 ASR::ListConstant_t* list = ASR::down_cast<ASR::ListConstant_t>(arg);
                 ASR::expr_t **m_args = list->m_args;
@@ -8859,8 +8859,8 @@ we will have to use something else.
                     std::string ltype = ASRUtils::type_to_str_python(target_type);
                     std::string rtype = ASRUtils::type_to_str_python(value_type);
                     throw SemanticError("type mismatch ('" + ltype + "' and '" + rtype + "')", x.base.base.loc);
-                } 
-                tmp = ASR::make_SetConstant_t(al, x.base.base.loc, m_args, n_args, 
+                }
+                tmp = ASR::make_SetConstant_t(al, x.base.base.loc, m_args, n_args,
                                                   ASRUtils::expr_type(assign_asr_target));
                 return ;
             } else if( call_name == "deepcopy" ) {

@@ -10709,7 +10709,7 @@ Result<std::unique_ptr<LLVMModule>> asr_to_llvm(ASR::TranslationUnit_t &asr,
         diag::Diagnostics &diagnostics,
         llvm::LLVMContext &context, Allocator &al,
         LCompilers::PassManager& pass_manager,
-        CompilerOptions &co, const std::string &run_fn, const std::string &global_underscore,
+        CompilerOptions &co, const std::string &run_fn, const std::string &/*global_underscore*/,
         const std::string &infile)
 {
 #if LLVM_VERSION_MAJOR >= 15
