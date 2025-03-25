@@ -1137,8 +1137,6 @@ def _lpython_str_expandtabs(s: str) -> str:
     return _lpython_str_expandtabs(s, 8)
 
 def _lpython_str_zfill(s: str, width: i32) -> str:
-    print(width)
-    
     if (width <= len(s) ):
         return s
     ret: str 
