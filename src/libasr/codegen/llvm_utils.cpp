@@ -1422,6 +1422,12 @@ namespace LCompilers {
                 llvm_type = character_type;
                 break;
             }
+            case (ASR::ttypeType::Byte) : {
+                ASR::Byte_t* v_type = ASR::down_cast<ASR::Byte_t>(asr_type);
+                a_kind = v_type->m_kind;
+                llvm_type = character_type;
+                break;
+            }
             case (ASR::ttypeType::Logical) : {
                 ASR::Logical_t* v_type = ASR::down_cast<ASR::Logical_t>(asr_type);
                 a_kind = v_type->m_kind;

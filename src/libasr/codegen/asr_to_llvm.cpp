@@ -82,6 +82,23 @@ void string_init(llvm::LLVMContext &context, llvm::Module &module,
     builder.CreateCall(fn, args);
 }
 
+void bytes_init(llvm::LLVMContext &context, llvm::Module &module,
+        llvm::IRBuilder<> &builder, llvm::Value* arg_size, llvm::Value* arg_bytes) {
+    std::string func_name = "_lfortran_bytes_init";
+    llvm::Function *fn = module.getFunction(func_name);
+    if (!fn) {
+        llvm::FunctionType *function_type = llvm::FunctionType::get(
+                llvm::Type::getVoidTy(context), {
+                    llvm::Type::getInt32Ty(context),
+                    llvm::Type::getInt8PtrTy(context)
+                }, true);
+        fn = llvm::Function::Create(function_type,
+                llvm::Function::ExternalLinkage, func_name, module);
+    }
+    std::vector<llvm::Value*> args = {arg_size, arg_bytes};
+    builder.CreateCall(fn, args);
+}
+
 class ASRToLLVMVisitor : public ASR::BaseVisitor<ASRToLLVMVisitor>
 {
 private:
@@ -3908,6 +3925,36 @@ public:
                                 builder->CreateStore(init_value, target_var);
                             } else {
                                 throw CodeGenError("Unsupported len value in ASR " + std::to_string(strlen));
+                            }
+                        } else if (is_a<ASR::Byte_t>(*v->m_type) && !is_array_type && !is_list) {
+                            ASR::Byte_t *t = down_cast<ASR::Byte_t>(v->m_type);
+                            target_var = ptr;
+                            int byte_len = t->m_len;
+                            if (byte_len >= 0 || byte_len == -3) {
+                                llvm::Value *arg_size;
+                                if (byte_len == -3) {
+                                    LCOMPILERS_ASSERT(t->m_len_expr)
+                                    this->visit_expr(*t->m_len_expr);
+                                    arg_size = builder->CreateAdd(builder->CreateSExtOrTrunc(tmp,
+                                            llvm::Type::getInt32Ty(context)),
+                                            llvm::ConstantInt::get(context, llvm::APInt(32, 1)) );
+                                } else {
+                                    // Compile time length
+                                    arg_size = llvm::ConstantInt::get(context,
+                                        llvm::APInt(32, byte_len+1));
+                                }
+                                llvm::Value *init_value = LLVM::lfortran_malloc(context, *module, *builder, arg_size);
+                                string_init(context, *module, *builder, arg_size, init_value);
+                                builder->CreateStore(init_value, target_var);
+                                if (v->m_intent == intent_local) {
+                                    strings_to_be_deallocated.push_back(al, CreateLoad(target_var));
+                                }
+                            } else if (byte_len == -2) {
+                                // Allocatable string. Initialize to `nullptr` (unallocated)
+                                llvm::Value *init_value = llvm::Constant::getNullValue(type);
+                                builder->CreateStore(init_value, target_var);
+                            } else {
+                                throw CodeGenError("Unsupported bytes len value in ASR " + std::to_string(byte_len));
                             }
                         } else if (is_list) {
                             ASR::List_t* asr_list = ASR::down_cast<ASR::List_t>(v->m_type);
