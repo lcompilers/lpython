@@ -886,6 +886,9 @@ public:
         } else if (var_annotation == "c64") {
             type = ASRUtils::TYPE(ASR::make_Complex_t(al, loc, 8));
             type = ASRUtils::make_Array_t_util(al, loc, type, dims.p, dims.size(), abi, is_argument);
+        } else if (var_annotation == "bytes") {
+            type = ASRUtils::TYPE(ASR::make_Byte_t(al, loc, 1, -2, nullptr));
+            type = ASRUtils::make_Array_t_util(al, loc, type, dims.p, dims.size(), abi, is_argument);
         } else if (var_annotation == "str") {
             type = ASRUtils::TYPE(ASR::make_Character_t(al, loc, 1, -2, nullptr));
             type = ASRUtils::make_Array_t_util(al, loc, type, dims.p, dims.size(), abi, is_argument);
@@ -2899,6 +2902,7 @@ public:
         } else {
             type = ast_expr_to_asr_type(x.m_annotation->base.loc, *x.m_annotation, is_allocatable, is_const, true, abi);
         }
+        
         if (ASR::is_a<ASR::FunctionType_t>(*type)) {
             ASR::FunctionType_t* fn_type = ASR::down_cast<ASR::FunctionType_t>(type);
             handle_lambda_function_declaration(var_name, fn_type, x.m_value, x.base.base.loc);
@@ -2956,6 +2960,7 @@ public:
         } else {
             cast_helper(type, init_expr, init_expr->base.loc);
         }
+        
 
         if (!inside_struct || is_const) {
             process_variable_init_val(current_scope->get_symbol(var_name), x.base.base.loc, init_expr);
@@ -3566,6 +3571,13 @@ public:
         ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_Character_t(al, x.base.base.loc,
                 1, s_size, nullptr));
         tmp = ASR::make_StringConstant_t(al, x.base.base.loc, s, type);
+    }
+    void visit_ConstantBytes(const AST::ConstantBytes_t &x) {
+        char *s = x.m_value;
+        size_t s_size = std::string(s).size();
+        ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_Byte_t(al, x.base.base.loc,
+                1, s_size, nullptr));
+        tmp = ASR::make_BytesConstant_t(al, x.base.base.loc, s, type);
     }
 
     void visit_ConstantBool(const AST::ConstantBool_t &x) {
@@ -9132,7 +9144,6 @@ Result<ASR::TranslationUnit_t*> python_ast_to_asr(Allocator &al, LocationManager
             };
         #endif
     }
-
     return tu;
 }
 

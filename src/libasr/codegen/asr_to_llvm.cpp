@@ -82,6 +82,23 @@ void string_init(llvm::LLVMContext &context, llvm::Module &module,
     builder.CreateCall(fn, args);
 }
 
+void bytes_init(llvm::LLVMContext &context, llvm::Module &module,
+        llvm::IRBuilder<> &builder, llvm::Value* arg_size, llvm::Value* arg_bytes) {
+    std::string func_name = "_lfortran_bytes_init";
+    llvm::Function *fn = module.getFunction(func_name);
+    if (!fn) {
+        llvm::FunctionType *function_type = llvm::FunctionType::get(
+                llvm::Type::getVoidTy(context), {
+                    llvm::Type::getInt32Ty(context),
+                    llvm::Type::getInt8PtrTy(context)
+                }, true);
+        fn = llvm::Function::Create(function_type,
+                llvm::Function::ExternalLinkage, func_name, module);
+    }
+    std::vector<llvm::Value*> args = {arg_size, arg_bytes};
+    builder.CreateCall(fn, args);
+}
+
 class ASRToLLVMVisitor : public ASR::BaseVisitor<ASRToLLVMVisitor>
 {
 private:
@@ -143,7 +160,7 @@ public:
     bool prototype_only;
     llvm::StructType *complex_type_4, *complex_type_8;
     llvm::StructType *complex_type_4_ptr, *complex_type_8_ptr;
-    llvm::PointerType *character_type;
+    llvm::PointerType *character_type, *byte_type;
     llvm::PointerType *list_type;
     std::vector<std::string> struct_type_stack;
 
@@ -910,6 +927,7 @@ public:
         complex_type_4_ptr = llvm_utils->complex_type_4_ptr;
         complex_type_8_ptr = llvm_utils->complex_type_8_ptr;
         character_type = llvm_utils->character_type;
+        byte_type = llvm_utils->character_type;
         list_type = llvm::Type::getInt8PtrTy(context);
 
         llvm::Type* bound_arg = static_cast<llvm::Type*>(arr_descr->get_dimension_descriptor_type(true));
@@ -948,7 +966,7 @@ public:
         prototype_only = false;
 
         // TODO: handle dependencies across modules and main program
-
+;
         // Then do all the modules in the right order
         std::vector<std::string> build_order
             = determine_module_dependencies(x);
@@ -2879,6 +2897,25 @@ public:
                 }
             }
             llvm_symtab[h] = ptr;
+        } else if (x.m_type->type == ASR::ttypeType::Byte) {
+            llvm::Constant *ptr = module->getOrInsertGlobal(x.m_name,
+                    character_type);
+            if (!external) {
+                if (init_value) {
+                    module->getNamedGlobal(x.m_name)->setInitializer(
+                            init_value);
+                } else {
+                    module->getNamedGlobal(x.m_name)->setInitializer(
+                            llvm::Constant::getNullValue(character_type)
+                        );
+                    ASR::Byte_t *t = down_cast<ASR::Byte_t>(x.m_type);
+                    if( t->m_len >= 0 ) {
+                        strings_to_be_allocated.insert(std::pair(ptr, llvm::ConstantInt::get(
+                            context, llvm::APInt(32, t->m_len+1))));
+                    }
+                }
+            }
+            llvm_symtab[h] = ptr;
         } else if( x.m_type->type == ASR::ttypeType::CPtr ) {
             llvm::Type* void_ptr = llvm::Type::getVoidTy(context)->getPointerTo();
             llvm::Constant *ptr = module->getOrInsertGlobal(x.m_name,
@@ -3888,6 +3925,36 @@ public:
                                 builder->CreateStore(init_value, target_var);
                             } else {
                                 throw CodeGenError("Unsupported len value in ASR " + std::to_string(strlen));
+                            }
+                        } else if (is_a<ASR::Byte_t>(*v->m_type) && !is_array_type && !is_list) {
+                            ASR::Byte_t *t = down_cast<ASR::Byte_t>(v->m_type);
+                            target_var = ptr;
+                            int byte_len = t->m_len;
+                            if (byte_len >= 0 || byte_len == -3) {
+                                llvm::Value *arg_size;
+                                if (byte_len == -3) {
+                                    LCOMPILERS_ASSERT(t->m_len_expr)
+                                    this->visit_expr(*t->m_len_expr);
+                                    arg_size = builder->CreateAdd(builder->CreateSExtOrTrunc(tmp,
+                                            llvm::Type::getInt32Ty(context)),
+                                            llvm::ConstantInt::get(context, llvm::APInt(32, 1)) );
+                                } else {
+                                    // Compile time length
+                                    arg_size = llvm::ConstantInt::get(context,
+                                        llvm::APInt(32, byte_len+1));
+                                }
+                                llvm::Value *init_value = LLVM::lfortran_malloc(context, *module, *builder, arg_size);
+                                string_init(context, *module, *builder, arg_size, init_value);
+                                builder->CreateStore(init_value, target_var);
+                                if (v->m_intent == intent_local) {
+                                    strings_to_be_deallocated.push_back(al, CreateLoad(target_var));
+                                }
+                            } else if (byte_len == -2) {
+                                // Allocatable string. Initialize to `nullptr` (unallocated)
+                                llvm::Value *init_value = llvm::Constant::getNullValue(type);
+                                builder->CreateStore(init_value, target_var);
+                            } else {
+                                throw CodeGenError("Unsupported bytes len value in ASR " + std::to_string(byte_len));
                             }
                         } else if (is_list) {
                             ASR::List_t* asr_list = ASR::down_cast<ASR::List_t>(v->m_type);
@@ -7072,6 +7139,10 @@ public:
         tmp = builder->CreateGlobalStringPtr(x.m_s);
     }
 
+    void visit_BytesConstant(const ASR::BytesConstant_t &x) {
+        tmp = builder->CreateGlobalStringPtr(x.m_s);
+    }
+
     inline void fetch_ptr(ASR::Variable_t* x) {
         uint32_t x_h = get_hash((ASR::asr_t*)x);
         LCOMPILERS_ASSERT(llvm_symtab.find(x_h) != llvm_symtab.end());
@@ -7128,6 +7199,7 @@ public:
                     case ASR::ttypeType::Complex:
                     case ASR::ttypeType::StructType:
                     case ASR::ttypeType::Character:
+                    case ASR::ttypeType::Byte:
                     case ASR::ttypeType::Logical:
                     case ASR::ttypeType::Class: {
                         if( t2->type == ASR::ttypeType::StructType ) {
@@ -8834,6 +8906,21 @@ public:
                         break;
                     }
                     case (ASR::ttypeType::Character) : {
+                        ASR::Variable_t *orig_arg = nullptr;
+                        if( func_subrout->type == ASR::symbolType::Function ) {
+                            ASR::Function_t* func = down_cast<ASR::Function_t>(func_subrout);
+                            orig_arg = ASRUtils::EXPR2VAR(func->m_args[i]);
+                        } else {
+                            throw CodeGenError("ICE: expected func_subrout->type == ASR::symbolType::Function.");
+                        }
+                        if (orig_arg->m_abi == ASR::abiType::BindC) {
+                            character_bindc = true;
+                        }
+
+                        target_type = character_type;
+                        break;
+                    }
+                    case (ASR::ttypeType::Byte) : {
                         ASR::Variable_t *orig_arg = nullptr;
                         if( func_subrout->type == ASR::symbolType::Function ) {
                             ASR::Function_t* func = down_cast<ASR::Function_t>(func_subrout);

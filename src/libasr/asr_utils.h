@@ -207,6 +207,9 @@ static inline int extract_kind_from_ttype_t(const ASR::ttype_t* type) {
         case ASR::ttypeType::Character: {
             return ASR::down_cast<ASR::Character_t>(type)->m_kind;
         }
+        case ASR::ttypeType::Byte: {
+            return ASR::down_cast<ASR::Byte_t>(type)->m_kind;
+        }
         case ASR::ttypeType::Logical: {
             return ASR::down_cast<ASR::Logical_t>(type)->m_kind;
         }
@@ -249,6 +252,10 @@ static inline void set_kind_to_ttype_t(ASR::ttype_t* type, int kind) {
         }
         case ASR::ttypeType::Character: {
             ASR::down_cast<ASR::Character_t>(type)->m_kind = kind;
+            break;
+        }
+        case ASR::ttypeType::Byte: {
+            ASR::down_cast<ASR::Byte_t>(type)->m_kind = kind;
             break;
         }
         case ASR::ttypeType::Logical: {
@@ -541,6 +548,9 @@ static inline std::string type_to_str(const ASR::ttype_t *t)
         }
         case ASR::ttypeType::Character: {
             return "character";
+        }
+        case ASR::ttypeType::Byte: {
+            return "byte";
         }
         case ASR::ttypeType::Tuple: {
             return "tuple";
@@ -990,7 +1000,8 @@ static inline bool is_value_constant(ASR::expr_t *a_value) {
         case ASR::exprType::ImpliedDoLoop:
         case ASR::exprType::PointerNullConstant:
         case ASR::exprType::ArrayConstant:
-        case ASR::exprType::StringConstant: {
+        case ASR::exprType::StringConstant: 
+        case ASR::exprType::BytesConstant: {
             return true;
         }
         case ASR::exprType::RealBinOp:
@@ -1421,6 +1432,9 @@ static inline std::string get_type_code(const ASR::ttype_t *t, bool use_undersco
         case ASR::ttypeType::Character: {
             return "str";
         }
+        case ASR::ttypeType::Byte: {
+            return "bytes";
+        }
         case ASR::ttypeType::Tuple: {
             ASR::Tuple_t *tup = ASR::down_cast<ASR::Tuple_t>(t);
             std::string result = "tuple";
@@ -1607,6 +1621,9 @@ static inline std::string type_to_str_python(const ASR::ttype_t *t,
         }
         case ASR::ttypeType::Character: {
             return "str";
+        }
+        case ASR::ttypeType::Byte: {
+            return "bytes";
         }
         case ASR::ttypeType::Tuple: {
             ASR::Tuple_t *tup = ASR::down_cast<ASR::Tuple_t>(t);
@@ -2148,6 +2165,7 @@ inline size_t extract_dimensions_from_ttype(ASR::ttype_t *x,
         case ASR::ttypeType::Real:
         case ASR::ttypeType::Complex:
         case ASR::ttypeType::Character:
+        case ASR::ttypeType::Byte:
         case ASR::ttypeType::Logical:
         case ASR::ttypeType::StructType:
         case ASR::ttypeType::Enum:
@@ -2419,6 +2437,7 @@ inline bool ttype_set_dimensions(ASR::ttype_t** x,
         case ASR::ttypeType::Real:
         case ASR::ttypeType::Complex:
         case ASR::ttypeType::Character:
+        case ASR::ttypeType::Byte:
         case ASR::ttypeType::Logical:
         case ASR::ttypeType::StructType:
         case ASR::ttypeType::Enum:
@@ -2537,6 +2556,12 @@ static inline ASR::ttype_t* duplicate_type(Allocator& al, const ASR::ttype_t* t,
         case ASR::ttypeType::Character: {
             ASR::Character_t* tnew = ASR::down_cast<ASR::Character_t>(t);
             t_ = ASRUtils::TYPE(ASR::make_Character_t(al, t->base.loc,
+                    tnew->m_kind, tnew->m_len, tnew->m_len_expr));
+            break;
+        }
+        case ASR::ttypeType::Byte: {
+            ASR::Byte_t* tnew = ASR::down_cast<ASR::Byte_t>(t);
+            t_ = ASRUtils::TYPE(ASR::make_Byte_t(al, t->base.loc,
                     tnew->m_kind, tnew->m_len, tnew->m_len_expr));
             break;
         }
@@ -2694,6 +2719,11 @@ static inline ASR::ttype_t* duplicate_type_without_dims(Allocator& al, const ASR
         case ASR::ttypeType::Character: {
             ASR::Character_t* tnew = ASR::down_cast<ASR::Character_t>(t);
             return ASRUtils::TYPE(ASR::make_Character_t(al, loc,
+                        tnew->m_kind, tnew->m_len, tnew->m_len_expr));
+        }
+        case ASR::ttypeType::Byte: {
+            ASR::Byte_t* tnew = ASR::down_cast<ASR::Byte_t>(t);
+            return ASRUtils::TYPE(ASR::make_Byte_t(al, loc,
                         tnew->m_kind, tnew->m_len, tnew->m_len_expr));
         }
         case ASR::ttypeType::StructType: {
@@ -3123,6 +3153,11 @@ inline bool types_equal(ASR::ttype_t *a, ASR::ttype_t *b,
                 ASR::Character_t *b2 = ASR::down_cast<ASR::Character_t>(b);
                 return (a2->m_kind == b2->m_kind);
             }
+            case (ASR::ttypeType::Byte) : {
+                ASR::Byte_t *a2 = ASR::down_cast<ASR::Byte_t>(a);
+                ASR::Byte_t *b2 = ASR::down_cast<ASR::Byte_t>(b);
+                return (a2->m_kind == b2->m_kind);
+            }
             case (ASR::ttypeType::List) : {
                 ASR::List_t *a2 = ASR::down_cast<ASR::List_t>(a);
                 ASR::List_t *b2 = ASR::down_cast<ASR::List_t>(b);
@@ -3304,6 +3339,11 @@ inline bool types_equal_with_substitution(ASR::ttype_t *a, ASR::ttype_t *b,
             case (ASR::ttypeType::Character) : {
                 ASR::Character_t *a2 = ASR::down_cast<ASR::Character_t>(a);
                 ASR::Character_t *b2 = ASR::down_cast<ASR::Character_t>(b);
+                return (a2->m_kind == b2->m_kind);
+            }
+            case (ASR::ttypeType::Byte) : {
+                ASR::Byte_t *a2 = ASR::down_cast<ASR::Byte_t>(a);
+                ASR::Byte_t *b2 = ASR::down_cast<ASR::Byte_t>(b);
                 return (a2->m_kind == b2->m_kind);
             }
             case (ASR::ttypeType::List) : {

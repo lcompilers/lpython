@@ -192,6 +192,10 @@ namespace LCompilers {
                 llvm_mem_type = character_type;
                 break;
             }
+            case ASR::ttypeType::Byte: {
+                llvm_mem_type = character_type;
+                break;
+            }
             case ASR::ttypeType::CPtr: {
                 llvm_mem_type = llvm::Type::getVoidTy(context)->getPointerTo();
                 break;
@@ -509,6 +513,10 @@ namespace LCompilers {
                 el_type = character_type;
                 break;
             }
+            case ASR::ttypeType::Byte: {
+                el_type = character_type;
+                break;
+            }
             default:
                 LCOMPILERS_ASSERT(false);
                 break;
@@ -745,6 +753,16 @@ namespace LCompilers {
             }
             case (ASR::ttypeType::Character) : {
                 ASR::Character_t* v_type = ASR::down_cast<ASR::Character_t>(asr_type);
+                a_kind = v_type->m_kind;
+                if (arg_m_abi == ASR::abiType::BindC) {
+                    type = character_type;
+                } else {
+                    type = character_type->getPointerTo();
+                }
+                break;
+            }
+            case (ASR::ttypeType::Byte) : {
+                ASR::Byte_t* v_type = ASR::down_cast<ASR::Byte_t>(asr_type);
                 a_kind = v_type->m_kind;
                 if (arg_m_abi == ASR::abiType::BindC) {
                     type = character_type;
@@ -1005,6 +1023,9 @@ namespace LCompilers {
                 case (ASR::ttypeType::Character) :
                     return_type = character_type;
                     break;
+                case (ASR::ttypeType::Byte) :
+                    return_type = character_type;
+                    break;
                 case (ASR::ttypeType::Logical) :
                     return_type = llvm::Type::getInt1Ty(context);
                     break;
@@ -1201,6 +1222,9 @@ namespace LCompilers {
                     break;
                 }
                 case (ASR::ttypeType::Character) :
+                    return_type = character_type;
+                    break;
+                case (ASR::ttypeType::Byte) :
                     return_type = character_type;
                     break;
                 case (ASR::ttypeType::Logical) :
@@ -1418,6 +1442,12 @@ namespace LCompilers {
             }
             case (ASR::ttypeType::Character) : {
                 ASR::Character_t* v_type = ASR::down_cast<ASR::Character_t>(asr_type);
+                a_kind = v_type->m_kind;
+                llvm_type = character_type;
+                break;
+            }
+            case (ASR::ttypeType::Byte) : {
+                ASR::Byte_t* v_type = ASR::down_cast<ASR::Byte_t>(asr_type);
                 a_kind = v_type->m_kind;
                 llvm_type = character_type;
                 break;
@@ -1708,6 +1738,51 @@ namespace LCompilers {
                 llvm::Value* r = LLVM::CreateLoad(*builder, create_ptr_gep(right, i));
                 return builder->CreateICmpEQ(l, r);
             }
+            case ASR::ttypeType::Byte: {
+                get_builder0()
+                str_cmp_itr = builder0.CreateAlloca(llvm::Type::getInt32Ty(context), nullptr);
+                llvm::Value* null_char = llvm::ConstantInt::get(llvm::Type::getInt8Ty(context),
+                                                            llvm::APInt(8, '\0'));
+                llvm::Value* idx = str_cmp_itr;
+                LLVM::CreateStore(*builder,
+                    llvm::ConstantInt::get(llvm::Type::getInt32Ty(context), llvm::APInt(32, 0)),
+                    idx);
+                llvm::BasicBlock *loophead = llvm::BasicBlock::Create(context, "loop.head");
+                llvm::BasicBlock *loopbody = llvm::BasicBlock::Create(context, "loop.body");
+                llvm::BasicBlock *loopend = llvm::BasicBlock::Create(context, "loop.end");
+
+                // head
+                start_new_block(loophead);
+                {
+                    llvm::Value* i = LLVM::CreateLoad(*builder, idx);
+                    llvm::Value* l = LLVM::CreateLoad(*builder, create_ptr_gep(left, i));
+                    llvm::Value* r = LLVM::CreateLoad(*builder, create_ptr_gep(right, i));
+                    llvm::Value *cond = builder->CreateAnd(
+                        builder->CreateICmpNE(l, null_char),
+                        builder->CreateICmpNE(r, null_char)
+                    );
+                    cond = builder->CreateAnd(cond, builder->CreateICmpEQ(l, r));
+                    builder->CreateCondBr(cond, loopbody, loopend);
+                }
+
+                // body
+                start_new_block(loopbody);
+                {
+                    llvm::Value* i = LLVM::CreateLoad(*builder, idx);
+                    i = builder->CreateAdd(i, llvm::ConstantInt::get(llvm::Type::getInt32Ty(context),
+                                            llvm::APInt(32, 1)));
+                    LLVM::CreateStore(*builder, i, idx);
+                }
+
+                builder->CreateBr(loophead);
+
+                // end
+                start_new_block(loopend);
+                llvm::Value* i = LLVM::CreateLoad(*builder, idx);
+                llvm::Value* l = LLVM::CreateLoad(*builder, create_ptr_gep(left, i));
+                llvm::Value* r = LLVM::CreateLoad(*builder, create_ptr_gep(right, i));
+                return builder->CreateICmpEQ(l, r);
+            }
             case ASR::ttypeType::Tuple: {
                 ASR::Tuple_t* tuple_type = ASR::down_cast<ASR::Tuple_t>(asr_type);
                 return tuple_api->check_tuple_equality(left, right, tuple_type, context,
@@ -1857,6 +1932,72 @@ namespace LCompilers {
                 llvm::Value* r = LLVM::CreateLoad(*builder, create_ptr_gep(right, i));
                 return builder->CreateICmpULT(l, r);
             }
+            case ASR::ttypeType::Byte: {
+                get_builder0()
+                str_cmp_itr = builder0.CreateAlloca(llvm::Type::getInt32Ty(context), nullptr);
+                llvm::Value* null_char = llvm::ConstantInt::get(llvm::Type::getInt8Ty(context),
+                                                            llvm::APInt(8, '\0'));
+                llvm::Value* idx = str_cmp_itr;
+                LLVM::CreateStore(*builder,
+                    llvm::ConstantInt::get(llvm::Type::getInt32Ty(context), llvm::APInt(32, 0)),
+                    idx);
+                llvm::BasicBlock *loophead = llvm::BasicBlock::Create(context, "loop.head");
+                llvm::BasicBlock *loopbody = llvm::BasicBlock::Create(context, "loop.body");
+                llvm::BasicBlock *loopend = llvm::BasicBlock::Create(context, "loop.end");
+
+                // head
+                start_new_block(loophead);
+                {
+                    llvm::Value* i = LLVM::CreateLoad(*builder, idx);
+                    llvm::Value* l = LLVM::CreateLoad(*builder, create_ptr_gep(left, i));
+                    llvm::Value* r = LLVM::CreateLoad(*builder, create_ptr_gep(right, i));
+                    llvm::Value *cond = builder->CreateAnd(
+                        builder->CreateICmpNE(l, null_char),
+                        builder->CreateICmpNE(r, null_char)
+                    );
+                    switch( overload_id ) {
+                        case 0: {
+                            pred = llvm::CmpInst::Predicate::ICMP_ULT;
+                            break;
+                        }
+                        case 1: {
+                            pred = llvm::CmpInst::Predicate::ICMP_ULE;
+                            break;
+                        }
+                        case 2: {
+                            pred = llvm::CmpInst::Predicate::ICMP_UGT;
+                            break;
+                        }
+                        case 3: {
+                            pred = llvm::CmpInst::Predicate::ICMP_UGE;
+                            break;
+                        }
+                        default: {
+                            throw CodeGenError("Un-recognized overload-id: " + std::to_string(overload_id));
+                        }
+                    }
+                    cond = builder->CreateAnd(cond, builder->CreateICmp(pred, l, r));
+                    builder->CreateCondBr(cond, loopbody, loopend);
+                }
+
+                // body
+                start_new_block(loopbody);
+                {
+                    llvm::Value* i = LLVM::CreateLoad(*builder, idx);
+                    i = builder->CreateAdd(i, llvm::ConstantInt::get(llvm::Type::getInt32Ty(context),
+                                            llvm::APInt(32, 1)));
+                    LLVM::CreateStore(*builder, i, idx);
+                }
+
+                builder->CreateBr(loophead);
+
+                // end
+                start_new_block(loopend);
+                llvm::Value* i = LLVM::CreateLoad(*builder, idx);
+                llvm::Value* l = LLVM::CreateLoad(*builder, create_ptr_gep(left, i));
+                llvm::Value* r = LLVM::CreateLoad(*builder, create_ptr_gep(right, i));
+                return builder->CreateICmpULT(l, r);
+            }
             case ASR::ttypeType::Tuple: {
                 ASR::Tuple_t* tuple_type = ASR::down_cast<ASR::Tuple_t>(asr_type);
                 return tuple_api->check_tuple_inequality(left, right, tuple_type, context,
@@ -1917,6 +2058,7 @@ namespace LCompilers {
                 break ;
             };
             case ASR::ttypeType::Character:
+            case ASR::ttypeType::Byte:
             case ASR::ttypeType::FunctionType:
             case ASR::ttypeType::CPtr: {
                 LLVM::CreateStore(*builder, src, dest);
@@ -2002,6 +2144,7 @@ namespace LCompilers {
             case ASR::ttypeType::Logical:
             case ASR::ttypeType::Complex:
             case ASR::ttypeType::Character:
+            case ASR::ttypeType::Byte:
             case ASR::ttypeType::FunctionType:
             case ASR::ttypeType::CPtr:
             case ASR::ttypeType::Allocatable: {
@@ -3675,6 +3818,70 @@ namespace LCompilers {
                 return int_hash;
             }
             case ASR::ttypeType::Character: {
+                // Polynomial rolling hash function for strings
+                llvm::Value* null_char = llvm::ConstantInt::get(llvm::Type::getInt8Ty(context),
+                                                                llvm::APInt(8, '\0'));
+                llvm::Value* p = llvm::ConstantInt::get(llvm::Type::getInt64Ty(context), llvm::APInt(64, 31));
+                llvm::Value* m = llvm::ConstantInt::get(llvm::Type::getInt64Ty(context), llvm::APInt(64, 100000009));
+                get_builder0()
+                hash_value = builder0.CreateAlloca(llvm::Type::getInt64Ty(context), nullptr, "hash_value");
+                hash_iter = builder0.CreateAlloca(llvm::Type::getInt64Ty(context), nullptr, "hash_iter");
+                polynomial_powers = builder0.CreateAlloca(llvm::Type::getInt64Ty(context), nullptr, "p_pow");
+                LLVM::CreateStore(*builder,
+                    llvm::ConstantInt::get(llvm::Type::getInt64Ty(context), llvm::APInt(64, 0)),
+                    hash_value);
+                LLVM::CreateStore(*builder,
+                    llvm::ConstantInt::get(llvm::Type::getInt64Ty(context), llvm::APInt(64, 1)),
+                    polynomial_powers);
+                LLVM::CreateStore(*builder,
+                    llvm::ConstantInt::get(llvm::Type::getInt64Ty(context), llvm::APInt(64, 0)),
+                    hash_iter);
+                llvm::BasicBlock *loophead = llvm::BasicBlock::Create(context, "loop.head");
+                llvm::BasicBlock *loopbody = llvm::BasicBlock::Create(context, "loop.body");
+                llvm::BasicBlock *loopend = llvm::BasicBlock::Create(context, "loop.end");
+
+                // head
+                llvm_utils->start_new_block(loophead);
+                {
+                    llvm::Value* i = LLVM::CreateLoad(*builder, hash_iter);
+                    llvm::Value* c = LLVM::CreateLoad(*builder, llvm_utils->create_ptr_gep(key, i));
+                    llvm::Value *cond = builder->CreateICmpNE(c, null_char);
+                    builder->CreateCondBr(cond, loopbody, loopend);
+                }
+
+                // body
+                llvm_utils->start_new_block(loopbody);
+                {
+                    // for c in key:
+                    //     hash_value = (hash_value + (ord(c) + 1) * p_pow) % m
+                    //     p_pow = (p_pow * p) % m
+                    llvm::Value* i = LLVM::CreateLoad(*builder, hash_iter);
+                    llvm::Value* c = LLVM::CreateLoad(*builder, llvm_utils->create_ptr_gep(key, i));
+                    llvm::Value* p_pow = LLVM::CreateLoad(*builder, polynomial_powers);
+                    llvm::Value* hash = LLVM::CreateLoad(*builder, hash_value);
+                    c = builder->CreateZExt(c, llvm::Type::getInt64Ty(context));
+                    c = builder->CreateAdd(c, llvm::ConstantInt::get(llvm::Type::getInt64Ty(context), llvm::APInt(64, 1)));
+                    c = builder->CreateMul(c, p_pow);
+                    c = builder->CreateSRem(c, m);
+                    hash = builder->CreateAdd(hash, c);
+                    hash = builder->CreateSRem(hash, m);
+                    LLVM::CreateStore(*builder, hash, hash_value);
+                    p_pow = builder->CreateMul(p_pow, p);
+                    p_pow = builder->CreateSRem(p_pow, m);
+                    LLVM::CreateStore(*builder, p_pow, polynomial_powers);
+                    i = builder->CreateAdd(i, llvm::ConstantInt::get(llvm::Type::getInt64Ty(context), llvm::APInt(64, 1)));
+                    LLVM::CreateStore(*builder, i, hash_iter);
+                }
+
+                builder->CreateBr(loophead);
+
+                // end
+                llvm_utils->start_new_block(loopend);
+                llvm::Value* hash = LLVM::CreateLoad(*builder, hash_value);
+                hash = builder->CreateTrunc(hash, llvm::Type::getInt32Ty(context));
+                return builder->CreateSRem(hash, capacity);
+            }
+            case ASR::ttypeType::Byte: {
                 // Polynomial rolling hash function for strings
                 llvm::Value* null_char = llvm::ConstantInt::get(llvm::Type::getInt8Ty(context),
                                                                 llvm::APInt(8, '\0'));
@@ -5873,6 +6080,70 @@ namespace LCompilers {
             }
             case ASR::ttypeType::Character: {
                 // Polynomial rolling hash function for strings
+                llvm::Value* null_char = llvm::ConstantInt::get(llvm::Type::getInt8Ty(context),
+                                                                llvm::APInt(8, '\0'));
+                llvm::Value* p = llvm::ConstantInt::get(llvm::Type::getInt64Ty(context), llvm::APInt(64, 31));
+                llvm::Value* m = llvm::ConstantInt::get(llvm::Type::getInt64Ty(context), llvm::APInt(64, 100000009));
+                get_builder0()
+                hash_value = builder0.CreateAlloca(llvm::Type::getInt64Ty(context), nullptr, "hash_value");
+                hash_iter = builder0.CreateAlloca(llvm::Type::getInt64Ty(context), nullptr, "hash_iter");
+                polynomial_powers = builder0.CreateAlloca(llvm::Type::getInt64Ty(context), nullptr, "p_pow");
+                LLVM::CreateStore(*builder,
+                    llvm::ConstantInt::get(llvm::Type::getInt64Ty(context), llvm::APInt(64, 0)),
+                    hash_value);
+                LLVM::CreateStore(*builder,
+                    llvm::ConstantInt::get(llvm::Type::getInt64Ty(context), llvm::APInt(64, 1)),
+                    polynomial_powers);
+                LLVM::CreateStore(*builder,
+                    llvm::ConstantInt::get(llvm::Type::getInt64Ty(context), llvm::APInt(64, 0)),
+                    hash_iter);
+                llvm::BasicBlock *loophead = llvm::BasicBlock::Create(context, "loop.head");
+                llvm::BasicBlock *loopbody = llvm::BasicBlock::Create(context, "loop.body");
+                llvm::BasicBlock *loopend = llvm::BasicBlock::Create(context, "loop.end");
+
+                // head
+                llvm_utils->start_new_block(loophead);
+                {
+                    llvm::Value* i = LLVM::CreateLoad(*builder, hash_iter);
+                    llvm::Value* c = LLVM::CreateLoad(*builder, llvm_utils->create_ptr_gep(el, i));
+                    llvm::Value *cond = builder->CreateICmpNE(c, null_char);
+                    builder->CreateCondBr(cond, loopbody, loopend);
+                }
+
+                // body
+                llvm_utils->start_new_block(loopbody);
+                {
+                    // for c in el:
+                    //     hash_value = (hash_value + (ord(c) + 1) * p_pow) % m
+                    //     p_pow = (p_pow * p) % m
+                    llvm::Value* i = LLVM::CreateLoad(*builder, hash_iter);
+                    llvm::Value* c = LLVM::CreateLoad(*builder, llvm_utils->create_ptr_gep(el, i));
+                    llvm::Value* p_pow = LLVM::CreateLoad(*builder, polynomial_powers);
+                    llvm::Value* hash = LLVM::CreateLoad(*builder, hash_value);
+                    c = builder->CreateZExt(c, llvm::Type::getInt64Ty(context));
+                    c = builder->CreateAdd(c, llvm::ConstantInt::get(llvm::Type::getInt64Ty(context), llvm::APInt(64, 1)));
+                    c = builder->CreateMul(c, p_pow);
+                    c = builder->CreateSRem(c, m);
+                    hash = builder->CreateAdd(hash, c);
+                    hash = builder->CreateSRem(hash, m);
+                    LLVM::CreateStore(*builder, hash, hash_value);
+                    p_pow = builder->CreateMul(p_pow, p);
+                    p_pow = builder->CreateSRem(p_pow, m);
+                    LLVM::CreateStore(*builder, p_pow, polynomial_powers);
+                    i = builder->CreateAdd(i, llvm::ConstantInt::get(llvm::Type::getInt64Ty(context), llvm::APInt(64, 1)));
+                    LLVM::CreateStore(*builder, i, hash_iter);
+                }
+
+                builder->CreateBr(loophead);
+
+                // end
+                llvm_utils->start_new_block(loopend);
+                llvm::Value* hash = LLVM::CreateLoad(*builder, hash_value);
+                hash = builder->CreateTrunc(hash, llvm::Type::getInt32Ty(context));
+                return builder->CreateSRem(hash, capacity);
+            }
+            case ASR::ttypeType::Byte: {
+                // Polynomial rolling hash function for bytes
                 llvm::Value* null_char = llvm::ConstantInt::get(llvm::Type::getInt8Ty(context),
                                                                 llvm::APInt(8, '\0'));
                 llvm::Value* p = llvm::ConstantInt::get(llvm::Type::getInt64Ty(context), llvm::APInt(64, 31));
