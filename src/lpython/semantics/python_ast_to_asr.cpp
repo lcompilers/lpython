@@ -4922,6 +4922,16 @@ public:
                 throw SemanticError("The module '" + mod_sym + "' cannot be loaded",
                         x.base.base.loc);
             }
+            if( mod_sym == "__init__" ) {
+                for( auto item: ASRUtils::symbol_symtab(t)->get_scope() ) {
+                    if( ASR::is_a<ASR::ExternalSymbol_t>(*item.second) ) {
+                        current_module_dependencies.push_back(al,
+                            ASR::down_cast<ASR::ExternalSymbol_t>(item.second)->m_module_name);
+                    }
+                }
+            } else {
+                current_module_dependencies.push_back(al, s2c(al, mod_sym));
+            }
         }
     }
 
@@ -5126,6 +5136,7 @@ public:
             tmp = nullptr;
             tmp_vec.clear();
             visit_stmt(*x.m_body[i]);
+            
             for (auto t: global_init) {
                 if (t) {
                     items.push_back(al, t);
