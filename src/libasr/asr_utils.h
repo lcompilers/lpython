@@ -990,7 +990,8 @@ static inline bool is_value_constant(ASR::expr_t *a_value) {
         case ASR::exprType::ImpliedDoLoop:
         case ASR::exprType::PointerNullConstant:
         case ASR::exprType::ArrayConstant:
-        case ASR::exprType::StringConstant: {
+        case ASR::exprType::StringConstant: 
+        case ASR::exprType::BytesConstant: {
             return true;
         }
         case ASR::exprType::RealBinOp:
@@ -1607,6 +1608,9 @@ static inline std::string type_to_str_python(const ASR::ttype_t *t,
         }
         case ASR::ttypeType::Character: {
             return "str";
+        }
+        case ASR::ttypeType::Byte: {
+            return "bytes";
         }
         case ASR::ttypeType::Tuple: {
             ASR::Tuple_t *tup = ASR::down_cast<ASR::Tuple_t>(t);
@@ -3121,6 +3125,11 @@ inline bool types_equal(ASR::ttype_t *a, ASR::ttype_t *b,
             case (ASR::ttypeType::Character) : {
                 ASR::Character_t *a2 = ASR::down_cast<ASR::Character_t>(a);
                 ASR::Character_t *b2 = ASR::down_cast<ASR::Character_t>(b);
+                return (a2->m_kind == b2->m_kind);
+            }
+            case (ASR::ttypeType::Byte) : {
+                ASR::Byte_t *a2 = ASR::down_cast<ASR::Byte_t>(a);
+                ASR::Byte_t *b2 = ASR::down_cast<ASR::Byte_t>(b);
                 return (a2->m_kind == b2->m_kind);
             }
             case (ASR::ttypeType::List) : {

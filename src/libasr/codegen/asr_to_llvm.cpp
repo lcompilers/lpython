@@ -143,7 +143,7 @@ public:
     bool prototype_only;
     llvm::StructType *complex_type_4, *complex_type_8;
     llvm::StructType *complex_type_4_ptr, *complex_type_8_ptr;
-    llvm::PointerType *character_type;
+    llvm::PointerType *character_type, *byte_type;
     llvm::PointerType *list_type;
     std::vector<std::string> struct_type_stack;
 
@@ -910,6 +910,7 @@ public:
         complex_type_4_ptr = llvm_utils->complex_type_4_ptr;
         complex_type_8_ptr = llvm_utils->complex_type_8_ptr;
         character_type = llvm_utils->character_type;
+        byte_type = llvm_utils->character_type;
         list_type = llvm::Type::getInt8PtrTy(context);
 
         llvm::Type* bound_arg = static_cast<llvm::Type*>(arr_descr->get_dimension_descriptor_type(true));
@@ -2872,6 +2873,25 @@ public:
                             llvm::Constant::getNullValue(character_type)
                         );
                     ASR::Character_t *t = down_cast<ASR::Character_t>(x.m_type);
+                    if( t->m_len >= 0 ) {
+                        strings_to_be_allocated.insert(std::pair(ptr, llvm::ConstantInt::get(
+                            context, llvm::APInt(32, t->m_len+1))));
+                    }
+                }
+            }
+            llvm_symtab[h] = ptr;
+        } else if (x.m_type->type == ASR::ttypeType::Byte) {
+            llvm::Constant *ptr = module->getOrInsertGlobal(x.m_name,
+                    character_type);
+            if (!external) {
+                if (init_value) {
+                    module->getNamedGlobal(x.m_name)->setInitializer(
+                            init_value);
+                } else {
+                    module->getNamedGlobal(x.m_name)->setInitializer(
+                            llvm::Constant::getNullValue(character_type)
+                        );
+                    ASR::Byte_t *t = down_cast<ASR::Byte_t>(x.m_type);
                     if( t->m_len >= 0 ) {
                         strings_to_be_allocated.insert(std::pair(ptr, llvm::ConstantInt::get(
                             context, llvm::APInt(32, t->m_len+1))));
@@ -7069,6 +7089,10 @@ public:
     }
 
     void visit_StringConstant(const ASR::StringConstant_t &x) {
+        tmp = builder->CreateGlobalStringPtr(x.m_s);
+    }
+
+    void visit_BytesConstant(const ASR::BytesConstant_t &x) {
         tmp = builder->CreateGlobalStringPtr(x.m_s);
     }
 

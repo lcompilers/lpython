@@ -2,8 +2,9 @@
 Generate C++ AST node definitions from an ASDL description.
 """
 
-import sys
 import os
+import sys
+
 import asdl
 
 
