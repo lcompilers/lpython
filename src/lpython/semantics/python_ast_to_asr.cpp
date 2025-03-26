@@ -7609,6 +7609,25 @@ public:
                 value.m_value = args[0].m_value;
                 fn_args.push_back(al, value);
             }
+        } else if (attr_name == "zfill") {
+            if (args.size() != 1) {
+                throw SemanticError("str.zfill() takes one argument", loc);
+            }
+            ASR::expr_t *arg_sub = args[0].m_value;
+            ASR::ttype_t *arg_sub_type = ASRUtils::expr_type(arg_sub);
+            if (!ASRUtils::is_integer(*arg_sub_type)) {
+                throw SemanticError("str.zfill() argument must be integer", loc);
+            }
+            fn_call_name = "_lpython_str_zfill";
+            ASR::call_arg_t str;
+            str.loc = loc;
+            str.m_value = s_var;
+
+            ASR::call_arg_t width;
+            width.loc = loc;
+            width.m_value = args[0].m_value;
+            fn_args.push_back(al, str);
+            fn_args.push_back(al, width);
         } else if(attr_name.size() > 2 && attr_name[0] == 'i' && attr_name[1] == 's') {
             /*
                 String Validation Methods i.e all "is" based functions are handled here
