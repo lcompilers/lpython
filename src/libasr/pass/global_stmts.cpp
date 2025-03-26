@@ -51,6 +51,7 @@ void pass_wrap_global_stmts(Allocator &al,
                 (ASRUtils::expr_type(value)->type == ASR::ttypeType::Real) ||
                 (ASRUtils::expr_type(value)->type == ASR::ttypeType::Complex) ||
                 (ASRUtils::expr_type(value)->type == ASR::ttypeType::Character) ||
+                (ASRUtils::expr_type(value)->type == ASR::ttypeType::Byte) ||
                 (ASRUtils::expr_type(value)->type == ASR::ttypeType::List) ||
                 (ASRUtils::expr_type(value)->type == ASR::ttypeType::Tuple) ||
                 (ASRUtils::expr_type(value)->type == ASR::ttypeType::StructType)) {

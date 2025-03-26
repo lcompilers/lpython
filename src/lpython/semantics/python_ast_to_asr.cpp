@@ -4310,6 +4310,7 @@ public:
     }
 
     void visit_Module(const AST::Module_t &x) {
+    /*Shiju del*/ std::cout << "We here ya yellow bellied mongrels" << "----" << "\n";
         ASR::asr_t *tmp0 = nullptr;
         if (current_scope) {
             LCOMPILERS_ASSERT(current_scope->asr_owner);
@@ -4340,9 +4341,11 @@ public:
             module_sym = ASR::down_cast<ASR::Module_t>(ASR::down_cast<ASR::symbol_t>(tmp1));
             parent_scope->add_symbol(module_name, ASR::down_cast<ASR::symbol_t>(tmp1));
             current_module_dependencies.reserve(al, 1);
+      /*Shiju del*/ std::cout << "Did way du goodie?" << "----" << "\n";
             for (size_t i=0; i<x.n_body; i++) {
                 visit_stmt(*x.m_body[i]);
             }
+      /*Shiju del*/ std::cout << "Did we do good?" << "----" << "\n";
 
             LCOMPILERS_ASSERT(module_sym != nullptr);
             module_sym->m_dependencies = current_module_dependencies.p;
@@ -5106,6 +5109,7 @@ public:
     }
 
     void visit_Module(const AST::Module_t &x) {
+    /*Shiju del*/ std::cout << "Inside the Module start" << "---" << "\n";
         ASR::TranslationUnit_t *unit = ASR::down_cast2<ASR::TranslationUnit_t>(asr);
         current_scope = unit->m_symtab;
         LCOMPILERS_ASSERT(current_scope != nullptr);
@@ -5122,10 +5126,12 @@ public:
         Vec<ASR::asr_t*> items;
         items.reserve(al, 4);
         current_module_dependencies.reserve(al, 1);
+    /*Shiju del*/ std::cout << "Inside the Module visitor" << "---" << "\n";
         for (size_t i=0; i<x.n_body; i++) {
             tmp = nullptr;
             tmp_vec.clear();
             visit_stmt(*x.m_body[i]);
+      /*Shiju del*/ std::cout << "Exiting stmt visit" << "----" << "\n";
             for (auto t: global_init) {
                 if (t) {
                     items.push_back(al, t);
@@ -5162,7 +5168,9 @@ public:
             // Wrap all the global statements into a Function
             LCompilers::PassOptions pass_options;
             pass_options.run_fun = func_name;
+    /*Shiju del*/ std::cout << "Random spot" << "----" << "\n";
             pass_wrap_global_stmts(al, *unit, pass_options);
+    /*Shiju del*/ std::cout << "Another random spot" << "----" << "\n";
 
             ASR::symbol_t *f_sym = unit->m_symtab->get_symbol(func_name);
             if (f_sym) {
@@ -5188,6 +5196,7 @@ public:
             items.p = nullptr;
             items.n = 0;
         }
+    /*Shiju del*/ std::cout << "End of the line browski" << "----" << "\n";
 
         tmp = asr;
     }
@@ -9034,6 +9043,7 @@ Result<ASR::TranslationUnit_t*> python_ast_to_asr(Allocator &al, LocationManager
     }
 
     ASR::TranslationUnit_t *tu = ASR::down_cast2<ASR::TranslationUnit_t>(unit);
+  /*shiju*/ std::cout << ";; ASR after SymbolTable Visitor\n" << pickle(*tu, false, true, compiler_options.po.with_intrinsic_mods) << "\n";
     if (compiler_options.po.dump_all_passes) {
         std::ofstream outfile ("pass_00_initial_asr_01.clj");
         outfile << ";; ASR after SymbolTable Visitor\n" << pickle(*tu, false, true, compiler_options.po.with_intrinsic_mods) << "\n";
@@ -9057,6 +9067,7 @@ Result<ASR::TranslationUnit_t*> python_ast_to_asr(Allocator &al, LocationManager
 #endif
 
     if (!compiler_options.symtab_only) {
+    /*Shiju del*/ std::cout << "Injection" << "---" << "\n";
         auto res2 = body_visitor(al, lm, *ast_m, diagnostics, unit, main_module, module_name,
             ast_overload, allow_implicit_casting, eval_count);
         if (res2.ok) {

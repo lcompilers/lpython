@@ -966,7 +966,7 @@ public:
         prototype_only = false;
 
         // TODO: handle dependencies across modules and main program
-
+;
         // Then do all the modules in the right order
         std::vector<std::string> build_order
             = determine_module_dependencies(x);
@@ -974,6 +974,7 @@ public:
             LCOMPILERS_ASSERT(x.m_symtab->get_symbol(item)
                 != nullptr);
             ASR::symbol_t *mod = x.m_symtab->get_symbol(item);
+            std::cout << mod->type << "unit";
             visit_symbol(*mod);
         }
 
@@ -7199,6 +7200,7 @@ public:
                     case ASR::ttypeType::Complex:
                     case ASR::ttypeType::StructType:
                     case ASR::ttypeType::Character:
+                    case ASR::ttypeType::Byte:
                     case ASR::ttypeType::Logical:
                     case ASR::ttypeType::Class: {
                         if( t2->type == ASR::ttypeType::StructType ) {
@@ -8905,6 +8907,21 @@ public:
                         break;
                     }
                     case (ASR::ttypeType::Character) : {
+                        ASR::Variable_t *orig_arg = nullptr;
+                        if( func_subrout->type == ASR::symbolType::Function ) {
+                            ASR::Function_t* func = down_cast<ASR::Function_t>(func_subrout);
+                            orig_arg = ASRUtils::EXPR2VAR(func->m_args[i]);
+                        } else {
+                            throw CodeGenError("ICE: expected func_subrout->type == ASR::symbolType::Function.");
+                        }
+                        if (orig_arg->m_abi == ASR::abiType::BindC) {
+                            character_bindc = true;
+                        }
+
+                        target_type = character_type;
+                        break;
+                    }
+                    case (ASR::ttypeType::Byte) : {
                         ASR::Variable_t *orig_arg = nullptr;
                         if( func_subrout->type == ASR::symbolType::Function ) {
                             ASR::Function_t* func = down_cast<ASR::Function_t>(func_subrout);

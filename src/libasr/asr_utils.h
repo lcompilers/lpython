@@ -254,6 +254,10 @@ static inline void set_kind_to_ttype_t(ASR::ttype_t* type, int kind) {
             ASR::down_cast<ASR::Character_t>(type)->m_kind = kind;
             break;
         }
+        case ASR::ttypeType::Byte: {
+            ASR::down_cast<ASR::Byte_t>(type)->m_kind = kind;
+            break;
+        }
         case ASR::ttypeType::Logical: {
             ASR::down_cast<ASR::Logical_t>(type)->m_kind = kind;
             break;
