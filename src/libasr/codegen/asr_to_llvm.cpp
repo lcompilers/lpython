@@ -974,7 +974,6 @@ public:
             LCOMPILERS_ASSERT(x.m_symtab->get_symbol(item)
                 != nullptr);
             ASR::symbol_t *mod = x.m_symtab->get_symbol(item);
-            std::cout << mod->type << "unit";
             visit_symbol(*mod);
         }
 
