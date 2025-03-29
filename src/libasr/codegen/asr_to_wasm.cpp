@@ -872,8 +872,8 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
                         "Integers of kind 4 and 8 only supported");
                 }
             } else {
-                diag.codegen_error_label("Type number '" +
-                                             std::to_string(v->m_type->type) +
+                diag.codegen_error_label("Type '" +
+                                             ASRUtils::type_to_str(v->m_type) +
                                              "' not supported",
                                          {v->base.base.loc}, "");
                 throw CodeGenAbort();
