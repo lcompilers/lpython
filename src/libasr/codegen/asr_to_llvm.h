@@ -13,6 +13,7 @@ namespace LCompilers {
             LCompilers::PassManager& pass_manager,
             CompilerOptions &compiler_options,
             const std::string &run_fn,
+            const std::string &/*global_underscore*/,
             const std::string &infile);
 
 } // namespace LCompilers

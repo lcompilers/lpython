@@ -102,6 +102,16 @@ std::string LLVMModule::str()
     return LLVMEvaluator::module_to_string(*m_m);
 }
 
+llvm::Function *LLVMModule::get_function(const std::string &fn_name) {
+    llvm::Module *m = m_m.get();
+    return m->getFunction(fn_name);
+}
+
+llvm::GlobalVariable *LLVMModule::get_global(const std::string &global_name) {
+    llvm::Module *m = m_m.get();
+    return m->getNamedGlobal(global_name);
+}
+
 std::string LLVMModule::get_return_type(const std::string &fn_name)
 {
     llvm::Module *m = m_m.get();
@@ -409,11 +419,11 @@ void LLVMEvaluator::opt(llvm::Module &m) {
     PB.registerModuleAnalyses(MAM);
     PB.registerCGSCCAnalyses(CGAM);
     PB.registerFunctionAnalyses(FAM);
-    PB.registerLoopAnalyses(LAM);   
-    PB.crossRegisterProxies(LAM, FAM, CGAM, MAM);   
+    PB.registerLoopAnalyses(LAM);
+    PB.crossRegisterProxies(LAM, FAM, CGAM, MAM);
     llvm::ModulePassManager MPM = PB.buildPerModuleDefaultPipeline(llvm::OptimizationLevel::O3);
     MPM.run(m, MAM);
-    
+
 #else
     llvm::legacy::PassManager mpm;
     mpm.add(new llvm::TargetLibraryInfoWrapperPass(TM->getTargetTriple()));
@@ -463,6 +473,10 @@ std::string LLVMEvaluator::llvm_version()
 llvm::LLVMContext &LLVMEvaluator::get_context()
 {
     return *context;
+}
+
+const llvm::DataLayout &LLVMEvaluator::get_jit_data_layout() {
+    return jit->getDataLayout();
 }
 
 void LLVMEvaluator::print_targets()

@@ -367,7 +367,7 @@ class ReplaceNestedVisitor: public ASR::CallReplacerOnExpressionsVisitor<Replace
                                     ASRUtils::symbol_name(struct_t->m_derived_type));
                             }
                         }
-                        var_type_ = ASRUtils::TYPE(ASR::make_StructType_t(al, struct_t->base.base.loc,
+                        var_type_ = ASRUtils::TYPE(ASRUtils::make_StructType_t_util(al, struct_t->base.base.loc,
                                     m_derived_type));
                         if( ASR::is_a<ASR::Array_t>(*var_type) ) {
                             ASR::Array_t* array_t = ASR::down_cast<ASR::Array_t>(var_type);
@@ -564,7 +564,7 @@ class ReplaceNestedVisitor: public ASR::CallReplacerOnExpressionsVisitor<Replace
             visit_expr(*x.m_dt);
         }
 
-        
+
         ASRUtils::Call_t_body(al, xx.m_name, xx.m_args, xx.n_args, x.m_dt,
             nullptr, false, ASRUtils::get_class_proc_nopass_val(x.m_name));
     }
@@ -699,7 +699,7 @@ public:
                             ASR::stmt_t *assignment = ASRUtils::STMT(ASR::make_Assignment_t(al, t->base.loc,
                                                         target, val, nullptr));
                             body.push_back(al, assignment);
-                            if (ASRUtils::EXPR2VAR(val)->m_storage != ASR::storage_typeType::Parameter && 
+                            if (ASRUtils::EXPR2VAR(val)->m_storage != ASR::storage_typeType::Parameter &&
                                     ASRUtils::EXPR2VAR(val)->m_intent != ASR::intentType::In) {
                                 assignment = ASRUtils::STMT(ASR::make_Assignment_t(al, t->base.loc,
                                                 val, target, nullptr));

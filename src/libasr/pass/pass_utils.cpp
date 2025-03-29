@@ -102,7 +102,7 @@ namespace LCompilers {
                         struct_t->m_derived_type)->get_counter() ) { \
                     ASR::symbol_t* m_derived_type = current_scope->resolve_symbol( \
                         ASRUtils::symbol_name(struct_t->m_derived_type)); \
-                    ASR::ttype_t* struct_type = ASRUtils::TYPE(ASR::make_StructType_t(al, \
+                    ASR::ttype_t* struct_type = ASRUtils::TYPE(ASRUtils::make_StructType_t_util(al, \
                         struct_t->base.base.loc, m_derived_type)); \
                     array_ref_type = struct_type; \
                 } \
@@ -1609,7 +1609,7 @@ namespace LCompilers {
                             ASRUtils::type_get_past_array(
                                 ASRUtils::type_get_past_allocatable_pointer(
                                     ASRUtils::expr_type(arr_var))),
-                            dims.p, dims.size(), ASR::abiType::Source, false, 
+                            dims.p, dims.size(), ASR::abiType::Source, false,
                             ASR::array_physical_typeType::DescriptorArray,
                             false, false, !is_alloc_return_func);
                         ASR::expr_t* res = ASRUtils::EXPR(ASR::make_ArraySection_t(

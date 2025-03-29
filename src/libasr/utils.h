@@ -58,6 +58,8 @@ struct PassOptions {
     bool tree = false;
     bool with_intrinsic_mods = false;
     bool c_mangling = false;
+    bool enable_cpython = false;
+    bool c_skip_bindpy_pass = false;
     bool openmp = false;
     bool enable_gpu_offloading = false;
     bool time_report = false;

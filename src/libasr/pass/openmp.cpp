@@ -182,7 +182,7 @@ class FunctionSubroutineCallVisitor: public ASR::BaseWalkVisitor<FunctionSubrout
         std::vector<int> &array_variable_indices;
         std::vector<std::string> &array_variables;
         std::map<int, std::map<std::string, std::vector<ASR::symbol_t*>>> &scoped_array_variable_map;
-    
+
     public:
         FunctionSubroutineCallVisitor(std::string function_name_, std::vector<SymbolTable*> &scopes_,
             std::vector<int> &array_variable_indices_,
@@ -191,7 +191,7 @@ class FunctionSubroutineCallVisitor: public ASR::BaseWalkVisitor<FunctionSubrout
             function_name(function_name_), scopes(scopes_), array_variable_indices(array_variable_indices_),
             array_variables(array_variables_),
             scoped_array_variable_map(scoped_array_variable_map_) {}
-        
+
         void visit_Program(const ASR::Program_t &x) {
             ASR::Program_t& xx = const_cast<ASR::Program_t&>(x);
             SymbolTable* current_scope_copy = current_scope;
@@ -364,7 +364,7 @@ class DoConcurrentStatementVisitor : public ASR::CallReplacerOnExpressionsVisito
 
             module_name = s2c(al, current_scope->parent->get_unique_name("lcompilers_user_defined_functions"));
             ASR::asr_t* mo = ASR::make_Module_t(
-                                al, x.base.base.loc, module_scope, 
+                                al, x.base.base.loc, module_scope,
                                 s2c(al, module_name), nullptr,
                                 0, false, false);
             if (current_scope->parent->get_symbol(module_name) == nullptr) {
@@ -798,7 +798,7 @@ class DoConcurrentVisitor :
             std::string suffix = thread_data_module_name.substr(18);
             std::string thread_data_name = "thread_data" + suffix;
             ASR::symbol_t* thread_data_struct = ASR::down_cast<ASR::symbol_t>(ASR::make_Struct_t(al, loc,
-                current_scope, s2c(al, thread_data_name), nullptr, 0, involved_symbols_set.p, involved_symbols_set.n, ASR::abiType::Source,
+                current_scope, s2c(al, thread_data_name), nullptr, 0, involved_symbols_set.p, involved_symbols_set.n, nullptr, 0, ASR::abiType::Source,
                 ASR::accessType::Public, false, false, nullptr, 0, nullptr, nullptr));
             current_scope->parent->add_symbol(thread_data_name, thread_data_struct);
             current_scope = parent_scope;
@@ -850,7 +850,7 @@ class DoConcurrentVisitor :
             LCOMPILERS_ASSERT(data_expr != nullptr);
 
             // create tdata variable: `type(thread_data), pointer :: tdata`
-            ASR::expr_t* tdata_expr = b.Variable(current_scope, "tdata", ASRUtils::TYPE(ASR::make_Pointer_t(al, loc, ASRUtils::TYPE(ASR::make_StructType_t(al, loc, thread_data_sym)))),
+            ASR::expr_t* tdata_expr = b.Variable(current_scope, "tdata", ASRUtils::TYPE(ASR::make_Pointer_t(al, loc, ASRUtils::TYPE(ASRUtils::make_StructType_t_util(al, loc, thread_data_sym)))),
                     ASR::intentType::Local, ASR::abiType::BindC);
             LCOMPILERS_ASSERT(tdata_expr != nullptr);
 
@@ -969,7 +969,7 @@ class DoConcurrentVisitor :
                 dimension_lengths.push_back(length);
                 total_iterations = b.Mul(total_iterations, length);
             }
-  
+
             // always this shall be IntegerBinOp_t
             ASR::expr_t* loop_length = total_iterations;
             // ASR::expr_t* loop_length = b.Add(b.Sub(loop_head.m_end, loop_head.m_start), b.i32(1));
@@ -1068,7 +1068,7 @@ class DoConcurrentVisitor :
                     loc,2,mod_args.p, 2, 0, ASRUtils::expr_type(dimension_lengths[i]), nullptr)),head.m_start);
                 } else {
                     // Intermediate loop variable -> iy = ((I / ((nz - az 1) * (nk - ak 1))) % (ny - ay +1)) ay
-                    ASR::expr_t* product_of_next_dimensions = b.i32(1); 
+                    ASR::expr_t* product_of_next_dimensions = b.i32(1);
                     for (size_t j = i + 1 ; j <do_loop.n_head; ++j) {
                         product_of_next_dimensions = b.Mul(product_of_next_dimensions, dimension_lengths[j]);
                     }
@@ -1159,7 +1159,7 @@ class DoConcurrentVisitor :
                 ASR::deftypeType::Implementation, nullptr, false, false, false, false, false,
                 nullptr, 0,
                 false, false, false, nullptr));
-            
+
             current_scope->parent->add_symbol(ASRUtils::symbol_name(function), function);
             current_scope = current_scope_copy;
             return function;
@@ -1505,7 +1505,7 @@ class DoConcurrentVisitor :
             std::vector<std::string> array_variables;
             // create data variable for the thread data module
             ASRUtils::ASRBuilder b(al, x.base.base.loc);
-            ASR::expr_t* data_expr = b.Variable(current_scope, current_scope->get_unique_name("data"), ASRUtils::TYPE(ASR::make_StructType_t(al, x.base.base.loc, thread_data_ext_sym)), ASR::intentType::Local);
+            ASR::expr_t* data_expr = b.Variable(current_scope, current_scope->get_unique_name("data"), ASRUtils::TYPE(ASRUtils::make_StructType_t_util(al, x.base.base.loc, thread_data_ext_sym)), ASR::intentType::Local);
             LCOMPILERS_ASSERT(data_expr != nullptr);
 
             // now create a tdata (cptr)
