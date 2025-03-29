@@ -94,11 +94,11 @@ std::string get_runtime_library_header_dir()
         || endswith(dirname, "src\\bin")
         || endswith(dirname, "SRC\\BIN")) {
         // Development version
-        return dirname + "/../libasr/runtime";
+        return dirname + "/../libasr/src/libasr/runtime";
     } else if (endswith(dirname, "src/lpython/tests") ||
                endswith(to_lower(dirname), "src\\lpython\\tests")) {
         // CTest Tests
-        return dirname + "/../../libasr/runtime";
+        return dirname + "/../../libasr/src/libasr/runtime";
     } else {
         // Installed version
         return dirname + "/../share/lpython/lib/impure";

@@ -5,7 +5,7 @@ Generate AST node definitions from an ASDL description.
 import sys
 import os
 
-sys.path.append("src/libasr")
+sys.path.append("src/libasr/src/libasr")
 import asdl
 
 products = []
