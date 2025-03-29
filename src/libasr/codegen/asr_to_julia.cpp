@@ -307,7 +307,7 @@ public:
                     sub = format_type(type_name, v.m_name, use_ref);
                 }
             } else {
-                diag.codegen_error_label("Type number '" + std::to_string(v.m_type->type)
+                diag.codegen_error_label("Type '" + ASRUtils::type_to_str(v.m_type)
                                              + "' not supported",
                                          { v.base.base.loc },
                                          "");
@@ -404,7 +404,7 @@ public:
                     sub = format_type(der_type_name, v.m_name, use_ref);
                 }
             } else {
-                diag.codegen_error_label("Type number '" + std::to_string(v_m_type->type)
+                diag.codegen_error_label("Type '" + ASRUtils::type_to_str(v_m_type)
                                              + "' not supported",
                                          { v.base.base.loc },
                                          "");
@@ -984,7 +984,7 @@ public:
                 generate_array_decl(
                     out, std::string(v->m_name), der_type_name, _dims, nullptr, n_dims, true, true);
             } else {
-                diag.codegen_error_label("Type number '" + std::to_string(v->m_type->type)
+                diag.codegen_error_label("Type '" + ASRUtils::type_to_str(v->m_type)
                                              + "' not supported",
                                          { v->base.base.loc },
                                          "");

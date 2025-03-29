@@ -259,8 +259,8 @@ public:
                 std::string encoded_type_name = "i" + std::to_string(t->m_kind * 8);
                 handle_array(t2, type_name, true)
             } else {
-                diag.codegen_error_label("Type number '"
-                    + std::to_string(v.m_type->type)
+                diag.codegen_error_label("Type '"
+                    + ASRUtils::type_to_str(v.m_type)
                     + "' not supported", {v.base.base.loc}, "");
                 throw Abort();
             }
@@ -306,8 +306,8 @@ public:
                 sub = format_type_c("", list_type_c, v.m_name,
                                     false, false);
             } else {
-                diag.codegen_error_label("Type number '"
-                    + std::to_string(v.m_type->type)
+                diag.codegen_error_label("Type '"
+                    + ASRUtils::type_to_str(v.m_type)
                     + "' not supported", {v.base.base.loc}, "");
                 throw Abort();
             }

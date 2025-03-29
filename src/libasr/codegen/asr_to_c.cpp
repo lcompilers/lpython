@@ -387,8 +387,8 @@ public:
             } else if(ASR::is_a<ASR::CPtr_t>(*t2)) {
                 sub = format_type_c("", "void**", v.m_name, false, false);
             } else {
-                diag.codegen_error_label("Type number '"
-                    + std::to_string(t2->type)
+                diag.codegen_error_label("Type '"
+                    + ASRUtils::type_to_str(t2)
                     + "' not supported", {v.base.base.loc}, "");
                 throw Abort();
             }
@@ -551,8 +551,8 @@ public:
                 // Ignore type variables
                 return "";
             } else {
-                diag.codegen_error_label("Type number '"
-                    + std::to_string(v_m_type->type)
+                diag.codegen_error_label("Type '"
+                    + ASRUtils::type_to_str(v_m_type)
                     + "' not supported", {v.base.base.loc}, "");
                 throw Abort();
             }
