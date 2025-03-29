@@ -1,0 +1,3 @@
+[submodule "libasr"]
+	path = libasr
+	url = https://github.com/lfortran/lfortran.git

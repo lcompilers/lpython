@@ -63,6 +63,7 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
                                                 ),
                                             l:
                                                 (Variable
@@ -80,6 +81,7 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
                                                     .false.
                                                 ),
                                             l2:
@@ -99,6 +101,7 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
                                                 ),
                                             l3:
                                                 (Variable
@@ -117,6 +120,7 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
                                                 ),
                                             list_len:
                                                 (Variable
@@ -133,6 +137,7 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
                                                 ),
                                             s:
                                                 (Variable
@@ -143,11 +148,12 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Character 1 -2 ())
+                                                    (String 1 -2 () PointerString)
                                                     ()
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
                                                     .false.
                                                 ),
                                             t:
@@ -162,12 +168,13 @@
                                                     (Tuple
                                                         [(Integer 4)
                                                         (Integer 4)
-                                                        (Character 1 -2 ())]
+                                                        (String 1 -2 () PointerString)]
                                                     )
                                                     ()
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
                                                     .false.
                                                 ),
                                             t2:
@@ -183,13 +190,14 @@
                                                         [(Real 8)
                                                         (Logical 4)
                                                         (Logical 4)
-                                                        (Character 1 -2 ())
+                                                        (String 1 -2 () PointerString)
                                                         (Integer 4)]
                                                     )
                                                     ()
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
                                                     .false.
                                                 ),
                                             t3:
@@ -207,6 +215,7 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
                                                 ),
                                             tmp:
                                                 (Variable
@@ -222,6 +231,7 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
                                                     .false.
                                                 )
                                         })
@@ -246,7 +256,7 @@
                                         (Var 3 s)
                                         (StringConstant
                                             "abcd"
-                                            (Character 1 4 ())
+                                            (String 1 4 () PointerString)
                                         )
                                         ()
                                     )
@@ -258,7 +268,7 @@
                                                 ()
                                             )
                                             Eq
-                                            (IntegerConstant 4 (Integer 4))
+                                            (IntegerConstant 4 (Integer 4) Decimal)
                                             (Logical 4)
                                             ()
                                         )
@@ -268,7 +278,7 @@
                                         (Var 3 s)
                                         (StringConstant
                                             ""
-                                            (Character 1 0 ())
+                                            (String 1 0 () PointerString)
                                         )
                                         ()
                                     )
@@ -280,7 +290,7 @@
                                                 ()
                                             )
                                             Eq
-                                            (IntegerConstant 0 (Integer 4))
+                                            (IntegerConstant 0 (Integer 4) Decimal)
                                             (Logical 4)
                                             ()
                                         )
@@ -291,13 +301,13 @@
                                             (StringLen
                                                 (StringConstant
                                                     "abcd"
-                                                    (Character 1 4 ())
+                                                    (String 1 4 () PointerString)
                                                 )
                                                 (Integer 4)
-                                                (IntegerConstant 4 (Integer 4))
+                                                (IntegerConstant 4 (Integer 4) Decimal)
                                             )
                                             Eq
-                                            (IntegerConstant 4 (Integer 4))
+                                            (IntegerConstant 4 (Integer 4) Decimal)
                                             (Logical 4)
                                             (LogicalConstant
                                                 .true.
@@ -311,13 +321,13 @@
                                             (StringLen
                                                 (StringConstant
                                                     ""
-                                                    (Character 1 0 ())
+                                                    (String 1 0 () PointerString)
                                                 )
                                                 (Integer 4)
-                                                (IntegerConstant 0 (Integer 4))
+                                                (IntegerConstant 0 (Integer 4) Decimal)
                                             )
                                             Eq
-                                            (IntegerConstant 0 (Integer 4))
+                                            (IntegerConstant 0 (Integer 4) Decimal)
                                             (Logical 4)
                                             (LogicalConstant
                                                 .true.
@@ -329,10 +339,10 @@
                                     (Assignment
                                         (Var 3 l)
                                         (ListConstant
-                                            [(IntegerConstant 1 (Integer 4))
-                                            (IntegerConstant 2 (Integer 4))
-                                            (IntegerConstant 3 (Integer 4))
-                                            (IntegerConstant 4 (Integer 4))]
+                                            [(IntegerConstant 1 (Integer 4) Decimal)
+                                            (IntegerConstant 2 (Integer 4) Decimal)
+                                            (IntegerConstant 3 (Integer 4) Decimal)
+                                            (IntegerConstant 4 (Integer 4) Decimal)]
                                             (List
                                                 (Integer 4)
                                             )
@@ -347,7 +357,7 @@
                                                 ()
                                             )
                                             Eq
-                                            (IntegerConstant 4 (Integer 4))
+                                            (IntegerConstant 4 (Integer 4) Decimal)
                                             (Logical 4)
                                             ()
                                         )
@@ -390,7 +400,7 @@
                                                 ()
                                             )
                                             Eq
-                                            (IntegerConstant 5 (Integer 4))
+                                            (IntegerConstant 5 (Integer 4) Decimal)
                                             (Logical 4)
                                             ()
                                         )
@@ -414,7 +424,7 @@
                                                 ()
                                             )
                                             Eq
-                                            (IntegerConstant 0 (Integer 4))
+                                            (IntegerConstant 0 (Integer 4) Decimal)
                                             (Logical 4)
                                             ()
                                         )
@@ -423,15 +433,15 @@
                                     (DoLoop
                                         ()
                                         ((Var 3 i)
-                                        (IntegerConstant 0 (Integer 4))
+                                        (IntegerConstant 0 (Integer 4) Decimal)
                                         (IntegerBinOp
-                                            (IntegerConstant 50 (Integer 4))
+                                            (IntegerConstant 50 (Integer 4) Decimal)
                                             Sub
-                                            (IntegerConstant 1 (Integer 4))
+                                            (IntegerConstant 1 (Integer 4) Decimal)
                                             (Integer 4)
-                                            (IntegerConstant 49 (Integer 4))
+                                            (IntegerConstant 49 (Integer 4) Decimal)
                                         )
-                                        (IntegerConstant 1 (Integer 4)))
+                                        (IntegerConstant 1 (Integer 4) Decimal))
                                         [(ListAppend
                                             (Var 3 l3)
                                             (Var 3 i)
@@ -446,7 +456,7 @@
                                                 ()
                                             )
                                             Eq
-                                            (IntegerConstant 50 (Integer 4))
+                                            (IntegerConstant 50 (Integer 4) Decimal)
                                             (Logical 4)
                                             ()
                                         )
@@ -469,7 +479,7 @@
                                                 )
                                             )
                                             (Integer 4)
-                                            (IntegerConstant 2 (Integer 4))
+                                            (IntegerConstant 2 (Integer 4) Decimal)
                                         )
                                         ()
                                     )
@@ -477,7 +487,7 @@
                                         (IntegerCompare
                                             (Var 3 list_len)
                                             Eq
-                                            (IntegerConstant 2 (Integer 4))
+                                            (IntegerConstant 2 (Integer 4) Decimal)
                                             (Logical 4)
                                             ()
                                         )
@@ -486,16 +496,16 @@
                                     (Assignment
                                         (Var 3 t)
                                         (TupleConstant
-                                            [(IntegerConstant 1 (Integer 4))
-                                            (IntegerConstant 2 (Integer 4))
+                                            [(IntegerConstant 1 (Integer 4) Decimal)
+                                            (IntegerConstant 2 (Integer 4) Decimal)
                                             (StringConstant
                                                 "a"
-                                                (Character 1 1 ())
+                                                (String 1 1 () PointerString)
                                             )]
                                             (Tuple
                                                 [(Integer 4)
                                                 (Integer 4)
-                                                (Character 1 1 ())]
+                                                (String 1 1 () PointerString)]
                                             )
                                         )
                                         ()
@@ -505,10 +515,10 @@
                                             (TupleLen
                                                 (Var 3 t)
                                                 (Integer 4)
-                                                (IntegerConstant 3 (Integer 4))
+                                                (IntegerConstant 3 (Integer 4) Decimal)
                                             )
                                             Eq
-                                            (IntegerConstant 3 (Integer 4))
+                                            (IntegerConstant 3 (Integer 4) Decimal)
                                             (Logical 4)
                                             (LogicalConstant
                                                 .true.
@@ -534,14 +544,14 @@
                                             )
                                             (StringConstant
                                                 "b"
-                                                (Character 1 1 ())
+                                                (String 1 1 () PointerString)
                                             )
-                                            (IntegerConstant 3 (Integer 4))]
+                                            (IntegerConstant 3 (Integer 4) Decimal)]
                                             (Tuple
                                                 [(Real 8)
                                                 (Logical 4)
                                                 (Logical 4)
-                                                (Character 1 1 ())
+                                                (String 1 1 () PointerString)
                                                 (Integer 4)]
                                             )
                                         )
@@ -552,10 +562,10 @@
                                             (TupleLen
                                                 (Var 3 t2)
                                                 (Integer 4)
-                                                (IntegerConstant 5 (Integer 4))
+                                                (IntegerConstant 5 (Integer 4) Decimal)
                                             )
                                             Eq
-                                            (IntegerConstant 5 (Integer 4))
+                                            (IntegerConstant 5 (Integer 4) Decimal)
                                             (Logical 4)
                                             (LogicalConstant
                                                 .true.
@@ -568,11 +578,11 @@
                                         (Var 3 t3)
                                         (TupleLen
                                             (TupleConstant
-                                                [(IntegerConstant 1 (Integer 4))
-                                                (IntegerConstant 2 (Integer 4))
-                                                (IntegerConstant 3 (Integer 4))
-                                                (IntegerConstant 4 (Integer 4))
-                                                (IntegerConstant 5 (Integer 4))]
+                                                [(IntegerConstant 1 (Integer 4) Decimal)
+                                                (IntegerConstant 2 (Integer 4) Decimal)
+                                                (IntegerConstant 3 (Integer 4) Decimal)
+                                                (IntegerConstant 4 (Integer 4) Decimal)
+                                                (IntegerConstant 5 (Integer 4) Decimal)]
                                                 (Tuple
                                                     [(Integer 4)
                                                     (Integer 4)
@@ -582,7 +592,7 @@
                                                 )
                                             )
                                             (Integer 4)
-                                            (IntegerConstant 5 (Integer 4))
+                                            (IntegerConstant 5 (Integer 4) Decimal)
                                         )
                                         ()
                                     )
@@ -590,7 +600,7 @@
                                         (IntegerCompare
                                             (Var 3 t3)
                                             Eq
-                                            (IntegerConstant 5 (Integer 4))
+                                            (IntegerConstant 5 (Integer 4) Decimal)
                                             (Logical 4)
                                             ()
                                         )
@@ -608,19 +618,19 @@
                                     (DoLoop
                                         ()
                                         ((Var 3 i)
-                                        (IntegerConstant 0 (Integer 4))
+                                        (IntegerConstant 0 (Integer 4) Decimal)
                                         (IntegerBinOp
                                             (TupleLen
                                                 (Var 3 t2)
                                                 (Integer 4)
-                                                (IntegerConstant 5 (Integer 4))
+                                                (IntegerConstant 5 (Integer 4) Decimal)
                                             )
                                             Sub
-                                            (IntegerConstant 1 (Integer 4))
+                                            (IntegerConstant 1 (Integer 4) Decimal)
                                             (Integer 4)
-                                            (IntegerConstant 4 (Integer 4))
+                                            (IntegerConstant 4 (Integer 4) Decimal)
                                         )
-                                        (IntegerConstant 1 (Integer 4)))
+                                        (IntegerConstant 1 (Integer 4) Decimal))
                                         [(ListAppend
                                             (Var 3 l)
                                             (Var 3 i)
@@ -639,7 +649,7 @@
                                                 (TupleLen
                                                     (Var 3 t2)
                                                     (Integer 4)
-                                                    (IntegerConstant 5 (Integer 4))
+                                                    (IntegerConstant 5 (Integer 4) Decimal)
                                                 )
                                                 Add
                                                 (Var 3 tmp)

@@ -27,6 +27,7 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
                                                 ),
                                             y:
                                                 (Variable
@@ -42,6 +43,7 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
                                                     .false.
                                                 )
                                         })
@@ -115,6 +117,7 @@
                                                     Public
                                                     Required
                                                     .true.
+                                                    .false.
                                                 ),
                                             a1:
                                                 (Variable
@@ -136,6 +139,7 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
                                                     .false.
                                                 ),
                                             a2:
@@ -161,6 +165,7 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
                                                 ),
                                             x:
                                                 (Variable
@@ -177,6 +182,7 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
                                                 ),
                                             y:
                                                 (Variable
@@ -192,6 +198,7 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
                                                     .false.
                                                 )
                                         })
@@ -216,7 +223,7 @@
                                         (Var 4 a1)
                                         (StructConstructor
                                             2 A
-                                            [((IntegerConstant 3 (Integer 4)))
+                                            [((IntegerConstant 3 (Integer 4) Decimal))
                                             ((Cast
                                                 (RealConstant
                                                     3.250000
@@ -258,22 +265,26 @@
                                         ()
                                     )
                                     (Print
-                                        [(Var 4 a2)
-                                        (GetPointer
-                                            (Var 4 a1)
-                                            (Pointer
-                                                (StructType
-                                                    [(Integer 4)
-                                                    (Real 4)]
-                                                    []
-                                                    .true.
-                                                    2 A
-                                                )
-                                            )
+                                        (StringFormat
                                             ()
-                                        )]
-                                        ()
-                                        ()
+                                            [(Var 4 a2)
+                                            (GetPointer
+                                                (Var 4 a1)
+                                                (Pointer
+                                                    (StructType
+                                                        [(Integer 4)
+                                                        (Real 4)]
+                                                        []
+                                                        .true.
+                                                        2 A
+                                                    )
+                                                )
+                                                ()
+                                            )]
+                                            FormatPythonFormat
+                                            (String -1 0 () PointerString)
+                                            ()
+                                        )
                                     )
                                     (Assignment
                                         (Var 4 x)
@@ -299,7 +310,7 @@
                                         (IntegerCompare
                                             (Var 4 x)
                                             Eq
-                                            (IntegerConstant 3 (Integer 4))
+                                            (IntegerConstant 3 (Integer 4) Decimal)
                                             (Logical 4)
                                             ()
                                         )
@@ -348,6 +359,7 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
                                                     .false.
                                                 )
                                         })

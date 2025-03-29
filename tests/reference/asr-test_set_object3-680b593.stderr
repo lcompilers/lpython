@@ -1,5 +1,5 @@
-semantic error: Unhashable type: 'set'
+semantic error: Unhashable type: 'set[i32]'
  --> tests/errors/test_set_object3.py:4:17
   |
 4 |     my_set: set[set[i32]] = {{1, 2}, {3, 4}}
-  |                 ^^^^^^^^ Mutable type 'set' cannot be stored in a set.
+  |                 ^^^^^^^^ Mutable type 'set[i32]' cannot be stored in a set.

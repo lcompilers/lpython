@@ -57,7 +57,7 @@ namespace LCompilers::LPython {
 
         ~RedirectStdout() {
             fflush(stdout);
-            read(out_pipe[0], buffer, MAX_LEN);
+            (void)read(out_pipe[0], buffer, MAX_LEN);
             dup2(saved_stdout, stdout_fileno);
             _out = std::string(&buffer[1]);
         }
@@ -110,7 +110,7 @@ namespace LCompilers::LPython {
         void shutdown_request_impl() override;
     };
 
-    
+
     void custom_interpreter::execute_request_impl(send_reply_callback cb,
                                                   int execution_counter, // Typically the cell number
                                                   const std::string& code, // Code to execute
@@ -409,7 +409,7 @@ namespace LCompilers::LPython {
         cb(result);
         return;
     }
-    
+
     void custom_interpreter::configure_impl()
     {
         // Perform some operations

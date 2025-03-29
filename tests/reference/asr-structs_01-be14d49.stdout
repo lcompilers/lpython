@@ -27,6 +27,7 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
                                                 ),
                                             y:
                                                 (Variable
@@ -42,6 +43,7 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
                                                     .false.
                                                 )
                                         })
@@ -121,6 +123,7 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
                                                 )
                                         })
                                     change_struct
@@ -161,7 +164,7 @@
                                                 ()
                                             )
                                             Add
-                                            (IntegerConstant 1 (Integer 4))
+                                            (IntegerConstant 1 (Integer 4) Decimal)
                                             (Integer 4)
                                             ()
                                         )
@@ -183,7 +186,7 @@
                                             )
                                             Add
                                             (Cast
-                                                (IntegerConstant 1 (Integer 4))
+                                                (IntegerConstant 1 (Integer 4) Decimal)
                                                 IntegerToReal
                                                 (Real 4)
                                                 (RealConstant
@@ -228,6 +231,7 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
                                                 )
                                         })
                                     f
@@ -254,24 +258,32 @@
                                     []
                                     [(Var 4 a)]
                                     [(Print
-                                        [(StructInstanceMember
-                                            (Var 4 a)
-                                            3 x
-                                            (Integer 4)
+                                        (StringFormat
                                             ()
-                                        )]
-                                        ()
-                                        ()
+                                            [(StructInstanceMember
+                                                (Var 4 a)
+                                                3 x
+                                                (Integer 4)
+                                                ()
+                                            )]
+                                            FormatPythonFormat
+                                            (String -1 0 () PointerString)
+                                            ()
+                                        )
                                     )
                                     (Print
-                                        [(StructInstanceMember
-                                            (Var 4 a)
-                                            3 y
-                                            (Real 4)
+                                        (StringFormat
                                             ()
-                                        )]
-                                        ()
-                                        ()
+                                            [(StructInstanceMember
+                                                (Var 4 a)
+                                                3 y
+                                                (Real 4)
+                                                ()
+                                            )]
+                                            FormatPythonFormat
+                                            (String -1 0 () PointerString)
+                                            ()
+                                        )
                                     )]
                                     ()
                                     Public
@@ -304,6 +316,7 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
                                                     .false.
                                                 )
                                         })
@@ -341,7 +354,7 @@
                                                     (Real 4)
                                                 )
                                             ))
-                                            ((IntegerConstant 3 (Integer 4)))]
+                                            ((IntegerConstant 3 (Integer 4) Decimal))]
                                             (StructType
                                                 [(Real 4)
                                                 (Integer 4)]
@@ -368,7 +381,7 @@
                                                 ()
                                             )
                                             Eq
-                                            (IntegerConstant 3 (Integer 4))
+                                            (IntegerConstant 3 (Integer 4) Decimal)
                                             (Logical 4)
                                             ()
                                         )
@@ -404,7 +417,7 @@
                                             (Integer 4)
                                             ()
                                         )
-                                        (IntegerConstant 5 (Integer 4))
+                                        (IntegerConstant 5 (Integer 4) Decimal)
                                         ()
                                     )
                                     (Assignment
@@ -443,7 +456,7 @@
                                                 ()
                                             )
                                             Eq
-                                            (IntegerConstant 5 (Integer 4))
+                                            (IntegerConstant 5 (Integer 4) Decimal)
                                             (Logical 4)
                                             ()
                                         )
@@ -487,7 +500,7 @@
                                                 ()
                                             )
                                             Eq
-                                            (IntegerConstant 6 (Integer 4))
+                                            (IntegerConstant 6 (Integer 4) Decimal)
                                             (Logical 4)
                                             ()
                                         )

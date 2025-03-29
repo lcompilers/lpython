@@ -7,7 +7,7 @@ if (LPYTHON_BUILD_ALL)
   execute_process(COMMAND "build0.sh")
 endif()
 
-file(STRINGS "version" LFORTRAN_VERSION)
+file(STRINGS "lpython_version" LFORTRAN_VERSION)
 
 project(lpython LANGUAGES C CXX)
 
@@ -348,3 +348,4 @@ message("WITH_TARGET_X86: ${WITH_TARGET_X86}")
 
 
 add_subdirectory(src)
+add_subdirectory(libasr/src/libasr)

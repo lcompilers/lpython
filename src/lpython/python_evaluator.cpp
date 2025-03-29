@@ -162,7 +162,7 @@ Result<PythonCompiler::EvalResult> PythonCompiler::evaluate(
             ASR::symbol_t *fn = ASR::down_cast<ASR::Module_t>(symbol_table->resolve_symbol(module_name))
                                     ->m_symtab->get_symbol(run_fn);
             LCOMPILERS_ASSERT(fn)
-            if (ASRUtils::get_FunctionType(fn)->m_return_var_type->type == ASR::ttypeType::Character) {
+            if (ASRUtils::get_FunctionType(fn)->m_return_var_type->type == ASR::ttypeType::String) {
                 char *r = e->execfn<char*>(run_fn);
                 result.type = EvalResult::string;
                 result.str = r;
@@ -542,21 +542,21 @@ std::string PythonCompiler::aggregate_type_to_string(const struct EvalResult &r)
         result += ")";
 
     } else if (asr_type->type == ASR::ttypeType::StructType) {
-        ASR::StructType_t *class_type = ASR::down_cast<ASR::StructType_t>(asr_type);
-        ASR::Struct_t *struct_info = ASR::down_cast<ASR::Struct_t>(class_type->m_derived_type);
-        LCOMPILERS_ASSERT(class_type->n_data_member_types == struct_info->n_members)
-        result += struct_info->m_name;
-        result += "(";
-        for (size_t i = 0; i < struct_info->n_members - 1; i++) {
-            result += struct_info->m_members[i];
-            result += "=";
-            print_type(class_type->m_data_member_types[i], ((char*)data)+offsets[i], result);
-            result += ", ";
-        }
-        result += struct_info->m_members[struct_info->n_members - 1];
-        result += "=";
-        print_type(class_type->m_data_member_types[struct_info->n_members - 1], ((char*)data)+offsets[struct_info->n_members - 1], result);
-        result += ")";
+        // ASR::StructType_t *class_type = ASR::down_cast<ASR::StructType_t>(asr_type);
+        // ASR::Struct_t *struct_info = ASR::down_cast<ASR::Struct_t>(class_type->m_derived_type);
+        // LCOMPILERS_ASSERT(class_type->n_data_member_types == struct_info->n_members)
+        // result += struct_info->m_name;
+        // result += "(";
+        // for (size_t i = 0; i < struct_info->n_members - 1; i++) {
+        //     result += struct_info->m_members[i];
+        //     result += "=";
+        //     print_type(class_type->m_data_member_types[i], ((char*)data)+offsets[i], result);
+        //     result += ", ";
+        // }
+        // result += struct_info->m_members[struct_info->n_members - 1];
+        // result += "=";
+        // print_type(class_type->m_data_member_types[struct_info->n_members - 1], ((char*)data)+offsets[struct_info->n_members - 1], result);
+        // result += ")";
 
     } else {
         throw LCompilersException("PythonCompiler::evaluate(): Return type not supported");
@@ -655,7 +655,7 @@ void print_type(ASR::ttype_t *t, void *data, std::string &result) {
             }
             break;
         }
-        case ASR::ttypeType::Character:
+        case ASR::ttypeType::String:
             result += '"';
             result += std::string(*(char**)data); // TODO: replace \n with \\n
             result += '"';

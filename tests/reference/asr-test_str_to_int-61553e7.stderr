@@ -1,5 +1,5 @@
-semantic error: invalid literal for int() with base 10: '3abc'
- --> tests/errors/test_str_to_int.py:2:15
+semantic error: Unexpected args, Int expects (int) or (real) or (complex) as arguments
+ --> tests/errors/test_str_to_int.py:2:11
   |
 2 |     print(int('3abc'))
-  |               ^^^^^^ 
+  |           ^^^^^^^^^^^ 

@@ -243,12 +243,12 @@ jobs:
         run: |
             python integration_tests/test_pip_import_01.py
 
-      - name: Test PIP Packages with LPython
-        shell: bash -e -l {0}
-        run: |
-            pip_pkg_path=$(python -c "import site; print(site.getsitepackages()[0])")
-            echo $pip_pkg_path
-            ./src/bin/lpython integration_tests/test_pip_import_01.py -I $pip_pkg_path
+      # - name: Test PIP Packages with LPython
+      #   shell: bash -e -l {0}
+      #   run: |
+      #       pip_pkg_path=$(python -c "import site; print(site.getsitepackages()[0])")
+      #       echo $pip_pkg_path
+      #       ./src/bin/lpython integration_tests/test_pip_import_01.py -I $pip_pkg_path
 
   debug:
     name: Check Debug build

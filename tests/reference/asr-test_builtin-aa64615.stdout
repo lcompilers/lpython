@@ -71,11 +71,12 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Character 1 -2 ())
+                                                    (String 1 -2 () PointerString)
                                                     ()
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
                                                     .false.
                                                 ),
                                             b:
@@ -87,11 +88,12 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Character 1 -2 ())
+                                                    (String 1 -2 () PointerString)
                                                     ()
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
                                                     .false.
                                                 ),
                                             c:
@@ -103,11 +105,12 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Character 1 -2 ())
+                                                    (String 1 -2 () PointerString)
                                                     ()
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
                                                     .false.
                                                 ),
                                             d:
@@ -119,11 +122,12 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Character 1 -2 ())
+                                                    (String 1 -2 () PointerString)
                                                     ()
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
                                                     .false.
                                                 ),
                                             p:
@@ -141,6 +145,7 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
                                                 ),
                                             q:
                                                 (Variable
@@ -156,6 +161,7 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
                                                     .false.
                                                 ),
                                             r:
@@ -173,6 +179,7 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
                                                 ),
                                             s:
                                                 (Variable
@@ -188,6 +195,7 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
                                                     .false.
                                                 )
                                         })
@@ -210,65 +218,81 @@
                                     []
                                     [(Assignment
                                         (Var 5 p)
-                                        (IntegerConstant 97 (Integer 4))
+                                        (IntegerConstant 97 (Integer 4) Decimal)
                                         ()
                                     )
                                     (Assignment
                                         (Var 5 q)
-                                        (IntegerConstant 112 (Integer 4))
+                                        (IntegerConstant 112 (Integer 4) Decimal)
                                         ()
                                     )
                                     (Assignment
                                         (Var 5 r)
-                                        (IntegerConstant 10 (Integer 4))
+                                        (IntegerConstant 10 (Integer 4) Decimal)
                                         ()
                                     )
                                     (Assignment
                                         (Var 5 s)
-                                        (IntegerConstant 65 (Integer 4))
+                                        (IntegerConstant 65 (Integer 4) Decimal)
                                         ()
                                     )
                                     (Print
-                                        [(StringChr
-                                            (Var 5 p)
-                                            (Character 1 1 ())
+                                        (StringFormat
                                             ()
-                                        )]
-                                        ()
-                                        ()
+                                            [(StringChr
+                                                (Var 5 p)
+                                                (String 1 1 () PointerString)
+                                                ()
+                                            )]
+                                            FormatPythonFormat
+                                            (String -1 0 () PointerString)
+                                            ()
+                                        )
                                     )
                                     (Print
-                                        [(StringChr
-                                            (Var 5 q)
-                                            (Character 1 1 ())
+                                        (StringFormat
                                             ()
-                                        )]
-                                        ()
-                                        ()
+                                            [(StringChr
+                                                (Var 5 q)
+                                                (String 1 1 () PointerString)
+                                                ()
+                                            )]
+                                            FormatPythonFormat
+                                            (String -1 0 () PointerString)
+                                            ()
+                                        )
                                     )
                                     (Print
-                                        [(StringChr
-                                            (Var 5 r)
-                                            (Character 1 1 ())
+                                        (StringFormat
                                             ()
-                                        )]
-                                        ()
-                                        ()
+                                            [(StringChr
+                                                (Var 5 r)
+                                                (String 1 1 () PointerString)
+                                                ()
+                                            )]
+                                            FormatPythonFormat
+                                            (String -1 0 () PointerString)
+                                            ()
+                                        )
                                     )
                                     (Print
-                                        [(StringChr
-                                            (Var 5 s)
-                                            (Character 1 1 ())
+                                        (StringFormat
                                             ()
-                                        )]
-                                        ()
-                                        ()
+                                            [(StringChr
+                                                (Var 5 s)
+                                                (String 1 1 () PointerString)
+                                                ()
+                                            )]
+                                            FormatPythonFormat
+                                            (String -1 0 () PointerString)
+                                            ()
+                                        )
                                     )
                                     (Assignment
                                         (Var 5 a)
                                         (StringConstant
                                             "!"
-                                            (Character 1 1 ())
+                                            (String 1 1 () PointerString)
                                         )
                                         ()
                                     )
@@ -276,7 +300,7 @@
                                         (Var 5 b)
                                         (StringConstant
                                             " "
-                                            (Character 1 1 ())
+                                            (String 1 1 () PointerString)
                                         )
                                         ()
                                     )
@@ -284,7 +308,7 @@
                                         (Var 5 c)
                                         (StringConstant
                                             "Z"
-                                            (Character 1 1 ())
+                                            (String 1 1 () PointerString)
                                         )
                                         ()
                                     )
@@ -292,45 +316,61 @@
                                         (Var 5 d)
                                         (StringConstant
                                             "g"
-                                            (Character 1 1 ())
+                                            (String 1 1 () PointerString)
                                         )
                                         ()
                                     )
                                     (Print
-                                        [(StringOrd
-                                            (Var 5 a)
-                                            (Integer 4)
+                                        (StringFormat
                                             ()
-                                        )]
-                                        ()
-                                        ()
+                                            [(StringOrd
+                                                (Var 5 a)
+                                                (Integer 4)
+                                                ()
+                                            )]
+                                            FormatPythonFormat
+                                            (String -1 0 () PointerString)
+                                            ()
+                                        )
                                     )
                                     (Print
-                                        [(StringOrd
-                                            (Var 5 b)
-                                            (Integer 4)
+                                        (StringFormat
                                             ()
-                                        )]
-                                        ()
-                                        ()
+                                            [(StringOrd
+                                                (Var 5 b)
+                                                (Integer 4)
+                                                ()
+                                            )]
+                                            FormatPythonFormat
+                                            (String -1 0 () PointerString)
+                                            ()
+                                        )
                                     )
                                     (Print
-                                        [(StringOrd
-                                            (Var 5 c)
-                                            (Integer 4)
+                                        (StringFormat
                                             ()
-                                        )]
-                                        ()
-                                        ()
+                                            [(StringOrd
+                                                (Var 5 c)
+                                                (Integer 4)
+                                                ()
+                                            )]
+                                            FormatPythonFormat
+                                            (String -1 0 () PointerString)
+                                            ()
+                                        )
                                     )
                                     (Print
-                                        [(StringOrd
-                                            (Var 5 d)
-                                            (Integer 4)
+                                        (StringFormat
                                             ()
-                                        )]
-                                        ()
-                                        ()
+                                            [(StringOrd
+                                                (Var 5 d)
+                                                (Integer 4)
+                                                ()
+                                            )]
+                                            FormatPythonFormat
+                                            (String -1 0 () PointerString)
+                                            ()
+                                        )
                                     )]
                                     ()
                                     Public
@@ -352,11 +392,12 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Character 1 -2 ())
+                                                    (String 1 -2 () PointerString)
                                                     ()
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
                                                     .false.
                                                 ),
                                             capital_z:
@@ -368,11 +409,12 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Character 1 -2 ())
+                                                    (String 1 -2 () PointerString)
                                                     ()
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
                                                     .false.
                                                 ),
                                             dollar:
@@ -384,11 +426,12 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Character 1 -2 ())
+                                                    (String 1 -2 () PointerString)
                                                     ()
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
                                                     .false.
                                                 ),
                                             exclamation:
@@ -400,11 +443,12 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Character 1 -2 ())
+                                                    (String 1 -2 () PointerString)
                                                     ()
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
                                                     .false.
                                                 ),
                                             i:
@@ -422,6 +466,7 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
                                                 ),
                                             left_parenthesis:
                                                 (Variable
@@ -432,11 +477,12 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Character 1 -2 ())
+                                                    (String 1 -2 () PointerString)
                                                     ()
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
                                                     .false.
                                                 ),
                                             nine:
@@ -448,11 +494,12 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Character 1 -2 ())
+                                                    (String 1 -2 () PointerString)
                                                     ()
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
                                                     .false.
                                                 ),
                                             plus:
@@ -464,11 +511,12 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Character 1 -2 ())
+                                                    (String 1 -2 () PointerString)
                                                     ()
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
                                                     .false.
                                                 ),
                                             right_brace:
@@ -480,11 +528,12 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Character 1 -2 ())
+                                                    (String 1 -2 () PointerString)
                                                     ()
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
                                                     .false.
                                                 ),
                                             right_bracket:
@@ -496,11 +545,12 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Character 1 -2 ())
+                                                    (String 1 -2 () PointerString)
                                                     ()
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
                                                     .false.
                                                 ),
                                             semicolon:
@@ -512,11 +562,12 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Character 1 -2 ())
+                                                    (String 1 -2 () PointerString)
                                                     ()
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
                                                     .false.
                                                 ),
                                             small_a:
@@ -528,11 +579,12 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Character 1 -2 ())
+                                                    (String 1 -2 () PointerString)
                                                     ()
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
                                                     .false.
                                                 ),
                                             small_z:
@@ -544,11 +596,12 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Character 1 -2 ())
+                                                    (String 1 -2 () PointerString)
                                                     ()
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
                                                     .false.
                                                 ),
                                             zero:
@@ -560,11 +613,12 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Character 1 -2 ())
+                                                    (String 1 -2 () PointerString)
                                                     ()
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
                                                     .false.
                                                 )
                                         })
@@ -587,14 +641,14 @@
                                     []
                                     [(Assignment
                                         (Var 4 i)
-                                        (IntegerConstant 33 (Integer 4))
+                                        (IntegerConstant 33 (Integer 4) Decimal)
                                         ()
                                     )
                                     (Assignment
                                         (Var 4 exclamation)
                                         (StringChr
                                             (Var 4 i)
-                                            (Character 1 1 ())
+                                            (String 1 1 () PointerString)
                                             ()
                                         )
                                         ()
@@ -602,17 +656,17 @@
                                     (Assert
                                         (StringCompare
                                             (StringChr
-                                                (IntegerConstant 33 (Integer 4))
-                                                (Character 1 1 ())
+                                                (IntegerConstant 33 (Integer 4) Decimal)
+                                                (String 1 1 () PointerString)
                                                 (StringConstant
                                                     "!"
-                                                    (Character 1 1 ())
+                                                    (String 1 1 () PointerString)
                                                 )
                                             )
                                             Eq
                                             (StringConstant
                                                 "!"
-                                                (Character 1 1 ())
+                                                (String 1 1 () PointerString)
                                             )
                                             (Logical 4)
                                             (LogicalConstant
@@ -628,7 +682,7 @@
                                             Eq
                                             (StringConstant
                                                 "!"
-                                                (Character 1 1 ())
+                                                (String 1 1 () PointerString)
                                             )
                                             (Logical 4)
                                             ()
@@ -637,14 +691,14 @@
                                     )
                                     (Assignment
                                         (Var 4 i)
-                                        (IntegerConstant 36 (Integer 4))
+                                        (IntegerConstant 36 (Integer 4) Decimal)
                                         ()
                                     )
                                     (Assignment
                                         (Var 4 dollar)
                                         (StringChr
                                             (Var 4 i)
-                                            (Character 1 1 ())
+                                            (String 1 1 () PointerString)
                                             ()
                                         )
                                         ()
@@ -652,17 +706,17 @@
                                     (Assert
                                         (StringCompare
                                             (StringChr
-                                                (IntegerConstant 36 (Integer 4))
-                                                (Character 1 1 ())
+                                                (IntegerConstant 36 (Integer 4) Decimal)
+                                                (String 1 1 () PointerString)
                                                 (StringConstant
                                                     "$"
-                                                    (Character 1 1 ())
+                                                    (String 1 1 () PointerString)
                                                 )
                                             )
                                             Eq
                                             (StringConstant
                                                 "$"
-                                                (Character 1 1 ())
+                                                (String 1 1 () PointerString)
                                             )
                                             (Logical 4)
                                             (LogicalConstant
@@ -678,7 +732,7 @@
                                             Eq
                                             (StringConstant
                                                 "$"
-                                                (Character 1 1 ())
+                                                (String 1 1 () PointerString)
                                             )
                                             (Logical 4)
                                             ()
@@ -687,14 +741,14 @@
                                     )
                                     (Assignment
                                         (Var 4 i)
-                                        (IntegerConstant 40 (Integer 4))
+                                        (IntegerConstant 40 (Integer 4) Decimal)
                                         ()
                                     )
                                     (Assignment
                                         (Var 4 left_parenthesis)
                                         (StringChr
                                             (Var 4 i)
-                                            (Character 1 1 ())
+                                            (String 1 1 () PointerString)
                                             ()
                                         )
                                         ()
@@ -702,17 +756,17 @@
                                     (Assert
                                         (StringCompare
                                             (StringChr
-                                                (IntegerConstant 40 (Integer 4))
-                                                (Character 1 1 ())
+                                                (IntegerConstant 40 (Integer 4) Decimal)
+                                                (String 1 1 () PointerString)
                                                 (StringConstant
                                                     "("
-                                                    (Character 1 1 ())
+                                                    (String 1 1 () PointerString)
                                                 )
                                             )
                                             Eq
                                             (StringConstant
                                                 "("
-                                                (Character 1 1 ())
+                                                (String 1 1 () PointerString)
                                             )
                                             (Logical 4)
                                             (LogicalConstant
@@ -728,7 +782,7 @@
                                             Eq
                                             (StringConstant
                                                 "("
-                                                (Character 1 1 ())
+                                                (String 1 1 () PointerString)
                                             )
                                             (Logical 4)
                                             ()
@@ -737,14 +791,14 @@
                                     )
                                     (Assignment
                                         (Var 4 i)
-                                        (IntegerConstant 43 (Integer 4))
+                                        (IntegerConstant 43 (Integer 4) Decimal)
                                         ()
                                     )
                                     (Assignment
                                         (Var 4 plus)
                                         (StringChr
                                             (Var 4 i)
-                                            (Character 1 1 ())
+                                            (String 1 1 () PointerString)
                                             ()
                                         )
                                         ()
@@ -752,17 +806,17 @@
                                     (Assert
                                         (StringCompare
                                             (StringChr
-                                                (IntegerConstant 43 (Integer 4))
-                                                (Character 1 1 ())
+                                                (IntegerConstant 43 (Integer 4) Decimal)
+                                                (String 1 1 () PointerString)
                                                 (StringConstant
                                                     "+"
-                                                    (Character 1 1 ())
+                                                    (String 1 1 () PointerString)
                                                 )
                                             )
                                             Eq
                                             (StringConstant
                                                 "+"
-                                                (Character 1 1 ())
+                                                (String 1 1 () PointerString)
                                             )
                                             (Logical 4)
                                             (LogicalConstant
@@ -778,7 +832,7 @@
                                             Eq
                                             (StringConstant
                                                 "+"
-                                                (Character 1 1 ())
+                                                (String 1 1 () PointerString)
                                             )
                                             (Logical 4)
                                             ()
@@ -787,14 +841,14 @@
                                     )
                                     (Assignment
                                         (Var 4 i)
-                                        (IntegerConstant 48 (Integer 4))
+                                        (IntegerConstant 48 (Integer 4) Decimal)
                                         ()
                                     )
                                     (Assignment
                                         (Var 4 zero)
                                         (StringChr
                                             (Var 4 i)
-                                            (Character 1 1 ())
+                                            (String 1 1 () PointerString)
                                             ()
                                         )
                                         ()
@@ -802,17 +856,17 @@
                                     (Assert
                                         (StringCompare
                                             (StringChr
-                                                (IntegerConstant 48 (Integer 4))
-                                                (Character 1 1 ())
+                                                (IntegerConstant 48 (Integer 4) Decimal)
+                                                (String 1 1 () PointerString)
                                                 (StringConstant
                                                     "0"
-                                                    (Character 1 1 ())
+                                                    (String 1 1 () PointerString)
                                                 )
                                             )
                                             Eq
                                             (StringConstant
                                                 "0"
-                                                (Character 1 1 ())
+                                                (String 1 1 () PointerString)
                                             )
                                             (Logical 4)
                                             (LogicalConstant
@@ -828,7 +882,7 @@
                                             Eq
                                             (StringConstant
                                                 "0"
-                                                (Character 1 1 ())
+                                                (String 1 1 () PointerString)
                                             )
                                             (Logical 4)
                                             ()
@@ -837,14 +891,14 @@
                                     )
                                     (Assignment
                                         (Var 4 i)
-                                        (IntegerConstant 57 (Integer 4))
+                                        (IntegerConstant 57 (Integer 4) Decimal)
                                         ()
                                     )
                                     (Assignment
                                         (Var 4 nine)
                                         (StringChr
                                             (Var 4 i)
-                                            (Character 1 1 ())
+                                            (String 1 1 () PointerString)
                                             ()
                                         )
                                         ()
@@ -852,17 +906,17 @@
                                     (Assert
                                         (StringCompare
                                             (StringChr
-                                                (IntegerConstant 57 (Integer 4))
-                                                (Character 1 1 ())
+                                                (IntegerConstant 57 (Integer 4) Decimal)
+                                                (String 1 1 () PointerString)
                                                 (StringConstant
                                                     "9"
-                                                    (Character 1 1 ())
+                                                    (String 1 1 () PointerString)
                                                 )
                                             )
                                             Eq
                                             (StringConstant
                                                 "9"
-                                                (Character 1 1 ())
+                                                (String 1 1 () PointerString)
                                             )
                                             (Logical 4)
                                             (LogicalConstant
@@ -878,7 +932,7 @@
                                             Eq
                                             (StringConstant
                                                 "9"
-                                                (Character 1 1 ())
+                                                (String 1 1 () PointerString)
                                             )
                                             (Logical 4)
                                             ()
@@ -887,14 +941,14 @@
                                     )
                                     (Assignment
                                         (Var 4 i)
-                                        (IntegerConstant 59 (Integer 4))
+                                        (IntegerConstant 59 (Integer 4) Decimal)
                                         ()
                                     )
                                     (Assignment
                                         (Var 4 semicolon)
                                         (StringChr
                                             (Var 4 i)
-                                            (Character 1 1 ())
+                                            (String 1 1 () PointerString)
                                             ()
                                         )
                                         ()
@@ -902,17 +956,17 @@
                                     (Assert
                                         (StringCompare
                                             (StringChr
-                                                (IntegerConstant 59 (Integer 4))
-                                                (Character 1 1 ())
+                                                (IntegerConstant 59 (Integer 4) Decimal)
+                                                (String 1 1 () PointerString)
                                                 (StringConstant
                                                     ";"
-                                                    (Character 1 1 ())
+                                                    (String 1 1 () PointerString)
                                                 )
                                             )
                                             Eq
                                             (StringConstant
                                                 ";"
-                                                (Character 1 1 ())
+                                                (String 1 1 () PointerString)
                                             )
                                             (Logical 4)
                                             (LogicalConstant
@@ -928,7 +982,7 @@
                                             Eq
                                             (StringConstant
                                                 ";"
-                                                (Character 1 1 ())
+                                                (String 1 1 () PointerString)
                                             )
                                             (Logical 4)
                                             ()
@@ -937,14 +991,14 @@
                                     )
                                     (Assignment
                                         (Var 4 i)
-                                        (IntegerConstant 65 (Integer 4))
+                                        (IntegerConstant 65 (Integer 4) Decimal)
                                         ()
                                     )
                                     (Assignment
                                         (Var 4 capital_a)
                                         (StringChr
                                             (Var 4 i)
-                                            (Character 1 1 ())
+                                            (String 1 1 () PointerString)
                                             ()
                                         )
                                         ()
@@ -952,17 +1006,17 @@
                                     (Assert
                                         (StringCompare
                                             (StringChr
-                                                (IntegerConstant 65 (Integer 4))
-                                                (Character 1 1 ())
+                                                (IntegerConstant 65 (Integer 4) Decimal)
+                                                (String 1 1 () PointerString)
                                                 (StringConstant
                                                     "A"
-                                                    (Character 1 1 ())
+                                                    (String 1 1 () PointerString)
                                                 )
                                             )
                                             Eq
                                             (StringConstant
                                                 "A"
-                                                (Character 1 1 ())
+                                                (String 1 1 () PointerString)
                                             )
                                             (Logical 4)
                                             (LogicalConstant
@@ -978,7 +1032,7 @@
                                             Eq
                                             (StringConstant
                                                 "A"
-                                                (Character 1 1 ())
+                                                (String 1 1 () PointerString)
                                             )
                                             (Logical 4)
                                             ()
@@ -987,14 +1041,14 @@
                                     )
                                     (Assignment
                                         (Var 4 i)
-                                        (IntegerConstant 90 (Integer 4))
+                                        (IntegerConstant 90 (Integer 4) Decimal)
                                         ()
                                     )
                                     (Assignment
                                         (Var 4 capital_z)
                                         (StringChr
                                             (Var 4 i)
-                                            (Character 1 1 ())
+                                            (String 1 1 () PointerString)
                                             ()
                                         )
                                         ()
@@ -1002,17 +1056,17 @@
                                     (Assert
                                         (StringCompare
                                             (StringChr
-                                                (IntegerConstant 90 (Integer 4))
-                                                (Character 1 1 ())
+                                                (IntegerConstant 90 (Integer 4) Decimal)
+                                                (String 1 1 () PointerString)
                                                 (StringConstant
                                                     "Z"
-                                                    (Character 1 1 ())
+                                                    (String 1 1 () PointerString)
                                                 )
                                             )
                                             Eq
                                             (StringConstant
                                                 "Z"
-                                                (Character 1 1 ())
+                                                (String 1 1 () PointerString)
                                             )
                                             (Logical 4)
                                             (LogicalConstant
@@ -1028,7 +1082,7 @@
                                             Eq
                                             (StringConstant
                                                 "Z"
-                                                (Character 1 1 ())
+                                                (String 1 1 () PointerString)
                                             )
                                             (Logical 4)
                                             ()
@@ -1037,14 +1091,14 @@
                                     )
                                     (Assignment
                                         (Var 4 i)
-                                        (IntegerConstant 93 (Integer 4))
+                                        (IntegerConstant 93 (Integer 4) Decimal)
                                         ()
                                     )
                                     (Assignment
                                         (Var 4 right_bracket)
                                         (StringChr
                                             (Var 4 i)
-                                            (Character 1 1 ())
+                                            (String 1 1 () PointerString)
                                             ()
                                         )
                                         ()
@@ -1052,17 +1106,17 @@
                                     (Assert
                                         (StringCompare
                                             (StringChr
-                                                (IntegerConstant 93 (Integer 4))
-                                                (Character 1 1 ())
+                                                (IntegerConstant 93 (Integer 4) Decimal)
+                                                (String 1 1 () PointerString)
                                                 (StringConstant
                                                     "]"
-                                                    (Character 1 1 ())
+                                                    (String 1 1 () PointerString)
                                                 )
                                             )
                                             Eq
                                             (StringConstant
                                                 "]"
-                                                (Character 1 1 ())
+                                                (String 1 1 () PointerString)
                                             )
                                             (Logical 4)
                                             (LogicalConstant
@@ -1078,7 +1132,7 @@
                                             Eq
                                             (StringConstant
                                                 "]"
-                                                (Character 1 1 ())
+                                                (String 1 1 () PointerString)
                                             )
                                             (Logical 4)
                                             ()
@@ -1087,14 +1141,14 @@
                                     )
                                     (Assignment
                                         (Var 4 i)
-                                        (IntegerConstant 97 (Integer 4))
+                                        (IntegerConstant 97 (Integer 4) Decimal)
                                         ()
                                     )
                                     (Assignment
                                         (Var 4 small_a)
                                         (StringChr
                                             (Var 4 i)
-                                            (Character 1 1 ())
+                                            (String 1 1 () PointerString)
                                             ()
                                         )
                                         ()
@@ -1102,17 +1156,17 @@
                                     (Assert
                                         (StringCompare
                                             (StringChr
-                                                (IntegerConstant 97 (Integer 4))
-                                                (Character 1 1 ())
+                                                (IntegerConstant 97 (Integer 4) Decimal)
+                                                (String 1 1 () PointerString)
                                                 (StringConstant
                                                     "a"
-                                                    (Character 1 1 ())
+                                                    (String 1 1 () PointerString)
                                                 )
                                             )
                                             Eq
                                             (StringConstant
                                                 "a"
-                                                (Character 1 1 ())
+                                                (String 1 1 () PointerString)
                                             )
                                             (Logical 4)
                                             (LogicalConstant
@@ -1128,7 +1182,7 @@
                                             Eq
                                             (StringConstant
                                                 "a"
-                                                (Character 1 1 ())
+                                                (String 1 1 () PointerString)
                                             )
                                             (Logical 4)
                                             ()
@@ -1137,14 +1191,14 @@
                                     )
                                     (Assignment
                                         (Var 4 i)
-                                        (IntegerConstant 122 (Integer 4))
+                                        (IntegerConstant 122 (Integer 4) Decimal)
                                         ()
                                     )
                                     (Assignment
                                         (Var 4 small_z)
                                         (StringChr
                                             (Var 4 i)
-                                            (Character 1 1 ())
+                                            (String 1 1 () PointerString)
                                             ()
                                         )
                                         ()
@@ -1152,17 +1206,17 @@
                                     (Assert
                                         (StringCompare
                                             (StringChr
-                                                (IntegerConstant 122 (Integer 4))
-                                                (Character 1 1 ())
+                                                (IntegerConstant 122 (Integer 4) Decimal)
+                                                (String 1 1 () PointerString)
                                                 (StringConstant
                                                     "z"
-                                                    (Character 1 1 ())
+                                                    (String 1 1 () PointerString)
                                                 )
                                             )
                                             Eq
                                             (StringConstant
                                                 "z"
-                                                (Character 1 1 ())
+                                                (String 1 1 () PointerString)
                                             )
                                             (Logical 4)
                                             (LogicalConstant
@@ -1178,7 +1232,7 @@
                                             Eq
                                             (StringConstant
                                                 "z"
-                                                (Character 1 1 ())
+                                                (String 1 1 () PointerString)
                                             )
                                             (Logical 4)
                                             ()
@@ -1187,14 +1241,14 @@
                                     )
                                     (Assignment
                                         (Var 4 i)
-                                        (IntegerConstant 125 (Integer 4))
+                                        (IntegerConstant 125 (Integer 4) Decimal)
                                         ()
                                     )
                                     (Assignment
                                         (Var 4 right_brace)
                                         (StringChr
                                             (Var 4 i)
-                                            (Character 1 1 ())
+                                            (String 1 1 () PointerString)
                                             ()
                                         )
                                         ()
@@ -1202,17 +1256,17 @@
                                     (Assert
                                         (StringCompare
                                             (StringChr
-                                                (IntegerConstant 125 (Integer 4))
-                                                (Character 1 1 ())
+                                                (IntegerConstant 125 (Integer 4) Decimal)
+                                                (String 1 1 () PointerString)
                                                 (StringConstant
                                                     "}"
-                                                    (Character 1 1 ())
+                                                    (String 1 1 () PointerString)
                                                 )
                                             )
                                             Eq
                                             (StringConstant
                                                 "}"
-                                                (Character 1 1 ())
+                                                (String 1 1 () PointerString)
                                             )
                                             (Logical 4)
                                             (LogicalConstant
@@ -1228,7 +1282,7 @@
                                             Eq
                                             (StringConstant
                                                 "}"
-                                                (Character 1 1 ())
+                                                (String 1 1 () PointerString)
                                             )
                                             (Logical 4)
                                             ()
@@ -1261,6 +1315,7 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
                                                 ),
                                             capital_z_unicode:
                                                 (Variable
@@ -1276,6 +1331,7 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
                                                     .false.
                                                 ),
                                             dollar_unicode:
@@ -1293,6 +1349,7 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
                                                 ),
                                             exclamation_unicode:
                                                 (Variable
@@ -1308,6 +1365,7 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
                                                     .false.
                                                 ),
                                             left_parenthesis_unicode:
@@ -1325,6 +1383,7 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
                                                 ),
                                             nine_unicode:
                                                 (Variable
@@ -1340,6 +1399,7 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
                                                     .false.
                                                 ),
                                             plus_unicode:
@@ -1357,6 +1417,7 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
                                                 ),
                                             right_brace_unicode:
                                                 (Variable
@@ -1372,6 +1433,7 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
                                                     .false.
                                                 ),
                                             right_bracket_unicode:
@@ -1389,6 +1451,7 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
                                                 ),
                                             s:
                                                 (Variable
@@ -1399,11 +1462,12 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Character 1 -2 ())
+                                                    (String 1 -2 () PointerString)
                                                     ()
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
                                                     .false.
                                                 ),
                                             semicolon_unicode:
@@ -1421,6 +1485,7 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
                                                 ),
                                             small_a_unicode:
                                                 (Variable
@@ -1436,6 +1501,7 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
                                                     .false.
                                                 ),
                                             small_z_unicode:
@@ -1453,6 +1519,7 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
                                                 ),
                                             zero_unicode:
                                                 (Variable
@@ -1468,6 +1535,7 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
                                                     .false.
                                                 )
                                         })
@@ -1492,7 +1560,7 @@
                                         (Var 3 s)
                                         (StringConstant
                                             "!"
-                                            (Character 1 1 ())
+                                            (String 1 1 () PointerString)
                                         )
                                         ()
                                     )
@@ -1510,13 +1578,13 @@
                                             (StringOrd
                                                 (StringConstant
                                                     "!"
-                                                    (Character 1 1 ())
+                                                    (String 1 1 () PointerString)
                                                 )
                                                 (Integer 4)
-                                                (IntegerConstant 33 (Integer 4))
+                                                (IntegerConstant 33 (Integer 4) Decimal)
                                             )
                                             Eq
-                                            (IntegerConstant 33 (Integer 4))
+                                            (IntegerConstant 33 (Integer 4) Decimal)
                                             (Logical 4)
                                             (LogicalConstant
                                                 .true.
@@ -1529,7 +1597,7 @@
                                         (IntegerCompare
                                             (Var 3 exclamation_unicode)
                                             Eq
-                                            (IntegerConstant 33 (Integer 4))
+                                            (IntegerConstant 33 (Integer 4) Decimal)
                                             (Logical 4)
                                             ()
                                         )
@@ -1539,7 +1607,7 @@
                                         (Var 3 s)
                                         (StringConstant
                                             "$"
-                                            (Character 1 1 ())
+                                            (String 1 1 () PointerString)
                                         )
                                         ()
                                     )
@@ -1557,13 +1625,13 @@
                                             (StringOrd
                                                 (StringConstant
                                                     "$"
-                                                    (Character 1 1 ())
+                                                    (String 1 1 () PointerString)
                                                 )
                                                 (Integer 4)
-                                                (IntegerConstant 36 (Integer 4))
+                                                (IntegerConstant 36 (Integer 4) Decimal)
                                             )
                                             Eq
-                                            (IntegerConstant 36 (Integer 4))
+                                            (IntegerConstant 36 (Integer 4) Decimal)
                                             (Logical 4)
                                             (LogicalConstant
                                                 .true.
@@ -1576,7 +1644,7 @@
                                         (IntegerCompare
                                             (Var 3 dollar_unicode)
                                             Eq
-                                            (IntegerConstant 36 (Integer 4))
+                                            (IntegerConstant 36 (Integer 4) Decimal)
                                             (Logical 4)
                                             ()
                                         )
@@ -1586,7 +1654,7 @@
                                         (Var 3 s)
                                         (StringConstant
                                             "("
-                                            (Character 1 1 ())
+                                            (String 1 1 () PointerString)
                                         )
                                         ()
                                     )
@@ -1604,13 +1672,13 @@
                                             (StringOrd
                                                 (StringConstant
                                                     "("
-                                                    (Character 1 1 ())
+                                                    (String 1 1 () PointerString)
                                                 )
                                                 (Integer 4)
-                                                (IntegerConstant 40 (Integer 4))
+                                                (IntegerConstant 40 (Integer 4) Decimal)
                                             )
                                             Eq
-                                            (IntegerConstant 40 (Integer 4))
+                                            (IntegerConstant 40 (Integer 4) Decimal)
                                             (Logical 4)
                                             (LogicalConstant
                                                 .true.
@@ -1623,7 +1691,7 @@
                                         (IntegerCompare
                                             (Var 3 left_parenthesis_unicode)
                                             Eq
-                                            (IntegerConstant 40 (Integer 4))
+                                            (IntegerConstant 40 (Integer 4) Decimal)
                                             (Logical 4)
                                             ()
                                         )
@@ -1633,7 +1701,7 @@
                                         (Var 3 s)
                                         (StringConstant
                                             "+"
-                                            (Character 1 1 ())
+                                            (String 1 1 () PointerString)
                                         )
                                         ()
                                     )
@@ -1651,13 +1719,13 @@
                                             (StringOrd
                                                 (StringConstant
                                                     "+"
-                                                    (Character 1 1 ())
+                                                    (String 1 1 () PointerString)
                                                 )
                                                 (Integer 4)
-                                                (IntegerConstant 43 (Integer 4))
+                                                (IntegerConstant 43 (Integer 4) Decimal)
                                             )
                                             Eq
-                                            (IntegerConstant 43 (Integer 4))
+                                            (IntegerConstant 43 (Integer 4) Decimal)
                                             (Logical 4)
                                             (LogicalConstant
                                                 .true.
@@ -1670,7 +1738,7 @@
                                         (IntegerCompare
                                             (Var 3 plus_unicode)
                                             Eq
-                                            (IntegerConstant 43 (Integer 4))
+                                            (IntegerConstant 43 (Integer 4) Decimal)
                                             (Logical 4)
                                             ()
                                         )
@@ -1680,7 +1748,7 @@
                                         (Var 3 s)
                                         (StringConstant
                                             "0"
-                                            (Character 1 1 ())
+                                            (String 1 1 () PointerString)
                                         )
                                         ()
                                     )
@@ -1698,13 +1766,13 @@
                                             (StringOrd
                                                 (StringConstant
                                                     "0"
-                                                    (Character 1 1 ())
+                                                    (String 1 1 () PointerString)
                                                 )
                                                 (Integer 4)
-                                                (IntegerConstant 48 (Integer 4))
+                                                (IntegerConstant 48 (Integer 4) Decimal)
                                             )
                                             Eq
-                                            (IntegerConstant 48 (Integer 4))
+                                            (IntegerConstant 48 (Integer 4) Decimal)
                                             (Logical 4)
                                             (LogicalConstant
                                                 .true.
@@ -1717,7 +1785,7 @@
                                         (IntegerCompare
                                             (Var 3 zero_unicode)
                                             Eq
-                                            (IntegerConstant 48 (Integer 4))
+                                            (IntegerConstant 48 (Integer 4) Decimal)
                                             (Logical 4)
                                             ()
                                         )
@@ -1727,7 +1795,7 @@
                                         (Var 3 s)
                                         (StringConstant
                                             "9"
-                                            (Character 1 1 ())
+                                            (String 1 1 () PointerString)
                                         )
                                         ()
                                     )
@@ -1745,13 +1813,13 @@
                                             (StringOrd
                                                 (StringConstant
                                                     "9"
-                                                    (Character 1 1 ())
+                                                    (String 1 1 () PointerString)
                                                 )
                                                 (Integer 4)
-                                                (IntegerConstant 57 (Integer 4))
+                                                (IntegerConstant 57 (Integer 4) Decimal)
                                             )
                                             Eq
-                                            (IntegerConstant 57 (Integer 4))
+                                            (IntegerConstant 57 (Integer 4) Decimal)
                                             (Logical 4)
                                             (LogicalConstant
                                                 .true.
@@ -1764,7 +1832,7 @@
                                         (IntegerCompare
                                             (Var 3 nine_unicode)
                                             Eq
-                                            (IntegerConstant 57 (Integer 4))
+                                            (IntegerConstant 57 (Integer 4) Decimal)
                                             (Logical 4)
                                             ()
                                         )
@@ -1774,7 +1842,7 @@
                                         (Var 3 s)
                                         (StringConstant
                                             ";"
-                                            (Character 1 1 ())
+                                            (String 1 1 () PointerString)
                                         )
                                         ()
                                     )
@@ -1792,13 +1860,13 @@
                                             (StringOrd
                                                 (StringConstant
                                                     ";"
-                                                    (Character 1 1 ())
+                                                    (String 1 1 () PointerString)
                                                 )
                                                 (Integer 4)
-                                                (IntegerConstant 59 (Integer 4))
+                                                (IntegerConstant 59 (Integer 4) Decimal)
                                             )
                                             Eq
-                                            (IntegerConstant 59 (Integer 4))
+                                            (IntegerConstant 59 (Integer 4) Decimal)
                                             (Logical 4)
                                             (LogicalConstant
                                                 .true.
@@ -1811,7 +1879,7 @@
                                         (IntegerCompare
                                             (Var 3 semicolon_unicode)
                                             Eq
-                                            (IntegerConstant 59 (Integer 4))
+                                            (IntegerConstant 59 (Integer 4) Decimal)
                                             (Logical 4)
                                             ()
                                         )
@@ -1821,7 +1889,7 @@
                                         (Var 3 s)
                                         (StringConstant
                                             "A"
-                                            (Character 1 1 ())
+                                            (String 1 1 () PointerString)
                                         )
                                         ()
                                     )
@@ -1839,13 +1907,13 @@
                                             (StringOrd
                                                 (StringConstant
                                                     "A"
-                                                    (Character 1 1 ())
+                                                    (String 1 1 () PointerString)
                                                 )
                                                 (Integer 4)
-                                                (IntegerConstant 65 (Integer 4))
+                                                (IntegerConstant 65 (Integer 4) Decimal)
                                             )
                                             Eq
-                                            (IntegerConstant 65 (Integer 4))
+                                            (IntegerConstant 65 (Integer 4) Decimal)
                                             (Logical 4)
                                             (LogicalConstant
                                                 .true.
@@ -1858,7 +1926,7 @@
                                         (IntegerCompare
                                             (Var 3 capital_a_unicode)
                                             Eq
-                                            (IntegerConstant 65 (Integer 4))
+                                            (IntegerConstant 65 (Integer 4) Decimal)
                                             (Logical 4)
                                             ()
                                         )
@@ -1868,7 +1936,7 @@
                                         (Var 3 s)
                                         (StringConstant
                                             "Z"
-                                            (Character 1 1 ())
+                                            (String 1 1 () PointerString)
                                         )
                                         ()
                                     )
@@ -1886,13 +1954,13 @@
                                             (StringOrd
                                                 (StringConstant
                                                     "Z"
-                                                    (Character 1 1 ())
+                                                    (String 1 1 () PointerString)
                                                 )
                                                 (Integer 4)
-                                                (IntegerConstant 90 (Integer 4))
+                                                (IntegerConstant 90 (Integer 4) Decimal)
                                             )
                                             Eq
-                                            (IntegerConstant 90 (Integer 4))
+                                            (IntegerConstant 90 (Integer 4) Decimal)
                                             (Logical 4)
                                             (LogicalConstant
                                                 .true.
@@ -1905,7 +1973,7 @@
                                         (IntegerCompare
                                             (Var 3 capital_z_unicode)
                                             Eq
-                                            (IntegerConstant 90 (Integer 4))
+                                            (IntegerConstant 90 (Integer 4) Decimal)
                                             (Logical 4)
                                             ()
                                         )
@@ -1915,7 +1983,7 @@
                                         (Var 3 s)
                                         (StringConstant
                                             "]"
-                                            (Character 1 1 ())
+                                            (String 1 1 () PointerString)
                                         )
                                         ()
                                     )
@@ -1933,13 +2001,13 @@
                                             (StringOrd
                                                 (StringConstant
                                                     "]"
-                                                    (Character 1 1 ())
+                                                    (String 1 1 () PointerString)
                                                 )
                                                 (Integer 4)
-                                                (IntegerConstant 93 (Integer 4))
+                                                (IntegerConstant 93 (Integer 4) Decimal)
                                             )
                                             Eq
-                                            (IntegerConstant 93 (Integer 4))
+                                            (IntegerConstant 93 (Integer 4) Decimal)
                                             (Logical 4)
                                             (LogicalConstant
                                                 .true.
@@ -1952,7 +2020,7 @@
                                         (IntegerCompare
                                             (Var 3 right_bracket_unicode)
                                             Eq
-                                            (IntegerConstant 93 (Integer 4))
+                                            (IntegerConstant 93 (Integer 4) Decimal)
                                             (Logical 4)
                                             ()
                                         )
@@ -1962,7 +2030,7 @@
                                         (Var 3 s)
                                         (StringConstant
                                             "a"
-                                            (Character 1 1 ())
+                                            (String 1 1 () PointerString)
                                         )
                                         ()
                                     )
@@ -1980,13 +2048,13 @@
                                             (StringOrd
                                                 (StringConstant
                                                     "a"
-                                                    (Character 1 1 ())
+                                                    (String 1 1 () PointerString)
                                                 )
                                                 (Integer 4)
-                                                (IntegerConstant 97 (Integer 4))
+                                                (IntegerConstant 97 (Integer 4) Decimal)
                                             )
                                             Eq
-                                            (IntegerConstant 97 (Integer 4))
+                                            (IntegerConstant 97 (Integer 4) Decimal)
                                             (Logical 4)
                                             (LogicalConstant
                                                 .true.
@@ -1999,7 +2067,7 @@
                                         (IntegerCompare
                                             (Var 3 small_a_unicode)
                                             Eq
-                                            (IntegerConstant 97 (Integer 4))
+                                            (IntegerConstant 97 (Integer 4) Decimal)
                                             (Logical 4)
                                             ()
                                         )
@@ -2009,7 +2077,7 @@
                                         (Var 3 s)
                                         (StringConstant
                                             "z"
-                                            (Character 1 1 ())
+                                            (String 1 1 () PointerString)
                                         )
                                         ()
                                     )
@@ -2027,13 +2095,13 @@
                                             (StringOrd
                                                 (StringConstant
                                                     "z"
-                                                    (Character 1 1 ())
+                                                    (String 1 1 () PointerString)
                                                 )
                                                 (Integer 4)
-                                                (IntegerConstant 122 (Integer 4))
+                                                (IntegerConstant 122 (Integer 4) Decimal)
                                             )
                                             Eq
-                                            (IntegerConstant 122 (Integer 4))
+                                            (IntegerConstant 122 (Integer 4) Decimal)
                                             (Logical 4)
                                             (LogicalConstant
                                                 .true.
@@ -2046,7 +2114,7 @@
                                         (IntegerCompare
                                             (Var 3 small_z_unicode)
                                             Eq
-                                            (IntegerConstant 122 (Integer 4))
+                                            (IntegerConstant 122 (Integer 4) Decimal)
                                             (Logical 4)
                                             ()
                                         )
@@ -2056,7 +2124,7 @@
                                         (Var 3 s)
                                         (StringConstant
                                             "}"
-                                            (Character 1 1 ())
+                                            (String 1 1 () PointerString)
                                         )
                                         ()
                                     )
@@ -2074,13 +2142,13 @@
                                             (StringOrd
                                                 (StringConstant
                                                     "}"
-                                                    (Character 1 1 ())
+                                                    (String 1 1 () PointerString)
                                                 )
                                                 (Integer 4)
-                                                (IntegerConstant 125 (Integer 4))
+                                                (IntegerConstant 125 (Integer 4) Decimal)
                                             )
                                             Eq
-                                            (IntegerConstant 125 (Integer 4))
+                                            (IntegerConstant 125 (Integer 4) Decimal)
                                             (Logical 4)
                                             (LogicalConstant
                                                 .true.
@@ -2093,7 +2161,7 @@
                                         (IntegerCompare
                                             (Var 3 right_brace_unicode)
                                             Eq
-                                            (IntegerConstant 125 (Integer 4))
+                                            (IntegerConstant 125 (Integer 4) Decimal)
                                             (Logical 4)
                                             ()
                                         )

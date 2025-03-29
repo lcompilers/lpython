@@ -84,6 +84,7 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
                                                 ),
                                             str_t:
                                                 (Variable
@@ -94,11 +95,12 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Character 1 -2 ())
+                                                    (String 1 -2 () PointerString)
                                                     ()
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
                                                     .false.
                                                 ),
                                             x:
@@ -116,6 +118,7 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
                                                 ),
                                             xx:
                                                 (Variable
@@ -132,6 +135,7 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
                                                 ),
                                             yy:
                                                 (Variable
@@ -147,6 +151,7 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
                                                     .false.
                                                 )
                                         })
@@ -169,20 +174,20 @@
                                     []
                                     [(Assignment
                                         (Var 4 x)
-                                        (IntegerConstant 123 (Integer 4))
+                                        (IntegerConstant 123 (Integer 4) Decimal)
                                         ()
                                     )
                                     (Assert
                                         (StringCompare
                                             (StringConstant
                                                 "123"
-                                                (Character 1 3 ())
+                                                (String 1 3 () PointerString)
                                             )
                                             Eq
                                             (Cast
                                                 (Var 4 x)
-                                                IntegerToCharacter
-                                                (Character 1 -2 ())
+                                                IntegerToString
+                                                (String 1 -2 () PointerString)
                                                 ()
                                             )
                                             (Logical 4)
@@ -192,20 +197,20 @@
                                     )
                                     (Assignment
                                         (Var 4 x)
-                                        (IntegerConstant 12345 (Integer 4))
+                                        (IntegerConstant 12345 (Integer 4) Decimal)
                                         ()
                                     )
                                     (Assert
                                         (StringCompare
                                             (StringConstant
                                                 "12345"
-                                                (Character 1 5 ())
+                                                (String 1 5 () PointerString)
                                             )
                                             Eq
                                             (Cast
                                                 (Var 4 x)
-                                                IntegerToCharacter
-                                                (Character 1 -2 ())
+                                                IntegerToString
+                                                (String 1 -2 () PointerString)
                                                 ()
                                             )
                                             (Logical 4)
@@ -216,9 +221,9 @@
                                     (Assignment
                                         (Var 4 x)
                                         (IntegerUnaryMinus
-                                            (IntegerConstant 12 (Integer 4))
+                                            (IntegerConstant 12 (Integer 4) Decimal)
                                             (Integer 4)
-                                            (IntegerConstant -12 (Integer 4))
+                                            (IntegerConstant -12 (Integer 4) Decimal)
                                         )
                                         ()
                                     )
@@ -226,13 +231,13 @@
                                         (StringCompare
                                             (StringConstant
                                                 "-12"
-                                                (Character 1 3 ())
+                                                (String 1 3 () PointerString)
                                             )
                                             Eq
                                             (Cast
                                                 (Var 4 x)
-                                                IntegerToCharacter
-                                                (Character 1 -2 ())
+                                                IntegerToString
+                                                (String 1 -2 () PointerString)
                                                 ()
                                             )
                                             (Logical 4)
@@ -243,9 +248,9 @@
                                     (Assignment
                                         (Var 4 x)
                                         (IntegerUnaryMinus
-                                            (IntegerConstant 121212 (Integer 4))
+                                            (IntegerConstant 121212 (Integer 4) Decimal)
                                             (Integer 4)
-                                            (IntegerConstant -121212 (Integer 4))
+                                            (IntegerConstant -121212 (Integer 4) Decimal)
                                         )
                                         ()
                                     )
@@ -253,13 +258,13 @@
                                         (StringCompare
                                             (StringConstant
                                                 "-121212"
-                                                (Character 1 7 ())
+                                                (String 1 7 () PointerString)
                                             )
                                             Eq
                                             (Cast
                                                 (Var 4 x)
-                                                IntegerToCharacter
-                                                (Character 1 -2 ())
+                                                IntegerToString
+                                                (String 1 -2 () PointerString)
                                                 ()
                                             )
                                             (Logical 4)
@@ -287,14 +292,14 @@
                                         (StringCompare
                                             (Cast
                                                 (Var 4 xx)
-                                                RealToCharacter
-                                                (Character 1 -2 ())
+                                                RealToString
+                                                (String 1 -2 () PointerString)
                                                 ()
                                             )
                                             Eq
                                             (StringConstant
                                                 "12.322234"
-                                                (Character 1 9 ())
+                                                (String 1 9 () PointerString)
                                             )
                                             (Logical 4)
                                             ()
@@ -313,14 +318,14 @@
                                         (StringCompare
                                             (Cast
                                                 (Var 4 yy)
-                                                RealToCharacter
-                                                (Character 1 -2 ())
+                                                RealToString
+                                                (String 1 -2 () PointerString)
                                                 ()
                                             )
                                             Eq
                                             (StringConstant
                                                 "12.322234"
-                                                (Character 1 9 ())
+                                                (String 1 9 () PointerString)
                                             )
                                             (Logical 4)
                                             ()
@@ -339,14 +344,14 @@
                                         (StringCompare
                                             (Cast
                                                 (Var 4 bool_t)
-                                                LogicalToCharacter
-                                                (Character 1 -2 ())
+                                                LogicalToString
+                                                (String 1 -2 () PointerString)
                                                 ()
                                             )
                                             Eq
                                             (StringConstant
                                                 "True"
-                                                (Character 1 4 ())
+                                                (String 1 4 () PointerString)
                                             )
                                             (Logical 4)
                                             ()
@@ -365,14 +370,14 @@
                                         (StringCompare
                                             (Cast
                                                 (Var 4 bool_t)
-                                                LogicalToCharacter
-                                                (Character 1 -2 ())
+                                                LogicalToString
+                                                (String 1 -2 () PointerString)
                                                 ()
                                             )
                                             Eq
                                             (StringConstant
                                                 "False"
-                                                (Character 1 5 ())
+                                                (String 1 5 () PointerString)
                                             )
                                             (Logical 4)
                                             ()
@@ -383,7 +388,7 @@
                                         (Var 4 str_t)
                                         (StringConstant
                                             "just a str"
-                                            (Character 1 10 ())
+                                            (String 1 10 () PointerString)
                                         )
                                         ()
                                     )
@@ -423,6 +428,7 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
                                                 ),
                                             __tmp_assign_for_loop:
                                                 (Variable
@@ -433,11 +439,12 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Character 1 -2 ())
+                                                    (String 1 -2 () PointerString)
                                                     ()
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
                                                     .false.
                                                 ),
                                             c:
@@ -449,11 +456,12 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Character 1 -2 ())
+                                                    (String 1 -2 () PointerString)
                                                     ()
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
                                                     .false.
                                                 ),
                                             d:
@@ -465,11 +473,12 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Character 1 -2 ())
+                                                    (String 1 -2 () PointerString)
                                                     ()
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
                                                     .false.
                                                 ),
                                             i:
@@ -487,6 +496,7 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
                                                 ),
                                             s:
                                                 (Variable
@@ -497,11 +507,12 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Character 1 -2 ())
+                                                    (String 1 -2 () PointerString)
                                                     ()
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
                                                     .false.
                                                 )
                                         })
@@ -526,7 +537,7 @@
                                         (Var 6 s)
                                         (StringConstant
                                             "abcde"
-                                            (Character 1 5 ())
+                                            (String 1 5 () PointerString)
                                         )
                                         ()
                                     )
@@ -534,13 +545,13 @@
                                         (Var 6 d)
                                         (StringConstant
                                             "edcba"
-                                            (Character 1 5 ())
+                                            (String 1 5 () PointerString)
                                         )
                                         ()
                                     )
                                     (Assignment
                                         (Var 6 i)
-                                        (IntegerConstant 0 (Integer 4))
+                                        (IntegerConstant 0 (Integer 4) Decimal)
                                         ()
                                     )
                                     (Assignment
@@ -550,11 +561,11 @@
                                             ()
                                             ()
                                             (IntegerUnaryMinus
-                                                (IntegerConstant 1 (Integer 4))
+                                                (IntegerConstant 1 (Integer 4) Decimal)
                                                 (Integer 4)
-                                                (IntegerConstant -1 (Integer 4))
+                                                (IntegerConstant -1 (Integer 4) Decimal)
                                             )
-                                            (Character 1 -2 ())
+                                            (String 1 -2 () PointerString)
                                             ()
                                         )
                                         ()
@@ -562,7 +573,7 @@
                                     (DoLoop
                                         ()
                                         ((Var 6 __explicit_iterator)
-                                        (IntegerConstant 0 (Integer 4))
+                                        (IntegerConstant 0 (Integer 4) Decimal)
                                         (IntegerBinOp
                                             (StringLen
                                                 (Var 6 __tmp_assign_for_loop)
@@ -570,11 +581,11 @@
                                                 ()
                                             )
                                             Sub
-                                            (IntegerConstant 1 (Integer 4))
+                                            (IntegerConstant 1 (Integer 4) Decimal)
                                             (Integer 4)
                                             ()
                                         )
-                                        (IntegerConstant 1 (Integer 4)))
+                                        (IntegerConstant 1 (Integer 4) Decimal))
                                         [(Assignment
                                             (Var 6 c)
                                             (StringItem
@@ -582,19 +593,23 @@
                                                 (IntegerBinOp
                                                     (Var 6 __explicit_iterator)
                                                     Add
-                                                    (IntegerConstant 1 (Integer 4))
+                                                    (IntegerConstant 1 (Integer 4) Decimal)
                                                     (Integer 4)
                                                     ()
                                                 )
-                                                (Character 1 -2 ())
+                                                (String 1 -2 () PointerString)
                                                 ()
                                             )
                                             ()
                                         )
                                         (Print
-                                            [(Var 6 c)]
-                                            ()
-                                            ()
+                                            (StringFormat
+                                                ()
+                                                [(Var 6 c)]
+                                                FormatPythonFormat
+                                                (String -1 0 () PointerString)
+                                                ()
+                                            )
                                         )
                                         (Assert
                                             (StringCompare
@@ -605,11 +620,11 @@
                                                     (IntegerBinOp
                                                         (Var 6 i)
                                                         Add
-                                                        (IntegerConstant 1 (Integer 4))
+                                                        (IntegerConstant 1 (Integer 4) Decimal)
                                                         (Integer 4)
                                                         ()
                                                     )
-                                                    (Character 1 -2 ())
+                                                    (String 1 -2 () PointerString)
                                                     ()
                                                 )
                                                 (Logical 4)
@@ -622,7 +637,7 @@
                                             (IntegerBinOp
                                                 (Var 6 i)
                                                 Add
-                                                (IntegerConstant 1 (Integer 4))
+                                                (IntegerConstant 1 (Integer 4) Decimal)
                                                 (Integer 4)
                                                 ()
                                             )
@@ -650,11 +665,12 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Character 1 -2 ())
+                                                    (String 1 -2 () PointerString)
                                                     ()
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
                                                     .false.
                                                 )
                                         })
@@ -678,12 +694,12 @@
                                     [(Assignment
                                         (Var 3 s)
                                         (Cast
-                                            (IntegerConstant 356 (Integer 4))
-                                            IntegerToCharacter
-                                            (Character 1 -2 ())
+                                            (IntegerConstant 356 (Integer 4) Decimal)
+                                            IntegerToString
+                                            (String 1 -2 () PointerString)
                                             (StringConstant
                                                 "356"
-                                                (Character 1 3 ())
+                                                (String 1 3 () PointerString)
                                             )
                                         )
                                         ()
@@ -694,7 +710,7 @@
                                             Eq
                                             (StringConstant
                                                 "356"
-                                                (Character 1 3 ())
+                                                (String 1 3 () PointerString)
                                             )
                                             (Logical 4)
                                             ()
@@ -705,15 +721,15 @@
                                         (Var 3 s)
                                         (Cast
                                             (IntegerUnaryMinus
-                                                (IntegerConstant 567 (Integer 4))
+                                                (IntegerConstant 567 (Integer 4) Decimal)
                                                 (Integer 4)
-                                                (IntegerConstant -567 (Integer 4))
+                                                (IntegerConstant -567 (Integer 4) Decimal)
                                             )
-                                            IntegerToCharacter
-                                            (Character 1 -2 ())
+                                            IntegerToString
+                                            (String 1 -2 () PointerString)
                                             (StringConstant
                                                 "-567"
-                                                (Character 1 4 ())
+                                                (String 1 4 () PointerString)
                                             )
                                         )
                                         ()
@@ -724,7 +740,7 @@
                                             Eq
                                             (StringConstant
                                                 "-567"
-                                                (Character 1 4 ())
+                                                (String 1 4 () PointerString)
                                             )
                                             (Logical 4)
                                             ()
@@ -734,18 +750,18 @@
                                     (Assert
                                         (StringCompare
                                             (Cast
-                                                (IntegerConstant 4 (Integer 4))
-                                                IntegerToCharacter
-                                                (Character 1 -2 ())
+                                                (IntegerConstant 4 (Integer 4) Decimal)
+                                                IntegerToString
+                                                (String 1 -2 () PointerString)
                                                 (StringConstant
                                                     "4"
-                                                    (Character 1 1 ())
+                                                    (String 1 1 () PointerString)
                                                 )
                                             )
                                             Eq
                                             (StringConstant
                                                 "4"
-                                                (Character 1 1 ())
+                                                (String 1 1 () PointerString)
                                             )
                                             (Logical 4)
                                             (LogicalConstant
@@ -759,21 +775,21 @@
                                         (StringCompare
                                             (Cast
                                                 (IntegerUnaryMinus
-                                                    (IntegerConstant 5 (Integer 4))
+                                                    (IntegerConstant 5 (Integer 4) Decimal)
                                                     (Integer 4)
-                                                    (IntegerConstant -5 (Integer 4))
+                                                    (IntegerConstant -5 (Integer 4) Decimal)
                                                 )
-                                                IntegerToCharacter
-                                                (Character 1 -2 ())
+                                                IntegerToString
+                                                (String 1 -2 () PointerString)
                                                 (StringConstant
                                                     "-5"
-                                                    (Character 1 2 ())
+                                                    (String 1 2 () PointerString)
                                                 )
                                             )
                                             Eq
                                             (StringConstant
                                                 "-5"
-                                                (Character 1 2 ())
+                                                (String 1 2 () PointerString)
                                             )
                                             (Logical 4)
                                             (LogicalConstant
@@ -787,12 +803,12 @@
                                         (StringCompare
                                             (StringConstant
                                                 ""
-                                                (Character 1 0 ())
+                                                (String 1 0 () PointerString)
                                             )
                                             Eq
                                             (StringConstant
                                                 ""
-                                                (Character 1 0 ())
+                                                (String 1 0 () PointerString)
                                             )
                                             (Logical 4)
                                             (LogicalConstant
@@ -806,12 +822,12 @@
                                         (StringCompare
                                             (StringConstant
                                                 "1234"
-                                                (Character 1 4 ())
+                                                (String 1 4 () PointerString)
                                             )
                                             Eq
                                             (StringConstant
                                                 "1234"
-                                                (Character 1 4 ())
+                                                (String 1 4 () PointerString)
                                             )
                                             (Logical 4)
                                             (LogicalConstant
@@ -828,17 +844,17 @@
                                                     .false.
                                                     (Logical 4)
                                                 )
-                                                LogicalToCharacter
-                                                (Character 1 -2 ())
+                                                LogicalToString
+                                                (String 1 -2 () PointerString)
                                                 (StringConstant
                                                     "False"
-                                                    (Character 1 5 ())
+                                                    (String 1 5 () PointerString)
                                                 )
                                             )
                                             Eq
                                             (StringConstant
                                                 "False"
-                                                (Character 1 5 ())
+                                                (String 1 5 () PointerString)
                                             )
                                             (Logical 4)
                                             (LogicalConstant
@@ -855,17 +871,17 @@
                                                     .true.
                                                     (Logical 4)
                                                 )
-                                                LogicalToCharacter
-                                                (Character 1 -2 ())
+                                                LogicalToString
+                                                (String 1 -2 () PointerString)
                                                 (StringConstant
                                                     "True"
-                                                    (Character 1 4 ())
+                                                    (String 1 4 () PointerString)
                                                 )
                                             )
                                             Eq
                                             (StringConstant
                                                 "True"
-                                                (Character 1 4 ())
+                                                (String 1 4 () PointerString)
                                             )
                                             (Logical 4)
                                             (LogicalConstant
@@ -879,12 +895,12 @@
                                         (StringCompare
                                             (StringConstant
                                                 "just a str"
-                                                (Character 1 10 ())
+                                                (String 1 10 () PointerString)
                                             )
                                             Eq
                                             (StringConstant
                                                 "just a str"
-                                                (Character 1 10 ())
+                                                (String 1 10 () PointerString)
                                             )
                                             (Logical 4)
                                             (LogicalConstant
@@ -902,23 +918,23 @@
                                                         12.123400
                                                         (Real 8)
                                                     )
-                                                    RealToCharacter
-                                                    (Character 1 -2 ())
+                                                    RealToString
+                                                    (String 1 -2 () PointerString)
                                                     (StringConstant
                                                         "12.1234"
-                                                        (Character 1 7 ())
+                                                        (String 1 7 () PointerString)
                                                     )
                                                 )
                                                 ()
-                                                (IntegerConstant 7 (Integer 4))
+                                                (IntegerConstant 7 (Integer 4) Decimal)
                                                 ()
-                                                (Character 1 -2 ())
+                                                (String 1 -2 () PointerString)
                                                 ()
                                             )
                                             Eq
                                             (StringConstant
                                                 "12.1234"
-                                                (Character 1 7 ())
+                                                (String 1 7 () PointerString)
                                             )
                                             (Logical 4)
                                             ()
@@ -951,6 +967,7 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
                                                 ),
                                             s:
                                                 (Variable
@@ -961,11 +978,12 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Character 1 -2 ())
+                                                    (String 1 -2 () PointerString)
                                                     ()
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
                                                     .false.
                                                 ),
                                             start:
@@ -983,6 +1001,7 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
                                                 ),
                                             step:
                                                 (Variable
@@ -998,6 +1017,7 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
                                                     .false.
                                                 )
                                         })
@@ -1022,23 +1042,23 @@
                                         (Var 5 s)
                                         (StringConstant
                                             "abcdefghijk"
-                                            (Character 1 11 ())
+                                            (String 1 11 () PointerString)
                                         )
                                         ()
                                     )
                                     (Assignment
                                         (Var 5 start)
-                                        (IntegerConstant 1 (Integer 4))
+                                        (IntegerConstant 1 (Integer 4) Decimal)
                                         ()
                                     )
                                     (Assignment
                                         (Var 5 end)
-                                        (IntegerConstant 4 (Integer 4))
+                                        (IntegerConstant 4 (Integer 4) Decimal)
                                         ()
                                     )
                                     (Assignment
                                         (Var 5 step)
-                                        (IntegerConstant 1 (Integer 4))
+                                        (IntegerConstant 1 (Integer 4) Decimal)
                                         ()
                                     )
                                     (Assert
@@ -1048,13 +1068,13 @@
                                                 ()
                                                 ()
                                                 ()
-                                                (Character 1 -2 ())
+                                                (String 1 -2 () PointerString)
                                                 ()
                                             )
                                             Eq
                                             (StringConstant
                                                 "abcdefghijk"
-                                                (Character 1 11 ())
+                                                (String 1 11 () PointerString)
                                             )
                                             (Logical 4)
                                             ()
@@ -1065,16 +1085,16 @@
                                         (StringCompare
                                             (StringSection
                                                 (Var 5 s)
-                                                (IntegerConstant 1 (Integer 4))
-                                                (IntegerConstant 4 (Integer 4))
+                                                (IntegerConstant 1 (Integer 4) Decimal)
+                                                (IntegerConstant 4 (Integer 4) Decimal)
                                                 ()
-                                                (Character 1 -2 ())
+                                                (String 1 -2 () PointerString)
                                                 ()
                                             )
                                             Eq
                                             (StringConstant
                                                 "bcd"
-                                                (Character 1 3 ())
+                                                (String 1 3 () PointerString)
                                             )
                                             (Logical 4)
                                             ()
@@ -1086,15 +1106,15 @@
                                             (StringSection
                                                 (Var 5 s)
                                                 ()
-                                                (IntegerConstant 4 (Integer 4))
-                                                (IntegerConstant 5 (Integer 4))
-                                                (Character 1 -2 ())
+                                                (IntegerConstant 4 (Integer 4) Decimal)
+                                                (IntegerConstant 5 (Integer 4) Decimal)
+                                                (String 1 -2 () PointerString)
                                                 ()
                                             )
                                             Eq
                                             (StringConstant
                                                 "a"
-                                                (Character 1 1 ())
+                                                (String 1 1 () PointerString)
                                             )
                                             (Logical 4)
                                             ()
@@ -1108,17 +1128,17 @@
                                                 ()
                                                 ()
                                                 (IntegerUnaryMinus
-                                                    (IntegerConstant 1 (Integer 4))
+                                                    (IntegerConstant 1 (Integer 4) Decimal)
                                                     (Integer 4)
-                                                    (IntegerConstant -1 (Integer 4))
+                                                    (IntegerConstant -1 (Integer 4) Decimal)
                                                 )
-                                                (Character 1 -2 ())
+                                                (String 1 -2 () PointerString)
                                                 ()
                                             )
                                             Eq
                                             (StringConstant
                                                 "kjihgfedcba"
-                                                (Character 1 11 ())
+                                                (String 1 11 () PointerString)
                                             )
                                             (Logical 4)
                                             ()
@@ -1129,16 +1149,16 @@
                                         (StringCompare
                                             (StringSection
                                                 (Var 5 s)
-                                                (IntegerConstant 3 (Integer 4))
-                                                (IntegerConstant 12 (Integer 4))
-                                                (IntegerConstant 3 (Integer 4))
-                                                (Character 1 -2 ())
+                                                (IntegerConstant 3 (Integer 4) Decimal)
+                                                (IntegerConstant 12 (Integer 4) Decimal)
+                                                (IntegerConstant 3 (Integer 4) Decimal)
+                                                (String 1 -2 () PointerString)
                                                 ()
                                             )
                                             Eq
                                             (StringConstant
                                                 "dgj"
-                                                (Character 1 3 ())
+                                                (String 1 3 () PointerString)
                                             )
                                             (Logical 4)
                                             ()
@@ -1149,16 +1169,16 @@
                                         (StringCompare
                                             (StringSection
                                                 (Var 5 s)
-                                                (IntegerConstant 1 (Integer 4))
+                                                (IntegerConstant 1 (Integer 4) Decimal)
                                                 ()
-                                                (IntegerConstant 3 (Integer 4))
-                                                (Character 1 -2 ())
+                                                (IntegerConstant 3 (Integer 4) Decimal)
+                                                (String 1 -2 () PointerString)
                                                 ()
                                             )
                                             Eq
                                             (StringConstant
                                                 "behk"
-                                                (Character 1 4 ())
+                                                (String 1 4 () PointerString)
                                             )
                                             (Logical 4)
                                             ()
@@ -1169,16 +1189,16 @@
                                         (StringCompare
                                             (StringSection
                                                 (Var 5 s)
-                                                (IntegerConstant 4 (Integer 4))
+                                                (IntegerConstant 4 (Integer 4) Decimal)
                                                 ()
                                                 ()
-                                                (Character 1 -2 ())
+                                                (String 1 -2 () PointerString)
                                                 ()
                                             )
                                             Eq
                                             (StringConstant
                                                 "efghijk"
-                                                (Character 1 7 ())
+                                                (String 1 7 () PointerString)
                                             )
                                             (Logical 4)
                                             ()
@@ -1190,15 +1210,15 @@
                                             (StringSection
                                                 (Var 5 s)
                                                 ()
-                                                (IntegerConstant 5 (Integer 4))
+                                                (IntegerConstant 5 (Integer 4) Decimal)
                                                 ()
-                                                (Character 1 -2 ())
+                                                (String 1 -2 () PointerString)
                                                 ()
                                             )
                                             Eq
                                             (StringConstant
                                                 "abcde"
-                                                (Character 1 5 ())
+                                                (String 1 5 () PointerString)
                                             )
                                             (Logical 4)
                                             ()
@@ -1209,16 +1229,16 @@
                                         (StringCompare
                                             (StringSection
                                                 (Var 5 s)
-                                                (IntegerConstant 3 (Integer 4))
-                                                (IntegerConstant 9 (Integer 4))
-                                                (IntegerConstant 3 (Integer 4))
-                                                (Character 1 -2 ())
+                                                (IntegerConstant 3 (Integer 4) Decimal)
+                                                (IntegerConstant 9 (Integer 4) Decimal)
+                                                (IntegerConstant 3 (Integer 4) Decimal)
+                                                (String 1 -2 () PointerString)
                                                 ()
                                             )
                                             Eq
                                             (StringConstant
                                                 "dg"
-                                                (Character 1 2 ())
+                                                (String 1 2 () PointerString)
                                             )
                                             (Logical 4)
                                             ()
@@ -1229,20 +1249,20 @@
                                         (StringCompare
                                             (StringSection
                                                 (Var 5 s)
-                                                (IntegerConstant 10 (Integer 4))
-                                                (IntegerConstant 3 (Integer 4))
+                                                (IntegerConstant 10 (Integer 4) Decimal)
+                                                (IntegerConstant 3 (Integer 4) Decimal)
                                                 (IntegerUnaryMinus
-                                                    (IntegerConstant 2 (Integer 4))
+                                                    (IntegerConstant 2 (Integer 4) Decimal)
                                                     (Integer 4)
-                                                    (IntegerConstant -2 (Integer 4))
+                                                    (IntegerConstant -2 (Integer 4) Decimal)
                                                 )
-                                                (Character 1 -2 ())
+                                                (String 1 -2 () PointerString)
                                                 ()
                                             )
                                             Eq
                                             (StringConstant
                                                 "kige"
-                                                (Character 1 4 ())
+                                                (String 1 4 () PointerString)
                                             )
                                             (Logical 4)
                                             ()
@@ -1254,23 +1274,23 @@
                                             (StringSection
                                                 (Var 5 s)
                                                 (IntegerUnaryMinus
-                                                    (IntegerConstant 2 (Integer 4))
+                                                    (IntegerConstant 2 (Integer 4) Decimal)
                                                     (Integer 4)
-                                                    (IntegerConstant -2 (Integer 4))
+                                                    (IntegerConstant -2 (Integer 4) Decimal)
                                                 )
                                                 (IntegerUnaryMinus
-                                                    (IntegerConstant 10 (Integer 4))
+                                                    (IntegerConstant 10 (Integer 4) Decimal)
                                                     (Integer 4)
-                                                    (IntegerConstant -10 (Integer 4))
+                                                    (IntegerConstant -10 (Integer 4) Decimal)
                                                 )
                                                 ()
-                                                (Character 1 -2 ())
+                                                (String 1 -2 () PointerString)
                                                 ()
                                             )
                                             Eq
                                             (StringConstant
                                                 ""
-                                                (Character 1 0 ())
+                                                (String 1 0 () PointerString)
                                             )
                                             (Logical 4)
                                             ()
@@ -1282,27 +1302,27 @@
                                             (StringSection
                                                 (Var 5 s)
                                                 (IntegerUnaryMinus
-                                                    (IntegerConstant 3 (Integer 4))
+                                                    (IntegerConstant 3 (Integer 4) Decimal)
                                                     (Integer 4)
-                                                    (IntegerConstant -3 (Integer 4))
+                                                    (IntegerConstant -3 (Integer 4) Decimal)
                                                 )
                                                 (IntegerUnaryMinus
-                                                    (IntegerConstant 9 (Integer 4))
+                                                    (IntegerConstant 9 (Integer 4) Decimal)
                                                     (Integer 4)
-                                                    (IntegerConstant -9 (Integer 4))
+                                                    (IntegerConstant -9 (Integer 4) Decimal)
                                                 )
                                                 (IntegerUnaryMinus
-                                                    (IntegerConstant 3 (Integer 4))
+                                                    (IntegerConstant 3 (Integer 4) Decimal)
                                                     (Integer 4)
-                                                    (IntegerConstant -3 (Integer 4))
+                                                    (IntegerConstant -3 (Integer 4) Decimal)
                                                 )
-                                                (Character 1 -2 ())
+                                                (String 1 -2 () PointerString)
                                                 ()
                                             )
                                             Eq
                                             (StringConstant
                                                 "if"
-                                                (Character 1 2 ())
+                                                (String 1 2 () PointerString)
                                             )
                                             (Logical 4)
                                             ()
@@ -1314,27 +1334,27 @@
                                             (StringSection
                                                 (Var 5 s)
                                                 (IntegerUnaryMinus
-                                                    (IntegerConstant 3 (Integer 4))
+                                                    (IntegerConstant 3 (Integer 4) Decimal)
                                                     (Integer 4)
-                                                    (IntegerConstant -3 (Integer 4))
+                                                    (IntegerConstant -3 (Integer 4) Decimal)
                                                 )
                                                 (IntegerUnaryMinus
-                                                    (IntegerConstant 10 (Integer 4))
+                                                    (IntegerConstant 10 (Integer 4) Decimal)
                                                     (Integer 4)
-                                                    (IntegerConstant -10 (Integer 4))
+                                                    (IntegerConstant -10 (Integer 4) Decimal)
                                                 )
                                                 (IntegerUnaryMinus
-                                                    (IntegerConstant 3 (Integer 4))
+                                                    (IntegerConstant 3 (Integer 4) Decimal)
                                                     (Integer 4)
-                                                    (IntegerConstant -3 (Integer 4))
+                                                    (IntegerConstant -3 (Integer 4) Decimal)
                                                 )
-                                                (Character 1 -2 ())
+                                                (String 1 -2 () PointerString)
                                                 ()
                                             )
                                             Eq
                                             (StringConstant
                                                 "ifc"
-                                                (Character 1 3 ())
+                                                (String 1 3 () PointerString)
                                             )
                                             (Logical 4)
                                             ()
@@ -1348,13 +1368,13 @@
                                                 (Var 5 start)
                                                 (Var 5 end)
                                                 (Var 5 step)
-                                                (Character 1 -2 ())
+                                                (String 1 -2 () PointerString)
                                                 ()
                                             )
                                             Eq
                                             (StringConstant
                                                 "bcd"
-                                                (Character 1 3 ())
+                                                (String 1 3 () PointerString)
                                             )
                                             (Logical 4)
                                             ()
@@ -1368,25 +1388,25 @@
                                                 (Var 5 start)
                                                 (IntegerBinOp
                                                     (IntegerBinOp
-                                                        (IntegerConstant 2 (Integer 4))
+                                                        (IntegerConstant 2 (Integer 4) Decimal)
                                                         Mul
                                                         (Var 5 end)
                                                         (Integer 4)
                                                         ()
                                                     )
                                                     Sub
-                                                    (IntegerConstant 3 (Integer 4))
+                                                    (IntegerConstant 3 (Integer 4) Decimal)
                                                     (Integer 4)
                                                     ()
                                                 )
                                                 (Var 5 step)
-                                                (Character 1 -2 ())
+                                                (String 1 -2 () PointerString)
                                                 ()
                                             )
                                             Eq
                                             (StringConstant
                                                 "bcde"
-                                                (Character 1 4 ())
+                                                (String 1 4 () PointerString)
                                             )
                                             (Logical 4)
                                             ()
@@ -1400,14 +1420,14 @@
                                                 (Var 5 start)
                                                 (IntegerBinOp
                                                     (IntegerBinOp
-                                                        (IntegerConstant 2 (Integer 4))
+                                                        (IntegerConstant 2 (Integer 4) Decimal)
                                                         Mul
                                                         (Var 5 end)
                                                         (Integer 4)
                                                         ()
                                                     )
                                                     Sub
-                                                    (IntegerConstant 3 (Integer 4))
+                                                    (IntegerConstant 3 (Integer 4) Decimal)
                                                     (Integer 4)
                                                     ()
                                                 )
@@ -1416,13 +1436,13 @@
                                                     (Integer 4)
                                                     ()
                                                 )
-                                                (Character 1 -2 ())
+                                                (String 1 -2 () PointerString)
                                                 ()
                                             )
                                             Eq
                                             (StringConstant
                                                 ""
-                                                (Character 1 0 ())
+                                                (String 1 0 () PointerString)
                                             )
                                             (Logical 4)
                                             ()
