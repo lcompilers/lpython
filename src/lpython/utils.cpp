@@ -84,7 +84,7 @@ std::string get_runtime_library_header_dir()
     char *env_p = std::getenv("LFORTRAN_RUNTIME_LIBRARY_HEADER_DIR");
     if (env_p) return env_p;
 
-    // The header file is in src/libasr/runtime for development, but in impure
+    // The header file is in libasr/src/libasr/runtime for development, but in impure
     // in installed version
     std::string path;
     int dirname_length;

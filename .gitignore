@@ -40,7 +40,7 @@ CPackConfig.cmake
 CPackSourceConfig.cmake
 _CPack_Packages
 /CMakeSettings.json
-src/libasr/libasr.a.*
+src/libasr/src/libasr/libasr.a.*
 
 ## libraries
 *.a
@@ -56,10 +56,10 @@ lpython/ast/ast.py
 lpython/asr/asr.py
 src/lpython/ast.h
 src/lpython/asr.h
-src/libasr/asr.h
-src/libasr/wasm_visitor.h
-src/libasr/pass/intrinsic_function_registry_util.h
-src/libasr/config.h
+src/libasr/src/libasr/asr.h
+src/libasr/src/libasr/wasm_visitor.h
+src/libasr/src/libasr/pass/intrinsic_function_registry_util.h
+src/libasr/src/libasr/config.h
 share/jupyter/kernels/fortran/kernel.json
 share/jupyter/kernels/lpython/kernel.json
 src/runtime/*.o.empty.c
