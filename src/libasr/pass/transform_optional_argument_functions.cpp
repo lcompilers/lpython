@@ -375,15 +375,15 @@ bool fill_new_args(Vec<ASR::call_arg_t>& new_args, Allocator& al,
     // which is depicted in `func.n_args` while isn't depicted in
     // `x.n_args` (as it only represents the "FunctionCall" arguments)
     // hence to adjust for that, `is_method` introduces an offset
-    bool is_method = is_class_procedure && (!is_nopass);
+    int is_method = is_class_procedure && (!is_nopass);
 
     new_args.reserve(al, func->n_args);
-    for( size_t i = 0, j = 0; j < func->n_args; j++, i++ ) {
+    for( int i = 0, j = 0; j < (int)func->n_args; j++, i++ ) {
         if( std::find(sym2optionalargidx[func_sym].begin(),
                       sym2optionalargidx[func_sym].end(), j)
             != sym2optionalargidx[func_sym].end() ) {
             ASR::Variable_t* func_arg_j = ASRUtils::EXPR2VAR(func->m_args[j]);
-            if( i - is_method >= x.n_args || x.m_args[i - is_method].m_value == nullptr ) {
+            if( i - is_method >= (int)x.n_args || x.m_args[i - is_method].m_value == nullptr ) {
                 std::string m_arg_i_name = scope->get_unique_name("__libasr_created_variable_");
                 ASR::ttype_t* arg_type = func_arg_j->m_type;
                 ASR::symbol_t* arg_decl = func_arg_j->m_type_declaration;
@@ -391,7 +391,7 @@ bool fill_new_args(Vec<ASR::call_arg_t>& new_args, Allocator& al,
                     ASR::Array_t* array_t = ASR::down_cast<ASR::Array_t>(arg_type);
                     Vec<ASR::dimension_t> dims;
                     dims.reserve(al, array_t->n_dims);
-                    for( size_t i = 0; i < array_t->n_dims; i++ ) {
+                    for( int i = 0; i < (int)array_t->n_dims; i++ ) {
                         ASR::dimension_t dim;
                         dim.m_length = ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, arg_type->base.loc, 1,
                                             ASRUtils::TYPE(ASR::make_Integer_t(al, arg_type->base.loc, 4))));
@@ -425,7 +425,7 @@ bool fill_new_args(Vec<ASR::call_arg_t>& new_args, Allocator& al,
             ASR::ttype_t* logical_t = ASRUtils::TYPE(ASR::make_Logical_t(al,
                                         x.m_args[i - is_method].loc, 4));
             ASR::expr_t* is_present = nullptr;
-            if( i - is_method >= x.n_args || x.m_args[i - is_method].m_value == nullptr ) {
+            if( i - is_method >= (int)x.n_args || x.m_args[i - is_method].m_value == nullptr ) {
                 is_present = ASRUtils::EXPR(ASR::make_LogicalConstant_t(
                     al, x.m_args[0].loc, false, logical_t));
             } else {
@@ -465,7 +465,7 @@ bool fill_new_args(Vec<ASR::call_arg_t>& new_args, Allocator& al,
             }
             ASR::call_arg_t present_arg;
             present_arg.loc = x.m_args[i - is_method].loc;
-            if( i - is_method < x.n_args && 
+            if( i - is_method < (int)x.n_args && 
                 x.m_args[i - is_method].m_value &&
                 ASRUtils::is_allocatable(x.m_args[i - is_method].m_value) &&
                 !ASRUtils::is_allocatable(func_arg_j->m_type) ) {
@@ -478,7 +478,8 @@ bool fill_new_args(Vec<ASR::call_arg_t>& new_args, Allocator& al,
             present_arg.m_value = is_present;
             new_args.push_back(al, present_arg);
             j++;
-        } else if (!is_method) {
+        } else {
+            if(i - is_method < 0) continue;
             // not needed to have `i - is_method` can be simply
             // `i` as well, just for consistency with code above
             new_args.push_back(al, x.m_args[i - is_method]);

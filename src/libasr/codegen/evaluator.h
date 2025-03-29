@@ -18,9 +18,7 @@ namespace llvm {
     class LLVMContext;
     class Module;
     class Function;
-    class GlobalVariable;
     class TargetMachine;
-    class DataLayout;
     namespace orc {
         class KaleidoscopeJIT;
     }
@@ -42,8 +40,6 @@ public:
     std::string str();
     // Return a function return type as a string (real / integer)
     std::string get_return_type(const std::string &fn_name);
-    llvm::Function *get_function(const std::string &fn_name);
-    llvm::GlobalVariable *get_global(const std::string &global_name);
 };
 
 class MLIRModule {
@@ -85,7 +81,6 @@ public:
     static void print_version_message();
     static std::string llvm_version();
     llvm::LLVMContext &get_context();
-    const llvm::DataLayout &get_jit_data_layout();
     static void print_targets();
     static std::string get_default_target_triple();
 

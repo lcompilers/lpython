@@ -692,32 +692,6 @@ public:
                 ASR::stmt_t* stmt = ASRUtils::STMT(ASR::make_Assignment_t(al, x.base.base.loc, x.m_target, function_call, nullptr));
                 pass_result.push_back(al, stmt);
             }
-        }  else if (ASR::is_a<ASR::LogicalBinOp_t>(*x.m_value)) {
-            ASR::LogicalBinOp_t* logical_binop = ASR::down_cast<ASR::LogicalBinOp_t>(x.m_value);
-            ASR::expr_t* function_call_left = logical_binop->m_left;
-            ASR::expr_t* function_call_right = logical_binop->m_right;
-
-            if (ASR::is_a<ASR::IntrinsicElementalFunction_t>(*logical_binop->m_left)) {
-                ASR::IntrinsicElementalFunction_t* left = ASR::down_cast<ASR::IntrinsicElementalFunction_t>(logical_binop->m_left);
-                if (left->m_type->type == ASR::ttypeType::Logical) {
-                    if (is_logical_intrinsic_symbolic(logical_binop->m_left)) {
-                        function_call_left = process_attributes(x.base.base.loc, logical_binop->m_left);
-                    }
-                }
-            }
-            if (ASR::is_a<ASR::IntrinsicElementalFunction_t>(*logical_binop->m_right)) {
-                ASR::IntrinsicElementalFunction_t* right = ASR::down_cast<ASR::IntrinsicElementalFunction_t>(logical_binop->m_right);
-                if (right->m_type->type == ASR::ttypeType::Logical) {
-                    if (is_logical_intrinsic_symbolic(logical_binop->m_right)) {
-                        function_call_right = process_attributes(x.base.base.loc, logical_binop->m_right);
-                    }
-                }
-            }
-
-            ASR::expr_t* new_logical_binop = ASRUtils::EXPR(ASR::make_LogicalBinOp_t(al, x.base.base.loc,
-                function_call_left, logical_binop->m_op, function_call_right, logical_binop->m_type, logical_binop->m_value));
-            ASR::stmt_t* stmt = ASRUtils::STMT(ASR::make_Assignment_t(al, x.base.base.loc, x.m_target, new_logical_binop, nullptr));
-            pass_result.push_back(al, stmt);
         }
     }
 

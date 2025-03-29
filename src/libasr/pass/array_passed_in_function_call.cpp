@@ -849,8 +849,11 @@ public:
                     ASR::Var_t* var_ = ASR::down_cast<ASR::Var_t>(func->m_args[i]);
                     if ( ASR::is_a<ASR::Variable_t>(*var_->m_v) ) {
                         ASR::Variable_t* var = ASR::down_cast<ASR::Variable_t>(var_->m_v);
-                        is_arg_intent_out.push_back(var->m_intent == ASR::intentType::Out ||
-                            var->m_intent == ASR::intentType::InOut);
+                        is_arg_intent_out.push_back(
+                            var->m_intent == ASR::intentType::Out ||
+                            var->m_intent == ASR::intentType::InOut ||
+                            var->m_intent == ASR::intentType::Unspecified
+                        );
                     } else {
                         is_arg_intent_out.push_back(false);
                     }

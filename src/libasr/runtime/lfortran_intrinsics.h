@@ -207,8 +207,8 @@ LFORTRAN_API void _lfortran_memset(void* s, int32_t c, int32_t size);
 LFORTRAN_API int8_t* _lfortran_realloc(int8_t* ptr, int32_t size);
 LFORTRAN_API int8_t* _lfortran_calloc(int32_t count, int32_t size);
 LFORTRAN_API void _lfortran_free(char* ptr);
-LFORTRAN_API void _lfortran_alloc(char** ptr, int32_t len, int64_t* size, int64_t* capacity);
-LFORTRAN_API void _lfortran_string_init(int size_plus_one, char *s);
+LFORTRAN_API void _lfortran_allocate_string(char** ptr, int64_t len, int64_t* size, int64_t* capacity);
+LFORTRAN_API void _lfortran_string_init(int64_t size_plus_one, char *s);
 LFORTRAN_API char* _lfortran_str_item(char* s, int64_t idx);
 LFORTRAN_API char* _lfortran_str_copy(char* s, int32_t idx1, int32_t idx2); // idx1 and idx2 both start from 1
 LFORTRAN_API char* _lfortran_str_slice(char* s, int32_t idx1, int32_t idx2, int32_t step,
@@ -277,7 +277,7 @@ LFORTRAN_API char *_lfortran_get_env_variable(char *name);
 LFORTRAN_API char *_lfortran_get_environment_variable(char *name);
 LFORTRAN_API int _lfortran_exec_command(char *cmd);
 
-LFORTRAN_API char* _lcompilers_string_format_fortran(int count, const char* format, ...);
+LFORTRAN_API char* _lcompilers_string_format_fortran(const char* format,const char* serialization_string, int32_t array_sizes_cnt, ...);
 
 #ifdef __cplusplus
 }

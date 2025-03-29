@@ -505,11 +505,6 @@ public:
             s.append(x.m_members[i]);
             if (i < x.n_members-1) s.append(" ");
         }
-        s.append("\n" + indtd + "|-" + "member_functions=");
-        for (size_t i=0; i<x.n_member_functions; i++) {
-            s.append(x.m_member_functions[i]);
-            if (i < x.n_member_functions-1) s.append(" ");
-        }
         s.append("\n" + indtd + "|-" + "abiType=");
         visit_abiType(x.m_abi);
         s.append("\n" + indtd + "|-" + "accessType=");
@@ -782,8 +777,14 @@ public:
         } else {
             s.append(".false.");
         }
-        s.append("\n" + indtd + "└-" + "target_attr=");
+        s.append("\n" + indtd + "|-" + "target_attr=");
         if (x.m_target_attr) {
+            s.append(".true.");
+        } else {
+            s.append(".false.");
+        }
+        s.append("\n" + indtd + "└-" + "contiguous_attr=");
+        if (x.m_contiguous_attr) {
             s.append(".true.");
         } else {
             s.append(".false.");
@@ -1619,44 +1620,6 @@ public:
         last = true;
         attached = true;
         self().visit_stmt(*x.m_assign_stmt);
-        dec_indent();
-    }
-    void visit_ForEach(const ForEach_t &x) {
-        if(!attached) {
-            if(start_line) {
-                start_line = false;
-                s.append(indtd);
-            } else {
-                s.append("\n"+indtd);
-            }
-            last ? s.append("└-") : s.append("|-");
-        }
-        last ? inc_indent() : inc_lindent();
-        attached = true;
-        last = false;
-        if (use_colors) {
-            s.append(color(style::bold));
-            s.append(color(fg::magenta));
-        }
-        s.append("ForEach");
-        if (use_colors) {
-            s.append(color(fg::reset));
-            s.append(color(style::reset));
-        }
-        s.append("\n" + indtd + "|-" + "var=");
-        attached = true;
-        self().visit_expr(*x.m_var);
-        s.append("\n" + indtd + "|-" + "container=");
-        attached = true;
-        self().visit_expr(*x.m_container);
-        s.append("\n" + indtd + "└-" + "body=↧");
-        for (size_t i=0; i<x.n_body; i++) {
-            inc_indent();
-            last = i == x.n_body-1;
-            attached = false;
-            self().visit_stmt(*x.m_body[i]);
-            dec_indent();
-        }
         dec_indent();
     }
     void visit_GoTo(const GoTo_t &x) {
@@ -3156,37 +3119,6 @@ public:
         self().visit_expr(*x.m_ele);
         dec_indent();
     }
-    void visit_SetDiscard(const SetDiscard_t &x) {
-        if(!attached) {
-            if(start_line) {
-                start_line = false;
-                s.append(indtd);
-            } else {
-                s.append("\n"+indtd);
-            }
-            last ? s.append("└-") : s.append("|-");
-        }
-        last ? inc_indent() : inc_lindent();
-        attached = true;
-        last = false;
-        if (use_colors) {
-            s.append(color(style::bold));
-            s.append(color(fg::magenta));
-        }
-        s.append("SetDiscard");
-        if (use_colors) {
-            s.append(color(fg::reset));
-            s.append(color(style::reset));
-        }
-        s.append("\n" + indtd + "|-" + "a=");
-        attached = true;
-        self().visit_expr(*x.m_a);
-        s.append("\n" + indtd + "└-" + "ele=");
-        last = true;
-        attached = true;
-        self().visit_expr(*x.m_ele);
-        dec_indent();
-    }
     void visit_ListInsert(const ListInsert_t &x) {
         if(!attached) {
             if(start_line) {
@@ -3312,62 +3244,6 @@ public:
         last = true;
         attached = true;
         self().visit_expr(*x.m_value);
-        dec_indent();
-    }
-    void visit_DictClear(const DictClear_t &x) {
-        if(!attached) {
-            if(start_line) {
-                start_line = false;
-                s.append(indtd);
-            } else {
-                s.append("\n"+indtd);
-            }
-            last ? s.append("└-") : s.append("|-");
-        }
-        last ? inc_indent() : inc_lindent();
-        attached = true;
-        last = false;
-        if (use_colors) {
-            s.append(color(style::bold));
-            s.append(color(fg::magenta));
-        }
-        s.append("DictClear");
-        if (use_colors) {
-            s.append(color(fg::reset));
-            s.append(color(style::reset));
-        }
-        s.append("\n" + indtd + "└-" + "a=");
-        last = true;
-        attached = true;
-        self().visit_expr(*x.m_a);
-        dec_indent();
-    }
-    void visit_SetClear(const SetClear_t &x) {
-        if(!attached) {
-            if(start_line) {
-                start_line = false;
-                s.append(indtd);
-            } else {
-                s.append("\n"+indtd);
-            }
-            last ? s.append("└-") : s.append("|-");
-        }
-        last ? inc_indent() : inc_lindent();
-        attached = true;
-        last = false;
-        if (use_colors) {
-            s.append(color(style::bold));
-            s.append(color(fg::magenta));
-        }
-        s.append("SetClear");
-        if (use_colors) {
-            s.append(color(fg::reset));
-            s.append(color(style::reset));
-        }
-        s.append("\n" + indtd + "└-" + "a=");
-        last = true;
-        attached = true;
-        self().visit_expr(*x.m_a);
         dec_indent();
     }
     void visit_Expr(const Expr_t &x) {
@@ -5141,48 +5017,6 @@ public:
         }
         dec_indent();
     }
-    void visit_ListContains(const ListContains_t &x) {
-        if(!attached) {
-            if(start_line) {
-                start_line = false;
-                s.append(indtd);
-            } else {
-                s.append("\n"+indtd);
-            }
-            last ? s.append("└-") : s.append("|-");
-        }
-        last ? inc_indent() : inc_lindent();
-        attached = true;
-        last = false;
-        if (use_colors) {
-            s.append(color(style::bold));
-            s.append(color(fg::magenta));
-        }
-        s.append("ListContains");
-        if (use_colors) {
-            s.append(color(fg::reset));
-            s.append(color(style::reset));
-        }
-        s.append("\n" + indtd + "|-" + "left=");
-        attached = true;
-        self().visit_expr(*x.m_left);
-        s.append("\n" + indtd + "|-" + "right=");
-        attached = true;
-        self().visit_expr(*x.m_right);
-        s.append("\n" + indtd + "|-" + "type=");
-        attached = true;
-        self().visit_ttype(*x.m_type);
-        s.append("\n" + indtd + "└-" + "value=");
-        last = true;
-        if (x.m_value) {
-            self().visit_expr(*x.m_value);
-        } else {
-            s.append("()");
-        last = false;
-        attached = false;
-        }
-        dec_indent();
-    }
     void visit_SetConstant(const SetConstant_t &x) {
         if(!attached) {
             if(start_line) {
@@ -5390,48 +5224,6 @@ public:
             s.append(color(fg::magenta));
         }
         s.append("TupleConcat");
-        if (use_colors) {
-            s.append(color(fg::reset));
-            s.append(color(style::reset));
-        }
-        s.append("\n" + indtd + "|-" + "left=");
-        attached = true;
-        self().visit_expr(*x.m_left);
-        s.append("\n" + indtd + "|-" + "right=");
-        attached = true;
-        self().visit_expr(*x.m_right);
-        s.append("\n" + indtd + "|-" + "type=");
-        attached = true;
-        self().visit_ttype(*x.m_type);
-        s.append("\n" + indtd + "└-" + "value=");
-        last = true;
-        if (x.m_value) {
-            self().visit_expr(*x.m_value);
-        } else {
-            s.append("()");
-        last = false;
-        attached = false;
-        }
-        dec_indent();
-    }
-    void visit_TupleContains(const TupleContains_t &x) {
-        if(!attached) {
-            if(start_line) {
-                start_line = false;
-                s.append(indtd);
-            } else {
-                s.append("\n"+indtd);
-            }
-            last ? s.append("└-") : s.append("|-");
-        }
-        last ? inc_indent() : inc_lindent();
-        attached = true;
-        last = false;
-        if (use_colors) {
-            s.append(color(style::bold));
-            s.append(color(fg::magenta));
-        }
-        s.append("TupleContains");
         if (use_colors) {
             s.append(color(fg::reset));
             s.append(color(style::reset));
@@ -6612,53 +6404,6 @@ public:
         }
         dec_indent();
     }
-    void visit_ArrayAll(const ArrayAll_t &x) {
-        if(!attached) {
-            if(start_line) {
-                start_line = false;
-                s.append(indtd);
-            } else {
-                s.append("\n"+indtd);
-            }
-            last ? s.append("└-") : s.append("|-");
-        }
-        last ? inc_indent() : inc_lindent();
-        attached = true;
-        last = false;
-        if (use_colors) {
-            s.append(color(style::bold));
-            s.append(color(fg::magenta));
-        }
-        s.append("ArrayAll");
-        if (use_colors) {
-            s.append(color(fg::reset));
-            s.append(color(style::reset));
-        }
-        s.append("\n" + indtd + "|-" + "mask=");
-        attached = true;
-        self().visit_expr(*x.m_mask);
-        s.append("\n" + indtd + "|-" + "dim=");
-        if (x.m_dim) {
-            self().visit_expr(*x.m_dim);
-        } else {
-            s.append("()");
-        last = false;
-        attached = false;
-        }
-        s.append("\n" + indtd + "|-" + "type=");
-        attached = true;
-        self().visit_ttype(*x.m_type);
-        s.append("\n" + indtd + "└-" + "value=");
-        last = true;
-        if (x.m_value) {
-            self().visit_expr(*x.m_value);
-        } else {
-            s.append("()");
-        last = false;
-        attached = false;
-        }
-        dec_indent();
-    }
     void visit_ArrayBroadcast(const ArrayBroadcast_t &x) {
         if(!attached) {
             if(start_line) {
@@ -7762,90 +7507,6 @@ public:
         }
         dec_indent();
     }
-    void visit_SetContains(const SetContains_t &x) {
-        if(!attached) {
-            if(start_line) {
-                start_line = false;
-                s.append(indtd);
-            } else {
-                s.append("\n"+indtd);
-            }
-            last ? s.append("└-") : s.append("|-");
-        }
-        last ? inc_indent() : inc_lindent();
-        attached = true;
-        last = false;
-        if (use_colors) {
-            s.append(color(style::bold));
-            s.append(color(fg::magenta));
-        }
-        s.append("SetContains");
-        if (use_colors) {
-            s.append(color(fg::reset));
-            s.append(color(style::reset));
-        }
-        s.append("\n" + indtd + "|-" + "left=");
-        attached = true;
-        self().visit_expr(*x.m_left);
-        s.append("\n" + indtd + "|-" + "right=");
-        attached = true;
-        self().visit_expr(*x.m_right);
-        s.append("\n" + indtd + "|-" + "type=");
-        attached = true;
-        self().visit_ttype(*x.m_type);
-        s.append("\n" + indtd + "└-" + "value=");
-        last = true;
-        if (x.m_value) {
-            self().visit_expr(*x.m_value);
-        } else {
-            s.append("()");
-        last = false;
-        attached = false;
-        }
-        dec_indent();
-    }
-    void visit_DictContains(const DictContains_t &x) {
-        if(!attached) {
-            if(start_line) {
-                start_line = false;
-                s.append(indtd);
-            } else {
-                s.append("\n"+indtd);
-            }
-            last ? s.append("└-") : s.append("|-");
-        }
-        last ? inc_indent() : inc_lindent();
-        attached = true;
-        last = false;
-        if (use_colors) {
-            s.append(color(style::bold));
-            s.append(color(fg::magenta));
-        }
-        s.append("DictContains");
-        if (use_colors) {
-            s.append(color(fg::reset));
-            s.append(color(style::reset));
-        }
-        s.append("\n" + indtd + "|-" + "left=");
-        attached = true;
-        self().visit_expr(*x.m_left);
-        s.append("\n" + indtd + "|-" + "right=");
-        attached = true;
-        self().visit_expr(*x.m_right);
-        s.append("\n" + indtd + "|-" + "type=");
-        attached = true;
-        self().visit_ttype(*x.m_type);
-        s.append("\n" + indtd + "└-" + "value=");
-        last = true;
-        if (x.m_value) {
-            self().visit_expr(*x.m_value);
-        } else {
-            s.append("()");
-        last = false;
-        attached = false;
-        }
-        dec_indent();
-    }
     void visit_IntegerBitLen(const IntegerBitLen_t &x) {
         if(!attached) {
             if(start_line) {
@@ -8437,28 +8098,6 @@ public:
         if (use_colors) {
             s.append(color(fg::reset));
             s.append(color(style::reset));
-        }
-        s.append("\n" + indtd + "|-" + "data_member_types=↧");
-        for (size_t i=0; i<x.n_data_member_types; i++) {
-            inc_lindent();
-            last = i == x.n_data_member_types-1;
-            attached = false;
-            self().visit_ttype(*x.m_data_member_types[i]);
-            dec_indent();
-        }
-        s.append("\n" + indtd + "|-" + "member_function_types=↧");
-        for (size_t i=0; i<x.n_member_function_types; i++) {
-            inc_lindent();
-            last = i == x.n_member_function_types-1;
-            attached = false;
-            self().visit_ttype(*x.m_member_function_types[i]);
-            dec_indent();
-        }
-        s.append("\n" + indtd + "|-" + "is_cstruct=");
-        if (x.m_is_cstruct) {
-            s.append(".true.");
-        } else {
-            s.append(".false.");
         }
         s.append("\n" + indtd + "└-" + "derived_type=");
         last = true;

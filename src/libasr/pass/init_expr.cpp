@@ -195,7 +195,7 @@ class InitExprVisitor : public ASR::CallReplacerOnExpressionsVisitor<InitExprVis
 
             SymbolTable* current_scope_copy = current_scope;
             current_scope = x.m_parent_symtab;
-            if (x.m_symbolic_value) {
+            if (x.m_symbolic_value && (x.m_storage != ASR::storage_typeType::Parameter)) {
                 ASR::expr_t** current_expr_copy = current_expr;
                 current_expr = const_cast<ASR::expr_t**>(&(x.m_symbolic_value));
                 call_replacer();

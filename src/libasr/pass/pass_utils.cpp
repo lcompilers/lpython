@@ -102,7 +102,7 @@ namespace LCompilers {
                         struct_t->m_derived_type)->get_counter() ) { \
                     ASR::symbol_t* m_derived_type = current_scope->resolve_symbol( \
                         ASRUtils::symbol_name(struct_t->m_derived_type)); \
-                    ASR::ttype_t* struct_type = ASRUtils::TYPE(ASRUtils::make_StructType_t_util(al, \
+                    ASR::ttype_t* struct_type = ASRUtils::TYPE(ASR::make_StructType_t(al, \
                         struct_t->base.base.loc, m_derived_type)); \
                     array_ref_type = struct_type; \
                 } \
@@ -178,9 +178,6 @@ namespace LCompilers {
                 } else if(ASR::is_a<ASR::StructInstanceMember_t>(*tmp->m_v)){
                     arr_expr = tmp->m_v;
                     check_m_m =true;
-                } else if (ASR::is_a<ASR::ArrayItem_t>(*tmp->m_v)){
-                    arr_expr = ASR::down_cast<ASR::ArrayItem_t>(tmp->m_v)->m_v;
-                    check_m_m = false;
                 } else {
                     break;
                 }
@@ -1416,6 +1413,55 @@ namespace LCompilers {
             }
         }
 
+        void visit_ArrayConstant(ASR::ArrayConstant_t* x, Allocator& al,
+            ASR::expr_t* arr_var, Vec<ASR::stmt_t*>* result_vec,
+            Vec<ASR::expr_t*>& idx_vars, SymbolTable* current_scope,
+            bool perform_cast, ASR::cast_kindType cast_kind, ASR::ttype_t* casted_type) {
+            const Location& loc = arr_var->base.loc;
+            ASRUtils::ASRBuilder b(al, loc);
+            ASR::dimension_t* m_dims;
+            int n_dims = ASRUtils::extract_dimensions_from_ttype(ASRUtils::expr_type(arr_var), m_dims);
+            Vec<int> strides;
+            strides.resize(al, n_dims);
+            // compute stride vars for each dimension in column major order
+            strides.p[0] = 1;
+            for( int i = 1; i < n_dims; i++ ) {
+                int64_t dim_size = -1;
+                ASRUtils::extract_value(ASRUtils::expr_value(m_dims[i - 1].m_length), dim_size);
+                strides.p[i] = strides[i - 1] * dim_size;
+            }
+
+            Vec<int64_t> lower_bounds_values;
+            lower_bounds_values.resize(al, n_dims);
+            for( int i = 0; i < n_dims; i++ ) {
+                int64_t dim_size = -1;
+                ASRUtils::extract_value(ASRUtils::expr_value(m_dims[i].m_start), dim_size);
+                lower_bounds_values.p[i] = dim_size;
+            }
+
+            for( int k = 0; k < ASRUtils::get_fixed_size_of_array(x->m_type); k++ ) {
+                // set index variables to their correct values for kth element in column major order
+                for (int i = 0; i < n_dims - 1; i++) {
+                    int64_t ik = (k % strides[i + 1]) / strides[i];
+                    ik += lower_bounds_values[i];
+                    ASR::stmt_t* assign_idx_var = b.Assignment(idx_vars[i], b.i32(ik));
+                    result_vec->push_back(al, assign_idx_var);
+                }
+                ASR::stmt_t* assign_idx_var = b.Assignment(idx_vars[n_dims - 1], b.i32(k / strides[n_dims - 1] + lower_bounds_values[n_dims - 1]));
+                result_vec->push_back(al, assign_idx_var);
+
+                ASR::expr_t* curr_init = ASRUtils::fetch_ArrayConstant_value(al, x, k);
+                ASR::expr_t* res = PassUtils::create_array_ref(arr_var, idx_vars,
+                    al, current_scope);
+                if( perform_cast && !ASRUtils::types_equal(ASRUtils::expr_type(curr_init), casted_type) ) {
+                    curr_init = ASRUtils::EXPR(ASR::make_Cast_t(
+                        al, curr_init->base.loc, curr_init, cast_kind, casted_type, nullptr));
+                }
+                ASR::stmt_t* assign = b.Assignment(res, curr_init);
+                result_vec->push_back(al, assign);
+            }
+        }
+
         void visit_ArrayConstructor(ASR::ArrayConstructor_t* x, Allocator& al,
             ASR::expr_t* arr_var, Vec<ASR::stmt_t*>* result_vec,
             ASR::expr_t* idx_var, SymbolTable* current_scope,
@@ -1563,7 +1609,7 @@ namespace LCompilers {
                             ASRUtils::type_get_past_array(
                                 ASRUtils::type_get_past_allocatable_pointer(
                                     ASRUtils::expr_type(arr_var))),
-                            dims.p, dims.size(), ASR::abiType::Source, false,
+                            dims.p, dims.size(), ASR::abiType::Source, false, 
                             ASR::array_physical_typeType::DescriptorArray,
                             false, false, !is_alloc_return_func);
                         ASR::expr_t* res = ASRUtils::EXPR(ASR::make_ArraySection_t(

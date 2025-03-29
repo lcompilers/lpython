@@ -34,10 +34,6 @@ class ArrayVarAddressReplacer: public ASR::BaseExprReplacer<ArrayVarAddressRepla
 
     }
 
-    void replace_GetPointer(ASR::GetPointer_t* /*x*/) {
-
-    }
-
     void replace_Var(ASR::Var_t* x) {
         if( ASRUtils::is_array(ASRUtils::symbol_type(x->m_v)) ) {
             vars.push_back(al, current_expr);
@@ -105,9 +101,6 @@ class ArrayVarAddressCollector: public ASR::CallReplacerOnExpressionsVisitor<Arr
     }
 
     void visit_Associate(const ASR::Associate_t& /*x*/) {
-    }
-
-    void visit_CPtrToPointer(const ASR::CPtrToPointer_t& /*x*/) {
     }
 
 };
@@ -971,7 +964,9 @@ class ArrayOpVisitor: public ASR::CallReplacerOnExpressionsVisitor<ArrayOpVisito
             return ;
         }
 
-        insert_realloc_for_target(xx.m_target, xx.m_value, vars);
+        if (ASRUtils::is_array(ASRUtils::expr_type(xx.m_value))) {
+            insert_realloc_for_target(xx.m_target, xx.m_value, vars);
+        }
 
         Vec<ASR::expr_t**> fix_type_args;
         fix_type_args.reserve(al, 2);
@@ -1034,9 +1029,6 @@ class ArrayOpVisitor: public ASR::CallReplacerOnExpressionsVisitor<ArrayOpVisito
         FixTypeVisitor fix_type_visitor(al);
         fix_type_visitor.current_scope = current_scope;
         fix_type_visitor.visit_If(x);
-    }
-
-    void visit_CPtrToPointer(const ASR::CPtrToPointer_t& /*x*/) {
     }
 
 };

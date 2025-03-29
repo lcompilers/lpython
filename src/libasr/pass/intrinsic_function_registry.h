@@ -60,6 +60,7 @@ inline std::string get_intrinsic_name(int64_t x) {
         INTRINSIC_NAME_CASE(FlipSign)
         INTRINSIC_NAME_CASE(FloorDiv)
         INTRINSIC_NAME_CASE(Mod)
+        INTRINSIC_NAME_CASE(Trailz)
         INTRINSIC_NAME_CASE(Isnan)
         INTRINSIC_NAME_CASE(Nearest)
         INTRINSIC_NAME_CASE(CompilerVersion)
@@ -142,7 +143,6 @@ inline std::string get_intrinsic_name(int64_t x) {
         INTRINSIC_NAME_CASE(DictValues)
         INTRINSIC_NAME_CASE(SetAdd)
         INTRINSIC_NAME_CASE(SetRemove)
-        INTRINSIC_NAME_CASE(SetDiscard)
         INTRINSIC_NAME_CASE(Max)
         INTRINSIC_NAME_CASE(Min)
         INTRINSIC_NAME_CASE(Sign)
@@ -180,17 +180,14 @@ inline std::string get_intrinsic_name(int64_t x) {
         INTRINSIC_NAME_CASE(SymbolicPow)
         INTRINSIC_NAME_CASE(SymbolicPi)
         INTRINSIC_NAME_CASE(SymbolicE)
-        INTRINSIC_NAME_CASE(SymbolicInfinity)
         INTRINSIC_NAME_CASE(SymbolicInteger)
         INTRINSIC_NAME_CASE(SymbolicDiff)
         INTRINSIC_NAME_CASE(SymbolicExpand)
-        INTRINSIC_NAME_CASE(SymbolicSubs)
         INTRINSIC_NAME_CASE(SymbolicSin)
         INTRINSIC_NAME_CASE(SymbolicCos)
         INTRINSIC_NAME_CASE(SymbolicLog)
         INTRINSIC_NAME_CASE(SymbolicExp)
         INTRINSIC_NAME_CASE(SymbolicAbs)
-        INTRINSIC_NAME_CASE(SymbolicSign)
         INTRINSIC_NAME_CASE(SymbolicHasSymbolQ)
         INTRINSIC_NAME_CASE(SymbolicAddQ)
         INTRINSIC_NAME_CASE(SymbolicMulQ)
@@ -444,8 +441,6 @@ namespace IntrinsicElementalFunctionRegistry {
             {nullptr, &SetAdd::verify_args}},
         {static_cast<int64_t>(IntrinsicElementalFunctions::SetRemove),
             {nullptr, &SetRemove::verify_args}},
-        {static_cast<int64_t>(IntrinsicElementalFunctions::SetDiscard),
-            {nullptr, &SetDiscard::verify_args}},
         {static_cast<int64_t>(IntrinsicElementalFunctions::Max),
             {&Max::instantiate_Max, &Max::verify_args}},
         {static_cast<int64_t>(IntrinsicElementalFunctions::Min),
@@ -536,16 +531,12 @@ namespace IntrinsicElementalFunctionRegistry {
             {nullptr, &SymbolicPi::verify_args}},
         {static_cast<int64_t>(IntrinsicElementalFunctions::SymbolicE),
             {nullptr, &SymbolicE::verify_args}},
-        {static_cast<int64_t>(IntrinsicElementalFunctions::SymbolicInfinity),
-            {nullptr, &SymbolicInfinity::verify_args}},
         {static_cast<int64_t>(IntrinsicElementalFunctions::SymbolicInteger),
             {nullptr, &SymbolicInteger::verify_args}},
         {static_cast<int64_t>(IntrinsicElementalFunctions::SymbolicDiff),
             {nullptr, &SymbolicDiff::verify_args}},
         {static_cast<int64_t>(IntrinsicElementalFunctions::SymbolicExpand),
             {nullptr, &SymbolicExpand::verify_args}},
-        {static_cast<int64_t>(IntrinsicElementalFunctions::SymbolicSubs),
-            {nullptr, &SymbolicSubs::verify_args}},
         {static_cast<int64_t>(IntrinsicElementalFunctions::SymbolicSin),
             {nullptr, &SymbolicSin::verify_args}},
         {static_cast<int64_t>(IntrinsicElementalFunctions::SymbolicCos),
@@ -556,8 +547,6 @@ namespace IntrinsicElementalFunctionRegistry {
             {nullptr, &SymbolicExp::verify_args}},
         {static_cast<int64_t>(IntrinsicElementalFunctions::SymbolicAbs),
             {nullptr, &SymbolicAbs::verify_args}},
-        {static_cast<int64_t>(IntrinsicElementalFunctions::SymbolicSign),
-            {nullptr, &SymbolicSign::verify_args}},
         {static_cast<int64_t>(IntrinsicElementalFunctions::SymbolicHasSymbolQ),
             {nullptr, &SymbolicHasSymbolQ::verify_args}},
         {static_cast<int64_t>(IntrinsicElementalFunctions::SymbolicAddQ),
@@ -576,10 +565,6 @@ namespace IntrinsicElementalFunctionRegistry {
             {&CommandArgumentCount::instantiate_CommandArgumentCount, &CommandArgumentCount::verify_args}},
         {static_cast<int64_t>(IntrinsicElementalFunctions::Int),
             {&Int::instantiate_Int, &Int::verify_args}},
-        {static_cast<int64_t>(IntrinsicElementalFunctions::SymbolicIsInteger),
-            {nullptr, &SymbolicIsInteger::verify_args}},
-        {static_cast<int64_t>(IntrinsicElementalFunctions::SymbolicIsPositive),
-            {nullptr, &SymbolicIsPositive::verify_args}},
     };
 
     static const std::map<int64_t, std::string>& intrinsic_function_id_to_name = {
@@ -823,8 +808,6 @@ namespace IntrinsicElementalFunctionRegistry {
             "set.add"},
         {static_cast<int64_t>(IntrinsicElementalFunctions::SetRemove),
             "set.remove"},
-        {static_cast<int64_t>(IntrinsicElementalFunctions::SetDiscard),
-            "set.discard"},
         {static_cast<int64_t>(IntrinsicElementalFunctions::Max),
             "max"},
         {static_cast<int64_t>(IntrinsicElementalFunctions::Min),
@@ -907,16 +890,12 @@ namespace IntrinsicElementalFunctionRegistry {
             "pi"},
         {static_cast<int64_t>(IntrinsicElementalFunctions::SymbolicE),
             "E"},
-        {static_cast<int64_t>(IntrinsicElementalFunctions::SymbolicInfinity),
-            "oo"},
         {static_cast<int64_t>(IntrinsicElementalFunctions::SymbolicInteger),
             "SymbolicInteger"},
         {static_cast<int64_t>(IntrinsicElementalFunctions::SymbolicDiff),
             "SymbolicDiff"},
         {static_cast<int64_t>(IntrinsicElementalFunctions::SymbolicExpand),
             "SymbolicExpand"},
-        {static_cast<int64_t>(IntrinsicElementalFunctions::SymbolicSubs),
-            "SymbolicSubs"},
         {static_cast<int64_t>(IntrinsicElementalFunctions::SymbolicSin),
             "SymbolicSin"},
         {static_cast<int64_t>(IntrinsicElementalFunctions::SymbolicCos),
@@ -927,8 +906,6 @@ namespace IntrinsicElementalFunctionRegistry {
             "SymbolicExp"},
         {static_cast<int64_t>(IntrinsicElementalFunctions::SymbolicAbs),
             "SymbolicAbs"},
-        {static_cast<int64_t>(IntrinsicElementalFunctions::SymbolicSign),
-            "SymbolicSign"},
         {static_cast<int64_t>(IntrinsicElementalFunctions::SymbolicHasSymbolQ),
             "SymbolicHasSymbolQ"},
         {static_cast<int64_t>(IntrinsicElementalFunctions::SymbolicAddQ),
@@ -943,10 +920,6 @@ namespace IntrinsicElementalFunctionRegistry {
             "SymbolicSinQ"},
         {static_cast<int64_t>(IntrinsicElementalFunctions::SymbolicGetArgument),
             "SymbolicGetArgument"},
-        {static_cast<int64_t>(IntrinsicElementalFunctions::SymbolicIsInteger),
-            "SymbolicIsInteger"},
-        {static_cast<int64_t>(IntrinsicElementalFunctions::SymbolicIsPositive),
-            "SymbolicIsPositive"},
         {static_cast<int64_t>(IntrinsicElementalFunctions::Int),
             "int"},
     };
@@ -1067,7 +1040,6 @@ namespace IntrinsicElementalFunctionRegistry {
                 {"dict.values", {&DictValues::create_DictValues, &DictValues::eval_dict_values}},
                 {"set.add", {&SetAdd::create_SetAdd, &SetAdd::eval_set_add}},
                 {"set.remove", {&SetRemove::create_SetRemove, &SetRemove::eval_set_remove}},
-                {"set.discard", {&SetDiscard::create_SetDiscard, &SetDiscard::eval_set_discard}},
                 {"max0", {&Max::create_Max, &Max::eval_Max}},
                 {"adjustl", {&Adjustl::create_Adjustl, &Adjustl::eval_Adjustl}},
                 {"adjustr", {&Adjustr::create_Adjustr, &Adjustr::eval_Adjustr}},
@@ -1118,17 +1090,14 @@ namespace IntrinsicElementalFunctionRegistry {
                 {"SymbolicPow", {&SymbolicPow::create_SymbolicPow, &SymbolicPow::eval_SymbolicPow}},
                 {"pi", {&SymbolicPi::create_SymbolicPi, &SymbolicPi::eval_SymbolicPi}},
                 {"E", {&SymbolicE::create_SymbolicE, &SymbolicE::eval_SymbolicE}},
-                {"oo", {&SymbolicInfinity::create_SymbolicInfinity, &SymbolicInfinity::eval_SymbolicInfinity}},
                 {"SymbolicInteger", {&SymbolicInteger::create_SymbolicInteger, &SymbolicInteger::eval_SymbolicInteger}},
                 {"diff", {&SymbolicDiff::create_SymbolicDiff, &SymbolicDiff::eval_SymbolicDiff}},
                 {"expand", {&SymbolicExpand::create_SymbolicExpand, &SymbolicExpand::eval_SymbolicExpand}},
-                {"subs", {&SymbolicSubs::create_SymbolicSubs, &SymbolicSubs::eval_SymbolicSubs}},
                 {"SymbolicSin", {&SymbolicSin::create_SymbolicSin, &SymbolicSin::eval_SymbolicSin}},
                 {"SymbolicCos", {&SymbolicCos::create_SymbolicCos, &SymbolicCos::eval_SymbolicCos}},
                 {"SymbolicLog", {&SymbolicLog::create_SymbolicLog, &SymbolicLog::eval_SymbolicLog}},
                 {"SymbolicExp", {&SymbolicExp::create_SymbolicExp, &SymbolicExp::eval_SymbolicExp}},
                 {"SymbolicAbs", {&SymbolicAbs::create_SymbolicAbs, &SymbolicAbs::eval_SymbolicAbs}},
-                {"SymbolicSign", {&SymbolicSign::create_SymbolicSign, &SymbolicSign::eval_SymbolicSign}},
                 {"has", {&SymbolicHasSymbolQ::create_SymbolicHasSymbolQ, &SymbolicHasSymbolQ::eval_SymbolicHasSymbolQ}},
                 {"AddQ", {&SymbolicAddQ::create_SymbolicAddQ, &SymbolicAddQ::eval_SymbolicAddQ}},
                 {"MulQ", {&SymbolicMulQ::create_SymbolicMulQ, &SymbolicMulQ::eval_SymbolicMulQ}},
@@ -1136,8 +1105,6 @@ namespace IntrinsicElementalFunctionRegistry {
                 {"LogQ", {&SymbolicLogQ::create_SymbolicLogQ, &SymbolicLogQ::eval_SymbolicLogQ}},
                 {"SinQ", {&SymbolicSinQ::create_SymbolicSinQ, &SymbolicSinQ::eval_SymbolicSinQ}},
                 {"GetArgument", {&SymbolicGetArgument::create_SymbolicGetArgument, &SymbolicGetArgument::eval_SymbolicGetArgument}},
-                {"is_integer", {&SymbolicIsInteger::create_SymbolicIsInteger, &SymbolicIsInteger::eval_SymbolicIsInteger}},
-                {"is_positive", {&SymbolicIsPositive::create_SymbolicIsPositive, &SymbolicIsPositive::eval_SymbolicIsPositive}},
                 {"int", {&Int::create_Int, &Int::eval_Int}},
     };
 

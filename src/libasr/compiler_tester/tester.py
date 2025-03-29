@@ -256,6 +256,7 @@ def get_error_diff(reference_file, output_file, full_err_str) -> str:
 
 
 def do_update_reference(jo, jr, do):
+    os.makedirs(os.path.dirname(jr), exist_ok=True)
     shutil.copyfile(jo, jr)
     for f in ["outfile", "stdout", "stderr"]:
         if do[f]:
@@ -424,6 +425,16 @@ def tester_main(compiler, single_test, is_lcompilers_executable_installed=False)
     skip_run_with_dbg = args.skip_run_with_dbg
     global no_color
     no_color = args.no_color
+
+    # Remove all old test references while updating
+    if update_reference:
+        log.debug("REMOVE: old test references")
+        cmd = "rm -rf ./tests/reference/*"
+        log.debug(f"+ {cmd}")
+        process = subprocess.run(cmd, shell=True)
+        if process.returncode != 0:
+            print("Removing Old test references failed!")
+            exit(1)
 
     # So that the tests find the `lcompiler` executable
     if not is_lcompilers_executable_installed:

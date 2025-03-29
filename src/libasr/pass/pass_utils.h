@@ -402,6 +402,7 @@ namespace LCompilers {
                 bool fill_variable_dependencies;
                 bool _return_var_or_intent_out = false;
                 SymbolTable* current_scope;
+                std::string current_name;
 
             public:
 
@@ -456,6 +457,8 @@ namespace LCompilers {
                 }
 
                 void visit_Variable(const ASR::Variable_t& x) {
+                    std::string current_name_copy = current_name;
+                    current_name = x.m_name;
                     ASR::Variable_t& xx = const_cast<ASR::Variable_t&>(x);
                     variable_dependencies.n = 0;
                     variable_dependencies.reserve(al, 1);
@@ -469,10 +472,11 @@ namespace LCompilers {
                     xx.n_dependencies = variable_dependencies.size();
                     xx.m_dependencies = variable_dependencies.p;
                     fill_variable_dependencies = fill_variable_dependencies_copy;
+                    current_name = current_name_copy;
                 }
 
                 void visit_Var(const ASR::Var_t& x) {
-                    if( fill_variable_dependencies ) {
+                    if( fill_variable_dependencies && ASRUtils::symbol_name(x.m_v) != current_name ) {
                         variable_dependencies.push_back(al, ASRUtils::symbol_name(x.m_v));
                     }
                 }
@@ -1015,6 +1019,12 @@ namespace LCompilers {
             bool perform_cast=false, ASR::cast_kindType cast_kind=ASR::cast_kindType::IntegerToInteger,
             ASR::ttype_t* casted_type=nullptr);
 
+        void visit_ArrayConstant(ASR::ArrayConstant_t* x, Allocator& al,
+            ASR::expr_t* arr_var, Vec<ASR::stmt_t*>* result_vec,
+            Vec<ASR::expr_t*>& idx_vars, SymbolTable* current_scope,
+            bool perform_cast=false, ASR::cast_kindType cast_kind=ASR::cast_kindType::IntegerToInteger,
+            ASR::ttype_t* casted_type=nullptr);
+
         void visit_ArrayConstructor(ASR::ArrayConstructor_t* x, Allocator& al,
             ASR::expr_t* arr_var, Vec<ASR::stmt_t*>* result_vec,
             ASR::expr_t* idx_var, SymbolTable* current_scope,
@@ -1036,19 +1046,10 @@ namespace LCompilers {
             const Location& loc = x->base.base.loc;
             if( ASR::is_a<ASR::Var_t>(*replacer->result_var) ) {
                 [[maybe_unused]] ASR::ttype_t* result_var_type = ASRUtils::expr_type(replacer->result_var);
-                LCOMPILERS_ASSERT_MSG(ASRUtils::extract_n_dims_from_ttype(result_var_type) == 1,
-                                    "Initialisation using ArrayConstant is "
-                                    "supported only for single dimensional arrays, found: " +
-                                    std::to_string(ASRUtils::extract_n_dims_from_ttype(result_var_type)))
                 Vec<ASR::expr_t*> idx_vars;
-                PassUtils::create_idx_vars(idx_vars, 1, loc, replacer->al, replacer->current_scope);
-                ASR::expr_t* idx_var = idx_vars[0];
-                ASR::expr_t* lb = PassUtils::get_bound(replacer->result_var, 1, "lbound", replacer->al);
-                ASR::stmt_t* assign_stmt = ASRUtils::STMT(ASR::make_Assignment_t(replacer->al,
-                                                loc, idx_var, lb, nullptr));
-                result_vec->push_back(replacer->al, assign_stmt);
+                PassUtils::create_idx_vars(idx_vars, ASRUtils::extract_n_dims_from_ttype(result_var_type), loc, replacer->al, replacer->current_scope);
                 visit_ArrayConstant(x, replacer->al, replacer->result_var, result_vec,
-                                    idx_var, replacer->current_scope,
+                                    idx_vars, replacer->current_scope,
                                     perform_cast, cast_kind, casted_type);
             } else if( ASR::is_a<ASR::ArraySection_t>(*replacer->result_var) ) {
                 ASR::ArraySection_t* target_section = ASR::down_cast<ASR::ArraySection_t>(replacer->result_var);

@@ -83,8 +83,9 @@ namespace LCompilers {
         if (!fn_printf) {
             llvm::FunctionType *function_type = llvm::FunctionType::get(
                     llvm::Type::getInt8Ty(context)->getPointerTo(),
-                    {llvm::Type::getInt32Ty(context),
-                    llvm::Type::getInt8Ty(context)->getPointerTo()}, true);
+                    {llvm::Type::getInt8Ty(context)->getPointerTo(), 
+                    llvm::Type::getInt8Ty(context)->getPointerTo(),
+                    llvm::Type::getInt32Ty(context)}, true);
             fn_printf = llvm::Function::Create(function_type,
                     llvm::Function::ExternalLinkage, "_lcompilers_string_format_fortran", &module);
         }
@@ -306,6 +307,25 @@ namespace LCompilers {
 
             llvm::Value* lfortran_str_cmp(llvm::Value* left_arg, llvm::Value* right_arg,
                                           std::string runtime_func_name, llvm::Module& module);
+
+            /*
+             * Initialize string with empty characters.
+            */
+            void string_init(llvm::Value* arg_size, llvm::Value* arg_string);
+
+            /*
+             * Allocate heap memory for string.
+             * Fill string with empty characters. 
+            */
+            void initialize_string_heap(llvm::Value* str, llvm::Value* len);
+            void initialize_string_heap(llvm::Value* str, int64_t len);
+
+            /*
+             * Allocate stack memory for string.
+             * Fill string with empty characters. 
+            */
+            void initialize_string_stack(llvm::Value* str, llvm::Value* len){(void)str;(void)len;throw LCompilersException("Not Implemented Yet");};
+            void initialize_string_stack(llvm::Value* str, int64_t len){(void)str;(void)len;throw LCompilersException("Not Implemented Yet");};
 
             llvm::Value* is_equal_by_value(llvm::Value* left, llvm::Value* right,
                                            llvm::Module& module, ASR::ttype_t* asr_type);

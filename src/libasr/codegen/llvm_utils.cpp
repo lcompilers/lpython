@@ -118,8 +118,8 @@ namespace LCompilers {
                 llvm::Type::getInt64Ty(context),  // size
                 llvm::Type::getInt64Ty(context)  // capacity
             };
-            complex_type_4 = llvm::StructType::create(context, els_4, "complex_4");
-            complex_type_8 = llvm::StructType::create(context, els_8, "complex_8");
+            complex_type_4 = llvm::StructType::create(context, els_4, "complex_4", true);
+            complex_type_8 = llvm::StructType::create(context, els_8, "complex_8", true);
             complex_type_4_ptr = llvm::StructType::create(context, els_4_ptr, "complex_4_ptr");
             complex_type_8_ptr = llvm::StructType::create(context, els_8_ptr, "complex_8_ptr");
             character_type = llvm::Type::getInt8Ty(context)->getPointerTo();
@@ -244,7 +244,7 @@ namespace LCompilers {
                 name2memidx[der_type_name][std::string(member->m_name)] = member_idx;
                 member_idx++;
             }
-            (*der_type_llvm)->setBody(member_types);
+            (*der_type_llvm)->setBody(member_types, true);
             name2dertype[der_type_name] = *der_type_llvm;
         }
         struct_type_stack.pop_back();
@@ -281,7 +281,7 @@ namespace LCompilers {
             union_type_llvm = name2dertype[union_type_name];
         } else {
             const std::map<std::string, ASR::symbol_t*>& scope = union_type->m_symtab->get_scope();
-            llvm::DataLayout data_layout(module);
+            llvm::DataLayout data_layout(module->getDataLayout());
             llvm::Type* max_sized_type = nullptr;
             size_t max_type_size = 0;
             for( auto itr = scope.begin(); itr != scope.end(); itr++ ) {
@@ -504,7 +504,7 @@ namespace LCompilers {
         if( LLVM::is_llvm_struct(asr_type) ||
             ASR::is_a<ASR::String_t>(*asr_type) ||
             ASR::is_a<ASR::Complex_t>(*asr_type) ) {
-            llvm::DataLayout data_layout(module);
+            llvm::DataLayout data_layout(module->getDataLayout());
             return data_layout.getTypeAllocSize(llvm_type);
         }
         return a_kind;
@@ -780,7 +780,7 @@ namespace LCompilers {
                 if( LLVM::is_llvm_struct(asr_list->m_type) ||
                     ASR::is_a<ASR::String_t>(*asr_list->m_type) ||
                     ASR::is_a<ASR::Complex_t>(*asr_list->m_type) ) {
-                    llvm::DataLayout data_layout(module);
+                    llvm::DataLayout data_layout(module->getDataLayout());
                     type_size = data_layout.getTypeAllocSize(el_llvm_type);
                 } else {
                     type_size = a_kind;
@@ -890,6 +890,10 @@ namespace LCompilers {
                     type = type_original->getPointerTo();
                 } else {
                     type = type_original;
+                }
+                if ( arg->m_type_declaration && ASR::is_a<ASR::Function_t>(*ASRUtils::symbol_get_past_external(arg->m_type_declaration)) &&
+                    (arg->m_intent == ASRUtils::intent_out || arg->m_intent == ASRUtils::intent_inout) ) {
+                    type = type->getPointerTo();
                 }
                 if( (arg->m_intent == ASRUtils::intent_out || (arg->m_intent == ASRUtils::intent_unspecified && !arg->m_value_attr)) &&
                     ASR::is_a<ASR::CPtr_t>(*arg->m_type) ) {
@@ -1042,7 +1046,7 @@ namespace LCompilers {
                     if( LLVM::is_llvm_struct(asr_list->m_type) ||
                         ASR::is_a<ASR::String_t>(*asr_list->m_type) ||
                         ASR::is_a<ASR::Complex_t>(*asr_list->m_type) ) {
-                        llvm::DataLayout data_layout(module);
+                        llvm::DataLayout data_layout(module->getDataLayout());
                         type_size = data_layout.getTypeAllocSize(el_llvm_type);
                     } else {
                         type_size = a_kind;
@@ -1240,7 +1244,7 @@ namespace LCompilers {
                     if( LLVM::is_llvm_struct(asr_list->m_type) ||
                         ASR::is_a<ASR::String_t>(*asr_list->m_type) ||
                         ASR::is_a<ASR::Complex_t>(*asr_list->m_type) ) {
-                        llvm::DataLayout data_layout(module);
+                        llvm::DataLayout data_layout(module->getDataLayout());
                         type_size = data_layout.getTypeAllocSize(el_llvm_type);
                     } else {
                         type_size = a_kind;
@@ -1463,7 +1467,7 @@ namespace LCompilers {
                 if( LLVM::is_llvm_struct(asr_list->m_type) ||
                     ASR::is_a<ASR::String_t>(*asr_list->m_type) ||
                     ASR::is_a<ASR::Complex_t>(*asr_list->m_type) ) {
-                    llvm::DataLayout data_layout(module);
+                    llvm::DataLayout data_layout(module->getDataLayout());
                     type_size = data_layout.getTypeAllocSize(el_llvm_type);
                 } else {
                     type_size = a_kind;
@@ -1852,6 +1856,36 @@ namespace LCompilers {
         return builder->CreateCall(fn, args);
     }
 
+    void LLVMUtils::string_init(llvm::Value* arg_size, llvm::Value* arg_string) {
+        std::string func_name = "_lfortran_string_init";
+        llvm::Function *fn = module->getFunction(func_name);
+        if (!fn) {
+            llvm::FunctionType *function_type = llvm::FunctionType::get(
+                    llvm::Type::getVoidTy(context), {
+                        llvm::Type::getInt64Ty(context),
+                        llvm::Type::getInt8Ty(context)->getPointerTo()
+                    }, false);
+            fn = llvm::Function::Create(function_type,
+                    llvm::Function::ExternalLinkage, func_name, module);
+        }
+        std::vector<llvm::Value*> args = {convert_kind(arg_size,
+                                                llvm::Type::getInt64Ty(context)),
+                                        arg_string};
+        builder->CreateCall(fn, args);
+    }
+
+    void LLVMUtils::initialize_string_heap(llvm::Value* str, llvm::Value* len){
+        llvm::Value *s_malloc = LLVM::lfortran_malloc(context, *module, *builder, len);
+        string_init(len, s_malloc);
+        builder->CreateStore(s_malloc, str);
+    }
+
+    void LLVMUtils::initialize_string_heap(llvm::Value* str, int64_t len){
+        llvm::Value* len_llvm = llvm::ConstantInt::get(context,
+            llvm::APInt(32,len+1));
+        initialize_string_heap(str, len_llvm);
+    }
+
     llvm::Value* LLVMUtils::is_equal_by_value(llvm::Value* left, llvm::Value* right,
                                               llvm::Module& module, ASR::ttype_t* asr_type) {
         switch( asr_type->type ) {
@@ -2102,7 +2136,7 @@ namespace LCompilers {
                             int64_t size = ASRUtils::get_fixed_size_of_array(asr_dims, asr_n_dims);
                             llvm::Type* llvm_data_type = get_type_from_ttype_t_util(ASRUtils::type_get_past_array(
                                 ASRUtils::type_get_past_allocatable(ASRUtils::type_get_past_pointer(asr_type))), module);
-                            llvm::DataLayout data_layout(module);
+                            llvm::DataLayout data_layout(module->getDataLayout());
                             uint64_t data_size = data_layout.getTypeAllocSize(llvm_data_type);
                             llvm::Value* llvm_size = llvm::ConstantInt::get(context, llvm::APInt(32, size));
                             llvm_size = builder->CreateMul(llvm_size,
@@ -2438,7 +2472,7 @@ namespace LCompilers {
                                         initial_capacity, initial_capacity);
         llvm_utils->list_api->list_init(value_type_code, value_list, *module,
                                         initial_capacity, initial_capacity);
-        llvm::DataLayout data_layout(module);
+        llvm::DataLayout data_layout(module->getDataLayout());
         size_t mask_size = data_layout.getTypeAllocSize(llvm::Type::getInt8Ty(context));
         llvm::Value* llvm_capacity = llvm::ConstantInt::get(llvm::Type::getInt32Ty(context),
                                             llvm::APInt(32, initial_capacity));
@@ -2468,7 +2502,7 @@ namespace LCompilers {
         llvm::Value* num_buckets_filled_ptr = get_pointer_to_number_of_filled_buckets(dict);
         LLVM::CreateStore(*builder, llvm_zero, num_buckets_filled_ptr);
 
-        llvm::DataLayout data_layout(module);
+        llvm::DataLayout data_layout(module->getDataLayout());
         llvm::Type* key_value_pair_type = get_key_value_pair_type(key_type_code, value_type_code);
         size_t key_value_type_size = data_layout.getTypeAllocSize(key_value_pair_type);
         llvm::Value* llvm_key_value_size = llvm::ConstantInt::get(llvm::Type::getInt32Ty(context), llvm::APInt(32, key_value_type_size));
@@ -2599,7 +2633,7 @@ namespace LCompilers {
 
         llvm::Value* src_key_mask = llvm_utils->CreateLoad(get_pointer_to_keymask(src));
         llvm::Value* dest_key_mask_ptr = get_pointer_to_keymask(dest);
-        llvm::DataLayout data_layout(module);
+        llvm::DataLayout data_layout(module->getDataLayout());
         size_t mask_size = data_layout.getTypeAllocSize(llvm::Type::getInt8Ty(context));
         llvm::Value* llvm_mask_size = llvm::ConstantInt::get(llvm::Type::getInt32Ty(context),
                                             llvm::APInt(32, mask_size));
@@ -2762,7 +2796,7 @@ namespace LCompilers {
         LLVM::CreateStore(*builder, src_filled_buckets, get_pointer_to_number_of_filled_buckets(dest));
         LLVM::CreateStore(*builder, src_capacity, get_pointer_to_capacity(dest));
         LLVM::CreateStore(*builder, src_rehash_flag, get_pointer_to_rehash_flag(dest));
-        llvm::DataLayout data_layout(module);
+        llvm::DataLayout data_layout(module->getDataLayout());
         size_t mask_size = data_layout.getTypeAllocSize(llvm::Type::getInt8Ty(context));
         llvm::Value* llvm_mask_size = llvm::ConstantInt::get(llvm::Type::getInt32Ty(context),
                                             llvm::APInt(32, mask_size));
@@ -3328,7 +3362,7 @@ namespace LCompilers {
             llvm_utils->create_if_else(builder->CreateICmpNE(
                     llvm_utils->CreateLoad(chain_itr_prev),
                     llvm::ConstantPointerNull::get(llvm::Type::getInt8Ty(context)->getPointerTo())), [&]() {
-                llvm::DataLayout data_layout(module);
+                llvm::DataLayout data_layout(module->getDataLayout());
                 size_t kv_struct_size = data_layout.getTypeAllocSize(kv_struct_type);
                 llvm::Value* malloc_size = llvm::ConstantInt::get(llvm::Type::getInt32Ty(context), kv_struct_size);
                 llvm::Value* new_kv_struct_i8 = LLVM::lfortran_malloc(context, *module, *builder, malloc_size);
@@ -3916,7 +3950,7 @@ namespace LCompilers {
         llvm_utils->list_api->list_init(value_type_code, new_value_list, *module, capacity, capacity);
 
         llvm::Value* key_mask = llvm_utils->CreateLoad(get_pointer_to_keymask(dict));
-        llvm::DataLayout data_layout(module);
+        llvm::DataLayout data_layout(module->getDataLayout());
         size_t mask_size = data_layout.getTypeAllocSize(llvm::Type::getInt8Ty(context));
         llvm::Value* llvm_mask_size = llvm::ConstantInt::get(llvm::Type::getInt32Ty(context),
                                             llvm::APInt(32, mask_size));
@@ -5669,7 +5703,7 @@ namespace LCompilers {
         llvm::Value* el_list = get_el_list(set);
         llvm_utils->list_api->list_init(type_code, el_list, *module,
                                         initial_capacity, initial_capacity);
-        llvm::DataLayout data_layout(module);
+        llvm::DataLayout data_layout(module->getDataLayout());
         size_t mask_size = data_layout.getTypeAllocSize(llvm::Type::getInt8Ty(context));
         llvm::Value* llvm_capacity = llvm::ConstantInt::get(llvm::Type::getInt32Ty(context),
                                             llvm::APInt(32, initial_capacity));
@@ -5702,7 +5736,7 @@ namespace LCompilers {
         llvm::Value* num_buckets_filled_ptr = get_pointer_to_number_of_filled_buckets(set);
         LLVM::CreateStore(*builder, llvm_zero, num_buckets_filled_ptr);
 
-        llvm::DataLayout data_layout(module);
+        llvm::DataLayout data_layout(module->getDataLayout());
         llvm::Type* el_type = typecode2elstruct[el_type_code];
         size_t el_type_size = data_layout.getTypeAllocSize(el_type);
         llvm::Value* llvm_el_size = llvm::ConstantInt::get(llvm::Type::getInt32Ty(context), llvm::APInt(32, el_type_size));
@@ -6146,7 +6180,7 @@ namespace LCompilers {
             llvm_utils->create_if_else(builder->CreateICmpNE(
                     llvm_utils->CreateLoad(chain_itr_prev),
                     llvm::ConstantPointerNull::get(llvm::Type::getInt8Ty(context)->getPointerTo())), [&]() {
-                llvm::DataLayout data_layout(module);
+                llvm::DataLayout data_layout(module->getDataLayout());
                 size_t el_struct_size = data_layout.getTypeAllocSize(el_struct_type);
                 llvm::Value* malloc_size = llvm::ConstantInt::get(llvm::Type::getInt32Ty(context), el_struct_size);
                 llvm::Value* new_el_struct_i8 = LLVM::lfortran_malloc(context, *module, *builder, malloc_size);
@@ -6244,7 +6278,7 @@ namespace LCompilers {
         llvm_utils->list_api->list_init(el_type_code, new_el_list, *module, capacity, capacity);
 
         llvm::Value* el_mask = llvm_utils->CreateLoad(get_pointer_to_mask(set));
-        llvm::DataLayout data_layout(module);
+        llvm::DataLayout data_layout(module->getDataLayout());
         size_t mask_size = data_layout.getTypeAllocSize(llvm::Type::getInt8Ty(context));
         llvm::Value* llvm_mask_size = llvm::ConstantInt::get(llvm::Type::getInt32Ty(context),
                                             llvm::APInt(32, mask_size));
@@ -6816,7 +6850,7 @@ namespace LCompilers {
 
         llvm::Value* src_el_mask = llvm_utils->CreateLoad(get_pointer_to_mask(src));
         llvm::Value* dest_el_mask_ptr = get_pointer_to_mask(dest);
-        llvm::DataLayout data_layout(module);
+        llvm::DataLayout data_layout(module->getDataLayout());
         size_t mask_size = data_layout.getTypeAllocSize(llvm::Type::getInt8Ty(context));
         llvm::Value* llvm_mask_size = llvm::ConstantInt::get(llvm::Type::getInt32Ty(context),
                                             llvm::APInt(32, mask_size));
@@ -6841,7 +6875,7 @@ namespace LCompilers {
         LLVM::CreateStore(*builder, src_filled_buckets, get_pointer_to_number_of_filled_buckets(dest));
         LLVM::CreateStore(*builder, src_capacity, get_pointer_to_capacity(dest));
         LLVM::CreateStore(*builder, src_rehash_flag, get_pointer_to_rehash_flag(dest));
-        llvm::DataLayout data_layout(module);
+        llvm::DataLayout data_layout(module->getDataLayout());
         size_t mask_size = data_layout.getTypeAllocSize(llvm::Type::getInt8Ty(context));
         llvm::Value* llvm_mask_size = llvm::ConstantInt::get(llvm::Type::getInt32Ty(context),
                                             llvm::APInt(32, mask_size));

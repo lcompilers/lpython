@@ -328,19 +328,12 @@ public:
             data_member_names.push_back(al, x->m_members[i]);
         }
 
-        Vec<char*> data_member_fn_names;
-        data_member_fn_names.reserve(al, x->n_member_functions);
-        for (size_t i=0; i<x->n_members; i++) {
-            data_member_fn_names.push_back(al, x->m_member_functions[i]);
-        }
-
         ASR::expr_t *m_alignment = duplicate_expr(x->m_alignment);
 
         ASR::asr_t *result = ASR::make_Struct_t(al, x->base.base.loc,
             current_scope, s2c(al, new_sym_name),
             nullptr, 0,
             data_member_names.p, data_member_names.size(),
-            data_member_fn_names.p, data_member_fn_names.size(),
             x->m_abi, x->m_access, x->m_is_packed, x->m_is_abstract,
             nullptr, 0, m_alignment, nullptr);
 
@@ -701,7 +694,7 @@ public:
                     std::string new_struct_name = context_map[struct_name];
                     ASR::symbol_t *sym = func_scope->resolve_symbol(new_struct_name);
                     return ASRUtils::TYPE(
-                        ASRUtils::make_StructType_t_util(al, s->base.base.loc, sym));
+                        ASR::make_StructType_t(al, s->base.base.loc, sym));
                 } else {
                     return ttype;
                 }
@@ -1219,7 +1212,7 @@ public:
 
         ASR::symbol_t* s = ASR::down_cast<ASR::symbol_t>(ASRUtils::make_Variable_t_util(al,
             x->base.base.loc, target_scope, s2c(al, x->m_name), variable_dependencies_vec.p,
-            variable_dependencies_vec.size(), x->m_intent, nullptr, nullptr, x->m_storage,
+            variable_dependencies_vec.size(), x->m_intent, x->m_symbolic_value, x->m_value, x->m_storage,
             new_type, nullptr, x->m_abi, x->m_access, x->m_presence, x->m_value_attr));
         target_scope->add_symbol(x->m_name, s);
 
@@ -1268,19 +1261,11 @@ public:
             data_member_names.push_back(al, x->m_members[i]);
         }
 
-        Vec<char*> data_member_fn_names;
-        data_member_fn_names.reserve(al, x->n_member_functions);
-        for (size_t i=0; i<x->n_members; i++) {
-            data_member_fn_names.push_back(al, x->m_member_functions[i]);
-        }
-
         ASR::expr_t* m_alignment = duplicate_expr(x->m_alignment);
 
         ASR::asr_t* result = ASR::make_Struct_t(al, x->base.base.loc,
             new_scope, s2c(al, new_sym_name), nullptr, 0, data_member_names.p,
-            data_member_names.size(),
-            data_member_fn_names.p, data_member_fn_names.size(),
-            x->m_abi, x->m_access, x->m_is_packed,
+            data_member_names.size(), x->m_abi, x->m_access, x->m_is_packed,
             x->m_is_abstract, nullptr, 0, m_alignment, nullptr);
 
         ASR::symbol_t* s = ASR::down_cast<ASR::symbol_t>(result);
@@ -1386,7 +1371,7 @@ public:
                 std::string struct_name = ASRUtils::symbol_name(s->m_derived_type);
                 if (symbol_subs.find(struct_name) != symbol_subs.end()) {
                     ASR::symbol_t *sym = symbol_subs[struct_name];
-                    return ASRUtils::TYPE(ASRUtils::make_StructType_t_util(al, ttype->base.loc, sym));
+                    return ASRUtils::TYPE(ASR::make_StructType_t(al, ttype->base.loc, sym));
                 }
                 return ttype;
             }
@@ -1806,7 +1791,7 @@ public:
                 std::string struct_name = ASRUtils::symbol_name(s->m_derived_type);
                 if (symbol_subs.find(struct_name) != symbol_subs.end()) {
                     ASR::symbol_t *sym = symbol_subs[struct_name];
-                    ttype = ASRUtils::TYPE(ASRUtils::make_StructType_t_util(al, s->base.base.loc, sym));
+                    ttype = ASRUtils::TYPE(ASR::make_StructType_t(al, s->base.base.loc, sym));
                 }
                 return ttype;
             }

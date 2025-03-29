@@ -216,13 +216,6 @@ public:
         self().visit_do_loop_head(x.m_head);
         self().visit_stmt(*x.m_assign_stmt);
     }
-    void visit_ForEach(const ForEach_t &x) {
-        self().visit_expr(*x.m_var);
-        self().visit_expr(*x.m_container);
-        for (size_t i=0; i<x.n_body; i++) {
-            self().visit_stmt(*x.m_body[i]);
-        }
-    }
     void visit_GoTo(const GoTo_t &x) {
         if ((bool&)x) { } // Suppress unused warning
     }
@@ -484,10 +477,6 @@ public:
         self().visit_expr(*x.m_a);
         self().visit_expr(*x.m_ele);
     }
-    void visit_SetDiscard(const SetDiscard_t &x) {
-        self().visit_expr(*x.m_a);
-        self().visit_expr(*x.m_ele);
-    }
     void visit_ListInsert(const ListInsert_t &x) {
         self().visit_expr(*x.m_a);
         self().visit_expr(*x.m_pos);
@@ -504,12 +493,6 @@ public:
         self().visit_expr(*x.m_a);
         self().visit_expr(*x.m_key);
         self().visit_expr(*x.m_value);
-    }
-    void visit_DictClear(const DictClear_t &x) {
-        self().visit_expr(*x.m_a);
-    }
-    void visit_SetClear(const SetClear_t &x) {
-        self().visit_expr(*x.m_a);
     }
     void visit_Expr(const Expr_t &x) {
         self().visit_expr(*x.m_expression);
@@ -788,13 +771,6 @@ public:
         if (x.m_value && visit_compile_time_value)
             self().visit_expr(*x.m_value);
     }
-    void visit_ListContains(const ListContains_t &x) {
-        self().visit_expr(*x.m_left);
-        self().visit_expr(*x.m_right);
-        self().visit_ttype(*x.m_type);
-        if (x.m_value && visit_compile_time_value)
-            self().visit_expr(*x.m_value);
-    }
     void visit_SetConstant(const SetConstant_t &x) {
         for (size_t i=0; i<x.n_elements; i++) {
             self().visit_expr(*x.m_elements[i]);
@@ -826,13 +802,6 @@ public:
             self().visit_expr(*x.m_value);
     }
     void visit_TupleConcat(const TupleConcat_t &x) {
-        self().visit_expr(*x.m_left);
-        self().visit_expr(*x.m_right);
-        self().visit_ttype(*x.m_type);
-        if (x.m_value && visit_compile_time_value)
-            self().visit_expr(*x.m_value);
-    }
-    void visit_TupleContains(const TupleContains_t &x) {
         self().visit_expr(*x.m_left);
         self().visit_expr(*x.m_right);
         self().visit_ttype(*x.m_type);
@@ -1027,14 +996,6 @@ public:
         if (x.m_value && visit_compile_time_value)
             self().visit_expr(*x.m_value);
     }
-    void visit_ArrayAll(const ArrayAll_t &x) {
-        self().visit_expr(*x.m_mask);
-        if (x.m_dim)
-            self().visit_expr(*x.m_dim);
-        self().visit_ttype(*x.m_type);
-        if (x.m_value && visit_compile_time_value)
-            self().visit_expr(*x.m_value);
-    }
     void visit_ArrayBroadcast(const ArrayBroadcast_t &x) {
         self().visit_expr(*x.m_array);
         self().visit_expr(*x.m_shape);
@@ -1212,20 +1173,6 @@ public:
         if (x.m_value && visit_compile_time_value)
             self().visit_expr(*x.m_value);
     }
-    void visit_SetContains(const SetContains_t &x) {
-        self().visit_expr(*x.m_left);
-        self().visit_expr(*x.m_right);
-        self().visit_ttype(*x.m_type);
-        if (x.m_value && visit_compile_time_value)
-            self().visit_expr(*x.m_value);
-    }
-    void visit_DictContains(const DictContains_t &x) {
-        self().visit_expr(*x.m_left);
-        self().visit_expr(*x.m_right);
-        self().visit_ttype(*x.m_type);
-        if (x.m_value && visit_compile_time_value)
-            self().visit_expr(*x.m_value);
-    }
     void visit_IntegerBitLen(const IntegerBitLen_t &x) {
         self().visit_expr(*x.m_a);
         self().visit_ttype(*x.m_type);
@@ -1304,12 +1251,7 @@ public:
         }
     }
     void visit_StructType(const StructType_t &x) {
-        for (size_t i=0; i<x.n_data_member_types; i++) {
-            self().visit_ttype(*x.m_data_member_types[i]);
-        }
-        for (size_t i=0; i<x.n_member_function_types; i++) {
-            self().visit_ttype(*x.m_member_function_types[i]);
-        }
+        if ((bool&)x) { } // Suppress unused warning
     }
     void visit_EnumType(const EnumType_t &x) {
         if ((bool&)x) { } // Suppress unused warning

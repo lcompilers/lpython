@@ -362,7 +362,8 @@ class EditProcedureReplacer: public ASR::BaseExprReplacer<EditProcedureReplacer>
         if( v.proc2newproc.find(ext_sym) != v.proc2newproc.end() ) {
             ASR::symbol_t* new_sym = v.proc2newproc[ext_sym].first;
             ASR::asr_t* new_sym_parent = ASRUtils::symbol_parent_symtab(new_sym)->asr_owner;
-            if ( ASR::is_a<ASR::symbol_t>(*new_sym_parent) ) {
+            if ( ASR::is_a<ASR::symbol_t>(*new_sym_parent) && 
+                 current_scope->get_counter() != ASRUtils::symbol_parent_symtab(new_sym)->get_counter() ) {
                 ASR::symbol_t* resolved_parent_sym = resolve_new_proc(ASR::down_cast<ASR::symbol_t>(new_sym_parent));
                 if ( resolved_parent_sym != nullptr ) {
                     ASR::symbol_t* sym_to_return = ASRUtils::symbol_symtab(resolved_parent_sym)->get_symbol(ASRUtils::symbol_name(new_sym));
@@ -520,7 +521,8 @@ class EditProcedureCallsVisitor : public ASR::ASRPassBaseWalkVisitor<EditProcedu
             if( v.proc2newproc.find(ext_sym) != v.proc2newproc.end() ) {
                 ASR::symbol_t* new_sym = v.proc2newproc[ext_sym].first;
                 ASR::asr_t* new_sym_parent = ASRUtils::symbol_parent_symtab(new_sym)->asr_owner;
-                if ( ASR::is_a<ASR::symbol_t>(*new_sym_parent) ) {
+                if ( ASR::is_a<ASR::symbol_t>(*new_sym_parent) && 
+                        current_scope->get_counter() != ASRUtils::symbol_parent_symtab(new_sym)->get_counter() ) {
                     ASR::symbol_t* resolved_parent_sym = resolve_new_proc(ASR::down_cast<ASR::symbol_t>(new_sym_parent));
                     if ( resolved_parent_sym != nullptr ) {
                         ASR::symbol_t* sym_to_return = ASRUtils::symbol_symtab(resolved_parent_sym)->get_symbol(ASRUtils::symbol_name(new_sym));

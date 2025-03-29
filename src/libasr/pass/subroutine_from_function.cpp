@@ -151,6 +151,18 @@ class ReplaceFunctionCallWithSubroutineCallVisitor:
             }
 
             ASR::FunctionCall_t* fc = ASR::down_cast<ASR::FunctionCall_t>(x.m_value);
+
+            ASR::symbol_t* func_sym = ASRUtils::symbol_get_past_external(fc->m_name);
+            if(ASR::is_a<ASR::Function_t>(*func_sym)) {
+                ASR::Function_t* func = ASR::down_cast<ASR::Function_t>(func_sym);
+                ASR::ttype_t* func_type = func->m_function_signature;
+                if(ASR::is_a<ASR::FunctionType_t>(*func_type)){
+                    ASR::FunctionType_t* func_type_type = ASR::down_cast<ASR::FunctionType_t>(func_type);
+                    if (func_type_type->m_abi == ASR::abiType::BindC) {
+                        return; // Skip transformation for bind(C) functions
+                    }
+                }
+            }
             if( PassUtils::is_elemental(fc->m_name) && ASRUtils::is_array(fc->m_type) ) {
                 return ;
             }

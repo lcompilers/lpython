@@ -238,12 +238,12 @@ struct SetChar: Vec<char*> {
     }
 
     void push_back(Allocator &al, char* x) {
-         if( !reserved ) {
-             reserve(al, 0);
-         }
+        if( !reserved ) {
+            reserve(al, 0);
+        }
 
-         Vec<char*>::push_back_unique(al, x);
-     }
+        Vec<char*>::push_back_unique(al, x);
+    }
 };
 
 // String implementation (not null-terminated)

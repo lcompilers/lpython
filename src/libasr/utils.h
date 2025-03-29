@@ -31,7 +31,6 @@ struct PassOptions {
     int default_integer_kind = 4;
 
     std::string run_fun; // for global_stmts pass
-    std::string global_underscore; // for global_stmts pass
     // TODO: Convert to std::filesystem::path (also change find_and_load_module())
     std::string runtime_library_dir;
     bool always_run = false; // for unused_functions pass
@@ -59,10 +58,10 @@ struct PassOptions {
     bool tree = false;
     bool with_intrinsic_mods = false;
     bool c_mangling = false;
-    bool enable_cpython = false;
-    bool c_skip_bindpy_pass = false;
     bool openmp = false;
     bool enable_gpu_offloading = false;
+    bool time_report = false;
+    std::vector<std::string> vector_of_time_report;
 };
 
 struct CompilerOptions {
@@ -119,6 +118,7 @@ struct CompilerOptions {
     bool ignore_pragma = false;
     bool stack_arrays = false;
     bool wasm_html = false;
+    bool time_report = false;
     std::string emcc_embed;
     std::vector<std::string> import_paths;
     Platform platform;

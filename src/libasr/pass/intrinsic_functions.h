@@ -132,7 +132,6 @@ enum class IntrinsicElementalFunctions : int64_t {
     DictValues,
     SetAdd,
     SetRemove,
-    SetDiscard,
     Max,
     Min,
     Radix,
@@ -179,17 +178,14 @@ enum class IntrinsicElementalFunctions : int64_t {
     SymbolicPow,
     SymbolicPi,
     SymbolicE,
-    SymbolicInfinity,
     SymbolicInteger,
     SymbolicDiff,
     SymbolicExpand,
-    SymbolicSubs,
     SymbolicSin,
     SymbolicCos,
     SymbolicLog,
     SymbolicExp,
     SymbolicAbs,
-    SymbolicSign,
     SymbolicHasSymbolQ,
     SymbolicAddQ,
     SymbolicMulQ,
@@ -201,9 +197,7 @@ enum class IntrinsicElementalFunctions : int64_t {
     Present,
     And,
     Or,
-    Xor,
-    SymbolicIsInteger,
-    SymbolicIsPositive,
+    Xor
     // ...
 };
 
@@ -2053,11 +2047,11 @@ namespace Int {
         fill_func_arg("a", arg_types[0]);
         auto result = declare(fn_name, return_type, ReturnVar);
         if (is_integer(*arg_types[0])) {
-            body.push_back(al, b.Assignment(result, b.i2i_t(args[0], return_type)));
+            body.push_back(al,b.Assignment(result, b.i2i_t(args[0], return_type)));
         } else if (is_real(*arg_types[0])) {
-            body.push_back(al, b.Assignment(result, b.r2i_t(args[0], return_type)));
+            body.push_back(al,b.Assignment(result, b.r2i_t(args[0], return_type)));
         } else if (is_complex(*arg_types[0])) {
-            body.push_back(al, b.Assignment(result, b.c2i_t(args[0], return_type)));
+            body.push_back(al,b.Assignment(result, b.c2i_t(args[0], return_type)));
         } else {
             return nullptr;
         }
@@ -2065,8 +2059,7 @@ namespace Int {
         ASR::symbol_t *f_sym = make_ASR_Function_t(fn_name, fn_symtab, dep, args,
             body, result, ASR::abiType::Source, ASR::deftypeType::Implementation, nullptr);
         scope->add_symbol(fn_name, f_sym);
-        ASR::expr_t* bcall = b.Call(f_sym, new_args, return_type, nullptr);
-        return bcall;
+        return b.Call(f_sym, new_args, return_type, nullptr);
     }
 
 }  // namespace Int
@@ -3351,7 +3344,7 @@ namespace FloorDiv {
             CastingUtil::perform_casting(args[1], real64, al, loc))));
         body.push_back(al, b.Assignment(tmp, b.r2i_t(r, int64)));
         body.push_back(al, b.If(b.And(b.Lt(r, b.f_t(0.0, real64)), b.NotEq(b.i2r_t(tmp, real64), r)), {
-                b.Assignment(tmp, b.Sub(tmp, b.i64(1)))
+                b.Assignment(tmp, b.Sub(tmp, b.i32(1)))
             }, {}));
         body.push_back(al, b.Assignment(result, CastingUtil::perform_casting(tmp, return_type, al, loc)));
         ASR::symbol_t *f_sym = make_ASR_Function_t(fn_name, fn_symtab, dep, args,
@@ -3531,7 +3524,7 @@ namespace Maskl {
             diag.semantic_error_label("first argument of `maskl` must be nonnegative", {loc}, "");
             return nullptr;
         } else {
-            int64_t bit_size = (kind == 4) ? 32 : 64;
+            int64_t bit_size = (i <= 32 && kind == 4) ? 32 : 64;
             int64_t result;
             if (i == 0) {
                 result = 0;
@@ -3552,12 +3545,39 @@ namespace Maskl {
         * r = Maskl(x)
         * r = (x == 64) ? -1 : ((1 << x) - 1) << (64 - x)
         */
-        body.push_back(al, b.If((b.Eq(b.i2i_t(args[0], return_type), b.i_t(64, return_type))), {
-            b.Assignment(result, b.i_t(-1, return_type))
-        }, {
-            b.Assignment(result, b.BitLshift(b.Sub(b.BitLshift(b.i_t(1, return_type), b.i2i_t(args[0], return_type), return_type), b.i_t(1, return_type)),
-                b.Sub(b.i_t(64, return_type), b.i2i_t(args[0], return_type)), return_type))
-        }));
+        // For return_type is 8 result is always 64 bit
+        /*if (x == 32 .or. x == 64) then
+        *    res = -1
+        * else
+        *    if (x <= 32) then             ! 32 bit result
+        *        res = ishft(1, x) - 1 
+        *        res = ishft(res, 32 - x)
+        *    else                            ! 64 bit result     
+        *        res = ishft(1, x) - 1 
+        *        res = ishft(res, 64 - x)
+        *    end if
+        *end if
+        */
+    //    std::cout<<ASRUtils::extract_kind_from_ttype_t(return_type)<<" "<<ASRUtils::extract_kind_from_ttype_t(arg_types[0])<<std::endl;
+       if (ASRUtils::extract_kind_from_ttype_t(return_type) == 8) {
+            body.push_back(al, b.If(b.Or((b.Eq(b.i2i_t(args[0], return_type), b.i_t(32, return_type))),(b.Eq(b.i2i_t(args[0], return_type), b.i_t(64, return_type)))), {
+                b.Assignment(result, b.i_t(-1, return_type))
+            }, {
+                b.Assignment(result, b.BitLshift(b.Sub(b.BitLshift(b.i_t(1, return_type), b.i2i_t(args[0], return_type), return_type), b.i_t(1, return_type)),
+                    b.Sub(b.i_t(64, return_type), b.i2i_t(args[0], return_type)), return_type))
+            }));
+        } else {
+            body.push_back(al,b.If(b.Or((b.Eq(b.i2i_t(args[0], return_type), b.i_t(32, return_type))),(b.Eq(b.i2i_t(args[0], return_type), b.i_t(64, return_type)))), {
+                b.Assignment(result, b.i_t(-1, return_type))
+            }, {
+                b.If(b.LtE(b.i2i_t(args[0], return_type), b.i_t(32, return_type)), 
+                    { b.Assignment(result, b.BitLshift(b.Sub(b.BitLshift(b.i_t(1, return_type), b.i2i_t(args[0], return_type), return_type), b.i_t(1, return_type)),
+                        b.Sub(b.i_t(32, return_type), b.i2i_t(args[0], return_type)), return_type)) },
+                    { b.Assignment(result, b.BitLshift(b.Sub(b.BitLshift(b.i_t(1, return_type), b.i2i_t(args[0], return_type), return_type), b.i_t(1, return_type)),
+                        b.Sub(b.i_t(64, return_type), b.i2i_t(args[0], return_type)), return_type)) } )
+            }));
+                
+        }
         ASR::symbol_t *f_sym = make_ASR_Function_t(fn_name, fn_symtab, dep, args, body, result, ASR::abiType::Source, ASR::deftypeType::Implementation, nullptr);
         scope->add_symbol(fn_name, f_sym);
         return b.Call(f_sym, new_args, return_type, nullptr);
@@ -4313,6 +4333,13 @@ namespace Ishftc {
         } else {
             result = cutoff_extra_bits(val << shift, bits_size, max_bits_size) | ((val >> (bits_size - shift)));
         }
+        if (kind == 1) {
+            result = static_cast<int8_t>(result);
+        } else if (kind == 2) {
+            result = static_cast<int16_t>(result);
+        } else if (kind == 4) {
+            result = static_cast<int32_t>(result);
+        } 
         return make_ConstantWithType(make_IntegerConstant_t, result, t1, loc);
     }
 
@@ -6039,57 +6066,6 @@ static inline ASR::asr_t* create_SetRemove(Allocator& al, const Location& loc,
 
 } // namespace SetRemove
 
-namespace SetDiscard {
-
-static inline void verify_args(const ASR::IntrinsicElementalFunction_t& x, diag::Diagnostics& diagnostics) {
-    ASRUtils::require_impl(x.n_args == 2, "Call to set.discard must have exactly one argument",
-        x.base.base.loc, diagnostics);
-    ASRUtils::require_impl(ASR::is_a<ASR::Set_t>(*ASRUtils::expr_type(x.m_args[0])),
-        "First argument to set.discard must be of set type",
-        x.base.base.loc, diagnostics);
-    ASRUtils::require_impl(ASRUtils::check_equal_type(ASRUtils::expr_type(x.m_args[1]),
-            ASRUtils::get_contained_type(ASRUtils::expr_type(x.m_args[0]))),
-        "Second argument to set.discard must be of same type as set's element type",
-        x.base.base.loc, diagnostics);
-    ASRUtils::require_impl(x.m_type == nullptr,
-        "Return type of set.discard must be empty",
-        x.base.base.loc, diagnostics);
-}
-
-static inline ASR::expr_t *eval_set_discard(Allocator &/*al*/,
-    const Location &/*loc*/, ASR::ttype_t *, Vec<ASR::expr_t*>& /*args*/, diag::Diagnostics& /*diag*/) {
-    // TODO: To be implemented for SetConstant expression
-    return nullptr;
-}
-
-static inline ASR::asr_t* create_SetDiscard(Allocator& al, const Location& loc,
-    Vec<ASR::expr_t*>& args,
-    diag::Diagnostics& diag) {
-    if (args.size() != 2) {
-        append_error(diag, "Call to set.discard must have exactly one argument", loc);
-        return nullptr;
-    }
-    if (!ASRUtils::check_equal_type(ASRUtils::expr_type(args[1]),
-        ASRUtils::get_contained_type(ASRUtils::expr_type(args[0])))) {
-        append_error(diag, "Argument to set.discard must be of same type as set's "
-            "element type", loc);
-        return nullptr;
-    }
-
-    Vec<ASR::expr_t*> arg_values;
-    arg_values.reserve(al, args.size());
-    for( size_t i = 0; i < args.size(); i++ ) {
-        arg_values.push_back(al, ASRUtils::expr_value(args[i]));
-    }
-    ASR::expr_t* compile_time_value = eval_set_discard(al, loc, nullptr, arg_values, diag);
-    return ASR::make_Expr_t(al, loc,
-            ASRUtils::EXPR(ASR::make_IntrinsicElementalFunction_t(al, loc,
-            static_cast<int64_t>(IntrinsicElementalFunctions::SetDiscard),
-            args.p, args.size(), 0, nullptr, compile_time_value)));
-}
-
-} // namespace SetRemove
-
 namespace Max {
 
     static inline void verify_args(const ASR::IntrinsicElementalFunction_t& x, diag::Diagnostics& diagnostics) {
@@ -6764,64 +6740,6 @@ create_symbolic_binary_macro(SymbolicDiv)
 create_symbolic_binary_macro(SymbolicPow)
 create_symbolic_binary_macro(SymbolicDiff)
 
-#define create_symbolic_ternary_macro(X)                                                   \
-namespace X{                                                                               \
-    static inline void verify_args(const ASR::IntrinsicElementalFunction_t& x,             \
-            diag::Diagnostics& diagnostics) {                                              \
-        ASRUtils::require_impl(x.n_args == 3, "Intrinsic function `"#X"` accepts"          \
-            "exactly 3 arguments", x.base.base.loc, diagnostics);                          \
-                                                                                           \
-        ASR::ttype_t* arg1_type = ASRUtils::expr_type(x.m_args[0]);                        \
-        ASR::ttype_t* arg2_type = ASRUtils::expr_type(x.m_args[1]);                        \
-        ASR::ttype_t* arg3_type = ASRUtils::expr_type(x.m_args[2]);                        \
-                                                                                           \
-        ASRUtils::require_impl(ASR::is_a<ASR::SymbolicExpression_t>(*arg1_type) &&         \
-            ASR::is_a<ASR::SymbolicExpression_t>(*arg2_type) &&                            \
-            ASR::is_a<ASR::SymbolicExpression_t>(*arg3_type),                              \
-            "All arguments of `"#X"` must be of type SymbolicExpression",                  \
-            x.base.base.loc, diagnostics);                                                 \
-    }                                                                                      \
-                                                                                           \
-    static inline ASR::expr_t* eval_##X(Allocator &/*al*/, const Location &/*loc*/,        \
-            ASR::ttype_t *, Vec<ASR::expr_t*> &/*args*/, diag::Diagnostics& /*diag*/) {    \
-        /*TODO*/                                                                           \
-        return nullptr;                                                                    \
-    }                                                                                      \
-                                                                                           \
-    static inline ASR::asr_t* create_##X(Allocator& al, const Location& loc,               \
-            Vec<ASR::expr_t*>& args,                                                       \
-            diag::Diagnostics& diag) {                                                     \
-        if (args.size() != 3) {                                                            \
-            append_error(diag, "Intrinsic function `"#X"` accepts exactly 3 arguments",    \
-                loc);                                                                      \
-            return nullptr;                                                                \
-        }                                                                                  \
-                                                                                           \
-        for (size_t i = 0; i < args.size(); i++) {                                         \
-            ASR::ttype_t* argtype = ASRUtils::expr_type(args[i]);                          \
-            if(!ASR::is_a<ASR::SymbolicExpression_t>(*argtype)) {                          \
-                append_error(diag,                                                         \
-                    "Arguments of `"#X"` function must be of type SymbolicExpression",     \
-                    args[i]->base.loc);                                                    \
-                return nullptr;                                                            \
-            }                                                                              \
-        }                                                                                  \
-                                                                                           \
-        Vec<ASR::expr_t*> arg_values;                                                      \
-        arg_values.reserve(al, args.size());                                               \
-        for( size_t i = 0; i < args.size(); i++ ) {                                        \
-            arg_values.push_back(al, ASRUtils::expr_value(args[i]));                       \
-        }                                                                                  \
-        ASR::ttype_t *to_type = ASRUtils::TYPE(ASR::make_SymbolicExpression_t(al, loc));   \
-        ASR::expr_t* compile_time_value = eval_##X(al, loc, to_type, arg_values, diag);    \
-        return ASR::make_IntrinsicElementalFunction_t(al, loc,                             \
-                static_cast<int64_t>(IntrinsicElementalFunctions::X),                      \
-                args.p, args.size(), 0, to_type, compile_time_value);                      \
-    }                                                                                      \
-} // namespace X
-
-create_symbolic_ternary_macro(SymbolicSubs)
-
 #define create_symbolic_constants_macro(X)                                                \
 namespace X {                                                                             \
     static inline void verify_args(const ASR::IntrinsicElementalFunction_t& x,            \
@@ -6850,7 +6768,6 @@ namespace X {                                                                   
 
 create_symbolic_constants_macro(SymbolicPi)
 create_symbolic_constants_macro(SymbolicE)
-create_symbolic_constants_macro(SymbolicInfinity)
 
 namespace SymbolicInteger {
 
@@ -7030,8 +6947,6 @@ create_symbolic_query_macro(SymbolicMulQ)
 create_symbolic_query_macro(SymbolicPowQ)
 create_symbolic_query_macro(SymbolicLogQ)
 create_symbolic_query_macro(SymbolicSinQ)
-create_symbolic_query_macro(SymbolicIsInteger)
-create_symbolic_query_macro(SymbolicIsPositive)
 
 #define create_symbolic_unary_macro(X)                                                    \
 namespace X {                                                                             \
@@ -7080,7 +6995,6 @@ create_symbolic_unary_macro(SymbolicCos)
 create_symbolic_unary_macro(SymbolicLog)
 create_symbolic_unary_macro(SymbolicExp)
 create_symbolic_unary_macro(SymbolicAbs)
-create_symbolic_unary_macro(SymbolicSign)
 create_symbolic_unary_macro(SymbolicExpand)
 
 } // namespace LCompilers::ASRUtils

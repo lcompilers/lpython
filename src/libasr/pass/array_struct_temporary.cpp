@@ -177,6 +177,7 @@ ASR::expr_t* create_temporary_variable_for_array(Allocator& al,
     bool is_size_only_dependent_on_arguments = ASRUtils::is_dimension_dependent_only_on_arguments(
         value_m_dims, value_n_dims);
     bool is_allocatable = ASRUtils::is_allocatable(value_type);
+    bool is_compile_time = ASRUtils::is_value_constant(ASRUtils::expr_value(value));
     ASR::ttype_t* var_type = nullptr;
     if( (is_fixed_sized_array || is_size_only_dependent_on_arguments || is_allocatable) &&
         !is_pointer_required ) {
@@ -196,6 +197,15 @@ ASR::expr_t* create_temporary_variable_for_array(Allocator& al,
     }
 
     std::string var_name = scope->get_unique_name("__libasr_created_" + name_hint);
+    if (is_compile_time) {
+        ASR::symbol_t* temporary_variable = ASR::down_cast<ASR::symbol_t>(ASRUtils::make_Variable_t_util(
+            al, value->base.loc, scope, s2c(al, var_name), nullptr, 0, ASR::intentType::Local,
+            ASRUtils::expr_value(value), ASRUtils::expr_value(value), ASR::storage_typeType::Parameter, 
+            ASRUtils::expr_type(ASRUtils::expr_value(value)), nullptr, ASR::abiType::Source,
+            ASR::accessType::Public, ASR::presenceType::Required, false));
+        scope->add_symbol(var_name, temporary_variable);
+        return ASRUtils::EXPR(ASR::make_Var_t(al, temporary_variable->base.loc, temporary_variable));
+    }
     ASR::symbol_t* temporary_variable = ASR::down_cast<ASR::symbol_t>(ASRUtils::make_Variable_t_util(
         al, value->base.loc, scope, s2c(al, var_name), nullptr, 0, ASR::intentType::Local,
         nullptr, nullptr, ASR::storage_typeType::Default, var_type, nullptr, ASR::abiType::Source,
@@ -830,6 +840,9 @@ ASR::expr_t* create_and_allocate_temporary_variable_for_array(
     }
     ASR::expr_t* array_var_temporary = create_temporary_variable_for_array(
         al, allocate_size_reference, current_scope, name_hint, is_pointer_required);
+    if (ASRUtils::is_value_constant(ASRUtils::expr_value(allocate_size_reference))) {
+        return array_var_temporary;
+    }
     if( ASRUtils::is_pointer(ASRUtils::expr_type(array_var_temporary)) ) {
         exprs_with_target[array_expr] = std::make_pair(array_var_temporary, targetType::GeneratedTargetPointerForArraySection);
         current_body->push_back(al, ASRUtils::STMT(ASR::make_Associate_t(
@@ -885,9 +898,12 @@ ASR::expr_t* create_and_allocate_temporary_variable_for_struct(
 bool is_elemental_expr(ASR::expr_t* value) {
     value = ASRUtils::get_past_array_physical_cast(value);
     switch( value->type ) {
-        case ASR::exprType::Var:
-        case ASR::exprType::StructInstanceMember: {
+        case ASR::exprType::Var: {
             return true;
+        }
+        case ASR::exprType::StructInstanceMember: {
+            ASR::StructInstanceMember_t* struct_instance_member = ASR::down_cast<ASR::StructInstanceMember_t>(value);
+            return !ASR::is_a<ASR::Array_t>(*struct_instance_member->m_type);
         }
         default: {
             return false;
@@ -896,9 +912,6 @@ bool is_elemental_expr(ASR::expr_t* value) {
 }
 
 bool is_temporary_needed(ASR::expr_t* value) {
-    if( ASRUtils::is_pointer(ASRUtils::expr_type(value)) ) {
-        return false;
-    }
     bool is_expr_with_no_type = value && (std::find(exprs_with_no_type.begin(), exprs_with_no_type.end(),
         value->type) == exprs_with_no_type.end()) && ASRUtils::is_array(ASRUtils::expr_type(value));
     bool is_non_empty_fixed_size_array = value && (!ASRUtils::is_fixed_size_array(ASRUtils::expr_type(value)) ||
@@ -1429,14 +1442,18 @@ class ArgSimplifier: public ASR::CallReplacerOnExpressionsVisitor<ArgSimplifier>
     }
 
     void visit_IntrinsicElementalFunction(const ASR::IntrinsicElementalFunction_t& x) {
-        visit_IntrinsicCall(x, "_intrinsic_elemental_function_" +
-            ASRUtils::get_intrinsic_name(x.m_intrinsic_id));
-        ASR::CallReplacerOnExpressionsVisitor<ArgSimplifier>::visit_IntrinsicElementalFunction(x);
+        if (!ASRUtils::is_value_constant(x.m_value)) {   // Only simplify runtime function's args
+            visit_IntrinsicCall(x, "_intrinsic_elemental_function_" +
+                ASRUtils::get_intrinsic_name(x.m_intrinsic_id));
+            ASR::CallReplacerOnExpressionsVisitor<ArgSimplifier>::visit_IntrinsicElementalFunction(x);
+        }
     }
 
     void visit_IntrinsicArrayFunction(const ASR::IntrinsicArrayFunction_t& x) {
-        visit_IntrinsicCall(x, "_intrinsic_array_function_" +
-            ASRUtils::get_array_intrinsic_name(x.m_arr_intrinsic_id));
+        if (!ASRUtils::is_value_constant(x.m_value)) {   // Only simplify runtime function's args
+            visit_IntrinsicCall(x, "_intrinsic_array_function_" +
+                ASRUtils::get_array_intrinsic_name(x.m_arr_intrinsic_id));
+        }
         ASR::IntrinsicArrayFunction_t& xx = const_cast<ASR::IntrinsicArrayFunction_t&>(x);
         if( ASRUtils::IntrinsicArrayFunctionRegistry::get_dim_index(
                 static_cast<ASRUtils::IntrinsicArrayFunctions>(x.m_arr_intrinsic_id)) == 1 &&
@@ -2095,9 +2112,6 @@ class ReplaceExprWithTemporaryVisitor:
     void visit_Associate(const ASR::Associate_t& /*x*/) {
     }
 
-    void visit_CPtrToPointer(const ASR::CPtrToPointer_t& /*x*/) {
-    }
-
 };
 
 bool check_if_ASR_owner_is_module(ASR::asr_t* &asr_owner) {
@@ -2423,11 +2437,15 @@ class VerifySimplifierASROutput:
     }
 
     void visit_IntrinsicElementalFunction(const ASR::IntrinsicElementalFunction_t& x) {
-        visit_IntrinsicCall(x);
+        if (!ASRUtils::is_value_constant(x.m_value)) {   // Only verify args for runtime functions
+            visit_IntrinsicCall(x);
+        }
     }
 
     void visit_IntrinsicArrayFunction(const ASR::IntrinsicArrayFunction_t& x) {
-        visit_IntrinsicCall(x);
+        if (!ASRUtils::is_value_constant(x.m_value)) {   // Only verify args for runtime functions
+            visit_IntrinsicCall(x);
+        }
         check_if_linked_to_target(x.base, x.m_type);
     }
 

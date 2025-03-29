@@ -1235,8 +1235,8 @@ static inline ASR::asr_t* create_MaxMinLoc(Allocator& al, const Location& loc,
     }
     if (args[2]) {
         mask_expr = args[2];
-        if (!is_array(expr_type(args[2])) || !is_logical(*expr_type(args[2]))) {
-            append_error(diag, "`mask` argument of `"+ intrinsic_name +"` must be a logical array", loc);
+        if (!is_logical(*expr_type(args[2]))) {
+            append_error(diag, "`mask` argument of `"+ intrinsic_name +"` must be logical", loc);
             return nullptr;
         }
         m_args.push_back(al, args[2]);
@@ -3431,8 +3431,8 @@ namespace FindLoc {
             }
         } else if (is_integer(*array_type) && is_real(*value_type)){
             if (ASR::is_a<ASR::RealConstant_t>(*value)){
-                ASR::RealConstant_t *value_int = ASR::down_cast<ASR::RealConstant_t>(value);
-                value = EXPR(ASR::make_IntegerConstant_t(al, loc, value_int->m_r, 
+                ASR::RealConstant_t *value_real = ASR::down_cast<ASR::RealConstant_t>(value);
+                value = EXPR(ASR::make_IntegerConstant_t(al, loc, value_real->m_r, 
                 ASRUtils::TYPE(ASR::make_Integer_t(al, loc, extract_kind_from_ttype_t(value_type)))));
             } else{
                 value = EXPR(ASR::make_Cast_t(al, loc, value, ASR::cast_kindType::RealToInteger, 
@@ -3580,9 +3580,13 @@ namespace FindLoc {
     fill_func_arg("kind", arg_types[4]);
     fill_func_arg("back", arg_types[5]);
     ASR::expr_t* result = nullptr;
-    result = declare("result", ASRUtils::duplicate_type_with_empty_dims(
+    if( !ASRUtils::is_array(return_type) ) {
+        result = declare("result", return_type, ReturnVar);
+    } else {
+        result = declare("result", ASRUtils::duplicate_type_with_empty_dims(
             al, return_type, ASR::array_physical_typeType::DescriptorArray, true), Out);
-    args.push_back(al, result);
+        args.push_back(al, result);
+    }
     ASR::ttype_t *type = ASRUtils::extract_type(return_type);
     ASR::expr_t *i = declare("i", type, Local);
     ASR::expr_t *j = declare("j", type, Local);
@@ -3611,9 +3615,8 @@ namespace FindLoc {
         }));
     } else {
         int array_rank = ASRUtils::extract_n_dims_from_ttype(array_type);
-        ASR::ttype_t* ret_type = ASRUtils::type_get_past_array(return_type);
         if (array_rank == 1) {
-            body.push_back(al, b.Assignment(result, b.i_t(0, ret_type)));
+            body.push_back(al, b.Assignment(result, b.i_t(0, type)));
             body.push_back(al, b.DoLoop(i, b.i_t(1, type), UBound(array, 1), {
                 b.If(b.Eq(ArrayItem_02(array, i), value), {
                     b.Assignment(result, i),
@@ -3627,11 +3630,11 @@ namespace FindLoc {
             Vec<ASR::expr_t*> idx_vars_ji; idx_vars_ji.reserve(al, 2);
             idx_vars_ij.push_back(al, i); idx_vars_ij.push_back(al, j);
             idx_vars_ji.push_back(al, j); idx_vars_ji.push_back(al, i);
-            body.push_back(al, b.Assignment(result, b.i_t(0, ret_type)));
-            body.push_back(al, b.If(b.Eq(dim, b.i_t(1, ret_type)), {
-                b.DoLoop(i, b.i_t(1, ret_type), UBound(array, 2), {
+            body.push_back(al, b.Assignment(result, b.i_t(0, type)));
+            body.push_back(al, b.If(b.Eq(dim, b.i_t(1, type)), {
+                b.DoLoop(i, b.i_t(1, type), UBound(array, 2), {
                     b.Assignment(found_value, b.bool_t(0, logical)),
-                    b.DoLoop(j, b.i_t(1, ret_type), UBound(array, 1), {
+                    b.DoLoop(j, b.i_t(1, type), UBound(array, 1), {
                         b.If(b.Eq(ArrayItem_02(array, idx_vars_ji), value), {
                             b.Assignment(b.ArrayItem_01(result, {i}), j),
                             b.Assignment(found_value, b.bool_t(1, logical)),
@@ -3642,9 +3645,9 @@ namespace FindLoc {
                     })
                 })
             }, {
-                b.DoLoop(i, b.i_t(1, ret_type), UBound(array, 1), {
+                b.DoLoop(i, b.i_t(1, type), UBound(array, 1), {
                     b.Assignment(found_value, b.bool_t(0, logical)),
-                    b.DoLoop(j, b.i_t(1, ret_type), UBound(array, 2), {
+                    b.DoLoop(j, b.i_t(1, type), UBound(array, 2), {
                         b.If(b.Eq(ArrayItem_02(array, idx_vars_ij), value), {
                             b.Assignment(b.ArrayItem_01(result, {i}), j),
                             b.Assignment(found_value, b.bool_t(1, logical)),
@@ -3659,9 +3662,14 @@ namespace FindLoc {
     }
 
     body.push_back(al, b.Return());
-    ASR::expr_t* return_var = nullptr;
-    ASR::symbol_t *fn_sym = make_ASR_Function_t(fn_name, fn_symtab, dep, args,
-            body, return_var, ASR::abiType::Source, ASR::deftypeType::Implementation, nullptr);
+    ASR::symbol_t *fn_sym = nullptr;
+    if( ASRUtils::expr_intent(result) == ASR::intentType::ReturnVar ) {
+        fn_sym = make_ASR_Function_t(fn_name, fn_symtab, dep, args,
+            body, result, ASR::abiType::Source, ASR::deftypeType::Implementation, nullptr);
+    } else {
+        fn_sym = make_ASR_Function_t(fn_name, fn_symtab, dep, args,
+            body, nullptr, ASR::abiType::Source, ASR::deftypeType::Implementation, nullptr);
+    }
     scope->add_symbol(fn_name, fn_sym);
     return b.Call(fn_sym, m_args, return_type, nullptr);
 }
@@ -4885,6 +4893,7 @@ namespace Pack {
         ASR::expr_t *value = nullptr;
         if (all_args_evaluated(m_args)) {
             value = eval_Pack(al, loc, ret_type, arg_values, diag);
+            ret_type = ASRUtils::expr_type(value);
         }
         return make_IntrinsicArrayFunction_t_util(al, loc,
             static_cast<int64_t>(IntrinsicArrayFunctions::Pack),

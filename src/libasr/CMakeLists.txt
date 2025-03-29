@@ -40,7 +40,6 @@ set(SRC
     pass/for_all.cpp
     pass/while_else.cpp
     pass/global_stmts.cpp
-    pass/python_bind.cpp
     pass/select_case.cpp
     pass/init_expr.cpp
     pass/implied_do_loops.cpp
@@ -78,15 +77,10 @@ set(SRC
     asr_verify.cpp
     asr_utils.cpp
     casting_utils.cpp
-    diagnostics.cpp
-    stacktrace.cpp
-    string_utils.cpp
     asr_scopes.cpp
     modfile.cpp
     pickle.cpp
     serialization.cpp
-    stacktrace.cpp
-    utils2.cpp
 )
 if (WITH_LLVM)
     set(SRC ${SRC}
@@ -112,9 +106,29 @@ if (WITH_LLVM)
             COMPILE_FLAGS -Wno-deprecated-declarations)
     endif()
 endif()
+
+set(LFORTRAN_UTILS
+  assert.h
+  colors.h
+  exception.h
+  location.h
+
+  diagnostics.h
+  diagnostics.cpp
+  stacktrace.h
+  stacktrace.cpp
+  string_utils.cpp
+  utils.h
+  utils2.cpp
+)
+add_library(lfortran_utils OBJECT ${LFORTRAN_UTILS})
+target_include_directories(lfortran_utils BEFORE PUBLIC ${libasr_SOURCE_DIR}/..)
+target_include_directories(lfortran_utils BEFORE PUBLIC ${libasr_BINARY_DIR}/..)
+
 add_library(asr STATIC ${SRC})
 target_include_directories(asr BEFORE PUBLIC ${libasr_SOURCE_DIR}/..)
 target_include_directories(asr BEFORE PUBLIC ${libasr_BINARY_DIR}/..)
+target_link_libraries(asr lfortran_utils)
 if (WITH_LIBUNWIND)
     target_link_libraries(asr p::libunwind)
 endif()
@@ -129,6 +143,7 @@ if (WITH_EXECINFO)
 endif()
 if (WITH_LLVM)
     target_link_libraries(asr p::llvm)
+    target_link_libraries(lfortran_utils p::llvm)
 endif()
 
 # Install the dwarf_convert.py and dat_convert.py

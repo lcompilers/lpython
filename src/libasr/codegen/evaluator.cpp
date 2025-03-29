@@ -53,6 +53,7 @@
 #endif
 #if LLVM_VERSION_MAJOR >= 17
     // TODO: removed from LLVM 17
+    #include <llvm/Passes/PassBuilder.h>
 #else
 #    include <llvm/Transforms/IPO/PassManagerBuilder.h>
 #endif
@@ -99,16 +100,6 @@ LLVMModule::~LLVMModule() = default;
 std::string LLVMModule::str()
 {
     return LLVMEvaluator::module_to_string(*m_m);
-}
-
-llvm::Function *LLVMModule::get_function(const std::string &fn_name) {
-    llvm::Module *m = m_m.get();
-    return m->getFunction(fn_name);
-}
-
-llvm::GlobalVariable *LLVMModule::get_global(const std::string &global_name) {
-    llvm::Module *m = m_m.get();
-    return m->getNamedGlobal(global_name);
 }
 
 std::string LLVMModule::get_return_type(const std::string &fn_name)
@@ -409,15 +400,26 @@ void LLVMEvaluator::opt(llvm::Module &m) {
     m.setTargetTriple(target_triple);
     m.setDataLayout(TM->createDataLayout());
 
+#if LLVM_VERSION_MAJOR >= 17
+    llvm::LoopAnalysisManager LAM;
+    llvm::FunctionAnalysisManager FAM;
+    llvm::CGSCCAnalysisManager CGAM;
+    llvm::ModuleAnalysisManager MAM;
+    llvm::PassBuilder PB = llvm::PassBuilder(TM);
+    PB.registerModuleAnalyses(MAM);
+    PB.registerCGSCCAnalyses(CGAM);
+    PB.registerFunctionAnalyses(FAM);
+    PB.registerLoopAnalyses(LAM);   
+    PB.crossRegisterProxies(LAM, FAM, CGAM, MAM);   
+    llvm::ModulePassManager MPM = PB.buildPerModuleDefaultPipeline(llvm::OptimizationLevel::O3);
+    MPM.run(m, MAM);
+    
+#else
     llvm::legacy::PassManager mpm;
     mpm.add(new llvm::TargetLibraryInfoWrapperPass(TM->getTargetTriple()));
     mpm.add(llvm::createTargetTransformInfoWrapperPass(TM->getTargetIRAnalysis()));
     llvm::legacy::FunctionPassManager fpm(&m);
     fpm.add(llvm::createTargetTransformInfoWrapperPass(TM->getTargetIRAnalysis()));
-
-#if LLVM_VERSION_MAJOR >= 17
-    // TODO: https://llvm.org/docs/NewPassManager.html
-#else
     int optLevel = 3;
     int sizeLevel = 0;
     llvm::PassManagerBuilder builder;
@@ -430,16 +432,14 @@ void LLVMEvaluator::opt(llvm::Module &m) {
     builder.SLPVectorize = true;
     builder.populateFunctionPassManager(fpm);
     builder.populateModulePassManager(mpm);
-#endif
-
     fpm.doInitialization();
     for (llvm::Function &func : m) {
         fpm.run(func);
     }
     fpm.doFinalization();
-
     mpm.add(llvm::createVerifierPass());
     mpm.run(m);
+#endif
 }
 
 std::string LLVMEvaluator::module_to_string(llvm::Module &m) {
@@ -463,10 +463,6 @@ std::string LLVMEvaluator::llvm_version()
 llvm::LLVMContext &LLVMEvaluator::get_context()
 {
     return *context;
-}
-
-const llvm::DataLayout &LLVMEvaluator::get_jit_data_layout() {
-    return jit->getDataLayout();
 }
 
 void LLVMEvaluator::print_targets()

@@ -23,8 +23,7 @@ struct Span {
     // Lines of source code from first_line to last_line
     std::vector<std::string> source_code;
 
-    Span(const Location &loc)
-        : loc{loc}, first_line{0}, first_column{0}, last_line{0}, last_column{0} {}
+    Span(const Location &loc) : loc{loc} {}
 };
 
 /*

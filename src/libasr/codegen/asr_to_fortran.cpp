@@ -159,7 +159,7 @@ public:
     }
 
 
-    std::string get_type(const ASR::ttype_t *t) {
+    std::string get_type(const ASR::ttype_t *t, ASR::symbol_t *type_decl = nullptr) {
         std::string r = "";
         switch (t->type) {
             case ASR::ttypeType::Integer: {
@@ -248,6 +248,11 @@ public:
                 break;
             } case ASR::ttypeType::CPtr: {
                 r = "type(c_ptr)";
+                break;
+            } case ASR::ttypeType::FunctionType: {
+                r = "procedure(";
+                r += ASRUtils::symbol_name(type_decl);
+                r += ")";
                 break;
             }
             default:
@@ -686,7 +691,7 @@ public:
     void visit_Variable(const ASR::Variable_t &x) {
         std::string r = indent;
         std::string dims = "(";
-        r += get_type(x.m_type);
+        r += get_type(x.m_type, x.m_type_declaration);
         switch (x.m_intent) {
             case ASR::intentType::In : {
                 r += ", intent(in)";
@@ -1404,6 +1409,8 @@ public:
         else if(intrinsic_func_name == "MoveAlloc") intrinsic_func_name = "move_alloc";
         else if(intrinsic_func_name == "CompilerOptions") intrinsic_func_name = "compiler_options";
         else if(intrinsic_func_name == "CompilerVersion") intrinsic_func_name = "compiler_version";
+        else if(intrinsic_func_name == "CommandArgumentCount") intrinsic_func_name = "command_argument_count";
+        else if(intrinsic_func_name == "ErfcScaled") intrinsic_func_name = "erfc_scaled";
         visit_IntrinsicElementalFunction_helper(out, intrinsic_func_name, x);
     }
 
@@ -1419,6 +1426,7 @@ public:
         std::string intrinsic_func_name = ASRUtils::get_intrinsic_name(static_cast<int64_t>(x.m_inquiry_id));
         if(intrinsic_func_name == "BitSize") intrinsic_func_name = "bit_size";
         else if(intrinsic_func_name == "NewLine") intrinsic_func_name = "new_line";
+        else if(intrinsic_func_name == "StorageSize") intrinsic_func_name = "storage_size";
         visit_TypeInquiry_helper(out, intrinsic_func_name, x);
     }
 
@@ -1909,6 +1917,7 @@ public:
             {ASR::cast_kindType::ComplexToReal, {"real", {4, 8}}},
             {ASR::cast_kindType::RealToComplex, {"cmplx", {4, 8}}},
             {ASR::cast_kindType::LogicalToInteger, {"int", {1, 2, 4, 8}}},
+            {ASR::cast_kindType::ComplexToInteger, {"int", {4, 8}}},
         };
 
         if (cast_map.find(x.m_kind) != cast_map.end()) {
