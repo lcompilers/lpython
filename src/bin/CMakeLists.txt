@@ -33,7 +33,7 @@ if (WITH_STACKTRACE AND APPLE AND CMAKE_CXX_COMPILER_ID MATCHES Clang)
         add_custom_command(
             TARGET lpython
             POST_BUILD
-            COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/../libasr/dwarf_convert.py lpython.dSYM/raw.txt lpython.dSYM/lines.txt lpython.dSYM/lines.dat
+            COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/../libasr/src/libasr/dwarf_convert.py lpython.dSYM/raw.txt lpython.dSYM/lines.txt lpython.dSYM/lines.dat
         )
     endif()
 endif()

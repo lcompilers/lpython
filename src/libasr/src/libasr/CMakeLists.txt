@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 
-project(libasr)
+project(libasr/src/libasr)
 
 if (NOT CMAKE_CXX_STANDARD)
     set(CMAKE_CXX_STANDARD 17
@@ -103,8 +103,8 @@ if (WITH_LLVM)
     endif()
 endif()
 add_library(asr STATIC ${SRC})
-target_include_directories(asr BEFORE PUBLIC ${libasr_SOURCE_DIR}/..)
-target_include_directories(asr BEFORE PUBLIC ${libasr_BINARY_DIR}/..)
+target_include_directories(asr BEFORE PUBLIC ${libasr/src/libasr_SOURCE_DIR}/..)
+target_include_directories(asr BEFORE PUBLIC ${libasr/src/libasr_BINARY_DIR}/..)
 if (WITH_BFD)
     target_link_libraries(asr p::bfd)
 endif()

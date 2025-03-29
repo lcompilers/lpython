@@ -1,4 +1,4 @@
-add_subdirectory(libasr)
+add_subdirectory(libasr/src/libasr)
 add_subdirectory(tests)
 add_subdirectory(lpython)
 add_subdirectory(bin)
