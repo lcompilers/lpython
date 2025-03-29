@@ -25,6 +25,8 @@ log.setLevel(level)
 
 
 TESTER_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__)))
+if "src/libasr/src/libasr" in TESTER_DIR:
+    TESTER_DIR = TESTER_DIR.replace("src/libasr", "", 1)
 LIBASR_DIR = os.path.dirname(TESTER_DIR)
 SRC_DIR = os.path.dirname(LIBASR_DIR)
 ROOT_DIR = os.path.dirname(SRC_DIR)

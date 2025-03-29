@@ -856,9 +856,9 @@ int interactive_python_repl(
     std::cout << "    - History (Keys: Up, Down)" << std::endl;
 
     std::vector<std::string> history;
-    
+
     std::function<bool(std::string)> iscomplete = determine_completeness;
-    
+
     std::string code_string;
     size_t cell_count = 0;
     while (true) {
@@ -1013,8 +1013,8 @@ int interactive_python_repl(
             }
             case (LCompilers::PythonCompiler::EvalResult::struct_type) : {
                 if (verbose) {
-                    std::cout << "Return type: " 
-                        << LCompilers::ASRUtils::get_type_code(r.structure.ttype) 
+                    std::cout << "Return type: "
+                        << LCompilers::ASRUtils::get_type_code(r.structure.ttype)
                         << std::endl;
                 }
                 if (verbose) section("Result:");
@@ -2261,7 +2261,7 @@ int main(int argc, char *argv[])
 #else
                     cmd += "llvm-dwarfdump --debug-line " + basename + ".out > ";
 #endif
-                    cmd += basename + "_ldd.txt && (cd src/libasr; ./dwarf_convert.py ../../"
+                    cmd += basename + "_ldd.txt && (cd src/libasr/src/libasr; ./dwarf_convert.py ../../"
                         + basename + "_ldd.txt ../../" + basename + "_lines.txt ../../"
                         + basename + "_lines.dat && ./dat_convert.py ../../"
                         + basename + "_lines.dat)";
