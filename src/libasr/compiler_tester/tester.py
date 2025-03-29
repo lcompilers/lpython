@@ -27,6 +27,8 @@ log.setLevel(level)
 TESTER_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__)))
 LIBASR_DIR = os.path.dirname(TESTER_DIR)
 SRC_DIR = os.path.dirname(LIBASR_DIR)
+if "lpython/lfortran" in SRC_DIR:
+    SRC_DIR = os.path.join(os.path.dirname(os.path.dirname(SRC_DIR)), "src")
 ROOT_DIR = os.path.dirname(SRC_DIR)
 
 no_color = False
