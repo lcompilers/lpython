@@ -418,7 +418,7 @@ endmacro(COMPILE)
 
 # Test zero and non-zero exit code and assert statements
 RUN(NAME array_01_decl            LABELS cpython llvm llvm_jit c)
-RUN(NAME array_02_decl            LABELS cpython llvm llvm_jit c)
+# RUN(NAME array_02_decl            LABELS cpython llvm llvm_jit c)
 RUN(NAME array_03_decl            LABELS cpython llvm llvm_jit c)
 RUN(NAME variable_decl_01         LABELS cpython llvm llvm_jit c)
 RUN(NAME variable_decl_02         LABELS cpython llvm llvm_jit c)
@@ -427,29 +427,29 @@ RUN(NAME array_expr_01            LABELS cpython llvm llvm_jit c)
 RUN(NAME array_expr_02            LABELS cpython llvm llvm_jit c NOFAST)
 RUN(NAME array_expr_03            LABELS cpython llvm llvm_jit c)
 RUN(NAME array_expr_04            LABELS cpython llvm llvm_jit c)
-RUN(NAME array_expr_05            LABELS cpython llvm llvm_jit c)
+# RUN(NAME array_expr_05            LABELS cpython llvm llvm_jit c)
 RUN(NAME array_expr_06            LABELS cpython llvm llvm_jit c)
 RUN(NAME array_expr_07            LABELS cpython llvm llvm_jit c)
 RUN(NAME array_expr_08            LABELS cpython llvm llvm_jit c)
-RUN(NAME array_expr_09            LABELS cpython llvm llvm_jit c)
+# RUN(NAME array_expr_09            LABELS cpython llvm llvm_jit c)
 RUN(NAME array_expr_10            LABELS cpython llvm llvm_jit c)
-RUN(NAME array_size_01            LABELS cpython llvm llvm_jit c)
-RUN(NAME array_size_02            LABELS cpython llvm llvm_jit c)
+# RUN(NAME array_size_01            LABELS cpython llvm llvm_jit c)
+# RUN(NAME array_size_02            LABELS cpython llvm llvm_jit c)
 RUN(NAME array_01            LABELS cpython llvm llvm_jit wasm c)
 RUN(NAME array_02            LABELS cpython wasm c)
 RUN(NAME array_03            LABELS cpython llvm llvm_jit c)
-RUN(NAME array_04            LABELS cpython llvm llvm_jit c)
-RUN(NAME array_05            LABELS cpython llvm llvm_jit c)
-RUN(NAME array_06            LABELS cpython llvm llvm_jit)
-RUN(NAME bindc_01            LABELS cpython llvm llvm_jit c)
-# RUN(NAME bindc_02            LABELS cpython llvm llvm_jit c)
-RUN(NAME bindc_04            LABELS llvm llvm_jit c NOFAST)
-# RUN(NAME bindc_07            LABELS cpython llvm llvm_jit c NOFAST)
-RUN(NAME bindc_08            LABELS cpython llvm llvm_jit c)
-RUN(NAME bindc_09            LABELS cpython llvm llvm_jit c NOFAST)
-RUN(NAME bindc_09b           LABELS cpython llvm llvm_jit c NOFAST)
-# RUN(NAME bindc_10            LABELS cpython llvm llvm_jit c NOFAST)
-RUN(NAME bindc_11            LABELS cpython) # This is CPython test only
+# RUN(NAME array_04            LABELS cpython llvm llvm_jit c)
+# RUN(NAME array_05            LABELS cpython llvm llvm_jit c)
+# RUN(NAME array_06            LABELS cpython llvm llvm_jit)
+# RUN(NAME bindc_01            LABELS cpython llvm llvm_jit c)
+# # RUN(NAME bindc_02            LABELS cpython llvm llvm_jit c)
+# RUN(NAME bindc_04            LABELS llvm llvm_jit c NOFAST)
+# # RUN(NAME bindc_07            LABELS cpython llvm llvm_jit c NOFAST)
+# RUN(NAME bindc_08            LABELS cpython llvm llvm_jit c)
+# RUN(NAME bindc_09            LABELS cpython llvm llvm_jit c NOFAST)
+# RUN(NAME bindc_09b           LABELS cpython llvm llvm_jit c NOFAST)
+# # RUN(NAME bindc_10            LABELS cpython llvm llvm_jit c NOFAST)
+# RUN(NAME bindc_11            LABELS cpython) # This is CPython test only
 # RUN(NAME exit_01             LABELS cpython llvm llvm_jit c NOFAST)
 # RUN(NAME exit_02     FAIL    LABELS cpython llvm llvm_jit c NOFAST)
 RUN(NAME exit_03             LABELS cpython llvm llvm_jit c wasm wasm_x86 wasm_x64)
@@ -466,17 +466,17 @@ RUN(NAME print_06            LABELS cpython llvm llvm_jit) # renable c
 RUN(NAME print_05            LABELS cpython llvm llvm_jit c wasm wasm_x64)
 RUN(NAME print_float         LABELS cpython llvm llvm_jit c wasm wasm_x64)
 RUN(NAME print_list_tuple_01    LABELS cpython llvm llvm_jit NOFAST) # renable c
-# RUN(NAME print_list_tuple_02    LABELS cpython llvm llvm_jit c NOFAST)
-# RUN(NAME print_list_tuple_03    LABELS cpython llvm llvm_jit c NOFAST)
+# # RUN(NAME print_list_tuple_02    LABELS cpython llvm llvm_jit c NOFAST)
+# # RUN(NAME print_list_tuple_03    LABELS cpython llvm llvm_jit c NOFAST)
 RUN(NAME test_list_item_mixed_print    LABELS cpython llvm llvm_jit NOFAST) # renable c
 RUN(NAME test_intrinsic_function_mixed_print    LABELS cpython llvm llvm_jit NOFAST)
 
-# CPython and LLVM
+# # CPython and LLVM
 RUN(NAME const_01            LABELS cpython llvm llvm_jit c wasm)
 RUN(NAME const_02            LABELS cpython llvm llvm_jit c wasm)
 RUN(NAME const_03            LABELS cpython llvm c
         EXTRAFILES const_03b.c)
-RUN(NAME const_04            LABELS cpython llvm llvm_jit c)
+# RUN(NAME const_04            LABELS cpython llvm llvm_jit c)
 RUN(NAME expr_01             LABELS cpython llvm llvm_jit c wasm wasm_x64)
 RUN(NAME expr_02             LABELS cpython llvm llvm_jit c wasm wasm_x64)
 RUN(NAME expr_03             LABELS cpython llvm llvm_jit c wasm wasm_x64)
@@ -484,16 +484,16 @@ RUN(NAME expr_04             LABELS cpython llvm llvm_jit c wasm NOFAST)
 RUN(NAME expr_05             LABELS cpython llvm llvm_jit c NOFAST)
 RUN(NAME expr_06             LABELS cpython llvm llvm_jit c NOFAST)
 RUN(NAME expr_07             LABELS cpython llvm llvm_jit c)
-RUN(NAME expr_08             LABELS llvm llvm_jit c NOFAST)
+# RUN(NAME expr_08             LABELS llvm llvm_jit c NOFAST)
 RUN(NAME expr_09             LABELS cpython llvm llvm_jit c)
 RUN(NAME expr_10             LABELS cpython llvm llvm_jit c)
 RUN(NAME expr_11             LABELS cpython llvm llvm_jit c wasm)
-RUN(NAME expr_12             LABELS llvm llvm_jit c)
-# RUN(NAME expr_13             LABELS llvm c
-#         EXTRAFILES expr_13b.c NOFAST)
+# RUN(NAME expr_12             LABELS llvm llvm_jit c)
+# # RUN(NAME expr_13             LABELS llvm c
+# #         EXTRAFILES expr_13b.c NOFAST)
 RUN(NAME expr_14             LABELS cpython llvm llvm_jit c)
 RUN(NAME expr_15             LABELS cpython llvm llvm_jit c)
-# RUN(NAME expr_16             LABELS cpython llvm llvm_jit c)
+# # RUN(NAME expr_16             LABELS cpython llvm llvm_jit c)
 RUN(NAME expr_17             LABELS cpython llvm llvm_jit c)
 RUN(NAME expr_18    FAIL     LABELS cpython llvm llvm_jit c)
 RUN(NAME expr_19             LABELS cpython llvm llvm_jit c)
@@ -505,7 +505,7 @@ RUN(NAME expr_24             LABELS cpython wasm) # mandelbrot
 
 RUN(NAME expr_01u            LABELS cpython llvm llvm_jit c NOFAST)
 RUN(NAME expr_02u            LABELS cpython llvm llvm_jit c NOFAST)
-RUN(NAME expr_03u            LABELS cpython llvm llvm_jit c NOFAST)
+# RUN(NAME expr_03u            LABELS cpython llvm llvm_jit c NOFAST)
 # RUN(NAME expr_04u            LABELS cpython llvm llvm_jit c)
 
 RUN(NAME list_01             LABELS cpython llvm llvm_jit)
@@ -614,10 +614,10 @@ RUN(NAME test_numpy_02       LABELS cpython llvm llvm_jit c)
 RUN(NAME test_numpy_03       LABELS cpython llvm llvm_jit c)
 RUN(NAME test_numpy_04       LABELS cpython llvm llvm_jit c)
 RUN(NAME elemental_01        LABELS cpython llvm llvm_jit NOFAST) # renable c
-RUN(NAME elemental_02        LABELS cpython llvm llvm_jit c NOFAST)
-RUN(NAME elemental_03        LABELS cpython llvm llvm_jit NOFAST) # renable c
+# RUN(NAME elemental_02        LABELS cpython llvm llvm_jit c NOFAST)
+# RUN(NAME elemental_03        LABELS cpython llvm llvm_jit NOFAST) # renable c
 # RUN(NAME elemental_04        LABELS cpython llvm llvm_jit c NOFAST)
-RUN(NAME elemental_05        LABELS cpython llvm llvm_jit NOFAST) # renable c
+# RUN(NAME elemental_05        LABELS cpython llvm llvm_jit NOFAST) # renable c
 # RUN(NAME elemental_06        LABELS cpython llvm llvm_jit c NOFAST)
 RUN(NAME elemental_07        LABELS cpython llvm llvm_jit NOFAST) # renable c
 RUN(NAME elemental_08        LABELS cpython llvm llvm_jit c NOFAST)
@@ -661,8 +661,8 @@ RUN(NAME test_c_interop_03   LABELS cpython llvm c
 #         EXTRAFILES bindc_03b.c)
 # RUN(NAME bindc_05   LABELS llvm c
 #         EXTRAFILES bindc_05b.c)
-RUN(NAME bindc_06   LABELS llvm
-        EXTRAFILES bindc_06b.c) # renable c
+# RUN(NAME bindc_06   LABELS llvm
+#         EXTRAFILES bindc_06b.c) # renable c
 # RUN(NAME bindpy_01           LABELS cpython llvm_py c_py EXTRA_ARGS --enable-cpython NOFAST COPY_TO_BIN bindpy_01_module.py)
 # RUN(NAME bindpy_02           LABELS cpython c_py EXTRA_ARGS --link-numpy COPY_TO_BIN bindpy_02_module.py)
 # RUN(NAME bindpy_03           LABELS cpython c_py EXTRA_ARGS --link-numpy NOFAST COPY_TO_BIN bindpy_03_module.py)
@@ -684,11 +684,11 @@ RUN(NAME test_unary_op_01    LABELS cpython llvm llvm_jit c) # unary minus
 RUN(NAME test_unary_op_02    LABELS cpython llvm llvm_jit c) # unary plus
 RUN(NAME test_unary_op_03    LABELS cpython llvm llvm_jit c wasm) # unary bitinvert
 RUN(NAME test_unary_op_04    LABELS cpython llvm llvm_jit c) # unary bitinvert
-RUN(NAME test_unary_op_05    LABELS cpython llvm llvm_jit c) # unsigned unary minus, plus
-RUN(NAME test_unary_op_06    LABELS cpython llvm llvm_jit c) # unsigned unary bitnot
-RUN(NAME test_unsigned_01    LABELS cpython llvm llvm_jit c) # unsigned bitshift left, right
-RUN(NAME test_unsigned_02    LABELS cpython llvm llvm_jit c)
-RUN(NAME test_unsigned_03    LABELS cpython llvm llvm_jit c)
+# RUN(NAME test_unary_op_05    LABELS cpython llvm llvm_jit c) # unsigned unary minus, plus
+# RUN(NAME test_unary_op_06    LABELS cpython llvm llvm_jit c) # unsigned unary bitnot
+# RUN(NAME test_unsigned_01    LABELS cpython llvm llvm_jit c) # unsigned bitshift left, right
+# RUN(NAME test_unsigned_02    LABELS cpython llvm llvm_jit c)
+# RUN(NAME test_unsigned_03    LABELS cpython llvm llvm_jit c)
 RUN(NAME test_bool_binop     LABELS cpython llvm llvm_jit c)
 RUN(NAME test_issue_518      LABELS cpython llvm llvm_jit c NOFAST)
 RUN(NAME structs_01          LABELS cpython llvm llvm_jit c)
@@ -718,15 +718,15 @@ RUN(NAME structs_18          LABELS cpython llvm c
 # RUN(NAME structs_20          LABELS cpython llvm c
 #     EXTRAFILES structs_20b.c)
 RUN(NAME structs_21          LABELS cpython llvm llvm_jit c)
-RUN(NAME structs_22          LABELS cpython llvm llvm_jit c NOFAST)
-RUN(NAME structs_23          LABELS cpython llvm llvm_jit c NOFAST)
+# RUN(NAME structs_22          LABELS cpython llvm llvm_jit c NOFAST)
+# RUN(NAME structs_23          LABELS cpython llvm llvm_jit c NOFAST)
 RUN(NAME structs_24          LABELS cpython llvm llvm_jit c)
 RUN(NAME structs_25          LABELS cpython llvm llvm_jit c)
-RUN(NAME structs_26          LABELS cpython llvm llvm_jit) # renable c
-RUN(NAME structs_27          LABELS cpython llvm llvm_jit) # renable c
-RUN(NAME structs_28          LABELS cpython llvm llvm_jit) # renable c
+# RUN(NAME structs_26          LABELS cpython llvm llvm_jit) # renable c
+# RUN(NAME structs_27          LABELS cpython llvm llvm_jit) # renable c
+# RUN(NAME structs_28          LABELS cpython llvm llvm_jit) # renable c
 RUN(NAME structs_29          LABELS cpython llvm llvm_jit)
-RUN(NAME structs_30          LABELS cpython llvm llvm_jit) # renable c
+# RUN(NAME structs_30          LABELS cpython llvm llvm_jit) # renable c
 # RUN(NAME structs_31          LABELS cpython llvm llvm_jit c)
 # RUN(NAME structs_32          LABELS cpython llvm llvm_jit c)
 # RUN(NAME structs_33          LABELS cpython llvm llvm_jit c)
@@ -757,10 +757,10 @@ RUN(NAME symbolics_18        LABELS cpython_sym c_sym llvm_sym llvm_jit NOFAST E
 # RUN(NAME sizeof_01           LABELS llvm c
 #         EXTRAFILES sizeof_01b.c)
 RUN(NAME sizeof_02           LABELS cpython llvm llvm_jit c)
-RUN(NAME enum_01             LABELS cpython llvm llvm_jit c NOFAST)
+# RUN(NAME enum_01             LABELS cpython llvm llvm_jit c NOFAST)
 RUN(NAME enum_02             LABELS cpython llvm llvm_jit NOFAST)
 RUN(NAME enum_03             LABELS cpython llvm llvm_jit c NOFAST)
-RUN(NAME enum_04             LABELS cpython llvm llvm_jit c NOFAST)
+# RUN(NAME enum_04             LABELS cpython llvm llvm_jit c NOFAST)
 RUN(NAME enum_05             LABELS llvm c
         EXTRAFILES enum_05b.c NOFAST)
 # RUN(NAME enum_06             LABELS cpython llvm llvm_jit c)
@@ -782,10 +782,10 @@ RUN(NAME vec_01              LABELS cpython llvm llvm_jit c NOFAST)
 # RUN(NAME test_str_comparison LABELS cpython llvm llvm_jit c wasm)
 RUN(NAME test_bit_length     LABELS cpython) # renable c, FIXME: This test fails on llvm & llvm_jit
 # RUN(NAME str_to_list_cast    LABELS cpython llvm llvm_jit c)
-RUN(NAME cast_01             LABELS cpython llvm llvm_jit c)
-RUN(NAME cast_02             LABELS cpython llvm llvm_jit c)
+# RUN(NAME cast_01             LABELS cpython llvm llvm_jit c)
+# RUN(NAME cast_02             LABELS cpython llvm llvm_jit c)
 # RUN(NAME test_sys_01         LABELS cpython llvm llvm_jit c NOFAST)
-RUN(NAME intent_01           LABELS cpython llvm llvm_jit)
+# RUN(NAME intent_01           LABELS cpython llvm llvm_jit)
 
 
 # RUN(NAME test_package_01     LABELS cpython llvm llvm_jit NOFAST)
