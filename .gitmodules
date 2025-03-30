@@ -1,0 +1,3 @@
+[submodule "lfortran"]
+	path = lfortran
+	url = git@github.com:lfortran/lfortran.git
