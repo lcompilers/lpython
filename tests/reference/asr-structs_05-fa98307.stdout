@@ -215,13 +215,7 @@
                                                     Default
                                                     (Array
                                                         (StructType
-                                                            [(Real 8)
-                                                            (Integer 4)
-                                                            (Integer 8)
-                                                            (Real 4)
-                                                            (Integer 2)
-                                                            (Integer 1)
-                                                            (Logical 4)]
+                                                            []
                                                             []
                                                             .true.
                                                             2 A
@@ -267,13 +261,7 @@
                                                 (IntegerConstant 0 (Integer 4) Decimal)
                                                 ())]
                                                 (StructType
-                                                    [(Real 8)
-                                                    (Integer 4)
-                                                    (Integer 8)
-                                                    (Real 4)
-                                                    (Integer 2)
-                                                    (Integer 1)
-                                                    (Logical 4)]
+                                                    []
                                                     []
                                                     .true.
                                                     2 A
@@ -294,13 +282,7 @@
                                             )
                                             (Array
                                                 (StructType
-                                                    [(Real 8)
-                                                    (Integer 4)
-                                                    (Integer 8)
-                                                    (Real 4)
-                                                    (Integer 2)
-                                                    (Integer 1)
-                                                    (Logical 4)]
+                                                    []
                                                     []
                                                     .true.
                                                     2 A
@@ -320,13 +302,7 @@
                                             (IntegerConstant 0 (Integer 4) Decimal)
                                             ())]
                                             (StructType
-                                                [(Real 8)
-                                                (Integer 4)
-                                                (Integer 8)
-                                                (Real 4)
-                                                (Integer 2)
-                                                (Integer 1)
-                                                (Logical 4)]
+                                                []
                                                 []
                                                 .true.
                                                 2 A
@@ -376,13 +352,7 @@
                                                 (Logical 4)
                                             ))]
                                             (StructType
-                                                [(Real 8)
-                                                (Integer 4)
-                                                (Integer 8)
-                                                (Real 4)
-                                                (Integer 2)
-                                                (Integer 1)
-                                                (Logical 4)]
+                                                []
                                                 []
                                                 .true.
                                                 2 A
@@ -398,13 +368,7 @@
                                             (IntegerConstant 1 (Integer 4) Decimal)
                                             ())]
                                             (StructType
-                                                [(Real 8)
-                                                (Integer 4)
-                                                (Integer 8)
-                                                (Real 4)
-                                                (Integer 2)
-                                                (Integer 1)
-                                                (Logical 4)]
+                                                []
                                                 []
                                                 .true.
                                                 2 A
@@ -454,13 +418,7 @@
                                                 (Logical 4)
                                             ))]
                                             (StructType
-                                                [(Real 8)
-                                                (Integer 4)
-                                                (Integer 8)
-                                                (Real 4)
-                                                (Integer 2)
-                                                (Integer 1)
-                                                (Logical 4)]
+                                                []
                                                 []
                                                 .true.
                                                 2 A
@@ -478,13 +436,7 @@
                                             DescriptorArray
                                             (Array
                                                 (StructType
-                                                    [(Real 8)
-                                                    (Integer 4)
-                                                    (Integer 8)
-                                                    (Real 4)
-                                                    (Integer 2)
-                                                    (Integer 1)
-                                                    (Logical 4)]
+                                                    []
                                                     []
                                                     .true.
                                                     2 A
@@ -516,13 +468,7 @@
                                             (IntegerConstant 0 (Integer 4) Decimal)
                                             ())]
                                             (StructType
-                                                [(Real 8)
-                                                (Integer 4)
-                                                (Integer 8)
-                                                (Real 4)
-                                                (Integer 2)
-                                                (Integer 1)
-                                                (Logical 4)]
+                                                []
                                                 []
                                                 .true.
                                                 2 A
@@ -541,13 +487,7 @@
                                             DescriptorArray
                                             (Array
                                                 (StructType
-                                                    [(Real 8)
-                                                    (Integer 4)
-                                                    (Integer 8)
-                                                    (Real 4)
-                                                    (Integer 2)
-                                                    (Integer 1)
-                                                    (Logical 4)]
+                                                    []
                                                     []
                                                     .true.
                                                     2 A
@@ -569,13 +509,7 @@
                                             DescriptorArray
                                             (Array
                                                 (StructType
-                                                    [(Real 8)
-                                                    (Integer 4)
-                                                    (Integer 8)
-                                                    (Real 4)
-                                                    (Integer 2)
-                                                    (Integer 1)
-                                                    (Logical 4)]
+                                                    []
                                                     []
                                                     .true.
                                                     2 A
@@ -619,13 +553,7 @@
                                                     ()
                                                     Default
                                                     (StructType
-                                                        [(Real 8)
-                                                        (Integer 4)
-                                                        (Integer 8)
-                                                        (Real 4)
-                                                        (Integer 2)
-                                                        (Integer 1)
-                                                        (Logical 4)]
+                                                        []
                                                         []
                                                         .true.
                                                         2 A
@@ -642,13 +570,7 @@
                                     update_1
                                     (FunctionType
                                         [(StructType
-                                            [(Real 8)
-                                            (Integer 4)
-                                            (Integer 8)
-                                            (Real 4)
-                                            (Integer 2)
-                                            (Integer 1)
-                                            (Logical 4)]
+                                            []
                                             []
                                             .true.
                                             2 A
@@ -778,13 +700,7 @@
                                                     Default
                                                     (Array
                                                         (StructType
-                                                            [(Real 8)
-                                                            (Integer 4)
-                                                            (Integer 8)
-                                                            (Real 4)
-                                                            (Integer 2)
-                                                            (Integer 1)
-                                                            (Logical 4)]
+                                                            []
                                                             []
                                                             .true.
                                                             2 A
@@ -806,13 +722,7 @@
                                     (FunctionType
                                         [(Array
                                             (StructType
-                                                [(Real 8)
-                                                (Integer 4)
-                                                (Integer 8)
-                                                (Real 4)
-                                                (Integer 2)
-                                                (Integer 1)
-                                                (Logical 4)]
+                                                []
                                                 []
                                                 .true.
                                                 2 A
@@ -843,13 +753,7 @@
                                                 (IntegerConstant 1 (Integer 4) Decimal)
                                                 ())]
                                                 (StructType
-                                                    [(Real 8)
-                                                    (Integer 4)
-                                                    (Integer 8)
-                                                    (Real 4)
-                                                    (Integer 2)
-                                                    (Integer 1)
-                                                    (Logical 4)]
+                                                    []
                                                     []
                                                     .true.
                                                     2 A
@@ -872,13 +776,7 @@
                                                 (IntegerConstant 1 (Integer 4) Decimal)
                                                 ())]
                                                 (StructType
-                                                    [(Real 8)
-                                                    (Integer 4)
-                                                    (Integer 8)
-                                                    (Real 4)
-                                                    (Integer 2)
-                                                    (Integer 1)
-                                                    (Logical 4)]
+                                                    []
                                                     []
                                                     .true.
                                                     2 A
@@ -904,13 +802,7 @@
                                                 (IntegerConstant 1 (Integer 4) Decimal)
                                                 ())]
                                                 (StructType
-                                                    [(Real 8)
-                                                    (Integer 4)
-                                                    (Integer 8)
-                                                    (Real 4)
-                                                    (Integer 2)
-                                                    (Integer 1)
-                                                    (Logical 4)]
+                                                    []
                                                     []
                                                     .true.
                                                     2 A
@@ -938,13 +830,7 @@
                                                 (IntegerConstant 1 (Integer 4) Decimal)
                                                 ())]
                                                 (StructType
-                                                    [(Real 8)
-                                                    (Integer 4)
-                                                    (Integer 8)
-                                                    (Real 4)
-                                                    (Integer 2)
-                                                    (Integer 1)
-                                                    (Logical 4)]
+                                                    []
                                                     []
                                                     .true.
                                                     2 A
@@ -978,13 +864,7 @@
                                                 (IntegerConstant 1 (Integer 4) Decimal)
                                                 ())]
                                                 (StructType
-                                                    [(Real 8)
-                                                    (Integer 4)
-                                                    (Integer 8)
-                                                    (Real 4)
-                                                    (Integer 2)
-                                                    (Integer 1)
-                                                    (Logical 4)]
+                                                    []
                                                     []
                                                     .true.
                                                     2 A
@@ -1012,13 +892,7 @@
                                                 (IntegerConstant 1 (Integer 4) Decimal)
                                                 ())]
                                                 (StructType
-                                                    [(Real 8)
-                                                    (Integer 4)
-                                                    (Integer 8)
-                                                    (Real 4)
-                                                    (Integer 2)
-                                                    (Integer 1)
-                                                    (Logical 4)]
+                                                    []
                                                     []
                                                     .true.
                                                     2 A
@@ -1078,13 +952,7 @@
                                                     Default
                                                     (Array
                                                         (StructType
-                                                            [(Real 8)
-                                                            (Integer 4)
-                                                            (Integer 8)
-                                                            (Real 4)
-                                                            (Integer 2)
-                                                            (Integer 1)
-                                                            (Logical 4)]
+                                                            []
                                                             []
                                                             .true.
                                                             2 A
@@ -1111,13 +979,7 @@
                                                     ()
                                                     Default
                                                     (StructType
-                                                        [(Real 8)
-                                                        (Integer 4)
-                                                        (Integer 8)
-                                                        (Real 4)
-                                                        (Integer 2)
-                                                        (Integer 1)
-                                                        (Logical 4)]
+                                                        []
                                                         []
                                                         .true.
                                                         2 A
@@ -1140,13 +1002,7 @@
                                                     ()
                                                     Default
                                                     (StructType
-                                                        [(Real 8)
-                                                        (Integer 4)
-                                                        (Integer 8)
-                                                        (Real 4)
-                                                        (Integer 2)
-                                                        (Integer 1)
-                                                        (Logical 4)]
+                                                        []
                                                         []
                                                         .true.
                                                         2 A
@@ -1236,13 +1092,7 @@
                                     (FunctionType
                                         [(Array
                                             (StructType
-                                                [(Real 8)
-                                                (Integer 4)
-                                                (Integer 8)
-                                                (Real 4)
-                                                (Integer 2)
-                                                (Integer 1)
-                                                (Logical 4)]
+                                                []
                                                 []
                                                 .true.
                                                 2 A
@@ -1289,13 +1139,7 @@
                                             (IntegerConstant 0 (Integer 4) Decimal)
                                             ())]
                                             (StructType
-                                                [(Real 8)
-                                                (Integer 4)
-                                                (Integer 8)
-                                                (Real 4)
-                                                (Integer 2)
-                                                (Integer 1)
-                                                (Logical 4)]
+                                                []
                                                 []
                                                 .true.
                                                 2 A
@@ -1517,13 +1361,7 @@
                                             (IntegerConstant 1 (Integer 4) Decimal)
                                             ())]
                                             (StructType
-                                                [(Real 8)
-                                                (Integer 4)
-                                                (Integer 8)
-                                                (Real 4)
-                                                (Integer 2)
-                                                (Integer 1)
-                                                (Logical 4)]
+                                                []
                                                 []
                                                 .true.
                                                 2 A

@@ -114,8 +114,7 @@
                                                     ()
                                                     Default
                                                     (StructType
-                                                        [(Integer 4)
-                                                        (Integer 4)]
+                                                        []
                                                         []
                                                         .true.
                                                         2 S
@@ -153,8 +152,7 @@
                                             [((IntegerConstant 2 (Integer 4) Decimal))
                                             (())]
                                             (StructType
-                                                [(Integer 4)
-                                                (Integer 4)]
+                                                []
                                                 []
                                                 .true.
                                                 2 S

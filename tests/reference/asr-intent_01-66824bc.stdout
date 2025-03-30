@@ -59,7 +59,7 @@
                                                     Default
                                                     (Array
                                                         (StructType
-                                                            [(Integer 4)]
+                                                            []
                                                             []
                                                             .true.
                                                             2 Foo
@@ -146,7 +146,7 @@
                                         )
                                         (Array
                                             (StructType
-                                                [(Integer 4)]
+                                                []
                                                 []
                                                 .true.
                                                 2 Foo

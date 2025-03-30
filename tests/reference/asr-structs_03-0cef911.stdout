@@ -115,8 +115,7 @@
                                                     Default
                                                     (Pointer
                                                         (StructType
-                                                            [(Integer 4)
-                                                            (Real 4)]
+                                                            []
                                                             []
                                                             .true.
                                                             2 A
@@ -135,8 +134,7 @@
                                     (FunctionType
                                         [(Pointer
                                             (StructType
-                                                [(Integer 4)
-                                                (Real 4)]
+                                                []
                                                 []
                                                 .true.
                                                 2 A
@@ -205,8 +203,7 @@
                                                     ()
                                                     Default
                                                     (StructType
-                                                        [(Integer 4)
-                                                        (Real 4)]
+                                                        []
                                                         []
                                                         .true.
                                                         2 A
@@ -230,8 +227,7 @@
                                                     Default
                                                     (Pointer
                                                         (StructType
-                                                            [(Integer 4)
-                                                            (Real 4)]
+                                                            []
                                                             []
                                                             .true.
                                                             2 A
@@ -281,8 +277,7 @@
                                                 )
                                             ))]
                                             (StructType
-                                                [(Integer 4)
-                                                (Real 4)]
+                                                []
                                                 []
                                                 .true.
                                                 2 A
@@ -297,8 +292,7 @@
                                             (Var 5 x)
                                             (Pointer
                                                 (StructType
-                                                    [(Integer 4)
-                                                    (Real 4)]
+                                                    []
                                                     []
                                                     .true.
                                                     2 A

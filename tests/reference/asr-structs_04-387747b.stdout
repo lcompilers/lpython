@@ -78,8 +78,7 @@
                                                     ()
                                                     Default
                                                     (StructType
-                                                        [(Real 4)
-                                                        (Integer 4)]
+                                                        []
                                                         []
                                                         .true.
                                                         2 A
@@ -137,8 +136,7 @@
                                         ))
                                         ((IntegerConstant 0 (Integer 4) Decimal))]
                                         (StructType
-                                            [(Real 4)
-                                            (Integer 4)]
+                                            []
                                             []
                                             .true.
                                             2 A
@@ -199,14 +197,7 @@
                                                     ()
                                                     Default
                                                     (StructType
-                                                        [(Integer 4)
-                                                        (StructType
-                                                            [(Real 4)
-                                                            (Integer 4)]
-                                                            []
-                                                            .true.
-                                                            2 A
-                                                        )]
+                                                        []
                                                         []
                                                         .true.
                                                         2 B
@@ -223,14 +214,7 @@
                                     f
                                     (FunctionType
                                         [(StructType
-                                            [(Integer 4)
-                                            (StructType
-                                                [(Real 4)
-                                                (Integer 4)]
-                                                []
-                                                .true.
-                                                2 A
-                                            )]
+                                            []
                                             []
                                             .true.
                                             2 B
@@ -263,8 +247,7 @@
                                                     (Var 5 b)
                                                     4 a
                                                     (StructType
-                                                        [(Real 4)
-                                                        (Integer 4)]
+                                                        []
                                                         []
                                                         .true.
                                                         2 A
@@ -280,8 +263,7 @@
                                                     (Var 5 b)
                                                     4 a
                                                     (StructType
-                                                        [(Real 4)
-                                                        (Integer 4)]
+                                                        []
                                                         []
                                                         .true.
                                                         2 A
@@ -319,8 +301,7 @@
                                                     (Var 5 b)
                                                     4 a
                                                     (StructType
-                                                        [(Real 4)
-                                                        (Integer 4)]
+                                                        []
                                                         []
                                                         .true.
                                                         2 A
@@ -346,8 +327,7 @@
                                                         (Var 5 b)
                                                         4 a
                                                         (StructType
-                                                            [(Real 4)
-                                                            (Integer 4)]
+                                                            []
                                                             []
                                                             .true.
                                                             2 A
@@ -393,8 +373,7 @@
                                                     ()
                                                     Default
                                                     (StructType
-                                                        [(Real 4)
-                                                        (Integer 4)]
+                                                        []
                                                         []
                                                         .true.
                                                         2 A
@@ -417,8 +396,7 @@
                                                     ()
                                                     Default
                                                     (StructType
-                                                        [(Real 4)
-                                                        (Integer 4)]
+                                                        []
                                                         []
                                                         .true.
                                                         2 A
@@ -441,14 +419,7 @@
                                                     ()
                                                     Default
                                                     (StructType
-                                                        [(Integer 4)
-                                                        (StructType
-                                                            [(Real 4)
-                                                            (Integer 4)]
-                                                            []
-                                                            .true.
-                                                            2 A
-                                                        )]
+                                                        []
                                                         []
                                                         .true.
                                                         2 B
@@ -497,8 +468,7 @@
                                             ))
                                             ((IntegerConstant 1 (Integer 4) Decimal))]
                                             (StructType
-                                                [(Real 4)
-                                                (Integer 4)]
+                                                []
                                                 []
                                                 .true.
                                                 2 A
@@ -525,8 +495,7 @@
                                             ))
                                             ((IntegerConstant 2 (Integer 4) Decimal))]
                                             (StructType
-                                                [(Real 4)
-                                                (Integer 4)]
+                                                []
                                                 []
                                                 .true.
                                                 2 A
@@ -542,14 +511,7 @@
                                             [((IntegerConstant 1 (Integer 4) Decimal))
                                             ((Var 6 a1))]
                                             (StructType
-                                                [(Integer 4)
-                                                (StructType
-                                                    [(Real 4)
-                                                    (Integer 4)]
-                                                    []
-                                                    .true.
-                                                    2 A
-                                                )]
+                                                []
                                                 []
                                                 .true.
                                                 2 B
@@ -563,8 +525,7 @@
                                             (Var 6 b)
                                             4 a
                                             (StructType
-                                                [(Real 4)
-                                                (Integer 4)]
+                                                []
                                                 []
                                                 .true.
                                                 2 A
@@ -590,8 +551,7 @@
                                                 (Var 6 b)
                                                 4 a
                                                 (StructType
-                                                    [(Real 4)
-                                                    (Integer 4)]
+                                                    []
                                                     []
                                                     .true.
                                                     2 A
@@ -611,8 +571,7 @@
                                                 (Var 6 b)
                                                 4 a
                                                 (StructType
-                                                    [(Real 4)
-                                                    (Integer 4)]
+                                                    []
                                                     []
                                                     .true.
                                                     2 A
