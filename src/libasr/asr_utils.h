@@ -2736,8 +2736,8 @@ static inline ASR::asr_t* make_StructType_t_util(Allocator& al, Location loc, AS
     }
     return ASR::make_StructType_t(al,
                                 loc,
-                                nullptr,
-                                0,
+                                nullptr, // TODO: FIXME: Use the member function types computed above
+                                0,       // TODO: FIXME: Use the length of member function types computed above
                                 nullptr, //Correct this when mem fn added to Struct_t
                                 0,       //Correct this when mem fn added to Struct_t
                                 true,    //Correct this when mem fn added to Struct_t
