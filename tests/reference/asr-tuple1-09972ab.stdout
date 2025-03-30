@@ -31,6 +31,8 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
                                                 ),
                                             a11:
                                                 (Variable
@@ -50,6 +52,8 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
                                                 ),
                                             a2:
                                                 (Variable
@@ -61,14 +65,16 @@
                                                     ()
                                                     Default
                                                     (Tuple
-                                                        [(Character 1 -2 ())
-                                                        (Character 1 -2 ())
-                                                        (Character 1 -2 ())]
+                                                        [(String 1 -2 () PointerString)
+                                                        (String 1 -2 () PointerString)
+                                                        (String 1 -2 () PointerString)]
                                                     )
                                                     ()
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
+                                                    .false.
                                                     .false.
                                                 ),
                                             a3:
@@ -84,12 +90,14 @@
                                                         [(Integer 4)
                                                         (Integer 4)
                                                         (Real 4)
-                                                        (Character 1 -2 ())]
+                                                        (String 1 -2 () PointerString)]
                                                     )
                                                     ()
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
+                                                    .false.
                                                     .false.
                                                 ),
                                             a4:
@@ -118,6 +126,8 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
                                                 ),
                                             a5:
                                                 (Variable
@@ -130,12 +140,12 @@
                                                     Default
                                                     (Tuple
                                                         [(Tuple
-                                                            [(Character 1 -2 ())
-                                                            (Character 1 -2 ())
+                                                            [(String 1 -2 () PointerString)
+                                                            (String 1 -2 () PointerString)
                                                             (Real 4)]
                                                         )
                                                         (Tuple
-                                                            [(Character 1 -2 ())
+                                                            [(String 1 -2 () PointerString)
                                                             (Integer 4)
                                                             (Real 4)]
                                                         )]
@@ -144,6 +154,8 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
+                                                    .false.
                                                     .false.
                                                 ),
                                             b0:
@@ -161,6 +173,8 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
                                                 ),
                                             b1:
                                                 (Variable
@@ -176,6 +190,8 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
+                                                    .false.
                                                     .false.
                                                 ),
                                             b11:
@@ -196,6 +212,8 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
                                                 ),
                                             float_mem:
                                                 (Variable
@@ -211,6 +229,8 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
+                                                    .false.
                                                     .false.
                                                 ),
                                             float_mem1:
@@ -228,6 +248,8 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
                                                 ),
                                             float_mem2:
                                                 (Variable
@@ -243,6 +265,8 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
+                                                    .false.
                                                     .false.
                                                 )
                                         })
@@ -266,9 +290,9 @@
                                     [(Assignment
                                         (Var 3 a1)
                                         (TupleConstant
-                                            [(IntegerConstant 1 (Integer 4))
-                                            (IntegerConstant 2 (Integer 4))
-                                            (IntegerConstant 3 (Integer 4))]
+                                            [(IntegerConstant 1 (Integer 4) Decimal)
+                                            (IntegerConstant 2 (Integer 4) Decimal)
+                                            (IntegerConstant 3 (Integer 4) Decimal)]
                                             (Tuple
                                                 [(Integer 4)
                                                 (Integer 4)
@@ -281,19 +305,19 @@
                                         (Var 3 a1)
                                         (TupleConstant
                                             [(IntegerUnaryMinus
-                                                (IntegerConstant 3 (Integer 4))
+                                                (IntegerConstant 3 (Integer 4) Decimal)
                                                 (Integer 4)
-                                                (IntegerConstant -3 (Integer 4))
+                                                (IntegerConstant -3 (Integer 4) Decimal)
                                             )
                                             (IntegerUnaryMinus
-                                                (IntegerConstant 2 (Integer 4))
+                                                (IntegerConstant 2 (Integer 4) Decimal)
                                                 (Integer 4)
-                                                (IntegerConstant -2 (Integer 4))
+                                                (IntegerConstant -2 (Integer 4) Decimal)
                                             )
                                             (IntegerUnaryMinus
-                                                (IntegerConstant 1 (Integer 4))
+                                                (IntegerConstant 1 (Integer 4) Decimal)
                                                 (Integer 4)
-                                                (IntegerConstant -1 (Integer 4))
+                                                (IntegerConstant -1 (Integer 4) Decimal)
                                             )]
                                             (Tuple
                                                 [(Integer 4)
@@ -308,20 +332,20 @@
                                         (TupleConstant
                                             [(StringConstant
                                                 "a"
-                                                (Character 1 1 ())
+                                                (String 1 1 () PointerString)
                                             )
                                             (StringConstant
                                                 "b"
-                                                (Character 1 1 ())
+                                                (String 1 1 () PointerString)
                                             )
                                             (StringConstant
                                                 "c"
-                                                (Character 1 1 ())
+                                                (String 1 1 () PointerString)
                                             )]
                                             (Tuple
-                                                [(Character 1 1 ())
-                                                (Character 1 1 ())
-                                                (Character 1 1 ())]
+                                                [(String 1 1 () PointerString)
+                                                (String 1 1 () PointerString)
+                                                (String 1 1 () PointerString)]
                                             )
                                         )
                                         ()
@@ -346,25 +370,25 @@
                                         (Var 3 a3)
                                         (TupleConstant
                                             [(IntegerUnaryMinus
-                                                (IntegerConstant 2 (Integer 4))
+                                                (IntegerConstant 2 (Integer 4) Decimal)
                                                 (Integer 4)
-                                                (IntegerConstant -2 (Integer 4))
+                                                (IntegerConstant -2 (Integer 4) Decimal)
                                             )
                                             (IntegerUnaryMinus
-                                                (IntegerConstant 1 (Integer 4))
+                                                (IntegerConstant 1 (Integer 4) Decimal)
                                                 (Integer 4)
-                                                (IntegerConstant -1 (Integer 4))
+                                                (IntegerConstant -1 (Integer 4) Decimal)
                                             )
                                             (Var 3 float_mem)
                                             (StringConstant
                                                 "d"
-                                                (Character 1 1 ())
+                                                (String 1 1 () PointerString)
                                             )]
                                             (Tuple
                                                 [(Integer 4)
                                                 (Integer 4)
                                                 (Real 4)
-                                                (Character 1 1 ())]
+                                                (String 1 1 () PointerString)]
                                             )
                                         )
                                         ()
@@ -373,9 +397,9 @@
                                         (Var 3 a4)
                                         (TupleConstant
                                             [(TupleConstant
-                                                [(IntegerConstant 1 (Integer 4))
-                                                (IntegerConstant 2 (Integer 4))
-                                                (IntegerConstant 3 (Integer 4))]
+                                                [(IntegerConstant 1 (Integer 4) Decimal)
+                                                (IntegerConstant 2 (Integer 4) Decimal)
+                                                (IntegerConstant 3 (Integer 4) Decimal)]
                                                 (Tuple
                                                     [(Integer 4)
                                                     (Integer 4)
@@ -383,9 +407,9 @@
                                                 )
                                             )
                                             (TupleConstant
-                                                [(IntegerConstant 4 (Integer 4))
-                                                (IntegerConstant 5 (Integer 4))
-                                                (IntegerConstant 6 (Integer 4))]
+                                                [(IntegerConstant 4 (Integer 4) Decimal)
+                                                (IntegerConstant 5 (Integer 4) Decimal)
+                                                (IntegerConstant 6 (Integer 4) Decimal)]
                                                 (Tuple
                                                     [(Integer 4)
                                                     (Integer 4)
@@ -445,40 +469,40 @@
                                             [(TupleConstant
                                                 [(StringConstant
                                                     "a"
-                                                    (Character 1 1 ())
+                                                    (String 1 1 () PointerString)
                                                 )
                                                 (StringConstant
                                                     "b"
-                                                    (Character 1 1 ())
+                                                    (String 1 1 () PointerString)
                                                 )
                                                 (Var 3 float_mem1)]
                                                 (Tuple
-                                                    [(Character 1 1 ())
-                                                    (Character 1 1 ())
+                                                    [(String 1 1 () PointerString)
+                                                    (String 1 1 () PointerString)
                                                     (Real 4)]
                                                 )
                                             )
                                             (TupleConstant
                                                 [(StringConstant
                                                     "c"
-                                                    (Character 1 1 ())
+                                                    (String 1 1 () PointerString)
                                                 )
-                                                (IntegerConstant 3 (Integer 4))
+                                                (IntegerConstant 3 (Integer 4) Decimal)
                                                 (Var 3 float_mem2)]
                                                 (Tuple
-                                                    [(Character 1 1 ())
+                                                    [(String 1 1 () PointerString)
                                                     (Integer 4)
                                                     (Real 4)]
                                                 )
                                             )]
                                             (Tuple
                                                 [(Tuple
-                                                    [(Character 1 1 ())
-                                                    (Character 1 1 ())
+                                                    [(String 1 1 () PointerString)
+                                                    (String 1 1 () PointerString)
                                                     (Real 4)]
                                                 )
                                                 (Tuple
-                                                    [(Character 1 1 ())
+                                                    [(String 1 1 () PointerString)
                                                     (Integer 4)
                                                     (Real 4)]
                                                 )]
@@ -490,7 +514,7 @@
                                         (Var 3 b0)
                                         (TupleItem
                                             (Var 3 a1)
-                                            (IntegerConstant 0 (Integer 4))
+                                            (IntegerConstant 0 (Integer 4) Decimal)
                                             (Integer 4)
                                             ()
                                         )
@@ -508,13 +532,13 @@
                                         (TupleConstant
                                             [(TupleItem
                                                 (Var 3 a1)
-                                                (IntegerConstant 2 (Integer 4))
+                                                (IntegerConstant 2 (Integer 4) Decimal)
                                                 (Integer 4)
                                                 ()
                                             )
                                             (TupleItem
                                                 (Var 3 a1)
-                                                (IntegerConstant 1 (Integer 4))
+                                                (IntegerConstant 1 (Integer 4) Decimal)
                                                 (Integer 4)
                                                 ()
                                             )]
@@ -528,8 +552,8 @@
                                     (Assignment
                                         (Var 3 a11)
                                         (TupleConstant
-                                            [(IntegerConstant 1 (Integer 4))
-                                            (IntegerConstant 2 (Integer 4))]
+                                            [(IntegerConstant 1 (Integer 4) Decimal)
+                                            (IntegerConstant 2 (Integer 4) Decimal)]
                                             (Tuple
                                                 [(Integer 4)
                                                 (Integer 4)]
@@ -540,8 +564,8 @@
                                     (Assignment
                                         (Var 3 b11)
                                         (TupleConstant
-                                            [(IntegerConstant 1 (Integer 4))
-                                            (IntegerConstant 2 (Integer 4))]
+                                            [(IntegerConstant 1 (Integer 4) Decimal)
+                                            (IntegerConstant 2 (Integer 4) Decimal)]
                                             (Tuple
                                                 [(Integer 4)
                                                 (Integer 4)]

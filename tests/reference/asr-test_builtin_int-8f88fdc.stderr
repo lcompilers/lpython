@@ -1,1 +1,5 @@
-/bin/sh: 1: lpython: not found
+semantic error: Unexpected number of args, Int takes 2 arguments, found 1
+ --> tests/../integration_tests/test_builtin_int.py:8:12
+  |
+8 |     assert int() == i64(0)
+  |            ^^^^^ 

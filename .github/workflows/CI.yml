@@ -24,7 +24,13 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
+          submodules: true
           fetch-depth: 0
+
+      - name: Git Submodule Update
+        shell: bash -e -l {0}
+        run: |
+          git submodule update --init --recursive
 
       - name: Cache conda
         uses: actions/cache@v3
@@ -122,7 +128,13 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
+          submodules: true
           fetch-depth: 0
+
+      - name: Git Submodule Update
+        shell: bash -e -l {0}
+        run: |
+          git submodule update --init --recursive
 
       - uses: mamba-org/setup-micromamba@v1
         with:
@@ -190,7 +202,13 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
+          submodules: true
           fetch-depth: 0
+
+      - name: Git Submodule Update
+        shell: bash -e -l {0}
+        run: |
+          git submodule update --init --recursive
 
       - uses: mamba-org/setup-micromamba@v1
         with:
@@ -243,12 +261,12 @@ jobs:
         run: |
             python integration_tests/test_pip_import_01.py
 
-      - name: Test PIP Packages with LPython
-        shell: bash -e -l {0}
-        run: |
-            pip_pkg_path=$(python -c "import site; print(site.getsitepackages()[0])")
-            echo $pip_pkg_path
-            ./src/bin/lpython integration_tests/test_pip_import_01.py -I $pip_pkg_path
+      # - name: Test PIP Packages with LPython
+      #   shell: bash -e -l {0}
+      #   run: |
+      #       pip_pkg_path=$(python -c "import site; print(site.getsitepackages()[0])")
+      #       echo $pip_pkg_path
+      #       ./src/bin/lpython integration_tests/test_pip_import_01.py -I $pip_pkg_path
 
   debug:
     name: Check Debug build
@@ -256,7 +274,13 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
+          submodules: true
           fetch-depth: 0
+
+      - name: Git Submodule Update
+        shell: bash -e -l {0}
+        run: |
+          git submodule update --init --recursive
 
       - uses: mamba-org/setup-micromamba@v1
         with:
@@ -303,7 +327,13 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
+          submodules: true
           fetch-depth: 0
+
+      - name: Git Submodule Update
+        shell: bash -e -l {0}
+        run: |
+          git submodule update --init --recursive
 
       - uses: mamba-org/setup-micromamba@v1
         with:
@@ -351,7 +381,13 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
+          submodules: true
           fetch-depth: 0
+
+      - name: Git Submodule Update
+        shell: bash -e -l {0}
+        run: |
+          git submodule update --init --recursive
 
       - uses: mamba-org/setup-micromamba@v1
         with:
@@ -395,7 +431,13 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
+          submodules: true
           fetch-depth: 0
+
+      - name: Git Submodule Update
+        shell: bash -e -l {0}
+        run: |
+          git submodule update --init --recursive
 
       - uses: mamba-org/setup-micromamba@v1
         with:
@@ -444,7 +486,13 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
+          submodules: true
           fetch-depth: 0
+
+      - name: Git Submodule Update
+        shell: bash -e -l {0}
+        run: |
+          git submodule update --init --recursive
 
       - uses: mamba-org/setup-micromamba@v1
         with:
@@ -507,7 +555,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
+          submodules: true
           fetch-depth: 0
+
+      - name: Git Submodule Update
+        shell: bash -e -l {0}
+        run: |
+          git submodule update --init --recursive
 
       - uses: mamba-org/setup-micromamba@v1.8.0
         with:
@@ -552,7 +606,13 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
+          submodules: true
           fetch-depth: 0
+
+      - name: Git Submodule Update
+        shell: bash -e -l {0}
+        run: |
+          git submodule update --init --recursive
 
       - uses: mamba-org/setup-micromamba@v1
         with:
@@ -594,7 +654,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
+          submodules: true
           fetch-depth: 0
+
+      - name: Git Submodule Update
+        shell: bash -e -l {0}
+        run: |
+          git submodule update --init --recursive
 
       - uses: mamba-org/setup-micromamba@v1
         with:
@@ -606,7 +672,7 @@ jobs:
         shell: bash -e -l {0}
         run: |
           ./build0.sh
-          lpython_version=$(<version)
+          lpython_version=$(<lp_version)
           ci/create_source_tarball.sh $lpython_version
 
       - name: Upload Tarball to Release

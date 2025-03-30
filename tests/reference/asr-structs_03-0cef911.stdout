@@ -27,6 +27,8 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
                                                 ),
                                             y:
                                                 (Variable
@@ -42,6 +44,8 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
+                                                    .false.
                                                     .false.
                                                 )
                                         })
@@ -111,8 +115,7 @@
                                                     Default
                                                     (Pointer
                                                         (StructType
-                                                            [(Integer 4)
-                                                            (Real 4)]
+                                                            []
                                                             []
                                                             .true.
                                                             2 A
@@ -123,14 +126,15 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
                                                 )
                                         })
                                     f
                                     (FunctionType
                                         [(Pointer
                                             (StructType
-                                                [(Integer 4)
-                                                (Real 4)]
+                                                []
                                                 []
                                                 .true.
                                                 2 A
@@ -151,24 +155,32 @@
                                     []
                                     [(Var 4 pa)]
                                     [(Print
-                                        [(StructInstanceMember
-                                            (Var 4 pa)
-                                            3 x
-                                            (Integer 4)
+                                        (StringFormat
                                             ()
-                                        )]
-                                        ()
-                                        ()
+                                            [(StructInstanceMember
+                                                (Var 4 pa)
+                                                3 x
+                                                (Integer 4)
+                                                ()
+                                            )]
+                                            FormatPythonFormat
+                                            (String -1 0 () PointerString)
+                                            ()
+                                        )
                                     )
                                     (Print
-                                        [(StructInstanceMember
-                                            (Var 4 pa)
-                                            3 y
-                                            (Real 4)
+                                        (StringFormat
                                             ()
-                                        )]
-                                        ()
-                                        ()
+                                            [(StructInstanceMember
+                                                (Var 4 pa)
+                                                3 y
+                                                (Real 4)
+                                                ()
+                                            )]
+                                            FormatPythonFormat
+                                            (String -1 0 () PointerString)
+                                            ()
+                                        )
                                     )]
                                     ()
                                     Public
@@ -191,8 +203,7 @@
                                                     ()
                                                     Default
                                                     (StructType
-                                                        [(Integer 4)
-                                                        (Real 4)]
+                                                        []
                                                         []
                                                         .true.
                                                         2 A
@@ -201,6 +212,8 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
+                                                    .false.
                                                     .false.
                                                 ),
                                             xp:
@@ -214,8 +227,7 @@
                                                     Default
                                                     (Pointer
                                                         (StructType
-                                                            [(Integer 4)
-                                                            (Real 4)]
+                                                            []
                                                             []
                                                             .true.
                                                             2 A
@@ -225,6 +237,8 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
+                                                    .false.
                                                     .false.
                                                 )
                                         })
@@ -249,7 +263,7 @@
                                         (Var 5 x)
                                         (StructConstructor
                                             2 A
-                                            [((IntegerConstant 3 (Integer 4)))
+                                            [((IntegerConstant 3 (Integer 4) Decimal))
                                             ((Cast
                                                 (RealConstant
                                                     3.250000
@@ -263,8 +277,7 @@
                                                 )
                                             ))]
                                             (StructType
-                                                [(Integer 4)
-                                                (Real 4)]
+                                                []
                                                 []
                                                 .true.
                                                 2 A
@@ -279,8 +292,7 @@
                                             (Var 5 x)
                                             (Pointer
                                                 (StructType
-                                                    [(Integer 4)
-                                                    (Real 4)]
+                                                    []
                                                     []
                                                     .true.
                                                     2 A
@@ -299,7 +311,7 @@
                                                 ()
                                             )
                                             Eq
-                                            (IntegerConstant 3 (Integer 4))
+                                            (IntegerConstant 3 (Integer 4) Decimal)
                                             (Logical 4)
                                             ()
                                         )
@@ -335,7 +347,7 @@
                                             (Integer 4)
                                             ()
                                         )
-                                        (IntegerConstant 5 (Integer 4))
+                                        (IntegerConstant 5 (Integer 4) Decimal)
                                         ()
                                     )
                                     (Assignment

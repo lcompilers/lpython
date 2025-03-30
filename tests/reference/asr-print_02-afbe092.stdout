@@ -115,12 +115,14 @@
                                                     ()
                                                     Default
                                                     (List
-                                                        (Character 1 -2 ())
+                                                        (String 1 -2 () PointerString)
                                                     )
                                                     ()
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
+                                                    .false.
                                                     .false.
                                                 ),
                                             b:
@@ -140,6 +142,8 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
                                                 ),
                                             c:
                                                 (Variable
@@ -158,6 +162,8 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
                                                 ),
                                             d:
                                                 (Variable
@@ -175,6 +181,8 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
+                                                    .false.
                                                     .false.
                                                 )
                                         })
@@ -200,18 +208,18 @@
                                         (ListConstant
                                             [(StringConstant
                                                 "ab"
-                                                (Character 1 2 ())
+                                                (String 1 2 () PointerString)
                                             )
                                             (StringConstant
                                                 "abc"
-                                                (Character 1 3 ())
+                                                (String 1 3 () PointerString)
                                             )
                                             (StringConstant
                                                 "abcd"
-                                                (Character 1 4 ())
+                                                (String 1 4 () PointerString)
                                             )]
                                             (List
-                                                (Character 1 2 ())
+                                                (String 1 2 () PointerString)
                                             )
                                         )
                                         ()
@@ -219,10 +227,10 @@
                                     (Assignment
                                         (Var 3 b)
                                         (ListConstant
-                                            [(IntegerConstant 1 (Integer 4))
-                                            (IntegerConstant 2 (Integer 4))
-                                            (IntegerConstant 3 (Integer 4))
-                                            (IntegerConstant 4 (Integer 4))]
+                                            [(IntegerConstant 1 (Integer 4) Decimal)
+                                            (IntegerConstant 2 (Integer 4) Decimal)
+                                            (IntegerConstant 3 (Integer 4) Decimal)
+                                            (IntegerConstant 4 (Integer 4) Decimal)]
                                             (List
                                                 (Integer 4)
                                             )
@@ -269,112 +277,148 @@
                                         ()
                                     )
                                     (Print
-                                        [(Var 3 a)]
-                                        ()
-                                        ()
-                                    )
-                                    (Print
-                                        [(Var 3 b)]
-                                        ()
-                                        ()
-                                    )
-                                    (Print
-                                        [(Var 3 c)]
-                                        ()
-                                        ()
-                                    )
-                                    (Print
-                                        [(Var 3 d)]
-                                        ()
-                                        ()
-                                    )
-                                    (Print
-                                        [(Var 3 a)
-                                        (Var 3 a)
-                                        (Var 3 b)
-                                        (Var 3 c)
-                                        (Var 3 d)]
-                                        ()
-                                        ()
-                                    )
-                                    (Print
-                                        [(Var 3 a)
-                                        (Var 3 a)
-                                        (IntegerConstant 1 (Integer 4))
-                                        (Var 3 b)
-                                        (Var 3 c)
-                                        (RealConstant
-                                            1.100000
-                                            (Real 8)
+                                        (StringFormat
+                                            ()
+                                            [(Var 3 a)]
+                                            FormatPythonFormat
+                                            (String -1 0 () PointerString)
+                                            ()
                                         )
-                                        (Var 3 d)]
-                                        ()
-                                        ()
                                     )
                                     (Print
-                                        [(ListConstant
-                                            [(IntegerUnaryMinus
-                                                (IntegerConstant 3 (Integer 4))
-                                                (Integer 4)
-                                                (IntegerConstant -3 (Integer 4))
-                                            )
-                                            (IntegerConstant 2 (Integer 4))
-                                            (IntegerConstant 1 (Integer 4))
-                                            (IntegerConstant 0 (Integer 4))]
-                                            (List
-                                                (Integer 4)
-                                            )
-                                        )]
-                                        ()
-                                        ()
+                                        (StringFormat
+                                            ()
+                                            [(Var 3 b)]
+                                            FormatPythonFormat
+                                            (String -1 0 () PointerString)
+                                            ()
+                                        )
                                     )
                                     (Print
-                                        [(ListConstant
-                                            [(StringConstant
-                                                "a"
-                                                (Character 1 1 ())
+                                        (StringFormat
+                                            ()
+                                            [(Var 3 c)]
+                                            FormatPythonFormat
+                                            (String -1 0 () PointerString)
+                                            ()
+                                        )
+                                    )
+                                    (Print
+                                        (StringFormat
+                                            ()
+                                            [(Var 3 d)]
+                                            FormatPythonFormat
+                                            (String -1 0 () PointerString)
+                                            ()
+                                        )
+                                    )
+                                    (Print
+                                        (StringFormat
+                                            ()
+                                            [(Var 3 a)
+                                            (Var 3 a)
+                                            (Var 3 b)
+                                            (Var 3 c)
+                                            (Var 3 d)]
+                                            FormatPythonFormat
+                                            (String -1 0 () PointerString)
+                                            ()
+                                        )
+                                    )
+                                    (Print
+                                        (StringFormat
+                                            ()
+                                            [(Var 3 a)
+                                            (Var 3 a)
+                                            (IntegerConstant 1 (Integer 4) Decimal)
+                                            (Var 3 b)
+                                            (Var 3 c)
+                                            (RealConstant
+                                                1.100000
+                                                (Real 8)
                                             )
-                                            (StringConstant
-                                                "b"
-                                                (Character 1 1 ())
-                                            )
-                                            (StringConstant
-                                                "c"
-                                                (Character 1 1 ())
-                                            )
-                                            (StringConstant
-                                                "d"
-                                                (Character 1 1 ())
-                                            )
-                                            (StringConstant
-                                                "e"
-                                                (Character 1 1 ())
-                                            )
-                                            (StringConstant
-                                                "f"
-                                                (Character 1 1 ())
+                                            (Var 3 d)]
+                                            FormatPythonFormat
+                                            (String -1 0 () PointerString)
+                                            ()
+                                        )
+                                    )
+                                    (Print
+                                        (StringFormat
+                                            ()
+                                            [(ListConstant
+                                                [(IntegerUnaryMinus
+                                                    (IntegerConstant 3 (Integer 4) Decimal)
+                                                    (Integer 4)
+                                                    (IntegerConstant -3 (Integer 4) Decimal)
+                                                )
+                                                (IntegerConstant 2 (Integer 4) Decimal)
+                                                (IntegerConstant 1 (Integer 4) Decimal)
+                                                (IntegerConstant 0 (Integer 4) Decimal)]
+                                                (List
+                                                    (Integer 4)
+                                                )
                                             )]
-                                            (List
-                                                (Character 1 1 ())
-                                            )
-                                        )]
-                                        ()
-                                        ()
+                                            FormatPythonFormat
+                                            (String -1 0 () PointerString)
+                                            ()
+                                        )
                                     )
                                     (Print
-                                        [(ListConstant
-                                            [(IntegerConstant 1 (Integer 4))
-                                            (IntegerConstant 2 (Integer 4))
-                                            (IntegerConstant 3 (Integer 4))
-                                            (IntegerConstant 4 (Integer 4))]
-                                            (List
-                                                (Integer 4)
-                                            )
+                                        (StringFormat
+                                            ()
+                                            [(ListConstant
+                                                [(StringConstant
+                                                    "a"
+                                                    (String 1 1 () PointerString)
+                                                )
+                                                (StringConstant
+                                                    "b"
+                                                    (String 1 1 () PointerString)
+                                                )
+                                                (StringConstant
+                                                    "c"
+                                                    (String 1 1 () PointerString)
+                                                )
+                                                (StringConstant
+                                                    "d"
+                                                    (String 1 1 () PointerString)
+                                                )
+                                                (StringConstant
+                                                    "e"
+                                                    (String 1 1 () PointerString)
+                                                )
+                                                (StringConstant
+                                                    "f"
+                                                    (String 1 1 () PointerString)
+                                                )]
+                                                (List
+                                                    (String 1 1 () PointerString)
+                                                )
+                                            )]
+                                            FormatPythonFormat
+                                            (String -1 0 () PointerString)
+                                            ()
                                         )
-                                        (Var 3 a)
-                                        (Var 3 c)]
-                                        ()
-                                        ()
+                                    )
+                                    (Print
+                                        (StringFormat
+                                            ()
+                                            [(ListConstant
+                                                [(IntegerConstant 1 (Integer 4) Decimal)
+                                                (IntegerConstant 2 (Integer 4) Decimal)
+                                                (IntegerConstant 3 (Integer 4) Decimal)
+                                                (IntegerConstant 4 (Integer 4) Decimal)]
+                                                (List
+                                                    (Integer 4)
+                                                )
+                                            )
+                                            (Var 3 a)
+                                            (Var 3 c)]
+                                            FormatPythonFormat
+                                            (String -1 0 () PointerString)
+                                            ()
+                                        )
                                     )]
                                     ()
                                     Public
@@ -412,6 +456,8 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
                                                 ),
                                             x:
                                                 (Variable
@@ -434,6 +480,8 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
                                                 ),
                                             y:
                                                 (Variable
@@ -454,6 +502,8 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
                                                 ),
                                             z:
                                                 (Variable
@@ -466,13 +516,15 @@
                                                     Default
                                                     (List
                                                         (List
-                                                            (Character 1 -2 ())
+                                                            (String 1 -2 () PointerString)
                                                         )
                                                     )
                                                     ()
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
+                                                    .false.
                                                     .false.
                                                 )
                                         })
@@ -587,11 +639,11 @@
                                         (ListConstant
                                             [(ListConstant
                                                 [(ListConstant
-                                                    [(IntegerConstant 3 (Integer 4))
+                                                    [(IntegerConstant 3 (Integer 4) Decimal)
                                                     (IntegerUnaryMinus
-                                                        (IntegerConstant 1 (Integer 4))
+                                                        (IntegerConstant 1 (Integer 4) Decimal)
                                                         (Integer 4)
-                                                        (IntegerConstant -1 (Integer 4))
+                                                        (IntegerConstant -1 (Integer 4) Decimal)
                                                     )]
                                                     (List
                                                         (Integer 4)
@@ -599,17 +651,17 @@
                                                 )
                                                 (ListConstant
                                                     [(IntegerUnaryMinus
-                                                        (IntegerConstant 2 (Integer 4))
+                                                        (IntegerConstant 2 (Integer 4) Decimal)
                                                         (Integer 4)
-                                                        (IntegerConstant -2 (Integer 4))
+                                                        (IntegerConstant -2 (Integer 4) Decimal)
                                                     )
-                                                    (IntegerConstant 5 (Integer 4))]
+                                                    (IntegerConstant 5 (Integer 4) Decimal)]
                                                     (List
                                                         (Integer 4)
                                                     )
                                                 )
                                                 (ListConstant
-                                                    [(IntegerConstant 5 (Integer 4))]
+                                                    [(IntegerConstant 5 (Integer 4) Decimal)]
                                                     (List
                                                         (Integer 4)
                                                     )
@@ -623,21 +675,21 @@
                                             (ListConstant
                                                 [(ListConstant
                                                     [(IntegerUnaryMinus
-                                                        (IntegerConstant 3 (Integer 4))
+                                                        (IntegerConstant 3 (Integer 4) Decimal)
                                                         (Integer 4)
-                                                        (IntegerConstant -3 (Integer 4))
+                                                        (IntegerConstant -3 (Integer 4) Decimal)
                                                     )
-                                                    (IntegerConstant 1 (Integer 4))]
+                                                    (IntegerConstant 1 (Integer 4) Decimal)]
                                                     (List
                                                         (Integer 4)
                                                     )
                                                 )
                                                 (ListConstant
-                                                    [(IntegerConstant 2 (Integer 4))
+                                                    [(IntegerConstant 2 (Integer 4) Decimal)
                                                     (IntegerUnaryMinus
-                                                        (IntegerConstant 5 (Integer 4))
+                                                        (IntegerConstant 5 (Integer 4) Decimal)
                                                         (Integer 4)
-                                                        (IntegerConstant -5 (Integer 4))
+                                                        (IntegerConstant -5 (Integer 4) Decimal)
                                                     )]
                                                     (List
                                                         (Integer 4)
@@ -645,9 +697,9 @@
                                                 )
                                                 (ListConstant
                                                     [(IntegerUnaryMinus
-                                                        (IntegerConstant 5 (Integer 4))
+                                                        (IntegerConstant 5 (Integer 4) Decimal)
                                                         (Integer 4)
-                                                        (IntegerConstant -5 (Integer 4))
+                                                        (IntegerConstant -5 (Integer 4) Decimal)
                                                     )]
                                                     (List
                                                         (Integer 4)
@@ -726,77 +778,93 @@
                                             [(ListConstant
                                                 [(StringConstant
                                                     "bat"
-                                                    (Character 1 3 ())
+                                                    (String 1 3 () PointerString)
                                                 )
                                                 (StringConstant
                                                     "ball"
-                                                    (Character 1 4 ())
+                                                    (String 1 4 () PointerString)
                                                 )]
                                                 (List
-                                                    (Character 1 3 ())
+                                                    (String 1 3 () PointerString)
                                                 )
                                             )
                                             (ListConstant
                                                 [(StringConstant
                                                     "cat"
-                                                    (Character 1 3 ())
+                                                    (String 1 3 () PointerString)
                                                 )
                                                 (StringConstant
                                                     "dog"
-                                                    (Character 1 3 ())
+                                                    (String 1 3 () PointerString)
                                                 )]
                                                 (List
-                                                    (Character 1 3 ())
+                                                    (String 1 3 () PointerString)
                                                 )
                                             )
                                             (ListConstant
                                                 [(StringConstant
                                                     "c"
-                                                    (Character 1 1 ())
+                                                    (String 1 1 () PointerString)
                                                 )
                                                 (StringConstant
                                                     "c++"
-                                                    (Character 1 3 ())
+                                                    (String 1 3 () PointerString)
                                                 )
                                                 (StringConstant
                                                     "java"
-                                                    (Character 1 4 ())
+                                                    (String 1 4 () PointerString)
                                                 )
                                                 (StringConstant
                                                     "python"
-                                                    (Character 1 6 ())
+                                                    (String 1 6 () PointerString)
                                                 )]
                                                 (List
-                                                    (Character 1 1 ())
+                                                    (String 1 1 () PointerString)
                                                 )
                                             )]
                                             (List
                                                 (List
-                                                    (Character 1 3 ())
+                                                    (String 1 3 () PointerString)
                                                 )
                                             )
                                         )
                                         ()
                                     )
                                     (Print
-                                        [(Var 4 w)]
-                                        ()
-                                        ()
+                                        (StringFormat
+                                            ()
+                                            [(Var 4 w)]
+                                            FormatPythonFormat
+                                            (String -1 0 () PointerString)
+                                            ()
+                                        )
                                     )
                                     (Print
-                                        [(Var 4 x)]
-                                        ()
-                                        ()
+                                        (StringFormat
+                                            ()
+                                            [(Var 4 x)]
+                                            FormatPythonFormat
+                                            (String -1 0 () PointerString)
+                                            ()
+                                        )
                                     )
                                     (Print
-                                        [(Var 4 y)]
-                                        ()
-                                        ()
+                                        (StringFormat
+                                            ()
+                                            [(Var 4 y)]
+                                            FormatPythonFormat
+                                            (String -1 0 () PointerString)
+                                            ()
+                                        )
                                     )
                                     (Print
-                                        [(Var 4 z)]
-                                        ()
-                                        ()
+                                        (StringFormat
+                                            ()
+                                            [(Var 4 z)]
+                                            FormatPythonFormat
+                                            (String -1 0 () PointerString)
+                                            ()
+                                        )
                                     )]
                                     ()
                                     Public
@@ -828,6 +896,8 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
                                                 ),
                                             q:
                                                 (Variable
@@ -852,6 +922,8 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
                                                 ),
                                             r:
                                                 (Variable
@@ -865,7 +937,7 @@
                                                     (List
                                                         (List
                                                             (List
-                                                                (Character 1 -2 ())
+                                                                (String 1 -2 () PointerString)
                                                             )
                                                         )
                                                     )
@@ -873,6 +945,8 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
+                                                    .false.
                                                     .false.
                                                 )
                                         })
@@ -897,151 +971,151 @@
                                         (Var 6 p)
                                         (ListConstant
                                             [(ListConstant
-                                                [(IntegerConstant 0 (Integer 4))
-                                                (IntegerConstant 1 (Integer 4))
-                                                (IntegerConstant 2 (Integer 4))
-                                                (IntegerConstant 3 (Integer 4))
-                                                (IntegerConstant 4 (Integer 4))
-                                                (IntegerConstant 5 (Integer 4))
-                                                (IntegerConstant 6 (Integer 4))
-                                                (IntegerConstant 7 (Integer 4))
-                                                (IntegerConstant 8 (Integer 4))
-                                                (IntegerConstant 9 (Integer 4))]
+                                                [(IntegerConstant 0 (Integer 4) Decimal)
+                                                (IntegerConstant 1 (Integer 4) Decimal)
+                                                (IntegerConstant 2 (Integer 4) Decimal)
+                                                (IntegerConstant 3 (Integer 4) Decimal)
+                                                (IntegerConstant 4 (Integer 4) Decimal)
+                                                (IntegerConstant 5 (Integer 4) Decimal)
+                                                (IntegerConstant 6 (Integer 4) Decimal)
+                                                (IntegerConstant 7 (Integer 4) Decimal)
+                                                (IntegerConstant 8 (Integer 4) Decimal)
+                                                (IntegerConstant 9 (Integer 4) Decimal)]
                                                 (List
                                                     (Integer 4)
                                                 )
                                             )
                                             (ListConstant
-                                                [(IntegerConstant 10 (Integer 4))
-                                                (IntegerConstant 11 (Integer 4))
-                                                (IntegerConstant 12 (Integer 4))
-                                                (IntegerConstant 13 (Integer 4))
-                                                (IntegerConstant 14 (Integer 4))
-                                                (IntegerConstant 15 (Integer 4))
-                                                (IntegerConstant 16 (Integer 4))
-                                                (IntegerConstant 17 (Integer 4))
-                                                (IntegerConstant 18 (Integer 4))
-                                                (IntegerConstant 19 (Integer 4))]
+                                                [(IntegerConstant 10 (Integer 4) Decimal)
+                                                (IntegerConstant 11 (Integer 4) Decimal)
+                                                (IntegerConstant 12 (Integer 4) Decimal)
+                                                (IntegerConstant 13 (Integer 4) Decimal)
+                                                (IntegerConstant 14 (Integer 4) Decimal)
+                                                (IntegerConstant 15 (Integer 4) Decimal)
+                                                (IntegerConstant 16 (Integer 4) Decimal)
+                                                (IntegerConstant 17 (Integer 4) Decimal)
+                                                (IntegerConstant 18 (Integer 4) Decimal)
+                                                (IntegerConstant 19 (Integer 4) Decimal)]
                                                 (List
                                                     (Integer 4)
                                                 )
                                             )
                                             (ListConstant
-                                                [(IntegerConstant 20 (Integer 4))
-                                                (IntegerConstant 21 (Integer 4))
-                                                (IntegerConstant 22 (Integer 4))
-                                                (IntegerConstant 23 (Integer 4))
-                                                (IntegerConstant 24 (Integer 4))
-                                                (IntegerConstant 25 (Integer 4))
-                                                (IntegerConstant 26 (Integer 4))
-                                                (IntegerConstant 27 (Integer 4))
-                                                (IntegerConstant 28 (Integer 4))
-                                                (IntegerConstant 29 (Integer 4))]
+                                                [(IntegerConstant 20 (Integer 4) Decimal)
+                                                (IntegerConstant 21 (Integer 4) Decimal)
+                                                (IntegerConstant 22 (Integer 4) Decimal)
+                                                (IntegerConstant 23 (Integer 4) Decimal)
+                                                (IntegerConstant 24 (Integer 4) Decimal)
+                                                (IntegerConstant 25 (Integer 4) Decimal)
+                                                (IntegerConstant 26 (Integer 4) Decimal)
+                                                (IntegerConstant 27 (Integer 4) Decimal)
+                                                (IntegerConstant 28 (Integer 4) Decimal)
+                                                (IntegerConstant 29 (Integer 4) Decimal)]
                                                 (List
                                                     (Integer 4)
                                                 )
                                             )
                                             (ListConstant
-                                                [(IntegerConstant 30 (Integer 4))
-                                                (IntegerConstant 31 (Integer 4))
-                                                (IntegerConstant 32 (Integer 4))
-                                                (IntegerConstant 33 (Integer 4))
-                                                (IntegerConstant 34 (Integer 4))
-                                                (IntegerConstant 35 (Integer 4))
-                                                (IntegerConstant 36 (Integer 4))
-                                                (IntegerConstant 37 (Integer 4))
-                                                (IntegerConstant 38 (Integer 4))
-                                                (IntegerConstant 39 (Integer 4))]
+                                                [(IntegerConstant 30 (Integer 4) Decimal)
+                                                (IntegerConstant 31 (Integer 4) Decimal)
+                                                (IntegerConstant 32 (Integer 4) Decimal)
+                                                (IntegerConstant 33 (Integer 4) Decimal)
+                                                (IntegerConstant 34 (Integer 4) Decimal)
+                                                (IntegerConstant 35 (Integer 4) Decimal)
+                                                (IntegerConstant 36 (Integer 4) Decimal)
+                                                (IntegerConstant 37 (Integer 4) Decimal)
+                                                (IntegerConstant 38 (Integer 4) Decimal)
+                                                (IntegerConstant 39 (Integer 4) Decimal)]
                                                 (List
                                                     (Integer 4)
                                                 )
                                             )
                                             (ListConstant
-                                                [(IntegerConstant 40 (Integer 4))
-                                                (IntegerConstant 41 (Integer 4))
-                                                (IntegerConstant 42 (Integer 4))
-                                                (IntegerConstant 43 (Integer 4))
-                                                (IntegerConstant 44 (Integer 4))
-                                                (IntegerConstant 45 (Integer 4))
-                                                (IntegerConstant 46 (Integer 4))
-                                                (IntegerConstant 47 (Integer 4))
-                                                (IntegerConstant 48 (Integer 4))
-                                                (IntegerConstant 49 (Integer 4))]
+                                                [(IntegerConstant 40 (Integer 4) Decimal)
+                                                (IntegerConstant 41 (Integer 4) Decimal)
+                                                (IntegerConstant 42 (Integer 4) Decimal)
+                                                (IntegerConstant 43 (Integer 4) Decimal)
+                                                (IntegerConstant 44 (Integer 4) Decimal)
+                                                (IntegerConstant 45 (Integer 4) Decimal)
+                                                (IntegerConstant 46 (Integer 4) Decimal)
+                                                (IntegerConstant 47 (Integer 4) Decimal)
+                                                (IntegerConstant 48 (Integer 4) Decimal)
+                                                (IntegerConstant 49 (Integer 4) Decimal)]
                                                 (List
                                                     (Integer 4)
                                                 )
                                             )
                                             (ListConstant
-                                                [(IntegerConstant 50 (Integer 4))
-                                                (IntegerConstant 51 (Integer 4))
-                                                (IntegerConstant 52 (Integer 4))
-                                                (IntegerConstant 53 (Integer 4))
-                                                (IntegerConstant 54 (Integer 4))
-                                                (IntegerConstant 55 (Integer 4))
-                                                (IntegerConstant 56 (Integer 4))
-                                                (IntegerConstant 57 (Integer 4))
-                                                (IntegerConstant 58 (Integer 4))
-                                                (IntegerConstant 59 (Integer 4))]
+                                                [(IntegerConstant 50 (Integer 4) Decimal)
+                                                (IntegerConstant 51 (Integer 4) Decimal)
+                                                (IntegerConstant 52 (Integer 4) Decimal)
+                                                (IntegerConstant 53 (Integer 4) Decimal)
+                                                (IntegerConstant 54 (Integer 4) Decimal)
+                                                (IntegerConstant 55 (Integer 4) Decimal)
+                                                (IntegerConstant 56 (Integer 4) Decimal)
+                                                (IntegerConstant 57 (Integer 4) Decimal)
+                                                (IntegerConstant 58 (Integer 4) Decimal)
+                                                (IntegerConstant 59 (Integer 4) Decimal)]
                                                 (List
                                                     (Integer 4)
                                                 )
                                             )
                                             (ListConstant
-                                                [(IntegerConstant 60 (Integer 4))
-                                                (IntegerConstant 61 (Integer 4))
-                                                (IntegerConstant 62 (Integer 4))
-                                                (IntegerConstant 63 (Integer 4))
-                                                (IntegerConstant 64 (Integer 4))
-                                                (IntegerConstant 65 (Integer 4))
-                                                (IntegerConstant 66 (Integer 4))
-                                                (IntegerConstant 67 (Integer 4))
-                                                (IntegerConstant 68 (Integer 4))
-                                                (IntegerConstant 69 (Integer 4))]
+                                                [(IntegerConstant 60 (Integer 4) Decimal)
+                                                (IntegerConstant 61 (Integer 4) Decimal)
+                                                (IntegerConstant 62 (Integer 4) Decimal)
+                                                (IntegerConstant 63 (Integer 4) Decimal)
+                                                (IntegerConstant 64 (Integer 4) Decimal)
+                                                (IntegerConstant 65 (Integer 4) Decimal)
+                                                (IntegerConstant 66 (Integer 4) Decimal)
+                                                (IntegerConstant 67 (Integer 4) Decimal)
+                                                (IntegerConstant 68 (Integer 4) Decimal)
+                                                (IntegerConstant 69 (Integer 4) Decimal)]
                                                 (List
                                                     (Integer 4)
                                                 )
                                             )
                                             (ListConstant
-                                                [(IntegerConstant 70 (Integer 4))
-                                                (IntegerConstant 71 (Integer 4))
-                                                (IntegerConstant 72 (Integer 4))
-                                                (IntegerConstant 73 (Integer 4))
-                                                (IntegerConstant 74 (Integer 4))
-                                                (IntegerConstant 75 (Integer 4))
-                                                (IntegerConstant 76 (Integer 4))
-                                                (IntegerConstant 77 (Integer 4))
-                                                (IntegerConstant 78 (Integer 4))
-                                                (IntegerConstant 79 (Integer 4))]
+                                                [(IntegerConstant 70 (Integer 4) Decimal)
+                                                (IntegerConstant 71 (Integer 4) Decimal)
+                                                (IntegerConstant 72 (Integer 4) Decimal)
+                                                (IntegerConstant 73 (Integer 4) Decimal)
+                                                (IntegerConstant 74 (Integer 4) Decimal)
+                                                (IntegerConstant 75 (Integer 4) Decimal)
+                                                (IntegerConstant 76 (Integer 4) Decimal)
+                                                (IntegerConstant 77 (Integer 4) Decimal)
+                                                (IntegerConstant 78 (Integer 4) Decimal)
+                                                (IntegerConstant 79 (Integer 4) Decimal)]
                                                 (List
                                                     (Integer 4)
                                                 )
                                             )
                                             (ListConstant
-                                                [(IntegerConstant 80 (Integer 4))
-                                                (IntegerConstant 81 (Integer 4))
-                                                (IntegerConstant 82 (Integer 4))
-                                                (IntegerConstant 83 (Integer 4))
-                                                (IntegerConstant 84 (Integer 4))
-                                                (IntegerConstant 85 (Integer 4))
-                                                (IntegerConstant 86 (Integer 4))
-                                                (IntegerConstant 87 (Integer 4))
-                                                (IntegerConstant 88 (Integer 4))
-                                                (IntegerConstant 89 (Integer 4))]
+                                                [(IntegerConstant 80 (Integer 4) Decimal)
+                                                (IntegerConstant 81 (Integer 4) Decimal)
+                                                (IntegerConstant 82 (Integer 4) Decimal)
+                                                (IntegerConstant 83 (Integer 4) Decimal)
+                                                (IntegerConstant 84 (Integer 4) Decimal)
+                                                (IntegerConstant 85 (Integer 4) Decimal)
+                                                (IntegerConstant 86 (Integer 4) Decimal)
+                                                (IntegerConstant 87 (Integer 4) Decimal)
+                                                (IntegerConstant 88 (Integer 4) Decimal)
+                                                (IntegerConstant 89 (Integer 4) Decimal)]
                                                 (List
                                                     (Integer 4)
                                                 )
                                             )
                                             (ListConstant
-                                                [(IntegerConstant 90 (Integer 4))
-                                                (IntegerConstant 91 (Integer 4))
-                                                (IntegerConstant 92 (Integer 4))
-                                                (IntegerConstant 93 (Integer 4))
-                                                (IntegerConstant 94 (Integer 4))
-                                                (IntegerConstant 95 (Integer 4))
-                                                (IntegerConstant 96 (Integer 4))
-                                                (IntegerConstant 97 (Integer 4))
-                                                (IntegerConstant 98 (Integer 4))
-                                                (IntegerConstant 99 (Integer 4))]
+                                                [(IntegerConstant 90 (Integer 4) Decimal)
+                                                (IntegerConstant 91 (Integer 4) Decimal)
+                                                (IntegerConstant 92 (Integer 4) Decimal)
+                                                (IntegerConstant 93 (Integer 4) Decimal)
+                                                (IntegerConstant 94 (Integer 4) Decimal)
+                                                (IntegerConstant 95 (Integer 4) Decimal)
+                                                (IntegerConstant 96 (Integer 4) Decimal)
+                                                (IntegerConstant 97 (Integer 4) Decimal)
+                                                (IntegerConstant 98 (Integer 4) Decimal)
+                                                (IntegerConstant 99 (Integer 4) Decimal)]
                                                 (List
                                                     (Integer 4)
                                                 )
@@ -1884,131 +1958,131 @@
                                                 [(ListConstant
                                                     [(StringConstant
                                                         "Io"
-                                                        (Character 1 2 ())
+                                                        (String 1 2 () PointerString)
                                                     )
                                                     (StringConstant
                                                         "tl"
-                                                        (Character 1 2 ())
+                                                        (String 1 2 () PointerString)
                                                     )
                                                     (StringConstant
                                                         "bLvjV"
-                                                        (Character 1 5 ())
+                                                        (String 1 5 () PointerString)
                                                     )
                                                     (StringConstant
                                                         "wjFKQ"
-                                                        (Character 1 5 ())
+                                                        (String 1 5 () PointerString)
                                                     )
                                                     (StringConstant
                                                         "lY2"
-                                                        (Character 1 3 ())
+                                                        (String 1 3 () PointerString)
                                                     )]
                                                     (List
-                                                        (Character 1 2 ())
+                                                        (String 1 2 () PointerString)
                                                     )
                                                 )
                                                 (ListConstant
                                                     [(StringConstant
                                                         "Be2l6bqE"
-                                                        (Character 1 8 ())
+                                                        (String 1 8 () PointerString)
                                                     )
                                                     (StringConstant
                                                         "pQER3utIXA"
-                                                        (Character 1 10 ())
+                                                        (String 1 10 () PointerString)
                                                     )
                                                     (StringConstant
                                                         "llZBJj5Cdu"
-                                                        (Character 1 10 ())
+                                                        (String 1 10 () PointerString)
                                                     )
                                                     (StringConstant
                                                         "C8"
-                                                        (Character 1 2 ())
+                                                        (String 1 2 () PointerString)
                                                     )
                                                     (StringConstant
                                                         "gwTr77PdYR"
-                                                        (Character 1 10 ())
+                                                        (String 1 10 () PointerString)
                                                     )]
                                                     (List
-                                                        (Character 1 8 ())
+                                                        (String 1 8 () PointerString)
                                                     )
                                                 )
                                                 (ListConstant
                                                     [(StringConstant
                                                         "4M6L"
-                                                        (Character 1 4 ())
+                                                        (String 1 4 () PointerString)
                                                     )
                                                     (StringConstant
                                                         "ktPdowqERy"
-                                                        (Character 1 10 ())
+                                                        (String 1 10 () PointerString)
                                                     )
                                                     (StringConstant
                                                         "KSifqTkR"
-                                                        (Character 1 8 ())
+                                                        (String 1 8 () PointerString)
                                                     )
                                                     (StringConstant
                                                         "ZE2p1N78f1"
-                                                        (Character 1 10 ())
+                                                        (String 1 10 () PointerString)
                                                     )
                                                     (StringConstant
                                                         "Mi5e87Xw"
-                                                        (Character 1 8 ())
+                                                        (String 1 8 () PointerString)
                                                     )]
                                                     (List
-                                                        (Character 1 4 ())
+                                                        (String 1 4 () PointerString)
                                                     )
                                                 )
                                                 (ListConstant
                                                     [(StringConstant
                                                         "uwfzqDq9g"
-                                                        (Character 1 9 ())
+                                                        (String 1 9 () PointerString)
                                                     )
                                                     (StringConstant
                                                         "QaM1s"
-                                                        (Character 1 5 ())
+                                                        (String 1 5 () PointerString)
                                                     )
                                                     (StringConstant
                                                         ""
-                                                        (Character 1 0 ())
+                                                        (String 1 0 () PointerString)
                                                     )
                                                     (StringConstant
                                                         ""
-                                                        (Character 1 0 ())
+                                                        (String 1 0 () PointerString)
                                                     )
                                                     (StringConstant
                                                         "LB"
-                                                        (Character 1 2 ())
+                                                        (String 1 2 () PointerString)
                                                     )]
                                                     (List
-                                                        (Character 1 9 ())
+                                                        (String 1 9 () PointerString)
                                                     )
                                                 )
                                                 (ListConstant
                                                     [(StringConstant
                                                         "OJFRY6k"
-                                                        (Character 1 7 ())
+                                                        (String 1 7 () PointerString)
                                                     )
                                                     (StringConstant
                                                         "iz7Oie"
-                                                        (Character 1 6 ())
+                                                        (String 1 6 () PointerString)
                                                     )
                                                     (StringConstant
                                                         ""
-                                                        (Character 1 0 ())
+                                                        (String 1 0 () PointerString)
                                                     )
                                                     (StringConstant
                                                         "LUYLF"
-                                                        (Character 1 5 ())
+                                                        (String 1 5 () PointerString)
                                                     )
                                                     (StringConstant
                                                         "JBND5FuV7l"
-                                                        (Character 1 10 ())
+                                                        (String 1 10 () PointerString)
                                                     )]
                                                     (List
-                                                        (Character 1 7 ())
+                                                        (String 1 7 () PointerString)
                                                     )
                                                 )]
                                                 (List
                                                     (List
-                                                        (Character 1 2 ())
+                                                        (String 1 2 () PointerString)
                                                     )
                                                 )
                                             )
@@ -2016,131 +2090,131 @@
                                                 [(ListConstant
                                                     [(StringConstant
                                                         "m"
-                                                        (Character 1 1 ())
+                                                        (String 1 1 () PointerString)
                                                     )
                                                     (StringConstant
                                                         "WIQBQfV"
-                                                        (Character 1 7 ())
+                                                        (String 1 7 () PointerString)
                                                     )
                                                     (StringConstant
                                                         "jxjDrqxu"
-                                                        (Character 1 8 ())
+                                                        (String 1 8 () PointerString)
                                                     )
                                                     (StringConstant
                                                         "kea"
-                                                        (Character 1 3 ())
+                                                        (String 1 3 () PointerString)
                                                     )
                                                     (StringConstant
                                                         "mu"
-                                                        (Character 1 2 ())
+                                                        (String 1 2 () PointerString)
                                                     )]
                                                     (List
-                                                        (Character 1 1 ())
+                                                        (String 1 1 () PointerString)
                                                     )
                                                 )
                                                 (ListConstant
                                                     [(StringConstant
                                                         ""
-                                                        (Character 1 0 ())
+                                                        (String 1 0 () PointerString)
                                                     )
                                                     (StringConstant
                                                         "GI8aOwLMe"
-                                                        (Character 1 9 ())
+                                                        (String 1 9 () PointerString)
                                                     )
                                                     (StringConstant
                                                         "Y5m8"
-                                                        (Character 1 4 ())
+                                                        (String 1 4 () PointerString)
                                                     )
                                                     (StringConstant
                                                         "a02Rz"
-                                                        (Character 1 5 ())
+                                                        (String 1 5 () PointerString)
                                                     )
                                                     (StringConstant
                                                         "xNKCJ"
-                                                        (Character 1 5 ())
+                                                        (String 1 5 () PointerString)
                                                     )]
                                                     (List
-                                                        (Character 1 0 ())
+                                                        (String 1 0 () PointerString)
                                                     )
                                                 )
                                                 (ListConstant
                                                     [(StringConstant
                                                         "LzkhyiJQHP"
-                                                        (Character 1 10 ())
+                                                        (String 1 10 () PointerString)
                                                     )
                                                     (StringConstant
                                                         "uzc3xyoXL"
-                                                        (Character 1 9 ())
+                                                        (String 1 9 () PointerString)
                                                     )
                                                     (StringConstant
                                                         "sKGnYfpRy"
-                                                        (Character 1 9 ())
+                                                        (String 1 9 () PointerString)
                                                     )
                                                     (StringConstant
                                                         "7x"
-                                                        (Character 1 2 ())
+                                                        (String 1 2 () PointerString)
                                                     )
                                                     (StringConstant
                                                         "WTVKrnPO"
-                                                        (Character 1 8 ())
+                                                        (String 1 8 () PointerString)
                                                     )]
                                                     (List
-                                                        (Character 1 10 ())
+                                                        (String 1 10 () PointerString)
                                                     )
                                                 )
                                                 (ListConstant
                                                     [(StringConstant
                                                         "TZa6"
-                                                        (Character 1 4 ())
+                                                        (String 1 4 () PointerString)
                                                     )
                                                     (StringConstant
                                                         "GXRuyRX"
-                                                        (Character 1 7 ())
+                                                        (String 1 7 () PointerString)
                                                     )
                                                     (StringConstant
                                                         "R"
-                                                        (Character 1 1 ())
+                                                        (String 1 1 () PointerString)
                                                     )
                                                     (StringConstant
                                                         "JQxS"
-                                                        (Character 1 4 ())
+                                                        (String 1 4 () PointerString)
                                                     )
                                                     (StringConstant
                                                         "OH"
-                                                        (Character 1 2 ())
+                                                        (String 1 2 () PointerString)
                                                     )]
                                                     (List
-                                                        (Character 1 4 ())
+                                                        (String 1 4 () PointerString)
                                                     )
                                                 )
                                                 (ListConstant
                                                     [(StringConstant
                                                         "bSVJZ1OQ"
-                                                        (Character 1 8 ())
+                                                        (String 1 8 () PointerString)
                                                     )
                                                     (StringConstant
                                                         "M"
-                                                        (Character 1 1 ())
+                                                        (String 1 1 () PointerString)
                                                     )
                                                     (StringConstant
                                                         "I9omlF"
-                                                        (Character 1 6 ())
+                                                        (String 1 6 () PointerString)
                                                     )
                                                     (StringConstant
                                                         "x7FR"
-                                                        (Character 1 4 ())
+                                                        (String 1 4 () PointerString)
                                                     )
                                                     (StringConstant
                                                         "XtpL"
-                                                        (Character 1 4 ())
+                                                        (String 1 4 () PointerString)
                                                     )]
                                                     (List
-                                                        (Character 1 8 ())
+                                                        (String 1 8 () PointerString)
                                                     )
                                                 )]
                                                 (List
                                                     (List
-                                                        (Character 1 1 ())
+                                                        (String 1 1 () PointerString)
                                                     )
                                                 )
                                             )
@@ -2148,131 +2222,131 @@
                                                 [(ListConstant
                                                     [(StringConstant
                                                         "DKOpK"
-                                                        (Character 1 5 ())
+                                                        (String 1 5 () PointerString)
                                                     )
                                                     (StringConstant
                                                         "eg8Nz"
-                                                        (Character 1 5 ())
+                                                        (String 1 5 () PointerString)
                                                     )
                                                     (StringConstant
                                                         "ru"
-                                                        (Character 1 2 ())
+                                                        (String 1 2 () PointerString)
                                                     )
                                                     (StringConstant
                                                         "Sj"
-                                                        (Character 1 2 ())
+                                                        (String 1 2 () PointerString)
                                                     )
                                                     (StringConstant
                                                         "YUDxyI"
-                                                        (Character 1 6 ())
+                                                        (String 1 6 () PointerString)
                                                     )]
                                                     (List
-                                                        (Character 1 5 ())
+                                                        (String 1 5 () PointerString)
                                                     )
                                                 )
                                                 (ListConstant
                                                     [(StringConstant
                                                         "Q5uyhvp"
-                                                        (Character 1 7 ())
+                                                        (String 1 7 () PointerString)
                                                     )
                                                     (StringConstant
                                                         "Ydx"
-                                                        (Character 1 3 ())
+                                                        (String 1 3 () PointerString)
                                                     )
                                                     (StringConstant
                                                         "p"
-                                                        (Character 1 1 ())
+                                                        (String 1 1 () PointerString)
                                                     )
                                                     (StringConstant
                                                         "DLM5RX"
-                                                        (Character 1 6 ())
+                                                        (String 1 6 () PointerString)
                                                     )
                                                     (StringConstant
                                                         "pwOujxCO"
-                                                        (Character 1 8 ())
+                                                        (String 1 8 () PointerString)
                                                     )]
                                                     (List
-                                                        (Character 1 7 ())
+                                                        (String 1 7 () PointerString)
                                                     )
                                                 )
                                                 (ListConstant
                                                     [(StringConstant
                                                         "s5GOWnNJV"
-                                                        (Character 1 9 ())
+                                                        (String 1 9 () PointerString)
                                                     )
                                                     (StringConstant
                                                         "af"
-                                                        (Character 1 2 ())
+                                                        (String 1 2 () PointerString)
                                                     )
                                                     (StringConstant
                                                         "KAkD"
-                                                        (Character 1 4 ())
+                                                        (String 1 4 () PointerString)
                                                     )
                                                     (StringConstant
                                                         "4IIZK"
-                                                        (Character 1 5 ())
+                                                        (String 1 5 () PointerString)
                                                     )
                                                     (StringConstant
                                                         "JQK040x"
-                                                        (Character 1 7 ())
+                                                        (String 1 7 () PointerString)
                                                     )]
                                                     (List
-                                                        (Character 1 9 ())
+                                                        (String 1 9 () PointerString)
                                                     )
                                                 )
                                                 (ListConstant
                                                     [(StringConstant
                                                         "9vF"
-                                                        (Character 1 3 ())
+                                                        (String 1 3 () PointerString)
                                                     )
                                                     (StringConstant
                                                         "9pc7R8v"
-                                                        (Character 1 7 ())
+                                                        (String 1 7 () PointerString)
                                                     )
                                                     (StringConstant
                                                         "nDReIU7"
-                                                        (Character 1 7 ())
+                                                        (String 1 7 () PointerString)
                                                     )
                                                     (StringConstant
                                                         "K"
-                                                        (Character 1 1 ())
+                                                        (String 1 1 () PointerString)
                                                     )
                                                     (StringConstant
                                                         "btn"
-                                                        (Character 1 3 ())
+                                                        (String 1 3 () PointerString)
                                                     )]
                                                     (List
-                                                        (Character 1 3 ())
+                                                        (String 1 3 () PointerString)
                                                     )
                                                 )
                                                 (ListConstant
                                                     [(StringConstant
                                                         ""
-                                                        (Character 1 0 ())
+                                                        (String 1 0 () PointerString)
                                                     )
                                                     (StringConstant
                                                         "wVeivkdi"
-                                                        (Character 1 8 ())
+                                                        (String 1 8 () PointerString)
                                                     )
                                                     (StringConstant
                                                         ""
-                                                        (Character 1 0 ())
+                                                        (String 1 0 () PointerString)
                                                     )
                                                     (StringConstant
                                                         ""
-                                                        (Character 1 0 ())
+                                                        (String 1 0 () PointerString)
                                                     )
                                                     (StringConstant
                                                         "C"
-                                                        (Character 1 1 ())
+                                                        (String 1 1 () PointerString)
                                                     )]
                                                     (List
-                                                        (Character 1 0 ())
+                                                        (String 1 0 () PointerString)
                                                     )
                                                 )]
                                                 (List
                                                     (List
-                                                        (Character 1 5 ())
+                                                        (String 1 5 () PointerString)
                                                     )
                                                 )
                                             )
@@ -2280,131 +2354,131 @@
                                                 [(ListConstant
                                                     [(StringConstant
                                                         "vNTtcRXD"
-                                                        (Character 1 8 ())
+                                                        (String 1 8 () PointerString)
                                                     )
                                                     (StringConstant
                                                         "rsi"
-                                                        (Character 1 3 ())
+                                                        (String 1 3 () PointerString)
                                                     )
                                                     (StringConstant
                                                         "YsoF7mZD"
-                                                        (Character 1 8 ())
+                                                        (String 1 8 () PointerString)
                                                     )
                                                     (StringConstant
                                                         "VrPXU50rgA"
-                                                        (Character 1 10 ())
+                                                        (String 1 10 () PointerString)
                                                     )
                                                     (StringConstant
                                                         "mG7zqN0G"
-                                                        (Character 1 8 ())
+                                                        (String 1 8 () PointerString)
                                                     )]
                                                     (List
-                                                        (Character 1 8 ())
+                                                        (String 1 8 () PointerString)
                                                     )
                                                 )
                                                 (ListConstant
                                                     [(StringConstant
                                                         "la7cJ"
-                                                        (Character 1 5 ())
+                                                        (String 1 5 () PointerString)
                                                     )
                                                     (StringConstant
                                                         "M5rLJ8Go"
-                                                        (Character 1 8 ())
+                                                        (String 1 8 () PointerString)
                                                     )
                                                     (StringConstant
                                                         "gb"
-                                                        (Character 1 2 ())
+                                                        (String 1 2 () PointerString)
                                                     )
                                                     (StringConstant
                                                         "FjKwYZ7E"
-                                                        (Character 1 8 ())
+                                                        (String 1 8 () PointerString)
                                                     )
                                                     (StringConstant
                                                         "uSPD"
-                                                        (Character 1 4 ())
+                                                        (String 1 4 () PointerString)
                                                     )]
                                                     (List
-                                                        (Character 1 5 ())
+                                                        (String 1 5 () PointerString)
                                                     )
                                                 )
                                                 (ListConstant
                                                     [(StringConstant
                                                         ""
-                                                        (Character 1 0 ())
+                                                        (String 1 0 () PointerString)
                                                     )
                                                     (StringConstant
                                                         "oOa79jWcMx"
-                                                        (Character 1 10 ())
+                                                        (String 1 10 () PointerString)
                                                     )
                                                     (StringConstant
                                                         "yyAYZZ"
-                                                        (Character 1 6 ())
+                                                        (String 1 6 () PointerString)
                                                     )
                                                     (StringConstant
                                                         "wbvggXm"
-                                                        (Character 1 7 ())
+                                                        (String 1 7 () PointerString)
                                                     )
                                                     (StringConstant
                                                         "aE3BkCL4"
-                                                        (Character 1 8 ())
+                                                        (String 1 8 () PointerString)
                                                     )]
                                                     (List
-                                                        (Character 1 0 ())
+                                                        (String 1 0 () PointerString)
                                                     )
                                                 )
                                                 (ListConstant
                                                     [(StringConstant
                                                         "RdP"
-                                                        (Character 1 3 ())
+                                                        (String 1 3 () PointerString)
                                                     )
                                                     (StringConstant
                                                         "Hwc0x9RZ"
-                                                        (Character 1 8 ())
+                                                        (String 1 8 () PointerString)
                                                     )
                                                     (StringConstant
                                                         "sy"
-                                                        (Character 1 2 ())
+                                                        (String 1 2 () PointerString)
                                                     )
                                                     (StringConstant
                                                         "9"
-                                                        (Character 1 1 ())
+                                                        (String 1 1 () PointerString)
                                                     )
                                                     (StringConstant
                                                         "W1d9xA2BXe"
-                                                        (Character 1 10 ())
+                                                        (String 1 10 () PointerString)
                                                     )]
                                                     (List
-                                                        (Character 1 3 ())
+                                                        (String 1 3 () PointerString)
                                                     )
                                                 )
                                                 (ListConstant
                                                     [(StringConstant
                                                         "A"
-                                                        (Character 1 1 ())
+                                                        (String 1 1 () PointerString)
                                                     )
                                                     (StringConstant
                                                         ""
-                                                        (Character 1 0 ())
+                                                        (String 1 0 () PointerString)
                                                     )
                                                     (StringConstant
                                                         "QnK"
-                                                        (Character 1 3 ())
+                                                        (String 1 3 () PointerString)
                                                     )
                                                     (StringConstant
                                                         "N5tzN"
-                                                        (Character 1 5 ())
+                                                        (String 1 5 () PointerString)
                                                     )
                                                     (StringConstant
                                                         "ou7Lp"
-                                                        (Character 1 5 ())
+                                                        (String 1 5 () PointerString)
                                                     )]
                                                     (List
-                                                        (Character 1 1 ())
+                                                        (String 1 1 () PointerString)
                                                     )
                                                 )]
                                                 (List
                                                     (List
-                                                        (Character 1 8 ())
+                                                        (String 1 8 () PointerString)
                                                     )
                                                 )
                                             )
@@ -2412,138 +2486,138 @@
                                                 [(ListConstant
                                                     [(StringConstant
                                                         "DL68rDF"
-                                                        (Character 1 7 ())
+                                                        (String 1 7 () PointerString)
                                                     )
                                                     (StringConstant
                                                         "v"
-                                                        (Character 1 1 ())
+                                                        (String 1 1 () PointerString)
                                                     )
                                                     (StringConstant
                                                         "kQ3Mxm"
-                                                        (Character 1 6 ())
+                                                        (String 1 6 () PointerString)
                                                     )
                                                     (StringConstant
                                                         "g"
-                                                        (Character 1 1 ())
+                                                        (String 1 1 () PointerString)
                                                     )
                                                     (StringConstant
                                                         "6KTeF4Eo"
-                                                        (Character 1 8 ())
+                                                        (String 1 8 () PointerString)
                                                     )]
                                                     (List
-                                                        (Character 1 7 ())
+                                                        (String 1 7 () PointerString)
                                                     )
                                                 )
                                                 (ListConstant
                                                     [(StringConstant
                                                         "Hx9"
-                                                        (Character 1 3 ())
+                                                        (String 1 3 () PointerString)
                                                     )
                                                     (StringConstant
                                                         "Y1IzQm85Z4"
-                                                        (Character 1 10 ())
+                                                        (String 1 10 () PointerString)
                                                     )
                                                     (StringConstant
                                                         "3D8"
-                                                        (Character 1 3 ())
+                                                        (String 1 3 () PointerString)
                                                     )
                                                     (StringConstant
                                                         "ZLZ5"
-                                                        (Character 1 4 ())
+                                                        (String 1 4 () PointerString)
                                                     )
                                                     (StringConstant
                                                         "rWn"
-                                                        (Character 1 3 ())
+                                                        (String 1 3 () PointerString)
                                                     )]
                                                     (List
-                                                        (Character 1 3 ())
+                                                        (String 1 3 () PointerString)
                                                     )
                                                 )
                                                 (ListConstant
                                                     [(StringConstant
                                                         "LtT"
-                                                        (Character 1 3 ())
+                                                        (String 1 3 () PointerString)
                                                     )
                                                     (StringConstant
                                                         "Dh5B"
-                                                        (Character 1 4 ())
+                                                        (String 1 4 () PointerString)
                                                     )
                                                     (StringConstant
                                                         "M"
-                                                        (Character 1 1 ())
+                                                        (String 1 1 () PointerString)
                                                     )
                                                     (StringConstant
                                                         "F"
-                                                        (Character 1 1 ())
+                                                        (String 1 1 () PointerString)
                                                     )
                                                     (StringConstant
                                                         "QTARbY"
-                                                        (Character 1 6 ())
+                                                        (String 1 6 () PointerString)
                                                     )]
                                                     (List
-                                                        (Character 1 3 ())
+                                                        (String 1 3 () PointerString)
                                                     )
                                                 )
                                                 (ListConstant
                                                     [(StringConstant
                                                         "Sh"
-                                                        (Character 1 2 ())
+                                                        (String 1 2 () PointerString)
                                                     )
                                                     (StringConstant
                                                         "WL"
-                                                        (Character 1 2 ())
+                                                        (String 1 2 () PointerString)
                                                     )
                                                     (StringConstant
                                                         "yvAfWvZSx1"
-                                                        (Character 1 10 ())
+                                                        (String 1 10 () PointerString)
                                                     )
                                                     (StringConstant
                                                         "90yx"
-                                                        (Character 1 4 ())
+                                                        (String 1 4 () PointerString)
                                                     )
                                                     (StringConstant
                                                         "v"
-                                                        (Character 1 1 ())
+                                                        (String 1 1 () PointerString)
                                                     )]
                                                     (List
-                                                        (Character 1 2 ())
+                                                        (String 1 2 () PointerString)
                                                     )
                                                 )
                                                 (ListConstant
                                                     [(StringConstant
                                                         ""
-                                                        (Character 1 0 ())
+                                                        (String 1 0 () PointerString)
                                                     )
                                                     (StringConstant
                                                         "7IBW"
-                                                        (Character 1 4 ())
+                                                        (String 1 4 () PointerString)
                                                     )
                                                     (StringConstant
                                                         "nI"
-                                                        (Character 1 2 ())
+                                                        (String 1 2 () PointerString)
                                                     )
                                                     (StringConstant
                                                         ""
-                                                        (Character 1 0 ())
+                                                        (String 1 0 () PointerString)
                                                     )
                                                     (StringConstant
                                                         "6Cbp5c8RT"
-                                                        (Character 1 9 ())
+                                                        (String 1 9 () PointerString)
                                                     )]
                                                     (List
-                                                        (Character 1 0 ())
+                                                        (String 1 0 () PointerString)
                                                     )
                                                 )]
                                                 (List
                                                     (List
-                                                        (Character 1 7 ())
+                                                        (String 1 7 () PointerString)
                                                     )
                                                 )
                                             )]
                                             (List
                                                 (List
                                                     (List
-                                                        (Character 1 2 ())
+                                                        (String 1 2 () PointerString)
                                                     )
                                                 )
                                             )
@@ -2551,19 +2625,31 @@
                                         ()
                                     )
                                     (Print
-                                        [(Var 6 p)]
-                                        ()
-                                        ()
+                                        (StringFormat
+                                            ()
+                                            [(Var 6 p)]
+                                            FormatPythonFormat
+                                            (String -1 0 () PointerString)
+                                            ()
+                                        )
                                     )
                                     (Print
-                                        [(Var 6 q)]
-                                        ()
-                                        ()
+                                        (StringFormat
+                                            ()
+                                            [(Var 6 q)]
+                                            FormatPythonFormat
+                                            (String -1 0 () PointerString)
+                                            ()
+                                        )
                                     )
                                     (Print
-                                        [(Var 6 r)]
-                                        ()
-                                        ()
+                                        (StringFormat
+                                            ()
+                                            [(Var 6 r)]
+                                            FormatPythonFormat
+                                            (String -1 0 () PointerString)
+                                            ()
+                                        )
                                     )]
                                     ()
                                     Public
@@ -2596,6 +2682,8 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
                                                 ),
                                             b:
                                                 (Variable
@@ -2608,7 +2696,7 @@
                                                     Default
                                                     (Tuple
                                                         [(List
-                                                            (Character 1 -2 ())
+                                                            (String 1 -2 () PointerString)
                                                         )
                                                         (List
                                                             (Integer 4)
@@ -2619,6 +2707,8 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
+                                                    .false.
                                                     .false.
                                                 ),
                                             b1:
@@ -2631,12 +2721,14 @@
                                                     ()
                                                     Default
                                                     (List
-                                                        (Character 1 -2 ())
+                                                        (String 1 -2 () PointerString)
                                                     )
                                                     ()
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
+                                                    .false.
                                                     .false.
                                                 ),
                                             b2:
@@ -2656,6 +2748,8 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
                                                 ),
                                             c:
                                                 (Variable
@@ -2670,7 +2764,7 @@
                                                         (List
                                                             (Tuple
                                                                 [(Integer 4)
-                                                                (Character 1 -2 ())]
+                                                                (String 1 -2 () PointerString)]
                                                             )
                                                         )
                                                     )
@@ -2678,6 +2772,8 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
+                                                    .false.
                                                     .false.
                                                 )
                                         })
@@ -2702,24 +2798,24 @@
                                         (Var 5 a)
                                         (ListConstant
                                             [(TupleConstant
-                                                [(IntegerConstant 1 (Integer 4))
-                                                (IntegerConstant 2 (Integer 4))]
+                                                [(IntegerConstant 1 (Integer 4) Decimal)
+                                                (IntegerConstant 2 (Integer 4) Decimal)]
                                                 (Tuple
                                                     [(Integer 4)
                                                     (Integer 4)]
                                                 )
                                             )
                                             (TupleConstant
-                                                [(IntegerConstant 3 (Integer 4))
-                                                (IntegerConstant 4 (Integer 4))]
+                                                [(IntegerConstant 3 (Integer 4) Decimal)
+                                                (IntegerConstant 4 (Integer 4) Decimal)]
                                                 (Tuple
                                                     [(Integer 4)
                                                     (Integer 4)]
                                                 )
                                             )
                                             (TupleConstant
-                                                [(IntegerConstant 5 (Integer 4))
-                                                (IntegerConstant 6 (Integer 4))]
+                                                [(IntegerConstant 5 (Integer 4) Decimal)
+                                                (IntegerConstant 6 (Integer 4) Decimal)]
                                                 (Tuple
                                                     [(Integer 4)
                                                     (Integer 4)]
@@ -2739,61 +2835,61 @@
                                         (ListConstant
                                             [(ListConstant
                                                 [(TupleConstant
-                                                    [(IntegerConstant 1 (Integer 4))
+                                                    [(IntegerConstant 1 (Integer 4) Decimal)
                                                     (StringConstant
                                                         "a"
-                                                        (Character 1 1 ())
+                                                        (String 1 1 () PointerString)
                                                     )]
                                                     (Tuple
                                                         [(Integer 4)
-                                                        (Character 1 1 ())]
+                                                        (String 1 1 () PointerString)]
                                                     )
                                                 )
                                                 (TupleConstant
-                                                    [(IntegerConstant 2 (Integer 4))
+                                                    [(IntegerConstant 2 (Integer 4) Decimal)
                                                     (StringConstant
                                                         "b"
-                                                        (Character 1 1 ())
+                                                        (String 1 1 () PointerString)
                                                     )]
                                                     (Tuple
                                                         [(Integer 4)
-                                                        (Character 1 1 ())]
+                                                        (String 1 1 () PointerString)]
                                                     )
                                                 )]
                                                 (List
                                                     (Tuple
                                                         [(Integer 4)
-                                                        (Character 1 1 ())]
+                                                        (String 1 1 () PointerString)]
                                                     )
                                                 )
                                             )
                                             (ListConstant
                                                 [(TupleConstant
-                                                    [(IntegerConstant 3 (Integer 4))
+                                                    [(IntegerConstant 3 (Integer 4) Decimal)
                                                     (StringConstant
                                                         "c"
-                                                        (Character 1 1 ())
+                                                        (String 1 1 () PointerString)
                                                     )]
                                                     (Tuple
                                                         [(Integer 4)
-                                                        (Character 1 1 ())]
+                                                        (String 1 1 () PointerString)]
                                                     )
                                                 )
                                                 (TupleConstant
-                                                    [(IntegerConstant 4 (Integer 4))
+                                                    [(IntegerConstant 4 (Integer 4) Decimal)
                                                     (StringConstant
                                                         "d"
-                                                        (Character 1 1 ())
+                                                        (String 1 1 () PointerString)
                                                     )]
                                                     (Tuple
                                                         [(Integer 4)
-                                                        (Character 1 1 ())]
+                                                        (String 1 1 () PointerString)]
                                                     )
                                                 )]
                                                 (List
                                                     (Tuple
                                                         [(Integer 4)
-                                                        (Character 1 1 ())]
+                                                        (String 1 1 () PointerString)]
                                                     )
                                                 )
                                             )]
@@ -2801,7 +2897,7 @@
                                                 (List
                                                     (Tuple
                                                         [(Integer 4)
-                                                        (Character 1 1 ())]
+                                                        (String 1 1 () PointerString)]
                                                     )
                                                 )
                                             )
@@ -2813,26 +2909,26 @@
                                         (ListConstant
                                             [(StringConstant
                                                 "a"
-                                                (Character 1 1 ())
+                                                (String 1 1 () PointerString)
                                             )
                                             (StringConstant
                                                 "bb"
-                                                (Character 1 2 ())
+                                                (String 1 2 () PointerString)
                                             )
                                             (StringConstant
                                                 "ccc"
-                                                (Character 1 3 ())
+                                                (String 1 3 () PointerString)
                                             )
                                             (StringConstant
                                                 "dddd"
-                                                (Character 1 4 ())
+                                                (String 1 4 () PointerString)
                                             )
                                             (StringConstant
                                                 "eeeee"
-                                                (Character 1 5 ())
+                                                (String 1 5 () PointerString)
                                             )]
                                             (List
-                                                (Character 1 1 ())
+                                                (String 1 1 () PointerString)
                                             )
                                         )
                                         ()
@@ -2840,10 +2936,10 @@
                                     (Assignment
                                         (Var 5 b2)
                                         (ListConstant
-                                            [(IntegerConstant 10 (Integer 4))
-                                            (IntegerConstant 20 (Integer 4))
-                                            (IntegerConstant 30 (Integer 4))
-                                            (IntegerConstant 40 (Integer 4))]
+                                            [(IntegerConstant 10 (Integer 4) Decimal)
+                                            (IntegerConstant 20 (Integer 4) Decimal)
+                                            (IntegerConstant 30 (Integer 4) Decimal)
+                                            (IntegerConstant 40 (Integer 4) Decimal)]
                                             (List
                                                 (Integer 4)
                                             )
@@ -2861,7 +2957,7 @@
                                             )]
                                             (Tuple
                                                 [(List
-                                                    (Character 1 -2 ())
+                                                    (String 1 -2 () PointerString)
                                                 )
                                                 (List
                                                     (Integer 4)
@@ -2872,30 +2968,38 @@
                                         ()
                                     )
                                     (Print
-                                        [(Var 5 a)
-                                        (Var 5 b)]
-                                        ()
-                                        ()
+                                        (StringFormat
+                                            ()
+                                            [(Var 5 a)
+                                            (Var 5 b)]
+                                            FormatPythonFormat
+                                            (String -1 0 () PointerString)
+                                            ()
+                                        )
                                     )
                                     (Print
-                                        [(Var 5 c)
-                                        (Var 5 b1)
-                                        (Var 5 b2)
-                                        (RealConstant
-                                            3.420000
-                                            (Real 8)
+                                        (StringFormat
+                                            ()
+                                            [(Var 5 c)
+                                            (Var 5 b1)
+                                            (Var 5 b2)
+                                            (RealConstant
+                                                3.420000
+                                                (Real 8)
+                                            )
+                                            (StringConstant
+                                                "okay"
+                                                (String 1 4 () PointerString)
+                                            )
+                                            (LogicalConstant
+                                                .true.
+                                                (Logical 4)
+                                            )
+                                            (IntegerConstant 14483 (Integer 4) Decimal)]
+                                            FormatPythonFormat
+                                            (String -1 0 () PointerString)
+                                            ()
                                         )
-                                        (StringConstant
-                                            "okay"
-                                            (Character 1 4 ())
-                                        )
-                                        (LogicalConstant
-                                            .true.
-                                            (Logical 4)
-                                        )
-                                        (IntegerConstant 14483 (Integer 4))]
-                                        ()
-                                        ()
                                     )]
                                     ()
                                     Public

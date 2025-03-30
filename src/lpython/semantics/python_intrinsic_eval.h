@@ -72,7 +72,7 @@ struct IntrinsicNodeHandler {
                     } else {
                         throw SemanticError("'" + ASRUtils::type_to_str_python(type) + "' object cannot be interpreted as an integer",
                                 arg->base.loc);
-                    }   
+                    }
                 }
                 arg = args[0].m_value;
                 type = ASRUtils::expr_type(arg);
@@ -102,14 +102,14 @@ struct IntrinsicNodeHandler {
                             }
                         } else {
                             base = 10;
-                        } 
+                        }
                     } else {
                         if (*ch == '0' &&
                             ((base == 16 && (ch[1] == 'x'|| ch[1] == 'X')) ||
                             (base == 8  && (ch[1] == 'o' || ch[1] == 'O')) ||
                             (base == 2  && (ch[1] == 'b' || ch[1] == 'B')))) {
                             ch += 2;
-                        }  
+                        }
                     }
                     while (*ch) {
                         if (*ch == '.') {
@@ -125,8 +125,8 @@ struct IntrinsicNodeHandler {
                                     loc, ival, to_type));
                 }
                 return (ASR::asr_t *)ASR::down_cast<ASR::expr_t>(ASR::make_Cast_t(
-                    al, loc, arg, ASR::cast_kindType::CharacterToInteger,
-                    to_type, value));        
+                    al, loc, arg, ASR::cast_kindType::StringToInteger,
+                    to_type, value));
             } else {
                 if (args.size() == 2) {
                     throw SemanticError("int() can't convert non-string with explicit base", loc);
@@ -280,7 +280,7 @@ struct IntrinsicNodeHandler {
                                 loc, std::string(c) != "", to_type));
             }
             return (ASR::asr_t *)ASR::down_cast<ASR::expr_t>(ASR::make_Cast_t(
-                al, loc, arg, ASR::cast_kindType::CharacterToLogical, to_type, value));
+                al, loc, arg, ASR::cast_kindType::StringToLogical, to_type, value));
 
         } else if (ASRUtils::is_complex(*type)) {
             if (ASRUtils::expr_value(arg) != nullptr) {
@@ -323,9 +323,9 @@ struct IntrinsicNodeHandler {
             arg = args[0].m_value;
             arg_type = ASRUtils::expr_type(arg);
         }
-        ASR::ttype_t *str_type = ASRUtils::TYPE(ASR::make_Character_t(al, loc, 1, -2, nullptr));
+        ASR::ttype_t *str_type = ASRUtils::TYPE(ASR::make_String_t(al, loc, 1, -2, nullptr, ASR::string_physical_typeType::PointerString));
         if (!arg) {
-            ASR::ttype_t *res_type = ASRUtils::TYPE(ASR::make_Character_t(al, loc, 1, 0, nullptr));
+            ASR::ttype_t *res_type = ASRUtils::TYPE(ASR::make_String_t(al, loc, 1, 0, nullptr, ASR::string_physical_typeType::PointerString));
             return ASR::make_StringConstant_t(al, loc, s2c(al, ""), res_type);
         }
         if (ASRUtils::is_real(*arg_type)) {
@@ -337,36 +337,36 @@ struct IntrinsicNodeHandler {
                 sm << ival;
                 std::string value_str = sm.str();
                 sm.clear();
-                ASR::ttype_t *res_type = ASRUtils::TYPE(ASR::make_Character_t(al, loc,
-                                            1, value_str.size(), nullptr));
+                ASR::ttype_t *res_type = ASRUtils::TYPE(ASR::make_String_t(al, loc,
+                    1, value_str.size(), nullptr, ASR::string_physical_typeType::PointerString));
                 res_value =  ASR::down_cast<ASR::expr_t>(ASR::make_StringConstant_t(al,
                                 loc, s2c(al, value_str), res_type));
             }
-            return ASR::make_Cast_t(al, loc, arg, ASR::cast_kindType::RealToCharacter,
+            return ASR::make_Cast_t(al, loc, arg, ASR::cast_kindType::RealToString,
                 str_type, res_value);
         } else if (ASRUtils::is_integer(*arg_type)) {
             if (ASRUtils::expr_value(arg) != nullptr) {
                 int64_t number = ASR::down_cast<ASR::IntegerConstant_t>(
                                         ASRUtils::expr_value(arg))->m_n;
                 std::string value_str = std::to_string(number);
-                ASR::ttype_t *res_type = ASRUtils::TYPE(ASR::make_Character_t(al, loc,
-                                            1, value_str.size(), nullptr));
+                ASR::ttype_t *res_type = ASRUtils::TYPE(ASR::make_String_t(al, loc,
+                    1, value_str.size(), nullptr, ASR::string_physical_typeType::PointerString));
                 res_value = ASR::down_cast<ASR::expr_t>(ASR::make_StringConstant_t(al,
                                 loc, s2c(al, value_str), res_type));
             }
-            return ASR::make_Cast_t(al, loc, arg, ASR::cast_kindType::IntegerToCharacter,
+            return ASR::make_Cast_t(al, loc, arg, ASR::cast_kindType::IntegerToString,
                 str_type, res_value);
         } else if (ASRUtils::is_logical(*arg_type)) {
             if(ASRUtils::expr_value(arg) != nullptr) {
                 bool bool_number = ASR::down_cast<ASR::LogicalConstant_t>(
                                         ASRUtils::expr_value(arg))->m_value;
                 std::string value_str = (bool_number)? "True" : "False";
-                ASR::ttype_t *res_type = ASRUtils::TYPE(ASR::make_Character_t(al, loc,
-                                            1, value_str.size(), nullptr));
+                ASR::ttype_t *res_type = ASRUtils::TYPE(ASR::make_String_t(al, loc,
+                    1, value_str.size(), nullptr, ASR::string_physical_typeType::PointerString));
                 res_value = ASR::down_cast<ASR::expr_t>(ASR::make_StringConstant_t(al,
                                 loc, s2c(al, value_str), res_type));
             }
-            return ASR::make_Cast_t(al, loc, arg, ASR::cast_kindType::LogicalToCharacter,
+            return ASR::make_Cast_t(al, loc, arg, ASR::cast_kindType::LogicalToString,
                 str_type, res_value);
 
         } else if (ASRUtils::is_character(*arg_type)) {
@@ -497,8 +497,8 @@ struct IntrinsicNodeHandler {
         }
         ASR::expr_t *arg = args[0].m_value;
         ASR::ttype_t *type = ASRUtils::expr_type(arg);
-        ASR::ttype_t* str_type = ASRUtils::TYPE(ASR::make_Character_t(al,
-            loc, 1, 1, nullptr));
+        ASR::ttype_t* str_type = ASRUtils::TYPE(ASR::make_String_t(al,
+            loc, 1, 1, nullptr, ASR::string_physical_typeType::PointerString));
         ASR::expr_t *value = nullptr;
         if (ASRUtils::is_integer(*type)) {
             if (ASRUtils::expr_value(arg) != nullptr) {

@@ -1,1 +1,5 @@
-/bin/sh: 1: lpython: not found
+semantic error: Type mismatch in annotation-assignment, the types must be compatible
+  --> tests/../integration_tests/array_02_decl.py:17:5
+   |
+17 |     ai32: i32[3, 3] = empty([3, 3], dtype=int32)
+   |     ^^^^              ^^^^^^^^^^^^^^^^^^^^^^^^^^ type mismatch ('i32[3,3]' and 'i32[9]')

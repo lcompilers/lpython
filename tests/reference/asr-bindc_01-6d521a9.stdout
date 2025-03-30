@@ -38,10 +38,14 @@
                                         ()
                                     )
                                     (Print
-                                        [(Var 2 queries)
-                                        (Var 2 x)]
-                                        ()
-                                        ()
+                                        (StringFormat
+                                            ()
+                                            [(Var 2 queries)
+                                            (Var 2 x)]
+                                            FormatPythonFormat
+                                            (String -1 0 () PointerString)
+                                            ()
+                                        )
                                     )
                                     (SubroutineCall
                                         2 test_issue_1781
@@ -74,6 +78,8 @@
                                     Public
                                     Required
                                     .false.
+                                    .false.
+                                    .false.
                                 ),
                             test_issue_1781:
                                 (Function
@@ -94,6 +100,8 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
+                                                    .false.
                                                     .false.
                                                 )
                                         })
@@ -171,6 +179,8 @@
                                     Source
                                     Public
                                     Required
+                                    .false.
+                                    .false.
                                     .false.
                                 )
                         })
