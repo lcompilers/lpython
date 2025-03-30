@@ -3344,7 +3344,7 @@ namespace FloorDiv {
             CastingUtil::perform_casting(args[1], real64, al, loc))));
         body.push_back(al, b.Assignment(tmp, b.r2i_t(r, int64)));
         body.push_back(al, b.If(b.And(b.Lt(r, b.f_t(0.0, real64)), b.NotEq(b.i2r_t(tmp, real64), r)), {
-                b.Assignment(tmp, b.Sub(tmp, b.i32(1)))
+                b.Assignment(tmp, b.Sub(tmp, b.i64(1)))
             }, {}));
         body.push_back(al, b.Assignment(result, CastingUtil::perform_casting(tmp, return_type, al, loc)));
         ASR::symbol_t *f_sym = make_ASR_Function_t(fn_name, fn_symtab, dep, args,
