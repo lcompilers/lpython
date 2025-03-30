@@ -41,7 +41,7 @@ python lfortran/src/libasr/intrinsic_func_registry_util_gen.py
 pushd src/lpython/parser && re2c -W -b tokenizer.re -o tokenizer.cpp && popd
 pushd src/lpython/parser && bison -Wall -d -r all parser.yy && popd
 
-$lpython_version=$(cat version).strip()
+$lpython_version=$(cat lp_version).strip()
 $dest="lpython-" + $lpython_version
 bash ci/create_source_tarball0.sh
 tar xzf dist/lpython-$lpython_version.tar.gz

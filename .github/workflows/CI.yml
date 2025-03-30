@@ -606,7 +606,7 @@ jobs:
         shell: bash -e -l {0}
         run: |
           ./build0.sh
-          lpython_version=$(<version)
+          lpython_version=$(<lp_version)
           ci/create_source_tarball.sh $lpython_version
 
       - name: Upload Tarball to Release
