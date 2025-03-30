@@ -1,5 +1,5 @@
 set(SRC
-    ../../../lfortran/src/libasr/runtime/lfortran_intrinsics.c
+    ../../../libasr/src/libasr/runtime/lfortran_intrinsics.c
 )
 add_library(lpython_runtime SHARED ${SRC})
 target_include_directories(lpython_runtime BEFORE PUBLIC ${libasr_SOURCE_DIR}/..)

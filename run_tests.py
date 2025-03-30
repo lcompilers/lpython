@@ -4,7 +4,7 @@ import sys
 import os
 
 ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__)))
-sys.path.append(os.path.join(ROOT_DIR, "lfortran", "src", "libasr"))
+sys.path.append(os.path.join(ROOT_DIR, "libasr", "src", "libasr"))
 
 from compiler_tester.tester import color, fg, log, run_test, style, tester_main
 

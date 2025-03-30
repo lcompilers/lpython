@@ -2261,7 +2261,7 @@ int main(int argc, char *argv[])
 #else
                     cmd += "llvm-dwarfdump --debug-line " + basename + ".out > ";
 #endif
-                    cmd += basename + "_ldd.txt && (cd lfortran/src/libasr; ./dwarf_convert.py ../../../"
+                    cmd += basename + "_ldd.txt && (cd libasr/src/libasr; ./dwarf_convert.py ../../../"
                         + basename + "_ldd.txt ../../../" + basename + "_lines.txt ../../../"
                         + basename + "_lines.dat && ./dat_convert.py ../../../"
                         + basename + "_lines.dat)";
