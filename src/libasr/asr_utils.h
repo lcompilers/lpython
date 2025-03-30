@@ -2736,8 +2736,8 @@ static inline ASR::asr_t* make_StructType_t_util(Allocator& al, Location loc, AS
     }
     return ASR::make_StructType_t(al,
                                 loc,
-                                members.p,
-                                members.n,
+                                nullptr,
+                                0,
                                 nullptr, //Correct this when mem fn added to Struct_t
                                 0,       //Correct this when mem fn added to Struct_t
                                 true,    //Correct this when mem fn added to Struct_t
