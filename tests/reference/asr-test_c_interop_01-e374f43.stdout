@@ -64,6 +64,7 @@
                                                     Required
                                                     .false.
                                                     .false.
+                                                    .false.
                                                 ),
                                             x:
                                                 (Variable
@@ -80,6 +81,7 @@
                                                     Public
                                                     Required
                                                     .true.
+                                                    .false.
                                                     .false.
                                                 )
                                         })
@@ -128,6 +130,7 @@
                                                     Required
                                                     .false.
                                                     .false.
+                                                    .false.
                                                 ),
                                             x:
                                                 (Variable
@@ -144,6 +147,7 @@
                                                     Public
                                                     Required
                                                     .true.
+                                                    .false.
                                                     .false.
                                                 )
                                         })
@@ -190,6 +194,7 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
                                                     .false.
                                                     .false.
                                                 )

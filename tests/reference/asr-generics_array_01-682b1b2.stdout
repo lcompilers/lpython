@@ -25,6 +25,7 @@
                                     Required
                                     .false.
                                     .false.
+                                    .false.
                                 ),
                             __asr_generic_f_0:
                                 (Function
@@ -47,6 +48,7 @@
                                                     Required
                                                     .false.
                                                     .false.
+                                                    .false.
                                                 ),
                                             i:
                                                 (Variable
@@ -62,6 +64,7 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
                                                     .false.
                                                     .false.
                                                 ),
@@ -84,6 +87,7 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
                                                     .false.
                                                     .false.
                                                 )
@@ -204,6 +208,7 @@
                                                     Required
                                                     .false.
                                                     .false.
+                                                    .false.
                                                 ),
                                             i:
                                                 (Variable
@@ -221,6 +226,7 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
                                                     .false.
                                                     .false.
                                                 ),
@@ -245,6 +251,7 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
                                                     .false.
                                                     .false.
                                                 )
@@ -342,6 +349,7 @@
                                                     Required
                                                     .false.
                                                     .false.
+                                                    .false.
                                                 ),
                                             x:
                                                 (Variable
@@ -357,6 +365,7 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
                                                     .false.
                                                     .false.
                                                 )
@@ -395,11 +404,21 @@
                                             )
                                             (Array
                                                 (Integer 4)
-                                                [((IntegerConstant 0 (Integer 4) Decimal)
+                                                [((IntegerConstant 1 (Integer 4) Decimal)
                                                 (IntegerConstant 1 (Integer 4) Decimal))]
                                                 FixedSizeArray
                                             )
-                                            ()
+                                            (ArrayConstant
+                                                4
+                                                [0]
+                                                (Array
+                                                    (Integer 4)
+                                                    [((IntegerConstant 1 (Integer 4) Decimal)
+                                                    (IntegerConstant 1 (Integer 4) Decimal))]
+                                                    FixedSizeArray
+                                                )
+                                                ColMajor
+                                            )
                                         )
                                         ()
                                     )

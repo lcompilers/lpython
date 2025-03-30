@@ -146,7 +146,8 @@
                                                         "access": "Public",
                                                         "presence": "Required",
                                                         "value_attr": false,
-                                                        "target_attr": false
+                                                        "target_attr": false,
+                                                        "contiguous_attr": false
                                                     },
                                                     "loc": {
                                                         "first": 68,

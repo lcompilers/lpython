@@ -105,6 +105,7 @@
                                                     Required
                                                     .false.
                                                     .false.
+                                                    .false.
                                                 ),
                                             yptr1:
                                                 (Variable
@@ -129,6 +130,7 @@
                                                     Required
                                                     .false.
                                                     .false.
+                                                    .false.
                                                 ),
                                             yq:
                                                 (Variable
@@ -144,6 +146,7 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
                                                     .false.
                                                     .false.
                                                 )
@@ -189,11 +192,21 @@
                                             )
                                             (Array
                                                 (Integer 2)
-                                                [((IntegerConstant 0 (Integer 4) Decimal)
+                                                [((IntegerConstant 1 (Integer 4) Decimal)
                                                 (IntegerConstant 2 (Integer 4) Decimal))]
                                                 FixedSizeArray
                                             )
-                                            ()
+                                            (ArrayConstant
+                                                4
+                                                [0, 0]
+                                                (Array
+                                                    (Integer 2)
+                                                    [((IntegerConstant 1 (Integer 4) Decimal)
+                                                    (IntegerConstant 2 (Integer 4) Decimal))]
+                                                    FixedSizeArray
+                                                )
+                                                ColMajor
+                                            )
                                         )
                                         ()
                                     )
@@ -394,6 +407,7 @@
                                     Required
                                     .false.
                                     .false.
+                                    .false.
                                 ),
                             x:
                                 (Variable
@@ -416,6 +430,7 @@
                                     Source
                                     Public
                                     Required
+                                    .false.
                                     .false.
                                     .false.
                                 )

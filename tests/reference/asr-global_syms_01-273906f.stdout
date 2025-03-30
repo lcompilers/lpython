@@ -80,6 +80,7 @@
                                     Required
                                     .false.
                                     .false.
+                                    .false.
                                 ),
                             test_global_symbols:
                                 (Function
@@ -152,6 +153,7 @@
                                     Source
                                     Public
                                     Required
+                                    .false.
                                     .false.
                                     .false.
                                 )
