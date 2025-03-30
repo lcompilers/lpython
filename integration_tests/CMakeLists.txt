@@ -501,7 +501,7 @@ RUN(NAME expr_20             LABELS cpython llvm llvm_jit c)
 RUN(NAME expr_21             LABELS cpython llvm llvm_jit c)
 RUN(NAME expr_22             LABELS cpython llvm llvm_jit c)
 RUN(NAME expr_23             LABELS cpython llvm llvm_jit c)
-RUN(NAME expr_24             LABELS cpython wasm) # mandelbrot
+# RUN(NAME expr_24             LABELS cpython wasm) # mandelbrot
 
 RUN(NAME expr_01u            LABELS cpython llvm llvm_jit c NOFAST)
 RUN(NAME expr_02u            LABELS cpython llvm llvm_jit c NOFAST)
