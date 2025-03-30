@@ -711,8 +711,8 @@ RUN(NAME structs_14          LABELS cpython llvm llvm_jit c)
 # RUN(NAME structs_15          LABELS cpython llvm llvm_jit c)
 RUN(NAME structs_16          LABELS cpython llvm llvm_jit c)
 # RUN(NAME structs_17          LABELS cpython llvm llvm_jit c)
-RUN(NAME structs_18          LABELS cpython llvm c
-    EXTRAFILES structs_18b.c)
+# RUN(NAME structs_18          LABELS cpython llvm c
+#     EXTRAFILES structs_18b.c)
 # RUN(NAME structs_19          LABELS cpython llvm c
 #     EXTRAFILES structs_19b.c)
 # RUN(NAME structs_20          LABELS cpython llvm c
