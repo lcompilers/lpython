@@ -51,7 +51,6 @@ _CPack_Packages
 
 ## Generated files
 lp_version
-libasr
 lpython/ast/ast.py
 lpython/asr/asr.py
 src/lpython/ast.h
