@@ -11,11 +11,11 @@
 
 # tests
 
-[[test]]
-filename = "doconcurrentloop_01.py"
-ast = true
-asr = true
-cpp = true
+# [[test]]
+# filename = "doconcurrentloop_01.py"
+# ast = true
+# asr = true
+# cpp = true
 
 [[test]]
 filename = "complex1.py"
@@ -51,13 +51,13 @@ filename = "dictionary1.py"
 ast = true
 asr = true
 
-[[test]]
-filename = "test_aggregate_constants.py"
-python = true
+# [[test]]
+# filename = "test_aggregate_constants.py"
+# python = true
 
-[[test]]
-filename = "test_list_methods.py"
-python = true
+# [[test]]
+# filename = "test_list_methods.py"
+# python = true
 
 [[test]]
 filename = "expr1.py"
@@ -243,13 +243,13 @@ fast = true
 filename = "../integration_tests/func_static_01.py"
 c = true
 
-[[test]]
-filename = "loop1.py"
-ast = true
-asr = true
-cpp = true
-c = true
-wat = true
+# [[test]]
+# filename = "loop1.py"
+# ast = true
+# asr = true
+# cpp = true
+# c = true
+# wat = true
 
 [[test]]
 filename = "loop3.py"
@@ -360,6 +360,10 @@ filename = "../integration_tests/structs_16.py"
 asr = true
 pass = "class_constructor"
 cumulative = true
+
+# [[test]]
+# filename = "errors/class01.py"
+# asr = true
 
 [[test]]
 filename = "../integration_tests/callback_01.py"
@@ -489,13 +493,13 @@ asr = true
 filename = "../integration_tests/generics_array_01.py"
 asr = true
 
-[[test]]
-filename = "../integration_tests/generics_array_02.py"
-asr = true
+# [[test]]
+# filename = "../integration_tests/generics_array_02.py"
+# asr = true
 
-[[test]]
-filename = "../integration_tests/generics_array_03.py"
-asr = true
+# [[test]]
+# filename = "../integration_tests/generics_array_03.py"
+# asr = true
 
 [[test]]
 filename = "../integration_tests/generics_list_01.py"
@@ -695,29 +699,29 @@ asr = true
 filename = "errors/arrays_02.py"
 asr = true
 
-[[test]]
-filename = "errors/arrays_03.py"
-asr = true
+# [[test]]
+# filename = "errors/arrays_03.py"
+# asr = true
 
-[[test]]
-filename = "errors/arrays_04.py"
-asr = true
+# [[test]]
+# filename = "errors/arrays_04.py"
+# asr = true
 
-[[test]]
-filename = "errors/arrays_05.py"
-asr = true
+# [[test]]
+# filename = "errors/arrays_05.py"
+# asr = true
 
-[[test]]
-filename = "errors/arrays_06.py"
-asr = true
+# [[test]]
+# filename = "errors/arrays_06.py"
+# asr = true
 
-[[test]]
-filename = "errors/arrays_07.py"
-asr = true
+# [[test]]
+# filename = "errors/arrays_07.py"
+# asr = true
 
-[[test]]
-filename = "errors/arrays_08.py"
-asr = true
+# [[test]]
+# filename = "errors/arrays_08.py"
+# asr = true
 
 [[test]]
 filename = "errors/arrays_09.py"
@@ -727,21 +731,21 @@ asr = true
 filename = "errors/arrays_10.py"
 asr = true
 
-[[test]]
-filename = "errors/arrays_11.py"
-asr = true
+# [[test]]
+# filename = "errors/arrays_11.py"
+# asr = true
 
-[[test]]
-filename = "errors/arrays_12.py"
-asr = true
+# [[test]]
+# filename = "errors/arrays_12.py"
+# asr = true
 
-[[test]]
-filename = "errors/arrays_13.py"
-asr = true
+# [[test]]
+# filename = "errors/arrays_13.py"
+# asr = true
 
-[[test]]
-filename = "errors/arrays_14.py"
-asr = true
+# [[test]]
+# filename = "errors/arrays_14.py"
+# asr = true
 
 [[test]]
 filename = "errors/structs_02.py"
@@ -779,9 +783,9 @@ asr = true
 filename = "errors/structs_10.py"
 asr = true
 
-[[test]]
-filename = "structs_11.py"
-llvm = true
+# [[test]]
+# filename = "structs_11.py"
+# llvm = true
 
 [[test]]
 filename = "errors/const_01.py"

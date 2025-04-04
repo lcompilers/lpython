@@ -63,6 +63,8 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
                                                 ),
                                             x:
                                                 (Variable
@@ -79,6 +81,8 @@
                                                     Public
                                                     Required
                                                     .true.
+                                                    .false.
+                                                    .false.
                                                 )
                                         })
                                     _lfortran_dsin
@@ -125,6 +129,8 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
                                                 ),
                                             x:
                                                 (Variable
@@ -141,6 +147,8 @@
                                                     Public
                                                     Required
                                                     .true.
+                                                    .false.
+                                                    .false.
                                                 )
                                         })
                                     _lfortran_ssin
@@ -186,6 +194,8 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
+                                                    .false.
                                                     .false.
                                                 )
                                         })

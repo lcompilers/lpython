@@ -63,6 +63,8 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
                                                 ),
                                             a2:
                                                 (Variable
@@ -78,6 +80,8 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
+                                                    .false.
                                                     .false.
                                                 ),
                                             a3:
@@ -95,6 +99,8 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
                                                 ),
                                             b1:
                                                 (Variable
@@ -110,6 +116,8 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
+                                                    .false.
                                                     .false.
                                                 ),
                                             b2:
@@ -127,6 +135,8 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
                                                 ),
                                             b3:
                                                 (Variable
@@ -142,6 +152,8 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
+                                                    .false.
                                                     .false.
                                                 ),
                                             c1:
@@ -159,6 +171,8 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
                                                 ),
                                             c2:
                                                 (Variable
@@ -174,6 +188,8 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
+                                                    .false.
                                                     .false.
                                                 ),
                                             c3:
@@ -191,6 +207,8 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
                                                 ),
                                             d1:
                                                 (Variable
@@ -206,6 +224,8 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
+                                                    .false.
                                                     .false.
                                                 ),
                                             d2:
@@ -223,6 +243,8 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
                                                 ),
                                             d3:
                                                 (Variable
@@ -238,6 +260,8 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
+                                                    .false.
                                                     .false.
                                                 ),
                                             e1:
@@ -255,6 +279,8 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
                                                 ),
                                             e2:
                                                 (Variable
@@ -270,6 +296,8 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
+                                                    .false.
                                                     .false.
                                                 ),
                                             e3:
@@ -287,6 +315,8 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
                                                 ),
                                             f1:
                                                 (Variable
@@ -302,6 +332,8 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
+                                                    .false.
                                                     .false.
                                                 ),
                                             f2:
@@ -319,6 +351,8 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
                                                 ),
                                             f3:
                                                 (Variable
@@ -334,6 +368,8 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
+                                                    .false.
                                                     .false.
                                                 )
                                         })
@@ -356,12 +392,12 @@
                                     []
                                     [(Assignment
                                         (Var 3 a1)
-                                        (IntegerConstant 1 (Integer 4))
+                                        (IntegerConstant 1 (Integer 4) Decimal)
                                         ()
                                     )
                                     (Assignment
                                         (Var 3 a2)
-                                        (IntegerConstant 9 (Integer 4))
+                                        (IntegerConstant 9 (Integer 4) Decimal)
                                         ()
                                     )
                                     (Assignment
@@ -416,20 +452,20 @@
                                     (Assignment
                                         (Var 3 b1)
                                         (Cast
-                                            (IntegerConstant 2 (Integer 4))
+                                            (IntegerConstant 2 (Integer 4) Decimal)
                                             IntegerToInteger
                                             (Integer 8)
-                                            (IntegerConstant 2 (Integer 8))
+                                            (IntegerConstant 2 (Integer 8) Decimal)
                                         )
                                         ()
                                     )
                                     (Assignment
                                         (Var 3 b2)
                                         (Cast
-                                            (IntegerConstant 10 (Integer 4))
+                                            (IntegerConstant 10 (Integer 4) Decimal)
                                             IntegerToInteger
                                             (Integer 8)
-                                            (IntegerConstant 10 (Integer 8))
+                                            (IntegerConstant 10 (Integer 8) Decimal)
                                         )
                                         ()
                                     )
@@ -628,7 +664,7 @@
                                         (Var 3 e1)
                                         (ComplexBinOp
                                             (Cast
-                                                (IntegerConstant 5 (Integer 4))
+                                                (IntegerConstant 5 (Integer 4) Decimal)
                                                 IntegerToComplex
                                                 (Complex 4)
                                                 (ComplexConstant
@@ -665,7 +701,7 @@
                                         (Var 3 e2)
                                         (ComplexBinOp
                                             (Cast
-                                                (IntegerConstant 13 (Integer 4))
+                                                (IntegerConstant 13 (Integer 4) Decimal)
                                                 IntegerToComplex
                                                 (Complex 4)
                                                 (ComplexConstant
@@ -777,7 +813,7 @@
                                         (Var 3 f1)
                                         (ComplexBinOp
                                             (Cast
-                                                (IntegerConstant 7 (Integer 4))
+                                                (IntegerConstant 7 (Integer 4) Decimal)
                                                 IntegerToComplex
                                                 (Complex 8)
                                                 (ComplexConstant
@@ -805,7 +841,7 @@
                                         (Var 3 f2)
                                         (ComplexBinOp
                                             (Cast
-                                                (IntegerConstant 15 (Integer 4))
+                                                (IntegerConstant 15 (Integer 4) Decimal)
                                                 IntegerToComplex
                                                 (Complex 8)
                                                 (ComplexConstant

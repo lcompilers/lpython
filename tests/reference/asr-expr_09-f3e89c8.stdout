@@ -77,6 +77,8 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
                                                 ),
                                             i2:
                                                 (Variable
@@ -92,6 +94,8 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
+                                                    .false.
                                                     .false.
                                                 )
                                         })
@@ -114,42 +118,46 @@
                                     []
                                     [(Assignment
                                         (Var 3 i1)
-                                        (IntegerConstant 10 (Integer 4))
+                                        (IntegerConstant 10 (Integer 4) Decimal)
                                         ()
                                     )
                                     (Assignment
                                         (Var 3 i2)
-                                        (IntegerConstant 4 (Integer 4))
+                                        (IntegerConstant 4 (Integer 4) Decimal)
                                         ()
                                     )
                                     (Assignment
                                         (Var 3 i1)
-                                        (IntegerConstant 3 (Integer 4))
+                                        (IntegerConstant 3 (Integer 4) Decimal)
                                         ()
                                     )
                                     (Assignment
                                         (Var 3 i2)
-                                        (IntegerConstant 5 (Integer 4))
+                                        (IntegerConstant 5 (Integer 4) Decimal)
                                         ()
                                     )
                                     (Print
-                                        [(IntegerBinOp
-                                            (IntegerUnaryMinus
-                                                (Var 3 i1)
-                                                (Integer 4)
-                                                ()
-                                            )
-                                            BitXor
-                                            (IntegerUnaryMinus
-                                                (Var 3 i2)
-                                                (Integer 4)
-                                                ()
-                                            )
-                                            (Integer 4)
+                                        (StringFormat
                                             ()
-                                        )]
-                                        ()
-                                        ()
+                                            [(IntegerBinOp
+                                                (IntegerUnaryMinus
+                                                    (Var 3 i1)
+                                                    (Integer 4)
+                                                    ()
+                                                )
+                                                BitXor
+                                                (IntegerUnaryMinus
+                                                    (Var 3 i2)
+                                                    (Integer 4)
+                                                    ()
+                                                )
+                                                (Integer 4)
+                                                ()
+                                            )]
+                                            FormatPythonFormat
+                                            (String -1 0 () PointerString)
+                                            ()
+                                        )
                                     )
                                     (Assert
                                         (IntegerCompare
@@ -169,7 +177,7 @@
                                                 ()
                                             )
                                             Eq
-                                            (IntegerConstant 6 (Integer 4))
+                                            (IntegerConstant 6 (Integer 4) Decimal)
                                             (Logical 4)
                                             ()
                                         )
@@ -201,6 +209,8 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
                                                 ),
                                             b:
                                                 (Variable
@@ -216,6 +226,8 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
+                                                    .false.
                                                     .false.
                                                 ),
                                             c:
@@ -235,6 +247,8 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
+                                                    .false.
                                                     .false.
                                                 )
                                         })
@@ -265,8 +279,8 @@
                                             )
                                         )
                                         (TupleConstant
-                                            [(IntegerConstant 2 (Integer 4))
-                                            (IntegerConstant 1 (Integer 4))]
+                                            [(IntegerConstant 2 (Integer 4) Decimal)
+                                            (IntegerConstant 1 (Integer 4) Decimal)]
                                             (Tuple
                                                 [(Integer 4)
                                                 (Integer 4)]
@@ -277,8 +291,8 @@
                                     (Assignment
                                         (Var 5 c)
                                         (TupleConstant
-                                            [(IntegerConstant 2 (Integer 4))
-                                            (IntegerConstant 1 (Integer 4))]
+                                            [(IntegerConstant 2 (Integer 4) Decimal)
+                                            (IntegerConstant 1 (Integer 4) Decimal)]
                                             (Tuple
                                                 [(Integer 4)
                                                 (Integer 4)]
@@ -290,7 +304,7 @@
                                         (IntegerCompare
                                             (Var 5 a)
                                             Eq
-                                            (IntegerConstant 2 (Integer 4))
+                                            (IntegerConstant 2 (Integer 4) Decimal)
                                             (Logical 4)
                                             ()
                                         )
@@ -300,7 +314,7 @@
                                         (IntegerCompare
                                             (Var 5 b)
                                             Eq
-                                            (IntegerConstant 1 (Integer 4))
+                                            (IntegerConstant 1 (Integer 4) Decimal)
                                             (Logical 4)
                                             ()
                                         )
@@ -311,7 +325,7 @@
                                             (IntegerCompare
                                                 (TupleItem
                                                     (Var 5 c)
-                                                    (IntegerConstant 0 (Integer 4))
+                                                    (IntegerConstant 0 (Integer 4) Decimal)
                                                     (Integer 4)
                                                     ()
                                                 )
@@ -324,7 +338,7 @@
                                             (IntegerCompare
                                                 (TupleItem
                                                     (Var 5 c)
-                                                    (IntegerConstant 1 (Integer 4))
+                                                    (IntegerConstant 1 (Integer 4) Decimal)
                                                     (Integer 4)
                                                     ()
                                                 )
@@ -364,6 +378,8 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
                                                 ),
                                             b:
                                                 (Variable
@@ -379,6 +395,8 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
+                                                    .false.
                                                     .false.
                                                 ),
                                             c:
@@ -396,6 +414,8 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
                                                 ),
                                             d:
                                                 (Variable
@@ -411,6 +431,8 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
+                                                    .false.
                                                     .false.
                                                 ),
                                             e:
@@ -428,6 +450,8 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
                                                 ),
                                             g:
                                                 (Variable
@@ -443,6 +467,8 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
+                                                    .false.
                                                     .false.
                                                 ),
                                             i:
@@ -462,6 +488,8 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
                                                 ),
                                             j:
                                                 (Variable
@@ -479,6 +507,8 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
+                                                    .false.
                                                     .false.
                                                 ),
                                             k:
@@ -498,6 +528,8 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
                                                 ),
                                             x:
                                                 (Variable
@@ -514,6 +546,8 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
                                                 ),
                                             y:
                                                 (Variable
@@ -529,6 +563,8 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
+                                                    .false.
                                                     .false.
                                                 )
                                         })
@@ -551,7 +587,7 @@
                                     []
                                     [(Assignment
                                         (Var 4 g)
-                                        (IntegerConstant 5 (Integer 4))
+                                        (IntegerConstant 5 (Integer 4) Decimal)
                                         ()
                                     )
                                     (Assignment
@@ -594,17 +630,17 @@
                                     )
                                     (Assignment
                                         (Var 4 a)
-                                        (IntegerConstant 10 (Integer 4))
+                                        (IntegerConstant 10 (Integer 4) Decimal)
                                         ()
                                     )
                                     (Assignment
                                         (Var 4 b)
-                                        (IntegerConstant 10 (Integer 4))
+                                        (IntegerConstant 10 (Integer 4) Decimal)
                                         ()
                                     )
                                     (Assignment
                                         (Var 4 c)
-                                        (IntegerConstant 10 (Integer 4))
+                                        (IntegerConstant 10 (Integer 4) Decimal)
                                         ()
                                     )
                                     (Assert
@@ -631,7 +667,7 @@
                                         (IntegerCompare
                                             (Var 4 a)
                                             Eq
-                                            (IntegerConstant 10 (Integer 4))
+                                            (IntegerConstant 10 (Integer 4) Decimal)
                                             (Logical 4)
                                             ()
                                         )
@@ -777,21 +813,21 @@
                                     )
                                     (Assignment
                                         (Var 4 g)
-                                        (IntegerConstant 0 (Integer 4))
+                                        (IntegerConstant 0 (Integer 4) Decimal)
                                         ()
                                     )
                                     (DoLoop
                                         ()
                                         ((Var 4 g)
-                                        (IntegerConstant 0 (Integer 4))
+                                        (IntegerConstant 0 (Integer 4) Decimal)
                                         (IntegerBinOp
-                                            (IntegerConstant 10 (Integer 4))
+                                            (IntegerConstant 10 (Integer 4) Decimal)
                                             Sub
-                                            (IntegerConstant 1 (Integer 4))
+                                            (IntegerConstant 1 (Integer 4) Decimal)
                                             (Integer 4)
-                                            (IntegerConstant 9 (Integer 4))
+                                            (IntegerConstant 9 (Integer 4) Decimal)
                                         )
-                                        (IntegerConstant 1 (Integer 4)))
+                                        (IntegerConstant 1 (Integer 4) Decimal))
                                         [(ListAppend
                                             (Var 4 k)
                                             (RealBinOp
@@ -834,15 +870,15 @@
                                     (DoLoop
                                         ()
                                         ((Var 4 g)
-                                        (IntegerConstant 0 (Integer 4))
+                                        (IntegerConstant 0 (Integer 4) Decimal)
                                         (IntegerBinOp
-                                            (IntegerConstant 10 (Integer 4))
+                                            (IntegerConstant 10 (Integer 4) Decimal)
                                             Sub
-                                            (IntegerConstant 1 (Integer 4))
+                                            (IntegerConstant 1 (Integer 4) Decimal)
                                             (Integer 4)
-                                            (IntegerConstant 9 (Integer 4))
+                                            (IntegerConstant 9 (Integer 4) Decimal)
                                         )
-                                        (IntegerConstant 1 (Integer 4)))
+                                        (IntegerConstant 1 (Integer 4) Decimal))
                                         [(Assert
                                             (RealCompare
                                                 (IntrinsicElementalFunction

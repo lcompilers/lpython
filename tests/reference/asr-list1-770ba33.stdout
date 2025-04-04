@@ -29,6 +29,8 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
                                                 ),
                                             a11:
                                                 (Variable
@@ -47,6 +49,8 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
                                                 ),
                                             b:
                                                 (Variable
@@ -58,12 +62,14 @@
                                                     ()
                                                     Default
                                                     (List
-                                                        (Character 1 -2 ())
+                                                        (String 1 -2 () PointerString)
                                                     )
                                                     ()
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
+                                                    .false.
                                                     .false.
                                                 ),
                                             b11:
@@ -82,6 +88,8 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
+                                                    .false.
                                                     .false.
                                                 ),
                                             c:
@@ -103,6 +111,8 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
                                                 ),
                                             d:
                                                 (Variable
@@ -119,6 +129,8 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
                                                 ),
                                             e:
                                                 (Variable
@@ -131,13 +143,15 @@
                                                     Default
                                                     (List
                                                         (List
-                                                            (Character 1 -2 ())
+                                                            (String 1 -2 () PointerString)
                                                         )
                                                     )
                                                     ()
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
+                                                    .false.
                                                     .false.
                                                 )
                                         })
@@ -161,9 +175,9 @@
                                     [(Assignment
                                         (Var 3 a)
                                         (ListConstant
-                                            [(IntegerConstant 1 (Integer 4))
-                                            (IntegerConstant 2 (Integer 4))
-                                            (IntegerConstant 3 (Integer 4))]
+                                            [(IntegerConstant 1 (Integer 4) Decimal)
+                                            (IntegerConstant 2 (Integer 4) Decimal)
+                                            (IntegerConstant 3 (Integer 4) Decimal)]
                                             (List
                                                 (Integer 4)
                                             )
@@ -174,19 +188,19 @@
                                         (Var 3 a)
                                         (ListConstant
                                             [(IntegerUnaryMinus
-                                                (IntegerConstant 3 (Integer 4))
+                                                (IntegerConstant 3 (Integer 4) Decimal)
                                                 (Integer 4)
-                                                (IntegerConstant -3 (Integer 4))
+                                                (IntegerConstant -3 (Integer 4) Decimal)
                                             )
                                             (IntegerUnaryMinus
-                                                (IntegerConstant 2 (Integer 4))
+                                                (IntegerConstant 2 (Integer 4) Decimal)
                                                 (Integer 4)
-                                                (IntegerConstant -2 (Integer 4))
+                                                (IntegerConstant -2 (Integer 4) Decimal)
                                             )
                                             (IntegerUnaryMinus
-                                                (IntegerConstant 1 (Integer 4))
+                                                (IntegerConstant 1 (Integer 4) Decimal)
                                                 (Integer 4)
-                                                (IntegerConstant -1 (Integer 4))
+                                                (IntegerConstant -1 (Integer 4) Decimal)
                                             )]
                                             (List
                                                 (Integer 4)
@@ -199,18 +213,18 @@
                                         (ListConstant
                                             [(StringConstant
                                                 "a"
-                                                (Character 1 1 ())
+                                                (String 1 1 () PointerString)
                                             )
                                             (StringConstant
                                                 "b"
-                                                (Character 1 1 ())
+                                                (String 1 1 () PointerString)
                                             )
                                             (StringConstant
                                                 "c"
-                                                (Character 1 1 ())
+                                                (String 1 1 () PointerString)
                                             )]
                                             (List
-                                                (Character 1 1 ())
+                                                (String 1 1 () PointerString)
                                             )
                                         )
                                         ()
@@ -219,17 +233,17 @@
                                         (Var 3 c)
                                         (ListConstant
                                             [(ListConstant
-                                                [(IntegerConstant 1 (Integer 4))
-                                                (IntegerConstant 2 (Integer 4))
-                                                (IntegerConstant 3 (Integer 4))]
+                                                [(IntegerConstant 1 (Integer 4) Decimal)
+                                                (IntegerConstant 2 (Integer 4) Decimal)
+                                                (IntegerConstant 3 (Integer 4) Decimal)]
                                                 (List
                                                     (Integer 4)
                                                 )
                                             )
                                             (ListConstant
-                                                [(IntegerConstant 4 (Integer 4))
-                                                (IntegerConstant 5 (Integer 4))
-                                                (IntegerConstant 6 (Integer 4))]
+                                                [(IntegerConstant 4 (Integer 4) Decimal)
+                                                (IntegerConstant 5 (Integer 4) Decimal)
+                                                (IntegerConstant 6 (Integer 4) Decimal)]
                                                 (List
                                                     (Integer 4)
                                                 )
@@ -246,7 +260,7 @@
                                         (Var 3 d)
                                         (ListItem
                                             (Var 3 a)
-                                            (IntegerConstant 2 (Integer 4))
+                                            (IntegerConstant 2 (Integer 4) Decimal)
                                             (Integer 4)
                                             ()
                                         )
@@ -258,36 +272,36 @@
                                             [(ListConstant
                                                 [(StringConstant
                                                     "a"
-                                                    (Character 1 1 ())
+                                                    (String 1 1 () PointerString)
                                                 )
                                                 (StringConstant
                                                     "b"
-                                                    (Character 1 1 ())
+                                                    (String 1 1 () PointerString)
                                                 )
                                                 (StringConstant
                                                     "c"
-                                                    (Character 1 1 ())
+                                                    (String 1 1 () PointerString)
                                                 )]
                                                 (List
-                                                    (Character 1 1 ())
+                                                    (String 1 1 () PointerString)
                                                 )
                                             )
                                             (ListConstant
                                                 [(StringConstant
                                                     "d"
-                                                    (Character 1 1 ())
+                                                    (String 1 1 () PointerString)
                                                 )
                                                 (StringConstant
                                                     "e"
-                                                    (Character 1 1 ())
+                                                    (String 1 1 () PointerString)
                                                 )]
                                                 (List
-                                                    (Character 1 1 ())
+                                                    (String 1 1 () PointerString)
                                                 )
                                             )]
                                             (List
                                                 (List
-                                                    (Character 1 1 ())
+                                                    (String 1 1 () PointerString)
                                                 )
                                             )
                                         )
@@ -295,23 +309,23 @@
                                     )
                                     (ListAppend
                                         (Var 3 a)
-                                        (IntegerConstant 10 (Integer 4))
+                                        (IntegerConstant 10 (Integer 4) Decimal)
                                     )
                                     (ListRemove
                                         (Var 3 a)
-                                        (IntegerConstant 1 (Integer 4))
+                                        (IntegerConstant 1 (Integer 4) Decimal)
                                     )
                                     (ListInsert
                                         (Var 3 a)
-                                        (IntegerConstant 2 (Integer 4))
-                                        (IntegerConstant 13 (Integer 4))
+                                        (IntegerConstant 2 (Integer 4) Decimal)
+                                        (IntegerConstant 13 (Integer 4) Decimal)
                                     )
                                     (Assignment
                                         (Var 3 a)
                                         (ListSection
                                             (Var 3 a)
-                                            ((IntegerConstant 0 (Integer 4))
-                                            (IntegerConstant 2 (Integer 4))
+                                            ((IntegerConstant 0 (Integer 4) Decimal)
+                                            (IntegerConstant 2 (Integer 4) Decimal)
                                             ())
                                             (List
                                                 (Integer 4)
@@ -336,7 +350,7 @@
                                         (IntrinsicElementalFunction
                                             ListPop
                                             [(Var 3 a)
-                                            (IntegerConstant 2 (Integer 4))]
+                                            (IntegerConstant 2 (Integer 4) Decimal)]
                                             1
                                             (Integer 4)
                                             ()
@@ -348,8 +362,8 @@
                                         (ListConcat
                                             (Var 3 a)
                                             (ListConstant
-                                                [(IntegerConstant 4 (Integer 4))
-                                                (IntegerConstant 5 (Integer 4))]
+                                                [(IntegerConstant 4 (Integer 4) Decimal)
+                                                (IntegerConstant 5 (Integer 4) Decimal)]
                                                 (List
                                                     (Integer 4)
                                                 )
@@ -365,8 +379,8 @@
                                         (Var 3 a)
                                         (ListConcat
                                             (ListConstant
-                                                [(IntegerConstant 6 (Integer 4))
-                                                (IntegerConstant 7 (Integer 4))]
+                                                [(IntegerConstant 6 (Integer 4) Decimal)
+                                                (IntegerConstant 7 (Integer 4) Decimal)]
                                                 (List
                                                     (Integer 4)
                                                 )
@@ -382,8 +396,8 @@
                                     (Assignment
                                         (Var 3 a11)
                                         (ListConstant
-                                            [(IntegerConstant 1 (Integer 4))
-                                            (IntegerConstant 2 (Integer 4))]
+                                            [(IntegerConstant 1 (Integer 4) Decimal)
+                                            (IntegerConstant 2 (Integer 4) Decimal)]
                                             (List
                                                 (Integer 4)
                                             )
@@ -393,8 +407,8 @@
                                     (Assignment
                                         (Var 3 b11)
                                         (ListConstant
-                                            [(IntegerConstant 3 (Integer 4))
-                                            (IntegerConstant 4 (Integer 4))]
+                                            [(IntegerConstant 3 (Integer 4) Decimal)
+                                            (IntegerConstant 4 (Integer 4) Decimal)]
                                             (List
                                                 (Integer 4)
                                             )

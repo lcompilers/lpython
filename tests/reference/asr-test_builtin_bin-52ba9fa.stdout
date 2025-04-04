@@ -73,6 +73,8 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
                                                 )
                                         })
                                     test_bin
@@ -94,7 +96,7 @@
                                     []
                                     [(Assignment
                                         (Var 3 i)
-                                        (IntegerConstant 5 (Integer 4))
+                                        (IntegerConstant 5 (Integer 4) Decimal)
                                         ()
                                     )
                                     (Assert
@@ -103,14 +105,14 @@
                                                 3 bin
                                                 ()
                                                 [((Var 3 i))]
-                                                (Character 1 -2 ())
+                                                (String 1 -2 () PointerString)
                                                 ()
                                                 ()
                                             )
                                             Eq
                                             (StringConstant
                                                 "0b101"
-                                                (Character 1 5 ())
+                                                (String 1 5 () PointerString)
                                             )
                                             (Logical 4)
                                             ()
@@ -119,7 +121,7 @@
                                     )
                                     (Assignment
                                         (Var 3 i)
-                                        (IntegerConstant 64 (Integer 4))
+                                        (IntegerConstant 64 (Integer 4) Decimal)
                                         ()
                                     )
                                     (Assert
@@ -128,14 +130,14 @@
                                                 3 bin
                                                 ()
                                                 [((Var 3 i))]
-                                                (Character 1 -2 ())
+                                                (String 1 -2 () PointerString)
                                                 ()
                                                 ()
                                             )
                                             Eq
                                             (StringConstant
                                                 "0b1000000"
-                                                (Character 1 9 ())
+                                                (String 1 9 () PointerString)
                                             )
                                             (Logical 4)
                                             ()
@@ -145,9 +147,9 @@
                                     (Assignment
                                         (Var 3 i)
                                         (IntegerUnaryMinus
-                                            (IntegerConstant 534 (Integer 4))
+                                            (IntegerConstant 534 (Integer 4) Decimal)
                                             (Integer 4)
-                                            (IntegerConstant -534 (Integer 4))
+                                            (IntegerConstant -534 (Integer 4) Decimal)
                                         )
                                         ()
                                     )
@@ -157,14 +159,14 @@
                                                 3 bin
                                                 ()
                                                 [((Var 3 i))]
-                                                (Character 1 -2 ())
+                                                (String 1 -2 () PointerString)
                                                 ()
                                                 ()
                                             )
                                             Eq
                                             (StringConstant
                                                 "-0b1000010110"
-                                                (Character 1 13 ())
+                                                (String 1 13 () PointerString)
                                             )
                                             (Logical 4)
                                             ()
@@ -176,18 +178,18 @@
                                             (FunctionCall
                                                 3 bin
                                                 ()
-                                                [((IntegerConstant 64 (Integer 4)))]
-                                                (Character 1 -2 ())
+                                                [((IntegerConstant 64 (Integer 4) Decimal))]
+                                                (String 1 -2 () PointerString)
                                                 (StringConstant
                                                     "0b1000000"
-                                                    (Character 1 9 ())
+                                                    (String 1 9 () PointerString)
                                                 )
                                                 ()
                                             )
                                             Eq
                                             (StringConstant
                                                 "0b1000000"
-                                                (Character 1 9 ())
+                                                (String 1 9 () PointerString)
                                             )
                                             (Logical 4)
                                             (LogicalConstant
@@ -203,21 +205,21 @@
                                                 3 bin
                                                 ()
                                                 [((IntegerUnaryMinus
-                                                    (IntegerConstant 534 (Integer 4))
+                                                    (IntegerConstant 534 (Integer 4) Decimal)
                                                     (Integer 4)
-                                                    (IntegerConstant -534 (Integer 4))
+                                                    (IntegerConstant -534 (Integer 4) Decimal)
                                                 ))]
-                                                (Character 1 -2 ())
+                                                (String 1 -2 () PointerString)
                                                 (StringConstant
                                                     "-0b1000010110"
-                                                    (Character 1 13 ())
+                                                    (String 1 13 () PointerString)
                                                 )
                                                 ()
                                             )
                                             Eq
                                             (StringConstant
                                                 "-0b1000010110"
-                                                (Character 1 13 ())
+                                                (String 1 13 () PointerString)
                                             )
                                             (Logical 4)
                                             (LogicalConstant

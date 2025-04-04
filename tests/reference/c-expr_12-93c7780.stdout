@@ -31,9 +31,15 @@ void __main__global_stmts();
 // Implementations
 void g(struct i16* *x, struct i16* y)
 {
+    int32_t __libasr_index_0_;
+    int32_t __libasr_index_0_1;
     y->data[((0 + (y->dims[0].stride * (0 - y->dims[0].lower_bound))) + y->offset)] = 1;
     y->data[((0 + (y->dims[0].stride * (1 - y->dims[0].lower_bound))) + y->offset)] = 2;
-    (*x) = y;
+    __libasr_index_0_1 = ((int32_t)y->dims[1-1].lower_bound);
+    for (__libasr_index_0_=((int32_t)(*x)->dims[1-1].lower_bound); __libasr_index_0_<=((int32_t) (*x)->dims[1-1].length + (*x)->dims[1-1].lower_bound - 1); __libasr_index_0_++) {
+        (*x)->data[((0 + ((*x)->dims[0].stride * (__libasr_index_0_ - (*x)->dims[0].lower_bound))) + (*x)->offset)] = &y->data[((0 + (y->dims[0].stride * (__libasr_index_0_1 - y->dims[0].lower_bound))) + y->offset)];
+        __libasr_index_0_1 = __libasr_index_0_1 + 1;
+    }
     printf("%d%s%d\n", (*x)->data[((0 + ((*x)->dims[0].stride * (0 - (*x)->dims[0].lower_bound))) + (*x)->offset)], " ", (*x)->data[((0 + ((*x)->dims[0].stride * (1 - (*x)->dims[0].lower_bound))) + (*x)->offset)]);
 }
 

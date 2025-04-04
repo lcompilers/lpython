@@ -84,7 +84,7 @@ std::string get_runtime_library_header_dir()
     char *env_p = std::getenv("LFORTRAN_RUNTIME_LIBRARY_HEADER_DIR");
     if (env_p) return env_p;
 
-    // The header file is in src/libasr/runtime for development, but in impure
+    // The header file is in libasr/src/libasr/runtime for development, but in impure
     // in installed version
     std::string path;
     int dirname_length;
@@ -94,11 +94,11 @@ std::string get_runtime_library_header_dir()
         || endswith(dirname, "src\\bin")
         || endswith(dirname, "SRC\\BIN")) {
         // Development version
-        return dirname + "/../libasr/runtime";
+        return dirname + "/../../libasr/src/libasr/runtime";
     } else if (endswith(dirname, "src/lpython/tests") ||
                endswith(to_lower(dirname), "src\\lpython\\tests")) {
         // CTest Tests
-        return dirname + "/../../libasr/runtime";
+        return dirname + "/../../../libasr/src/libasr/runtime";
     } else {
         // Installed version
         return dirname + "/../share/lpython/lib/impure";

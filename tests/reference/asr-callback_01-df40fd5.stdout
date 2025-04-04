@@ -73,13 +73,13 @@
                                                 2 g
                                                 ()
                                                 [((Var 2 f))
-                                                ((IntegerConstant 10 (Integer 4)))]
+                                                ((IntegerConstant 10 (Integer 4) Decimal))]
                                                 (Integer 4)
                                                 ()
                                                 ()
                                             )
                                             Eq
-                                            (IntegerConstant 11 (Integer 4))
+                                            (IntegerConstant 11 (Integer 4) Decimal)
                                             (Logical 4)
                                             ()
                                         )
@@ -91,13 +91,13 @@
                                                 2 g
                                                 ()
                                                 [((Var 2 f2))
-                                                ((IntegerConstant 20 (Integer 4)))]
+                                                ((IntegerConstant 20 (Integer 4) Decimal))]
                                                 (Integer 4)
                                                 ()
                                                 ()
                                             )
                                             Eq
-                                            (IntegerConstant 30 (Integer 4))
+                                            (IntegerConstant 30 (Integer 4) Decimal)
                                             (Logical 4)
                                             ()
                                         )
@@ -109,13 +109,13 @@
                                                 2 g
                                                 ()
                                                 [((Var 2 f3))
-                                                ((IntegerConstant 5 (Integer 4)))]
+                                                ((IntegerConstant 5 (Integer 4) Decimal))]
                                                 (Integer 4)
                                                 ()
                                                 ()
                                             )
                                             Eq
-                                            (IntegerConstant 21 (Integer 4))
+                                            (IntegerConstant 21 (Integer 4) Decimal)
                                             (Logical 4)
                                             ()
                                         )
@@ -147,6 +147,8 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
                                                 ),
                                             x:
                                                 (Variable
@@ -162,6 +164,8 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
+                                                    .false.
                                                     .false.
                                                 )
                                         })
@@ -187,7 +191,7 @@
                                         (IntegerBinOp
                                             (Var 3 x)
                                             Add
-                                            (IntegerConstant 1 (Integer 4))
+                                            (IntegerConstant 1 (Integer 4) Decimal)
                                             (Integer 4)
                                             ()
                                         )
@@ -220,6 +224,8 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
                                                 ),
                                             x:
                                                 (Variable
@@ -235,6 +241,8 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
+                                                    .false.
                                                     .false.
                                                 )
                                         })
@@ -260,7 +268,7 @@
                                         (IntegerBinOp
                                             (Var 4 x)
                                             Add
-                                            (IntegerConstant 10 (Integer 4))
+                                            (IntegerConstant 10 (Integer 4) Decimal)
                                             (Integer 4)
                                             ()
                                         )
@@ -293,6 +301,8 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
                                                 ),
                                             x:
                                                 (Variable
@@ -308,6 +318,8 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
+                                                    .false.
                                                     .false.
                                                 )
                                         })
@@ -381,6 +393,8 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
                                                 ),
                                             arg:
                                                 (Variable
@@ -396,6 +410,8 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
+                                                    .false.
                                                     .false.
                                                 ),
                                             func:
@@ -418,6 +434,8 @@
                                                                     Public
                                                                     Required
                                                                     .false.
+                                                                    .false.
+                                                                    .false.
                                                                 ),
                                                             func_return_var_name:
                                                                 (Variable
@@ -433,6 +451,8 @@
                                                                     Source
                                                                     Public
                                                                     Required
+                                                                    .false.
+                                                                    .false.
                                                                     .false.
                                                                 )
                                                         })
@@ -474,6 +494,8 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
+                                                    .false.
                                                     .false.
                                                 )
                                         })

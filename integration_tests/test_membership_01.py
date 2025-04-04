@@ -6,6 +6,9 @@ def test_int_dict():
     i = 4
     assert (i in a)
 
+    a = {}
+    assert (1 not in a)
+
 def test_str_dict():
     a: dict[str, str] = {'a':'1', 'b':'2', 'c':'3'}
     i: str
@@ -13,6 +16,9 @@ def test_str_dict():
     assert ('d' not in a)
     i = 'c'
     assert (i in a)
+
+    a = {}
+    assert ('a' not in a)
 
 def test_int_set():
     a: set[i32] = {1, 2, 3, 4}
@@ -22,13 +28,19 @@ def test_int_set():
     i = 4
     assert (i in a)
 
+    a = set()
+    assert (1 not in a)
+
 def test_str_set():
     a: set[str] = {'a', 'b', 'c', 'e', 'f'}
     i: str
     assert ('a' in a)
-    # assert ('d' not in a)
+    assert ('d' not in a)
     i = 'c'
     assert (i in a)
+
+    a = set()
+    assert ('a' not in a)
 
 test_int_dict()
 test_str_dict()

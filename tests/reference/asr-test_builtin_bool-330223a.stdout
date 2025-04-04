@@ -63,6 +63,8 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
                                                 ),
                                             a2:
                                                 (Variable
@@ -78,6 +80,8 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
+                                                    .false.
                                                     .false.
                                                 ),
                                             a3:
@@ -95,6 +99,8 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
                                                 ),
                                             a4:
                                                 (Variable
@@ -110,6 +116,8 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
+                                                    .false.
                                                     .false.
                                                 ),
                                             b:
@@ -127,6 +135,8 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
                                                 ),
                                             c:
                                                 (Variable
@@ -143,6 +153,8 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
                                                 ),
                                             c1:
                                                 (Variable
@@ -158,6 +170,8 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
+                                                    .false.
                                                     .false.
                                                 ),
                                             complex:
@@ -205,6 +219,8 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
                                                 ),
                                             f2:
                                                 (Variable
@@ -221,6 +237,8 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
                                                 ),
                                             s:
                                                 (Variable
@@ -231,11 +249,13 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Character 1 -2 ())
+                                                    (String 1 -2 () PointerString)
                                                     ()
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
+                                                    .false.
                                                     .false.
                                                 )
                                         })
@@ -258,7 +278,7 @@
                                     []
                                     [(Assignment
                                         (Var 3 a)
-                                        (IntegerConstant 34 (Integer 4))
+                                        (IntegerConstant 34 (Integer 4) Decimal)
                                         ()
                                     )
                                     (Assert
@@ -272,7 +292,7 @@
                                     )
                                     (Assignment
                                         (Var 3 a)
-                                        (IntegerConstant 0 (Integer 4))
+                                        (IntegerConstant 0 (Integer 4) Decimal)
                                         ()
                                     )
                                     (Assert
@@ -291,9 +311,9 @@
                                     (Assert
                                         (Cast
                                             (IntegerUnaryMinus
-                                                (IntegerConstant 1 (Integer 4))
+                                                (IntegerConstant 1 (Integer 4) Decimal)
                                                 (Integer 4)
-                                                (IntegerConstant -1 (Integer 4))
+                                                (IntegerConstant -1 (Integer 4) Decimal)
                                             )
                                             IntegerToLogical
                                             (Logical 4)
@@ -307,7 +327,7 @@
                                     (Assert
                                         (LogicalNot
                                             (Cast
-                                                (IntegerConstant 0 (Integer 4))
+                                                (IntegerConstant 0 (Integer 4) Decimal)
                                                 IntegerToLogical
                                                 (Logical 4)
                                                 (LogicalConstant
@@ -326,10 +346,10 @@
                                     (Assignment
                                         (Var 3 a2)
                                         (Cast
-                                            (IntegerConstant 34 (Integer 4))
+                                            (IntegerConstant 34 (Integer 4) Decimal)
                                             IntegerToInteger
                                             (Integer 8)
-                                            (IntegerConstant 34 (Integer 8))
+                                            (IntegerConstant 34 (Integer 8) Decimal)
                                         )
                                         ()
                                     )
@@ -345,10 +365,10 @@
                                     (Assignment
                                         (Var 3 a3)
                                         (Cast
-                                            (IntegerConstant 34 (Integer 4))
+                                            (IntegerConstant 34 (Integer 4) Decimal)
                                             IntegerToInteger
                                             (Integer 1)
-                                            (IntegerConstant 34 (Integer 1))
+                                            (IntegerConstant 34 (Integer 1) Decimal)
                                         )
                                         ()
                                     )
@@ -365,13 +385,13 @@
                                         (Var 3 a4)
                                         (IntegerUnaryMinus
                                             (Cast
-                                                (IntegerConstant 1 (Integer 4))
+                                                (IntegerConstant 1 (Integer 4) Decimal)
                                                 IntegerToInteger
                                                 (Integer 2)
-                                                (IntegerConstant 1 (Integer 2))
+                                                (IntegerConstant 1 (Integer 2) Decimal)
                                             )
                                             (Integer 2)
-                                            (IntegerConstant -1 (Integer 2))
+                                            (IntegerConstant -1 (Integer 2) Decimal)
                                         )
                                         ()
                                     )
@@ -520,7 +540,7 @@
                                         (Var 3 s)
                                         (StringConstant
                                             ""
-                                            (Character 1 0 ())
+                                            (String 1 0 () PointerString)
                                         )
                                         ()
                                     )
@@ -528,7 +548,7 @@
                                         (LogicalNot
                                             (Cast
                                                 (Var 3 s)
-                                                CharacterToLogical
+                                                StringToLogical
                                                 (Logical 4)
                                                 ()
                                             )
@@ -541,14 +561,14 @@
                                         (Var 3 s)
                                         (StringConstant
                                             "str"
-                                            (Character 1 3 ())
+                                            (String 1 3 () PointerString)
                                         )
                                         ()
                                     )
                                     (Assert
                                         (Cast
                                             (Var 3 s)
-                                            CharacterToLogical
+                                            StringToLogical
                                             (Logical 4)
                                             ()
                                         )
@@ -559,9 +579,9 @@
                                             (Cast
                                                 (StringConstant
                                                     ""
-                                                    (Character 1 0 ())
+                                                    (String 1 0 () PointerString)
                                                 )
-                                                CharacterToLogical
+                                                StringToLogical
                                                 (Logical 4)
                                                 (LogicalConstant
                                                     .false.
@@ -580,9 +600,9 @@
                                         (Cast
                                             (StringConstant
                                                 "str"
-                                                (Character 1 3 ())
+                                                (String 1 3 () PointerString)
                                             )
-                                            CharacterToLogical
+                                            StringToLogical
                                             (Logical 4)
                                             (LogicalConstant
                                                 .true.
@@ -646,8 +666,8 @@
                                             (FunctionCall
                                                 3 complex@__lpython_overloaded_9__complex
                                                 3 complex
-                                                [((IntegerConstant 2 (Integer 4)))
-                                                ((IntegerConstant 3 (Integer 4)))]
+                                                [((IntegerConstant 2 (Integer 4) Decimal))
+                                                ((IntegerConstant 3 (Integer 4) Decimal))]
                                                 (Complex 8)
                                                 (ComplexConstant
                                                     2.000000
@@ -681,8 +701,8 @@
                                             (FunctionCall
                                                 3 complex@__lpython_overloaded_9__complex
                                                 3 complex
-                                                [((IntegerConstant 0 (Integer 4)))
-                                                ((IntegerConstant 0 (Integer 4)))]
+                                                [((IntegerConstant 0 (Integer 4) Decimal))
+                                                ((IntegerConstant 0 (Integer 4) Decimal))]
                                                 (Complex 8)
                                                 (ComplexConstant
                                                     0.000000
@@ -719,7 +739,7 @@
                                             (Cast
                                                 (ComplexBinOp
                                                     (Cast
-                                                        (IntegerConstant 0 (Integer 4))
+                                                        (IntegerConstant 0 (Integer 4) Decimal)
                                                         IntegerToComplex
                                                         (Complex 8)
                                                         (ComplexConstant
@@ -761,7 +781,7 @@
                                         (FunctionCall
                                             3 complex@__lpython_overloaded_13__complex
                                             3 complex
-                                            [((IntegerConstant 0 (Integer 4)))
+                                            [((IntegerConstant 0 (Integer 4) Decimal))
                                             ((RealConstant
                                                 0.100202
                                                 (Real 8)
@@ -791,8 +811,8 @@
                                                 (FunctionCall
                                                     3 complex@__lpython_overloaded_9__complex
                                                     3 complex
-                                                    [((IntegerConstant 0 (Integer 4)))
-                                                    ((IntegerConstant 0 (Integer 4)))]
+                                                    [((IntegerConstant 0 (Integer 4) Decimal))
+                                                    ((IntegerConstant 0 (Integer 4) Decimal))]
                                                     (Complex 8)
                                                     (ComplexConstant
                                                         0.000000
@@ -820,7 +840,7 @@
                                         (Cast
                                             (ComplexBinOp
                                                 (Cast
-                                                    (IntegerConstant 3 (Integer 4))
+                                                    (IntegerConstant 3 (Integer 4) Decimal)
                                                     IntegerToComplex
                                                     (Complex 8)
                                                     (ComplexConstant

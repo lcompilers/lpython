@@ -1,4 +1,4 @@
-add_subdirectory(libasr)
+add_subdirectory(${CMAKE_SOURCE_DIR}/libasr/src/libasr ${CMAKE_BINARY_DIR}/libasr)
 add_subdirectory(tests)
 add_subdirectory(lpython)
 add_subdirectory(bin)

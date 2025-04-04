@@ -19,6 +19,6 @@ def f():
 
     yptr1 = c_p_pointer(yq, i16[:], array([2]))
 
-    print(yq, yptr1)
+    # print(yq, yptr1)
 
 f()

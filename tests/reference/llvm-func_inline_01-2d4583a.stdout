@@ -1,10 +1,10 @@
 ; ModuleID = 'LFortran'
 source_filename = "LFortran"
 
-@0 = private unnamed_addr constant [2 x i8] c" \00", align 1
-@1 = private unnamed_addr constant [2 x i8] c"\0A\00", align 1
-@2 = private unnamed_addr constant [7 x i8] c"%lld%s\00", align 1
-@3 = private unnamed_addr constant [16 x i8] c"AssertionError\0A\00", align 1
+@0 = private unnamed_addr constant [2 x i8] c"\0A\00", align 1
+@serialization_info = private unnamed_addr constant [3 x i8] c"I8\00", align 1
+@1 = private unnamed_addr constant [5 x i8] c"%s%s\00", align 1
+@2 = private unnamed_addr constant [16 x i8] c"AssertionError\0A\00", align 1
 
 define void @__module___main_____main__global_stmts() {
 .entry:
@@ -63,8 +63,8 @@ define void @__module___main____xx_lcompilers_changed_main_xx() {
   store i64 40, i64* %x, align 4
   %0 = call i64 @__module___main___fib(i64* %x)
   store i64 %0, i64* %ans, align 4
-  %1 = load i64, i64* %ans, align 4
-  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([7 x i8], [7 x i8]* @2, i32 0, i32 0), i64 %1, i8* getelementptr inbounds ([2 x i8], [2 x i8]* @1, i32 0, i32 0))
+  %1 = call i8* (i8*, i8*, i32, ...) @_lcompilers_string_format_fortran(i8* null, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @serialization_info, i32 0, i32 0), i32 0, i64* %ans)
+  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([5 x i8], [5 x i8]* @1, i32 0, i32 0), i8* %1, i8* getelementptr inbounds ([2 x i8], [2 x i8]* @0, i32 0, i32 0))
   %2 = load i64, i64* %ans, align 4
   %3 = icmp eq i64 %2, 102334155
   br i1 %3, label %then, label %else
@@ -73,7 +73,7 @@ then:                                             ; preds = %.entry
   br label %ifcont
 
 else:                                             ; preds = %.entry
-  call void (i8*, ...) @_lcompilers_print_error(i8* getelementptr inbounds ([16 x i8], [16 x i8]* @3, i32 0, i32 0))
+  call void (i8*, ...) @_lcompilers_print_error(i8* getelementptr inbounds ([16 x i8], [16 x i8]* @2, i32 0, i32 0))
   call void @exit(i32 1)
   br label %ifcont
 
@@ -83,6 +83,8 @@ ifcont:                                           ; preds = %else, %then
 return:                                           ; preds = %ifcont
   ret void
 }
+
+declare i8* @_lcompilers_string_format_fortran(i8*, i8*, i32, ...)
 
 declare void @_lfortran_printf(i8*, ...)
 
@@ -94,7 +96,13 @@ define i32 @main(i32 %0, i8** %1) {
 .entry:
   call void @_lpython_call_initial_functions(i32 %0, i8** %1)
   call void @__module___main_____main__global_stmts()
+  call void @_lpython_free_argv()
+  br label %return
+
+return:                                           ; preds = %.entry
   ret i32 0
 }
 
 declare void @_lpython_call_initial_functions(i32, i8**)
+
+declare void @_lpython_free_argv()

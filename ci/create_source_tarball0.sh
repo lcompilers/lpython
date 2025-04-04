@@ -9,9 +9,10 @@ cmake -E copy_directory src $dest/src
 cmake -E copy_directory share $dest/share
 cmake -E copy_directory cmake $dest/cmake
 cmake -E copy_directory examples $dest/examples
+cmake -E copy_directory libasr/src/libasr $dest/libasr/src/libasr
 
 # Copy Files:
-cmake -E copy CMakeLists.txt README.md LICENSE version $dest
+cmake -E copy CMakeLists.txt README.md LICENSE lp_version $dest
 
 # Create the tarball
 cmake -E make_directory dist

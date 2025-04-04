@@ -69,6 +69,8 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
                                                 ),
                                             y:
                                                 (Variable
@@ -89,6 +91,8 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
+                                                    .false.
                                                     .false.
                                                 )
                                         })
@@ -127,19 +131,19 @@
                                     (Assignment
                                         (Var 3 x)
                                         (DictConstant
-                                            [(IntegerConstant 1 (Integer 4))
-                                            (IntegerConstant 2 (Integer 4))]
+                                            [(IntegerConstant 1 (Integer 4) Decimal)
+                                            (IntegerConstant 2 (Integer 4) Decimal)]
                                             [(TupleConstant
-                                                [(IntegerConstant 1 (Integer 4))
-                                                (IntegerConstant 2 (Integer 4))]
+                                                [(IntegerConstant 1 (Integer 4) Decimal)
+                                                (IntegerConstant 2 (Integer 4) Decimal)]
                                                 (Tuple
                                                     [(Integer 4)
                                                     (Integer 4)]
                                                 )
                                             )
                                             (TupleConstant
-                                                [(IntegerConstant 3 (Integer 4))
-                                                (IntegerConstant 4 (Integer 4))]
+                                                [(IntegerConstant 3 (Integer 4) Decimal)
+                                                (IntegerConstant 4 (Integer 4) Decimal)]
                                                 (Tuple
                                                     [(Integer 4)
                                                     (Integer 4)]
@@ -172,18 +176,18 @@
                                     (Assignment
                                         (Var 3 y)
                                         (DictConstant
-                                            [(IntegerConstant 1 (Integer 4))
-                                            (IntegerConstant 2 (Integer 4))]
+                                            [(IntegerConstant 1 (Integer 4) Decimal)
+                                            (IntegerConstant 2 (Integer 4) Decimal)]
                                             [(ListConstant
-                                                [(IntegerConstant 1 (Integer 4))
-                                                (IntegerConstant 2 (Integer 4))]
+                                                [(IntegerConstant 1 (Integer 4) Decimal)
+                                                (IntegerConstant 2 (Integer 4) Decimal)]
                                                 (List
                                                     (Integer 4)
                                                 )
                                             )
                                             (ListConstant
-                                                [(IntegerConstant 3 (Integer 4))
-                                                (IntegerConstant 4 (Integer 4))]
+                                                [(IntegerConstant 3 (Integer 4) Decimal)
+                                                (IntegerConstant 4 (Integer 4) Decimal)]
                                                 (List
                                                     (Integer 4)
                                                 )
@@ -198,37 +202,41 @@
                                         ()
                                     )
                                     (Print
-                                        [(DictItem
-                                            (Var 3 x)
-                                            (IntegerConstant 1 (Integer 4))
+                                        (StringFormat
                                             ()
-                                            (Tuple
-                                                [(Integer 4)
-                                                (Integer 4)]
+                                            [(DictItem
+                                                (Var 3 x)
+                                                (IntegerConstant 1 (Integer 4) Decimal)
+                                                ()
+                                                (Tuple
+                                                    [(Integer 4)
+                                                    (Integer 4)]
+                                                )
+                                                ()
                                             )
+                                            (DictItem
+                                                (Var 3 x)
+                                                (IntegerConstant 2 (Integer 4) Decimal)
+                                                ()
+                                                (Tuple
+                                                    [(Integer 4)
+                                                    (Integer 4)]
+                                                )
+                                                ()
+                                            )
+                                            (DictItem
+                                                (Var 3 y)
+                                                (IntegerConstant 1 (Integer 4) Decimal)
+                                                ()
+                                                (List
+                                                    (Integer 4)
+                                                )
+                                                ()
+                                            )]
+                                            FormatPythonFormat
+                                            (String -1 0 () PointerString)
                                             ()
                                         )
-                                        (DictItem
-                                            (Var 3 x)
-                                            (IntegerConstant 2 (Integer 4))
-                                            ()
-                                            (Tuple
-                                                [(Integer 4)
-                                                (Integer 4)]
-                                            )
-                                            ()
-                                        )
-                                        (DictItem
-                                            (Var 3 y)
-                                            (IntegerConstant 1 (Integer 4))
-                                            ()
-                                            (List
-                                                (Integer 4)
-                                            )
-                                            ()
-                                        )]
-                                        ()
-                                        ()
                                     )]
                                     ()
                                     Public

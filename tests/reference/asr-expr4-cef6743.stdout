@@ -27,6 +27,8 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
                                                 ),
                                             b:
                                                 (Variable
@@ -42,6 +44,8 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
+                                                    .false.
                                                     .false.
                                                 )
                                         })
@@ -64,12 +68,12 @@
                                     []
                                     [(Assignment
                                         (Var 3 a)
-                                        (IntegerConstant 4 (Integer 4))
+                                        (IntegerConstant 4 (Integer 4) Decimal)
                                         ()
                                     )
                                     (Assignment
                                         (Var 3 b)
-                                        (IntegerConstant 20 (Integer 4))
+                                        (IntegerConstant 20 (Integer 4) Decimal)
                                         ()
                                     )
                                     (ExplicitDeallocate

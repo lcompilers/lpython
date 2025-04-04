@@ -1,5 +1,5 @@
-#ifndef LFORTRAN_UTILS_H
-#define LFORTRAN_UTILS_H
+#ifndef LPYTHON_UTILS_H
+#define LPYTHON_UTILS_H
 
 #include <string>
 #include <libasr/utils.h>
@@ -29,4 +29,4 @@ void close_symengine_library(DynamicLibrary &l);
 int32_t get_exit_status(int32_t err);
 } // LFortran
 
-#endif // LFORTRAN_UTILS_H
+#endif // LPYTHON_UTILS_H

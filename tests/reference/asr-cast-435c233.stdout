@@ -67,11 +67,13 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Character 1 -2 ())
+                                                    (String 1 -2 () PointerString)
                                                     ()
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
+                                                    .false.
                                                     .false.
                                                 ),
                                             x:
@@ -84,12 +86,14 @@
                                                     ()
                                                     Default
                                                     (List
-                                                        (Character 1 -2 ())
+                                                        (String 1 -2 () PointerString)
                                                     )
                                                     ()
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
+                                                    .false.
                                                     .false.
                                                 ),
                                             y:
@@ -102,12 +106,14 @@
                                                     ()
                                                     Default
                                                     (List
-                                                        (Character 1 -2 ())
+                                                        (String 1 -2 () PointerString)
                                                     )
                                                     ()
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
+                                                    .false.
                                                     .false.
                                                 )
                                         })
@@ -132,7 +138,7 @@
                                         (Var 3 s)
                                         (StringConstant
                                             "lpython"
-                                            (Character 1 7 ())
+                                            (String 1 7 () PointerString)
                                         )
                                         ()
                                     )
@@ -143,7 +149,7 @@
                                             ()
                                             [((Var 3 s))]
                                             (List
-                                                (Character 1 -2 ())
+                                                (String 1 -2 () PointerString)
                                             )
                                             ()
                                             ()
@@ -155,18 +161,18 @@
                                         (ListConstant
                                             [(StringConstant
                                                 "a"
-                                                (Character 1 1 ())
+                                                (String 1 1 () PointerString)
                                             )
                                             (StringConstant
                                                 "b"
-                                                (Character 1 1 ())
+                                                (String 1 1 () PointerString)
                                             )
                                             (StringConstant
                                                 "c"
-                                                (Character 1 1 ())
+                                                (String 1 1 () PointerString)
                                             )]
                                             (List
-                                                (Character 1 1 ())
+                                                (String 1 1 () PointerString)
                                             )
                                         )
                                         ()
@@ -178,7 +184,7 @@
                                             ()
                                             [((Var 3 y))]
                                             (List
-                                                (Character 1 -2 ())
+                                                (String 1 -2 () PointerString)
                                             )
                                             ()
                                             ()
@@ -190,7 +196,7 @@
                                         (ListConstant
                                             []
                                             (List
-                                                (Character 1 -2 ())
+                                                (String 1 -2 () PointerString)
                                             )
                                         )
                                         ()
@@ -203,16 +209,16 @@
                                             [((ListConstant
                                                 []
                                                 (List
-                                                    (Character 1 -2 ())
+                                                    (String 1 -2 () PointerString)
                                                 )
                                             ))]
                                             (List
-                                                (Character 1 -2 ())
+                                                (String 1 -2 () PointerString)
                                             )
                                             (ListConstant
                                                 []
                                                 (List
-                                                    (Character 1 -2 ())
+                                                    (String 1 -2 () PointerString)
                                                 )
                                             )
                                             ()
@@ -226,42 +232,42 @@
                                             ()
                                             [((StringConstant
                                                 "lpython"
-                                                (Character 1 7 ())
+                                                (String 1 7 () PointerString)
                                             ))]
                                             (List
-                                                (Character 1 -2 ())
+                                                (String 1 -2 () PointerString)
                                             )
                                             (ListConstant
                                                 [(StringConstant
                                                     "l"
-                                                    (Character 1 1 ())
+                                                    (String 1 1 () PointerString)
                                                 )
                                                 (StringConstant
                                                     "p"
-                                                    (Character 1 1 ())
+                                                    (String 1 1 () PointerString)
                                                 )
                                                 (StringConstant
                                                     "y"
-                                                    (Character 1 1 ())
+                                                    (String 1 1 () PointerString)
                                                 )
                                                 (StringConstant
                                                     "t"
-                                                    (Character 1 1 ())
+                                                    (String 1 1 () PointerString)
                                                 )
                                                 (StringConstant
                                                     "h"
-                                                    (Character 1 1 ())
+                                                    (String 1 1 () PointerString)
                                                 )
                                                 (StringConstant
                                                     "o"
-                                                    (Character 1 1 ())
+                                                    (String 1 1 () PointerString)
                                                 )
                                                 (StringConstant
                                                     "n"
-                                                    (Character 1 1 ())
+                                                    (String 1 1 () PointerString)
                                                 )]
                                                 (List
-                                                    (Character 1 1 ())
+                                                    (String 1 1 () PointerString)
                                                 )
                                             )
                                             ()

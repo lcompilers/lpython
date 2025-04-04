@@ -63,6 +63,8 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
                                                 )
                                         })
                                     main0
@@ -94,8 +96,8 @@
                                         (FunctionCall
                                             2 test_pow_1
                                             ()
-                                            [((IntegerConstant 1 (Integer 4)))
-                                            ((IntegerConstant 2 (Integer 4)))]
+                                            [((IntegerConstant 1 (Integer 4) Decimal))
+                                            ((IntegerConstant 2 (Integer 4) Decimal))]
                                             (Integer 4)
                                             ()
                                             ()
@@ -127,6 +129,8 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
+                                                    .false.
                                                     .false.
                                                 ),
                                             pow:
@@ -173,8 +177,8 @@
                                             (FunctionCall
                                                 3 pow@__lpython_overloaded_0__pow
                                                 3 pow
-                                                [((IntegerConstant 2 (Integer 4)))
-                                                ((IntegerConstant 2 (Integer 4)))]
+                                                [((IntegerConstant 2 (Integer 4) Decimal))
+                                                ((IntegerConstant 2 (Integer 4) Decimal))]
                                                 (Real 8)
                                                 (RealConstant
                                                     4.000000
@@ -184,7 +188,7 @@
                                             )
                                             RealToInteger
                                             (Integer 4)
-                                            (IntegerConstant 4 (Integer 4))
+                                            (IntegerConstant 4 (Integer 4) Decimal)
                                         )
                                         ()
                                     )]
@@ -214,6 +218,8 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
                                                 ),
                                             a:
                                                 (Variable
@@ -230,6 +236,8 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
                                                 ),
                                             b:
                                                 (Variable
@@ -245,6 +253,8 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
+                                                    .false.
                                                     .false.
                                                 ),
                                             pow:
@@ -281,6 +291,8 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
+                                                    .false.
                                                     .false.
                                                 )
                                         })

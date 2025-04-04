@@ -1,5 +1,0 @@
-semantic error: Type mismatch in annotation-assignment, the types must be compatible
- --> tests/errors/arrays_03.py:6:5
-  |
-6 |     x: i16[4] = empty([5], dtype=int16)
-  |     ^           ^^^^^^^^^^^^^^^^^^^^^^^ type mismatch ('i16[4]' and 'i16[5]')
