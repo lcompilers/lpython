@@ -19,10 +19,17 @@ if (WITH_STACKTRACE AND APPLE AND CMAKE_CXX_COMPILER_ID MATCHES Clang)
     # On macOS we have to call dsymutil to create the dSYM bundle so that the
     # stacktrace can find debugging information corresponding to the lpython
     # binary
+    find_program(DSYMUTIL NAMES dsymutil PATHS /usr/bin NO_DEFAULT_PATH)
+
+    if(NOT DSYMUTIL)
+        find_program(DSYMUTIL NAMES dsymutil)
+    endif()
+    
+    message("DSYMUTIL: ${DSYMUTIL}")
     add_custom_command(
         TARGET lpython
         POST_BUILD
-        COMMAND dsymutil lpython
+        COMMAND ${DSYMUTIL} lpython
     )
     if (WITH_DWARFDUMP)
         add_custom_command(
