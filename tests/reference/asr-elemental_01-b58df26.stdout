@@ -203,9 +203,17 @@
                                     [(Assignment
                                         (Var 234 array2d)
                                         (ArrayBroadcast
-                                            (RealConstant
-                                                0.000000
+                                            (ArrayItem
+                                                (Var 234 array2d)
+                                                [(()
+                                                (IntegerConstant 0 (Integer 4) Decimal)
+                                                ())
+                                                (()
+                                                (IntegerConstant 0 (Integer 4) Decimal)
+                                                ())]
                                                 (Real 8)
+                                                RowMajor
+                                                ()
                                             )
                                             (ArrayConstant
                                                 8
@@ -233,9 +241,17 @@
                                     (Assignment
                                         (Var 234 cos2d)
                                         (ArrayBroadcast
-                                            (RealConstant
-                                                0.000000
+                                            (ArrayItem
+                                                (Var 234 cos2d)
+                                                [(()
+                                                (IntegerConstant 0 (Integer 4) Decimal)
+                                                ())
+                                                (()
+                                                (IntegerConstant 0 (Integer 4) Decimal)
+                                                ())]
                                                 (Real 8)
+                                                RowMajor
+                                                ()
                                             )
                                             (ArrayConstant
                                                 8
@@ -540,9 +556,14 @@
                                     [(Assignment
                                         (Var 232 array_a)
                                         (ArrayBroadcast
-                                            (RealConstant
-                                                0.000000
+                                            (ArrayItem
+                                                (Var 232 array_a)
+                                                [(()
+                                                (IntegerConstant 0 (Integer 4) Decimal)
+                                                ())]
                                                 (Real 8)
+                                                RowMajor
+                                                ()
                                             )
                                             (ArrayConstant
                                                 4
@@ -557,30 +578,25 @@
                                             )
                                             (Array
                                                 (Real 8)
-                                                [((IntegerConstant 1 (Integer 4) Decimal)
+                                                [((IntegerConstant 0 (Integer 4) Decimal)
                                                 (IntegerConstant 100 (Integer 4) Decimal))]
                                                 FixedSizeArray
                                             )
-                                            (ArrayConstant
-                                                800
-                                                [0.0000000000000000e+00, 0.0000000000000000e+00, 0.0000000000000000e+00, ...., 0.0000000000000000e+00, 0.0000000000000000e+00, 0.0000000000000000e+00]
-                                                (Array
-                                                    (Real 8)
-                                                    [((IntegerConstant 1 (Integer 4) Decimal)
-                                                    (IntegerConstant 100 (Integer 4) Decimal))]
-                                                    FixedSizeArray
-                                                )
-                                                ColMajor
-                                            )
+                                            ()
                                         )
                                         ()
                                     )
                                     (Assignment
                                         (Var 232 array_b)
                                         (ArrayBroadcast
-                                            (RealConstant
-                                                0.000000
+                                            (ArrayItem
+                                                (Var 232 array_b)
+                                                [(()
+                                                (IntegerConstant 0 (Integer 4) Decimal)
+                                                ())]
                                                 (Real 8)
+                                                RowMajor
+                                                ()
                                             )
                                             (ArrayConstant
                                                 4
@@ -595,30 +611,25 @@
                                             )
                                             (Array
                                                 (Real 8)
-                                                [((IntegerConstant 1 (Integer 4) Decimal)
+                                                [((IntegerConstant 0 (Integer 4) Decimal)
                                                 (IntegerConstant 100 (Integer 4) Decimal))]
                                                 FixedSizeArray
                                             )
-                                            (ArrayConstant
-                                                800
-                                                [0.0000000000000000e+00, 0.0000000000000000e+00, 0.0000000000000000e+00, ...., 0.0000000000000000e+00, 0.0000000000000000e+00, 0.0000000000000000e+00]
-                                                (Array
-                                                    (Real 8)
-                                                    [((IntegerConstant 1 (Integer 4) Decimal)
-                                                    (IntegerConstant 100 (Integer 4) Decimal))]
-                                                    FixedSizeArray
-                                                )
-                                                ColMajor
-                                            )
+                                            ()
                                         )
                                         ()
                                     )
                                     (Assignment
                                         (Var 232 array_c)
                                         (ArrayBroadcast
-                                            (RealConstant
-                                                0.000000
+                                            (ArrayItem
+                                                (Var 232 array_c)
+                                                [(()
+                                                (IntegerConstant 0 (Integer 4) Decimal)
+                                                ())]
                                                 (Real 8)
+                                                RowMajor
+                                                ()
                                             )
                                             (ArrayConstant
                                                 4
@@ -633,21 +644,11 @@
                                             )
                                             (Array
                                                 (Real 8)
-                                                [((IntegerConstant 1 (Integer 4) Decimal)
+                                                [((IntegerConstant 0 (Integer 4) Decimal)
                                                 (IntegerConstant 100 (Integer 4) Decimal))]
                                                 FixedSizeArray
                                             )
-                                            (ArrayConstant
-                                                800
-                                                [0.0000000000000000e+00, 0.0000000000000000e+00, 0.0000000000000000e+00, ...., 0.0000000000000000e+00, 0.0000000000000000e+00, 0.0000000000000000e+00]
-                                                (Array
-                                                    (Real 8)
-                                                    [((IntegerConstant 1 (Integer 4) Decimal)
-                                                    (IntegerConstant 100 (Integer 4) Decimal))]
-                                                    FixedSizeArray
-                                                )
-                                                ColMajor
-                                            )
+                                            ()
                                         )
                                         ()
                                     )
@@ -1028,9 +1029,14 @@
                                     [(Assignment
                                         (Var 233 array1d)
                                         (ArrayBroadcast
-                                            (RealConstant
-                                                0.000000
+                                            (ArrayItem
+                                                (Var 233 array1d)
+                                                [(()
+                                                (IntegerConstant 0 (Integer 4) Decimal)
+                                                ())]
                                                 (Real 4)
+                                                RowMajor
+                                                ()
                                             )
                                             (ArrayConstant
                                                 4
@@ -1045,30 +1051,25 @@
                                             )
                                             (Array
                                                 (Real 4)
-                                                [((IntegerConstant 1 (Integer 4) Decimal)
+                                                [((IntegerConstant 0 (Integer 4) Decimal)
                                                 (IntegerConstant 256 (Integer 4) Decimal))]
                                                 FixedSizeArray
                                             )
-                                            (ArrayConstant
-                                                1024
-                                                [0.00000000e+00, 0.00000000e+00, 0.00000000e+00, ...., 0.00000000e+00, 0.00000000e+00, 0.00000000e+00]
-                                                (Array
-                                                    (Real 4)
-                                                    [((IntegerConstant 1 (Integer 4) Decimal)
-                                                    (IntegerConstant 256 (Integer 4) Decimal))]
-                                                    FixedSizeArray
-                                                )
-                                                ColMajor
-                                            )
+                                            ()
                                         )
                                         ()
                                     )
                                     (Assignment
                                         (Var 233 sin1d)
                                         (ArrayBroadcast
-                                            (RealConstant
-                                                0.000000
+                                            (ArrayItem
+                                                (Var 233 sin1d)
+                                                [(()
+                                                (IntegerConstant 0 (Integer 4) Decimal)
+                                                ())]
                                                 (Real 4)
+                                                RowMajor
+                                                ()
                                             )
                                             (ArrayConstant
                                                 4
@@ -1083,21 +1084,11 @@
                                             )
                                             (Array
                                                 (Real 4)
-                                                [((IntegerConstant 1 (Integer 4) Decimal)
+                                                [((IntegerConstant 0 (Integer 4) Decimal)
                                                 (IntegerConstant 256 (Integer 4) Decimal))]
                                                 FixedSizeArray
                                             )
-                                            (ArrayConstant
-                                                1024
-                                                [0.00000000e+00, 0.00000000e+00, 0.00000000e+00, ...., 0.00000000e+00, 0.00000000e+00, 0.00000000e+00]
-                                                (Array
-                                                    (Real 4)
-                                                    [((IntegerConstant 1 (Integer 4) Decimal)
-                                                    (IntegerConstant 256 (Integer 4) Decimal))]
-                                                    FixedSizeArray
-                                                )
-                                                ColMajor
-                                            )
+                                            ()
                                         )
                                         ()
                                     )
@@ -1195,9 +1186,20 @@
                                     (Assignment
                                         (Var 233 arraynd)
                                         (ArrayBroadcast
-                                            (RealConstant
-                                                0.000000
+                                            (ArrayItem
+                                                (Var 233 arraynd)
+                                                [(()
+                                                (IntegerConstant 0 (Integer 4) Decimal)
+                                                ())
+                                                (()
+                                                (IntegerConstant 0 (Integer 4) Decimal)
+                                                ())
+                                                (()
+                                                (IntegerConstant 0 (Integer 4) Decimal)
+                                                ())]
                                                 (Real 8)
+                                                RowMajor
+                                                ()
                                             )
                                             (ArrayConstant
                                                 12
@@ -1227,9 +1229,20 @@
                                     (Assignment
                                         (Var 233 sinnd)
                                         (ArrayBroadcast
-                                            (RealConstant
-                                                0.000000
+                                            (ArrayItem
+                                                (Var 233 sinnd)
+                                                [(()
+                                                (IntegerConstant 0 (Integer 4) Decimal)
+                                                ())
+                                                (()
+                                                (IntegerConstant 0 (Integer 4) Decimal)
+                                                ())
+                                                (()
+                                                (IntegerConstant 0 (Integer 4) Decimal)
+                                                ())]
                                                 (Real 8)
+                                                RowMajor
+                                                ()
                                             )
                                             (ArrayConstant
                                                 12
@@ -1568,9 +1581,14 @@
                                     [(Assignment
                                         (Var 231 array_a)
                                         (ArrayBroadcast
-                                            (RealConstant
-                                                0.000000
+                                            (ArrayItem
+                                                (Var 231 array_a)
+                                                [(()
+                                                (IntegerConstant 0 (Integer 4) Decimal)
+                                                ())]
                                                 (Real 8)
+                                                RowMajor
+                                                ()
                                             )
                                             (ArrayConstant
                                                 4
@@ -1585,30 +1603,25 @@
                                             )
                                             (Array
                                                 (Real 8)
-                                                [((IntegerConstant 1 (Integer 4) Decimal)
+                                                [((IntegerConstant 0 (Integer 4) Decimal)
                                                 (IntegerConstant 100 (Integer 4) Decimal))]
                                                 FixedSizeArray
                                             )
-                                            (ArrayConstant
-                                                800
-                                                [0.0000000000000000e+00, 0.0000000000000000e+00, 0.0000000000000000e+00, ...., 0.0000000000000000e+00, 0.0000000000000000e+00, 0.0000000000000000e+00]
-                                                (Array
-                                                    (Real 8)
-                                                    [((IntegerConstant 1 (Integer 4) Decimal)
-                                                    (IntegerConstant 100 (Integer 4) Decimal))]
-                                                    FixedSizeArray
-                                                )
-                                                ColMajor
-                                            )
+                                            ()
                                         )
                                         ()
                                     )
                                     (Assignment
                                         (Var 231 array_b)
                                         (ArrayBroadcast
-                                            (RealConstant
-                                                0.000000
+                                            (ArrayItem
+                                                (Var 231 array_b)
+                                                [(()
+                                                (IntegerConstant 0 (Integer 4) Decimal)
+                                                ())]
                                                 (Real 8)
+                                                RowMajor
+                                                ()
                                             )
                                             (ArrayConstant
                                                 4
@@ -1623,30 +1636,25 @@
                                             )
                                             (Array
                                                 (Real 8)
-                                                [((IntegerConstant 1 (Integer 4) Decimal)
+                                                [((IntegerConstant 0 (Integer 4) Decimal)
                                                 (IntegerConstant 100 (Integer 4) Decimal))]
                                                 FixedSizeArray
                                             )
-                                            (ArrayConstant
-                                                800
-                                                [0.0000000000000000e+00, 0.0000000000000000e+00, 0.0000000000000000e+00, ...., 0.0000000000000000e+00, 0.0000000000000000e+00, 0.0000000000000000e+00]
-                                                (Array
-                                                    (Real 8)
-                                                    [((IntegerConstant 1 (Integer 4) Decimal)
-                                                    (IntegerConstant 100 (Integer 4) Decimal))]
-                                                    FixedSizeArray
-                                                )
-                                                ColMajor
-                                            )
+                                            ()
                                         )
                                         ()
                                     )
                                     (Assignment
                                         (Var 231 array_c)
                                         (ArrayBroadcast
-                                            (RealConstant
-                                                0.000000
+                                            (ArrayItem
+                                                (Var 231 array_c)
+                                                [(()
+                                                (IntegerConstant 0 (Integer 4) Decimal)
+                                                ())]
                                                 (Real 8)
+                                                RowMajor
+                                                ()
                                             )
                                             (ArrayConstant
                                                 4
@@ -1661,21 +1669,11 @@
                                             )
                                             (Array
                                                 (Real 8)
-                                                [((IntegerConstant 1 (Integer 4) Decimal)
+                                                [((IntegerConstant 0 (Integer 4) Decimal)
                                                 (IntegerConstant 100 (Integer 4) Decimal))]
                                                 FixedSizeArray
                                             )
-                                            (ArrayConstant
-                                                800
-                                                [0.0000000000000000e+00, 0.0000000000000000e+00, 0.0000000000000000e+00, ...., 0.0000000000000000e+00, 0.0000000000000000e+00, 0.0000000000000000e+00]
-                                                (Array
-                                                    (Real 8)
-                                                    [((IntegerConstant 1 (Integer 4) Decimal)
-                                                    (IntegerConstant 100 (Integer 4) Decimal))]
-                                                    FixedSizeArray
-                                                )
-                                                ColMajor
-                                            )
+                                            ()
                                         )
                                         ()
                                     )
@@ -2111,9 +2109,23 @@
                                     (Assignment
                                         (Var 235 arraynd)
                                         (ArrayBroadcast
-                                            (RealConstant
-                                                0.000000
+                                            (ArrayItem
+                                                (Var 235 arraynd)
+                                                [(()
+                                                (IntegerConstant 0 (Integer 4) Decimal)
+                                                ())
+                                                (()
+                                                (IntegerConstant 0 (Integer 4) Decimal)
+                                                ())
+                                                (()
+                                                (IntegerConstant 0 (Integer 4) Decimal)
+                                                ())
+                                                (()
+                                                (IntegerConstant 0 (Integer 4) Decimal)
+                                                ())]
                                                 (Real 4)
+                                                RowMajor
+                                                ()
                                             )
                                             (ArrayConstant
                                                 16
@@ -2145,9 +2157,23 @@
                                     (Assignment
                                         (Var 235 observed)
                                         (ArrayBroadcast
-                                            (RealConstant
-                                                0.000000
+                                            (ArrayItem
+                                                (Var 235 observed)
+                                                [(()
+                                                (IntegerConstant 0 (Integer 4) Decimal)
+                                                ())
+                                                (()
+                                                (IntegerConstant 0 (Integer 4) Decimal)
+                                                ())
+                                                (()
+                                                (IntegerConstant 0 (Integer 4) Decimal)
+                                                ())
+                                                (()
+                                                (IntegerConstant 0 (Integer 4) Decimal)
+                                                ())]
                                                 (Real 4)
+                                                RowMajor
+                                                ()
                                             )
                                             (ArrayConstant
                                                 16
@@ -2179,9 +2205,14 @@
                                     (Assignment
                                         (Var 235 observed1d)
                                         (ArrayBroadcast
-                                            (RealConstant
-                                                0.000000
+                                            (ArrayItem
+                                                (Var 235 observed1d)
+                                                [(()
+                                                (IntegerConstant 0 (Integer 4) Decimal)
+                                                ())]
                                                 (Real 4)
+                                                RowMajor
+                                                ()
                                             )
                                             (ArrayConstant
                                                 4
@@ -2416,7 +2447,15 @@
                                     (Assignment
                                         (Var 235 newshape)
                                         (ArrayBroadcast
-                                            (IntegerConstant 0 (Integer 4) Decimal)
+                                            (ArrayItem
+                                                (Var 235 newshape)
+                                                [(()
+                                                (IntegerConstant 0 (Integer 4) Decimal)
+                                                ())]
+                                                (Integer 4)
+                                                RowMajor
+                                                ()
+                                            )
                                             (ArrayConstant
                                                 4
                                                 [1]
@@ -2430,21 +2469,11 @@
                                             )
                                             (Array
                                                 (Integer 4)
-                                                [((IntegerConstant 1 (Integer 4) Decimal)
+                                                [((IntegerConstant 0 (Integer 4) Decimal)
                                                 (IntegerConstant 1 (Integer 4) Decimal))]
                                                 FixedSizeArray
                                             )
-                                            (ArrayConstant
-                                                4
-                                                [0]
-                                                (Array
-                                                    (Integer 4)
-                                                    [((IntegerConstant 1 (Integer 4) Decimal)
-                                                    (IntegerConstant 1 (Integer 4) Decimal))]
-                                                    FixedSizeArray
-                                                )
-                                                ColMajor
-                                            )
+                                            ()
                                         )
                                         ()
                                     )
