@@ -178,7 +178,15 @@
                                     (Assignment
                                         (Var 226 y)
                                         (ArrayBroadcast
-                                            (IntegerConstant 0 (Integer 2) Decimal)
+                                            (ArrayItem
+                                                (Var 226 y)
+                                                [(()
+                                                (IntegerConstant 0 (Integer 4) Decimal)
+                                                ())]
+                                                (Integer 2)
+                                                RowMajor
+                                                ()
+                                            )
                                             (ArrayConstant
                                                 4
                                                 [2]
@@ -192,21 +200,11 @@
                                             )
                                             (Array
                                                 (Integer 2)
-                                                [((IntegerConstant 1 (Integer 4) Decimal)
+                                                [((IntegerConstant 0 (Integer 4) Decimal)
                                                 (IntegerConstant 2 (Integer 4) Decimal))]
                                                 FixedSizeArray
                                             )
-                                            (ArrayConstant
-                                                4
-                                                [0, 0]
-                                                (Array
-                                                    (Integer 2)
-                                                    [((IntegerConstant 1 (Integer 4) Decimal)
-                                                    (IntegerConstant 2 (Integer 4) Decimal))]
-                                                    FixedSizeArray
-                                                )
-                                                ColMajor
-                                            )
+                                            ()
                                         )
                                         ()
                                     )
