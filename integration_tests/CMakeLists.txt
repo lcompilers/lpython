@@ -607,7 +607,7 @@ RUN(NAME test_import_05      LABELS cpython llvm llvm_jit c wasm wasm_x86 wasm_x
 RUN(NAME test_import_06      LABELS cpython llvm llvm_jit)
 RUN(NAME test_import_07      LABELS cpython llvm llvm_jit c)
 RUN(NAME test_import_08      LABELS cpython llvm)
-# RUN(NAME test_math           LABELS cpython llvm llvm_jit NOFAST)
+RUN(NAME test_math           LABELS cpython llvm llvm_jit NOFAST)
 # RUN(NAME test_membership_01  LABELS cpython llvm)
 RUN(NAME test_numpy_01       LABELS cpython llvm llvm_jit c)
 RUN(NAME test_numpy_02       LABELS cpython llvm llvm_jit c)
