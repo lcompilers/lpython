@@ -133,9 +133,14 @@
                                     [(Assignment
                                         (Var 226 a)
                                         (ArrayBroadcast
-                                            (RealConstant
-                                                0.000000
+                                            (ArrayItem
+                                                (Var 226 a)
+                                                [(()
+                                                (IntegerConstant 0 (Integer 4) Decimal)
+                                                ())]
                                                 (Real 8)
+                                                RowMajor
+                                                ()
                                             )
                                             (ArrayConstant
                                                 4
@@ -161,9 +166,14 @@
                                     (Assignment
                                         (Var 226 b)
                                         (ArrayBroadcast
-                                            (RealConstant
-                                                0.000000
+                                            (ArrayItem
+                                                (Var 226 b)
+                                                [(()
+                                                (IntegerConstant 0 (Integer 4) Decimal)
+                                                ())]
                                                 (Real 8)
+                                                RowMajor
+                                                ()
                                             )
                                             (ArrayConstant
                                                 4

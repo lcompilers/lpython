@@ -8645,31 +8645,24 @@ we will have to use something else.
                 } else {
                     const Location& loc = x.base.base.loc;
                     ASR::ttype_t* el_type = ASRUtils::type_get_past_array(
-                        ASRUtils::type_get_past_allocatable_pointer(type));
-                    if( !ASRUtils::is_struct(*el_type) ) {
-                        ASR::expr_t* zero = ASRUtils::get_constant_zero_with_given_type(al, el_type);
-                        LCOMPILERS_ASSERT(assign_asr_target)
-                        ASRUtils::make_ArrayBroadcast_t_util(al, x.base.base.loc, assign_asr_target, zero);
-                        tmp = &(zero->base);
-                    } else {
-                        ASR::expr_t* zero = ASRUtils::get_constant_zero_with_given_type(al, int32);
-                        LCOMPILERS_ASSERT(assign_asr_target)
-                        size_t rank = ASRUtils::extract_n_dims_from_ttype(type);
-                        Vec<ASR::array_index_t> array_index; array_index.reserve(al, rank);
-                        for( size_t i = 0; i < rank; i++ ) {
-                            ASR::array_index_t idx;
-                            idx.loc = loc;
-                            idx.m_left = nullptr;
-                            idx.m_right = zero;
-                            idx.m_step = nullptr;
-                            array_index.push_back(al, idx);
-                        }
-                        ASR::expr_t* arrayitem = ASRUtils::EXPR(ASR::make_ArrayItem_t(
-                            al, loc, assign_asr_target, array_index.p, array_index.size(),
-                            el_type, ASR::arraystorageType::RowMajor, nullptr));
-                        ASRUtils::make_ArrayBroadcast_t_util(al, x.base.base.loc, assign_asr_target, arrayitem);
-                        tmp = &(arrayitem->base);
+                    ASRUtils::type_get_past_allocatable_pointer(type));
+                    ASR::expr_t* zero = ASRUtils::get_constant_zero_with_given_type(al, int32);
+                    LCOMPILERS_ASSERT(assign_asr_target)
+                    size_t rank = ASRUtils::extract_n_dims_from_ttype(type);
+                    Vec<ASR::array_index_t> array_index; array_index.reserve(al, rank);
+                    for( size_t i = 0; i < rank; i++ ) {
+                        ASR::array_index_t idx;
+                        idx.loc = loc;
+                        idx.m_left = nullptr;
+                        idx.m_right = zero;
+                        idx.m_step = nullptr;
+                        array_index.push_back(al, idx);
                     }
+                    ASR::expr_t* arrayitem = ASRUtils::EXPR(ASR::make_ArrayItem_t(
+                        al, loc, assign_asr_target, array_index.p, array_index.size(),
+                        el_type, ASR::arraystorageType::RowMajor, nullptr));
+                    ASRUtils::make_ArrayBroadcast_t_util(al, x.base.base.loc, assign_asr_target, arrayitem);
+                    tmp = &(arrayitem->base);
                 }
                 return;
             } else if (call_name == "c_p_pointer") {
