@@ -233,3 +233,7 @@ integration_tests/expr_12.c
 
 # Interactive Shell
 input
+# pixi environments
+.pixi
+*.egg-info
+
