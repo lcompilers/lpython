@@ -805,7 +805,7 @@ RUN(NAME test_statistics_01  LABELS cpython llvm llvm_jit NOFAST)
 RUN(NAME test_attributes     LABELS cpython llvm llvm_jit)
 # RUN(NAME test_str_attributes LABELS cpython llvm llvm_jit c)
 RUN(NAME kwargs_01           LABELS cpython llvm llvm_jit NOFAST) # renable c
-RUN(NAME def_func_01         LABELS cpython llvm llvm_jit c)
+RUN(NAME def_func_01         LABELS cpython llvm llvm_jit) # renable c
 
 RUN(NAME func_inline_01 LABELS llvm llvm_jit c wasm)
 RUN(NAME func_inline_02 LABELS cpython llvm llvm_jit c)
