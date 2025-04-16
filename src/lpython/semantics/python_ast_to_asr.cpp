@@ -1178,7 +1178,7 @@ public:
                 size_t missed_args_count =0;
                 for (size_t def_arg = args.size(); def_arg < func->n_args; def_arg++){
                     ASR::Variable_t* var = ASRUtils::EXPR2VAR(func->m_args[def_arg]);
-                    if(var->m_symbolic_value == nullptr) {
+                    if(var->m_presence != ASR::presenceType::Optional) {
                         missed_args_names+= "'" + std::string(var->m_name) + "' and ";
                         missed_args_count++;
                     } else {
@@ -4570,7 +4570,8 @@ public:
             std::string arg_s = arg;
             ASR::expr_t *value = nullptr;
             ASR::expr_t *init_expr = nullptr;
-            if (i >= default_arg_index_start){
+            bool is_optional_arg = i>=default_arg_index_start;
+            if (is_optional_arg){
                 size_t default_arg_index = i - default_arg_index_start;
                 this->visit_expr(*(x.m_args.m_defaults[default_arg_index]));
                 init_expr = ASRUtils::EXPR(tmp);
@@ -4593,7 +4594,7 @@ public:
             }
             ASR::accessType s_access = ASR::accessType::Public;
             ASR::presenceType s_presence = ASR::presenceType::Required;
-            if (i >= default_arg_index_start){
+            if (is_optional_arg){
             	s_presence = ASR::presenceType::Optional;
             }
             bool value_attr = false;
