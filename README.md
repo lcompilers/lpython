@@ -1,7 +1,7 @@
 # LPython
 
 LPython is an ahead-of-time compiler for Python written in C++. It is currently in alpha
-stage and under heavy development. LPython works on Windows, macOS and Linux. 
+stage and under heavy development. LPython works on Windows, macOS and Linux.
 
 Some of the goals of LPython include:
 
@@ -26,15 +26,36 @@ LFortran, see that project for a list of sponsors.
 
 Follow the steps below to install and run LPython on Linux, Windows or macOS.
 
-## Prerequisites
-- ### Install Conda
+## Using package managers
+
+You can install lpython using conda-package managers.
+
+```shell
+# conda
+conda install -c conda-forge lpython
+
+# mamba
+mamba install -c conda-forge lpython
+
+# micromamba
+micromamba install -c conda-forge lpython
+
+# pixi (global installation across all environments)
+pixi global install lpython
+
+```
+
+## Building from source
+
+### Prerequisites
+- #### Install Conda
   Follow the instructions provided [here](https://github.com/conda-forge/miniforge/#download) to install Conda on your platform (Linux, macOS and Windows) using a conda-forge distribution called Miniforge.
-  
+
   For Windows, these are additional requirements:
   - Miniforge Prompt
   - Visual Studio (with "Desktop Development with C++" workload)
 
-- ### Set up your system
+- #### Set up your system
     - Linux
         - Run the following command to install some global build dependencies:
 
@@ -73,22 +94,22 @@ Follow the steps below to install and run LPython on Linux, Windows or macOS.
             ```bash
             conda create -n lp -c conda-forge llvmdev=11.0.1 bison=3.4 re2c python cmake make toml clangdev git
             ```
-        
+
         - Optionally, you can change the directory to a Windows location using `cd /mnt/[drive letter]/[windows location]`. For e.g. - `cd mnt/c/Users/name/source/repos/`.
 
-    
-- ### Clone the LPython repository
+
+- #### Clone the LPython repository
     Make sure you have `git` installed. Type the following command to clone the repository:
 
     ```bash
     git clone https://github.com/lcompilers/lpython.git
     cd lpython
     ```
-    
+
     You may also use GitHub Desktop to do the same.
 
-## Building LPython
-- ### Linux and macOS
+### Building LPython
+- #### Linux and macOS
     - Create a Conda environment:
 
         ```bash
@@ -107,7 +128,7 @@ Follow the steps below to install and run LPython on Linux, Windows or macOS.
         ./build1.sh
         ```
 
-- ### Windows
+- #### Windows
     - Create a Conda environment using the pre-existing file:
 
         ```bash
@@ -121,7 +142,7 @@ Follow the steps below to install and run LPython on Linux, Windows or macOS.
         call build0.bat
         call build1.bat
         ```
-- ### Windows with WSL
+- #### Windows with WSL
 
     - Activate the Conda environment:
         ```bash
@@ -149,12 +170,11 @@ Do not forget to clean your history, see [example](./doc/src/rebasing.md).
 See the [CONTRIBUTING](CONTRIBUTING.md) document for more information.
 
 ## Found a bug?
-Please report any bugs you find at our issue tracker [here](https://github.com/lcompilers/lpython/issues). Or, even better, fork the repository on GitHub and create a Pull Request (PR). 
+Please report any bugs you find at our issue tracker [here](https://github.com/lcompilers/lpython/issues). Or, even better, fork the repository on GitHub and create a Pull Request (PR).
 
 We welcome all changes, big or small. We will help you make a PR if you are new to git.
 
 If you have any questions or need help, please ask us at [Zulip](https://lfortran.zulipchat.com/) or on our [mailinglist](https://groups.io/g/lfortran).
-
 
 # Star History
 
