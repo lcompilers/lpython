@@ -1,5 +1,4 @@
-from lpython import i8, i16, i32, f32, i64, f64, ccall, overload
-
+from lpython import ccall, f32, f64, i8, i16, i32, i64, overload
 
 pi: f64 = 3.141592653589793238462643383279502884197
 e: f64 = 2.718281828459045235360287471352662497757
@@ -718,10 +717,11 @@ def frexp(x:f64) -> tuple[f64,i16]:
     m is a float and e is an integer such that x == m * 2**e exactly.
     '''
     exponent: i16 = i16(0)
-    while f64(fabs(x)) > f64(1.0):
+    x_: f64 = x
+    while f64(fabs(x_)) > f64(1.0):
         exponent += i16(1)
-        x /= 2.0
-    return x, exponent
+        x_ /= 2.0
+    return x_, exponent
 
 
 @overload
@@ -731,10 +731,11 @@ def frexp(x:f32) -> tuple[f32,i8]:
     m is a float and e is an integer such that x == m * 2**e exactly.
     '''
     exponent: i8 = i8(0)
+    x_: f32 = x
     while f32(fabs(x)) > f32(1.0):
         exponent += i8(1)
-        x /= f32(2.0)
-    return x, exponent
+        x_ /= f32(2.0)
+    return x_, exponent
 
 
 @overload
