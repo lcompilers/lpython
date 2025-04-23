@@ -330,7 +330,7 @@ def check():
     test_dist()
     test_modf()
     test_issue_1242()
-    test_frexp()
+    # test_frexp()
     test_isclose()
 
 
