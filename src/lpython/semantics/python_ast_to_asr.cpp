@@ -126,7 +126,7 @@ ASR::TranslationUnit_t* compile_module_till_asr(
         LocationManager::FileLocations fl;
         fl.in_filename = infile;
         lm.files.push_back(fl);
-        std::string input = read_file(infile);
+        std::string input = read_file_ok(infile);
         lm.file_ends.push_back(lm.file_ends.back() + input.size());
         lm.init_simple(input);
     }
@@ -1079,11 +1079,11 @@ public:
                                         variable_dependencies_vec.size(), ASR::intentType::Local,
                                         nullptr, nullptr, ASR::storage_typeType::Default,
                                         type, nullptr, ASR::abiType::Source, ASR::accessType::Public,
-                                        ASR::presenceType::Required, false, false, false);
+                                        ASR::presenceType::Required, false, false, false, nullptr);
         ASR::symbol_t* variable_sym = ASR::down_cast<ASR::symbol_t>(variable_asr);
         current_scope->add_symbol(dummy_ret_name, variable_sym);
         ASR::expr_t* variable_var = ASRUtils::EXPR(ASR::make_Var_t(al, expr->base.loc, variable_sym));
-        return ASR::make_Assignment_t(al, expr->base.loc, variable_var, expr, nullptr);
+        return ASR::make_Assignment_t(al, expr->base.loc, variable_var, expr, nullptr, false);
     }
 
     // Function to create appropriate call based on symbol type. If it is external
@@ -2646,7 +2646,7 @@ public:
             ASR::expr_t* v_expr = ASRUtils::EXPR(ASR::make_Var_t(al, loc, v_sym));
             cast_helper(v_expr, init_expr, true);
             ASR::asr_t* assign = ASR::make_Assignment_t(al, loc, v_expr,
-                                                        init_expr, nullptr);
+                                                        init_expr, nullptr, false);
             if (current_body) {
                 current_body->push_back(al, ASRUtils::STMT(assign));
             } else if (ASR::is_a<ASR::List_t>(*type) || is_runtime_expression) {
@@ -2688,7 +2688,7 @@ public:
                 s_intent, nullptr, nullptr, storage_type, type,
                 nullptr,
                 current_procedure_abi_type, s_access, s_presence,
-                value_attr, false, false);
+                value_attr, false, false, nullptr);
         ASR::symbol_t* v_sym = ASR::down_cast<ASR::symbol_t>(v);
         current_scope->add_or_overwrite_symbol(var_name, v_sym);
     }
@@ -2845,7 +2845,7 @@ public:
                 variable_dependencies_vec.size(), ASRUtils::intent_unspecified,
                 nullptr, nullptr, ASR::storage_typeType::Default, fn_type->m_arg_types[i],
                 nullptr, ASR::abiType::Source, ASR::Public, ASR::presenceType::Required,
-                false, false, false));
+                false, false, false, nullptr));
             current_scope->add_symbol(arg_name, v);
             LCOMPILERS_ASSERT(v != nullptr)
             args.push_back(al, ASRUtils::EXPR(ASR::make_Var_t(al, x.m_args.m_args[i].loc, v)));
@@ -3443,7 +3443,7 @@ public:
                 s2c(al, var_name), variable_dependencies_vec.p,
                 variable_dependencies_vec.size(), s_intent, init_expr,
                 value, storage_type, type, nullptr, current_procedure_abi_type,
-                s_access, s_presence, value_attr, false, false);
+                s_access, s_presence, value_attr, false, false, nullptr);
         current_scope->add_symbol(var_name, ASR::down_cast<ASR::symbol_t>(v));
     }
 
@@ -3472,7 +3472,7 @@ public:
                 variable_dependencies_vec.size(),
                 s_intent, init_expr, value, storage_type, type, nullptr,
                 current_procedure_abi_type, s_access, s_presence,
-                value_attr, false, false);
+                value_attr, false, false, nullptr);
         current_scope->add_symbol(var_name, ASR::down_cast<ASR::symbol_t>(v));
     }
 
@@ -4376,7 +4376,7 @@ public:
                 variable_dependencies_vec.size(), ASRUtils::intent_unspecified,
                 nullptr, nullptr, ASR::storage_typeType::Default, func->m_arg_types[i],
                 nullptr, ASR::abiType::Source, ASR::Public, ASR::presenceType::Required,
-                false, false, false));
+                false, false, false, nullptr));
             current_scope->add_symbol(arg_name, v);
             LCOMPILERS_ASSERT(v != nullptr)
             args.push_back(al, ASRUtils::EXPR(ASR::make_Var_t(al, loc,
@@ -4395,7 +4395,7 @@ public:
                 variable_dependencies_vec.size(), ASRUtils::intent_return_var,
                 nullptr, nullptr, ASR::storage_typeType::Default, func->m_return_var_type,
                 nullptr, ASR::abiType::Source, ASR::Public, ASR::presenceType::Required,
-                false, false, false);
+                false, false, false, nullptr);
             current_scope->add_symbol(return_var_name, ASR::down_cast<ASR::symbol_t>(return_var));
             to_return = ASRUtils::EXPR(ASR::make_Var_t(al, loc,
                 ASR::down_cast<ASR::symbol_t>(return_var)));
@@ -4614,7 +4614,7 @@ public:
                         variable_dependencies_vec.size(),
                         s_intent, init_expr, value, storage_type, arg_type,
                         nullptr, current_procedure_abi_type, s_access, s_presence,
-                        value_attr, false, false);
+                        value_attr, false, false, nullptr);
                 v = ASR::down_cast<ASR::symbol_t>(_tmp);
 
             }
@@ -4658,7 +4658,7 @@ public:
                     current_scope, s2c(al, return_var_name), variable_dependencies_vec.p,
                     variable_dependencies_vec.size(), ASRUtils::intent_return_var,
                     nullptr, nullptr, storage_type, type, nullptr, current_procedure_abi_type, ASR::Public,
-                    ASR::presenceType::Required, false, false, false);
+                    ASR::presenceType::Required, false, false, false, nullptr);
                 LCOMPILERS_ASSERT(current_scope->get_scope().find(return_var_name) == current_scope->get_scope().end())
                 current_scope->add_symbol(return_var_name,
                         ASR::down_cast<ASR::symbol_t>(return_var));
@@ -4996,7 +4996,7 @@ public:
                         ASR::asr_t *v = ASR::make_Variable_t(al, x.base.base.loc, current_scope,
                             s2c(al, tvar_name), variable_dependencies_vec.p, variable_dependencies_vec.size(),
                             s_intent, init_expr, value, storage_type, type, nullptr, current_procedure_abi_type,
-                            s_access, s_presence, value_attr, false, false);
+                            s_access, s_presence, value_attr, false, false, nullptr);
                         current_scope->add_symbol(tvar_name, ASR::down_cast<ASR::symbol_t>(v));
 
                         tmp = nullptr;
@@ -5640,7 +5640,7 @@ public:
                 }
                 tmp = nullptr;
                 tmp_vec.push_back(ASR::make_Assignment_t(al, x.base.base.loc, target,
-                                    tmp_value, nullptr));
+                                    tmp_value, nullptr, false));
                 continue;
             }
             if( ASRUtils::is_const(target) ) {
@@ -5682,7 +5682,7 @@ public:
                 }
             }
             tmp_vec.push_back(ASR::make_Assignment_t(al, x.base.base.loc, target, tmp_value,
-                                    overloaded));
+                                    overloaded, false));
             if ( target->type == ASR::exprType::Var &&
                     tmp_value->type == ASR::exprType::StructConstructor ) {
                 AST::Call_t* call = AST::down_cast<AST::Call_t>(x.m_value);
@@ -5756,7 +5756,7 @@ public:
             variable_dependencies_vec.p, variable_dependencies_vec.size(),
             ASR::intentType::Local, nullptr, nullptr, storage_type,
             int_type, nullptr, ASR::abiType::Source, ASR::accessType::Public,
-            ASR::presenceType::Required, false, false, false
+            ASR::presenceType::Required, false, false, false, nullptr
         );
         current_scope->add_symbol(explicit_iter_name,
                         ASR::down_cast<ASR::symbol_t>(explicit_iter_variable));
@@ -5963,7 +5963,7 @@ public:
                         s2c(al, tmp_assign_name), variable_dependencies_vec.p, variable_dependencies_vec.size(),
                         ASR::intentType::Local, nullptr, nullptr, ASR::storage_typeType::Default,
                         loop_src_var_ttype, nullptr, ASR::abiType::Source, ASR::accessType::Public,
-                        ASR::presenceType::Required, false, false, false
+                        ASR::presenceType::Required, false, false, false, nullptr
                     );
                     ASR::symbol_t *tmp_assign_variable_sym = ASR::down_cast<ASR::symbol_t>(tmp_assign_variable);
                     current_scope->add_symbol(tmp_assign_name, tmp_assign_variable_sym);
@@ -5971,7 +5971,7 @@ public:
                     // Assign the Subscript expr to temporary variable
                     ASR::asr_t* assign = ASR::make_Assignment_t(al, x.base.base.loc,
                                     ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, tmp_assign_variable_sym)),
-                                    target, nullptr);
+                                    target, nullptr, false);
                     if (current_body != nullptr) {
                         current_body->push_back(al, ASRUtils::STMT(assign));
                     } else {
@@ -6001,7 +6001,7 @@ public:
                 s2c(al, tmp_assign_name), variable_dependencies_vec.p, variable_dependencies_vec.size(),
                 ASR::intentType::Local, nullptr, nullptr, ASR::storage_typeType::Default,
                 loop_src_var_ttype, nullptr, ASR::abiType::Source, ASR::accessType::Public,
-                ASR::presenceType::Required, false, false, false
+                ASR::presenceType::Required, false, false, false, nullptr
             );
             ASR::symbol_t *tmp_assign_variable_sym = ASR::down_cast<ASR::symbol_t>(tmp_assign_variable);
             current_scope->add_symbol(tmp_assign_name, tmp_assign_variable_sym);
@@ -6009,7 +6009,7 @@ public:
             // Assign the List expr to temporary variable
             ASR::asr_t* assign = ASR::make_Assignment_t(al, x.base.base.loc,
                             ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, tmp_assign_variable_sym)),
-                            target, nullptr);
+                            target, nullptr, false);
             if (current_body != nullptr) {
                 current_body->push_back(al, ASRUtils::STMT(assign));
             } else {
@@ -6062,7 +6062,7 @@ public:
                             al, x.base.base.loc, loop_src_var,
                             ASRUtils::EXPR(explicit_iter_var), ASRUtils::get_contained_type(loop_src_var_ttype), nullptr);
             }
-            auto loop_target_assignment = ASR::make_Assignment_t(al, x.base.base.loc, target, ASRUtils::EXPR(loop_src_var_element), nullptr);
+            auto loop_target_assignment = ASR::make_Assignment_t(al, x.base.base.loc, target, ASRUtils::EXPR(loop_src_var_element), nullptr, false);
             body.push_back(al, ASRUtils::STMT(loop_target_assignment));
 
             head.m_v = ASRUtils::EXPR(explicit_iter_var);
@@ -6187,7 +6187,7 @@ public:
 
         ASR::stmt_t* a_overloaded = nullptr;
         ASR::expr_t *tmp2 = ASR::down_cast<ASR::expr_t>(tmp);
-        tmp = ASR::make_Assignment_t(al, x.base.base.loc, left, tmp2, a_overloaded);
+        tmp = ASR::make_Assignment_t(al, x.base.base.loc, left, tmp2, a_overloaded, false);
 
     }
 
@@ -7194,7 +7194,7 @@ public:
         cast_helper(target, value, true);
         ASR::stmt_t *overloaded=nullptr;
         tmp = ASR::make_Assignment_t(al, x.base.base.loc, target, value,
-                                overloaded);
+                                overloaded, false);
         // if( ASR::is_a<ASR::Const_t>(*ASRUtils::symbol_type(return_var)) ) {
         //     ASR::Variable_t* return_variable = ASR::down_cast<ASR::Variable_t>(return_var);
         //     return_variable->m_symbolic_value = value;
@@ -7296,7 +7296,7 @@ public:
         ASR::asr_t* pp = ASR::make_PointerToCPtr_t(al, x.base.base.loc, pptr,
                                          ASRUtils::expr_type(cptr), nullptr);
         return ASR::make_Assignment_t(al, x.base.base.loc,
-            cptr, ASR::down_cast<ASR::expr_t>(pp), nullptr);
+            cptr, ASR::down_cast<ASR::expr_t>(pp), nullptr, false);
     }
 
     void handle_string_attributes(ASR::expr_t *s_var,
