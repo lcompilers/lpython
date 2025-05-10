@@ -469,7 +469,7 @@ RUN(NAME print_list_tuple_01    LABELS cpython llvm llvm_jit NOFAST) # renable c
 # # RUN(NAME print_list_tuple_02    LABELS cpython llvm llvm_jit c NOFAST)
 # # RUN(NAME print_list_tuple_03    LABELS cpython llvm llvm_jit c NOFAST)
 RUN(NAME test_list_item_mixed_print    LABELS cpython llvm llvm_jit NOFAST) # renable c
-# RUN(NAME test_intrinsic_function_mixed_print    LABELS cpython llvm llvm_jit NOFAST) # post sync fix
+RUN(NAME test_intrinsic_function_mixed_print    LABELS cpython llvm llvm_jit NOFAST)
 
 # # CPython and LLVM
 RUN(NAME const_01            LABELS cpython llvm llvm_jit c wasm)
@@ -568,7 +568,7 @@ RUN(NAME test_tuple_03       LABELS cpython llvm llvm_jit) # renable c
 RUN(NAME test_tuple_04       LABELS cpython llvm llvm_jit) # renable c
 RUN(NAME test_tuple_concat   LABELS cpython llvm llvm_jit) 
 RUN(NAME test_tuple_nested   LABELS cpython llvm llvm_jit) 
-# RUN(NAME test_const_dict     LABELS cpython llvm llvm_jit) # post sync fix
+RUN(NAME test_const_dict     LABELS cpython llvm llvm_jit) 
 # RUN(NAME test_params         LABELS cpython llvm llvm_jit NOFAST)
 # RUN(NAME test_dict_01        LABELS cpython llvm llvm_jit c) # post sync fix
 # RUN(NAME test_dict_02        LABELS cpython llvm llvm_jit c NOFAST) # post sync fix
