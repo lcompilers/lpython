@@ -561,7 +561,7 @@ RUN(NAME test_list_compare2   LABELS cpython llvm llvm_jit)
 # RUN(NAME test_list_concat    LABELS cpython llvm llvm_jit c NOFAST)
 RUN(NAME test_list_reserve   LABELS cpython llvm llvm_jit)
 RUN(NAME test_const_list     LABELS cpython llvm llvm_jit)
-# RUN(NAME test_const_access     LABELS cpython llvm llvm_jit) # post sync fix
+RUN(NAME test_const_access     LABELS cpython llvm llvm_jit)
 RUN(NAME test_tuple_01       LABELS cpython llvm llvm_jit) # renable c
 # RUN(NAME test_tuple_02       LABELS cpython llvm llvm_jit c NOFAST)
 RUN(NAME test_tuple_03       LABELS cpython llvm llvm_jit) # renable c
@@ -570,21 +570,21 @@ RUN(NAME test_tuple_concat   LABELS cpython llvm llvm_jit)
 RUN(NAME test_tuple_nested   LABELS cpython llvm llvm_jit) 
 RUN(NAME test_const_dict     LABELS cpython llvm llvm_jit) 
 # RUN(NAME test_params         LABELS cpython llvm llvm_jit NOFAST)
-# RUN(NAME test_dict_01        LABELS cpython llvm llvm_jit c) # post sync fix
-# RUN(NAME test_dict_02        LABELS cpython llvm llvm_jit c NOFAST) # post sync fix
-# RUN(NAME test_dict_03        LABELS cpython llvm llvm_jit NOFAST) # post sync fix
+RUN(NAME test_dict_01        LABELS cpython llvm llvm_jit c) 
+RUN(NAME test_dict_02        LABELS cpython llvm llvm_jit c NOFAST)
+RUN(NAME test_dict_03        LABELS cpython llvm llvm_jit NOFAST) 
 # RUN(NAME test_dict_04        LABELS cpython llvm llvm_jit NOFAST)
-# RUN(NAME test_dict_05        LABELS cpython llvm llvm_jit c) # post sync fix
+RUN(NAME test_dict_05        LABELS cpython llvm llvm_jit c)
 # RUN(NAME test_dict_06        LABELS cpython llvm llvm_jit c)
 # RUN(NAME test_dict_07        LABELS cpython llvm llvm_jit c)
 # RUN(NAME test_dict_08        LABELS cpython llvm llvm_jit c)
 # RUN(NAME test_dict_09        LABELS cpython llvm llvm_jit c)
-# RUN(NAME test_dict_10        LABELS cpython llvm llvm_jit) # renable c # post sync fix
-# RUN(NAME test_dict_11        LABELS cpython llvm llvm_jit c) # post sync fix
-# RUN(NAME test_dict_12        LABELS cpython llvm llvm_jit) # renable c # post sync fix
+RUN(NAME test_dict_10        LABELS cpython llvm llvm_jit) # renable c 
+RUN(NAME test_dict_11        LABELS cpython llvm llvm_jit c) 
+RUN(NAME test_dict_12        LABELS cpython llvm llvm_jit) # renable c
 # RUN(NAME test_dict_13        LABELS cpython llvm llvm_jit c)
-# RUN(NAME test_dict_bool      LABELS cpython llvm llvm_jit) # post sync fix
-# RUN(NAME test_dict_increment LABELS cpython llvm llvm_jit) # post sync fix
+RUN(NAME test_dict_bool      LABELS cpython llvm llvm_jit) 
+RUN(NAME test_dict_increment LABELS cpython llvm llvm_jit) 
 # RUN(NAME test_dict_keys_values LABELS cpython llvm llvm_jit)
 # RUN(NAME test_dict_nested1   LABELS cpython llvm llvm_jit)
 # RUN(NAME test_dict_clear     LABELS cpython llvm)
@@ -800,7 +800,7 @@ RUN(NAME generics_array_01   LABELS cpython llvm llvm_jit c)
 RUN(NAME generics_array_02   LABELS cpython llvm llvm_jit c)
 RUN(NAME generics_array_03   LABELS cpython llvm llvm_jit c)
 RUN(NAME generics_list_01    LABELS cpython llvm llvm_jit) # renable c
-# RUN(NAME test_statistics_01  LABELS cpython llvm llvm_jit NOFAST) # post sync fix
+RUN(NAME test_statistics_01  LABELS cpython llvm llvm_jit NOFAST)
 # RUN(NAME test_statistics_02  LABELS cpython llvm llvm_jit NOFAST REQ_PY_VER 3.10)
 RUN(NAME test_attributes     LABELS cpython llvm llvm_jit)
 # RUN(NAME test_str_attributes LABELS cpython llvm llvm_jit c)
@@ -829,7 +829,7 @@ RUN(NAME global_syms_02    LABELS cpython llvm llvm_jit c)
 # RUN(NAME global_syms_03_b  LABELS cpython llvm llvm_jit c)
 # RUN(NAME global_syms_03_c  LABELS cpython llvm llvm_jit c)
 RUN(NAME global_syms_04    LABELS cpython llvm llvm_jit c wasm wasm_x64)
-# RUN(NAME global_syms_05    LABELS cpython llvm llvm_jit c) # post sync fix
+RUN(NAME global_syms_05    LABELS cpython llvm llvm_jit c) 
 RUN(NAME global_syms_06    LABELS cpython llvm llvm_jit c)
 
 RUN(NAME callback_01       LABELS cpython llvm llvm_jit c)
