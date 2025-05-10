@@ -540,15 +540,15 @@ public:
             }
             case ASR::ttypeType::String: {
                 ASR::String_t *t = ASR::down_cast<ASR::String_t>(return_type);
-                func_calls.push_back(t->m_len_expr);
+                func_calls.push_back(t->m_len);
                 fix_exprs_ttype_t(func_calls, args, f);
-                int64_t a_len = t->m_len;
-                if( func_calls[0] ) {
-                    diag::Diagnostics diags;
-                    a_len = ASRUtils::extract_len<SemanticAbort>(func_calls[0], loc, diags);
-                }
-                return ASRUtils::TYPE(ASR::make_String_t(al, loc, t->m_kind, a_len,
-                    func_calls[0], ASR::string_physical_typeType::PointerString));
+                ASR::expr_t* a_len = func_calls[0] ?  func_calls[0] : t->m_len;
+                /*if( func_calls[0] ) {*/
+                /*    diag::Diagnostics diags;*/
+                /*    a_len = ASRUtils::extract_len<SemanticAbort>(func_calls[0], loc, diags);*/
+                /*}*/
+                return ASRUtils::TYPE(ASR::make_String_t(al, loc, t->m_kind,
+                    a_len, false, false, ASR::string_physical_typeType::PointerString));
             }
             case ASR::ttypeType::StructType: {
                 ASR::StructType_t* struct_t_type = ASR::down_cast<ASR::StructType_t>(return_type);
@@ -889,7 +889,10 @@ public:
             type = ASRUtils::TYPE(ASR::make_Complex_t(al, loc, 8));
             type = ASRUtils::make_Array_t_util(al, loc, type, dims.p, dims.size(), abi, is_argument);
         } else if (var_annotation == "str") {
-            type = ASRUtils::TYPE(ASR::make_String_t(al, loc, 1, -2, nullptr, ASR::string_physical_typeType::PointerString));
+            type = ASRUtils::TYPE(ASR::make_String_t(al, loc, 1, 
+                                  ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, loc, -2, 
+                                            ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4)))),
+                                  false, false, ASR::string_physical_typeType::PointerString));
             type = ASRUtils::make_Array_t_util(al, loc, type, dims.p, dims.size(), abi, is_argument);
         } else if (var_annotation == "bool" || var_annotation == "i1") {
             type = ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4));
@@ -1949,7 +1952,7 @@ public:
             AST::ConstantStr_t *n = AST::down_cast<AST::ConstantStr_t>(&annotation);
             ASR::symbol_t *sym = current_scope->resolve_symbol(n->m_value);
             if ( sym == nullptr || !ASR::is_a<ASR::Struct_t>(*sym) ) {
-                throw SemanticError("Only StructType implemented for constant"
+                throw SemanticError("Only StructType implemented for con"
                 " str annotation", loc);
             }
             //TODO: Change the returned type from Class to StructType
@@ -2164,25 +2167,36 @@ public:
                 LCOMPILERS_ASSERT(ASRUtils::extract_n_dims_from_ttype(left_type) == 0);
                 right_int = ASR::down_cast<ASR::IntegerConstant_t>(
                                                    ASRUtils::expr_value(right))->m_n;
-                dest_len = left_type2->m_len * right_int;
+                int64_t strlen;
+                ASRUtils::extract_value(left_type2->m_len,strlen);
+                dest_len = strlen * right_int;
                 if (dest_len < 0) dest_len = 0;
+                ASR::expr_t* a_len = ASRUtils::EXPR(ASR::make_IntegerConstant_t(al,
+                                            loc, dest_len, ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 8))));
                 dest_type = ASR::down_cast<ASR::ttype_t>(
-                        ASR::make_String_t(al, loc, left_type2->m_kind,
-                        dest_len, nullptr, ASR::string_physical_typeType::PointerString));
+                        ASR::make_String_t(al, loc, left_type2->m_kind, a_len, false, false  
+                        , ASR::string_physical_typeType::PointerString));
             } else if (left_is_int && ASRUtils::expr_value(left) != nullptr) {
                 ASR::String_t *right_type2 = ASR::down_cast<ASR::String_t>(
                     ASRUtils::type_get_past_array(right_type));
                 LCOMPILERS_ASSERT(ASRUtils::extract_n_dims_from_ttype(right_type) == 0);
                 left_int = ASR::down_cast<ASR::IntegerConstant_t>(
                                                    ASRUtils::expr_value(left))->m_n;
-                dest_len = right_type2->m_len * left_int;
+                int64_t strlen;
+                ASRUtils::extract_value(right_type2->m_len,strlen);
+                dest_len = strlen * left_int;
                 if (dest_len < 0) dest_len = 0;
+                ASR::expr_t* a_len = ASRUtils::EXPR(ASR::make_IntegerConstant_t(al,
+                                            loc, dest_len, ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 8))));
                 dest_type = ASR::down_cast<ASR::ttype_t>(
-                        ASR::make_String_t(al, loc, right_type2->m_kind,
-                        dest_len, nullptr, ASR::string_physical_typeType::PointerString));
+                        ASR::make_String_t(al, loc, right_type2->m_kind, a_len, false, false  
+                        , ASR::string_physical_typeType::PointerString));
             } else {
+
+                ASR::expr_t* a_len = ASRUtils::EXPR(ASR::make_IntegerConstant_t(al,
+                                            loc, -1, ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 8))));
                 dest_type = ASRUtils::TYPE(ASR::make_String_t(al,
-                    loc, 1, -1, nullptr, ASR::string_physical_typeType::PointerString));
+                    loc, 1, a_len, false, false, ASR::string_physical_typeType::PointerString));
             }
 
             if (ASRUtils::expr_value(left) != nullptr && ASRUtils::expr_value(right) != nullptr) {
@@ -2216,9 +2230,14 @@ public:
                    ASRUtils::type_get_past_array(right_type));
             LCOMPILERS_ASSERT(ASRUtils::extract_n_dims_from_ttype(left_type) == 0);
             LCOMPILERS_ASSERT(ASRUtils::extract_n_dims_from_ttype(right_type) == 0);
+            int64_t left_len, right_len;
+            ASRUtils::extract_value(left_type2->m_len, left_len);
+            ASRUtils::extract_value(right_type2->m_len, right_len);
+            ASR::expr_t* a_len = ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, loc, left_len+right_len,
+                                    ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 8))));
             dest_type = ASR::down_cast<ASR::ttype_t>(
                     ASR::make_String_t(al, loc, left_type2->m_kind,
-                    left_type2->m_len + right_type2->m_len, nullptr,
+                    a_len, false, false,
                     ASR::string_physical_typeType::PointerString));
             if (ASRUtils::expr_value(left) != nullptr && ASRUtils::expr_value(right) != nullptr) {
                 char* left_value = ASR::down_cast<ASR::StringConstant_t>(
@@ -2228,7 +2247,9 @@ public:
                 char* result;
                 std::string result_s = std::string(left_value) + std::string(right_value);
                 result = s2c(al, result_s);
-                LCOMPILERS_ASSERT((int64_t)strlen(result) == ASR::down_cast<ASR::String_t>(dest_type)->m_len)
+                int64_t dest_len;
+                ASRUtils::extract_value(ASR::down_cast<ASR::String_t>(dest_type)->m_len, dest_len);
+                LCOMPILERS_ASSERT((int64_t)strlen(result) == dest_len)
                 value = ASR::down_cast<ASR::expr_t>(ASR::make_StringConstant_t(
                     al, loc, result, dest_type));
             }
@@ -3422,9 +3443,10 @@ public:
     void add_name(const Location &loc) {
         std::string var_name = "__name__";
         std::string var_value = module_name;
-        size_t s_size = var_value.size();
+        ASR::expr_t* a_len = ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, loc, var_value.size(),
+                                ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 8))));
         ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_String_t(al, loc,
-                1, s_size, nullptr, ASR::string_physical_typeType::PointerString));
+                1, a_len, false, false, ASR::string_physical_typeType::PointerString));
         ASR::expr_t *value = ASRUtils::EXPR(ASR::make_StringConstant_t(al,
             loc, s2c(al, var_value), type));
         ASR::expr_t *init_expr = value;
@@ -3450,9 +3472,10 @@ public:
     void add_lpython_version(const Location &loc) {
         std::string var_name = "__LPYTHON_VERSION__";
         std::string var_value = LFORTRAN_VERSION;
-        size_t s_size = var_value.size();
+        ASR::expr_t* a_len = ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, loc, var_value.size(),
+                                ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 8))));
         ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_String_t(al, loc,
-                1, s_size, nullptr, ASR::string_physical_typeType::PointerString));
+                1, a_len, false, false, ASR::string_physical_typeType::PointerString));
         ASR::expr_t *value = ASRUtils::EXPR(ASR::make_StringConstant_t(al,
             loc, s2c(al, var_value), type));
         ASR::expr_t *init_expr = value;
@@ -3565,9 +3588,10 @@ public:
 
     void visit_ConstantStr(const AST::ConstantStr_t &x) {
         char *s = x.m_value;
-        size_t s_size = std::string(s).size();
+        ASR::expr_t* a_len = ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, x.base.base.loc, std::string(s).size(),
+                                ASRUtils::TYPE(ASR::make_Integer_t(al, x.base.base.loc, 8))));
         ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_String_t(al, x.base.base.loc,
-                1, s_size, nullptr, ASR::string_physical_typeType::PointerString));
+                1, a_len, false, false, ASR::string_physical_typeType::PointerString));
         tmp = ASR::make_StringConstant_t(al, x.base.base.loc, s, type);
     }
 
@@ -6251,8 +6275,10 @@ public:
                  ASR::Enum_t* enum_type = ASR::down_cast<ASR::Enum_t>(enum_->m_enum_type);
                  tmp = ASR::make_EnumValue_t(al, loc, e, type, enum_type->m_type, nullptr);
              } else if( std::string(attr_char) == "name" ) {
+                ASR::expr_t* a_len = ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, loc, -2,
+                                ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 8))));
                  ASR::ttype_t* char_type = ASRUtils::TYPE(ASR::make_String_t(
-                    al, loc, 1, -2, nullptr, ASR::string_physical_typeType::PointerString));
+                    al, loc, 1, a_len, false, false, ASR::string_physical_typeType::PointerString));
                  tmp = ASR::make_EnumName_t(al, loc, e, type, char_type, nullptr);
              }
         } else if(ASR::is_a<ASR::UnionType_t>(*type)) {
@@ -6457,8 +6483,11 @@ public:
             if( attr_name == "value" ) {
                 tmp = ASR::make_EnumValue_t(al, loc, t_mem, type, enum_type->m_type, nullptr);
             } else if( attr_name == "name" ) {
+
+                ASR::expr_t* a_len = ASRUtils::EXPR(ASR::make_IntegerConstant_t(al,
+                                    loc, -2, ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 8))));
                 ASR::ttype_t* char_type = ASRUtils::TYPE(ASR::make_String_t(
-                    al, loc, 1, -2, nullptr, ASR::string_physical_typeType::PointerString));
+                    al, loc, 1, a_len, true, true, ASR::string_physical_typeType::PointerString));
                 tmp = ASR::make_EnumName_t(al, loc, t_mem, type, char_type, nullptr);
             }
         } else if (ASR::is_a<ASR::UnionType_t>(*type)) {
@@ -6594,9 +6623,10 @@ public:
                         ASR::EnumStaticMember_t* enum_Var = ASR::down_cast<ASR::EnumStaticMember_t>(enum_ref->m_v);
                         ASR::Variable_t* enum_m_var = ASR::down_cast<ASR::Variable_t>(enum_Var->m_m);
                         char *s = enum_m_var->m_name;
-                        size_t s_size = std::string(s).size();
+                        ASR::expr_t* a_len = ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, x.base.base.loc, 
+                                                std::string(s).size(), ASRUtils::TYPE(ASR::make_Integer_t(al, x.base.base.loc, 8))));
                         enum_ref_type = ASRUtils::TYPE(ASR::make_String_t(
-                            al, x.base.base.loc, 1, s_size, nullptr,
+                            al, x.base.base.loc, 1, a_len, false, false,
                             ASR::string_physical_typeType::PointerString));
                         enum_ref_value = ASRUtils::EXPR(ASR::make_StringConstant_t(al, x.base.base.loc,
                                             s, enum_ref_type));
@@ -7706,8 +7736,10 @@ public:
                 args.reserve(al, 1);
                 ASR::call_arg_t str_arg;
                 str_arg.loc = loc;
+                ASR::expr_t* a_len = ASRUtils::EXPR(ASR::make_IntegerConstant_t(al,
+                                            loc, s_var.size(), ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 8))));
                 ASR::ttype_t *str_type = ASRUtils::TYPE(ASR::make_String_t(al, loc,
-                        1, s_var.size(), nullptr, ASR::string_physical_typeType::PointerString));
+                        1, a_len, false, false, ASR::string_physical_typeType::PointerString));
                 str_arg.m_value = ASRUtils::EXPR(
                         ASR::make_StringConstant_t(al, loc, s2c(al, s_var), str_type));
                 ASR::call_arg_t sub_arg;
@@ -7741,8 +7773,10 @@ public:
                 args.reserve(al, 1);
                 ASR::call_arg_t str_arg;
                 str_arg.loc = loc;
+                ASR::expr_t* a_len = ASRUtils::EXPR(ASR::make_IntegerConstant_t(al,
+                                            loc, s_var.size(), ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 8))));
                 ASR::ttype_t *str_type = ASRUtils::TYPE(ASR::make_String_t(al, loc,
-                        1, s_var.size(), nullptr, ASR::string_physical_typeType::PointerString));
+                        1, a_len, true, true, ASR::string_physical_typeType::PointerString));
                 str_arg.m_value = ASRUtils::EXPR(
                         ASR::make_StringConstant_t(al, loc, s2c(al, s_var), str_type));
                 ASR::call_arg_t sub_arg;
@@ -7828,8 +7862,10 @@ public:
                 args.reserve(al, 1);
                 ASR::call_arg_t str_arg;
                 str_arg.loc = loc;
+                ASR::expr_t* a_len = ASRUtils::EXPR(ASR::make_IntegerConstant_t(al,
+                                            loc, s_var.size(), ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 8))));
                 ASR::ttype_t *str_type = ASRUtils::TYPE(ASR::make_String_t(al, loc,
-                        1, s_var.size(), nullptr, ASR::string_physical_typeType::PointerString));
+                        1, a_len, false, false, ASR::string_physical_typeType::PointerString));
                 str_arg.m_value = ASRUtils::EXPR(
                         ASR::make_StringConstant_t(al, loc, s2c(al, s_var), str_type));
                 ASR::call_arg_t sub_arg;
@@ -7884,8 +7920,10 @@ public:
                 args.reserve(al, 1);
                 ASR::call_arg_t str_arg;
                 str_arg.loc = loc;
+                ASR::expr_t* a_len = ASRUtils::EXPR(ASR::make_IntegerConstant_t(al,
+                                            loc, s_var.size(), ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 8))));
                 ASR::ttype_t *str_type = ASRUtils::TYPE(ASR::make_String_t(al, loc,
-                        1, s_var.size(), nullptr, ASR::string_physical_typeType::PointerString));
+                        1, a_len, false, false, ASR::string_physical_typeType::PointerString));
                 str_arg.m_value = ASRUtils::EXPR(
                         ASR::make_StringConstant_t(al, loc, s2c(al, s_var), str_type));
                 ASR::call_arg_t sub_arg;
@@ -7911,8 +7949,10 @@ public:
                 throw SemanticError("String to undergo partition cannot be empty",
                     loc);
             }
+            ASR::expr_t* a_len = ASRUtils::EXPR(ASR::make_IntegerConstant_t(al,
+                                        loc, s_var.size(), ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 8))));
             ASR::ttype_t *char_type = ASRUtils::TYPE(ASR::make_String_t(al,
-                loc, 1, s_var.size(), nullptr, ASR::string_physical_typeType::PointerString));
+                loc, 1, a_len, false, false, ASR::string_physical_typeType::PointerString));
             ASR::expr_t *str = ASRUtils::EXPR(ASR::make_StringConstant_t(al,
                 loc, s2c(al, s_var), char_type));
             tmp = ASRUtils::Partition::create_partition(al, loc, args_, str, diag);
@@ -8115,8 +8155,10 @@ we will have to use something else.
             throw SemanticError("'str' object has no attribute '" + attr_name + "'",
                     loc);
         }
+        ASR::expr_t* a_len = ASRUtils::EXPR(ASR::make_IntegerConstant_t(al,
+                                    loc, s_var.size(), ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 8))));
         ASR::ttype_t *str_type = ASRUtils::TYPE(ASR::make_String_t(al, loc,
-                1, s_var.size(), nullptr, ASR::string_physical_typeType::PointerString));
+                1, a_len, false, false, ASR::string_physical_typeType::PointerString));
         tmp = ASR::make_StringConstant_t(al, loc, s2c(al, s_var), str_type);
     }
 
@@ -8547,8 +8589,10 @@ we will have to use something else.
                         }
                     }
                 }
+                ASR::expr_t* a_len = ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, x.base.base.loc,
+                                             0, ASRUtils::TYPE(ASR::make_Integer_t(al, x.base.base.loc, 8))));
                 ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_String_t(
-                        al, x.base.base.loc, -1, 0, nullptr, ASR::string_physical_typeType::PointerString));
+                        al, x.base.base.loc, -1, a_len, false, false, ASR::string_physical_typeType::PointerString));
                 ASR::expr_t* string_format = ASRUtils::EXPR(ASRUtils::make_StringFormat_t_util(al, x.base.base.loc,
                     nullptr, args_expr.p, args_expr.size(), ASR::string_format_kindType::FormatPythonFormat,
                     type, nullptr));
