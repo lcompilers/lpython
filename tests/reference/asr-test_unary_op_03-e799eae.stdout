@@ -65,6 +65,7 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
                                                 ),
                                             res:
                                                 (Variable
@@ -83,6 +84,7 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
                                                 )
                                         })
                                     f
@@ -106,6 +108,7 @@
                                         (Var 3 i)
                                         (IntegerConstant 5 (Integer 4) Decimal)
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 res)
@@ -115,6 +118,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assert
                                         (IntegerCompare
@@ -138,6 +142,7 @@
                                             (IntegerConstant -235346 (Integer 4) Decimal)
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assert
                                         (IntegerCompare

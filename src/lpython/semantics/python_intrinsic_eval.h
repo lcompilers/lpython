@@ -323,9 +323,15 @@ struct IntrinsicNodeHandler {
             arg = args[0].m_value;
             arg_type = ASRUtils::expr_type(arg);
         }
-        ASR::ttype_t *str_type = ASRUtils::TYPE(ASR::make_String_t(al, loc, 1, -2, nullptr, ASR::string_physical_typeType::PointerString));
+        ASR::expr_t* a_len = ASRUtils::EXPR(ASR::make_IntegerConstant_t(al,
+                                loc, -2, ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 8))));
+        ASR::ttype_t *str_type = ASRUtils::TYPE(ASR::make_String_t(al, loc, 1, a_len, false, false,
+                                                 ASR::string_physical_typeType::PointerString));
         if (!arg) {
-            ASR::ttype_t *res_type = ASRUtils::TYPE(ASR::make_String_t(al, loc, 1, 0, nullptr, ASR::string_physical_typeType::PointerString));
+            ASR::expr_t* a_len1 = ASRUtils::EXPR(ASR::make_IntegerConstant_t(al,
+                                loc, 0, ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 8))));
+            ASR::ttype_t *res_type = ASRUtils::TYPE(ASR::make_String_t(al, loc, 1, a_len1, false, false, 
+                                                 ASR::string_physical_typeType::PointerString));
             return ASR::make_StringConstant_t(al, loc, s2c(al, ""), res_type);
         }
         if (ASRUtils::is_real(*arg_type)) {
@@ -337,8 +343,10 @@ struct IntrinsicNodeHandler {
                 sm << ival;
                 std::string value_str = sm.str();
                 sm.clear();
+                ASR::expr_t* a_len = ASRUtils::EXPR(ASR::make_IntegerConstant_t(al,
+                                loc, value_str.size(), ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 8))));
                 ASR::ttype_t *res_type = ASRUtils::TYPE(ASR::make_String_t(al, loc,
-                    1, value_str.size(), nullptr, ASR::string_physical_typeType::PointerString));
+                    1,  a_len, false, false, ASR::string_physical_typeType::PointerString));
                 res_value =  ASR::down_cast<ASR::expr_t>(ASR::make_StringConstant_t(al,
                                 loc, s2c(al, value_str), res_type));
             }
@@ -349,8 +357,10 @@ struct IntrinsicNodeHandler {
                 int64_t number = ASR::down_cast<ASR::IntegerConstant_t>(
                                         ASRUtils::expr_value(arg))->m_n;
                 std::string value_str = std::to_string(number);
+                ASR::expr_t* a_len = ASRUtils::EXPR(ASR::make_IntegerConstant_t(al,
+                                loc, value_str.size(), ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 8))));
                 ASR::ttype_t *res_type = ASRUtils::TYPE(ASR::make_String_t(al, loc,
-                    1, value_str.size(), nullptr, ASR::string_physical_typeType::PointerString));
+                    1, a_len, false, false, ASR::string_physical_typeType::PointerString));
                 res_value = ASR::down_cast<ASR::expr_t>(ASR::make_StringConstant_t(al,
                                 loc, s2c(al, value_str), res_type));
             }
@@ -361,8 +371,10 @@ struct IntrinsicNodeHandler {
                 bool bool_number = ASR::down_cast<ASR::LogicalConstant_t>(
                                         ASRUtils::expr_value(arg))->m_value;
                 std::string value_str = (bool_number)? "True" : "False";
+                ASR::expr_t* a_len = ASRUtils::EXPR(ASR::make_IntegerConstant_t(al,
+                                loc, value_str.size(), ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 8))));
                 ASR::ttype_t *res_type = ASRUtils::TYPE(ASR::make_String_t(al, loc,
-                    1, value_str.size(), nullptr, ASR::string_physical_typeType::PointerString));
+                    1, a_len, false, false, ASR::string_physical_typeType::PointerString));
                 res_value = ASR::down_cast<ASR::expr_t>(ASR::make_StringConstant_t(al,
                                 loc, s2c(al, value_str), res_type));
             }
@@ -497,8 +509,10 @@ struct IntrinsicNodeHandler {
         }
         ASR::expr_t *arg = args[0].m_value;
         ASR::ttype_t *type = ASRUtils::expr_type(arg);
+        ASR::expr_t* a_len = ASRUtils::EXPR(ASR::make_IntegerConstant_t(al,
+                                loc, 1, ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 8))));
         ASR::ttype_t* str_type = ASRUtils::TYPE(ASR::make_String_t(al,
-            loc, 1, 1, nullptr, ASR::string_physical_typeType::PointerString));
+            loc, 1, a_len, false, false, ASR::string_physical_typeType::PointerString));
         ASR::expr_t *value = nullptr;
         if (ASRUtils::is_integer(*type)) {
             if (ASRUtils::expr_value(arg) != nullptr) {

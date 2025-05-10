@@ -29,6 +29,7 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
                                                 ),
                                             b:
                                                 (Variable
@@ -47,6 +48,7 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
                                                 )
                                         })
                                     test_boolOp
@@ -73,6 +75,7 @@
                                             (Logical 4)
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 b)
@@ -81,6 +84,7 @@
                                             (Logical 4)
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 a)
@@ -92,6 +96,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 b)
@@ -106,6 +111,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 a)
@@ -117,6 +123,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 a)
@@ -134,6 +141,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 a)
@@ -151,6 +159,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 a)
@@ -162,6 +171,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                     )]
                                     ()
                                     Public

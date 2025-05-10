@@ -75,6 +75,7 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
                                                 )
                                         })
                                     test_bin
@@ -98,6 +99,7 @@
                                         (Var 3 i)
                                         (IntegerConstant 5 (Integer 4) Decimal)
                                         ()
+                                        .false.
                                     )
                                     (Assert
                                         (StringCompare
@@ -123,6 +125,7 @@
                                         (Var 3 i)
                                         (IntegerConstant 64 (Integer 4) Decimal)
                                         ()
+                                        .false.
                                     )
                                     (Assert
                                         (StringCompare
@@ -152,6 +155,7 @@
                                             (IntegerConstant -534 (Integer 4) Decimal)
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assert
                                         (StringCompare

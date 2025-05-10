@@ -122,7 +122,7 @@ Result<LPython::AST::ast_t*> parse_python_file(Allocator &al,
     // We will be using the new parser from now on
     new_parser = true;
     LCOMPILERS_ASSERT(new_parser)
-    std::string input = read_file(infile);
+    std::string input = read_file_ok(infile);
     Result<LPython::AST::Module_t*> res = parse(al, input, prev_loc, diagnostics);
     if (res.ok) {
         ast = (LPython::AST::ast_t*)res.result;
