@@ -147,7 +147,8 @@
                                                         "presence": "Required",
                                                         "value_attr": false,
                                                         "target_attr": false,
-                                                        "contiguous_attr": false
+                                                        "contiguous_attr": false,
+                                                        "bindc_name": []
                                                     },
                                                     "loc": {
                                                         "first": 68,
@@ -441,7 +442,8 @@
                                                             "last_column": 15
                                                         }
                                                     },
-                                                    "overloaded": []
+                                                    "overloaded": [],
+                                                    "realloc_lhs": false
                                                 },
                                                 "loc": {
                                                     "first": 79,

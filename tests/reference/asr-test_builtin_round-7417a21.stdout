@@ -65,6 +65,7 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
                                                 ),
                                             f:
                                                 (Variable
@@ -83,6 +84,7 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
                                                 ),
                                             f2:
                                                 (Variable
@@ -101,6 +103,7 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
                                                 ),
                                             i:
                                                 (Variable
@@ -119,6 +122,7 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
                                                 ),
                                             i2:
                                                 (Variable
@@ -137,6 +141,7 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
                                                 ),
                                             i3:
                                                 (Variable
@@ -155,6 +160,7 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
                                                 ),
                                             i4:
                                                 (Variable
@@ -173,6 +179,7 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
                                                 ),
                                             round:
                                                 (ExternalSymbol
@@ -279,6 +286,7 @@
                                             (Real 8)
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assert
                                         (IntegerCompare
@@ -311,6 +319,7 @@
                                             )
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assert
                                         (IntegerCompare
@@ -340,6 +349,7 @@
                                             (Real 8)
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assert
                                         (IntegerCompare
@@ -365,6 +375,7 @@
                                             (Real 8)
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assert
                                         (IntegerCompare
@@ -397,6 +408,7 @@
                                             )
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assert
                                         (IntegerCompare
@@ -426,6 +438,7 @@
                                             (Real 8)
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assert
                                         (IntegerCompare
@@ -638,6 +651,7 @@
                                             )
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assert
                                         (IntegerCompare
@@ -664,6 +678,7 @@
                                             (IntegerConstant -5 (Integer 4) Decimal)
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assert
                                         (IntegerCompare
@@ -715,6 +730,7 @@
                                             (IntegerConstant 7 (Integer 1) Decimal)
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assert
                                         (IntegerCompare
@@ -751,6 +767,7 @@
                                             (IntegerConstant -8 (Integer 2) Decimal)
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assert
                                         (IntegerCompare
@@ -787,6 +804,7 @@
                                             (IntegerConstant 0 (Integer 8) Decimal)
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assert
                                         (IntegerCompare
@@ -817,6 +835,7 @@
                                             (Logical 4)
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assert
                                         (IntegerCompare
@@ -842,6 +861,7 @@
                                             (Logical 4)
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assert
                                         (IntegerCompare

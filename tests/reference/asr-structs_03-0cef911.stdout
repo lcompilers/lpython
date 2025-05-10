@@ -29,6 +29,7 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
                                                 ),
                                             y:
                                                 (Variable
@@ -47,6 +48,7 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
                                                 )
                                         })
                                     A
@@ -128,6 +130,7 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
                                                 )
                                         })
                                     f
@@ -215,6 +218,7 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
                                                 ),
                                             xp:
                                                 (Variable
@@ -240,6 +244,7 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
                                                 )
                                         })
                                     g
@@ -285,6 +290,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 5 xp)
@@ -301,6 +307,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assert
                                         (IntegerCompare
@@ -349,6 +356,7 @@
                                         )
                                         (IntegerConstant 5 (Integer 4) Decimal)
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (StructInstanceMember
@@ -370,6 +378,7 @@
                                             )
                                         )
                                         ()
+                                        .false.
                                     )
                                     (SubroutineCall
                                         2 f

@@ -29,6 +29,7 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
                                                 ),
                                             b:
                                                 (Variable
@@ -47,6 +48,7 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
                                                 )
                                         })
                                     test_del
@@ -70,11 +72,13 @@
                                         (Var 3 a)
                                         (IntegerConstant 4 (Integer 4) Decimal)
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 b)
                                         (IntegerConstant 20 (Integer 4) Decimal)
                                         ()
+                                        .false.
                                     )
                                     (ExplicitDeallocate
                                         [(Var 3 a)

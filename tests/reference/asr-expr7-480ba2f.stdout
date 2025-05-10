@@ -65,6 +65,7 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
                                                 )
                                         })
                                     main0
@@ -103,6 +104,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                     )]
                                     ()
                                     Public
@@ -132,6 +134,7 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
                                                 ),
                                             pow:
                                                 (ExternalSymbol
@@ -191,6 +194,7 @@
                                             (IntegerConstant 4 (Integer 4) Decimal)
                                         )
                                         ()
+                                        .false.
                                     )]
                                     ()
                                     Public
@@ -220,6 +224,7 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
                                                 ),
                                             a:
                                                 (Variable
@@ -238,6 +243,7 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
                                                 ),
                                             b:
                                                 (Variable
@@ -256,6 +262,7 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
                                                 ),
                                             pow:
                                                 (ExternalSymbol
@@ -294,6 +301,7 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
                                                 )
                                         })
                                     test_pow_1
@@ -332,11 +340,13 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 4 _lpython_return_variable)
                                         (Var 4 res)
                                         ()
+                                        .false.
                                     )
                                     (Return)]
                                     (Var 4 _lpython_return_variable)

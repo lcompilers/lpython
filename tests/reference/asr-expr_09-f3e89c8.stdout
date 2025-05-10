@@ -79,6 +79,7 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
                                                 ),
                                             i2:
                                                 (Variable
@@ -97,6 +98,7 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
                                                 )
                                         })
                                     main0
@@ -120,21 +122,25 @@
                                         (Var 3 i1)
                                         (IntegerConstant 10 (Integer 4) Decimal)
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 i2)
                                         (IntegerConstant 4 (Integer 4) Decimal)
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 i1)
                                         (IntegerConstant 3 (Integer 4) Decimal)
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 i2)
                                         (IntegerConstant 5 (Integer 4) Decimal)
                                         ()
+                                        .false.
                                     )
                                     (Print
                                         (StringFormat
@@ -211,6 +217,7 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
                                                 ),
                                             b:
                                                 (Variable
@@ -229,6 +236,7 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
                                                 ),
                                             c:
                                                 (Variable
@@ -250,6 +258,7 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
                                                 )
                                         })
                                     test_issue_928
@@ -287,6 +296,7 @@
                                             )
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 5 c)
@@ -299,6 +309,7 @@
                                             )
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assert
                                         (IntegerCompare
@@ -380,6 +391,7 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
                                                 ),
                                             b:
                                                 (Variable
@@ -398,6 +410,7 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
                                                 ),
                                             c:
                                                 (Variable
@@ -416,6 +429,7 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
                                                 ),
                                             d:
                                                 (Variable
@@ -434,6 +448,7 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
                                                 ),
                                             e:
                                                 (Variable
@@ -452,6 +467,7 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
                                                 ),
                                             g:
                                                 (Variable
@@ -470,6 +486,7 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
                                                 ),
                                             i:
                                                 (Variable
@@ -490,6 +507,7 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
                                                 ),
                                             j:
                                                 (Variable
@@ -510,6 +528,7 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
                                                 ),
                                             k:
                                                 (Variable
@@ -530,6 +549,7 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
                                                 ),
                                             x:
                                                 (Variable
@@ -548,6 +568,7 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
                                                 ),
                                             y:
                                                 (Variable
@@ -566,6 +587,7 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
                                                 )
                                         })
                                     test_multiple_assign_1
@@ -589,6 +611,7 @@
                                         (Var 4 g)
                                         (IntegerConstant 5 (Integer 4) Decimal)
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 4 d)
@@ -608,6 +631,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 4 e)
@@ -627,21 +651,25 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 4 a)
                                         (IntegerConstant 10 (Integer 4) Decimal)
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 4 b)
                                         (IntegerConstant 10 (Integer 4) Decimal)
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 4 c)
                                         (IntegerConstant 10 (Integer 4) Decimal)
                                         ()
+                                        .false.
                                     )
                                     (Assert
                                         (IntegerCompare
@@ -680,6 +708,7 @@
                                             (Real 8)
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 4 y)
@@ -688,6 +717,7 @@
                                             (Real 8)
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assert
                                         (RealCompare
@@ -810,11 +840,13 @@
                                             )
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 4 g)
                                         (IntegerConstant 0 (Integer 4) Decimal)
                                         ()
+                                        .false.
                                     )
                                     (DoLoop
                                         ()
@@ -861,11 +893,13 @@
                                         (Var 4 i)
                                         (Var 4 k)
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 4 j)
                                         (Var 4 k)
                                         ()
+                                        .false.
                                     )
                                     (DoLoop
                                         ()

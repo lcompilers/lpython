@@ -29,6 +29,7 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
                                                 ),
                                             b2:
                                                 (Variable
@@ -47,6 +48,7 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
                                                 ),
                                             x:
                                                 (Variable
@@ -65,6 +67,7 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
                                                 ),
                                             x2:
                                                 (Variable
@@ -83,6 +86,7 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
                                                 )
                                         })
                                     test_binop
@@ -112,6 +116,7 @@
                                             (IntegerConstant 8 (Integer 4) Decimal)
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 x2)
@@ -140,6 +145,7 @@
                                             )
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 x)
@@ -151,6 +157,7 @@
                                             (IntegerConstant -46 (Integer 4) Decimal)
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 x2)
@@ -191,6 +198,7 @@
                                             )
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 x2)
@@ -219,6 +227,7 @@
                                             )
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 x2)
@@ -247,6 +256,7 @@
                                             )
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 x)
@@ -274,6 +284,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 x)
@@ -301,6 +312,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 x)
@@ -328,6 +340,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 x)
@@ -355,6 +368,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 b1)
@@ -363,6 +377,7 @@
                                             (Logical 4)
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 b2)
@@ -371,6 +386,7 @@
                                             (Logical 4)
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 x)
@@ -388,6 +404,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 x)
@@ -409,6 +426,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                     )]
                                     ()
                                     Public

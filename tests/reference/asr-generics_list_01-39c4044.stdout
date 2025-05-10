@@ -26,6 +26,7 @@
                                     .false.
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __asr_generic_mean_0:
                                 (Function
@@ -49,6 +50,7 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
                                                 ),
                                             i:
                                                 (Variable
@@ -67,6 +69,7 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
                                                 ),
                                             k:
                                                 (Variable
@@ -85,6 +88,7 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
                                                 ),
                                             res:
                                                 (Variable
@@ -103,6 +107,7 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
                                                 ),
                                             x:
                                                 (Variable
@@ -123,6 +128,7 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
                                                 )
                                         })
                                     __asr_generic_mean_0
@@ -156,6 +162,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                     )
                                     (If
                                         (IntegerCompare
@@ -172,6 +179,7 @@
                                                 (Real 8)
                                             )
                                             ()
+                                            .false.
                                         )
                                         (Return)]
                                         []
@@ -192,6 +200,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                     )
                                     (DoLoop
                                         ()
@@ -222,6 +231,7 @@
                                                 ()
                                             )
                                             ()
+                                            .false.
                                         )]
                                         []
                                     )
@@ -237,6 +247,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Return)]
                                     (Var 17 _lpython_return_variable)
@@ -267,6 +278,7 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
                                                 ),
                                             i:
                                                 (Variable
@@ -285,6 +297,7 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
                                                 ),
                                             k:
                                                 (Variable
@@ -303,6 +316,7 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
                                                 ),
                                             res:
                                                 (Variable
@@ -321,6 +335,7 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
                                                 ),
                                             x:
                                                 (Variable
@@ -341,6 +356,7 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
                                                 )
                                         })
                                     __asr_generic_mean_1
@@ -374,6 +390,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                     )
                                     (If
                                         (IntegerCompare
@@ -390,6 +407,7 @@
                                                 (Real 8)
                                             )
                                             ()
+                                            .false.
                                         )
                                         (Return)]
                                         []
@@ -410,6 +428,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                     )
                                     (DoLoop
                                         ()
@@ -440,6 +459,7 @@
                                                 ()
                                             )
                                             ()
+                                            .false.
                                         )]
                                         []
                                     )
@@ -455,6 +475,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Return)]
                                     (Var 18 _lpython_return_variable)
@@ -485,6 +506,7 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
                                                 ),
                                             i:
                                                 (Variable
@@ -503,6 +525,7 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
                                                 ),
                                             k:
                                                 (Variable
@@ -521,6 +544,7 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
                                                 ),
                                             res:
                                                 (Variable
@@ -539,6 +563,7 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
                                                 ),
                                             x:
                                                 (Variable
@@ -559,6 +584,7 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
                                                 )
                                         })
                                     __asr_generic_mean_2
@@ -592,6 +618,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                     )
                                     (If
                                         (IntegerCompare
@@ -608,6 +635,7 @@
                                                 (Real 8)
                                             )
                                             ()
+                                            .false.
                                         )
                                         (Return)]
                                         []
@@ -628,6 +656,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                     )
                                     (DoLoop
                                         ()
@@ -658,6 +687,7 @@
                                                 ()
                                             )
                                             ()
+                                            .false.
                                         )]
                                         []
                                     )
@@ -673,6 +703,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Return)]
                                     (Var 19 _lpython_return_variable)
@@ -824,6 +855,7 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
                                                 ),
                                             x:
                                                 (Variable
@@ -844,6 +876,7 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
                                                 ),
                                             y:
                                                 (Variable
@@ -864,6 +897,7 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
                                                 )
                                         })
                                     add
@@ -920,6 +954,7 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
                                                 ),
                                             x:
                                                 (Variable
@@ -938,6 +973,7 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
                                                 ),
                                             y:
                                                 (Variable
@@ -956,6 +992,7 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
                                                 )
                                         })
                                     add_float
@@ -987,6 +1024,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Return)]
                                     (Var 10 _lpython_return_variable)
@@ -1017,6 +1055,7 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
                                                 ),
                                             x:
                                                 (Variable
@@ -1035,6 +1074,7 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
                                                 ),
                                             y:
                                                 (Variable
@@ -1053,6 +1093,7 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
                                                 )
                                         })
                                     add_integer
@@ -1084,6 +1125,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Return)]
                                     (Var 7 _lpython_return_variable)
@@ -1114,6 +1156,7 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
                                                 ),
                                             x:
                                                 (Variable
@@ -1132,6 +1175,7 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
                                                 ),
                                             y:
                                                 (Variable
@@ -1150,6 +1194,7 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
                                                 )
                                         })
                                     add_string
@@ -1180,6 +1225,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Return)]
                                     (Var 13 _lpython_return_variable)
@@ -1210,6 +1256,7 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
                                                 ),
                                             k:
                                                 (Variable
@@ -1228,6 +1275,7 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
                                                 ),
                                             x:
                                                 (Variable
@@ -1248,6 +1296,7 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
                                                 )
                                         })
                                     div
@@ -1300,6 +1349,7 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
                                                 ),
                                             k:
                                                 (Variable
@@ -1318,6 +1368,7 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
                                                 ),
                                             x:
                                                 (Variable
@@ -1336,6 +1387,7 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
                                                 )
                                         })
                                     div_float
@@ -1372,6 +1424,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Return)]
                                     (Var 11 _lpython_return_variable)
@@ -1402,6 +1455,7 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
                                                 ),
                                             k:
                                                 (Variable
@@ -1420,6 +1474,7 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
                                                 ),
                                             x:
                                                 (Variable
@@ -1438,6 +1493,7 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
                                                 )
                                         })
                                     div_integer
@@ -1479,6 +1535,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Return)]
                                     (Var 8 _lpython_return_variable)
@@ -1509,6 +1566,7 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
                                                 ),
                                             k:
                                                 (Variable
@@ -1527,6 +1585,7 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
                                                 ),
                                             x:
                                                 (Variable
@@ -1545,6 +1604,7 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
                                                 )
                                         })
                                     div_string
@@ -1573,6 +1633,7 @@
                                             (Real 8)
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Return)]
                                     (Var 14 _lpython_return_variable)
@@ -1603,6 +1664,7 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
                                                 ),
                                             x:
                                                 (Variable
@@ -1621,6 +1683,7 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
                                                 )
                                         })
                                     empty_float
@@ -1647,6 +1710,7 @@
                                             (Real 8)
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Return)]
                                     (Var 9 _lpython_return_variable)
@@ -1677,6 +1741,7 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
                                                 ),
                                             x:
                                                 (Variable
@@ -1695,6 +1760,7 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
                                                 )
                                         })
                                     empty_integer
@@ -1718,6 +1784,7 @@
                                         (Var 6 _lpython_return_variable)
                                         (IntegerConstant 0 (Integer 4) Decimal)
                                         ()
+                                        .false.
                                     )
                                     (Return)]
                                     (Var 6 _lpython_return_variable)
@@ -1748,6 +1815,7 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
                                                 ),
                                             x:
                                                 (Variable
@@ -1766,6 +1834,7 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
                                                 )
                                         })
                                     empty_string
@@ -1792,6 +1861,7 @@
                                             (String 1 0 () PointerString)
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Return)]
                                     (Var 12 _lpython_return_variable)
@@ -1822,6 +1892,7 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
                                                 ),
                                             i:
                                                 (Variable
@@ -1840,6 +1911,7 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
                                                 ),
                                             k:
                                                 (Variable
@@ -1858,6 +1930,7 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
                                                 ),
                                             res:
                                                 (Variable
@@ -1878,6 +1951,7 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
                                                 ),
                                             x:
                                                 (Variable
@@ -1900,6 +1974,7 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
                                                 )
                                         })
                                     mean
@@ -1935,6 +2010,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                     )
                                     (If
                                         (IntegerCompare
@@ -1951,6 +2027,7 @@
                                                 (Real 8)
                                             )
                                             ()
+                                            .false.
                                         )
                                         (Return)]
                                         []
@@ -1975,6 +2052,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                     )
                                     (DoLoop
                                         ()
@@ -2009,6 +2087,7 @@
                                                 ()
                                             )
                                             ()
+                                            .false.
                                         )]
                                         []
                                     )
@@ -2024,6 +2103,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Return)]
                                     (Var 15 _lpython_return_variable)
@@ -2056,6 +2136,7 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
                                                 ),
                                             x:
                                                 (Variable
@@ -2076,6 +2157,7 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
                                                 )
                                         })
                                     zero

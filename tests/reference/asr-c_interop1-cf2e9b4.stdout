@@ -29,6 +29,7 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
                                                 ),
                                             x:
                                                 (Variable
@@ -47,6 +48,7 @@
                                                     .true.
                                                     .false.
                                                     .false.
+                                                    ()
                                                 )
                                         })
                                     f
@@ -95,6 +97,7 @@
                                                     .true.
                                                     .false.
                                                     .false.
+                                                    ()
                                                 ),
                                             b:
                                                 (Variable
@@ -113,6 +116,7 @@
                                                     .true.
                                                     .false.
                                                     .false.
+                                                    ()
                                                 ),
                                             c:
                                                 (Variable
@@ -131,6 +135,7 @@
                                                     .true.
                                                     .false.
                                                     .false.
+                                                    ()
                                                 ),
                                             d:
                                                 (Variable
@@ -149,6 +154,7 @@
                                                     .true.
                                                     .false.
                                                     .false.
+                                                    ()
                                                 )
                                         })
                                     g
@@ -203,6 +209,7 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
                                                 ),
                                             x:
                                                 (Variable
@@ -221,6 +228,7 @@
                                                     .true.
                                                     .false.
                                                     .false.
+                                                    ()
                                                 )
                                         })
                                     h
@@ -253,6 +261,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Return)]
                                     (Var 5 _lpython_return_variable)
@@ -283,6 +292,7 @@
                                                     .true.
                                                     .false.
                                                     .false.
+                                                    ()
                                                 ),
                                             b:
                                                 (Variable
@@ -301,6 +311,7 @@
                                                     .true.
                                                     .false.
                                                     .false.
+                                                    ()
                                                 ),
                                             c:
                                                 (Variable
@@ -319,6 +330,7 @@
                                                     .true.
                                                     .false.
                                                     .false.
+                                                    ()
                                                 ),
                                             d:
                                                 (Variable
@@ -337,6 +349,7 @@
                                                     .true.
                                                     .false.
                                                     .false.
+                                                    ()
                                                 )
                                         })
                                     l
@@ -402,6 +415,7 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
                                                 ),
                                             x:
                                                 (Variable
@@ -420,6 +434,7 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
                                                 ),
                                             y:
                                                 (Variable
@@ -438,6 +453,7 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
                                                 ),
                                             z:
                                                 (Variable
@@ -456,6 +472,7 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
                                                 ),
                                             zz:
                                                 (Variable
@@ -474,6 +491,7 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
                                                 )
                                         })
                                     main0
@@ -503,6 +521,7 @@
                                             (Real 8)
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 7 i)
@@ -515,6 +534,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 7 y)
@@ -531,6 +551,7 @@
                                             )
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 7 z)
@@ -541,11 +562,13 @@
                                             (IntegerConstant 3 (Integer 8) Decimal)
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 7 zz)
                                         (IntegerConstant 2 (Integer 4) Decimal)
                                         ()
+                                        .false.
                                     )
                                     (SubroutineCall
                                         2 g
@@ -567,6 +590,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                     )
                                     (SubroutineCall
                                         2 l

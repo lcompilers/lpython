@@ -41,6 +41,7 @@
                                             )
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 2 i)
@@ -51,6 +52,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                     )
                                     (SubroutineCall
                                         2 test_global_symbols
@@ -81,6 +83,7 @@
                                     .false.
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             test_global_symbols:
                                 (Function
@@ -156,6 +159,7 @@
                                     .false.
                                     .false.
                                     .false.
+                                    ()
                                 )
                         })
                     __main__

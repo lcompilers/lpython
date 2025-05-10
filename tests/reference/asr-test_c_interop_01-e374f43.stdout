@@ -65,6 +65,7 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
                                                 ),
                                             x:
                                                 (Variable
@@ -83,6 +84,7 @@
                                                     .true.
                                                     .false.
                                                     .false.
+                                                    ()
                                                 )
                                         })
                                     _lfortran_dsin
@@ -131,6 +133,7 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
                                                 ),
                                             x:
                                                 (Variable
@@ -149,6 +152,7 @@
                                                     .true.
                                                     .false.
                                                     .false.
+                                                    ()
                                                 )
                                         })
                                     _lfortran_ssin
@@ -197,6 +201,7 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
                                                 )
                                         })
                                     test_c_callbacks
@@ -224,6 +229,7 @@
                                             (Real 8)
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assert
                                         (RealCompare

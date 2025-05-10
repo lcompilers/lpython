@@ -65,6 +65,7 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
                                                 ),
                                             f:
                                                 (Variable
@@ -83,6 +84,7 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
                                                 ),
                                             f2:
                                                 (Variable
@@ -101,6 +103,7 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
                                                 ),
                                             i:
                                                 (Variable
@@ -119,6 +122,7 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
                                                 )
                                         })
                                     test_float
@@ -142,6 +146,7 @@
                                         (Var 3 i)
                                         (IntegerConstant 34 (Integer 4) Decimal)
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 f)
@@ -158,6 +163,7 @@
                                             )
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assert
                                         (RealCompare
@@ -228,6 +234,7 @@
                                             (IntegerConstant -4235 (Integer 4) Decimal)
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assert
                                         (RealCompare
@@ -446,6 +453,7 @@
                                             (Logical 4)
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 f2)
@@ -456,6 +464,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assert
                                         (RealCompare
@@ -477,6 +486,7 @@
                                             (Logical 4)
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assert
                                         (RealCompare
