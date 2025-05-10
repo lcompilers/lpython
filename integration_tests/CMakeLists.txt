@@ -556,7 +556,7 @@ RUN(NAME test_list_reverse   LABELS cpython llvm llvm_jit)
 # RUN(NAME test_list_pop       LABELS cpython llvm llvm_jit NOFAST) # TODO: Remove NOFAST from here.
 # RUN(NAME test_list_pop2       LABELS cpython llvm llvm_jit NOFAST) # TODO: Remove NOFAST from here.
 RUN(NAME test_list_pop3      LABELS cpython llvm llvm_jit)
-# RUN(NAME test_list_compare   LABELS cpython llvm llvm_jit) # post sync fix
+RUN(NAME test_list_compare   LABELS cpython llvm llvm_jit) 
 RUN(NAME test_list_compare2   LABELS cpython llvm llvm_jit)
 # RUN(NAME test_list_concat    LABELS cpython llvm llvm_jit c NOFAST)
 RUN(NAME test_list_reserve   LABELS cpython llvm llvm_jit)
