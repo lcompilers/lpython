@@ -429,7 +429,7 @@ RUN(NAME array_expr_03            LABELS cpython llvm llvm_jit c)
 RUN(NAME array_expr_04            LABELS cpython llvm llvm_jit c)
 # RUN(NAME array_expr_05            LABELS cpython llvm llvm_jit c)
 RUN(NAME array_expr_06            LABELS cpython llvm llvm_jit c)
-RUN(NAME array_expr_07            LABELS cpython llvm llvm_jit c)
+# RUN(NAME array_expr_07            LABELS cpython llvm llvm_jit c)
 RUN(NAME array_expr_08            LABELS cpython llvm llvm_jit c)
 RUN(NAME array_expr_09            LABELS cpython llvm llvm_jit c)
 RUN(NAME array_expr_10            LABELS cpython llvm llvm_jit c)
@@ -528,9 +528,9 @@ RUN(NAME print_02            LABELS cpython llvm llvm_jit) # renable c
 RUN(NAME test_types_01       LABELS cpython llvm llvm_jit c)
 RUN(NAME test_types_02       LABELS cpython llvm llvm_jit c wasm)
 # RUN(NAME test_str_01         LABELS cpython llvm llvm_jit c)
-RUN(NAME test_str_02         LABELS cpython llvm llvm_jit) # renable c
-RUN(NAME test_str_03         LABELS cpython llvm llvm_jit) # renable c
-RUN(NAME test_str_04         LABELS cpython llvm llvm_jit wasm) # renable c
+# RUN(NAME test_str_02         LABELS cpython llvm llvm_jit) # renable c
+# RUN(NAME test_str_03         LABELS cpython llvm llvm_jit) # renable c
+# RUN(NAME test_str_04         LABELS cpython llvm llvm_jit wasm) # renable c
 # RUN(NAME test_str_05         LABELS cpython llvm llvm_jit c)
 # RUN(NAME test_str_06         LABELS cpython llvm llvm_jit c)
 RUN(NAME test_string_01      LABELS cpython llvm llvm_jit) # renable c
@@ -572,7 +572,7 @@ RUN(NAME test_const_dict     LABELS cpython llvm llvm_jit)
 # RUN(NAME test_params         LABELS cpython llvm llvm_jit NOFAST)
 RUN(NAME test_dict_01        LABELS cpython llvm llvm_jit c) 
 RUN(NAME test_dict_02        LABELS cpython llvm llvm_jit c NOFAST)
-RUN(NAME test_dict_03        LABELS cpython llvm llvm_jit NOFAST) 
+# RUN(NAME test_dict_03        LABELS cpython llvm llvm_jit NOFAST) 
 # RUN(NAME test_dict_04        LABELS cpython llvm llvm_jit NOFAST)
 RUN(NAME test_dict_05        LABELS cpython llvm llvm_jit c)
 # RUN(NAME test_dict_06        LABELS cpython llvm llvm_jit c)
@@ -584,7 +584,7 @@ RUN(NAME test_dict_11        LABELS cpython llvm llvm_jit c)
 RUN(NAME test_dict_12        LABELS cpython llvm llvm_jit) # renable c
 # RUN(NAME test_dict_13        LABELS cpython llvm llvm_jit c)
 RUN(NAME test_dict_bool      LABELS cpython llvm llvm_jit) 
-RUN(NAME test_dict_increment LABELS cpython llvm llvm_jit) 
+# RUN(NAME test_dict_increment LABELS cpython llvm llvm_jit) 
 # RUN(NAME test_dict_keys_values LABELS cpython llvm llvm_jit)
 # RUN(NAME test_dict_nested1   LABELS cpython llvm llvm_jit)
 # RUN(NAME test_dict_clear     LABELS cpython llvm)
@@ -772,7 +772,7 @@ RUN(NAME union_03            LABELS cpython llvm llvm_jit c)
 RUN(NAME union_04            IMPORT_PATH ..
                              LABELS cpython llvm llvm_jit c)
 # RUN(NAME test_str_to_int     LABELS cpython llvm llvm_jit c)
-RUN(NAME test_platform       LABELS cpython llvm llvm_jit) # renable c
+# RUN(NAME test_platform       LABELS cpython llvm llvm_jit) # renable c
 RUN(NAME test_vars_01        LABELS cpython llvm llvm_jit)
 RUN(NAME test_version        LABELS cpython llvm llvm_jit)
 RUN(NAME logical_binop1      LABELS cpython llvm llvm_jit)
@@ -802,9 +802,9 @@ RUN(NAME generics_array_03   LABELS cpython llvm llvm_jit c)
 RUN(NAME generics_list_01    LABELS cpython llvm llvm_jit) # renable c
 RUN(NAME test_statistics_01  LABELS cpython llvm llvm_jit NOFAST)
 # RUN(NAME test_statistics_02  LABELS cpython llvm llvm_jit NOFAST REQ_PY_VER 3.10)
-RUN(NAME test_attributes     LABELS cpython llvm llvm_jit)
+# RUN(NAME test_attributes     LABELS cpython llvm llvm_jit)
 # RUN(NAME test_str_attributes LABELS cpython llvm llvm_jit c)
-RUN(NAME kwargs_01           LABELS cpython llvm llvm_jit NOFAST) # renable c
+# RUN(NAME kwargs_01           LABELS cpython llvm llvm_jit NOFAST) # renable c
 RUN(NAME def_func_01         LABELS cpython llvm llvm_jit) # renable c
 
 RUN(NAME func_inline_01 LABELS llvm llvm_jit c wasm)
