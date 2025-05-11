@@ -891,7 +891,7 @@ public:
         } else if (var_annotation == "str") {
             type = ASRUtils::TYPE(ASR::make_String_t(al, loc, 1, 
                                   ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, loc, -2, 
-                                            ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4)))),
+                                            ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 8)))),
                                   false, false, ASR::string_physical_typeType::PointerString));
             type = ASRUtils::make_Array_t_util(al, loc, type, dims.p, dims.size(), abi, is_argument);
         } else if (var_annotation == "bool" || var_annotation == "i1") {
@@ -1952,7 +1952,7 @@ public:
             AST::ConstantStr_t *n = AST::down_cast<AST::ConstantStr_t>(&annotation);
             ASR::symbol_t *sym = current_scope->resolve_symbol(n->m_value);
             if ( sym == nullptr || !ASR::is_a<ASR::Struct_t>(*sym) ) {
-                throw SemanticError("Only StructType implemented for con"
+                throw SemanticError("Only StructType implemented for constant"
                 " str annotation", loc);
             }
             //TODO: Change the returned type from Class to StructType
@@ -8158,7 +8158,7 @@ we will have to use something else.
         ASR::expr_t* a_len = ASRUtils::EXPR(ASR::make_IntegerConstant_t(al,
                                     loc, s_var.size(), ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 8))));
         ASR::ttype_t *str_type = ASRUtils::TYPE(ASR::make_String_t(al, loc,
-                1, a_len, false, false, ASR::string_physical_typeType::PointerString));
+                -1, a_len, false, false, ASR::string_physical_typeType::PointerString));
         tmp = ASR::make_StringConstant_t(al, loc, s2c(al, s_var), str_type);
     }
 
@@ -8589,10 +8589,8 @@ we will have to use something else.
                         }
                     }
                 }
-                ASR::expr_t* a_len = ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, x.base.base.loc,
-                                             0, ASRUtils::TYPE(ASR::make_Integer_t(al, x.base.base.loc, 8))));
                 ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_String_t(
-                        al, x.base.base.loc, -1, a_len, false, false, ASR::string_physical_typeType::PointerString));
+                        al, x.base.base.loc, 1, nullptr, false, false, ASR::string_physical_typeType::CString));
                 ASR::expr_t* string_format = ASRUtils::EXPR(ASRUtils::make_StringFormat_t_util(al, x.base.base.loc,
                     nullptr, args_expr.p, args_expr.size(), ASR::string_format_kindType::FormatPythonFormat,
                     type, nullptr));
