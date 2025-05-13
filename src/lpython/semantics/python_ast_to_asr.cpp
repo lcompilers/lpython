@@ -890,7 +890,7 @@ public:
             type = ASRUtils::make_Array_t_util(al, loc, type, dims.p, dims.size(), abi, is_argument);
         } else if (var_annotation == "str") {
             type = ASRUtils::TYPE(ASR::make_String_t(al, loc, 1, 
-                                  ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, loc, -2, 
+                                  ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, loc, 0, 
                                             ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 8)))),
                                   false, false, ASR::string_physical_typeType::PointerString));
             type = ASRUtils::make_Array_t_util(al, loc, type, dims.p, dims.size(), abi, is_argument);
@@ -2652,6 +2652,11 @@ public:
             v_variable->n_dependencies = variable_dependencies_vec.size();
             v_variable->m_symbolic_value = init_expr;
             v_variable->m_value = value;
+
+            if ( value && ASR::is_a<ASR::StringConstant_t>(*value) && ASR::is_a<ASR::String_t>(*type) ) {
+                ASR::String_t* str_type = ASR::down_cast<ASR::String_t>(v_variable->m_type);
+                ((ASR::IntegerConstant_t *)str_type->m_len)->m_n = std::string(ASR::down_cast<ASR::StringConstant_t>(value)->m_s).size();
+            }
         }
 
         bool is_runtime_expression = !ASRUtils::is_value_constant(value);

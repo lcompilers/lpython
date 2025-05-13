@@ -6,6 +6,7 @@
 #include <libasr/string_utils.h>
 #include <lpython/utils.h>
 #include <lpython/semantics/semantic_exception.h>
+#include <libasr/asr_utils.h>
 
 namespace LCompilers::LPython {
 
@@ -324,7 +325,7 @@ struct IntrinsicNodeHandler {
             arg_type = ASRUtils::expr_type(arg);
         }
         ASR::expr_t* a_len = ASRUtils::EXPR(ASR::make_IntegerConstant_t(al,
-                                loc, -2, ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 8))));
+                                loc, 0, ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 8))));
         ASR::ttype_t *str_type = ASRUtils::TYPE(ASR::make_String_t(al, loc, 1, a_len, false, false,
                                                  ASR::string_physical_typeType::PointerString));
         if (!arg) {
