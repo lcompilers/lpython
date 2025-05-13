@@ -5711,10 +5711,10 @@ public:
                 }
 
                 if (ASR::is_a<ASR::String_t>(*v->m_type)){
-                    ASR::String_t *str_type1 = ASR::down_cast<ASR::String_t>(v->m_type),
-                                  *str_type2 = ASR::down_cast<ASR::String_t>(value_type);
-                    int64_t l1 =  ((ASR::IntegerConstant_t *)str_type1->m_len)->m_n,
-                            l2 =  ((ASR::IntegerConstant_t *)str_type2->m_len)->m_n;
+                    ASR::String_t *str_type1 = ASR::down_cast<ASR::String_t>(v->m_type);
+                    ASR::String_t *str_type2 = ASR::down_cast<ASR::String_t>(value_type);
+                    int64_t l1 =  ((ASR::IntegerConstant_t *)str_type1->m_len)->m_n;
+                    int64_t l2 =  ((ASR::IntegerConstant_t *)str_type2->m_len)->m_n;
                     ((ASR::IntegerConstant_t *)str_type1->m_len)->m_n = l1>l2?l1:l2;
                 }
             }
