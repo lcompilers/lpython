@@ -5709,6 +5709,14 @@ public:
                     std::string var_name = std::string(v->m_name);
                     throw SemanticError("Only Class constructor is allowed in the object assignment for now", target->base.loc);
                 }
+
+                if (ASR::is_a<ASR::String_t>(*v->m_type)){
+                    ASR::String_t *str_type1 = ASR::down_cast<ASR::String_t>(v->m_type),
+                                  *str_type2 = ASR::down_cast<ASR::String_t>(value_type);
+                    int64_t l1 =  ((ASR::IntegerConstant_t *)str_type1->m_len)->m_n,
+                            l2 =  ((ASR::IntegerConstant_t *)str_type2->m_len)->m_n;
+                    ((ASR::IntegerConstant_t *)str_type1->m_len)->m_n = l1>l2?l1:l2;
+                }
             }
             tmp_vec.push_back(ASR::make_Assignment_t(al, x.base.base.loc, target, tmp_value,
                                     overloaded, false));

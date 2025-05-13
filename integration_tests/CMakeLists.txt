@@ -567,7 +567,7 @@ RUN(NAME test_tuple_01       LABELS cpython llvm llvm_jit) # renable c
 RUN(NAME test_tuple_03       LABELS cpython llvm llvm_jit) # renable c
 RUN(NAME test_tuple_04       LABELS cpython llvm llvm_jit) # renable c
 RUN(NAME test_tuple_concat   LABELS cpython llvm llvm_jit) 
-# RUN(NAME test_tuple_nested   LABELS cpython llvm llvm_jit) # post sync
+RUN(NAME test_tuple_nested   LABELS cpython llvm llvm_jit)
 RUN(NAME test_const_dict     LABELS cpython llvm llvm_jit) 
 # RUN(NAME test_params         LABELS cpython llvm llvm_jit NOFAST)
 RUN(NAME test_dict_01        LABELS cpython llvm llvm_jit c) 
@@ -628,8 +628,8 @@ RUN(NAME elemental_12        LABELS cpython llvm llvm_jit c NOFAST)
 RUN(NAME elemental_13        LABELS cpython llvm llvm_jit c NOFAST)
 RUN(NAME test_random         LABELS cpython llvm llvm_jit NOFAST)
 RUN(NAME test_random_02         LABELS cpython llvm llvm_jit NOFAST)
-# RUN(NAME test_os             LABELS cpython llvm llvm_jit NOFAST) # renable c  # post sync
-# RUN(NAME test_builtin        LABELS cpython llvm llvm_jit) # renable c  # post sync 
+RUN(NAME test_os             LABELS cpython llvm llvm_jit NOFAST) # renable c  
+RUN(NAME test_builtin        LABELS cpython llvm llvm_jit) # renable c  
 RUN(NAME test_builtin_abs    LABELS cpython llvm llvm_jit c)
 # RUN(NAME test_builtin_bool   LABELS cpython llvm llvm_jit c)
 # RUN(NAME test_builtin_pow    LABELS cpython llvm llvm_jit c EXTRA_ARGS --no-warnings)
