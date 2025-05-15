@@ -75,6 +75,7 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
                                                 )
                                         })
                                     test_hex
@@ -98,6 +99,7 @@
                                         (Var 3 i)
                                         (IntegerConstant 34 (Integer 4) Decimal)
                                         ()
+                                        .false.
                                     )
                                     (Assert
                                         (StringCompare
@@ -127,6 +129,7 @@
                                             (IntegerConstant -4235 (Integer 4) Decimal)
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assert
                                         (StringCompare

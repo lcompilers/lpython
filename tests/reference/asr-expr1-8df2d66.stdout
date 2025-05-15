@@ -29,6 +29,7 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
                                                 ),
                                             x:
                                                 (Variable
@@ -47,6 +48,7 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
                                                 ),
                                             y:
                                                 (Variable
@@ -65,6 +67,7 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
                                                 )
                                         })
                                     test_namedexpr
@@ -92,6 +95,7 @@
                                             (Integer 4)
                                         )
                                         ()
+                                        .false.
                                     )
                                     (If
                                         (NamedExpr
@@ -110,6 +114,7 @@
                                             (Var 3 x)
                                             (IntegerConstant 1 (Integer 4) Decimal)
                                             ()
+                                            .false.
                                         )]
                                         []
                                     )
@@ -124,6 +129,7 @@
                                             (Var 3 y)
                                             (IntegerConstant 1 (Integer 4) Decimal)
                                             ()
+                                            .false.
                                         )]
                                         []
                                     )]

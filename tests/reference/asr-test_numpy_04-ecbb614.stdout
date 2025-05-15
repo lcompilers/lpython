@@ -108,6 +108,7 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
                                                 ),
                                             x:
                                                 (Variable
@@ -131,6 +132,7 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
                                                 )
                                         })
                                     test_array_01
@@ -164,6 +166,7 @@
                                             RowMajor
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 226 eps)
@@ -172,6 +175,7 @@
                                             (Real 8)
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assert
                                         (RealCompare
@@ -300,6 +304,7 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
                                                 ),
                                             x:
                                                 (Variable
@@ -323,6 +328,7 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
                                                 )
                                         })
                                     test_array_02
@@ -356,6 +362,7 @@
                                             RowMajor
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 227 eps)
@@ -364,6 +371,7 @@
                                             (Real 8)
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assert
                                         (RealCompare
