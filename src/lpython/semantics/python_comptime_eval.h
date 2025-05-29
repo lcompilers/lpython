@@ -163,8 +163,8 @@ struct PythonIntrinsicProcedures {
         LCOMPILERS_ASSERT(ASRUtils::all_args_evaluated(args));
         if (args.size() == 0) { // create an empty string
             ASR::expr_t* a_len = ASRUtils::EXPR(ASR::make_IntegerConstant_t(al,
-                                    loc, 0, ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 8))));
-            ASR::ttype_t* str_type = ASRUtils::TYPE(ASR::make_String_t(al, loc, 1, a_len, false, false,
+                                    loc, 0, ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4))));
+            ASR::ttype_t* str_type = ASRUtils::TYPE(ASR::make_String_t(al, loc, 1, a_len, ASR::string_length_kindType::DeferredLength,
                                             ASR::string_physical_typeType::PointerString));
             return ASR::down_cast<ASR::expr_t>(ASR::make_StringConstant_t(al, loc, s2c(al, ""), str_type));
         }
@@ -188,8 +188,8 @@ struct PythonIntrinsicProcedures {
                 ASRUtils::type_to_str_python(arg_type) + "'", loc);
         }
         ASR::expr_t* a_len = ASRUtils::EXPR(ASR::make_IntegerConstant_t(al,
-                                loc, s.size(), ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 8))));
-        ASR::ttype_t* str_type = ASRUtils::TYPE(ASR::make_String_t(al, loc, 1, a_len, false, false, ASR::string_physical_typeType::PointerString));
+                                loc, s.size(), ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4))));
+        ASR::ttype_t* str_type = ASRUtils::TYPE(ASR::make_String_t(al, loc, 1, a_len, ASR::string_length_kindType::DeferredLength, ASR::string_physical_typeType::PointerString));
         return ASR::down_cast<ASR::expr_t>(ASR::make_StringConstant_t(al, loc, s2c(al, s), str_type));
     }
 
@@ -330,8 +330,8 @@ struct PythonIntrinsicProcedures {
             str.erase(0, str.find_first_not_of('0'));
             str.insert(0, prefix);
             ASR::expr_t* a_len = ASRUtils::EXPR(ASR::make_IntegerConstant_t(al,
-                                        loc, str.size(), ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 8))));
-            ASR::ttype_t* str_type = ASRUtils::TYPE(ASR::make_String_t(al, loc, 1, a_len, false, false,
+                                        loc, str.size(), ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4))));
+            ASR::ttype_t* str_type = ASRUtils::TYPE(ASR::make_String_t(al, loc, 1, a_len, ASR::string_length_kindType::DeferredLength,
                                                 ASR::string_physical_typeType::PointerString));
             return ASR::down_cast<ASR::expr_t>(make_StringConstant_t(al, loc, s2c(al, str), str_type));
         } else {
@@ -357,8 +357,8 @@ struct PythonIntrinsicProcedures {
             str += ss.str();
             str.insert(0, prefix);
             ASR::expr_t* a_len = ASRUtils::EXPR(ASR::make_IntegerConstant_t(al,
-                                        loc, str.size(), ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 8))));
-            ASR::ttype_t* str_type = ASRUtils::TYPE(ASR::make_String_t(al, loc, 1, a_len, false, false,
+                                        loc, str.size(), ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4))));
+            ASR::ttype_t* str_type = ASRUtils::TYPE(ASR::make_String_t(al, loc, 1, a_len, ASR::string_length_kindType::DeferredLength,
                                                 ASR::string_physical_typeType::PointerString));
             return ASR::down_cast<ASR::expr_t>(make_StringConstant_t(al, loc, s2c(al, str), str_type));
         } else {
@@ -384,8 +384,8 @@ struct PythonIntrinsicProcedures {
             str += ss.str();
             str.insert(0, prefix);
             ASR::expr_t* a_len = ASRUtils::EXPR(ASR::make_IntegerConstant_t(al,
-                                        loc, str.size(), ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 8))));
-            ASR::ttype_t* str_type = ASRUtils::TYPE(ASR::make_String_t(al, loc, 1, a_len, false, false,
+                                        loc, str.size(), ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4))));
+            ASR::ttype_t* str_type = ASRUtils::TYPE(ASR::make_String_t(al, loc, 1, a_len, ASR::string_length_kindType::DeferredLength,
                                                 ASR::string_physical_typeType::PointerString));
             return ASR::down_cast<ASR::expr_t>(make_StringConstant_t(al, loc, s2c(al, str), str_type));
         } else {
@@ -404,8 +404,8 @@ struct PythonIntrinsicProcedures {
         ASR::expr_t *arg = args[0];
         ASR::ttype_t *type = ASRUtils::expr_type(arg);
         ASR::expr_t* a_len = ASRUtils::EXPR(ASR::make_IntegerConstant_t(al,
-                                    loc, 1, ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 8))));
-        ASR::ttype_t* str_type = ASRUtils::TYPE(ASR::make_String_t(al, loc, 1, a_len, false, false,
+                                    loc, 1, ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4))));
+        ASR::ttype_t* str_type = ASRUtils::TYPE(ASR::make_String_t(al, loc, 1, a_len, ASR::string_length_kindType::DeferredLength,
                                             ASR::string_physical_typeType::PointerString));
         if (ASRUtils::is_integer(*type) || ASRUtils::is_real(*type)
                 || ASRUtils::is_complex(*type) || ASRUtils::is_logical(*type)) {
