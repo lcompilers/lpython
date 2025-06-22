@@ -1954,7 +1954,7 @@ public:
                 " str annotation", loc);
             }
             //TODO: Change the returned type from Class to StructType
-            return ASRUtils::TYPE(ASR::make_ClassType_t(al,loc,sym));
+            return ASRUtils::TYPE(ASRUtils::make_StructType_t_util(al, loc, sym, false));
         }
 
         throw SemanticError("Only Name, Subscript, and Call supported for now in annotation of annotated assignment.", loc);
@@ -4652,6 +4652,27 @@ public:
                 size_t default_arg_index = i - default_arg_index_start;
                 this->visit_expr(*(x.m_args.m_defaults[default_arg_index]));
                 init_expr = ASRUtils::EXPR(tmp);
+                ASR::ttype_t * init_expr_type = ASRUtils::expr_type(init_expr);
+
+
+                if (ASR::is_a<ASR::String_t>(*ASRUtils::type_get_past_allocatable(init_expr_type))) {
+                    ASR::down_cast<ASR::String_t>(ASRUtils::type_get_past_allocatable(init_expr_type))->m_physical_type = 
+                                                ASR::string_physical_typeType::DescriptorString;
+                    ASR::down_cast<ASR::String_t>(ASRUtils::type_get_past_allocatable(init_expr_type))->m_len_kind = 
+                                                ASR::string_length_kindType::DeferredLength;
+                }
+
+                Vec<ASR::alloc_arg_t> alloc_args; alloc_args.reserve(al, 1);
+                ASR::alloc_arg_t alloc_arg;
+                alloc_arg.loc = loc;
+                alloc_arg.m_a = init_expr;
+                alloc_arg.m_dims = nullptr;
+                alloc_arg.n_dims = 0;
+                alloc_arg.m_type = nullptr;
+                alloc_arg.m_len_expr = nullptr;
+                alloc_args.push_back(al, alloc_arg);
+                init_expr = ASRUtils::EXPR(ASR::make_Allocate_t(al, loc, alloc_args.p, 1, nullptr, nullptr, nullptr));
+
             }
             if (s_intent == ASRUtils::intent_unspecified) {
                 s_intent = ASRUtils::intent_in;
@@ -6463,7 +6484,8 @@ public:
             }
             tmp = ASR::make_StructInstanceMember_t(al, loc, val, member_sym,
                                             member_var_type, nullptr);
-        } else if( ASR::is_a<ASR::ClassType_t>(*type) ) { //TODO: Remove ClassType_t from here
+            //TODO: Check if necessary
+        /*} else if( ASR::is_a<ASR::ClassType_t>(*type) ) { //TODO: Remove ClassType_t from here
             ASR::ClassType_t* der = ASR::down_cast<ASR::ClassType_t>(type);
             ASR::symbol_t* der_sym = ASRUtils::symbol_get_past_external(der->m_class_type);
             ASR::Struct_t* der_type = ASR::down_cast<ASR::Struct_t>(der_sym);
@@ -6515,7 +6537,7 @@ public:
                 }
             }
             tmp = ASR::make_StructInstanceMember_t(al, loc, val, member_sym,
-                                            member_var_type, nullptr);
+                                            member_var_type, nullptr);*/
         } else if (ASR::is_a<ASR::EnumType_t>(*type)) {
             ASR::EnumType_t* enum_ = ASR::down_cast<ASR::EnumType_t>(type);
             ASR::Enum_t* enum_type = ASR::down_cast<ASR::Enum_t>(enum_->m_enum_type);
@@ -8265,8 +8287,8 @@ we will have to use something else.
                     st = get_struct_member(st, call_name, loc);
                 } else if ( ASR::is_a<ASR::Variable_t>(*st)) {
                     ASR::Variable_t* var = ASR::down_cast<ASR::Variable_t>(st);
-                    if (ASR::is_a<ASR::StructType_t>(*var->m_type) ||
-                            ASR::is_a<ASR::ClassType_t>(*var->m_type) ) {
+                    if (ASR::is_a<ASR::StructType_t>(*var->m_type) /*||       //TODO: Check if necessary
+                            ASR::is_a<ASR::ClassType_t>(*var->m_type)*/ ) {
                         //TODO: Correct Class and ClassType
                         // call to struct member function
                         // modifying args to pass the object as self
