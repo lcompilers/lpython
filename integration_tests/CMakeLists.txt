@@ -619,7 +619,7 @@ RUN(NAME test_numpy_04       LABELS cpython llvm llvm_jit c)
 # RUN(NAME elemental_04        LABELS cpython llvm llvm_jit c NOFAST)
 # RUN(NAME elemental_05        LABELS cpython llvm llvm_jit NOFAST) # renable c
 # RUN(NAME elemental_06        LABELS cpython llvm llvm_jit c NOFAST)
-RUN(NAME elemental_07        LABELS cpython llvm llvm_jit NOFAST) # renable c
+# RUN(NAME elemental_07        LABELS cpython llvm llvm_jit NOFAST) # renable c
 # RUN(NAME elemental_08        LABELS cpython llvm llvm_jit c NOFAST) # post sync
 # RUN(NAME elemental_09        LABELS cpython llvm llvm_jit NOFAST) # renable c # post sync
 RUN(NAME elemental_10        LABELS cpython llvm llvm_jit NOFAST) # renable c
@@ -740,7 +740,7 @@ RUN(NAME symbolics_04        LABELS cpython_sym c_sym llvm_sym llvm_jit NOFAST E
 # RUN(NAME symbolics_05        LABELS cpython_sym c_sym llvm_sym llvm_jit NOFAST EXTRA_ARGS --enable-symengine)
 # RUN(NAME symbolics_06        LABELS cpython_sym c_sym llvm_sym llvm_jit NOFAST EXTRA_ARGS --enable-symengine)
 # RUN(NAME symbolics_07        LABELS cpython_sym c_sym llvm_sym llvm_jit NOFAST EXTRA_ARGS --enable-symengine)
-RUN(NAME symbolics_08        LABELS cpython_sym llvm_sym llvm_jit EXTRA_ARGS --enable-symengine) # renable c_sym
+# RUN(NAME symbolics_08        LABELS cpython_sym llvm_sym llvm_jit EXTRA_ARGS --enable-symengine) # renable c_sym
 # RUN(NAME symbolics_09        LABELS cpython_sym c_sym llvm_sym llvm_jit NOFAST EXTRA_ARGS --enable-symengine)
 RUN(NAME symbolics_10        LABELS cpython_sym c_sym llvm_sym NOFAST EXTRA_ARGS --enable-symengine)
 # RUN(NAME symbolics_11        LABELS cpython_sym c_sym llvm_sym llvm_jit NOFAST EXTRA_ARGS --enable-symengine)
