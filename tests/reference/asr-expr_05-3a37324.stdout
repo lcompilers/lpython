@@ -10,7 +10,7 @@
                             __main__global_stmts:
                                 (Function
                                     (SymbolTable
-                                        144
+                                        128
                                         {
                                             
                                         })
@@ -106,6 +106,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             a1:
                                                 (Variable
@@ -127,6 +128,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             b:
                                                 (Variable
@@ -146,6 +148,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             b1:
                                                 (Variable
@@ -167,6 +170,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             c1:
                                                 (Variable
@@ -188,6 +192,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             eps:
                                                 (Variable
@@ -207,6 +212,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             i:
                                                 (Variable
@@ -226,6 +232,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             i1:
                                                 (Variable
@@ -245,6 +252,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             i2:
                                                 (Variable
@@ -264,6 +272,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             i3:
                                                 (Variable
@@ -283,6 +292,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             i4:
                                                 (Variable
@@ -302,6 +312,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 )
                                         })
                                     main0
@@ -1485,6 +1496,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             _mod:
                                                 (ExternalSymbol
@@ -1524,6 +1536,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             b:
                                                 (Variable
@@ -1543,6 +1556,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 )
                                         })
                                     test_mod
@@ -1608,6 +1622,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             a:
                                                 (Variable
@@ -1627,6 +1642,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             b:
                                                 (Variable
@@ -1646,6 +1662,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 )
                                         })
                                     test_multiply
@@ -1697,11 +1714,11 @@
             main_program:
                 (Program
                     (SymbolTable
-                        145
+                        129
                         {
                             __main__global_stmts:
                                 (ExternalSymbol
-                                    145
+                                    129
                                     __main__global_stmts
                                     2 __main__global_stmts
                                     __main__
@@ -1713,7 +1730,7 @@
                     main_program
                     [__main__]
                     [(SubroutineCall
-                        145 __main__global_stmts
+                        129 __main__global_stmts
                         2 __main__global_stmts
                         []
                         ()

@@ -30,6 +30,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             x:
                                                 (Variable
@@ -49,6 +50,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             y:
                                                 (Variable
@@ -68,6 +70,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 )
                                         })
                                     test_namedexpr
@@ -98,12 +101,13 @@
                                         .false.
                                     )
                                     (If
+                                        ()
                                         (NamedExpr
                                             (Var 3 a)
                                             (StringOrd
                                                 (StringConstant
                                                     "3"
-                                                    (String 1 1 () PointerString)
+                                                    (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
                                                 )
                                                 (Integer 4)
                                                 (IntegerConstant 51 (Integer 4) Decimal)

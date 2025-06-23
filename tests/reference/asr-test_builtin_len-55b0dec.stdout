@@ -66,6 +66,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             l:
                                                 (Variable
@@ -87,6 +88,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             l2:
                                                 (Variable
@@ -108,6 +110,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             l3:
                                                 (Variable
@@ -129,6 +132,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             list_len:
                                                 (Variable
@@ -148,6 +152,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             s:
                                                 (Variable
@@ -158,7 +163,9 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (String 1 -2 () PointerString)
+                                                    (Allocatable
+                                                        (String 1 () DeferredLength DescriptorString)
+                                                    )
                                                     ()
                                                     Source
                                                     Public
@@ -167,6 +174,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             t:
                                                 (Variable
@@ -180,7 +188,9 @@
                                                     (Tuple
                                                         [(Integer 4)
                                                         (Integer 4)
-                                                        (String 1 -2 () PointerString)]
+                                                        (Allocatable
+                                                            (String 1 () DeferredLength DescriptorString)
+                                                        )]
                                                     )
                                                     ()
                                                     Source
@@ -190,6 +200,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             t2:
                                                 (Variable
@@ -204,7 +215,9 @@
                                                         [(Real 8)
                                                         (Logical 4)
                                                         (Logical 4)
-                                                        (String 1 -2 () PointerString)
+                                                        (Allocatable
+                                                            (String 1 () DeferredLength DescriptorString)
+                                                        )
                                                         (Integer 4)]
                                                     )
                                                     ()
@@ -215,6 +228,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             t3:
                                                 (Variable
@@ -234,6 +248,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             tmp:
                                                 (Variable
@@ -253,6 +268,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 )
                                         })
                                     test_len
@@ -274,9 +290,15 @@
                                     []
                                     [(Assignment
                                         (Var 3 s)
-                                        (StringConstant
-                                            "abcd"
-                                            (String 1 4 () PointerString)
+                                        (StringPhysicalCast
+                                            (StringConstant
+                                                "abcd"
+                                                (String 1 (IntegerConstant 4 (Integer 4) Decimal) ExpressionLength PointerString)
+                                            )
+                                            PointerString
+                                            DescriptorString
+                                            (String 1 () DeferredLength DescriptorString)
+                                            ()
                                         )
                                         ()
                                         .false.
@@ -297,9 +319,15 @@
                                     )
                                     (Assignment
                                         (Var 3 s)
-                                        (StringConstant
-                                            ""
-                                            (String 1 0 () PointerString)
+                                        (StringPhysicalCast
+                                            (StringConstant
+                                                ""
+                                                (String 1 (IntegerConstant 0 (Integer 4) Decimal) ExpressionLength PointerString)
+                                            )
+                                            PointerString
+                                            DescriptorString
+                                            (String 1 () DeferredLength DescriptorString)
+                                            ()
                                         )
                                         ()
                                         .false.
@@ -323,7 +351,7 @@
                                             (StringLen
                                                 (StringConstant
                                                     "abcd"
-                                                    (String 1 4 () PointerString)
+                                                    (String 1 (IntegerConstant 4 (Integer 4) Decimal) ExpressionLength PointerString)
                                                 )
                                                 (Integer 4)
                                                 (IntegerConstant 4 (Integer 4) Decimal)
@@ -343,7 +371,7 @@
                                             (StringLen
                                                 (StringConstant
                                                     ""
-                                                    (String 1 0 () PointerString)
+                                                    (String 1 (IntegerConstant 0 (Integer 4) Decimal) ExpressionLength PointerString)
                                                 )
                                                 (Integer 4)
                                                 (IntegerConstant 0 (Integer 4) Decimal)
@@ -526,12 +554,12 @@
                                             (IntegerConstant 2 (Integer 4) Decimal)
                                             (StringConstant
                                                 "a"
-                                                (String 1 1 () PointerString)
+                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
                                             )]
                                             (Tuple
                                                 [(Integer 4)
                                                 (Integer 4)
-                                                (String 1 1 () PointerString)]
+                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)]
                                             )
                                         )
                                         ()
@@ -571,14 +599,14 @@
                                             )
                                             (StringConstant
                                                 "b"
-                                                (String 1 1 () PointerString)
+                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
                                             )
                                             (IntegerConstant 3 (Integer 4) Decimal)]
                                             (Tuple
                                                 [(Real 8)
                                                 (Logical 4)
                                                 (Logical 4)
-                                                (String 1 1 () PointerString)
+                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
                                                 (Integer 4)]
                                             )
                                         )

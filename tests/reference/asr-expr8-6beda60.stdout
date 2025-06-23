@@ -30,6 +30,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             b2:
                                                 (Variable
@@ -49,6 +50,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             x:
                                                 (Variable
@@ -68,6 +70,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             x2:
                                                 (Variable
@@ -87,6 +90,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 )
                                         })
                                     test_binop

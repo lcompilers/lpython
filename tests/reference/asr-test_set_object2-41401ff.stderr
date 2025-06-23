@@ -1,5 +1,5 @@
-semantic error: Unhashable type: 'dict[i32, str]'
+semantic error: Unhashable type: 'dict[i32, Allocatable[str]]'
  --> tests/errors/test_set_object2.py:4:17
   |
 4 |     my_set: set[dict[i32, str]] = {{1: "a", 2: "b"}, {3: "c", 4: "d"}}
-  |                 ^^^^^^^^^^^^^^ Mutable type 'dict[i32, str]' cannot be stored in a set.
+  |                 ^^^^^^^^^^^^^^ Mutable type 'dict[i32, Allocatable[str]]' cannot be stored in a set.

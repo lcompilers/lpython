@@ -27,6 +27,7 @@
                                     .false.
                                     .false.
                                     ()
+                                    .false.
                                 ),
                             __asr_generic_mean_0:
                                 (Function
@@ -51,6 +52,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             i:
                                                 (Variable
@@ -70,6 +72,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             k:
                                                 (Variable
@@ -89,6 +92,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             res:
                                                 (Variable
@@ -108,6 +112,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             x:
                                                 (Variable
@@ -129,6 +134,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 )
                                         })
                                     __asr_generic_mean_0
@@ -165,6 +171,7 @@
                                         .false.
                                     )
                                     (If
+                                        ()
                                         (IntegerCompare
                                             (Var 17 k)
                                             Eq
@@ -279,6 +286,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             i:
                                                 (Variable
@@ -298,6 +306,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             k:
                                                 (Variable
@@ -317,6 +326,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             res:
                                                 (Variable
@@ -336,6 +346,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             x:
                                                 (Variable
@@ -357,6 +368,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 )
                                         })
                                     __asr_generic_mean_1
@@ -393,6 +405,7 @@
                                         .false.
                                     )
                                     (If
+                                        ()
                                         (IntegerCompare
                                             (Var 18 k)
                                             Eq
@@ -507,6 +520,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             i:
                                                 (Variable
@@ -526,6 +540,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             k:
                                                 (Variable
@@ -545,6 +560,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             res:
                                                 (Variable
@@ -555,7 +571,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (String 1 1 () PointerString)
+                                                    (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     ()
                                                     Source
                                                     Public
@@ -564,6 +580,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             x:
                                                 (Variable
@@ -575,7 +592,7 @@
                                                     ()
                                                     Default
                                                     (List
-                                                        (String 1 1 () PointerString)
+                                                        (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                     ()
                                                     Source
@@ -585,12 +602,13 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 )
                                         })
                                     __asr_generic_mean_2
                                     (FunctionType
                                         [(List
-                                            (String 1 1 () PointerString)
+                                            (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
                                         )]
                                         (Real 8)
                                         Source
@@ -621,6 +639,7 @@
                                         .false.
                                     )
                                     (If
+                                        ()
                                         (IntegerCompare
                                             (Var 19 k)
                                             Eq
@@ -648,10 +667,10 @@
                                             [((ListItem
                                                 (Var 19 x)
                                                 (IntegerConstant 0 (Integer 4) Decimal)
-                                                (String 1 1 () PointerString)
+                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
                                                 ()
                                             ))]
-                                            (String 1 1 () PointerString)
+                                            (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
                                             ()
                                             ()
                                         )
@@ -679,10 +698,10 @@
                                                 ((ListItem
                                                     (Var 19 x)
                                                     (Var 19 i)
-                                                    (String 1 1 () PointerString)
+                                                    (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     ()
                                                 ))]
-                                                (String 1 1 () PointerString)
+                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
                                                 ()
                                                 ()
                                             )
@@ -757,7 +776,7 @@
                                                 ()
                                             )]
                                             FormatPythonFormat
-                                            (String -1 0 () PointerString)
+                                            (String 1 () ExpressionLength CString)
                                             ()
                                         )
                                     )
@@ -789,7 +808,7 @@
                                                 ()
                                             )]
                                             FormatPythonFormat
-                                            (String -1 0 () PointerString)
+                                            (String 1 () ExpressionLength CString)
                                             ()
                                         )
                                     )
@@ -802,18 +821,18 @@
                                                 [((ListConstant
                                                     [(StringConstant
                                                         "a"
-                                                        (String 1 1 () PointerString)
+                                                        (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                     (StringConstant
                                                         "b"
-                                                        (String 1 1 () PointerString)
+                                                        (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                     (StringConstant
                                                         "c"
-                                                        (String 1 1 () PointerString)
+                                                        (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )]
                                                     (List
-                                                        (String 1 1 () PointerString)
+                                                        (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                 ))]
                                                 (Real 8)
@@ -821,7 +840,7 @@
                                                 ()
                                             )]
                                             FormatPythonFormat
-                                            (String -1 0 () PointerString)
+                                            (String 1 () ExpressionLength CString)
                                             ()
                                         )
                                     )]
@@ -856,6 +875,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             x:
                                                 (Variable
@@ -877,6 +897,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             y:
                                                 (Variable
@@ -898,6 +919,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 )
                                         })
                                     add
@@ -955,6 +977,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             x:
                                                 (Variable
@@ -974,6 +997,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             y:
                                                 (Variable
@@ -993,6 +1017,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 )
                                         })
                                     add_float
@@ -1056,6 +1081,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             x:
                                                 (Variable
@@ -1075,6 +1101,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             y:
                                                 (Variable
@@ -1094,6 +1121,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 )
                                         })
                                     add_integer
@@ -1148,7 +1176,9 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (String 1 -2 () PointerString)
+                                                    (Allocatable
+                                                        (String 1 () DeferredLength DescriptorString)
+                                                    )
                                                     ()
                                                     Source
                                                     Public
@@ -1157,6 +1187,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             x:
                                                 (Variable
@@ -1167,7 +1198,9 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (String 1 -2 () PointerString)
+                                                    (Allocatable
+                                                        (String 1 () DeferredLength DescriptorString)
+                                                    )
                                                     ()
                                                     Source
                                                     Public
@@ -1176,6 +1209,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             y:
                                                 (Variable
@@ -1186,7 +1220,9 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (String 1 -2 () PointerString)
+                                                    (Allocatable
+                                                        (String 1 () DeferredLength DescriptorString)
+                                                    )
                                                     ()
                                                     Source
                                                     Public
@@ -1195,13 +1231,20 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 )
                                         })
                                     add_string
                                     (FunctionType
-                                        [(String 1 -2 () PointerString)
-                                        (String 1 -2 () PointerString)]
-                                        (String 1 -2 () PointerString)
+                                        [(Allocatable
+                                            (String 1 () DeferredLength DescriptorString)
+                                        )
+                                        (Allocatable
+                                            (String 1 () DeferredLength DescriptorString)
+                                        )]
+                                        (Allocatable
+                                            (String 1 () DeferredLength DescriptorString)
+                                        )
                                         Source
                                         Implementation
                                         ()
@@ -1218,10 +1261,40 @@
                                     (Var 13 y)]
                                     [(Assignment
                                         (Var 13 _lpython_return_variable)
-                                        (StringConcat
-                                            (Var 13 x)
-                                            (Var 13 y)
-                                            (String 1 -4 () PointerString)
+                                        (StringPhysicalCast
+                                            (StringConcat
+                                                (StringPhysicalCast
+                                                    (Var 13 x)
+                                                    DescriptorString
+                                                    PointerString
+                                                    (Allocatable
+                                                        (String 1 (StringLen
+                                                            (Var 13 x)
+                                                            (Integer 4)
+                                                            ()
+                                                        ) ExpressionLength PointerString)
+                                                    )
+                                                    ()
+                                                )
+                                                (StringPhysicalCast
+                                                    (Var 13 y)
+                                                    DescriptorString
+                                                    PointerString
+                                                    (Allocatable
+                                                        (String 1 (StringLen
+                                                            (Var 13 y)
+                                                            (Integer 4)
+                                                            ()
+                                                        ) ExpressionLength PointerString)
+                                                    )
+                                                    ()
+                                                )
+                                                (String 1 () ExpressionLength PointerString)
+                                                ()
+                                            )
+                                            PointerString
+                                            DescriptorString
+                                            (String 1 () DeferredLength DescriptorString)
                                             ()
                                         )
                                         ()
@@ -1257,6 +1330,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             k:
                                                 (Variable
@@ -1276,6 +1350,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             x:
                                                 (Variable
@@ -1297,6 +1372,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 )
                                         })
                                     div
@@ -1350,6 +1426,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             k:
                                                 (Variable
@@ -1369,6 +1446,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             x:
                                                 (Variable
@@ -1388,6 +1466,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 )
                                         })
                                     div_float
@@ -1456,6 +1535,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             k:
                                                 (Variable
@@ -1475,6 +1555,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             x:
                                                 (Variable
@@ -1494,6 +1575,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 )
                                         })
                                     div_integer
@@ -1567,6 +1649,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             k:
                                                 (Variable
@@ -1586,6 +1669,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             x:
                                                 (Variable
@@ -1596,7 +1680,9 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (String 1 -2 () PointerString)
+                                                    (Allocatable
+                                                        (String 1 () DeferredLength DescriptorString)
+                                                    )
                                                     ()
                                                     Source
                                                     Public
@@ -1605,11 +1691,14 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 )
                                         })
                                     div_string
                                     (FunctionType
-                                        [(String 1 -2 () PointerString)
+                                        [(Allocatable
+                                            (String 1 () DeferredLength DescriptorString)
+                                        )
                                         (Integer 4)]
                                         (Real 8)
                                         Source
@@ -1665,6 +1754,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             x:
                                                 (Variable
@@ -1684,6 +1774,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 )
                                         })
                                     empty_float
@@ -1742,6 +1833,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             x:
                                                 (Variable
@@ -1761,6 +1853,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 )
                                         })
                                     empty_integer
@@ -1807,7 +1900,9 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (String 1 -2 () PointerString)
+                                                    (Allocatable
+                                                        (String 1 () DeferredLength DescriptorString)
+                                                    )
                                                     ()
                                                     Source
                                                     Public
@@ -1816,6 +1911,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             x:
                                                 (Variable
@@ -1826,7 +1922,9 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (String 1 -2 () PointerString)
+                                                    (Allocatable
+                                                        (String 1 () DeferredLength DescriptorString)
+                                                    )
                                                     ()
                                                     Source
                                                     Public
@@ -1835,12 +1933,17 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 )
                                         })
                                     empty_string
                                     (FunctionType
-                                        [(String 1 -2 () PointerString)]
-                                        (String 1 -2 () PointerString)
+                                        [(Allocatable
+                                            (String 1 () DeferredLength DescriptorString)
+                                        )]
+                                        (Allocatable
+                                            (String 1 () DeferredLength DescriptorString)
+                                        )
                                         Source
                                         Implementation
                                         ()
@@ -1856,9 +1959,15 @@
                                     [(Var 12 x)]
                                     [(Assignment
                                         (Var 12 _lpython_return_variable)
-                                        (StringConstant
-                                            ""
-                                            (String 1 0 () PointerString)
+                                        (StringPhysicalCast
+                                            (StringConstant
+                                                ""
+                                                (String 1 (IntegerConstant 0 (Integer 4) Decimal) ExpressionLength PointerString)
+                                            )
+                                            PointerString
+                                            DescriptorString
+                                            (String 1 () DeferredLength DescriptorString)
+                                            ()
                                         )
                                         ()
                                         .false.
@@ -1893,6 +2002,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             i:
                                                 (Variable
@@ -1912,6 +2022,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             k:
                                                 (Variable
@@ -1931,6 +2042,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             res:
                                                 (Variable
@@ -1952,6 +2064,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             x:
                                                 (Variable
@@ -1975,6 +2088,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 )
                                         })
                                     mean
@@ -2013,6 +2127,7 @@
                                         .false.
                                     )
                                     (If
+                                        ()
                                         (IntegerCompare
                                             (Var 15 k)
                                             Eq
@@ -2137,6 +2252,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             x:
                                                 (Variable
@@ -2158,6 +2274,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 )
                                         })
                                     zero

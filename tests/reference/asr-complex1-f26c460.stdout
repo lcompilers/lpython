@@ -30,6 +30,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             y:
                                                 (Variable
@@ -49,6 +50,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             z:
                                                 (Variable
@@ -68,6 +70,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 )
                                         })
                                     test
@@ -234,6 +237,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             c:
                                                 (Variable
@@ -253,6 +257,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             c1:
                                                 (Variable
@@ -272,6 +277,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             c2:
                                                 (Variable
@@ -291,6 +297,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             c3:
                                                 (Variable
@@ -310,6 +317,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             complex:
                                                 (ExternalSymbol
@@ -820,7 +828,7 @@
             main_program:
                 (Program
                     (SymbolTable
-                        143
+                        127
                         {
                             
                         })

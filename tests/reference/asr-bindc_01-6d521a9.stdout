@@ -43,7 +43,7 @@
                                             [(Var 2 queries)
                                             (Var 2 x)]
                                             FormatPythonFormat
-                                            (String -1 0 () PointerString)
+                                            (String 1 () ExpressionLength CString)
                                             ()
                                         )
                                     )
@@ -81,6 +81,7 @@
                                     .false.
                                     .false.
                                     ()
+                                    .false.
                                 ),
                             test_issue_1781:
                                 (Function
@@ -105,6 +106,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 )
                                         })
                                     test_issue_1781
@@ -186,6 +188,7 @@
                                     .false.
                                     .false.
                                     ()
+                                    .false.
                                 )
                         })
                     __main__

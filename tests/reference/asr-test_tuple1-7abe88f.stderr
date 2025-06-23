@@ -2,4 +2,4 @@ semantic error: Type mismatch in assignment, the types must be compatible
  --> tests/errors/test_tuple1.py:3:3
   |
 3 |   t = (1, 2)
-  |   ^   ^^^^^^ type mismatch ('tuple[i32, str]' and 'tuple[i32, i32]')
+  |   ^   ^^^^^^ type mismatch ('tuple[i32, Allocatable[str]]' and 'tuple[i32, i32]')

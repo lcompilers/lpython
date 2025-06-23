@@ -30,6 +30,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             b:
                                                 (Variable
@@ -49,6 +50,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             b1:
                                                 (Variable
@@ -68,6 +70,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             b2:
                                                 (Variable
@@ -87,6 +90,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             b3:
                                                 (Variable
@@ -106,6 +110,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             c:
                                                 (Variable
@@ -125,6 +130,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             complex:
                                                 (ExternalSymbol
@@ -174,6 +180,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 )
                                         })
                                     test_UnaryOp
@@ -479,7 +486,7 @@
             main_program:
                 (Program
                     (SymbolTable
-                        142
+                        126
                         {
                             
                         })

@@ -2172,7 +2172,7 @@ public:
             return;
         } else if ((right_is_int || left_is_int) && op == ASR::binopType::Mul) {
             // string repeat
-            int64_t left_int = 0, right_int = 0, dest_len = 0;
+            int64_t left_int = 0, right_int = 0;
             if (right_is_int && ASRUtils::expr_value(right) != nullptr) {
                 if(ASRUtils::is_descriptorString(ASRUtils::expr_type(left))) {
                     left = ASRUtils::cast_string_descriptor_to_pointer(al, left);
@@ -2235,7 +2235,6 @@ public:
                 std::ostringstream os;
                 std::fill_n(std::ostream_iterator<std::string>(os), repeat, std::string(str));
                 result = s2c(al, os.str());
-                LCOMPILERS_ASSERT((int64_t)strlen(result) == dest_len)
                 value = ASR::down_cast<ASR::expr_t>(ASR::make_StringConstant_t(
                     al, loc, result, dest_type));
             }

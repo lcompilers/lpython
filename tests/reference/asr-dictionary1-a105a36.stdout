@@ -33,6 +33,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 )
                                         })
                                     f
@@ -92,6 +93,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             y:
                                                 (Variable
@@ -103,7 +105,9 @@
                                                     ()
                                                     Default
                                                     (Dict
-                                                        (String 1 -2 () PointerString)
+                                                        (Allocatable
+                                                            (String 1 () DeferredLength DescriptorString)
+                                                        )
                                                         (Integer 4)
                                                     )
                                                     ()
@@ -114,6 +118,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             z:
                                                 (Variable
@@ -133,6 +138,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 )
                                         })
                                     test_Dict
@@ -186,7 +192,9 @@
                                             []
                                             []
                                             (Dict
-                                                (String 1 -2 () PointerString)
+                                                (Allocatable
+                                                    (String 1 () DeferredLength DescriptorString)
+                                                )
                                                 (Integer 4)
                                             )
                                         )
@@ -198,11 +206,11 @@
                                         (DictConstant
                                             [(StringConstant
                                                 "a"
-                                                (String 1 1 () PointerString)
+                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
                                             )
                                             (StringConstant
                                                 "b"
-                                                (String 1 1 () PointerString)
+                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
                                             )]
                                             [(IntegerUnaryMinus
                                                 (IntegerConstant 1 (Integer 4) Decimal)
@@ -215,7 +223,7 @@
                                                 (IntegerConstant -2 (Integer 4) Decimal)
                                             )]
                                             (Dict
-                                                (String 1 1 () PointerString)
+                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
                                                 (Integer 4)
                                             )
                                         )
@@ -228,7 +236,7 @@
                                             (Var 3 y)
                                             (StringConstant
                                                 "a"
-                                                (String 1 1 () PointerString)
+                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
                                             )
                                             ()
                                             (Integer 4)
@@ -243,7 +251,7 @@
                                             (Var 3 y)
                                             (StringConstant
                                                 "b"
-                                                (String 1 1 () PointerString)
+                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
                                             )
                                             ()
                                             (Integer 4)
@@ -293,6 +301,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             y:
                                                 (Variable
@@ -304,7 +313,9 @@
                                                     ()
                                                     Default
                                                     (Dict
-                                                        (String 1 -2 () PointerString)
+                                                        (Allocatable
+                                                            (String 1 () DeferredLength DescriptorString)
+                                                        )
                                                         (Integer 4)
                                                     )
                                                     ()
@@ -315,6 +326,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 )
                                         })
                                     test_dict_get
@@ -340,7 +352,9 @@
                                             []
                                             []
                                             (Dict
-                                                (String 1 -2 () PointerString)
+                                                (Allocatable
+                                                    (String 1 () DeferredLength DescriptorString)
+                                                )
                                                 (Integer 4)
                                             )
                                         )
@@ -352,11 +366,11 @@
                                         (DictConstant
                                             [(StringConstant
                                                 "a"
-                                                (String 1 1 () PointerString)
+                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
                                             )
                                             (StringConstant
                                                 "b"
-                                                (String 1 1 () PointerString)
+                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
                                             )]
                                             [(IntegerUnaryMinus
                                                 (IntegerConstant 1 (Integer 4) Decimal)
@@ -369,7 +383,7 @@
                                                 (IntegerConstant -2 (Integer 4) Decimal)
                                             )]
                                             (Dict
-                                                (String 1 1 () PointerString)
+                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
                                                 (Integer 4)
                                             )
                                         )
@@ -382,7 +396,7 @@
                                             (Var 5 y)
                                             (StringConstant
                                                 "a"
-                                                (String 1 1 () PointerString)
+                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
                                             )
                                             ()
                                             (Integer 4)
@@ -397,7 +411,7 @@
                                             (Var 5 y)
                                             (StringConstant
                                                 "a"
-                                                (String 1 1 () PointerString)
+                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
                                             )
                                             (IntegerConstant 0 (Integer 4) Decimal)
                                             (Integer 4)
@@ -427,7 +441,9 @@
                                                     ()
                                                     Default
                                                     (Dict
-                                                        (String 1 -2 () PointerString)
+                                                        (Allocatable
+                                                            (String 1 () DeferredLength DescriptorString)
+                                                        )
                                                         (Integer 4)
                                                     )
                                                     ()
@@ -438,6 +454,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 )
                                         })
                                     test_dict_insert
@@ -463,7 +480,9 @@
                                             []
                                             []
                                             (Dict
-                                                (String 1 -2 () PointerString)
+                                                (Allocatable
+                                                    (String 1 () DeferredLength DescriptorString)
+                                                )
                                                 (Integer 4)
                                             )
                                         )
@@ -475,11 +494,11 @@
                                         (DictConstant
                                             [(StringConstant
                                                 "a"
-                                                (String 1 1 () PointerString)
+                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
                                             )
                                             (StringConstant
                                                 "b"
-                                                (String 1 1 () PointerString)
+                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
                                             )]
                                             [(IntegerUnaryMinus
                                                 (IntegerConstant 1 (Integer 4) Decimal)
@@ -492,7 +511,7 @@
                                                 (IntegerConstant -2 (Integer 4) Decimal)
                                             )]
                                             (Dict
-                                                (String 1 1 () PointerString)
+                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
                                                 (Integer 4)
                                             )
                                         )
@@ -503,7 +522,7 @@
                                         (Var 4 y)
                                         (StringConstant
                                             "c"
-                                            (String 1 1 () PointerString)
+                                            (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
                                         )
                                         (IntegerUnaryMinus
                                             (IntegerConstant 3 (Integer 4) Decimal)
@@ -540,6 +559,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             y:
                                                 (Variable
@@ -551,7 +571,9 @@
                                                     ()
                                                     Default
                                                     (Dict
-                                                        (String 1 -2 () PointerString)
+                                                        (Allocatable
+                                                            (String 1 () DeferredLength DescriptorString)
+                                                        )
                                                         (Integer 4)
                                                     )
                                                     ()
@@ -562,6 +584,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 )
                                         })
                                     test_dict_pop
@@ -587,7 +610,9 @@
                                             []
                                             []
                                             (Dict
-                                                (String 1 -2 () PointerString)
+                                                (Allocatable
+                                                    (String 1 () DeferredLength DescriptorString)
+                                                )
                                                 (Integer 4)
                                             )
                                         )
@@ -599,16 +624,16 @@
                                         (DictConstant
                                             [(StringConstant
                                                 "a"
-                                                (String 1 1 () PointerString)
+                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
                                             )
                                             (StringConstant
                                                 "b"
-                                                (String 1 1 () PointerString)
+                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
                                             )]
                                             [(IntegerConstant 1 (Integer 4) Decimal)
                                             (IntegerConstant 2 (Integer 4) Decimal)]
                                             (Dict
-                                                (String 1 1 () PointerString)
+                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
                                                 (Integer 4)
                                             )
                                         )
@@ -621,7 +646,7 @@
                                             (Var 6 y)
                                             (StringConstant
                                                 "a"
-                                                (String 1 1 () PointerString)
+                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
                                             )
                                             (Integer 4)
                                             ()
@@ -661,6 +686,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 )
                                         })
                                     test_issue_204

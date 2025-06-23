@@ -80,6 +80,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             i2:
                                                 (Variable
@@ -99,6 +100,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 )
                                         })
                                     main0
@@ -161,7 +163,7 @@
                                                 ()
                                             )]
                                             FormatPythonFormat
-                                            (String -1 0 () PointerString)
+                                            (String 1 () ExpressionLength CString)
                                             ()
                                         )
                                     )
@@ -218,6 +220,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             b:
                                                 (Variable
@@ -237,6 +240,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             c:
                                                 (Variable
@@ -259,6 +263,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 )
                                         })
                                     test_issue_928
@@ -392,6 +397,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             b:
                                                 (Variable
@@ -411,6 +417,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             c:
                                                 (Variable
@@ -430,6 +437,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             d:
                                                 (Variable
@@ -449,6 +457,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             e:
                                                 (Variable
@@ -468,6 +477,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             g:
                                                 (Variable
@@ -487,6 +497,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             i:
                                                 (Variable
@@ -508,6 +519,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             j:
                                                 (Variable
@@ -529,6 +541,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             k:
                                                 (Variable
@@ -550,6 +563,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             x:
                                                 (Variable
@@ -569,6 +583,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             y:
                                                 (Variable
@@ -588,6 +603,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 )
                                         })
                                     test_multiple_assign_1

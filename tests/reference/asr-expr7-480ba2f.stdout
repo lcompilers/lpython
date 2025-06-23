@@ -10,7 +10,7 @@
                             __main__global_stmts:
                                 (Function
                                     (SymbolTable
-                                        144
+                                        128
                                         {
                                             
                                         })
@@ -66,6 +66,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 )
                                         })
                                     main0
@@ -135,6 +136,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             pow:
                                                 (ExternalSymbol
@@ -225,6 +227,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             a:
                                                 (Variable
@@ -244,6 +247,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             b:
                                                 (Variable
@@ -263,6 +267,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             pow:
                                                 (ExternalSymbol
@@ -302,6 +307,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 )
                                         })
                                     test_pow_1
@@ -366,11 +372,11 @@
             main_program:
                 (Program
                     (SymbolTable
-                        145
+                        129
                         {
                             __main__global_stmts:
                                 (ExternalSymbol
-                                    145
+                                    129
                                     __main__global_stmts
                                     2 __main__global_stmts
                                     __main__
@@ -382,7 +388,7 @@
                     main_program
                     [__main__]
                     [(SubroutineCall
-                        145 __main__global_stmts
+                        129 __main__global_stmts
                         2 __main__global_stmts
                         []
                         ()

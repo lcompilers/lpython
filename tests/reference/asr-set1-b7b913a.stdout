@@ -32,6 +32,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             b:
                                                 (Variable
@@ -43,7 +44,9 @@
                                                     ()
                                                     Default
                                                     (Set
-                                                        (String 1 -2 () PointerString)
+                                                        (Allocatable
+                                                            (String 1 () DeferredLength DescriptorString)
+                                                        )
                                                     )
                                                     ()
                                                     Source
@@ -53,6 +56,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             s:
                                                 (Variable
@@ -63,7 +67,9 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (String 1 -2 () PointerString)
+                                                    (Allocatable
+                                                        (String 1 () DeferredLength DescriptorString)
+                                                    )
                                                     ()
                                                     Source
                                                     Public
@@ -72,6 +78,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 )
                                         })
                                     test_Set
@@ -144,18 +151,18 @@
                                         (SetConstant
                                             [(StringConstant
                                                 "a"
-                                                (String 1 1 () PointerString)
+                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
                                             )
                                             (StringConstant
                                                 "b"
-                                                (String 1 1 () PointerString)
+                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
                                             )
                                             (StringConstant
                                                 "c"
-                                                (String 1 1 () PointerString)
+                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
                                             )]
                                             (Set
-                                                (String 1 1 () PointerString)
+                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
                                             )
                                         )
                                         ()
@@ -165,7 +172,9 @@
                                         (Var 3 s)
                                         (SetPop
                                             (Var 3 b)
-                                            (String 1 -2 () PointerString)
+                                            (Allocatable
+                                                (String 1 () DeferredLength DescriptorString)
+                                            )
                                             ()
                                         )
                                         ()

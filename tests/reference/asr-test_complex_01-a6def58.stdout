@@ -10,7 +10,7 @@
                             __main__global_stmts:
                                 (Function
                                     (SymbolTable
-                                        146
+                                        130
                                         {
                                             
                                         })
@@ -123,6 +123,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             a2:
                                                 (Variable
@@ -142,6 +143,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             a3:
                                                 (Variable
@@ -161,6 +163,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             complex:
                                                 (ExternalSymbol
@@ -290,6 +293,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             i1:
                                                 (Variable
@@ -309,6 +313,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             i2:
                                                 (Variable
@@ -328,6 +333,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             x:
                                                 (Variable
@@ -347,6 +353,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             x2:
                                                 (Variable
@@ -366,6 +373,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 )
                                         })
                                     test_complex
@@ -1064,6 +1072,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             c:
                                                 (Variable
@@ -1083,6 +1092,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             c2:
                                                 (Variable
@@ -1102,6 +1112,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             complex:
                                                 (ExternalSymbol
@@ -1257,6 +1268,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             c:
                                                 (Variable
@@ -1276,6 +1288,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             c2:
                                                 (Variable
@@ -1295,6 +1308,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             complex:
                                                 (ExternalSymbol
@@ -1862,6 +1876,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             b:
                                                 (Variable
@@ -1881,6 +1896,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             eps:
                                                 (Variable
@@ -1900,6 +1916,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             x:
                                                 (Variable
@@ -1919,6 +1936,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 )
                                         })
                                     test_real_imag
@@ -2063,11 +2081,11 @@
             main_program:
                 (Program
                     (SymbolTable
-                        147
+                        131
                         {
                             __main__global_stmts:
                                 (ExternalSymbol
-                                    147
+                                    131
                                     __main__global_stmts
                                     2 __main__global_stmts
                                     __main__
@@ -2079,7 +2097,7 @@
                     main_program
                     [__main__]
                     [(SubroutineCall
-                        147 __main__global_stmts
+                        131 __main__global_stmts
                         2 __main__global_stmts
                         []
                         ()

@@ -148,7 +148,8 @@
                                                         "value_attr": false,
                                                         "target_attr": false,
                                                         "contiguous_attr": false,
-                                                        "bindc_name": []
+                                                        "bindc_name": [],
+                                                        "is_volatile": false
                                                     },
                                                     "loc": {
                                                         "first": 68,
@@ -757,8 +758,40 @@
                                                                             "node": "String",
                                                                             "fields": {
                                                                                 "kind": 1,
-                                                                                "len": 3,
-                                                                                "len_expr": [],
+                                                                                "len": {
+                                                                                    "node": "IntegerConstant",
+                                                                                    "fields": {
+                                                                                        "n": 3,
+                                                                                        "type": {
+                                                                                            "node": "Integer",
+                                                                                            "fields": {
+                                                                                                "kind": 4
+                                                                                            },
+                                                                                            "loc": {
+                                                                                                "first": 181,
+                                                                                                "last": 185,
+                                                                                                "first_filename": "tests/../integration_tests/modules_02b.py",
+                                                                                                "first_line": 5,
+                                                                                                "first_column": 11,
+                                                                                                "last_filename": "tests/../integration_tests/modules_02b.py",
+                                                                                                "last_line": 5,
+                                                                                                "last_column": 15
+                                                                                            }
+                                                                                        },
+                                                                                        "intboz_type": "Decimal"
+                                                                                    },
+                                                                                    "loc": {
+                                                                                        "first": 181,
+                                                                                        "last": 185,
+                                                                                        "first_filename": "tests/../integration_tests/modules_02b.py",
+                                                                                        "first_line": 5,
+                                                                                        "first_column": 11,
+                                                                                        "last_filename": "tests/../integration_tests/modules_02b.py",
+                                                                                        "last_line": 5,
+                                                                                        "last_column": 15
+                                                                                    }
+                                                                                },
+                                                                                "len_kind": "ExpressionLength",
                                                                                 "physical_type": "PointerString"
                                                                             },
                                                                             "loc": {
@@ -789,10 +822,10 @@
                                                             "type": {
                                                                 "node": "String",
                                                                 "fields": {
-                                                                    "kind": -1,
-                                                                    "len": 0,
-                                                                    "len_expr": [],
-                                                                    "physical_type": "PointerString"
+                                                                    "kind": 1,
+                                                                    "len": [],
+                                                                    "len_kind": "ExpressionLength",
+                                                                    "physical_type": "CString"
                                                                 },
                                                                 "loc": {
                                                                     "first": 175,
@@ -950,8 +983,40 @@
                                                                             "node": "String",
                                                                             "fields": {
                                                                                 "kind": 1,
-                                                                                "len": 3,
-                                                                                "len_expr": [],
+                                                                                "len": {
+                                                                                    "node": "IntegerConstant",
+                                                                                    "fields": {
+                                                                                        "n": 3,
+                                                                                        "type": {
+                                                                                            "node": "Integer",
+                                                                                            "fields": {
+                                                                                                "kind": 4
+                                                                                            },
+                                                                                            "loc": {
+                                                                                                "first": 207,
+                                                                                                "last": 211,
+                                                                                                "first_filename": "tests/../integration_tests/modules_02c.py",
+                                                                                                "first_line": 2,
+                                                                                                "first_column": 11,
+                                                                                                "last_filename": "tests/../integration_tests/modules_02c.py",
+                                                                                                "last_line": 2,
+                                                                                                "last_column": 15
+                                                                                            }
+                                                                                        },
+                                                                                        "intboz_type": "Decimal"
+                                                                                    },
+                                                                                    "loc": {
+                                                                                        "first": 207,
+                                                                                        "last": 211,
+                                                                                        "first_filename": "tests/../integration_tests/modules_02c.py",
+                                                                                        "first_line": 2,
+                                                                                        "first_column": 11,
+                                                                                        "last_filename": "tests/../integration_tests/modules_02c.py",
+                                                                                        "last_line": 2,
+                                                                                        "last_column": 15
+                                                                                    }
+                                                                                },
+                                                                                "len_kind": "ExpressionLength",
                                                                                 "physical_type": "PointerString"
                                                                             },
                                                                             "loc": {
@@ -982,10 +1047,10 @@
                                                             "type": {
                                                                 "node": "String",
                                                                 "fields": {
-                                                                    "kind": -1,
-                                                                    "len": 0,
-                                                                    "len_expr": [],
-                                                                    "physical_type": "PointerString"
+                                                                    "kind": 1,
+                                                                    "len": [],
+                                                                    "len_kind": "ExpressionLength",
+                                                                    "physical_type": "CString"
                                                                 },
                                                                 "loc": {
                                                                     "first": 201,

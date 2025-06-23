@@ -27,6 +27,7 @@
                                     .false.
                                     .false.
                                     ()
+                                    .false.
                                 ),
                             __asr_generic_f_0:
                                 (Function
@@ -51,6 +52,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             x:
                                                 (Variable
@@ -70,6 +72,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             y:
                                                 (Variable
@@ -89,6 +92,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 )
                                         })
                                     __asr_generic_f_0
@@ -145,7 +149,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (String 1 1 () PointerString)
+                                                    (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     ()
                                                     Source
                                                     Public
@@ -154,6 +158,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             x:
                                                 (Variable
@@ -164,7 +169,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (String 1 1 () PointerString)
+                                                    (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     ()
                                                     Source
                                                     Public
@@ -173,6 +178,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             y:
                                                 (Variable
@@ -183,7 +189,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (String 1 1 () PointerString)
+                                                    (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     ()
                                                     Source
                                                     Public
@@ -192,13 +198,14 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 )
                                         })
                                     __asr_generic_f_1
                                     (FunctionType
-                                        [(String 1 1 () PointerString)
-                                        (String 1 1 () PointerString)]
-                                        (String 1 1 () PointerString)
+                                        [(String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
+                                        (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)]
+                                        (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
                                         Source
                                         Implementation
                                         ()
@@ -220,7 +227,7 @@
                                             ()
                                             [((Var 8 x))
                                             ((Var 8 y))]
-                                            (String 1 1 () PointerString)
+                                            (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
                                             ()
                                             ()
                                         )
@@ -272,53 +279,313 @@
                                                 ()
                                             )]
                                             FormatPythonFormat
-                                            (String -1 0 () PointerString)
+                                            (String 1 () ExpressionLength CString)
                                             ()
                                         )
                                     )
                                     (Print
                                         (StringFormat
                                             ()
-                                            [(FunctionCall
-                                                2 __asr_generic_f_1
-                                                ()
-                                                [((StringConstant
-                                                    "a"
-                                                    (String 1 1 () PointerString)
-                                                ))
-                                                ((StringConstant
-                                                    "b"
-                                                    (String 1 1 () PointerString)
-                                                ))]
-                                                (String 1 1 () PointerString)
-                                                ()
+                                            [(StringPhysicalCast
+                                                (FunctionCall
+                                                    2 __asr_generic_f_1
+                                                    ()
+                                                    [((StringPhysicalCast
+                                                        (StringPhysicalCast
+                                                            (StringConstant
+                                                                "a"
+                                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
+                                                            )
+                                                            PointerString
+                                                            DescriptorString
+                                                            (String 1 () DeferredLength DescriptorString)
+                                                            ()
+                                                        )
+                                                        DescriptorString
+                                                        PointerString
+                                                        (String 1 (StringLen
+                                                            (StringPhysicalCast
+                                                                (StringConstant
+                                                                    "a"
+                                                                    (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
+                                                                )
+                                                                PointerString
+                                                                DescriptorString
+                                                                (String 1 () DeferredLength DescriptorString)
+                                                                ()
+                                                            )
+                                                            (Integer 4)
+                                                            ()
+                                                        ) ExpressionLength PointerString)
+                                                        ()
+                                                    ))
+                                                    ((StringPhysicalCast
+                                                        (StringPhysicalCast
+                                                            (StringConstant
+                                                                "b"
+                                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
+                                                            )
+                                                            PointerString
+                                                            DescriptorString
+                                                            (String 1 () DeferredLength DescriptorString)
+                                                            ()
+                                                        )
+                                                        DescriptorString
+                                                        PointerString
+                                                        (String 1 (StringLen
+                                                            (StringPhysicalCast
+                                                                (StringConstant
+                                                                    "b"
+                                                                    (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
+                                                                )
+                                                                PointerString
+                                                                DescriptorString
+                                                                (String 1 () DeferredLength DescriptorString)
+                                                                ()
+                                                            )
+                                                            (Integer 4)
+                                                            ()
+                                                        ) ExpressionLength PointerString)
+                                                        ()
+                                                    ))]
+                                                    (Allocatable
+                                                        (String 1 (IntegerConstant 1 (Integer 4) Decimal) DeferredLength DescriptorString)
+                                                    )
+                                                    ()
+                                                    ()
+                                                )
+                                                DescriptorString
+                                                PointerString
+                                                (Allocatable
+                                                    (String 1 (StringLen
+                                                        (FunctionCall
+                                                            2 __asr_generic_f_1
+                                                            ()
+                                                            [((StringPhysicalCast
+                                                                (StringPhysicalCast
+                                                                    (StringConstant
+                                                                        "a"
+                                                                        (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
+                                                                    )
+                                                                    PointerString
+                                                                    DescriptorString
+                                                                    (String 1 () DeferredLength DescriptorString)
+                                                                    ()
+                                                                )
+                                                                DescriptorString
+                                                                PointerString
+                                                                (String 1 (StringLen
+                                                                    (StringPhysicalCast
+                                                                        (StringConstant
+                                                                            "a"
+                                                                            (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
+                                                                        )
+                                                                        PointerString
+                                                                        DescriptorString
+                                                                        (String 1 () DeferredLength DescriptorString)
+                                                                        ()
+                                                                    )
+                                                                    (Integer 4)
+                                                                    ()
+                                                                ) ExpressionLength PointerString)
+                                                                ()
+                                                            ))
+                                                            ((StringPhysicalCast
+                                                                (StringPhysicalCast
+                                                                    (StringConstant
+                                                                        "b"
+                                                                        (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
+                                                                    )
+                                                                    PointerString
+                                                                    DescriptorString
+                                                                    (String 1 () DeferredLength DescriptorString)
+                                                                    ()
+                                                                )
+                                                                DescriptorString
+                                                                PointerString
+                                                                (String 1 (StringLen
+                                                                    (StringPhysicalCast
+                                                                        (StringConstant
+                                                                            "b"
+                                                                            (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
+                                                                        )
+                                                                        PointerString
+                                                                        DescriptorString
+                                                                        (String 1 () DeferredLength DescriptorString)
+                                                                        ()
+                                                                    )
+                                                                    (Integer 4)
+                                                                    ()
+                                                                ) ExpressionLength PointerString)
+                                                                ()
+                                                            ))]
+                                                            (Allocatable
+                                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) DeferredLength DescriptorString)
+                                                            )
+                                                            ()
+                                                            ()
+                                                        )
+                                                        (Integer 4)
+                                                        ()
+                                                    ) ExpressionLength PointerString)
+                                                )
                                                 ()
                                             )]
                                             FormatPythonFormat
-                                            (String -1 0 () PointerString)
+                                            (String 1 () ExpressionLength CString)
                                             ()
                                         )
                                     )
                                     (Print
                                         (StringFormat
                                             ()
-                                            [(FunctionCall
-                                                2 __asr_generic_f_1
-                                                ()
-                                                [((StringConstant
-                                                    "c"
-                                                    (String 1 1 () PointerString)
-                                                ))
-                                                ((StringConstant
-                                                    "d"
-                                                    (String 1 1 () PointerString)
-                                                ))]
-                                                (String 1 1 () PointerString)
-                                                ()
+                                            [(StringPhysicalCast
+                                                (FunctionCall
+                                                    2 __asr_generic_f_1
+                                                    ()
+                                                    [((StringPhysicalCast
+                                                        (StringPhysicalCast
+                                                            (StringConstant
+                                                                "c"
+                                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
+                                                            )
+                                                            PointerString
+                                                            DescriptorString
+                                                            (String 1 () DeferredLength DescriptorString)
+                                                            ()
+                                                        )
+                                                        DescriptorString
+                                                        PointerString
+                                                        (String 1 (StringLen
+                                                            (StringPhysicalCast
+                                                                (StringConstant
+                                                                    "c"
+                                                                    (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
+                                                                )
+                                                                PointerString
+                                                                DescriptorString
+                                                                (String 1 () DeferredLength DescriptorString)
+                                                                ()
+                                                            )
+                                                            (Integer 4)
+                                                            ()
+                                                        ) ExpressionLength PointerString)
+                                                        ()
+                                                    ))
+                                                    ((StringPhysicalCast
+                                                        (StringPhysicalCast
+                                                            (StringConstant
+                                                                "d"
+                                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
+                                                            )
+                                                            PointerString
+                                                            DescriptorString
+                                                            (String 1 () DeferredLength DescriptorString)
+                                                            ()
+                                                        )
+                                                        DescriptorString
+                                                        PointerString
+                                                        (String 1 (StringLen
+                                                            (StringPhysicalCast
+                                                                (StringConstant
+                                                                    "d"
+                                                                    (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
+                                                                )
+                                                                PointerString
+                                                                DescriptorString
+                                                                (String 1 () DeferredLength DescriptorString)
+                                                                ()
+                                                            )
+                                                            (Integer 4)
+                                                            ()
+                                                        ) ExpressionLength PointerString)
+                                                        ()
+                                                    ))]
+                                                    (Allocatable
+                                                        (String 1 (IntegerConstant 1 (Integer 4) Decimal) DeferredLength DescriptorString)
+                                                    )
+                                                    ()
+                                                    ()
+                                                )
+                                                DescriptorString
+                                                PointerString
+                                                (Allocatable
+                                                    (String 1 (StringLen
+                                                        (FunctionCall
+                                                            2 __asr_generic_f_1
+                                                            ()
+                                                            [((StringPhysicalCast
+                                                                (StringPhysicalCast
+                                                                    (StringConstant
+                                                                        "c"
+                                                                        (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
+                                                                    )
+                                                                    PointerString
+                                                                    DescriptorString
+                                                                    (String 1 () DeferredLength DescriptorString)
+                                                                    ()
+                                                                )
+                                                                DescriptorString
+                                                                PointerString
+                                                                (String 1 (StringLen
+                                                                    (StringPhysicalCast
+                                                                        (StringConstant
+                                                                            "c"
+                                                                            (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
+                                                                        )
+                                                                        PointerString
+                                                                        DescriptorString
+                                                                        (String 1 () DeferredLength DescriptorString)
+                                                                        ()
+                                                                    )
+                                                                    (Integer 4)
+                                                                    ()
+                                                                ) ExpressionLength PointerString)
+                                                                ()
+                                                            ))
+                                                            ((StringPhysicalCast
+                                                                (StringPhysicalCast
+                                                                    (StringConstant
+                                                                        "d"
+                                                                        (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
+                                                                    )
+                                                                    PointerString
+                                                                    DescriptorString
+                                                                    (String 1 () DeferredLength DescriptorString)
+                                                                    ()
+                                                                )
+                                                                DescriptorString
+                                                                PointerString
+                                                                (String 1 (StringLen
+                                                                    (StringPhysicalCast
+                                                                        (StringConstant
+                                                                            "d"
+                                                                            (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
+                                                                        )
+                                                                        PointerString
+                                                                        DescriptorString
+                                                                        (String 1 () DeferredLength DescriptorString)
+                                                                        ()
+                                                                    )
+                                                                    (Integer 4)
+                                                                    ()
+                                                                ) ExpressionLength PointerString)
+                                                                ()
+                                                            ))]
+                                                            (Allocatable
+                                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) DeferredLength DescriptorString)
+                                                            )
+                                                            ()
+                                                            ()
+                                                        )
+                                                        (Integer 4)
+                                                        ()
+                                                    ) ExpressionLength PointerString)
+                                                )
                                                 ()
                                             )]
                                             FormatPythonFormat
-                                            (String -1 0 () PointerString)
+                                            (String 1 () ExpressionLength CString)
                                             ()
                                         )
                                     )]
@@ -353,6 +620,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             x:
                                                 (Variable
@@ -374,6 +642,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             y:
                                                 (Variable
@@ -395,6 +664,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 )
                                         })
                                     add
@@ -452,6 +722,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             x:
                                                 (Variable
@@ -471,6 +742,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             y:
                                                 (Variable
@@ -490,6 +762,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 )
                                         })
                                     add_integer
@@ -544,7 +817,9 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (String 1 -2 () PointerString)
+                                                    (Allocatable
+                                                        (String 1 () DeferredLength DescriptorString)
+                                                    )
                                                     ()
                                                     Source
                                                     Public
@@ -553,6 +828,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             x:
                                                 (Variable
@@ -563,7 +839,9 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (String 1 -2 () PointerString)
+                                                    (Allocatable
+                                                        (String 1 () DeferredLength DescriptorString)
+                                                    )
                                                     ()
                                                     Source
                                                     Public
@@ -572,6 +850,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             y:
                                                 (Variable
@@ -582,7 +861,9 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (String 1 -2 () PointerString)
+                                                    (Allocatable
+                                                        (String 1 () DeferredLength DescriptorString)
+                                                    )
                                                     ()
                                                     Source
                                                     Public
@@ -591,13 +872,20 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 )
                                         })
                                     add_string
                                     (FunctionType
-                                        [(String 1 -2 () PointerString)
-                                        (String 1 -2 () PointerString)]
-                                        (String 1 -2 () PointerString)
+                                        [(Allocatable
+                                            (String 1 () DeferredLength DescriptorString)
+                                        )
+                                        (Allocatable
+                                            (String 1 () DeferredLength DescriptorString)
+                                        )]
+                                        (Allocatable
+                                            (String 1 () DeferredLength DescriptorString)
+                                        )
                                         Source
                                         Implementation
                                         ()
@@ -614,10 +902,40 @@
                                     (Var 5 y)]
                                     [(Assignment
                                         (Var 5 _lpython_return_variable)
-                                        (StringConcat
-                                            (Var 5 x)
-                                            (Var 5 y)
-                                            (String 1 -4 () PointerString)
+                                        (StringPhysicalCast
+                                            (StringConcat
+                                                (StringPhysicalCast
+                                                    (Var 5 x)
+                                                    DescriptorString
+                                                    PointerString
+                                                    (Allocatable
+                                                        (String 1 (StringLen
+                                                            (Var 5 x)
+                                                            (Integer 4)
+                                                            ()
+                                                        ) ExpressionLength PointerString)
+                                                    )
+                                                    ()
+                                                )
+                                                (StringPhysicalCast
+                                                    (Var 5 y)
+                                                    DescriptorString
+                                                    PointerString
+                                                    (Allocatable
+                                                        (String 1 (StringLen
+                                                            (Var 5 y)
+                                                            (Integer 4)
+                                                            ()
+                                                        ) ExpressionLength PointerString)
+                                                    )
+                                                    ()
+                                                )
+                                                (String 1 () ExpressionLength PointerString)
+                                                ()
+                                            )
+                                            PointerString
+                                            DescriptorString
+                                            (String 1 () DeferredLength DescriptorString)
                                             ()
                                         )
                                         ()
@@ -655,6 +973,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             x:
                                                 (Variable
@@ -676,6 +995,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             y:
                                                 (Variable
@@ -697,6 +1017,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 )
                                         })
                                     f

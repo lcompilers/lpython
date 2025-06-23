@@ -10,7 +10,7 @@
                             __main__global_stmts:
                                 (Function
                                     (SymbolTable
-                                        145
+                                        129
                                         {
                                             
                                         })
@@ -136,6 +136,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             x:
                                                 (Variable
@@ -155,6 +156,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             y:
                                                 (Variable
@@ -174,6 +176,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 )
                                         })
                                     test_complex_abs
@@ -343,6 +346,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             y:
                                                 (Variable
@@ -362,6 +366,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             z:
                                                 (Variable
@@ -381,6 +386,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 )
                                         })
                                     test_complex_binop_32
@@ -553,6 +559,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             y:
                                                 (Variable
@@ -572,6 +579,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             z:
                                                 (Variable
@@ -591,6 +599,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 )
                                         })
                                     test_complex_binop_64
@@ -733,11 +742,11 @@
             main_program:
                 (Program
                     (SymbolTable
-                        146
+                        130
                         {
                             __main__global_stmts:
                                 (ExternalSymbol
-                                    146
+                                    130
                                     __main__global_stmts
                                     2 __main__global_stmts
                                     __main__
@@ -749,7 +758,7 @@
                     main_program
                     [__main__]
                     [(SubroutineCall
-                        146 __main__global_stmts
+                        130 __main__global_stmts
                         2 __main__global_stmts
                         []
                         ()

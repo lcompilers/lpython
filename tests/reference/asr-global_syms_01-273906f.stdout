@@ -84,6 +84,7 @@
                                     .false.
                                     .false.
                                     ()
+                                    .false.
                                 ),
                             test_global_symbols:
                                 (Function
@@ -160,6 +161,7 @@
                                     .false.
                                     .false.
                                     ()
+                                    .false.
                                 )
                         })
                     __main__

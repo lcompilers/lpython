@@ -32,6 +32,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             a11:
                                                 (Variable
@@ -53,6 +54,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             b:
                                                 (Variable
@@ -64,7 +66,9 @@
                                                     ()
                                                     Default
                                                     (List
-                                                        (String 1 -2 () PointerString)
+                                                        (Allocatable
+                                                            (String 1 () DeferredLength DescriptorString)
+                                                        )
                                                     )
                                                     ()
                                                     Source
@@ -74,6 +78,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             b11:
                                                 (Variable
@@ -95,6 +100,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             c:
                                                 (Variable
@@ -118,6 +124,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             d:
                                                 (Variable
@@ -137,6 +144,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 ),
                                             e:
                                                 (Variable
@@ -149,7 +157,9 @@
                                                     Default
                                                     (List
                                                         (List
-                                                            (String 1 -2 () PointerString)
+                                                            (Allocatable
+                                                                (String 1 () DeferredLength DescriptorString)
+                                                            )
                                                         )
                                                     )
                                                     ()
@@ -160,6 +170,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                 )
                                         })
                                     test_List
@@ -222,18 +233,18 @@
                                         (ListConstant
                                             [(StringConstant
                                                 "a"
-                                                (String 1 1 () PointerString)
+                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
                                             )
                                             (StringConstant
                                                 "b"
-                                                (String 1 1 () PointerString)
+                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
                                             )
                                             (StringConstant
                                                 "c"
-                                                (String 1 1 () PointerString)
+                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
                                             )]
                                             (List
-                                                (String 1 1 () PointerString)
+                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
                                             )
                                         )
                                         ()
@@ -284,36 +295,36 @@
                                             [(ListConstant
                                                 [(StringConstant
                                                     "a"
-                                                    (String 1 1 () PointerString)
+                                                    (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
                                                 )
                                                 (StringConstant
                                                     "b"
-                                                    (String 1 1 () PointerString)
+                                                    (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
                                                 )
                                                 (StringConstant
                                                     "c"
-                                                    (String 1 1 () PointerString)
+                                                    (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
                                                 )]
                                                 (List
-                                                    (String 1 1 () PointerString)
+                                                    (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
                                                 )
                                             )
                                             (ListConstant
                                                 [(StringConstant
                                                     "d"
-                                                    (String 1 1 () PointerString)
+                                                    (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
                                                 )
                                                 (StringConstant
                                                     "e"
-                                                    (String 1 1 () PointerString)
+                                                    (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
                                                 )]
                                                 (List
-                                                    (String 1 1 () PointerString)
+                                                    (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
                                                 )
                                             )]
                                             (List
                                                 (List
-                                                    (String 1 1 () PointerString)
+                                                    (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
                                                 )
                                             )
                                         )
