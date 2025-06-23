@@ -4265,7 +4265,23 @@ public:
             if (ASRUtils::is_character(*type)) {
                 index = index_add_one(loc, index);
                 ai.m_right = index;
-                tmp = ASR::make_StringItem_t(al, loc, value, index, type, nullptr);
+                value = ASRUtils::EXPR(ASR::make_StringPhysicalCast_t(al, loc, value, 
+                                                        ASR::string_physical_typeType::DescriptorString,
+                                                        ASR::string_physical_typeType::PointerString, 
+                                                        ASRUtils::TYPE(ASR::make_String_t(al, loc, 1, nullptr,
+                                                        ASR::string_length_kindType::DeferredLength, 
+                                                        ASR::string_physical_typeType::PointerString)), nullptr));
+                tmp = ASR::make_StringItem_t(al, loc, value, index, 
+                                                ASRUtils::TYPE(ASR::make_String_t(al, loc, 1, nullptr,
+                                                ASR::string_length_kindType::DeferredLength, 
+                                                ASR::string_physical_typeType::PointerString)), nullptr);
+
+                if (ASR::down_cast<ASR::String_t>(ASRUtils::type_get_past_allocatable(ASR::down_cast<ASR::StringItem_t>(ASRUtils::EXPR(tmp))->m_type))->m_physical_type == ASR::string_physical_typeType::PointerString)
+                    tmp = ASR::make_StringPhysicalCast_t(al, loc, ASRUtils::EXPR(tmp), ASR::string_physical_typeType::PointerString,
+                                                            ASR::string_physical_typeType::DescriptorString, 
+                                                            ASRUtils::TYPE(ASR::make_String_t(al, loc, 1, nullptr,
+                                                            ASR::string_length_kindType::DeferredLength, 
+                                                            ASR::string_physical_typeType::DescriptorString)), nullptr);
                 return false;
             }
         }
