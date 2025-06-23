@@ -103,6 +103,8 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
                                                 ),
                                             a1:
                                                 (Variable
@@ -121,6 +123,8 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
                                                 ),
                                             b:
                                                 (Variable
@@ -136,6 +140,8 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
+                                                    .false.
                                                     .false.
                                                 ),
                                             b1:
@@ -155,6 +161,8 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
                                                 ),
                                             c1:
                                                 (Variable
@@ -173,6 +181,8 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
                                                 ),
                                             eps:
                                                 (Variable
@@ -188,6 +198,8 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
+                                                    .false.
                                                     .false.
                                                 ),
                                             i:
@@ -205,6 +217,8 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
                                                 ),
                                             i1:
                                                 (Variable
@@ -220,6 +234,8 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
+                                                    .false.
                                                     .false.
                                                 ),
                                             i2:
@@ -237,6 +253,8 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
                                                 ),
                                             i3:
                                                 (Variable
@@ -253,6 +271,8 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
                                                 ),
                                             i4:
                                                 (Variable
@@ -268,6 +288,8 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
+                                                    .false.
                                                     .false.
                                                 )
                                         })
@@ -291,15 +313,15 @@
                                     []
                                     [(Assignment
                                         (Var 5 a)
-                                        (IntegerConstant 10 (Integer 4))
+                                        (IntegerConstant 10 (Integer 4) Decimal)
                                         ()
                                     )
                                     (Assignment
                                         (Var 5 b)
                                         (IntegerUnaryMinus
-                                            (IntegerConstant 5 (Integer 4))
+                                            (IntegerConstant 5 (Integer 4) Decimal)
                                             (Integer 4)
-                                            (IntegerConstant -5 (Integer 4))
+                                            (IntegerConstant -5 (Integer 4) Decimal)
                                         )
                                         ()
                                     )
@@ -324,9 +346,9 @@
                                             )
                                             Eq
                                             (IntegerUnaryMinus
-                                                (IntegerConstant 50 (Integer 4))
+                                                (IntegerConstant 50 (Integer 4) Decimal)
                                                 (Integer 4)
-                                                (IntegerConstant -50 (Integer 4))
+                                                (IntegerConstant -50 (Integer 4) Decimal)
                                             )
                                             (Logical 4)
                                             ()
@@ -336,10 +358,10 @@
                                     (Assignment
                                         (Var 5 i)
                                         (Cast
-                                            (IntegerConstant 1 (Integer 4))
+                                            (IntegerConstant 1 (Integer 4) Decimal)
                                             IntegerToInteger
                                             (Integer 8)
-                                            (IntegerConstant 1 (Integer 8))
+                                            (IntegerConstant 1 (Integer 8) Decimal)
                                         )
                                         ()
                                     )
@@ -348,11 +370,12 @@
                                         (IntegerBinOp
                                             (Var 5 i)
                                             Add
-                                            (Cast
-                                                (IntegerConstant 1 (Integer 4))
-                                                IntegerToInteger
+                                            (IntrinsicElementalFunction
+                                                Int
+                                                [(IntegerConstant 1 (Integer 4) Decimal)]
+                                                0
                                                 (Integer 8)
-                                                (IntegerConstant 1 (Integer 8))
+                                                (IntegerConstant 1 (Integer 8) Decimal)
                                             )
                                             (Integer 8)
                                             ()
@@ -364,10 +387,10 @@
                                             (Var 5 i)
                                             Eq
                                             (Cast
-                                                (IntegerConstant 2 (Integer 4))
+                                                (IntegerConstant 2 (Integer 4) Decimal)
                                                 IntegerToInteger
                                                 (Integer 8)
-                                                (IntegerConstant 2 (Integer 8))
+                                                (IntegerConstant 2 (Integer 8) Decimal)
                                             )
                                             (Logical 4)
                                             ()
@@ -376,12 +399,12 @@
                                     )
                                     (Assignment
                                         (Var 5 a)
-                                        (IntegerConstant 2 (Integer 4))
+                                        (IntegerConstant 2 (Integer 4) Decimal)
                                         ()
                                     )
                                     (Assignment
                                         (Var 5 b)
-                                        (IntegerConstant 5 (Integer 4))
+                                        (IntegerConstant 5 (Integer 4) Decimal)
                                         ()
                                     )
                                     (Assert
@@ -396,7 +419,7 @@
                                                 ()
                                             )
                                             Eq
-                                            (IntegerConstant 2 (Integer 4))
+                                            (IntegerConstant 2 (Integer 4) Decimal)
                                             (Logical 4)
                                             ()
                                         )
@@ -407,14 +430,14 @@
                                             (FunctionCall
                                                 2 test_mod
                                                 ()
-                                                [((IntegerConstant 23 (Integer 4)))
-                                                ((IntegerConstant 3 (Integer 4)))]
+                                                [((IntegerConstant 23 (Integer 4) Decimal))
+                                                ((IntegerConstant 3 (Integer 4) Decimal))]
                                                 (Integer 4)
                                                 ()
                                                 ()
                                             )
                                             Eq
-                                            (IntegerConstant 2 (Integer 4))
+                                            (IntegerConstant 2 (Integer 4) Decimal)
                                             (Logical 4)
                                             ()
                                         )
@@ -422,12 +445,12 @@
                                     )
                                     (Assignment
                                         (Var 5 a)
-                                        (IntegerConstant 123282374 (Integer 4))
+                                        (IntegerConstant 123282374 (Integer 4) Decimal)
                                         ()
                                     )
                                     (Assignment
                                         (Var 5 b)
-                                        (IntegerConstant 32771 (Integer 4))
+                                        (IntegerConstant 32771 (Integer 4) Decimal)
                                         ()
                                     )
                                     (Assert
@@ -442,7 +465,7 @@
                                                 ()
                                             )
                                             Eq
-                                            (IntegerConstant 30643 (Integer 4))
+                                            (IntegerConstant 30643 (Integer 4) Decimal)
                                             (Logical 4)
                                             ()
                                         )
@@ -451,18 +474,18 @@
                                     (Assignment
                                         (Var 5 a)
                                         (IntegerUnaryMinus
-                                            (IntegerConstant 5345 (Integer 4))
+                                            (IntegerConstant 5345 (Integer 4) Decimal)
                                             (Integer 4)
-                                            (IntegerConstant -5345 (Integer 4))
+                                            (IntegerConstant -5345 (Integer 4) Decimal)
                                         )
                                         ()
                                     )
                                     (Assignment
                                         (Var 5 b)
                                         (IntegerUnaryMinus
-                                            (IntegerConstant 534 (Integer 4))
+                                            (IntegerConstant 534 (Integer 4) Decimal)
                                             (Integer 4)
-                                            (IntegerConstant -534 (Integer 4))
+                                            (IntegerConstant -534 (Integer 4) Decimal)
                                         )
                                         ()
                                     )
@@ -479,9 +502,9 @@
                                             )
                                             Eq
                                             (IntegerUnaryMinus
-                                                (IntegerConstant 5 (Integer 4))
+                                                (IntegerConstant 5 (Integer 4) Decimal)
                                                 (Integer 4)
-                                                (IntegerConstant -5 (Integer 4))
+                                                (IntegerConstant -5 (Integer 4) Decimal)
                                             )
                                             (Logical 4)
                                             ()
@@ -491,15 +514,15 @@
                                     (Assignment
                                         (Var 5 a)
                                         (IntegerUnaryMinus
-                                            (IntegerConstant 123282374 (Integer 4))
+                                            (IntegerConstant 123282374 (Integer 4) Decimal)
                                             (Integer 4)
-                                            (IntegerConstant -123282374 (Integer 4))
+                                            (IntegerConstant -123282374 (Integer 4) Decimal)
                                         )
                                         ()
                                     )
                                     (Assignment
                                         (Var 5 b)
-                                        (IntegerConstant 32771 (Integer 4))
+                                        (IntegerConstant 32771 (Integer 4) Decimal)
                                         ()
                                     )
                                     (Assert
@@ -514,7 +537,7 @@
                                                 ()
                                             )
                                             Eq
-                                            (IntegerConstant 2128 (Integer 4))
+                                            (IntegerConstant 2128 (Integer 4) Decimal)
                                             (Logical 4)
                                             ()
                                         )
@@ -523,14 +546,14 @@
                                     (Assert
                                         (IntegerCompare
                                             (IntegerBinOp
-                                                (IntegerConstant 10 (Integer 4))
+                                                (IntegerConstant 10 (Integer 4) Decimal)
                                                 BitOr
-                                                (IntegerConstant 4 (Integer 4))
+                                                (IntegerConstant 4 (Integer 4) Decimal)
                                                 (Integer 4)
-                                                (IntegerConstant 14 (Integer 4))
+                                                (IntegerConstant 14 (Integer 4) Decimal)
                                             )
                                             Eq
-                                            (IntegerConstant 14 (Integer 4))
+                                            (IntegerConstant 14 (Integer 4) Decimal)
                                             (Logical 4)
                                             (LogicalConstant
                                                 .true.
@@ -543,24 +566,24 @@
                                         (IntegerCompare
                                             (IntegerBinOp
                                                 (IntegerUnaryMinus
-                                                    (IntegerConstant 105346 (Integer 4))
+                                                    (IntegerConstant 105346 (Integer 4) Decimal)
                                                     (Integer 4)
-                                                    (IntegerConstant -105346 (Integer 4))
+                                                    (IntegerConstant -105346 (Integer 4) Decimal)
                                                 )
                                                 BitOr
                                                 (IntegerUnaryMinus
-                                                    (IntegerConstant 32771 (Integer 4))
+                                                    (IntegerConstant 32771 (Integer 4) Decimal)
                                                     (Integer 4)
-                                                    (IntegerConstant -32771 (Integer 4))
+                                                    (IntegerConstant -32771 (Integer 4) Decimal)
                                                 )
                                                 (Integer 4)
-                                                (IntegerConstant -32769 (Integer 4))
+                                                (IntegerConstant -32769 (Integer 4) Decimal)
                                             )
                                             Eq
                                             (IntegerUnaryMinus
-                                                (IntegerConstant 32769 (Integer 4))
+                                                (IntegerConstant 32769 (Integer 4) Decimal)
                                                 (Integer 4)
-                                                (IntegerConstant -32769 (Integer 4))
+                                                (IntegerConstant -32769 (Integer 4) Decimal)
                                             )
                                             (Logical 4)
                                             (LogicalConstant
@@ -573,14 +596,14 @@
                                     (Assert
                                         (IntegerCompare
                                             (IntegerBinOp
-                                                (IntegerConstant 10 (Integer 4))
+                                                (IntegerConstant 10 (Integer 4) Decimal)
                                                 BitAnd
-                                                (IntegerConstant 4 (Integer 4))
+                                                (IntegerConstant 4 (Integer 4) Decimal)
                                                 (Integer 4)
-                                                (IntegerConstant 0 (Integer 4))
+                                                (IntegerConstant 0 (Integer 4) Decimal)
                                             )
                                             Eq
-                                            (IntegerConstant 0 (Integer 4))
+                                            (IntegerConstant 0 (Integer 4) Decimal)
                                             (Logical 4)
                                             (LogicalConstant
                                                 .true.
@@ -593,24 +616,24 @@
                                         (IntegerCompare
                                             (IntegerBinOp
                                                 (IntegerUnaryMinus
-                                                    (IntegerConstant 105346 (Integer 4))
+                                                    (IntegerConstant 105346 (Integer 4) Decimal)
                                                     (Integer 4)
-                                                    (IntegerConstant -105346 (Integer 4))
+                                                    (IntegerConstant -105346 (Integer 4) Decimal)
                                                 )
                                                 BitAnd
                                                 (IntegerUnaryMinus
-                                                    (IntegerConstant 32771 (Integer 4))
+                                                    (IntegerConstant 32771 (Integer 4) Decimal)
                                                     (Integer 4)
-                                                    (IntegerConstant -32771 (Integer 4))
+                                                    (IntegerConstant -32771 (Integer 4) Decimal)
                                                 )
                                                 (Integer 4)
-                                                (IntegerConstant -105348 (Integer 4))
+                                                (IntegerConstant -105348 (Integer 4) Decimal)
                                             )
                                             Eq
                                             (IntegerUnaryMinus
-                                                (IntegerConstant 105348 (Integer 4))
+                                                (IntegerConstant 105348 (Integer 4) Decimal)
                                                 (Integer 4)
-                                                (IntegerConstant -105348 (Integer 4))
+                                                (IntegerConstant -105348 (Integer 4) Decimal)
                                             )
                                             (Logical 4)
                                             (LogicalConstant
@@ -623,14 +646,14 @@
                                     (Assert
                                         (IntegerCompare
                                             (IntegerBinOp
-                                                (IntegerConstant 10 (Integer 4))
+                                                (IntegerConstant 10 (Integer 4) Decimal)
                                                 BitXor
-                                                (IntegerConstant 4 (Integer 4))
+                                                (IntegerConstant 4 (Integer 4) Decimal)
                                                 (Integer 4)
-                                                (IntegerConstant 14 (Integer 4))
+                                                (IntegerConstant 14 (Integer 4) Decimal)
                                             )
                                             Eq
-                                            (IntegerConstant 14 (Integer 4))
+                                            (IntegerConstant 14 (Integer 4) Decimal)
                                             (Logical 4)
                                             (LogicalConstant
                                                 .true.
@@ -643,21 +666,21 @@
                                         (IntegerCompare
                                             (IntegerBinOp
                                                 (IntegerUnaryMinus
-                                                    (IntegerConstant 105346 (Integer 4))
+                                                    (IntegerConstant 105346 (Integer 4) Decimal)
                                                     (Integer 4)
-                                                    (IntegerConstant -105346 (Integer 4))
+                                                    (IntegerConstant -105346 (Integer 4) Decimal)
                                                 )
                                                 BitXor
                                                 (IntegerUnaryMinus
-                                                    (IntegerConstant 32771 (Integer 4))
+                                                    (IntegerConstant 32771 (Integer 4) Decimal)
                                                     (Integer 4)
-                                                    (IntegerConstant -32771 (Integer 4))
+                                                    (IntegerConstant -32771 (Integer 4) Decimal)
                                                 )
                                                 (Integer 4)
-                                                (IntegerConstant 72579 (Integer 4))
+                                                (IntegerConstant 72579 (Integer 4) Decimal)
                                             )
                                             Eq
-                                            (IntegerConstant 72579 (Integer 4))
+                                            (IntegerConstant 72579 (Integer 4) Decimal)
                                             (Logical 4)
                                             (LogicalConstant
                                                 .true.
@@ -669,14 +692,14 @@
                                     (Assert
                                         (IntegerCompare
                                             (IntegerBinOp
-                                                (IntegerConstant 10 (Integer 4))
+                                                (IntegerConstant 10 (Integer 4) Decimal)
                                                 BitRShift
-                                                (IntegerConstant 1 (Integer 4))
+                                                (IntegerConstant 1 (Integer 4) Decimal)
                                                 (Integer 4)
-                                                (IntegerConstant 5 (Integer 4))
+                                                (IntegerConstant 5 (Integer 4) Decimal)
                                             )
                                             Eq
-                                            (IntegerConstant 5 (Integer 4))
+                                            (IntegerConstant 5 (Integer 4) Decimal)
                                             (Logical 4)
                                             (LogicalConstant
                                                 .true.
@@ -688,14 +711,14 @@
                                     (Assert
                                         (IntegerCompare
                                             (IntegerBinOp
-                                                (IntegerConstant 5 (Integer 4))
+                                                (IntegerConstant 5 (Integer 4) Decimal)
                                                 BitLShift
-                                                (IntegerConstant 1 (Integer 4))
+                                                (IntegerConstant 1 (Integer 4) Decimal)
                                                 (Integer 4)
-                                                (IntegerConstant 10 (Integer 4))
+                                                (IntegerConstant 10 (Integer 4) Decimal)
                                             )
                                             Eq
-                                            (IntegerConstant 10 (Integer 4))
+                                            (IntegerConstant 10 (Integer 4) Decimal)
                                             (Logical 4)
                                             (LogicalConstant
                                                 .true.
@@ -706,12 +729,12 @@
                                     )
                                     (Assignment
                                         (Var 5 i1)
-                                        (IntegerConstant 10 (Integer 4))
+                                        (IntegerConstant 10 (Integer 4) Decimal)
                                         ()
                                     )
                                     (Assignment
                                         (Var 5 i2)
-                                        (IntegerConstant 4 (Integer 4))
+                                        (IntegerConstant 4 (Integer 4) Decimal)
                                         ()
                                     )
                                     (Assert
@@ -724,7 +747,7 @@
                                                 ()
                                             )
                                             Eq
-                                            (IntegerConstant 160 (Integer 4))
+                                            (IntegerConstant 160 (Integer 4) Decimal)
                                             (Logical 4)
                                             ()
                                         )
@@ -740,7 +763,7 @@
                                                 ()
                                             )
                                             Eq
-                                            (IntegerConstant 0 (Integer 4))
+                                            (IntegerConstant 0 (Integer 4) Decimal)
                                             (Logical 4)
                                             ()
                                         )
@@ -756,7 +779,7 @@
                                                 ()
                                             )
                                             Eq
-                                            (IntegerConstant 0 (Integer 4))
+                                            (IntegerConstant 0 (Integer 4) Decimal)
                                             (Logical 4)
                                             ()
                                         )
@@ -772,7 +795,7 @@
                                                 ()
                                             )
                                             Eq
-                                            (IntegerConstant 14 (Integer 4))
+                                            (IntegerConstant 14 (Integer 4) Decimal)
                                             (Logical 4)
                                             ()
                                         )
@@ -788,7 +811,7 @@
                                                 ()
                                             )
                                             Eq
-                                            (IntegerConstant 14 (Integer 4))
+                                            (IntegerConstant 14 (Integer 4) Decimal)
                                             (Logical 4)
                                             ()
                                         )
@@ -812,7 +835,7 @@
                                                 ()
                                             )
                                             Eq
-                                            (IntegerConstant 10 (Integer 4))
+                                            (IntegerConstant 10 (Integer 4) Decimal)
                                             (Logical 4)
                                             ()
                                         )
@@ -820,15 +843,15 @@
                                     )
                                     (Assignment
                                         (Var 5 i3)
-                                        (IntegerConstant 432534534 (Integer 4))
+                                        (IntegerConstant 432534534 (Integer 4) Decimal)
                                         ()
                                     )
                                     (Assignment
                                         (Var 5 i4)
                                         (IntegerUnaryMinus
-                                            (IntegerConstant 4325 (Integer 4))
+                                            (IntegerConstant 4325 (Integer 4) Decimal)
                                             (Integer 4)
-                                            (IntegerConstant -4325 (Integer 4))
+                                            (IntegerConstant -4325 (Integer 4) Decimal)
                                         )
                                         ()
                                     )
@@ -843,9 +866,9 @@
                                             )
                                             Eq
                                             (IntegerUnaryMinus
-                                                (IntegerConstant 225 (Integer 4))
+                                                (IntegerConstant 225 (Integer 4) Decimal)
                                                 (Integer 4)
-                                                (IntegerConstant -225 (Integer 4))
+                                                (IntegerConstant -225 (Integer 4) Decimal)
                                             )
                                             (Logical 4)
                                             ()
@@ -857,15 +880,15 @@
                                             (IntegerBinOp
                                                 (Var 5 i4)
                                                 BitRShift
-                                                (IntegerConstant 3 (Integer 4))
+                                                (IntegerConstant 3 (Integer 4) Decimal)
                                                 (Integer 4)
                                                 ()
                                             )
                                             Eq
                                             (IntegerUnaryMinus
-                                                (IntegerConstant 541 (Integer 4))
+                                                (IntegerConstant 541 (Integer 4) Decimal)
                                                 (Integer 4)
-                                                (IntegerConstant -541 (Integer 4))
+                                                (IntegerConstant -541 (Integer 4) Decimal)
                                             )
                                             (Logical 4)
                                             ()
@@ -887,9 +910,9 @@
                                             )
                                             Eq
                                             (IntegerUnaryMinus
-                                                (IntegerConstant 432534758 (Integer 4))
+                                                (IntegerConstant 432534758 (Integer 4) Decimal)
                                                 (Integer 4)
-                                                (IntegerConstant -432534758 (Integer 4))
+                                                (IntegerConstant -432534758 (Integer 4) Decimal)
                                             )
                                             (Logical 4)
                                             ()
@@ -910,7 +933,7 @@
                                                 ()
                                             )
                                             Eq
-                                            (IntegerConstant 432530657 (Integer 4))
+                                            (IntegerConstant 432530657 (Integer 4) Decimal)
                                             (Logical 4)
                                             ()
                                         )
@@ -918,7 +941,7 @@
                                     )
                                     (Assignment
                                         (Var 5 a)
-                                        (IntegerConstant 10 (Integer 4))
+                                        (IntegerConstant 10 (Integer 4) Decimal)
                                         ()
                                     )
                                     (Assignment
@@ -926,7 +949,7 @@
                                         (IntegerBinOp
                                             (Var 5 a)
                                             BitOr
-                                            (IntegerConstant 4 (Integer 4))
+                                            (IntegerConstant 4 (Integer 4) Decimal)
                                             (Integer 4)
                                             ()
                                         )
@@ -936,7 +959,7 @@
                                         (IntegerCompare
                                             (Var 5 a)
                                             Eq
-                                            (IntegerConstant 14 (Integer 4))
+                                            (IntegerConstant 14 (Integer 4) Decimal)
                                             (Logical 4)
                                             ()
                                         )
@@ -947,7 +970,7 @@
                                         (IntegerBinOp
                                             (Var 5 a)
                                             BitXor
-                                            (IntegerConstant 3 (Integer 4))
+                                            (IntegerConstant 3 (Integer 4) Decimal)
                                             (Integer 4)
                                             ()
                                         )
@@ -957,7 +980,7 @@
                                         (IntegerCompare
                                             (Var 5 a)
                                             Eq
-                                            (IntegerConstant 13 (Integer 4))
+                                            (IntegerConstant 13 (Integer 4) Decimal)
                                             (Logical 4)
                                             ()
                                         )
@@ -965,7 +988,7 @@
                                     )
                                     (Assignment
                                         (Var 5 b)
-                                        (IntegerConstant 10 (Integer 4))
+                                        (IntegerConstant 10 (Integer 4) Decimal)
                                         ()
                                     )
                                     (Assignment
@@ -985,7 +1008,7 @@
                                         (IntegerCompare
                                             (Var 5 a)
                                             Eq
-                                            (IntegerConstant 3 (Integer 4))
+                                            (IntegerConstant 3 (Integer 4) Decimal)
                                             (Logical 4)
                                             ()
                                         )
@@ -993,7 +1016,7 @@
                                     )
                                     (Assignment
                                         (Var 5 b)
-                                        (IntegerConstant 4 (Integer 4))
+                                        (IntegerConstant 4 (Integer 4) Decimal)
                                         ()
                                     )
                                     (Assignment
@@ -1011,7 +1034,7 @@
                                         (IntegerCompare
                                             (Var 5 a)
                                             Eq
-                                            (IntegerConstant 48 (Integer 4))
+                                            (IntegerConstant 48 (Integer 4) Decimal)
                                             (Logical 4)
                                             ()
                                         )
@@ -1022,7 +1045,7 @@
                                         (IntegerBinOp
                                             (Var 5 a)
                                             BitRShift
-                                            (IntegerConstant 1 (Integer 4))
+                                            (IntegerConstant 1 (Integer 4) Decimal)
                                             (Integer 4)
                                             ()
                                         )
@@ -1032,7 +1055,7 @@
                                         (IntegerCompare
                                             (Var 5 a)
                                             Eq
-                                            (IntegerConstant 24 (Integer 4))
+                                            (IntegerConstant 24 (Integer 4) Decimal)
                                             (Logical 4)
                                             ()
                                         )
@@ -1053,7 +1076,7 @@
                                         (IntegerCompare
                                             (Var 5 a)
                                             Eq
-                                            (IntegerConstant 0 (Integer 4))
+                                            (IntegerConstant 0 (Integer 4) Decimal)
                                             (Logical 4)
                                             ()
                                         )
@@ -1064,7 +1087,7 @@
                                         (IntegerBinOp
                                             (Var 5 b)
                                             Pow
-                                            (IntegerConstant 4 (Integer 4))
+                                            (IntegerConstant 4 (Integer 4) Decimal)
                                             (Integer 4)
                                             ()
                                         )
@@ -1074,7 +1097,7 @@
                                         (IntegerCompare
                                             (Var 5 b)
                                             Eq
-                                            (IntegerConstant 256 (Integer 4))
+                                            (IntegerConstant 256 (Integer 4) Decimal)
                                             (Logical 4)
                                             ()
                                         )
@@ -1086,17 +1109,17 @@
                                                 5 _mod@__lpython_overloaded_2___mod
                                                 5 _mod
                                                 [((IntegerUnaryMinus
-                                                    (IntegerConstant 8 (Integer 4))
+                                                    (IntegerConstant 8 (Integer 4) Decimal)
                                                     (Integer 4)
-                                                    (IntegerConstant -8 (Integer 4))
+                                                    (IntegerConstant -8 (Integer 4) Decimal)
                                                 ))
-                                                ((IntegerConstant 3 (Integer 4)))]
+                                                ((IntegerConstant 3 (Integer 4) Decimal))]
                                                 (Integer 4)
-                                                (IntegerConstant 1 (Integer 4))
+                                                (IntegerConstant 1 (Integer 4) Decimal)
                                                 ()
                                             )
                                             Eq
-                                            (IntegerConstant 1 (Integer 4))
+                                            (IntegerConstant 1 (Integer 4) Decimal)
                                             (Logical 4)
                                             (LogicalConstant
                                                 .true.
@@ -1110,21 +1133,21 @@
                                             (FunctionCall
                                                 5 _mod@__lpython_overloaded_2___mod
                                                 5 _mod
-                                                [((IntegerConstant 8 (Integer 4)))
+                                                [((IntegerConstant 8 (Integer 4) Decimal))
                                                 ((IntegerUnaryMinus
-                                                    (IntegerConstant 3 (Integer 4))
+                                                    (IntegerConstant 3 (Integer 4) Decimal)
                                                     (Integer 4)
-                                                    (IntegerConstant -3 (Integer 4))
+                                                    (IntegerConstant -3 (Integer 4) Decimal)
                                                 ))]
                                                 (Integer 4)
-                                                (IntegerConstant -1 (Integer 4))
+                                                (IntegerConstant -1 (Integer 4) Decimal)
                                                 ()
                                             )
                                             Eq
                                             (IntegerUnaryMinus
-                                                (IntegerConstant 1 (Integer 4))
+                                                (IntegerConstant 1 (Integer 4) Decimal)
                                                 (Integer 4)
-                                                (IntegerConstant -1 (Integer 4))
+                                                (IntegerConstant -1 (Integer 4) Decimal)
                                             )
                                             (Logical 4)
                                             (LogicalConstant
@@ -1140,24 +1163,24 @@
                                                 5 _mod@__lpython_overloaded_2___mod
                                                 5 _mod
                                                 [((IntegerUnaryMinus
-                                                    (IntegerConstant 8 (Integer 4))
+                                                    (IntegerConstant 8 (Integer 4) Decimal)
                                                     (Integer 4)
-                                                    (IntegerConstant -8 (Integer 4))
+                                                    (IntegerConstant -8 (Integer 4) Decimal)
                                                 ))
                                                 ((IntegerUnaryMinus
-                                                    (IntegerConstant 3 (Integer 4))
+                                                    (IntegerConstant 3 (Integer 4) Decimal)
                                                     (Integer 4)
-                                                    (IntegerConstant -3 (Integer 4))
+                                                    (IntegerConstant -3 (Integer 4) Decimal)
                                                 ))]
                                                 (Integer 4)
-                                                (IntegerConstant -2 (Integer 4))
+                                                (IntegerConstant -2 (Integer 4) Decimal)
                                                 ()
                                             )
                                             Eq
                                             (IntegerUnaryMinus
-                                                (IntegerConstant 2 (Integer 4))
+                                                (IntegerConstant 2 (Integer 4) Decimal)
                                                 (Integer 4)
-                                                (IntegerConstant -2 (Integer 4))
+                                                (IntegerConstant -2 (Integer 4) Decimal)
                                             )
                                             (Logical 4)
                                             (LogicalConstant
@@ -1287,7 +1310,7 @@
                                     (Assignment
                                         (Var 5 a1)
                                         (Cast
-                                            (IntegerConstant 10 (Integer 4))
+                                            (IntegerConstant 10 (Integer 4) Decimal)
                                             IntegerToUnsignedInteger
                                             (UnsignedInteger
                                                 2
@@ -1304,7 +1327,7 @@
                                     (Assignment
                                         (Var 5 b1)
                                         (Cast
-                                            (IntegerConstant 3 (Integer 4))
+                                            (IntegerConstant 3 (Integer 4) Decimal)
                                             IntegerToUnsignedInteger
                                             (UnsignedInteger
                                                 2
@@ -1338,7 +1361,7 @@
                                             (Var 5 c1)
                                             Eq
                                             (Cast
-                                                (IntegerConstant 1 (Integer 4))
+                                                (IntegerConstant 1 (Integer 4) Decimal)
                                                 IntegerToUnsignedInteger
                                                 (UnsignedInteger
                                                     2
@@ -1374,7 +1397,7 @@
                                             (Var 5 c1)
                                             Eq
                                             (Cast
-                                                (IntegerConstant 3 (Integer 4))
+                                                (IntegerConstant 3 (Integer 4) Decimal)
                                                 IntegerToUnsignedInteger
                                                 (UnsignedInteger
                                                     2
@@ -1417,6 +1440,8 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
                                                 ),
                                             _mod:
                                                 (ExternalSymbol
@@ -1453,6 +1478,8 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
                                                 ),
                                             b:
                                                 (Variable
@@ -1468,6 +1495,8 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
+                                                    .false.
                                                     .false.
                                                 )
                                         })
@@ -1530,6 +1559,8 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
                                                 ),
                                             a:
                                                 (Variable
@@ -1546,6 +1577,8 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
                                                 ),
                                             b:
                                                 (Variable
@@ -1561,6 +1594,8 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
+                                                    .false.
                                                     .false.
                                                 )
                                         })

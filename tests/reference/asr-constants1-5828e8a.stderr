@@ -1,1 +1,5 @@
-/bin/sh: 1: lpython: not found
+semantic error: Unexpected number of args, Int takes 2 arguments, found 1
+  --> tests/constants1.py:90:9
+   |
+90 |     a = int()
+   |         ^^^^^ 

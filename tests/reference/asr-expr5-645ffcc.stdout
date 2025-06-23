@@ -21,11 +21,13 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Character 1 -2 ())
+                                                    (String 1 -2 () PointerString)
                                                     ()
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
+                                                    .false.
                                                     .false.
                                                 )
                                         })
@@ -51,16 +53,16 @@
                                         (StringConcat
                                             (StringConstant
                                                 "3"
-                                                (Character 1 1 ())
+                                                (String 1 1 () PointerString)
                                             )
                                             (StringConstant
                                                 "4"
-                                                (Character 1 1 ())
+                                                (String 1 1 () PointerString)
                                             )
-                                            (Character 1 2 ())
+                                            (String 1 2 () PointerString)
                                             (StringConstant
                                                 "34"
-                                                (Character 1 2 ())
+                                                (String 1 2 () PointerString)
                                             )
                                         )
                                         ()
@@ -70,16 +72,16 @@
                                         (StringConcat
                                             (StringConstant
                                                 "a "
-                                                (Character 1 2 ())
+                                                (String 1 2 () PointerString)
                                             )
                                             (StringConstant
                                                 "test"
-                                                (Character 1 4 ())
+                                                (String 1 4 () PointerString)
                                             )
-                                            (Character 1 6 ())
+                                            (String 1 6 () PointerString)
                                             (StringConstant
                                                 "a test"
-                                                (Character 1 6 ())
+                                                (String 1 6 () PointerString)
                                             )
                                         )
                                         ()
@@ -90,26 +92,26 @@
                                             (StringConcat
                                                 (StringConstant
                                                     "test"
-                                                    (Character 1 4 ())
+                                                    (String 1 4 () PointerString)
                                                 )
                                                 (StringConstant
                                                     "test"
-                                                    (Character 1 4 ())
+                                                    (String 1 4 () PointerString)
                                                 )
-                                                (Character 1 8 ())
+                                                (String 1 8 () PointerString)
                                                 (StringConstant
                                                     "testtest"
-                                                    (Character 1 8 ())
+                                                    (String 1 8 () PointerString)
                                                 )
                                             )
                                             (StringConstant
                                                 "test"
-                                                (Character 1 4 ())
+                                                (String 1 4 () PointerString)
                                             )
-                                            (Character 1 12 ())
+                                            (String 1 12 () PointerString)
                                             (StringConstant
                                                 "testtesttest"
-                                                (Character 1 12 ())
+                                                (String 1 12 () PointerString)
                                             )
                                         )
                                         ()

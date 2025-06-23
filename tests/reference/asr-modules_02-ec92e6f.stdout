@@ -73,6 +73,8 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
                                                 )
                                         })
                                     main0
@@ -96,16 +98,16 @@
                                         (Var 7 x)
                                         (IntegerBinOp
                                             (IntegerBinOp
-                                                (IntegerConstant 2 (Integer 4))
+                                                (IntegerConstant 2 (Integer 4) Decimal)
                                                 Add
-                                                (IntegerConstant 3 (Integer 4))
+                                                (IntegerConstant 3 (Integer 4) Decimal)
                                                 (Integer 4)
-                                                (IntegerConstant 5 (Integer 4))
+                                                (IntegerConstant 5 (Integer 4) Decimal)
                                             )
                                             Mul
-                                            (IntegerConstant 5 (Integer 4))
+                                            (IntegerConstant 5 (Integer 4) Decimal)
                                             (Integer 4)
-                                            (IntegerConstant 25 (Integer 4))
+                                            (IntegerConstant 25 (Integer 4) Decimal)
                                         )
                                         ()
                                     )
@@ -113,7 +115,7 @@
                                         (IntegerCompare
                                             (Var 7 x)
                                             Eq
-                                            (IntegerConstant 25 (Integer 4))
+                                            (IntegerConstant 25 (Integer 4) Decimal)
                                             (Logical 4)
                                             ()
                                         )
@@ -198,12 +200,16 @@
                                         ()
                                     )
                                     (Print
-                                        [(StringConstant
-                                            "f()"
-                                            (Character 1 3 ())
-                                        )]
-                                        ()
-                                        ()
+                                        (StringFormat
+                                            ()
+                                            [(StringConstant
+                                                "f()"
+                                                (String 1 3 () PointerString)
+                                            )]
+                                            FormatPythonFormat
+                                            (String -1 0 () PointerString)
+                                            ()
+                                        )
                                     )]
                                     ()
                                     Public
@@ -257,12 +263,16 @@
                                     []
                                     []
                                     [(Print
-                                        [(StringConstant
-                                            "g()"
-                                            (Character 1 3 ())
-                                        )]
-                                        ()
-                                        ()
+                                        (StringFormat
+                                            ()
+                                            [(StringConstant
+                                                "g()"
+                                                (String 1 3 () PointerString)
+                                            )]
+                                            FormatPythonFormat
+                                            (String -1 0 () PointerString)
+                                            ()
+                                        )
                                     )]
                                     ()
                                     Public

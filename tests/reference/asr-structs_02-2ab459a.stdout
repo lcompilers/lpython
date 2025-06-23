@@ -27,6 +27,8 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
                                                 ),
                                             y:
                                                 (Variable
@@ -42,6 +44,8 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
+                                                    .false.
                                                     .false.
                                                 )
                                         })
@@ -115,6 +119,8 @@
                                                     Public
                                                     Required
                                                     .true.
+                                                    .false.
+                                                    .false.
                                                 ),
                                             a1:
                                                 (Variable
@@ -126,8 +132,7 @@
                                                     ()
                                                     Default
                                                     (StructType
-                                                        [(Integer 4)
-                                                        (Real 4)]
+                                                        []
                                                         []
                                                         .true.
                                                         2 A
@@ -136,6 +141,8 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
+                                                    .false.
                                                     .false.
                                                 ),
                                             a2:
@@ -149,8 +156,7 @@
                                                     Default
                                                     (Pointer
                                                         (StructType
-                                                            [(Integer 4)
-                                                            (Real 4)]
+                                                            []
                                                             []
                                                             .true.
                                                             2 A
@@ -160,6 +166,8 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
+                                                    .false.
                                                     .false.
                                                 ),
                                             x:
@@ -177,6 +185,8 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
                                                 ),
                                             y:
                                                 (Variable
@@ -192,6 +202,8 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
+                                                    .false.
                                                     .false.
                                                 )
                                         })
@@ -216,7 +228,7 @@
                                         (Var 4 a1)
                                         (StructConstructor
                                             2 A
-                                            [((IntegerConstant 3 (Integer 4)))
+                                            [((IntegerConstant 3 (Integer 4) Decimal))
                                             ((Cast
                                                 (RealConstant
                                                     3.250000
@@ -230,8 +242,7 @@
                                                 )
                                             ))]
                                             (StructType
-                                                [(Integer 4)
-                                                (Real 4)]
+                                                []
                                                 []
                                                 .true.
                                                 2 A
@@ -246,8 +257,7 @@
                                             (Var 4 a1)
                                             (Pointer
                                                 (StructType
-                                                    [(Integer 4)
-                                                    (Real 4)]
+                                                    []
                                                     []
                                                     .true.
                                                     2 A
@@ -258,22 +268,25 @@
                                         ()
                                     )
                                     (Print
-                                        [(Var 4 a2)
-                                        (GetPointer
-                                            (Var 4 a1)
-                                            (Pointer
-                                                (StructType
-                                                    [(Integer 4)
-                                                    (Real 4)]
-                                                    []
-                                                    .true.
-                                                    2 A
-                                                )
-                                            )
+                                        (StringFormat
                                             ()
-                                        )]
-                                        ()
-                                        ()
+                                            [(Var 4 a2)
+                                            (GetPointer
+                                                (Var 4 a1)
+                                                (Pointer
+                                                    (StructType
+                                                        []
+                                                        []
+                                                        .true.
+                                                        2 A
+                                                    )
+                                                )
+                                                ()
+                                            )]
+                                            FormatPythonFormat
+                                            (String -1 0 () PointerString)
+                                            ()
+                                        )
                                     )
                                     (Assignment
                                         (Var 4 x)
@@ -299,7 +312,7 @@
                                         (IntegerCompare
                                             (Var 4 x)
                                             Eq
-                                            (IntegerConstant 3 (Integer 4))
+                                            (IntegerConstant 3 (Integer 4) Decimal)
                                             (Logical 4)
                                             ()
                                         )
@@ -348,6 +361,8 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
+                                                    .false.
                                                     .false.
                                                 )
                                         })

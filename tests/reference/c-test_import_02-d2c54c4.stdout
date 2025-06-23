@@ -32,8 +32,8 @@ int32_t multiply(int32_t x, int32_t y)
 
 void f()
 {
-    printf("%lf\n", e);
-    printf("%lf\n", μ);
+    printf("%lf\n",   2.71828182845904509e+00);
+    printf("%lf\n",   1.45136923488338110e+00);
     printf("%d\n", add(10, 20));
     printf("%d\n", multiply(10, 20));
     ASSERT(add(10, 20) == 30);

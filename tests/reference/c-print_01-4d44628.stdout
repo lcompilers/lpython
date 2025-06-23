@@ -18,12 +18,12 @@ void f()
     printf("%s\n", "Hello World!");
     _lfortran_strcpy(&x, ",", 1);
     _lfortran_strcpy(&y, "!!", 1);
-    printf("%s%s%s\n", "a", x, "b");
+    printf("%s%s%s\n", "a", " ", "b");
     _lfortran_strcpy(&x, "-+-+-", 1);
-    printf("%s%s%s%s%s\n", "a", x, "b", x, "c");
-    printf("%s%s%s%s%s%s", "d", "=", "e", "=", "f", "+\n");
-    printf("%s%s%s%s%s%s", "x", "*\n", "y", "*\n", "z", y);
-    printf("%s%s%s\n", "1", ":", "2");
+    printf("%s%s%s%s%s\n", "a", " ", "b", " ", "c");
+    printf("%s%s%s%s%s\n", "d", " ", "e", " ", "f");
+    printf("%s%s%s%s%s\n", "x", " ", "y", " ", "z");
+    printf("%s%s%s\n", "1", " ", "2");
     printf("%s%s%s\n", "LCompilers", " ", "LPython");
 }
 

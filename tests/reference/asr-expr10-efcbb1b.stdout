@@ -27,6 +27,8 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
                                                 ),
                                             b:
                                                 (Variable
@@ -42,6 +44,8 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
+                                                    .false.
                                                     .false.
                                                 ),
                                             b1:
@@ -59,6 +63,8 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
                                                 ),
                                             b2:
                                                 (Variable
@@ -74,6 +80,8 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
+                                                    .false.
                                                     .false.
                                                 ),
                                             b3:
@@ -91,6 +99,8 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
                                                 ),
                                             c:
                                                 (Variable
@@ -106,6 +116,8 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
+                                                    .false.
                                                     .false.
                                                 ),
                                             complex:
@@ -153,6 +165,8 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
                                                 )
                                         })
                                     test_UnaryOp
@@ -174,24 +188,24 @@
                                     []
                                     [(Assignment
                                         (Var 3 a)
-                                        (IntegerConstant 4 (Integer 4))
+                                        (IntegerConstant 4 (Integer 4) Decimal)
                                         ()
                                     )
                                     (Assignment
                                         (Var 3 a)
                                         (IntegerUnaryMinus
-                                            (IntegerConstant 500 (Integer 4))
+                                            (IntegerConstant 500 (Integer 4) Decimal)
                                             (Integer 4)
-                                            (IntegerConstant -500 (Integer 4))
+                                            (IntegerConstant -500 (Integer 4) Decimal)
                                         )
                                         ()
                                     )
                                     (Assignment
                                         (Var 3 a)
                                         (IntegerBitNot
-                                            (IntegerConstant 5 (Integer 4))
+                                            (IntegerConstant 5 (Integer 4) Decimal)
                                             (Integer 4)
-                                            (IntegerConstant -6 (Integer 4))
+                                            (IntegerConstant -6 (Integer 4) Decimal)
                                         )
                                         ()
                                     )
@@ -199,7 +213,7 @@
                                         (Var 3 b)
                                         (LogicalNot
                                             (Cast
-                                                (IntegerConstant 5 (Integer 4))
+                                                (IntegerConstant 5 (Integer 4) Decimal)
                                                 IntegerToLogical
                                                 (Logical 4)
                                                 (LogicalConstant
@@ -220,9 +234,9 @@
                                         (LogicalNot
                                             (Cast
                                                 (IntegerUnaryMinus
-                                                    (IntegerConstant 1 (Integer 4))
+                                                    (IntegerConstant 1 (Integer 4) Decimal)
                                                     (Integer 4)
-                                                    (IntegerConstant -1 (Integer 4))
+                                                    (IntegerConstant -1 (Integer 4) Decimal)
                                                 )
                                                 IntegerToLogical
                                                 (Logical 4)
@@ -243,7 +257,7 @@
                                         (Var 3 b)
                                         (LogicalNot
                                             (Cast
-                                                (IntegerConstant 0 (Integer 4))
+                                                (IntegerConstant 0 (Integer 4) Decimal)
                                                 IntegerToLogical
                                                 (Logical 4)
                                                 (LogicalConstant
@@ -324,7 +338,7 @@
                                     )
                                     (Assignment
                                         (Var 3 a)
-                                        (IntegerConstant 1 (Integer 4))
+                                        (IntegerConstant 1 (Integer 4) Decimal)
                                         ()
                                     )
                                     (Assignment
@@ -337,10 +351,10 @@
                                                 )
                                                 LogicalToInteger
                                                 (Integer 4)
-                                                (IntegerConstant 0 (Integer 4))
+                                                (IntegerConstant 0 (Integer 4) Decimal)
                                             )
                                             (Integer 4)
-                                            (IntegerConstant 0 (Integer 4))
+                                            (IntegerConstant 0 (Integer 4) Decimal)
                                         )
                                         ()
                                     )
@@ -354,10 +368,10 @@
                                                 )
                                                 LogicalToInteger
                                                 (Integer 4)
-                                                (IntegerConstant -2 (Integer 4))
+                                                (IntegerConstant -2 (Integer 4) Decimal)
                                             )
                                             (Integer 4)
-                                            (IntegerConstant -2 (Integer 4))
+                                            (IntegerConstant -2 (Integer 4) Decimal)
                                         )
                                         ()
                                     )
@@ -377,7 +391,7 @@
                                                 (FunctionCall
                                                     3 complex@__lpython_overloaded_13__complex
                                                     3 complex
-                                                    [((IntegerConstant 3 (Integer 4)))
+                                                    [((IntegerConstant 3 (Integer 4) Decimal))
                                                     ((RealConstant
                                                         65.000000
                                                         (Real 8)

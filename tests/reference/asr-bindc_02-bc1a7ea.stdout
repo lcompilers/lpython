@@ -35,31 +35,37 @@
                                         (Var 2 queries)
                                         (Var 2 x)
                                         (ArrayConstant
-                                            [(IntegerConstant 1 (Integer 4))]
+                                            4
+                                            [1]
                                             (Array
                                                 (Integer 4)
-                                                [((IntegerConstant 0 (Integer 4))
-                                                (IntegerConstant 1 (Integer 4)))]
+                                                [((IntegerConstant 0 (Integer 4) Decimal)
+                                                (IntegerConstant 1 (Integer 4) Decimal))]
                                                 PointerToDataArray
                                             )
                                             RowMajor
                                         )
                                         (ArrayConstant
-                                            [(IntegerConstant 0 (Integer 4))]
+                                            4
+                                            [0]
                                             (Array
                                                 (Integer 4)
-                                                [((IntegerConstant 0 (Integer 4))
-                                                (IntegerConstant 1 (Integer 4)))]
+                                                [((IntegerConstant 0 (Integer 4) Decimal)
+                                                (IntegerConstant 1 (Integer 4) Decimal))]
                                                 PointerToDataArray
                                             )
                                             RowMajor
                                         )
                                     )
                                     (Print
-                                        [(Var 2 queries)
-                                        (Var 2 x)]
-                                        ()
-                                        ()
+                                        (StringFormat
+                                            ()
+                                            [(Var 2 queries)
+                                            (Var 2 x)]
+                                            FormatPythonFormat
+                                            (String -1 0 () PointerString)
+                                            ()
+                                        )
                                     )
                                     (SubroutineCall
                                         2 f
@@ -89,14 +95,16 @@
                                                     Default
                                                     (Array
                                                         (Integer 2)
-                                                        [((IntegerConstant 0 (Integer 4))
-                                                        (IntegerConstant 2 (Integer 4)))]
+                                                        [((IntegerConstant 0 (Integer 4) Decimal)
+                                                        (IntegerConstant 2 (Integer 4) Decimal))]
                                                         FixedSizeArray
                                                     )
                                                     ()
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
+                                                    .false.
                                                     .false.
                                                 ),
                                             yptr1:
@@ -121,6 +129,8 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
                                                 ),
                                             yq:
                                                 (Variable
@@ -136,6 +146,8 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
+                                                    .false.
                                                     .false.
                                                 )
                                         })
@@ -165,16 +177,34 @@
                                     )
                                     (Assignment
                                         (Var 226 y)
-                                        (ArrayConstructor
-                                            []
+                                        (ArrayBroadcast
+                                            (ArrayItem
+                                                (Var 226 y)
+                                                [(()
+                                                (IntegerConstant 0 (Integer 4) Decimal)
+                                                ())]
+                                                (Integer 2)
+                                                RowMajor
+                                                ()
+                                            )
+                                            (ArrayConstant
+                                                4
+                                                [2]
+                                                (Array
+                                                    (Integer 4)
+                                                    [((IntegerConstant 1 (Integer 4) Decimal)
+                                                    (IntegerConstant 1 (Integer 4) Decimal))]
+                                                    FixedSizeArray
+                                                )
+                                                ColMajor
+                                            )
                                             (Array
                                                 (Integer 2)
-                                                [((IntegerConstant 0 (Integer 4))
-                                                (IntegerConstant 2 (Integer 4)))]
+                                                [((IntegerConstant 0 (Integer 4) Decimal)
+                                                (IntegerConstant 2 (Integer 4) Decimal))]
                                                 FixedSizeArray
                                             )
                                             ()
-                                            RowMajor
                                         )
                                         ()
                                     )
@@ -182,17 +212,17 @@
                                         (ArrayItem
                                             (Var 226 y)
                                             [(()
-                                            (IntegerConstant 0 (Integer 4))
+                                            (IntegerConstant 0 (Integer 4) Decimal)
                                             ())]
                                             (Integer 2)
                                             RowMajor
                                             ()
                                         )
                                         (Cast
-                                            (IntegerConstant 1 (Integer 4))
+                                            (IntegerConstant 1 (Integer 4) Decimal)
                                             IntegerToInteger
                                             (Integer 2)
-                                            (IntegerConstant 1 (Integer 2))
+                                            (IntegerConstant 1 (Integer 2) Decimal)
                                         )
                                         ()
                                     )
@@ -200,17 +230,17 @@
                                         (ArrayItem
                                             (Var 226 y)
                                             [(()
-                                            (IntegerConstant 1 (Integer 4))
+                                            (IntegerConstant 1 (Integer 4) Decimal)
                                             ())]
                                             (Integer 2)
                                             RowMajor
                                             ()
                                         )
                                         (Cast
-                                            (IntegerConstant 2 (Integer 4))
+                                            (IntegerConstant 2 (Integer 4) Decimal)
                                             IntegerToInteger
                                             (Integer 2)
-                                            (IntegerConstant 2 (Integer 2))
+                                            (IntegerConstant 2 (Integer 2) Decimal)
                                         )
                                         ()
                                     )
@@ -231,50 +261,58 @@
                                         ()
                                     )
                                     (Print
-                                        [(GetPointer
-                                            (Var 226 y)
-                                            (Pointer
-                                                (Array
-                                                    (Integer 2)
-                                                    [(()
-                                                    ())]
-                                                    DescriptorArray
+                                        (StringFormat
+                                            ()
+                                            [(GetPointer
+                                                (Var 226 y)
+                                                (Pointer
+                                                    (Array
+                                                        (Integer 2)
+                                                        [(()
+                                                        ())]
+                                                        DescriptorArray
+                                                    )
                                                 )
+                                                ()
                                             )
+                                            (Var 226 yptr1)]
+                                            FormatPythonFormat
+                                            (String -1 0 () PointerString)
                                             ()
                                         )
-                                        (Var 226 yptr1)]
-                                        ()
-                                        ()
                                     )
                                     (Print
-                                        [(ArrayItem
-                                            (Var 226 yptr1)
-                                            [(()
-                                            (IntegerConstant 0 (Integer 4))
-                                            ())]
-                                            (Integer 2)
-                                            RowMajor
+                                        (StringFormat
+                                            ()
+                                            [(ArrayItem
+                                                (Var 226 yptr1)
+                                                [(()
+                                                (IntegerConstant 0 (Integer 4) Decimal)
+                                                ())]
+                                                (Integer 2)
+                                                RowMajor
+                                                ()
+                                            )
+                                            (ArrayItem
+                                                (Var 226 yptr1)
+                                                [(()
+                                                (IntegerConstant 1 (Integer 4) Decimal)
+                                                ())]
+                                                (Integer 2)
+                                                RowMajor
+                                                ()
+                                            )]
+                                            FormatPythonFormat
+                                            (String -1 0 () PointerString)
                                             ()
                                         )
-                                        (ArrayItem
-                                            (Var 226 yptr1)
-                                            [(()
-                                            (IntegerConstant 1 (Integer 4))
-                                            ())]
-                                            (Integer 2)
-                                            RowMajor
-                                            ()
-                                        )]
-                                        ()
-                                        ()
                                     )
                                     (Assert
                                         (IntegerCompare
                                             (ArrayItem
                                                 (Var 226 yptr1)
                                                 [(()
-                                                (IntegerConstant 0 (Integer 4))
+                                                (IntegerConstant 0 (Integer 4) Decimal)
                                                 ())]
                                                 (Integer 2)
                                                 RowMajor
@@ -282,10 +320,10 @@
                                             )
                                             Eq
                                             (Cast
-                                                (IntegerConstant 1 (Integer 4))
+                                                (IntegerConstant 1 (Integer 4) Decimal)
                                                 IntegerToInteger
                                                 (Integer 2)
-                                                (IntegerConstant 1 (Integer 2))
+                                                (IntegerConstant 1 (Integer 2) Decimal)
                                             )
                                             (Logical 4)
                                             ()
@@ -297,7 +335,7 @@
                                             (ArrayItem
                                                 (Var 226 yptr1)
                                                 [(()
-                                                (IntegerConstant 1 (Integer 4))
+                                                (IntegerConstant 1 (Integer 4) Decimal)
                                                 ())]
                                                 (Integer 2)
                                                 RowMajor
@@ -305,10 +343,10 @@
                                             )
                                             Eq
                                             (Cast
-                                                (IntegerConstant 2 (Integer 4))
+                                                (IntegerConstant 2 (Integer 4) Decimal)
                                                 IntegerToInteger
                                                 (Integer 2)
-                                                (IntegerConstant 2 (Integer 2))
+                                                (IntegerConstant 2 (Integer 2) Decimal)
                                             )
                                             (Logical 4)
                                             ()
@@ -319,31 +357,27 @@
                                         (Var 226 yq)
                                         (Var 226 yptr1)
                                         (ArrayConstant
-                                            [(IntegerConstant 2 (Integer 4))]
+                                            4
+                                            [2]
                                             (Array
                                                 (Integer 4)
-                                                [((IntegerConstant 0 (Integer 4))
-                                                (IntegerConstant 1 (Integer 4)))]
+                                                [((IntegerConstant 0 (Integer 4) Decimal)
+                                                (IntegerConstant 1 (Integer 4) Decimal))]
                                                 PointerToDataArray
                                             )
                                             RowMajor
                                         )
                                         (ArrayConstant
-                                            [(IntegerConstant 0 (Integer 4))]
+                                            4
+                                            [0]
                                             (Array
                                                 (Integer 4)
-                                                [((IntegerConstant 0 (Integer 4))
-                                                (IntegerConstant 1 (Integer 4)))]
+                                                [((IntegerConstant 0 (Integer 4) Decimal)
+                                                (IntegerConstant 1 (Integer 4) Decimal))]
                                                 PointerToDataArray
                                             )
                                             RowMajor
                                         )
-                                    )
-                                    (Print
-                                        [(Var 226 yq)
-                                        (Var 226 yptr1)]
-                                        ()
-                                        ()
                                     )]
                                     ()
                                     Public
@@ -370,6 +404,8 @@
                                     Public
                                     Required
                                     .false.
+                                    .false.
+                                    .false.
                                 ),
                             x:
                                 (Variable
@@ -392,6 +428,8 @@
                                     Source
                                     Public
                                     Required
+                                    .false.
+                                    .false.
                                     .false.
                                 )
                         })

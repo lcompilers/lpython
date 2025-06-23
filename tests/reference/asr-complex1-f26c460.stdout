@@ -27,6 +27,8 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
                                                 ),
                                             y:
                                                 (Variable
@@ -43,6 +45,8 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
                                                 ),
                                             z:
                                                 (Variable
@@ -58,6 +62,8 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
+                                                    .false.
                                                     .false.
                                                 )
                                         })
@@ -82,7 +88,7 @@
                                         (Var 4 x)
                                         (ComplexBinOp
                                             (Cast
-                                                (IntegerConstant 2 (Integer 4))
+                                                (IntegerConstant 2 (Integer 4) Decimal)
                                                 IntegerToComplex
                                                 (Complex 8)
                                                 (ComplexConstant
@@ -110,7 +116,7 @@
                                         (Var 4 y)
                                         (ComplexBinOp
                                             (Cast
-                                                (IntegerConstant 5 (Integer 4))
+                                                (IntegerConstant 5 (Integer 4) Decimal)
                                                 IntegerToComplex
                                                 (Complex 8)
                                                 (ComplexConstant
@@ -171,7 +177,7 @@
                                         (Cast
                                             (ComplexBinOp
                                                 (Cast
-                                                    (IntegerConstant 2 (Integer 4))
+                                                    (IntegerConstant 2 (Integer 4) Decimal)
                                                     IntegerToComplex
                                                     (Complex 8)
                                                     (ComplexConstant
@@ -217,6 +223,8 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
                                                 ),
                                             c:
                                                 (Variable
@@ -232,6 +240,8 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
+                                                    .false.
                                                     .false.
                                                 ),
                                             c1:
@@ -249,6 +259,8 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
                                                 ),
                                             c2:
                                                 (Variable
@@ -265,6 +277,8 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
                                                 ),
                                             c3:
                                                 (Variable
@@ -280,6 +294,8 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
+                                                    .false.
                                                     .false.
                                                 ),
                                             complex:
@@ -460,7 +476,7 @@
                                         (FunctionCall
                                             3 complex@__lpython_overloaded_2__complex
                                             3 complex
-                                            [((IntegerConstant 1 (Integer 4)))]
+                                            [((IntegerConstant 1 (Integer 4) Decimal))]
                                             (Complex 4)
                                             (ComplexConstant
                                                 1.000000
@@ -477,8 +493,8 @@
                                             (FunctionCall
                                                 3 complex@__lpython_overloaded_9__complex
                                                 3 complex
-                                                [((IntegerConstant 3 (Integer 4)))
-                                                ((IntegerConstant 4 (Integer 4)))]
+                                                [((IntegerConstant 3 (Integer 4) Decimal))
+                                                ((IntegerConstant 4 (Integer 4) Decimal))]
                                                 (Complex 8)
                                                 (ComplexConstant
                                                     3.000000
@@ -503,7 +519,7 @@
                                             (FunctionCall
                                                 3 complex@__lpython_overloaded_13__complex
                                                 3 complex
-                                                [((IntegerConstant 2 (Integer 4)))
+                                                [((IntegerConstant 2 (Integer 4) Decimal))
                                                 ((RealConstant
                                                     4.500000
                                                     (Real 8)
@@ -616,8 +632,8 @@
                                                 (FunctionCall
                                                     3 complex@__lpython_overloaded_9__complex
                                                     3 complex
-                                                    [((IntegerConstant 1 (Integer 4)))
-                                                    ((IntegerConstant 2 (Integer 4)))]
+                                                    [((IntegerConstant 1 (Integer 4) Decimal))
+                                                    ((IntegerConstant 2 (Integer 4) Decimal))]
                                                     (Complex 8)
                                                     (ComplexConstant
                                                         1.000000
@@ -670,8 +686,8 @@
                                                 (FunctionCall
                                                     3 complex@__lpython_overloaded_9__complex
                                                     3 complex
-                                                    [((IntegerConstant 1 (Integer 4)))
-                                                    ((IntegerConstant 2 (Integer 4)))]
+                                                    [((IntegerConstant 1 (Integer 4) Decimal))
+                                                    ((IntegerConstant 2 (Integer 4) Decimal))]
                                                     (Complex 8)
                                                     (ComplexConstant
                                                         1.000000
@@ -684,8 +700,8 @@
                                                 (FunctionCall
                                                     3 complex@__lpython_overloaded_9__complex
                                                     3 complex
-                                                    [((IntegerConstant 3 (Integer 4)))
-                                                    ((IntegerConstant 4 (Integer 4)))]
+                                                    [((IntegerConstant 3 (Integer 4) Decimal))
+                                                    ((IntegerConstant 4 (Integer 4) Decimal))]
                                                     (Complex 8)
                                                     (ComplexConstant
                                                         3.000000
@@ -718,8 +734,8 @@
                                                 (FunctionCall
                                                     3 complex@__lpython_overloaded_9__complex
                                                     3 complex
-                                                    [((IntegerConstant 4 (Integer 4)))
-                                                    ((IntegerConstant 5 (Integer 4)))]
+                                                    [((IntegerConstant 4 (Integer 4) Decimal))
+                                                    ((IntegerConstant 5 (Integer 4) Decimal))]
                                                     (Complex 8)
                                                     (ComplexConstant
                                                         4.000000
@@ -732,8 +748,8 @@
                                                 (FunctionCall
                                                     3 complex@__lpython_overloaded_9__complex
                                                     3 complex
-                                                    [((IntegerConstant 3 (Integer 4)))
-                                                    ((IntegerConstant 4 (Integer 4)))]
+                                                    [((IntegerConstant 3 (Integer 4) Decimal))
+                                                    ((IntegerConstant 4 (Integer 4) Decimal))]
                                                     (Complex 8)
                                                     (ComplexConstant
                                                         3.000000

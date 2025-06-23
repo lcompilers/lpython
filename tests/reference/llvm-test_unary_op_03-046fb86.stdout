@@ -15,8 +15,8 @@ return:                                           ; preds = %.entry
 
 define void @__module___main___f() {
 .entry:
-  %res = alloca i32, align 4
   %i = alloca i32, align 4
+  %res = alloca i32, align 4
   store i32 5, i32* %i, align 4
   %0 = load i32, i32* %i, align 4
   %1 = xor i32 %0, -1
@@ -63,7 +63,13 @@ define i32 @main(i32 %0, i8** %1) {
 .entry:
   call void @_lpython_call_initial_functions(i32 %0, i8** %1)
   call void @__module___main_____main__global_stmts()
+  call void @_lpython_free_argv()
+  br label %return
+
+return:                                           ; preds = %.entry
   ret i32 0
 }
 
 declare void @_lpython_call_initial_functions(i32, i8**)
+
+declare void @_lpython_free_argv()

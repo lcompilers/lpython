@@ -7,7 +7,7 @@ if (LPYTHON_BUILD_ALL)
   execute_process(COMMAND "build0.sh")
 endif()
 
-file(STRINGS "version" LFORTRAN_VERSION)
+file(STRINGS "lp_version" LFORTRAN_VERSION)
 
 project(lpython LANGUAGES C CXX)
 

@@ -63,6 +63,8 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
                                                 ),
                                             f:
                                                 (Variable
@@ -78,6 +80,8 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
+                                                    .false.
                                                     .false.
                                                 ),
                                             f2:
@@ -95,6 +99,8 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
                                                 ),
                                             i:
                                                 (Variable
@@ -110,6 +116,8 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
+                                                    .false.
                                                     .false.
                                                 )
                                         })
@@ -132,7 +140,7 @@
                                     []
                                     [(Assignment
                                         (Var 3 i)
-                                        (IntegerConstant 34 (Integer 4))
+                                        (IntegerConstant 34 (Integer 4) Decimal)
                                         ()
                                     )
                                     (Assignment
@@ -173,7 +181,7 @@
                                     (Assert
                                         (RealCompare
                                             (Cast
-                                                (IntegerConstant 34 (Integer 4))
+                                                (IntegerConstant 34 (Integer 4) Decimal)
                                                 IntegerToReal
                                                 (Real 8)
                                                 (RealConstant
@@ -215,9 +223,9 @@
                                     (Assignment
                                         (Var 3 i)
                                         (IntegerUnaryMinus
-                                            (IntegerConstant 4235 (Integer 4))
+                                            (IntegerConstant 4235 (Integer 4) Decimal)
                                             (Integer 4)
-                                            (IntegerConstant -4235 (Integer 4))
+                                            (IntegerConstant -4235 (Integer 4) Decimal)
                                         )
                                         ()
                                     )
@@ -225,9 +233,9 @@
                                         (RealCompare
                                             (Cast
                                                 (IntegerUnaryMinus
-                                                    (IntegerConstant 4235 (Integer 4))
+                                                    (IntegerConstant 4235 (Integer 4) Decimal)
                                                     (Integer 4)
-                                                    (IntegerConstant -4235 (Integer 4))
+                                                    (IntegerConstant -4235 (Integer 4) Decimal)
                                                 )
                                                 IntegerToReal
                                                 (Real 8)
@@ -284,7 +292,7 @@
                                     (Assert
                                         (RealCompare
                                             (Cast
-                                                (IntegerConstant 34 (Integer 4))
+                                                (IntegerConstant 34 (Integer 4) Decimal)
                                                 IntegerToReal
                                                 (Real 8)
                                                 (RealConstant
@@ -309,9 +317,9 @@
                                         (RealCompare
                                             (Cast
                                                 (IntegerUnaryMinus
-                                                    (IntegerConstant 4235 (Integer 4))
+                                                    (IntegerConstant 4235 (Integer 4) Decimal)
                                                     (Integer 4)
-                                                    (IntegerConstant -4235 (Integer 4))
+                                                    (IntegerConstant -4235 (Integer 4) Decimal)
                                                 )
                                                 IntegerToReal
                                                 (Real 8)

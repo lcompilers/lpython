@@ -27,6 +27,8 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
                                                 ),
                                             b:
                                                 (Variable
@@ -42,6 +44,8 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
+                                                    .false.
                                                     .false.
                                                 ),
                                             c:
@@ -59,6 +63,8 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
                                                 ),
                                             d:
                                                 (Variable
@@ -74,6 +80,8 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
+                                                    .false.
                                                     .false.
                                                 ),
                                             x:
@@ -91,6 +99,8 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
                                                 ),
                                             y:
                                                 (Variable
@@ -107,6 +117,8 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
                                                 ),
                                             z:
                                                 (Variable
@@ -122,6 +134,8 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
+                                                    .false.
                                                     .false.
                                                 )
                                         })
@@ -201,25 +215,21 @@
                                                     Default
                                                     (Array
                                                         (StructType
-                                                            [(Real 8)
-                                                            (Integer 4)
-                                                            (Integer 8)
-                                                            (Real 4)
-                                                            (Integer 2)
-                                                            (Integer 1)
-                                                            (Logical 4)]
+                                                            []
                                                             []
                                                             .true.
                                                             2 A
                                                         )
-                                                        [((IntegerConstant 0 (Integer 4))
-                                                        (IntegerConstant 2 (Integer 4)))]
+                                                        [((IntegerConstant 0 (Integer 4) Decimal)
+                                                        (IntegerConstant 2 (Integer 4) Decimal))]
                                                         FixedSizeArray
                                                     )
                                                     ()
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
+                                                    .false.
                                                     .false.
                                                 )
                                         })
@@ -244,27 +254,44 @@
                                     []
                                     [(Assignment
                                         (Var 230 y)
-                                        (ArrayConstructor
-                                            []
-                                            (Array
+                                        (ArrayBroadcast
+                                            (ArrayItem
+                                                (Var 230 y)
+                                                [(()
+                                                (IntegerConstant 0 (Integer 4) Decimal)
+                                                ())]
                                                 (StructType
-                                                    [(Real 8)
-                                                    (Integer 4)
-                                                    (Integer 8)
-                                                    (Real 4)
-                                                    (Integer 2)
-                                                    (Integer 1)
-                                                    (Logical 4)]
+                                                    []
                                                     []
                                                     .true.
                                                     2 A
                                                 )
-                                                [((IntegerConstant 0 (Integer 4))
-                                                (IntegerConstant 2 (Integer 4)))]
+                                                RowMajor
+                                                ()
+                                            )
+                                            (ArrayConstant
+                                                4
+                                                [2]
+                                                (Array
+                                                    (Integer 4)
+                                                    [((IntegerConstant 1 (Integer 4) Decimal)
+                                                    (IntegerConstant 1 (Integer 4) Decimal))]
+                                                    FixedSizeArray
+                                                )
+                                                ColMajor
+                                            )
+                                            (Array
+                                                (StructType
+                                                    []
+                                                    []
+                                                    .true.
+                                                    2 A
+                                                )
+                                                [((IntegerConstant 0 (Integer 4) Decimal)
+                                                (IntegerConstant 2 (Integer 4) Decimal))]
                                                 FixedSizeArray
                                             )
                                             ()
-                                            RowMajor
                                         )
                                         ()
                                     )
@@ -272,16 +299,10 @@
                                         (ArrayItem
                                             (Var 230 y)
                                             [(()
-                                            (IntegerConstant 0 (Integer 4))
+                                            (IntegerConstant 0 (Integer 4) Decimal)
                                             ())]
                                             (StructType
-                                                [(Real 8)
-                                                (Integer 4)
-                                                (Integer 8)
-                                                (Real 4)
-                                                (Integer 2)
-                                                (Integer 1)
-                                                (Logical 4)]
+                                                []
                                                 []
                                                 .true.
                                                 2 A
@@ -295,12 +316,12 @@
                                                 1.100000
                                                 (Real 8)
                                             ))
-                                            ((IntegerConstant 1 (Integer 4)))
+                                            ((IntegerConstant 1 (Integer 4) Decimal))
                                             ((Cast
-                                                (IntegerConstant 1 (Integer 4))
+                                                (IntegerConstant 1 (Integer 4) Decimal)
                                                 IntegerToInteger
                                                 (Integer 8)
-                                                (IntegerConstant 1 (Integer 8))
+                                                (IntegerConstant 1 (Integer 8) Decimal)
                                             ))
                                             ((Cast
                                                 (RealConstant
@@ -315,29 +336,23 @@
                                                 )
                                             ))
                                             ((Cast
-                                                (IntegerConstant 1 (Integer 4))
+                                                (IntegerConstant 1 (Integer 4) Decimal)
                                                 IntegerToInteger
                                                 (Integer 2)
-                                                (IntegerConstant 1 (Integer 2))
+                                                (IntegerConstant 1 (Integer 2) Decimal)
                                             ))
                                             ((Cast
-                                                (IntegerConstant 1 (Integer 4))
+                                                (IntegerConstant 1 (Integer 4) Decimal)
                                                 IntegerToInteger
                                                 (Integer 1)
-                                                (IntegerConstant 1 (Integer 1))
+                                                (IntegerConstant 1 (Integer 1) Decimal)
                                             ))
                                             ((LogicalConstant
                                                 .true.
                                                 (Logical 4)
                                             ))]
                                             (StructType
-                                                [(Real 8)
-                                                (Integer 4)
-                                                (Integer 8)
-                                                (Real 4)
-                                                (Integer 2)
-                                                (Integer 1)
-                                                (Logical 4)]
+                                                []
                                                 []
                                                 .true.
                                                 2 A
@@ -350,16 +365,10 @@
                                         (ArrayItem
                                             (Var 230 y)
                                             [(()
-                                            (IntegerConstant 1 (Integer 4))
+                                            (IntegerConstant 1 (Integer 4) Decimal)
                                             ())]
                                             (StructType
-                                                [(Real 8)
-                                                (Integer 4)
-                                                (Integer 8)
-                                                (Real 4)
-                                                (Integer 2)
-                                                (Integer 1)
-                                                (Logical 4)]
+                                                []
                                                 []
                                                 .true.
                                                 2 A
@@ -373,12 +382,12 @@
                                                 2.200000
                                                 (Real 8)
                                             ))
-                                            ((IntegerConstant 2 (Integer 4)))
+                                            ((IntegerConstant 2 (Integer 4) Decimal))
                                             ((Cast
-                                                (IntegerConstant 2 (Integer 4))
+                                                (IntegerConstant 2 (Integer 4) Decimal)
                                                 IntegerToInteger
                                                 (Integer 8)
-                                                (IntegerConstant 2 (Integer 8))
+                                                (IntegerConstant 2 (Integer 8) Decimal)
                                             ))
                                             ((Cast
                                                 (RealConstant
@@ -393,29 +402,23 @@
                                                 )
                                             ))
                                             ((Cast
-                                                (IntegerConstant 2 (Integer 4))
+                                                (IntegerConstant 2 (Integer 4) Decimal)
                                                 IntegerToInteger
                                                 (Integer 2)
-                                                (IntegerConstant 2 (Integer 2))
+                                                (IntegerConstant 2 (Integer 2) Decimal)
                                             ))
                                             ((Cast
-                                                (IntegerConstant 2 (Integer 4))
+                                                (IntegerConstant 2 (Integer 4) Decimal)
                                                 IntegerToInteger
                                                 (Integer 1)
-                                                (IntegerConstant 2 (Integer 1))
+                                                (IntegerConstant 2 (Integer 1) Decimal)
                                             ))
                                             ((LogicalConstant
                                                 .true.
                                                 (Logical 4)
                                             ))]
                                             (StructType
-                                                [(Real 8)
-                                                (Integer 4)
-                                                (Integer 8)
-                                                (Real 4)
-                                                (Integer 2)
-                                                (Integer 1)
-                                                (Logical 4)]
+                                                []
                                                 []
                                                 .true.
                                                 2 A
@@ -433,29 +436,23 @@
                                             DescriptorArray
                                             (Array
                                                 (StructType
-                                                    [(Real 8)
-                                                    (Integer 4)
-                                                    (Integer 8)
-                                                    (Real 4)
-                                                    (Integer 2)
-                                                    (Integer 1)
-                                                    (Logical 4)]
+                                                    []
                                                     []
                                                     .true.
                                                     2 A
                                                 )
-                                                [((IntegerConstant 0 (Integer 4))
-                                                (IntegerConstant 2 (Integer 4)))]
+                                                [((IntegerConstant 0 (Integer 4) Decimal)
+                                                (IntegerConstant 2 (Integer 4) Decimal))]
                                                 DescriptorArray
                                             )
                                             ()
                                         ))
-                                        ((IntegerConstant 1 (Integer 4)))
+                                        ((IntegerConstant 1 (Integer 4) Decimal))
                                         ((RealConstant
                                             1.100000
                                             (Real 8)
                                         ))
-                                        ((IntegerConstant 2 (Integer 4)))
+                                        ((IntegerConstant 2 (Integer 4) Decimal))
                                         ((RealConstant
                                             2.200000
                                             (Real 8)
@@ -468,16 +465,10 @@
                                         [((ArrayItem
                                             (Var 230 y)
                                             [(()
-                                            (IntegerConstant 0 (Integer 4))
+                                            (IntegerConstant 0 (Integer 4) Decimal)
                                             ())]
                                             (StructType
-                                                [(Real 8)
-                                                (Integer 4)
-                                                (Integer 8)
-                                                (Real 4)
-                                                (Integer 2)
-                                                (Integer 1)
-                                                (Logical 4)]
+                                                []
                                                 []
                                                 .true.
                                                 2 A
@@ -496,19 +487,13 @@
                                             DescriptorArray
                                             (Array
                                                 (StructType
-                                                    [(Real 8)
-                                                    (Integer 4)
-                                                    (Integer 8)
-                                                    (Real 4)
-                                                    (Integer 2)
-                                                    (Integer 1)
-                                                    (Logical 4)]
+                                                    []
                                                     []
                                                     .true.
                                                     2 A
                                                 )
-                                                [((IntegerConstant 0 (Integer 4))
-                                                (IntegerConstant 2 (Integer 4)))]
+                                                [((IntegerConstant 0 (Integer 4) Decimal)
+                                                (IntegerConstant 2 (Integer 4) Decimal))]
                                                 DescriptorArray
                                             )
                                             ()
@@ -524,29 +509,23 @@
                                             DescriptorArray
                                             (Array
                                                 (StructType
-                                                    [(Real 8)
-                                                    (Integer 4)
-                                                    (Integer 8)
-                                                    (Real 4)
-                                                    (Integer 2)
-                                                    (Integer 1)
-                                                    (Logical 4)]
+                                                    []
                                                     []
                                                     .true.
                                                     2 A
                                                 )
-                                                [((IntegerConstant 0 (Integer 4))
-                                                (IntegerConstant 2 (Integer 4)))]
+                                                [((IntegerConstant 0 (Integer 4) Decimal)
+                                                (IntegerConstant 2 (Integer 4) Decimal))]
                                                 DescriptorArray
                                             )
                                             ()
                                         ))
-                                        ((IntegerConstant 2 (Integer 4)))
+                                        ((IntegerConstant 2 (Integer 4) Decimal))
                                         ((RealConstant
                                             1.200000
                                             (Real 8)
                                         ))
-                                        ((IntegerConstant 3 (Integer 4)))
+                                        ((IntegerConstant 3 (Integer 4) Decimal))
                                         ((RealConstant
                                             2.300000
                                             (Real 8)
@@ -574,13 +553,7 @@
                                                     ()
                                                     Default
                                                     (StructType
-                                                        [(Real 8)
-                                                        (Integer 4)
-                                                        (Integer 8)
-                                                        (Real 4)
-                                                        (Integer 2)
-                                                        (Integer 1)
-                                                        (Logical 4)]
+                                                        []
                                                         []
                                                         .true.
                                                         2 A
@@ -590,18 +563,14 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
                                                 )
                                         })
                                     update_1
                                     (FunctionType
                                         [(StructType
-                                            [(Real 8)
-                                            (Integer 4)
-                                            (Integer 8)
-                                            (Real 4)
-                                            (Integer 2)
-                                            (Integer 1)
-                                            (Logical 4)]
+                                            []
                                             []
                                             .true.
                                             2 A
@@ -627,7 +596,7 @@
                                             (Integer 4)
                                             ()
                                         )
-                                        (IntegerConstant 2 (Integer 4))
+                                        (IntegerConstant 2 (Integer 4) Decimal)
                                         ()
                                     )
                                     (Assignment
@@ -651,10 +620,10 @@
                                             ()
                                         )
                                         (Cast
-                                            (IntegerConstant 2 (Integer 4))
+                                            (IntegerConstant 2 (Integer 4) Decimal)
                                             IntegerToInteger
                                             (Integer 8)
-                                            (IntegerConstant 2 (Integer 8))
+                                            (IntegerConstant 2 (Integer 8) Decimal)
                                         )
                                         ()
                                     )
@@ -687,10 +656,10 @@
                                             ()
                                         )
                                         (Cast
-                                            (IntegerConstant 2 (Integer 4))
+                                            (IntegerConstant 2 (Integer 4) Decimal)
                                             IntegerToInteger
                                             (Integer 2)
-                                            (IntegerConstant 2 (Integer 2))
+                                            (IntegerConstant 2 (Integer 2) Decimal)
                                         )
                                         ()
                                     )
@@ -702,10 +671,10 @@
                                             ()
                                         )
                                         (Cast
-                                            (IntegerConstant 2 (Integer 4))
+                                            (IntegerConstant 2 (Integer 4) Decimal)
                                             IntegerToInteger
                                             (Integer 1)
-                                            (IntegerConstant 2 (Integer 1))
+                                            (IntegerConstant 2 (Integer 1) Decimal)
                                         )
                                         ()
                                     )]
@@ -731,13 +700,7 @@
                                                     Default
                                                     (Array
                                                         (StructType
-                                                            [(Real 8)
-                                                            (Integer 4)
-                                                            (Integer 8)
-                                                            (Real 4)
-                                                            (Integer 2)
-                                                            (Integer 1)
-                                                            (Logical 4)]
+                                                            []
                                                             []
                                                             .true.
                                                             2 A
@@ -751,19 +714,15 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
                                                 )
                                         })
                                     update_2
                                     (FunctionType
                                         [(Array
                                             (StructType
-                                                [(Real 8)
-                                                (Integer 4)
-                                                (Integer 8)
-                                                (Real 4)
-                                                (Integer 2)
-                                                (Integer 1)
-                                                (Logical 4)]
+                                                []
                                                 []
                                                 .true.
                                                 2 A
@@ -791,16 +750,10 @@
                                             (ArrayItem
                                                 (Var 229 s)
                                                 [(()
-                                                (IntegerConstant 1 (Integer 4))
+                                                (IntegerConstant 1 (Integer 4) Decimal)
                                                 ())]
                                                 (StructType
-                                                    [(Real 8)
-                                                    (Integer 4)
-                                                    (Integer 8)
-                                                    (Real 4)
-                                                    (Integer 2)
-                                                    (Integer 1)
-                                                    (Logical 4)]
+                                                    []
                                                     []
                                                     .true.
                                                     2 A
@@ -812,7 +765,7 @@
                                             (Integer 4)
                                             ()
                                         )
-                                        (IntegerConstant 3 (Integer 4))
+                                        (IntegerConstant 3 (Integer 4) Decimal)
                                         ()
                                     )
                                     (Assignment
@@ -820,16 +773,10 @@
                                             (ArrayItem
                                                 (Var 229 s)
                                                 [(()
-                                                (IntegerConstant 1 (Integer 4))
+                                                (IntegerConstant 1 (Integer 4) Decimal)
                                                 ())]
                                                 (StructType
-                                                    [(Real 8)
-                                                    (Integer 4)
-                                                    (Integer 8)
-                                                    (Real 4)
-                                                    (Integer 2)
-                                                    (Integer 1)
-                                                    (Logical 4)]
+                                                    []
                                                     []
                                                     .true.
                                                     2 A
@@ -852,16 +799,10 @@
                                             (ArrayItem
                                                 (Var 229 s)
                                                 [(()
-                                                (IntegerConstant 1 (Integer 4))
+                                                (IntegerConstant 1 (Integer 4) Decimal)
                                                 ())]
                                                 (StructType
-                                                    [(Real 8)
-                                                    (Integer 4)
-                                                    (Integer 8)
-                                                    (Real 4)
-                                                    (Integer 2)
-                                                    (Integer 1)
-                                                    (Logical 4)]
+                                                    []
                                                     []
                                                     .true.
                                                     2 A
@@ -874,10 +815,10 @@
                                             ()
                                         )
                                         (Cast
-                                            (IntegerConstant 3 (Integer 4))
+                                            (IntegerConstant 3 (Integer 4) Decimal)
                                             IntegerToInteger
                                             (Integer 8)
-                                            (IntegerConstant 3 (Integer 8))
+                                            (IntegerConstant 3 (Integer 8) Decimal)
                                         )
                                         ()
                                     )
@@ -886,16 +827,10 @@
                                             (ArrayItem
                                                 (Var 229 s)
                                                 [(()
-                                                (IntegerConstant 1 (Integer 4))
+                                                (IntegerConstant 1 (Integer 4) Decimal)
                                                 ())]
                                                 (StructType
-                                                    [(Real 8)
-                                                    (Integer 4)
-                                                    (Integer 8)
-                                                    (Real 4)
-                                                    (Integer 2)
-                                                    (Integer 1)
-                                                    (Logical 4)]
+                                                    []
                                                     []
                                                     .true.
                                                     2 A
@@ -926,16 +861,10 @@
                                             (ArrayItem
                                                 (Var 229 s)
                                                 [(()
-                                                (IntegerConstant 1 (Integer 4))
+                                                (IntegerConstant 1 (Integer 4) Decimal)
                                                 ())]
                                                 (StructType
-                                                    [(Real 8)
-                                                    (Integer 4)
-                                                    (Integer 8)
-                                                    (Real 4)
-                                                    (Integer 2)
-                                                    (Integer 1)
-                                                    (Logical 4)]
+                                                    []
                                                     []
                                                     .true.
                                                     2 A
@@ -948,10 +877,10 @@
                                             ()
                                         )
                                         (Cast
-                                            (IntegerConstant 3 (Integer 4))
+                                            (IntegerConstant 3 (Integer 4) Decimal)
                                             IntegerToInteger
                                             (Integer 2)
-                                            (IntegerConstant 3 (Integer 2))
+                                            (IntegerConstant 3 (Integer 2) Decimal)
                                         )
                                         ()
                                     )
@@ -960,16 +889,10 @@
                                             (ArrayItem
                                                 (Var 229 s)
                                                 [(()
-                                                (IntegerConstant 1 (Integer 4))
+                                                (IntegerConstant 1 (Integer 4) Decimal)
                                                 ())]
                                                 (StructType
-                                                    [(Real 8)
-                                                    (Integer 4)
-                                                    (Integer 8)
-                                                    (Real 4)
-                                                    (Integer 2)
-                                                    (Integer 1)
-                                                    (Logical 4)]
+                                                    []
                                                     []
                                                     .true.
                                                     2 A
@@ -982,10 +905,10 @@
                                             ()
                                         )
                                         (Cast
-                                            (IntegerConstant 3 (Integer 4))
+                                            (IntegerConstant 3 (Integer 4) Decimal)
                                             IntegerToInteger
                                             (Integer 1)
-                                            (IntegerConstant 3 (Integer 1))
+                                            (IntegerConstant 3 (Integer 1) Decimal)
                                         )
                                         ()
                                     )]
@@ -1015,6 +938,8 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
                                                 ),
                                             s:
                                                 (Variable
@@ -1027,13 +952,7 @@
                                                     Default
                                                     (Array
                                                         (StructType
-                                                            [(Real 8)
-                                                            (Integer 4)
-                                                            (Integer 8)
-                                                            (Real 4)
-                                                            (Integer 2)
-                                                            (Integer 1)
-                                                            (Logical 4)]
+                                                            []
                                                             []
                                                             .true.
                                                             2 A
@@ -1047,6 +966,8 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
                                                 ),
                                             s0:
                                                 (Variable
@@ -1058,13 +979,7 @@
                                                     ()
                                                     Default
                                                     (StructType
-                                                        [(Real 8)
-                                                        (Integer 4)
-                                                        (Integer 8)
-                                                        (Real 4)
-                                                        (Integer 2)
-                                                        (Integer 1)
-                                                        (Logical 4)]
+                                                        []
                                                         []
                                                         .true.
                                                         2 A
@@ -1073,6 +988,8 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
+                                                    .false.
                                                     .false.
                                                 ),
                                             s1:
@@ -1085,13 +1002,7 @@
                                                     ()
                                                     Default
                                                     (StructType
-                                                        [(Real 8)
-                                                        (Integer 4)
-                                                        (Integer 8)
-                                                        (Real 4)
-                                                        (Integer 2)
-                                                        (Integer 1)
-                                                        (Logical 4)]
+                                                        []
                                                         []
                                                         .true.
                                                         2 A
@@ -1100,6 +1011,8 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
+                                                    .false.
                                                     .false.
                                                 ),
                                             x1:
@@ -1117,6 +1030,8 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
                                                 ),
                                             x2:
                                                 (Variable
@@ -1132,6 +1047,8 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
+                                                    .false.
                                                     .false.
                                                 ),
                                             y1:
@@ -1149,6 +1066,8 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
                                                 ),
                                             y2:
                                                 (Variable
@@ -1165,19 +1084,15 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
                                                 )
                                         })
                                     verify
                                     (FunctionType
                                         [(Array
                                             (StructType
-                                                [(Real 8)
-                                                (Integer 4)
-                                                (Integer 8)
-                                                (Real 4)
-                                                (Integer 2)
-                                                (Integer 1)
-                                                (Logical 4)]
+                                                []
                                                 []
                                                 .true.
                                                 2 A
@@ -1221,16 +1136,10 @@
                                         (ArrayItem
                                             (Var 227 s)
                                             [(()
-                                            (IntegerConstant 0 (Integer 4))
+                                            (IntegerConstant 0 (Integer 4) Decimal)
                                             ())]
                                             (StructType
-                                                [(Real 8)
-                                                (Integer 4)
-                                                (Integer 8)
-                                                (Real 4)
-                                                (Integer 2)
-                                                (Integer 1)
-                                                (Logical 4)]
+                                                []
                                                 []
                                                 .true.
                                                 2 A
@@ -1241,50 +1150,54 @@
                                         ()
                                     )
                                     (Print
-                                        [(StructInstanceMember
-                                            (Var 227 s0)
-                                            226 x
-                                            (Integer 4)
+                                        (StringFormat
+                                            ()
+                                            [(StructInstanceMember
+                                                (Var 227 s0)
+                                                226 x
+                                                (Integer 4)
+                                                ()
+                                            )
+                                            (StructInstanceMember
+                                                (Var 227 s0)
+                                                226 y
+                                                (Real 8)
+                                                ()
+                                            )
+                                            (StructInstanceMember
+                                                (Var 227 s0)
+                                                226 z
+                                                (Integer 8)
+                                                ()
+                                            )
+                                            (StructInstanceMember
+                                                (Var 227 s0)
+                                                226 a
+                                                (Real 4)
+                                                ()
+                                            )
+                                            (StructInstanceMember
+                                                (Var 227 s0)
+                                                226 b
+                                                (Integer 2)
+                                                ()
+                                            )
+                                            (StructInstanceMember
+                                                (Var 227 s0)
+                                                226 c
+                                                (Integer 1)
+                                                ()
+                                            )
+                                            (StructInstanceMember
+                                                (Var 227 s0)
+                                                226 d
+                                                (Logical 4)
+                                                ()
+                                            )]
+                                            FormatPythonFormat
+                                            (String -1 0 () PointerString)
                                             ()
                                         )
-                                        (StructInstanceMember
-                                            (Var 227 s0)
-                                            226 y
-                                            (Real 8)
-                                            ()
-                                        )
-                                        (StructInstanceMember
-                                            (Var 227 s0)
-                                            226 z
-                                            (Integer 8)
-                                            ()
-                                        )
-                                        (StructInstanceMember
-                                            (Var 227 s0)
-                                            226 a
-                                            (Real 4)
-                                            ()
-                                        )
-                                        (StructInstanceMember
-                                            (Var 227 s0)
-                                            226 b
-                                            (Integer 2)
-                                            ()
-                                        )
-                                        (StructInstanceMember
-                                            (Var 227 s0)
-                                            226 c
-                                            (Integer 1)
-                                            ()
-                                        )
-                                        (StructInstanceMember
-                                            (Var 227 s0)
-                                            226 d
-                                            (Logical 4)
-                                            ()
-                                        )]
-                                        ()
-                                        ()
                                     )
                                     (Assert
                                         (IntegerCompare
@@ -1445,16 +1358,10 @@
                                         (ArrayItem
                                             (Var 227 s)
                                             [(()
-                                            (IntegerConstant 1 (Integer 4))
+                                            (IntegerConstant 1 (Integer 4) Decimal)
                                             ())]
                                             (StructType
-                                                [(Real 8)
-                                                (Integer 4)
-                                                (Integer 8)
-                                                (Real 4)
-                                                (Integer 2)
-                                                (Integer 1)
-                                                (Logical 4)]
+                                                []
                                                 []
                                                 .true.
                                                 2 A
@@ -1465,50 +1372,54 @@
                                         ()
                                     )
                                     (Print
-                                        [(StructInstanceMember
-                                            (Var 227 s1)
-                                            226 x
-                                            (Integer 4)
+                                        (StringFormat
+                                            ()
+                                            [(StructInstanceMember
+                                                (Var 227 s1)
+                                                226 x
+                                                (Integer 4)
+                                                ()
+                                            )
+                                            (StructInstanceMember
+                                                (Var 227 s1)
+                                                226 y
+                                                (Real 8)
+                                                ()
+                                            )
+                                            (StructInstanceMember
+                                                (Var 227 s1)
+                                                226 z
+                                                (Integer 8)
+                                                ()
+                                            )
+                                            (StructInstanceMember
+                                                (Var 227 s1)
+                                                226 a
+                                                (Real 4)
+                                                ()
+                                            )
+                                            (StructInstanceMember
+                                                (Var 227 s1)
+                                                226 b
+                                                (Integer 2)
+                                                ()
+                                            )
+                                            (StructInstanceMember
+                                                (Var 227 s1)
+                                                226 c
+                                                (Integer 1)
+                                                ()
+                                            )
+                                            (StructInstanceMember
+                                                (Var 227 s1)
+                                                226 d
+                                                (Logical 4)
+                                                ()
+                                            )]
+                                            FormatPythonFormat
+                                            (String -1 0 () PointerString)
                                             ()
                                         )
-                                        (StructInstanceMember
-                                            (Var 227 s1)
-                                            226 y
-                                            (Real 8)
-                                            ()
-                                        )
-                                        (StructInstanceMember
-                                            (Var 227 s1)
-                                            226 z
-                                            (Integer 8)
-                                            ()
-                                        )
-                                        (StructInstanceMember
-                                            (Var 227 s1)
-                                            226 a
-                                            (Real 4)
-                                            ()
-                                        )
-                                        (StructInstanceMember
-                                            (Var 227 s1)
-                                            226 b
-                                            (Integer 2)
-                                            ()
-                                        )
-                                        (StructInstanceMember
-                                            (Var 227 s1)
-                                            226 c
-                                            (Integer 1)
-                                            ()
-                                        )
-                                        (StructInstanceMember
-                                            (Var 227 s1)
-                                            226 d
-                                            (Logical 4)
-                                            ()
-                                        )]
-                                        ()
-                                        ()
                                     )
                                     (Assert
                                         (IntegerCompare

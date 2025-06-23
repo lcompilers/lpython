@@ -25,7 +25,7 @@ double __lpython_overloaded_0__pow(int32_t x, int32_t y)
 void test_pow()
 {
     int32_t a;
-    a = (int32_t)(  4.00000000000000000e+00);
+    a = (int32_t)(__lpython_overloaded_0__pow(2, 2));
 }
 
 int32_t test_pow_1(int32_t a, int32_t b)

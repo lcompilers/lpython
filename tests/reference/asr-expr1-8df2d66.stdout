@@ -27,6 +27,8 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
                                                 ),
                                             x:
                                                 (Variable
@@ -43,6 +45,8 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
                                                 ),
                                             y:
                                                 (Variable
@@ -58,6 +62,8 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
+                                                    .false.
                                                     .false.
                                                 )
                                         })
@@ -82,7 +88,7 @@
                                         (Var 3 x)
                                         (NamedExpr
                                             (Var 3 y)
-                                            (IntegerConstant 0 (Integer 4))
+                                            (IntegerConstant 0 (Integer 4) Decimal)
                                             (Integer 4)
                                         )
                                         ()
@@ -93,16 +99,16 @@
                                             (StringOrd
                                                 (StringConstant
                                                     "3"
-                                                    (Character 1 1 ())
+                                                    (String 1 1 () PointerString)
                                                 )
                                                 (Integer 4)
-                                                (IntegerConstant 51 (Integer 4))
+                                                (IntegerConstant 51 (Integer 4) Decimal)
                                             )
                                             (Integer 4)
                                         )
                                         [(Assignment
                                             (Var 3 x)
-                                            (IntegerConstant 1 (Integer 4))
+                                            (IntegerConstant 1 (Integer 4) Decimal)
                                             ()
                                         )]
                                         []
@@ -111,12 +117,12 @@
                                         ()
                                         (NamedExpr
                                             (Var 3 a)
-                                            (IntegerConstant 1 (Integer 4))
+                                            (IntegerConstant 1 (Integer 4) Decimal)
                                             (Integer 4)
                                         )
                                         [(Assignment
                                             (Var 3 y)
-                                            (IntegerConstant 1 (Integer 4))
+                                            (IntegerConstant 1 (Integer 4) Decimal)
                                             ()
                                         )]
                                         []

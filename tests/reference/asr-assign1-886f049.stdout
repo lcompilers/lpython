@@ -21,11 +21,13 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Character 1 -2 ())
+                                                    (String 1 -2 () PointerString)
                                                     ()
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
+                                                    .false.
                                                     .false.
                                                 ),
                                             r:
@@ -43,6 +45,8 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
                                                 ),
                                             s:
                                                 (Variable
@@ -58,6 +62,8 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
+                                                    .false.
                                                     .false.
                                                 )
                                         })
@@ -80,7 +86,7 @@
                                     []
                                     [(Assignment
                                         (Var 3 r)
-                                        (IntegerConstant 0 (Integer 4))
+                                        (IntegerConstant 0 (Integer 4) Decimal)
                                         ()
                                     )
                                     (Assignment
@@ -88,7 +94,7 @@
                                         (IntegerBinOp
                                             (Var 3 r)
                                             Add
-                                            (IntegerConstant 4 (Integer 4))
+                                            (IntegerConstant 4 (Integer 4) Decimal)
                                             (Integer 4)
                                             ()
                                         )
@@ -96,7 +102,7 @@
                                     )
                                     (Assignment
                                         (Var 3 s)
-                                        (IntegerConstant 5 (Integer 4))
+                                        (IntegerConstant 5 (Integer 4) Decimal)
                                         ()
                                     )
                                     (Assignment
@@ -115,7 +121,7 @@
                                         (IntegerBinOp
                                             (Var 3 r)
                                             Sub
-                                            (IntegerConstant 2 (Integer 4))
+                                            (IntegerConstant 2 (Integer 4) Decimal)
                                             (Integer 4)
                                             ()
                                         )
@@ -123,7 +129,7 @@
                                     )
                                     (Assignment
                                         (Var 3 s)
-                                        (IntegerConstant 10 (Integer 4))
+                                        (IntegerConstant 10 (Integer 4) Decimal)
                                         ()
                                     )
                                     (Assignment
@@ -151,7 +157,7 @@
                                         (Var 3 a)
                                         (StringConstant
                                             ""
-                                            (Character 1 0 ())
+                                            (String 1 0 () PointerString)
                                         )
                                         ()
                                     )
@@ -161,9 +167,9 @@
                                             (Var 3 a)
                                             (StringConstant
                                                 "test"
-                                                (Character 1 4 ())
+                                                (String 1 4 () PointerString)
                                             )
-                                            (Character 1 2 ())
+                                            (String 1 2 () PointerString)
                                             ()
                                         )
                                         ()

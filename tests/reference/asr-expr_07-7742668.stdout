@@ -70,6 +70,8 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
                                                 )
                                         })
                                     bool_to_str
@@ -98,33 +100,37 @@
                                         ()
                                     )
                                     (Print
-                                        [(Cast
-                                            (LogicalConstant
-                                                .true.
-                                                (Logical 4)
-                                            )
-                                            LogicalToCharacter
-                                            (Character 1 -2 ())
-                                            (StringConstant
-                                                "True"
-                                                (Character 1 4 ())
-                                            )
-                                        )]
-                                        ()
-                                        ()
+                                        (StringFormat
+                                            ()
+                                            [(Cast
+                                                (LogicalConstant
+                                                    .true.
+                                                    (Logical 4)
+                                                )
+                                                LogicalToString
+                                                (String 1 -2 () PointerString)
+                                                (StringConstant
+                                                    "True"
+                                                    (String 1 4 () PointerString)
+                                                )
+                                            )]
+                                            FormatPythonFormat
+                                            (String -1 0 () PointerString)
+                                            ()
+                                        )
                                     )
                                     (Assert
                                         (StringCompare
                                             (Cast
                                                 (Var 5 var)
-                                                LogicalToCharacter
-                                                (Character 1 -2 ())
+                                                LogicalToString
+                                                (String 1 -2 () PointerString)
                                                 ()
                                             )
                                             Eq
                                             (StringConstant
                                                 "True"
-                                                (Character 1 4 ())
+                                                (String 1 4 () PointerString)
                                             )
                                             (Logical 4)
                                             ()
@@ -143,14 +149,14 @@
                                         (StringCompare
                                             (Cast
                                                 (Var 5 var)
-                                                LogicalToCharacter
-                                                (Character 1 -2 ())
+                                                LogicalToString
+                                                (String 1 -2 () PointerString)
                                                 ()
                                             )
                                             Eq
                                             (StringConstant
                                                 "False"
-                                                (Character 1 5 ())
+                                                (String 1 5 () PointerString)
                                             )
                                             (Logical 4)
                                             ()
@@ -164,17 +170,17 @@
                                                     .true.
                                                     (Logical 4)
                                                 )
-                                                LogicalToCharacter
-                                                (Character 1 -2 ())
+                                                LogicalToString
+                                                (String 1 -2 () PointerString)
                                                 (StringConstant
                                                     "True"
-                                                    (Character 1 4 ())
+                                                    (String 1 4 () PointerString)
                                                 )
                                             )
                                             Eq
                                             (StringConstant
                                                 "True"
-                                                (Character 1 4 ())
+                                                (String 1 4 () PointerString)
                                             )
                                             (Logical 4)
                                             (LogicalConstant
@@ -210,6 +216,8 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
                                                 ),
                                             b:
                                                 (Variable
@@ -226,6 +234,8 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
                                                 ),
                                             x:
                                                 (Variable
@@ -241,6 +251,8 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
+                                                    .false.
                                                     .false.
                                                 )
                                         })
@@ -263,17 +275,17 @@
                                     []
                                     [(Assignment
                                         (Var 4 a)
-                                        (IntegerConstant 5 (Integer 4))
+                                        (IntegerConstant 5 (Integer 4) Decimal)
                                         ()
                                     )
                                     (Assignment
                                         (Var 4 x)
-                                        (IntegerConstant 3 (Integer 4))
+                                        (IntegerConstant 3 (Integer 4) Decimal)
                                         ()
                                     )
                                     (Assignment
                                         (Var 4 x)
-                                        (IntegerConstant 5 (Integer 4))
+                                        (IntegerConstant 5 (Integer 4) Decimal)
                                         ()
                                     )
                                     (Assignment
@@ -281,23 +293,27 @@
                                         (IntegerBinOp
                                             (Var 4 x)
                                             Add
-                                            (IntegerConstant 1 (Integer 4))
+                                            (IntegerConstant 1 (Integer 4) Decimal)
                                             (Integer 4)
                                             ()
                                         )
                                         ()
                                     )
                                     (Print
-                                        [(Var 4 a)
-                                        (Var 4 b)]
-                                        ()
-                                        ()
+                                        (StringFormat
+                                            ()
+                                            [(Var 4 a)
+                                            (Var 4 b)]
+                                            FormatPythonFormat
+                                            (String -1 0 () PointerString)
+                                            ()
+                                        )
                                     )
                                     (Assert
                                         (IntegerCompare
                                             (Var 4 b)
                                             Eq
-                                            (IntegerConstant 6 (Integer 4))
+                                            (IntegerConstant 6 (Integer 4) Decimal)
                                             (Logical 4)
                                             ()
                                         )
@@ -315,7 +331,7 @@
                                                 ()
                                             )
                                             Add
-                                            (IntegerConstant 3 (Integer 4))
+                                            (IntegerConstant 3 (Integer 4) Decimal)
                                             (Integer 4)
                                             ()
                                         ))]
@@ -347,6 +363,8 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
                                                 )
                                         })
                                     g
@@ -367,9 +385,13 @@
                                     []
                                     [(Var 3 x)]
                                     [(Print
-                                        [(Var 3 x)]
-                                        ()
-                                        ()
+                                        (StringFormat
+                                            ()
+                                            [(Var 3 x)]
+                                            FormatPythonFormat
+                                            (String -1 0 () PointerString)
+                                            ()
+                                        )
                                     )]
                                     ()
                                     Public
@@ -383,14 +405,16 @@
                                     x
                                     []
                                     Local
-                                    (IntegerConstant 7 (Integer 4))
-                                    (IntegerConstant 7 (Integer 4))
+                                    (IntegerConstant 7 (Integer 4) Decimal)
+                                    (IntegerConstant 7 (Integer 4) Decimal)
                                     Default
                                     (Integer 4)
                                     ()
                                     Source
                                     Public
                                     Required
+                                    .false.
+                                    .false.
                                     .false.
                                 )
                         })

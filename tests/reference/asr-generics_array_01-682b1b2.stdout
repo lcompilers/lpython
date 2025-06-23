@@ -24,6 +24,8 @@
                                     Public
                                     Required
                                     .false.
+                                    .false.
+                                    .false.
                                 ),
                             __asr_generic_f_0:
                                 (Function
@@ -45,6 +47,8 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
                                                 ),
                                             i:
                                                 (Variable
@@ -60,6 +64,8 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
+                                                    .false.
                                                     .false.
                                                 ),
                                             lst:
@@ -81,6 +87,8 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
+                                                    .false.
                                                     .false.
                                                 )
                                         })
@@ -112,7 +120,7 @@
                                         (ArrayItem
                                             (Var 228 lst)
                                             [(()
-                                            (IntegerConstant 0 (Integer 4))
+                                            (IntegerConstant 0 (Integer 4) Decimal)
                                             ())]
                                             (Integer 4)
                                             RowMajor
@@ -126,7 +134,7 @@
                                         (ArrayItem
                                             (Var 228 lst)
                                             [(()
-                                            (IntegerConstant 0 (Integer 4))
+                                            (IntegerConstant 0 (Integer 4) Decimal)
                                             ())]
                                             (Integer 4)
                                             RowMajor
@@ -199,6 +207,8 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
                                                 ),
                                             i:
                                                 (Variable
@@ -216,6 +226,8 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
+                                                    .false.
                                                     .false.
                                                 ),
                                             lst:
@@ -239,6 +251,8 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
+                                                    .false.
                                                     .false.
                                                 )
                                         })
@@ -276,7 +290,7 @@
                                         (ArrayItem
                                             (Var 226 lst)
                                             [(()
-                                            (IntegerConstant 0 (Integer 4))
+                                            (IntegerConstant 0 (Integer 4) Decimal)
                                             ())]
                                             (TypeParameter
                                                 T
@@ -292,7 +306,7 @@
                                         (ArrayItem
                                             (Var 226 lst)
                                             [(()
-                                            (IntegerConstant 0 (Integer 4))
+                                            (IntegerConstant 0 (Integer 4) Decimal)
                                             ())]
                                             (TypeParameter
                                                 T
@@ -325,14 +339,16 @@
                                                     Default
                                                     (Array
                                                         (Integer 4)
-                                                        [((IntegerConstant 0 (Integer 4))
-                                                        (IntegerConstant 1 (Integer 4)))]
+                                                        [((IntegerConstant 0 (Integer 4) Decimal)
+                                                        (IntegerConstant 1 (Integer 4) Decimal))]
                                                         FixedSizeArray
                                                     )
                                                     ()
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
+                                                    .false.
                                                     .false.
                                                 ),
                                             x:
@@ -349,6 +365,8 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
+                                                    .false.
                                                     .false.
                                                 )
                                         })
@@ -371,47 +389,69 @@
                                     []
                                     [(Assignment
                                         (Var 227 array)
-                                        (ArrayConstructor
-                                            []
+                                        (ArrayBroadcast
+                                            (ArrayItem
+                                                (Var 227 array)
+                                                [(()
+                                                (IntegerConstant 0 (Integer 4) Decimal)
+                                                ())]
+                                                (Integer 4)
+                                                RowMajor
+                                                ()
+                                            )
+                                            (ArrayConstant
+                                                4
+                                                [1]
+                                                (Array
+                                                    (Integer 4)
+                                                    [((IntegerConstant 1 (Integer 4) Decimal)
+                                                    (IntegerConstant 1 (Integer 4) Decimal))]
+                                                    FixedSizeArray
+                                                )
+                                                ColMajor
+                                            )
                                             (Array
                                                 (Integer 4)
-                                                [((IntegerConstant 0 (Integer 4))
-                                                (IntegerConstant 1 (Integer 4)))]
+                                                [((IntegerConstant 0 (Integer 4) Decimal)
+                                                (IntegerConstant 1 (Integer 4) Decimal))]
                                                 FixedSizeArray
                                             )
                                             ()
-                                            RowMajor
                                         )
                                         ()
                                     )
                                     (Assignment
                                         (Var 227 x)
-                                        (IntegerConstant 69 (Integer 4))
+                                        (IntegerConstant 69 (Integer 4) Decimal)
                                         ()
                                     )
                                     (Print
-                                        [(FunctionCall
-                                            2 __asr_generic_f_0
+                                        (StringFormat
                                             ()
-                                            [((ArrayPhysicalCast
-                                                (Var 227 array)
-                                                FixedSizeArray
-                                                DescriptorArray
-                                                (Array
-                                                    (Integer 4)
-                                                    [((IntegerConstant 0 (Integer 4))
-                                                    (IntegerConstant 1 (Integer 4)))]
-                                                    DescriptorArray
-                                                )
+                                            [(FunctionCall
+                                                2 __asr_generic_f_0
                                                 ()
-                                            ))
-                                            ((Var 227 x))]
-                                            (Integer 4)
+                                                [((ArrayPhysicalCast
+                                                    (Var 227 array)
+                                                    FixedSizeArray
+                                                    DescriptorArray
+                                                    (Array
+                                                        (Integer 4)
+                                                        [((IntegerConstant 0 (Integer 4) Decimal)
+                                                        (IntegerConstant 1 (Integer 4) Decimal))]
+                                                        DescriptorArray
+                                                    )
+                                                    ()
+                                                ))
+                                                ((Var 227 x))]
+                                                (Integer 4)
+                                                ()
+                                                ()
+                                            )]
+                                            FormatPythonFormat
+                                            (String -1 0 () PointerString)
                                             ()
-                                            ()
-                                        )]
-                                        ()
-                                        ()
+                                        )
                                     )]
                                     ()
                                     Public

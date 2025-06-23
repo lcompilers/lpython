@@ -13,7 +13,7 @@
                                         3
                                         {
                                             B:
-                                                (UnionType
+                                                (Union
                                                     (SymbolTable
                                                         4
                                                         {
@@ -32,6 +32,8 @@
                                                                     Public
                                                                     Required
                                                                     .false.
+                                                                    .false.
+                                                                    .false.
                                                                 ),
                                                             y:
                                                                 (Variable
@@ -47,6 +49,8 @@
                                                                     Source
                                                                     Public
                                                                     Required
+                                                                    .false.
+                                                                    .false.
                                                                     .false.
                                                                 )
                                                         })
@@ -69,13 +73,15 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Union
+                                                    (UnionType
                                                         3 B
                                                     )
                                                     ()
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
+                                                    .false.
                                                     .false.
                                                 ),
                                             c:
@@ -92,6 +98,8 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
+                                                    .false.
                                                     .false.
                                                 )
                                         })
@@ -170,10 +178,7 @@
                                                     ()
                                                     Default
                                                     (StructType
-                                                        [(Union
-                                                            3 B
-                                                        )
-                                                        (Integer 4)]
+                                                        []
                                                         []
                                                         .true.
                                                         2 A
@@ -182,6 +187,8 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
+                                                    .false.
                                                     .false.
                                                 ),
                                             bd:
@@ -193,13 +200,15 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Union
+                                                    (UnionType
                                                         5 A_B
                                                     )
                                                     ()
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
+                                                    .false.
                                                     .false.
                                                 )
                                         })
@@ -222,10 +231,10 @@
                                     []
                                     [(Assignment
                                         (Var 5 bd)
-                                        (UnionTypeConstructor
+                                        (UnionConstructor
                                             5 A_B
                                             []
-                                            (Union
+                                            (UnionType
                                                 5 A_B
                                             )
                                             ()
@@ -239,7 +248,7 @@
                                             (Integer 4)
                                             ()
                                         )
-                                        (IntegerConstant 1 (Integer 4))
+                                        (IntegerConstant 1 (Integer 4) Decimal)
                                         ()
                                     )
                                     (Assignment
@@ -247,12 +256,9 @@
                                         (StructConstructor
                                             2 A
                                             [((Var 5 bd))
-                                            ((IntegerConstant 2 (Integer 4)))]
+                                            ((IntegerConstant 2 (Integer 4) Decimal))]
                                             (StructType
-                                                [(Union
-                                                    3 B
-                                                )
-                                                (Integer 4)]
+                                                []
                                                 []
                                                 .true.
                                                 2 A
@@ -267,7 +273,7 @@
                                                 (StructInstanceMember
                                                     (Var 5 ad)
                                                     3 b
-                                                    (Union
+                                                    (UnionType
                                                         3 B
                                                     )
                                                     ()
@@ -277,7 +283,7 @@
                                                 ()
                                             )
                                             Eq
-                                            (IntegerConstant 1 (Integer 4))
+                                            (IntegerConstant 1 (Integer 4) Decimal)
                                             (Logical 4)
                                             ()
                                         )
@@ -292,7 +298,7 @@
                                                 ()
                                             )
                                             Eq
-                                            (IntegerConstant 2 (Integer 4))
+                                            (IntegerConstant 2 (Integer 4) Decimal)
                                             (Logical 4)
                                             ()
                                         )

@@ -27,6 +27,8 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
                                                 ),
                                             b2:
                                                 (Variable
@@ -42,6 +44,8 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
+                                                    .false.
                                                     .false.
                                                 ),
                                             x:
@@ -59,6 +63,8 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
                                                 ),
                                             x2:
                                                 (Variable
@@ -74,6 +80,8 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
+                                                    .false.
                                                     .false.
                                                 )
                                         })
@@ -97,11 +105,11 @@
                                     [(Assignment
                                         (Var 3 x)
                                         (IntegerBinOp
-                                            (IntegerConstant 2 (Integer 4))
+                                            (IntegerConstant 2 (Integer 4) Decimal)
                                             Pow
-                                            (IntegerConstant 3 (Integer 4))
+                                            (IntegerConstant 3 (Integer 4) Decimal)
                                             (Integer 4)
-                                            (IntegerConstant 8 (Integer 4))
+                                            (IntegerConstant 8 (Integer 4) Decimal)
                                         )
                                         ()
                                     )
@@ -136,11 +144,11 @@
                                     (Assignment
                                         (Var 3 x)
                                         (IntegerBinOp
-                                            (IntegerConstant 54 (Integer 4))
+                                            (IntegerConstant 54 (Integer 4) Decimal)
                                             Sub
-                                            (IntegerConstant 100 (Integer 4))
+                                            (IntegerConstant 100 (Integer 4) Decimal)
                                             (Integer 4)
-                                            (IntegerConstant -46 (Integer 4))
+                                            (IntegerConstant -46 (Integer 4) Decimal)
                                         )
                                         ()
                                     )

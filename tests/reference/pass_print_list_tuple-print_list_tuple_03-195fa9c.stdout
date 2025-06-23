@@ -63,23 +63,7 @@
                                                     Public
                                                     Required
                                                     .false.
-                                                ),
-                                            __list_var:
-                                                (Variable
-                                                    3
-                                                    __list_var
-                                                    []
-                                                    Local
-                                                    ()
-                                                    ()
-                                                    Default
-                                                    (List
-                                                        (Integer 4)
-                                                    )
-                                                    ()
-                                                    Source
-                                                    Public
-                                                    Required
+                                                    .false.
                                                     .false.
                                                 ),
                                             x:
@@ -103,6 +87,8 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
                                                 ),
                                             y:
                                                 (Variable
@@ -123,6 +109,8 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
+                                                    .false.
                                                     .false.
                                                 )
                                         })
@@ -161,19 +149,19 @@
                                     (Assignment
                                         (Var 3 x)
                                         (DictConstant
-                                            [(IntegerConstant 1 (Integer 4))
-                                            (IntegerConstant 2 (Integer 4))]
+                                            [(IntegerConstant 1 (Integer 4) Decimal)
+                                            (IntegerConstant 2 (Integer 4) Decimal)]
                                             [(TupleConstant
-                                                [(IntegerConstant 1 (Integer 4))
-                                                (IntegerConstant 2 (Integer 4))]
+                                                [(IntegerConstant 1 (Integer 4) Decimal)
+                                                (IntegerConstant 2 (Integer 4) Decimal)]
                                                 (Tuple
                                                     [(Integer 4)
                                                     (Integer 4)]
                                                 )
                                             )
                                             (TupleConstant
-                                                [(IntegerConstant 3 (Integer 4))
-                                                (IntegerConstant 4 (Integer 4))]
+                                                [(IntegerConstant 3 (Integer 4) Decimal)
+                                                (IntegerConstant 4 (Integer 4) Decimal)]
                                                 (Tuple
                                                     [(Integer 4)
                                                     (Integer 4)]
@@ -206,18 +194,18 @@
                                     (Assignment
                                         (Var 3 y)
                                         (DictConstant
-                                            [(IntegerConstant 1 (Integer 4))
-                                            (IntegerConstant 2 (Integer 4))]
+                                            [(IntegerConstant 1 (Integer 4) Decimal)
+                                            (IntegerConstant 2 (Integer 4) Decimal)]
                                             [(ListConstant
-                                                [(IntegerConstant 1 (Integer 4))
-                                                (IntegerConstant 2 (Integer 4))]
+                                                [(IntegerConstant 1 (Integer 4) Decimal)
+                                                (IntegerConstant 2 (Integer 4) Decimal)]
                                                 (List
                                                     (Integer 4)
                                                 )
                                             )
                                             (ListConstant
-                                                [(IntegerConstant 3 (Integer 4))
-                                                (IntegerConstant 4 (Integer 4))]
+                                                [(IntegerConstant 3 (Integer 4) Decimal)
+                                                (IntegerConstant 4 (Integer 4) Decimal)]
                                                 (List
                                                     (Integer 4)
                                                 )
@@ -232,231 +220,183 @@
                                         ()
                                     )
                                     (Print
-                                        [(StringConstant
+                                        (StringConstant
                                             "("
-                                            (Character 1 1 ())
-                                        )]
-                                        ()
-                                        (StringConstant
-                                            ""
-                                            (Character 1 0 ())
+                                            (String 1 1 () PointerString)
                                         )
                                     )
                                     (Print
-                                        [(TupleItem
-                                            (DictItem
-                                                (Var 3 x)
-                                                (IntegerConstant 1 (Integer 4))
-                                                ()
-                                                (Tuple
-                                                    [(Integer 4)
-                                                    (Integer 4)]
+                                        (StringFormat
+                                            ()
+                                            [(TupleItem
+                                                (DictItem
+                                                    (Var 3 x)
+                                                    (IntegerConstant 1 (Integer 4) Decimal)
+                                                    ()
+                                                    (Tuple
+                                                        [(Integer 4)
+                                                        (Integer 4)]
+                                                    )
+                                                    ()
                                                 )
-                                                ()
-                                            )
-                                            (IntegerConstant 0 (Integer 4))
-                                            (Integer 4)
-                                            ()
-                                        )]
-                                        (StringConstant
-                                            ""
-                                            (Character 1 0 ())
-                                        )
-                                        (StringConstant
-                                            ""
-                                            (Character 1 0 ())
-                                        )
-                                    )
-                                    (Print
-                                        [(StringConstant
-                                            ", "
-                                            (Character 1 2 ())
-                                        )]
-                                        (StringConstant
-                                            ""
-                                            (Character 1 0 ())
-                                        )
-                                        (StringConstant
-                                            ""
-                                            (Character 1 0 ())
-                                        )
-                                    )
-                                    (Print
-                                        [(TupleItem
-                                            (DictItem
-                                                (Var 3 x)
-                                                (IntegerConstant 1 (Integer 4))
-                                                ()
-                                                (Tuple
-                                                    [(Integer 4)
-                                                    (Integer 4)]
-                                                )
-                                                ()
-                                            )
-                                            (IntegerConstant 1 (Integer 4))
-                                            (Integer 4)
-                                            ()
-                                        )]
-                                        (StringConstant
-                                            ""
-                                            (Character 1 0 ())
-                                        )
-                                        (StringConstant
-                                            ""
-                                            (Character 1 0 ())
-                                        )
-                                    )
-                                    (Print
-                                        [(StringConstant
-                                            ")"
-                                            (Character 1 1 ())
-                                        )]
-                                        ()
-                                        (StringConstant
-                                            " "
-                                            (Character 1 1 ())
-                                        )
-                                    )
-                                    (Print
-                                        [(StringConstant
-                                            "("
-                                            (Character 1 1 ())
-                                        )]
-                                        ()
-                                        (StringConstant
-                                            ""
-                                            (Character 1 0 ())
-                                        )
-                                    )
-                                    (Print
-                                        [(TupleItem
-                                            (DictItem
-                                                (Var 3 x)
-                                                (IntegerConstant 2 (Integer 4))
-                                                ()
-                                                (Tuple
-                                                    [(Integer 4)
-                                                    (Integer 4)]
-                                                )
-                                                ()
-                                            )
-                                            (IntegerConstant 0 (Integer 4))
-                                            (Integer 4)
-                                            ()
-                                        )]
-                                        (StringConstant
-                                            ""
-                                            (Character 1 0 ())
-                                        )
-                                        (StringConstant
-                                            ""
-                                            (Character 1 0 ())
-                                        )
-                                    )
-                                    (Print
-                                        [(StringConstant
-                                            ", "
-                                            (Character 1 2 ())
-                                        )]
-                                        (StringConstant
-                                            ""
-                                            (Character 1 0 ())
-                                        )
-                                        (StringConstant
-                                            ""
-                                            (Character 1 0 ())
-                                        )
-                                    )
-                                    (Print
-                                        [(TupleItem
-                                            (DictItem
-                                                (Var 3 x)
-                                                (IntegerConstant 2 (Integer 4))
-                                                ()
-                                                (Tuple
-                                                    [(Integer 4)
-                                                    (Integer 4)]
-                                                )
-                                                ()
-                                            )
-                                            (IntegerConstant 1 (Integer 4))
-                                            (Integer 4)
-                                            ()
-                                        )]
-                                        (StringConstant
-                                            ""
-                                            (Character 1 0 ())
-                                        )
-                                        (StringConstant
-                                            ""
-                                            (Character 1 0 ())
-                                        )
-                                    )
-                                    (Print
-                                        [(StringConstant
-                                            ")"
-                                            (Character 1 1 ())
-                                        )]
-                                        ()
-                                        (StringConstant
-                                            " "
-                                            (Character 1 1 ())
-                                        )
-                                    )
-                                    (Assignment
-                                        (Var 3 __list_var)
-                                        (DictItem
-                                            (Var 3 y)
-                                            (IntegerConstant 1 (Integer 4))
-                                            ()
-                                            (List
+                                                (IntegerConstant 0 (Integer 4) Decimal)
                                                 (Integer 4)
-                                            )
+                                                ()
+                                            )]
+                                            FormatFortran
+                                            (String -1 0 () PointerString)
                                             ()
                                         )
-                                        ()
                                     )
                                     (Print
-                                        [(StringConstant
-                                            "["
-                                            (Character 1 1 ())
-                                        )]
-                                        ()
                                         (StringConstant
-                                            ""
-                                            (Character 1 0 ())
+                                            ", "
+                                            (String 1 2 () PointerString)
+                                        )
+                                    )
+                                    (Print
+                                        (StringFormat
+                                            ()
+                                            [(TupleItem
+                                                (DictItem
+                                                    (Var 3 x)
+                                                    (IntegerConstant 1 (Integer 4) Decimal)
+                                                    ()
+                                                    (Tuple
+                                                        [(Integer 4)
+                                                        (Integer 4)]
+                                                    )
+                                                    ()
+                                                )
+                                                (IntegerConstant 1 (Integer 4) Decimal)
+                                                (Integer 4)
+                                                ()
+                                            )]
+                                            FormatFortran
+                                            (String -1 0 () PointerString)
+                                            ()
+                                        )
+                                    )
+                                    (Print
+                                        (StringConstant
+                                            ")"
+                                            (String 1 1 () PointerString)
+                                        )
+                                    )
+                                    (Print
+                                        (StringConstant
+                                            "("
+                                            (String 1 1 () PointerString)
+                                        )
+                                    )
+                                    (Print
+                                        (StringFormat
+                                            ()
+                                            [(TupleItem
+                                                (DictItem
+                                                    (Var 3 x)
+                                                    (IntegerConstant 2 (Integer 4) Decimal)
+                                                    ()
+                                                    (Tuple
+                                                        [(Integer 4)
+                                                        (Integer 4)]
+                                                    )
+                                                    ()
+                                                )
+                                                (IntegerConstant 0 (Integer 4) Decimal)
+                                                (Integer 4)
+                                                ()
+                                            )]
+                                            FormatFortran
+                                            (String -1 0 () PointerString)
+                                            ()
+                                        )
+                                    )
+                                    (Print
+                                        (StringConstant
+                                            ", "
+                                            (String 1 2 () PointerString)
+                                        )
+                                    )
+                                    (Print
+                                        (StringFormat
+                                            ()
+                                            [(TupleItem
+                                                (DictItem
+                                                    (Var 3 x)
+                                                    (IntegerConstant 2 (Integer 4) Decimal)
+                                                    ()
+                                                    (Tuple
+                                                        [(Integer 4)
+                                                        (Integer 4)]
+                                                    )
+                                                    ()
+                                                )
+                                                (IntegerConstant 1 (Integer 4) Decimal)
+                                                (Integer 4)
+                                                ()
+                                            )]
+                                            FormatFortran
+                                            (String -1 0 () PointerString)
+                                            ()
+                                        )
+                                    )
+                                    (Print
+                                        (StringConstant
+                                            ")"
+                                            (String 1 1 () PointerString)
+                                        )
+                                    )
+                                    (Print
+                                        (StringConstant
+                                            "["
+                                            (String 1 1 () PointerString)
                                         )
                                     )
                                     (DoLoop
                                         ()
                                         ((Var 3 __list_iterator)
-                                        (IntegerConstant 0 (Integer 4))
+                                        (IntegerConstant 0 (Integer 4) Decimal)
                                         (IntegerBinOp
                                             (ListLen
-                                                (Var 3 __list_var)
+                                                (DictItem
+                                                    (Var 3 y)
+                                                    (IntegerConstant 1 (Integer 4) Decimal)
+                                                    ()
+                                                    (List
+                                                        (Integer 4)
+                                                    )
+                                                    ()
+                                                )
                                                 (Integer 4)
                                                 ()
                                             )
                                             Sub
-                                            (IntegerConstant 1 (Integer 4))
+                                            (IntegerConstant 1 (Integer 4) Decimal)
                                             (Integer 4)
                                             ()
                                         )
-                                        (IntegerConstant 1 (Integer 4)))
+                                        (IntegerConstant 1 (Integer 4) Decimal))
                                         [(Print
-                                            [(ListItem
-                                                (Var 3 __list_var)
-                                                (Var 3 __list_iterator)
-                                                (Integer 4)
+                                            (StringFormat
                                                 ()
-                                            )]
-                                            (StringConstant
-                                                ""
-                                                (Character 1 0 ())
-                                            )
-                                            (StringConstant
-                                                ""
-                                                (Character 1 0 ())
+                                                [(ListItem
+                                                    (DictItem
+                                                        (Var 3 y)
+                                                        (IntegerConstant 1 (Integer 4) Decimal)
+                                                        ()
+                                                        (List
+                                                            (Integer 4)
+                                                        )
+                                                        ()
+                                                    )
+                                                    (Var 3 __list_iterator)
+                                                    (Integer 4)
+                                                    ()
+                                                )]
+                                                FormatFortran
+                                                (String -1 0 () PointerString)
+                                                ()
                                             )
                                         )
                                         (If
@@ -465,12 +405,20 @@
                                                 Lt
                                                 (IntegerBinOp
                                                     (ListLen
-                                                        (Var 3 __list_var)
+                                                        (DictItem
+                                                            (Var 3 y)
+                                                            (IntegerConstant 1 (Integer 4) Decimal)
+                                                            ()
+                                                            (List
+                                                                (Integer 4)
+                                                            )
+                                                            ()
+                                                        )
                                                         (Integer 4)
                                                         ()
                                                     )
                                                     Sub
-                                                    (IntegerConstant 1 (Integer 4))
+                                                    (IntegerConstant 1 (Integer 4) Decimal)
                                                     (Integer 4)
                                                     ()
                                                 )
@@ -478,17 +426,9 @@
                                                 ()
                                             )
                                             [(Print
-                                                [(StringConstant
+                                                (StringConstant
                                                     ", "
-                                                    (Character 1 2 ())
-                                                )]
-                                                (StringConstant
-                                                    ""
-                                                    (Character 1 0 ())
-                                                )
-                                                (StringConstant
-                                                    ""
-                                                    (Character 1 0 ())
+                                                    (String 1 2 () PointerString)
                                                 )
                                             )]
                                             []
@@ -496,12 +436,10 @@
                                         []
                                     )
                                     (Print
-                                        [(StringConstant
+                                        (StringConstant
                                             "]"
-                                            (Character 1 1 ())
-                                        )]
-                                        ()
-                                        ()
+                                            (String 1 1 () PointerString)
+                                        )
                                     )]
                                     ()
                                     Public

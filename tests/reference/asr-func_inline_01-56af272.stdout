@@ -63,6 +63,8 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
                                                 ),
                                             n:
                                                 (Variable
@@ -78,6 +80,8 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
+                                                    .false.
                                                     .false.
                                                 )
                                         })
@@ -103,10 +107,10 @@
                                             (Var 3 n)
                                             Lt
                                             (Cast
-                                                (IntegerConstant 2 (Integer 4))
+                                                (IntegerConstant 2 (Integer 4) Decimal)
                                                 IntegerToInteger
                                                 (Integer 8)
-                                                (IntegerConstant 2 (Integer 8))
+                                                (IntegerConstant 2 (Integer 8) Decimal)
                                             )
                                             (Logical 4)
                                             ()
@@ -129,10 +133,10 @@
                                                     (Var 3 n)
                                                     Sub
                                                     (Cast
-                                                        (IntegerConstant 1 (Integer 4))
+                                                        (IntegerConstant 1 (Integer 4) Decimal)
                                                         IntegerToInteger
                                                         (Integer 8)
-                                                        (IntegerConstant 1 (Integer 8))
+                                                        (IntegerConstant 1 (Integer 8) Decimal)
                                                     )
                                                     (Integer 8)
                                                     ()
@@ -149,10 +153,10 @@
                                                     (Var 3 n)
                                                     Sub
                                                     (Cast
-                                                        (IntegerConstant 2 (Integer 4))
+                                                        (IntegerConstant 2 (Integer 4) Decimal)
                                                         IntegerToInteger
                                                         (Integer 8)
-                                                        (IntegerConstant 2 (Integer 8))
+                                                        (IntegerConstant 2 (Integer 8) Decimal)
                                                     )
                                                     (Integer 8)
                                                     ()
@@ -193,6 +197,8 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
                                                 ),
                                             x:
                                                 (Variable
@@ -208,6 +214,8 @@
                                                     Source
                                                     Public
                                                     Required
+                                                    .false.
+                                                    .false.
                                                     .false.
                                                 )
                                         })
@@ -231,10 +239,10 @@
                                     [(Assignment
                                         (Var 4 x)
                                         (Cast
-                                            (IntegerConstant 40 (Integer 4))
+                                            (IntegerConstant 40 (Integer 4) Decimal)
                                             IntegerToInteger
                                             (Integer 8)
-                                            (IntegerConstant 40 (Integer 8))
+                                            (IntegerConstant 40 (Integer 8) Decimal)
                                         )
                                         ()
                                     )
@@ -251,19 +259,23 @@
                                         ()
                                     )
                                     (Print
-                                        [(Var 4 ans)]
-                                        ()
-                                        ()
+                                        (StringFormat
+                                            ()
+                                            [(Var 4 ans)]
+                                            FormatPythonFormat
+                                            (String -1 0 () PointerString)
+                                            ()
+                                        )
                                     )
                                     (Assert
                                         (IntegerCompare
                                             (Var 4 ans)
                                             Eq
                                             (Cast
-                                                (IntegerConstant 102334155 (Integer 4))
+                                                (IntegerConstant 102334155 (Integer 4) Decimal)
                                                 IntegerToInteger
                                                 (Integer 8)
-                                                (IntegerConstant 102334155 (Integer 8))
+                                                (IntegerConstant 102334155 (Integer 8) Decimal)
                                             )
                                             (Logical 4)
                                             ()
