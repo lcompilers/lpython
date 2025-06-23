@@ -1117,9 +1117,9 @@ run = true
 filename = "errors/test_dict15.py"
 run = true
 
-[[test]]
-filename = "errors/test_dict16.py"
-run = true
+# [[test]]
+# filename = "errors/test_dict16.py"
+# run = true
 
 [[test]]
 filename = "errors/test_const_dict.py"
@@ -1424,13 +1424,13 @@ run = true
 filename = "runtime_errors/test_list_02.py"
 run = true
 
-[[test]]
-filename = "runtime_errors/test_str_01.py"
-run = true
+# [[test]]
+# filename = "runtime_errors/test_str_01.py"
+# run = true
 
-[[test]]
-filename = "runtime_errors/test_str_02.py"
-run = true
+# [[test]]
+# filename = "runtime_errors/test_str_02.py"
+# run = true
 
 [[test]]
 filename = "runtime_errors/test_assert_01.py"

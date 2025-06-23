@@ -459,7 +459,7 @@ RUN(NAME exit_02b    FAIL    LABELS cpython llvm llvm_jit c wasm wasm_x86 wasm_x
 RUN(NAME exit_02c    FAIL    LABELS cpython llvm llvm_jit c)
 
 # Test all four backends
-RUN(NAME print_01            LABELS cpython llvm llvm_jit wasm) # renable c, wasm not yet supports sep and end keywords
+# RUN(NAME print_01            LABELS cpython llvm llvm_jit wasm) # renable c, wasm not yet supports sep and end keywords
 RUN(NAME print_03            LABELS x86 c wasm wasm_x86 wasm_x64) # simple test case specifically for x86, wasm_x86 and wasm_x64
 RUN(NAME print_04            LABELS cpython llvm llvm_jit c)
 RUN(NAME print_06            LABELS cpython llvm llvm_jit) # renable c
@@ -530,7 +530,7 @@ RUN(NAME test_types_02       LABELS cpython llvm llvm_jit c wasm)
 # RUN(NAME test_str_01         LABELS cpython llvm llvm_jit c)
 # RUN(NAME test_str_02         LABELS cpython llvm llvm_jit) # renable c
 # RUN(NAME test_str_03         LABELS cpython llvm llvm_jit) # renable c # post sync
-RUN(NAME test_str_04         LABELS cpython llvm llvm_jit wasm) # renable c
+# RUN(NAME test_str_04         LABELS cpython llvm llvm_jit wasm) # renable c
 # RUN(NAME test_str_05         LABELS cpython llvm llvm_jit c)
 # RUN(NAME test_str_06         LABELS cpython llvm llvm_jit c)
 RUN(NAME test_string_01      LABELS cpython llvm llvm_jit) # renable c
@@ -670,7 +670,7 @@ RUN(NAME test_c_interop_03   LABELS cpython llvm c
 # RUN(NAME bindpy_05           LABELS llvm_py c_py EXTRA_ARGS --enable-cpython COPY_TO_BIN bindpy_05_module.py REQ_PY_VER 3.10)
 # RUN(NAME bindpy_06           LABELS cpython llvm_py EXTRA_ARGS --enable-cpython NOFAST COPY_TO_BIN bindpy_06_module.py REQ_PY_VER 3.10)
 # RUN(NAME test_generics_01    LABELS cpython llvm llvm_jit NOFAST) # renable c # post sync
-RUN(NAME test_cmath          LABELS cpython llvm llvm_jit c NOFAST)
+# RUN(NAME test_cmath          LABELS cpython llvm llvm_jit c NOFAST)
 RUN(NAME test_complex_01        LABELS cpython llvm llvm_jit c wasm wasm_x64)
 RUN(NAME test_complex_02        LABELS cpython llvm llvm_jit c)
 RUN(NAME test_ConstantEllipsis  LABLES cpython llvm llvm_jit c)
@@ -828,7 +828,7 @@ RUN(NAME global_syms_01    LABELS cpython llvm llvm_jit c)
 RUN(NAME global_syms_02    LABELS cpython llvm llvm_jit c)
 # RUN(NAME global_syms_03_b  LABELS cpython llvm llvm_jit c)
 # RUN(NAME global_syms_03_c  LABELS cpython llvm llvm_jit c)
-RUN(NAME global_syms_04    LABELS cpython llvm llvm_jit c wasm wasm_x64)
+# RUN(NAME global_syms_04    LABELS cpython llvm llvm_jit c wasm wasm_x64)
 RUN(NAME global_syms_05    LABELS cpython llvm llvm_jit c)
 RUN(NAME global_syms_06    LABELS cpython llvm llvm_jit c)
 

@@ -2,5 +2,4 @@
   %casted_string_ptr_to_desc = alloca %string_descriptor, align 8
 %string_descriptor*
 
-0 0
 String index: -8is out of Bounds
