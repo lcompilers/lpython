@@ -10,7 +10,7 @@
                             __main__global_stmts:
                                 (Function
                                     (SymbolTable
-                                        145
+                                        129
                                         {
                                             
                                         })
@@ -135,6 +135,8 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
+                                                    .false.
                                                 ),
                                             x:
                                                 (Variable
@@ -153,6 +155,8 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
+                                                    .false.
                                                 ),
                                             y:
                                                 (Variable
@@ -170,6 +174,8 @@
                                                     Required
                                                     .false.
                                                     .false.
+                                                    .false.
+                                                    ()
                                                     .false.
                                                 )
                                         })
@@ -215,6 +221,7 @@
                                             )
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 eps)
@@ -223,6 +230,7 @@
                                             (Real 8)
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assert
                                         (RealCompare
@@ -276,6 +284,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assert
                                         (RealCompare
@@ -336,6 +345,8 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
+                                                    .false.
                                                 ),
                                             y:
                                                 (Variable
@@ -354,6 +365,8 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
+                                                    .false.
                                                 ),
                                             z:
                                                 (Variable
@@ -371,6 +384,8 @@
                                                     Required
                                                     .false.
                                                     .false.
+                                                    .false.
+                                                    ()
                                                     .false.
                                                 )
                                         })
@@ -427,6 +442,7 @@
                                             )
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 4 y)
@@ -464,6 +480,7 @@
                                             )
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 4 z)
@@ -475,6 +492,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 4 z)
@@ -486,6 +504,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 4 z)
@@ -497,6 +516,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 4 z)
@@ -508,6 +528,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                     )]
                                     ()
                                     Public
@@ -537,6 +558,8 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
+                                                    .false.
                                                 ),
                                             y:
                                                 (Variable
@@ -555,6 +578,8 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
+                                                    .false.
                                                 ),
                                             z:
                                                 (Variable
@@ -572,6 +597,8 @@
                                                     Required
                                                     .false.
                                                     .false.
+                                                    .false.
+                                                    ()
                                                     .false.
                                                 )
                                         })
@@ -619,6 +646,7 @@
                                             )
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 5 y)
@@ -647,6 +675,7 @@
                                             )
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 5 z)
@@ -658,6 +687,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 5 z)
@@ -669,6 +699,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 5 z)
@@ -680,6 +711,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 5 z)
@@ -691,6 +723,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                     )]
                                     ()
                                     Public
@@ -709,11 +742,11 @@
             main_program:
                 (Program
                     (SymbolTable
-                        146
+                        130
                         {
                             __main__global_stmts:
                                 (ExternalSymbol
-                                    146
+                                    130
                                     __main__global_stmts
                                     2 __main__global_stmts
                                     __main__
@@ -725,7 +758,7 @@
                     main_program
                     [__main__]
                     [(SubroutineCall
-                        146 __main__global_stmts
+                        130 __main__global_stmts
                         2 __main__global_stmts
                         []
                         ()

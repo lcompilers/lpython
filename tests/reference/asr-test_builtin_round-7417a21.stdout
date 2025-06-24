@@ -10,7 +10,7 @@
                             __main__global_stmts:
                                 (Function
                                     (SymbolTable
-                                        142
+                                        126
                                         {
                                             
                                         })
@@ -65,6 +65,8 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
+                                                    .false.
                                                 ),
                                             f:
                                                 (Variable
@@ -82,6 +84,8 @@
                                                     Required
                                                     .false.
                                                     .false.
+                                                    .false.
+                                                    ()
                                                     .false.
                                                 ),
                                             f2:
@@ -101,6 +105,8 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
+                                                    .false.
                                                 ),
                                             i:
                                                 (Variable
@@ -118,6 +124,8 @@
                                                     Required
                                                     .false.
                                                     .false.
+                                                    .false.
+                                                    ()
                                                     .false.
                                                 ),
                                             i2:
@@ -137,6 +145,8 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
+                                                    .false.
                                                 ),
                                             i3:
                                                 (Variable
@@ -155,6 +165,8 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
+                                                    .false.
                                                 ),
                                             i4:
                                                 (Variable
@@ -172,6 +184,8 @@
                                                     Required
                                                     .false.
                                                     .false.
+                                                    .false.
+                                                    ()
                                                     .false.
                                                 ),
                                             round:
@@ -279,6 +293,7 @@
                                             (Real 8)
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assert
                                         (IntegerCompare
@@ -311,6 +326,7 @@
                                             )
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assert
                                         (IntegerCompare
@@ -340,6 +356,7 @@
                                             (Real 8)
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assert
                                         (IntegerCompare
@@ -365,6 +382,7 @@
                                             (Real 8)
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assert
                                         (IntegerCompare
@@ -397,6 +415,7 @@
                                             )
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assert
                                         (IntegerCompare
@@ -426,6 +445,7 @@
                                             (Real 8)
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assert
                                         (IntegerCompare
@@ -638,6 +658,7 @@
                                             )
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assert
                                         (IntegerCompare
@@ -664,6 +685,7 @@
                                             (IntegerConstant -5 (Integer 4) Decimal)
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assert
                                         (IntegerCompare
@@ -715,6 +737,7 @@
                                             (IntegerConstant 7 (Integer 1) Decimal)
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assert
                                         (IntegerCompare
@@ -751,6 +774,7 @@
                                             (IntegerConstant -8 (Integer 2) Decimal)
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assert
                                         (IntegerCompare
@@ -787,6 +811,7 @@
                                             (IntegerConstant 0 (Integer 8) Decimal)
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assert
                                         (IntegerCompare
@@ -817,6 +842,7 @@
                                             (Logical 4)
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assert
                                         (IntegerCompare
@@ -842,6 +868,7 @@
                                             (Logical 4)
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assert
                                         (IntegerCompare
@@ -900,11 +927,11 @@
             main_program:
                 (Program
                     (SymbolTable
-                        143
+                        127
                         {
                             __main__global_stmts:
                                 (ExternalSymbol
-                                    143
+                                    127
                                     __main__global_stmts
                                     2 __main__global_stmts
                                     __main__
@@ -916,7 +943,7 @@
                     main_program
                     [__main__]
                     [(SubroutineCall
-                        143 __main__global_stmts
+                        127 __main__global_stmts
                         2 __main__global_stmts
                         []
                         ()

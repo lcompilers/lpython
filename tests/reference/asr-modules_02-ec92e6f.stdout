@@ -75,6 +75,8 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
+                                                    .false.
                                                 )
                                         })
                                     main0
@@ -110,6 +112,7 @@
                                             (IntegerConstant 25 (Integer 4) Decimal)
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assert
                                         (IntegerCompare
@@ -204,10 +207,10 @@
                                             ()
                                             [(StringConstant
                                                 "f()"
-                                                (String 1 3 () PointerString)
+                                                (String 1 (IntegerConstant 3 (Integer 4) Decimal) ExpressionLength PointerString)
                                             )]
                                             FormatPythonFormat
-                                            (String -1 0 () PointerString)
+                                            (String 1 () ExpressionLength CString)
                                             ()
                                         )
                                     )]
@@ -267,10 +270,10 @@
                                             ()
                                             [(StringConstant
                                                 "g()"
-                                                (String 1 3 () PointerString)
+                                                (String 1 (IntegerConstant 3 (Integer 4) Decimal) ExpressionLength PointerString)
                                             )]
                                             FormatPythonFormat
-                                            (String -1 0 () PointerString)
+                                            (String 1 () ExpressionLength CString)
                                             ()
                                         )
                                     )]

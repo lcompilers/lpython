@@ -35,6 +35,7 @@
                                         (Var 2 i)
                                         (IntegerConstant 5 (Integer 4) Decimal)
                                         ()
+                                        .false.
                                     )]
                                     ()
                                     Public
@@ -58,6 +59,8 @@
                                     Required
                                     .false.
                                     .false.
+                                    .false.
+                                    ()
                                     .false.
                                 )
                         })

@@ -65,6 +65,8 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
+                                                    .false.
                                                 ),
                                             x:
                                                 (Variable
@@ -89,6 +91,8 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
+                                                    .false.
                                                 ),
                                             y:
                                                 (Variable
@@ -111,6 +115,8 @@
                                                     Required
                                                     .false.
                                                     .false.
+                                                    .false.
+                                                    ()
                                                     .false.
                                                 )
                                         })
@@ -145,6 +151,7 @@
                                             )
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 x)
@@ -176,6 +183,7 @@
                                             )
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 y)
@@ -190,6 +198,7 @@
                                             )
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 y)
@@ -218,11 +227,12 @@
                                             )
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Print
                                         (StringConstant
                                             "("
-                                            (String 1 1 () PointerString)
+                                            (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
                                         )
                                     )
                                     (Print
@@ -244,14 +254,14 @@
                                                 ()
                                             )]
                                             FormatFortran
-                                            (String -1 0 () PointerString)
+                                            (String 1 () ExpressionLength CString)
                                             ()
                                         )
                                     )
                                     (Print
                                         (StringConstant
                                             ", "
-                                            (String 1 2 () PointerString)
+                                            (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
                                         )
                                     )
                                     (Print
@@ -273,20 +283,20 @@
                                                 ()
                                             )]
                                             FormatFortran
-                                            (String -1 0 () PointerString)
+                                            (String 1 () ExpressionLength CString)
                                             ()
                                         )
                                     )
                                     (Print
                                         (StringConstant
                                             ")"
-                                            (String 1 1 () PointerString)
+                                            (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
                                         )
                                     )
                                     (Print
                                         (StringConstant
                                             "("
-                                            (String 1 1 () PointerString)
+                                            (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
                                         )
                                     )
                                     (Print
@@ -308,14 +318,14 @@
                                                 ()
                                             )]
                                             FormatFortran
-                                            (String -1 0 () PointerString)
+                                            (String 1 () ExpressionLength CString)
                                             ()
                                         )
                                     )
                                     (Print
                                         (StringConstant
                                             ", "
-                                            (String 1 2 () PointerString)
+                                            (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
                                         )
                                     )
                                     (Print
@@ -337,20 +347,20 @@
                                                 ()
                                             )]
                                             FormatFortran
-                                            (String -1 0 () PointerString)
+                                            (String 1 () ExpressionLength CString)
                                             ()
                                         )
                                     )
                                     (Print
                                         (StringConstant
                                             ")"
-                                            (String 1 1 () PointerString)
+                                            (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
                                         )
                                     )
                                     (Print
                                         (StringConstant
                                             "["
-                                            (String 1 1 () PointerString)
+                                            (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
                                         )
                                     )
                                     (DoLoop
@@ -395,11 +405,12 @@
                                                     ()
                                                 )]
                                                 FormatFortran
-                                                (String -1 0 () PointerString)
+                                                (String 1 () ExpressionLength CString)
                                                 ()
                                             )
                                         )
                                         (If
+                                            ()
                                             (IntegerCompare
                                                 (Var 3 __list_iterator)
                                                 Lt
@@ -428,7 +439,7 @@
                                             [(Print
                                                 (StringConstant
                                                     ", "
-                                                    (String 1 2 () PointerString)
+                                                    (String 1 (IntegerConstant 2 (Integer 4) Decimal) ExpressionLength PointerString)
                                                 )
                                             )]
                                             []
@@ -438,7 +449,7 @@
                                     (Print
                                         (StringConstant
                                             "]"
-                                            (String 1 1 () PointerString)
+                                            (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
                                         )
                                     )]
                                     ()

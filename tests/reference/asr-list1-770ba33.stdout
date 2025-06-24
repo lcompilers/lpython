@@ -31,6 +31,8 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
+                                                    .false.
                                                 ),
                                             a11:
                                                 (Variable
@@ -51,6 +53,8 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
+                                                    .false.
                                                 ),
                                             b:
                                                 (Variable
@@ -62,7 +66,9 @@
                                                     ()
                                                     Default
                                                     (List
-                                                        (String 1 -2 () PointerString)
+                                                        (Allocatable
+                                                            (String 1 () DeferredLength DescriptorString)
+                                                        )
                                                     )
                                                     ()
                                                     Source
@@ -70,6 +76,8 @@
                                                     Required
                                                     .false.
                                                     .false.
+                                                    .false.
+                                                    ()
                                                     .false.
                                                 ),
                                             b11:
@@ -90,6 +98,8 @@
                                                     Required
                                                     .false.
                                                     .false.
+                                                    .false.
+                                                    ()
                                                     .false.
                                                 ),
                                             c:
@@ -113,6 +123,8 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
+                                                    .false.
                                                 ),
                                             d:
                                                 (Variable
@@ -131,6 +143,8 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
+                                                    .false.
                                                 ),
                                             e:
                                                 (Variable
@@ -143,7 +157,9 @@
                                                     Default
                                                     (List
                                                         (List
-                                                            (String 1 -2 () PointerString)
+                                                            (Allocatable
+                                                                (String 1 () DeferredLength DescriptorString)
+                                                            )
                                                         )
                                                     )
                                                     ()
@@ -152,6 +168,8 @@
                                                     Required
                                                     .false.
                                                     .false.
+                                                    .false.
+                                                    ()
                                                     .false.
                                                 )
                                         })
@@ -183,6 +201,7 @@
                                             )
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 a)
@@ -207,27 +226,29 @@
                                             )
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 b)
                                         (ListConstant
                                             [(StringConstant
                                                 "a"
-                                                (String 1 1 () PointerString)
+                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
                                             )
                                             (StringConstant
                                                 "b"
-                                                (String 1 1 () PointerString)
+                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
                                             )
                                             (StringConstant
                                                 "c"
-                                                (String 1 1 () PointerString)
+                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
                                             )]
                                             (List
-                                                (String 1 1 () PointerString)
+                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
                                             )
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 c)
@@ -255,6 +276,7 @@
                                             )
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 d)
@@ -265,6 +287,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 e)
@@ -272,40 +295,41 @@
                                             [(ListConstant
                                                 [(StringConstant
                                                     "a"
-                                                    (String 1 1 () PointerString)
+                                                    (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
                                                 )
                                                 (StringConstant
                                                     "b"
-                                                    (String 1 1 () PointerString)
+                                                    (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
                                                 )
                                                 (StringConstant
                                                     "c"
-                                                    (String 1 1 () PointerString)
+                                                    (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
                                                 )]
                                                 (List
-                                                    (String 1 1 () PointerString)
+                                                    (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
                                                 )
                                             )
                                             (ListConstant
                                                 [(StringConstant
                                                     "d"
-                                                    (String 1 1 () PointerString)
+                                                    (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
                                                 )
                                                 (StringConstant
                                                     "e"
-                                                    (String 1 1 () PointerString)
+                                                    (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
                                                 )]
                                                 (List
-                                                    (String 1 1 () PointerString)
+                                                    (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
                                                 )
                                             )]
                                             (List
                                                 (List
-                                                    (String 1 1 () PointerString)
+                                                    (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
                                                 )
                                             )
                                         )
                                         ()
+                                        .false.
                                     )
                                     (ListAppend
                                         (Var 3 a)
@@ -333,6 +357,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 d)
@@ -344,6 +369,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 d)
@@ -356,6 +382,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 a)
@@ -374,6 +401,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 a)
@@ -392,6 +420,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 a11)
@@ -403,6 +432,7 @@
                                             )
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 b11)
@@ -414,6 +444,7 @@
                                             )
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assert
                                         (ListCompare

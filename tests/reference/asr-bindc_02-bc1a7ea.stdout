@@ -10,7 +10,7 @@
                             __main__global_stmts:
                                 (Function
                                     (SymbolTable
-                                        227
+                                        211
                                         {
                                             
                                         })
@@ -63,7 +63,7 @@
                                             [(Var 2 queries)
                                             (Var 2 x)]
                                             FormatPythonFormat
-                                            (String -1 0 () PointerString)
+                                            (String 1 () ExpressionLength CString)
                                             ()
                                         )
                                     )
@@ -82,11 +82,11 @@
                             f:
                                 (Function
                                     (SymbolTable
-                                        226
+                                        210
                                         {
                                             y:
                                                 (Variable
-                                                    226
+                                                    210
                                                     y
                                                     []
                                                     Local
@@ -106,10 +106,12 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
+                                                    .false.
                                                 ),
                                             yptr1:
                                                 (Variable
-                                                    226
+                                                    210
                                                     yptr1
                                                     []
                                                     Local
@@ -131,10 +133,12 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
+                                                    .false.
                                                 ),
                                             yq:
                                                 (Variable
-                                                    226
+                                                    210
                                                     yq
                                                     []
                                                     Local
@@ -148,6 +152,8 @@
                                                     Required
                                                     .false.
                                                     .false.
+                                                    .false.
+                                                    ()
                                                     .false.
                                                 )
                                         })
@@ -169,17 +175,18 @@
                                     []
                                     []
                                     [(Assignment
-                                        (Var 226 yq)
+                                        (Var 210 yq)
                                         (PointerNullConstant
                                             (CPtr)
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assignment
-                                        (Var 226 y)
+                                        (Var 210 y)
                                         (ArrayBroadcast
                                             (ArrayItem
-                                                (Var 226 y)
+                                                (Var 210 y)
                                                 [(()
                                                 (IntegerConstant 0 (Integer 4) Decimal)
                                                 ())]
@@ -207,10 +214,11 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (ArrayItem
-                                            (Var 226 y)
+                                            (Var 210 y)
                                             [(()
                                             (IntegerConstant 0 (Integer 4) Decimal)
                                             ())]
@@ -225,10 +233,11 @@
                                             (IntegerConstant 1 (Integer 2) Decimal)
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (ArrayItem
-                                            (Var 226 y)
+                                            (Var 210 y)
                                             [(()
                                             (IntegerConstant 1 (Integer 4) Decimal)
                                             ())]
@@ -243,11 +252,12 @@
                                             (IntegerConstant 2 (Integer 2) Decimal)
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assignment
-                                        (Var 226 yptr1)
+                                        (Var 210 yptr1)
                                         (GetPointer
-                                            (Var 226 y)
+                                            (Var 210 y)
                                             (Pointer
                                                 (Array
                                                     (Integer 2)
@@ -259,12 +269,13 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Print
                                         (StringFormat
                                             ()
                                             [(GetPointer
-                                                (Var 226 y)
+                                                (Var 210 y)
                                                 (Pointer
                                                     (Array
                                                         (Integer 2)
@@ -275,9 +286,9 @@
                                                 )
                                                 ()
                                             )
-                                            (Var 226 yptr1)]
+                                            (Var 210 yptr1)]
                                             FormatPythonFormat
-                                            (String -1 0 () PointerString)
+                                            (String 1 () ExpressionLength CString)
                                             ()
                                         )
                                     )
@@ -285,7 +296,7 @@
                                         (StringFormat
                                             ()
                                             [(ArrayItem
-                                                (Var 226 yptr1)
+                                                (Var 210 yptr1)
                                                 [(()
                                                 (IntegerConstant 0 (Integer 4) Decimal)
                                                 ())]
@@ -294,7 +305,7 @@
                                                 ()
                                             )
                                             (ArrayItem
-                                                (Var 226 yptr1)
+                                                (Var 210 yptr1)
                                                 [(()
                                                 (IntegerConstant 1 (Integer 4) Decimal)
                                                 ())]
@@ -303,14 +314,14 @@
                                                 ()
                                             )]
                                             FormatPythonFormat
-                                            (String -1 0 () PointerString)
+                                            (String 1 () ExpressionLength CString)
                                             ()
                                         )
                                     )
                                     (Assert
                                         (IntegerCompare
                                             (ArrayItem
-                                                (Var 226 yptr1)
+                                                (Var 210 yptr1)
                                                 [(()
                                                 (IntegerConstant 0 (Integer 4) Decimal)
                                                 ())]
@@ -333,7 +344,7 @@
                                     (Assert
                                         (IntegerCompare
                                             (ArrayItem
-                                                (Var 226 yptr1)
+                                                (Var 210 yptr1)
                                                 [(()
                                                 (IntegerConstant 1 (Integer 4) Decimal)
                                                 ())]
@@ -354,8 +365,8 @@
                                         ()
                                     )
                                     (CPtrToPointer
-                                        (Var 226 yq)
-                                        (Var 226 yptr1)
+                                        (Var 210 yq)
+                                        (Var 210 yptr1)
                                         (ArrayConstant
                                             4
                                             [2]
@@ -406,6 +417,8 @@
                                     .false.
                                     .false.
                                     .false.
+                                    ()
+                                    .false.
                                 ),
                             x:
                                 (Variable
@@ -431,6 +444,8 @@
                                     .false.
                                     .false.
                                     .false.
+                                    ()
+                                    .false.
                                 )
                         })
                     __main__
@@ -443,11 +458,11 @@
             main_program:
                 (Program
                     (SymbolTable
-                        228
+                        212
                         {
                             __main__global_stmts:
                                 (ExternalSymbol
-                                    228
+                                    212
                                     __main__global_stmts
                                     2 __main__global_stmts
                                     __main__
@@ -459,7 +474,7 @@
                     main_program
                     [__main__]
                     [(SubroutineCall
-                        228 __main__global_stmts
+                        212 __main__global_stmts
                         2 __main__global_stmts
                         []
                         ()

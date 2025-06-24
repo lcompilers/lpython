@@ -1,5 +1,6 @@
-from lpython import (i8, i16, i32, i64, f32, f64, c32, c64, overload, u8,
-                     u16, u32, u64)
+from lpython import (c32, c64, f32, f64, i8, i16, i32, i64, overload, u8, u16,
+                     u32, u64)
+
 #from sys import exit
 
 #: abs() as a generic procedure.
@@ -191,86 +192,86 @@ def sum(arr: list[f64]) -> f64:
         sum += arr[i]
     return sum
 
-def bin(n: i32) -> str:
-    """
-    Returns the binary representation of an integer `n`.
-    """
-    if n == 0:
-        return '0b0'
-    prep: str
-    prep = '0b'
-    n_: i32
-    n_ = n
-    if n_ < 0:
-        n_ = -n_
-        prep = '-0b'
-    res: str
-    res = ''
-    if (n_ - (n_ // 2)*2) == 0:
-        res += '0'
-    else:
-        res += '1'
-    while n_ > 1:
-        n_ = (n_ // 2)
-        if (n_ - (n_ // 2)*2) == 0:
-            res += '0'
-        else:
-            res += '1'
-    return prep + res[::-1]
+# def bin(n: i32) -> str:
+#    """
+#    Returns the binary representation of an integer `n`.
+#    """
+#    if n == 0:
+#        return '0b0'
+#    prep: str
+#    prep = '0b'
+#    n_: i32
+#    n_ = n
+#    if n_ < 0:
+#        n_ = -n_
+#        prep = '-0b'
+#    res: str
+#    res = ''
+#    if (n_ - (n_ // 2)*2) == 0:
+#        res += '0'
+#    else:
+#        res += '1'
+#    while n_ > 1:
+#        n_ = (n_ // 2)
+#        if (n_ - (n_ // 2)*2) == 0:
+#            res += '0'
+#        else:
+#            res += '1'
+#    return prep + res[::-1]
 
 
-def hex(n: i32) -> str:
-    """
-    Returns the hexadecimal representation of an integer `n`.
-    """
-    hex_values: list[str]
-    hex_values = ['0', '1', '2', '3', '4', '5', '6', '7',
-                  '8', '9', 'a', 'b', 'c', 'd', 'e', 'f']
-    if n == 0:
-        return '0x0'
-    prep: str
-    prep = '0x'
-    n_: i32
-    n_ = n
-    if n_ < 0:
-        prep = '-0x'
-        n_ = -n_
-    res: str
-    res = ""
-    remainder: i32
-    while n_ > 0:
-        remainder = n_ - (n_ // 16)*16
-        n_ -= remainder
-        n_ = (n_ // 16)
-        res += hex_values[remainder]
-    return prep + res[::-1]
-
-
-def oct(n: i32) -> str:
-    """
-    Returns the octal representation of an integer `n`.
-    """
-    _values: list[str]
-    _values = ['0', '1', '2', '3', '4', '5', '6', '7',
-               '8', '9', 'a', 'b', 'c', 'd', 'e', 'f']
-    if n == 0:
-        return '0o0'
-    prep: str
-    prep = '0o'
-    n_: i32
-    n_ = n
-    if n_ < 0:
-        prep = '-0o'
-        n_ = -n_
-    res: str
-    res = ""
-    remainder: i32
-    while n_ > 0:
-        remainder = n_ - (n_ // 8)*8
-        n_ -= remainder
-        n_ = (n_ // 8)
-        res += _values[remainder]
-    return prep + res[::-1]
+# def hex(n: i32) -> str:
+#    """
+#    Returns the hexadecimal representation of an integer `n`.
+#    """
+#    hex_values: list[str]
+#    hex_values = ['0', '1', '2', '3', '4', '5', '6', '7',
+#                  '8', '9', 'a', 'b', 'c', 'd', 'e', 'f']
+#    if n == 0:
+#        return '0x0'
+#    prep: str
+#    prep = '0x'
+#    n_: i32
+#    n_ = n
+#    if n_ < 0:
+#        prep = '-0x'
+#        n_ = -n_
+#    res: str
+#    res = ""
+#    remainder: i32
+#    while n_ > 0:
+#        remainder = n_ - (n_ // 16)*16
+#        n_ -= remainder
+#        n_ = (n_ // 16)
+#        res += hex_values[remainder]
+#    return prep + res[::-1]
+ 
+ 
+# def oct(n: i32) -> str:
+#    """
+#    Returns the octal representation of an integer `n`.
+#    """
+#    _values: list[str]
+#    _values = ['0', '1', '2', '3', '4', '5', '6', '7',
+#               '8', '9', 'a', 'b', 'c', 'd', 'e', 'f']
+#    if n == 0:
+#        return '0o0'
+#    prep: str
+#    prep = '0o'
+#    n_: i32
+#    n_ = n
+#    if n_ < 0:
+#        prep = '-0o'
+#        n_ = -n_
+#    res: str
+#    res = ""
+#    remainder: i32
+#    while n_ > 0:
+#        remainder = n_ - (n_ // 8)*8
+#        n_ -= remainder
+#        n_ = (n_ // 8)
+#        res += _values[remainder]
+#    return prep + res[::-1]
 
 #: round() as a generic procedure.
 #: supported types for argument:
@@ -607,24 +608,24 @@ def pow(x: i64, y: i64, z: i64) -> i64:
     result = _mod(x**y, z)
     return result
 
-@overload
-def _lpython_str_capitalize(x: str) -> str:
-    if len(x) == 0:
-        return x
-    i:str
-    res:str = ""
-    for i in x:
-        if ord(i) >= 65 and ord(i) <= 90:  # Check if uppercase
-            res += chr(ord(i) + 32)  # Convert to lowercase using ASCII values
-        else:
-            res += i
-
-    val: i32
-    val = ord(res[0])
-    if val >= ord('a') and val <= ord('z'):
-        val -= 32
-    res = chr(val) + res[1:]
-    return res
+# @overload
+# def _lpython_str_capitalize(x: str) -> str:
+#    if len(x) == 0:
+#        return x
+#    i:str
+#    res:str = ""
+#    for i in x:
+#        if ord(i) >= 65 and ord(i) <= 90:  # Check if uppercase
+#            res += chr(ord(i) + 32)  # Convert to lowercase using ASCII values
+#        else:
+#            res += i
+# 
+#    val: i32
+#    val = ord(res[0])
+#    if val >= ord('a') and val <= ord('z'):
+#        val -= 32
+#    res = chr(val) + res[1:]
+#    return res
 
 
 @overload
@@ -796,146 +797,146 @@ def _lpython_str_istitle(s: str) -> bool:
 
     return True if not only_whitespace else False
 
-@overload
-def _lpython_str_find(s: str, sub: str) -> i32:
-    s_len :i32; sub_len :i32; flag: bool; _len: i32;
-    res: i32; i: i32;
-    lps: list[i32] = []
-    s_len = len(s)
-    sub_len = len(sub)
-    flag = False
-    res = -1
-    if s_len == 0 or sub_len == 0:
-        return 0 if sub_len == 0 or (sub_len == s_len) else -1
-
-    for i in range(sub_len):
-        lps.append(0)
-
-    i = 1
-    _len = 0
-    while i < sub_len:
-        if sub[i] == sub[_len]:
-            _len += 1
-            lps[i] = _len
-            i += 1
-        else:
-            if _len != 0:
-                _len = lps[_len - 1]
-            else:
-                lps[i] = 0
-                i += 1
-
-    j: i32
-    j = 0
-    i = 0
-    while (s_len - i) >= (sub_len - j) and not flag:
-        if sub[j] == s[i]:
-            i += 1
-            j += 1
-        if j == sub_len:
-            res = i- j
-            flag = True
-            j = lps[j - 1]
-        elif i < s_len and sub[j] != s[i]:
-            if j != 0:
-                j = lps[j - 1]
-            else:
-                i = i + 1
-
-    return res
-
-def _lpython_str_rstrip(x: str) -> str:
-    ind: i32
-    ind = len(x) - 1
-    while ind >= 0 and x[ind] == ' ':
-        ind -= 1
-    return x[0: ind + 1]
-
-@overload
-def _lpython_str_lstrip(x: str) -> str:
-    ind :i32
-    ind = 0
-    while ind < len(x) and x[ind] == ' ':
-        ind += 1
-    return x[ind :len(x)]
-
-@overload
-def _lpython_str_strip(x: str) -> str:
-    res :str
-    res = _lpython_str_lstrip(x)
-    res = _lpython_str_rstrip(res)
-    return res
-
-@overload
-def _lpython_str_split(x: str) -> list[str]:
-    sep: str = ' '
-    res: list[str] = []
-    start:i32 = 0
-    ind: i32
-    x_strip: str = _lpython_str_strip(x)
-    if (x_strip == ""):
-        return res
-    while True:
-        while (start < len(x_strip) and x_strip[start] == ' '):
-            start += 1
-        ind = _lpython_str_find(x_strip[start:len(x_strip)], sep)
-        if ind == -1:
-            res.append(x_strip[start:len(x_strip)])
-            break
-        else:
-            res.append(x_strip[start:start + ind])
-            start += ind + len(sep)
-    return res
-
-@overload
-def _lpython_str_split(x: str, sep:str) -> list[str]:
-    if len(sep) == 0:
-        raise ValueError('empty separator')
-    res: list[str] = []
-    start:i32 = 0
-    ind: i32
-    while True:
-        ind = _lpython_str_find(x[start:len(x)], sep)
-        if ind == -1:
-            res.append(x[start:len(x)])
-            break
-        else:
-            res.append(x[start:start + ind])
-            start += ind + len(sep)
-    return res
-
-@overload
-def _lpython_str_replace(x: str, old:str, new:str) -> str:
-    return _lpython_str_replace(x, old, new, len(x))
-
-
-@overload
-def _lpython_str_replace(x: str, old:str, new:str, count: i32) -> str:
-    if (old == ""):
-        res1: str = ""
-        s: str
-        for s in x:
-            res1 += new + s
-        return res1 + new
-    res: str = ""
-    i: i32 = 0
-    ind: i32 = -1
-    l: i32 = len(new)
-    lo: i32 = len(old)
-    lx: i32 = len(x)
-    c: i32 = 0
-    t: i32 = -1
-
-    while(c<count):
-        t = _lpython_str_find(x[i:lx], old)
-        if(t==-1):
-            break
-        ind = i + t
-        res = res + x[i:ind] + new
-        i = ind + lo
-        c = c + 1
-    res = res + x[i:lx]
-    return res
+# @overload
+# def _lpython_str_find(s: str, sub: str) -> i32:
+#    s_len :i32; sub_len :i32; flag: bool; _len: i32;
+#    res: i32; i: i32;
+#    lps: list[i32] = []
+#    s_len = len(s)
+#    sub_len = len(sub)
+#    flag = False
+#    res = -1
+#    if s_len == 0 or sub_len == 0:
+#        return 0 if sub_len == 0 or (sub_len == s_len) else -1
+# 
+#    for i in range(sub_len):
+#        lps.append(0)
+# 
+#    i = 1
+#    _len = 0
+#    while i < sub_len:
+#        if sub[i] == sub[_len]:
+#            _len += 1
+#            lps[i] = _len
+#            i += 1
+#        else:
+#            if _len != 0:
+#                _len = lps[_len - 1]
+#            else:
+#                lps[i] = 0
+#                i += 1
+# 
+#    j: i32
+#    j = 0
+#    i = 0
+#    while (s_len - i) >= (sub_len - j) and not flag:
+#        if sub[j] == s[i]:
+#            i += 1
+#            j += 1
+#        if j == sub_len:
+#            res = i- j
+#            flag = True
+#            j = lps[j - 1]
+#        elif i < s_len and sub[j] != s[i]:
+#            if j != 0:
+#                j = lps[j - 1]
+#            else:
+#                i = i + 1
+# 
+#    return res
+# 
+# def _lpython_str_rstrip(x: str) -> str:
+#    ind: i32
+#    ind = len(x) - 1
+#    while ind >= 0 and x[ind] == ' ':
+#        ind -= 1
+#    return x[0: ind + 1]
+# 
+# @overload
+# def _lpython_str_lstrip(x: str) -> str:
+#    ind :i32
+#    ind = 0
+#    while ind < len(x) and x[ind] == ' ':
+#        ind += 1
+#    return x[ind :len(x)]
+# 
+# @overload
+# def _lpython_str_strip(x: str) -> str:
+#    res :str
+#    res = _lpython_str_lstrip(x)
+#    res = _lpython_str_rstrip(res)
+#    return res
+# 
+# @overload
+# def _lpython_str_split(x: str) -> list[str]:
+#    sep: str = ' '
+#    res: list[str] = []
+#    start:i32 = 0
+#    ind: i32
+#    x_strip: str = _lpython_str_strip(x)
+#    if (x_strip == ""):
+#        return res
+#    while True:
+#        while (start < len(x_strip) and x_strip[start] == ' '):
+#            start += 1
+#        ind = _lpython_str_find(x_strip[start:len(x_strip)], sep)
+#        if ind == -1:
+#            res.append(x_strip[start:len(x_strip)])
+#            break
+#        else:
+#            res.append(x_strip[start:start + ind])
+#            start += ind + len(sep)
+#    return res
+# 
+# @overload
+# def _lpython_str_split(x: str, sep:str) -> list[str]:
+#    if len(sep) == 0:
+#        raise ValueError('empty separator')
+#    res: list[str] = []
+#    start:i32 = 0
+#    ind: i32
+#    while True:
+#        ind = _lpython_str_find(x[start:len(x)], sep)
+#        if ind == -1:
+#            res.append(x[start:len(x)])
+#            break
+#        else:
+#            res.append(x[start:start + ind])
+#            start += ind + len(sep)
+#    return res
+# 
+# @overload
+# def _lpython_str_replace(x: str, old:str, new:str) -> str:
+#    return _lpython_str_replace(x, old, new, len(x))
+# 
+# 
+# @overload
+# def _lpython_str_replace(x: str, old:str, new:str, count: i32) -> str:
+#    if (old == ""):
+#        res1: str = ""
+#        s: str
+#        for s in x:
+#            res1 += new + s
+#        return res1 + new
+#    res: str = ""
+#    i: i32 = 0
+#    ind: i32 = -1
+#    l: i32 = len(new)
+#    lo: i32 = len(old)
+#    lx: i32 = len(x)
+#    c: i32 = 0
+#    t: i32 = -1
+# 
+#    while(c<count):
+#        t = _lpython_str_find(x[i:lx], old)
+#        if(t==-1):
+#            break
+#        ind = i + t
+#        res = res + x[i:ind] + new
+#        i = ind + lo
+#        c = c + 1
+#    res = res + x[i:lx]
+#    return res
 
 @overload
 def _lpython_str_swapcase(s: str) -> str:
@@ -978,23 +979,23 @@ def _lpython_str_endswith(s: str, suffix: str) -> bool:
 
     return True
 
-@overload
-def _lpython_str_partition(s:str, sep: str) -> tuple[str, str, str]:
-    """
-    Returns a 3-tuple splitted around seperator
-    """
-    if len(s) == 0:
-        raise ValueError('empty string cannot be partitioned')
-    if len(sep) == 0:
-        raise ValueError('empty separator')
-    res : tuple[str, str, str]
-    ind : i32
-    ind = _lpython_str_find(s, sep)
-    if ind == -1:
-        res = (s, "", "")
-    else:
-        res = (s[0:ind], sep, s[ind+len(sep): len(s)])
-    return res
+# @overload
+# def _lpython_str_partition(s:str, sep: str) -> tuple[str, str, str]:
+#    """
+#    Returns a 3-tuple splitted around seperator
+#    """
+#    if len(s) == 0:
+#        raise ValueError('empty string cannot be partitioned')
+#    if len(sep) == 0:
+#        raise ValueError('empty separator')
+#    res : tuple[str, str, str]
+#    ind : i32
+#    ind = _lpython_str_find(s, sep)
+#    if ind == -1:
+#        res = (s, "", "")
+#    else:
+#        res = (s[0:ind], sep, s[ind+len(sep): len(s)])
+#    return res
 
 @overload
 def _lpython_str_islower(s: str) -> bool:

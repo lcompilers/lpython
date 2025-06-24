@@ -65,6 +65,8 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
+                                                    .false.
                                                 ),
                                             n:
                                                 (Variable
@@ -82,6 +84,8 @@
                                                     Required
                                                     .false.
                                                     .false.
+                                                    .false.
+                                                    ()
                                                     .false.
                                                 )
                                         })
@@ -103,6 +107,7 @@
                                     [fib]
                                     [(Var 3 n)]
                                     [(If
+                                        ()
                                         (IntegerCompare
                                             (Var 3 n)
                                             Lt
@@ -119,6 +124,7 @@
                                             (Var 3 _lpython_return_variable)
                                             (Var 3 n)
                                             ()
+                                            .false.
                                         )
                                         (Return)]
                                         []
@@ -169,6 +175,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Return)]
                                     (Var 3 _lpython_return_variable)
@@ -182,24 +189,6 @@
                                     (SymbolTable
                                         4
                                         {
-                                            _lpython_return_variable_fib:
-                                                (Variable
-                                                    4
-                                                    _lpython_return_variable_fib
-                                                    []
-                                                    Local
-                                                    ()
-                                                    ()
-                                                    Default
-                                                    (Integer 8)
-                                                    ()
-                                                    Source
-                                                    Public
-                                                    Required
-                                                    .false.
-                                                    .false.
-                                                    .false.
-                                                ),
                                             ans:
                                                 (Variable
                                                     4
@@ -217,23 +206,7 @@
                                                     .false.
                                                     .false.
                                                     .false.
-                                                ),
-                                            n_fib:
-                                                (Variable
-                                                    4
-                                                    n_fib
-                                                    []
-                                                    Local
                                                     ()
-                                                    ()
-                                                    Default
-                                                    (Integer 8)
-                                                    ()
-                                                    Source
-                                                    Public
-                                                    Required
-                                                    .false.
-                                                    .false.
                                                     .false.
                                                 ),
                                             x:
@@ -253,16 +226,8 @@
                                                     .false.
                                                     .false.
                                                     .false.
-                                                ),
-                                            ~empty_block:
-                                                (Block
-                                                    (SymbolTable
-                                                        7
-                                                        {
-                                                            
-                                                        })
-                                                    ~empty_block
-                                                    []
+                                                    ()
+                                                    .false.
                                                 )
                                         })
                                     main
@@ -291,102 +256,27 @@
                                             (IntegerConstant 40 (Integer 8) Decimal)
                                         )
                                         ()
-                                    )
-                                    (Assignment
-                                        (Var 4 n_fib)
-                                        (Var 4 x)
-                                        ()
-                                    )
-                                    (If
-                                        (IntegerCompare
-                                            (Var 4 n_fib)
-                                            Lt
-                                            (Cast
-                                                (IntegerConstant 2 (Integer 4) Decimal)
-                                                IntegerToInteger
-                                                (Integer 8)
-                                                (IntegerConstant 2 (Integer 8) Decimal)
-                                            )
-                                            (Logical 4)
-                                            ()
-                                        )
-                                        [(Assignment
-                                            (Var 4 _lpython_return_variable_fib)
-                                            (Var 4 n_fib)
-                                            ()
-                                        )
-                                        (GoTo
-                                            1
-                                            __1
-                                        )]
-                                        []
-                                    )
-                                    (Assignment
-                                        (Var 4 _lpython_return_variable_fib)
-                                        (IntegerBinOp
-                                            (FunctionCall
-                                                2 fib
-                                                ()
-                                                [((IntegerBinOp
-                                                    (Var 4 n_fib)
-                                                    Sub
-                                                    (Cast
-                                                        (IntegerConstant 1 (Integer 4) Decimal)
-                                                        IntegerToInteger
-                                                        (Integer 8)
-                                                        (IntegerConstant 1 (Integer 8) Decimal)
-                                                    )
-                                                    (Integer 8)
-                                                    ()
-                                                ))]
-                                                (Integer 8)
-                                                ()
-                                                ()
-                                            )
-                                            Add
-                                            (FunctionCall
-                                                2 fib
-                                                ()
-                                                [((IntegerBinOp
-                                                    (Var 4 n_fib)
-                                                    Sub
-                                                    (Cast
-                                                        (IntegerConstant 2 (Integer 4) Decimal)
-                                                        IntegerToInteger
-                                                        (Integer 8)
-                                                        (IntegerConstant 2 (Integer 8) Decimal)
-                                                    )
-                                                    (Integer 8)
-                                                    ()
-                                                ))]
-                                                (Integer 8)
-                                                ()
-                                                ()
-                                            )
-                                            (Integer 8)
-                                            ()
-                                        )
-                                        ()
-                                    )
-                                    (GoTo
-                                        1
-                                        __1
-                                    )
-                                    (BlockCall
-                                        1
-                                        4 ~empty_block
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 4 ans)
-                                        (Var 4 _lpython_return_variable_fib)
+                                        (FunctionCall
+                                            2 fib
+                                            ()
+                                            [((Var 4 x))]
+                                            (Integer 8)
+                                            ()
+                                            ()
+                                        )
                                         ()
+                                        .false.
                                     )
                                     (Print
                                         (StringFormat
                                             ()
                                             [(Var 4 ans)]
                                             FormatPythonFormat
-                                            (String -1 0 () PointerString)
+                                            (String 1 () ExpressionLength CString)
                                             ()
                                         )
                                     )

@@ -115,7 +115,9 @@
                                                     ()
                                                     Default
                                                     (List
-                                                        (String 1 -2 () PointerString)
+                                                        (Allocatable
+                                                            (String 1 () DeferredLength DescriptorString)
+                                                        )
                                                     )
                                                     ()
                                                     Source
@@ -123,6 +125,8 @@
                                                     Required
                                                     .false.
                                                     .false.
+                                                    .false.
+                                                    ()
                                                     .false.
                                                 ),
                                             b:
@@ -144,6 +148,8 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
+                                                    .false.
                                                 ),
                                             c:
                                                 (Variable
@@ -164,6 +170,8 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
+                                                    .false.
                                                 ),
                                             d:
                                                 (Variable
@@ -183,6 +191,8 @@
                                                     Required
                                                     .false.
                                                     .false.
+                                                    .false.
+                                                    ()
                                                     .false.
                                                 )
                                         })
@@ -208,21 +218,22 @@
                                         (ListConstant
                                             [(StringConstant
                                                 "ab"
-                                                (String 1 2 () PointerString)
+                                                (String 1 (IntegerConstant 2 (Integer 4) Decimal) ExpressionLength PointerString)
                                             )
                                             (StringConstant
                                                 "abc"
-                                                (String 1 3 () PointerString)
+                                                (String 1 (IntegerConstant 3 (Integer 4) Decimal) ExpressionLength PointerString)
                                             )
                                             (StringConstant
                                                 "abcd"
-                                                (String 1 4 () PointerString)
+                                                (String 1 (IntegerConstant 4 (Integer 4) Decimal) ExpressionLength PointerString)
                                             )]
                                             (List
-                                                (String 1 2 () PointerString)
+                                                (String 1 (IntegerConstant 2 (Integer 4) Decimal) ExpressionLength PointerString)
                                             )
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 b)
@@ -236,6 +247,7 @@
                                             )
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 c)
@@ -265,6 +277,7 @@
                                             )
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 d)
@@ -275,13 +288,14 @@
                                             )
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Print
                                         (StringFormat
                                             ()
                                             [(Var 3 a)]
                                             FormatPythonFormat
-                                            (String -1 0 () PointerString)
+                                            (String 1 () ExpressionLength CString)
                                             ()
                                         )
                                     )
@@ -290,7 +304,7 @@
                                             ()
                                             [(Var 3 b)]
                                             FormatPythonFormat
-                                            (String -1 0 () PointerString)
+                                            (String 1 () ExpressionLength CString)
                                             ()
                                         )
                                     )
@@ -299,7 +313,7 @@
                                             ()
                                             [(Var 3 c)]
                                             FormatPythonFormat
-                                            (String -1 0 () PointerString)
+                                            (String 1 () ExpressionLength CString)
                                             ()
                                         )
                                     )
@@ -308,7 +322,7 @@
                                             ()
                                             [(Var 3 d)]
                                             FormatPythonFormat
-                                            (String -1 0 () PointerString)
+                                            (String 1 () ExpressionLength CString)
                                             ()
                                         )
                                     )
@@ -321,7 +335,7 @@
                                             (Var 3 c)
                                             (Var 3 d)]
                                             FormatPythonFormat
-                                            (String -1 0 () PointerString)
+                                            (String 1 () ExpressionLength CString)
                                             ()
                                         )
                                     )
@@ -339,7 +353,7 @@
                                             )
                                             (Var 3 d)]
                                             FormatPythonFormat
-                                            (String -1 0 () PointerString)
+                                            (String 1 () ExpressionLength CString)
                                             ()
                                         )
                                     )
@@ -360,7 +374,7 @@
                                                 )
                                             )]
                                             FormatPythonFormat
-                                            (String -1 0 () PointerString)
+                                            (String 1 () ExpressionLength CString)
                                             ()
                                         )
                                     )
@@ -370,34 +384,34 @@
                                             [(ListConstant
                                                 [(StringConstant
                                                     "a"
-                                                    (String 1 1 () PointerString)
+                                                    (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
                                                 )
                                                 (StringConstant
                                                     "b"
-                                                    (String 1 1 () PointerString)
+                                                    (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
                                                 )
                                                 (StringConstant
                                                     "c"
-                                                    (String 1 1 () PointerString)
+                                                    (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
                                                 )
                                                 (StringConstant
                                                     "d"
-                                                    (String 1 1 () PointerString)
+                                                    (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
                                                 )
                                                 (StringConstant
                                                     "e"
-                                                    (String 1 1 () PointerString)
+                                                    (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
                                                 )
                                                 (StringConstant
                                                     "f"
-                                                    (String 1 1 () PointerString)
+                                                    (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
                                                 )]
                                                 (List
-                                                    (String 1 1 () PointerString)
+                                                    (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
                                                 )
                                             )]
                                             FormatPythonFormat
-                                            (String -1 0 () PointerString)
+                                            (String 1 () ExpressionLength CString)
                                             ()
                                         )
                                     )
@@ -416,7 +430,7 @@
                                             (Var 3 a)
                                             (Var 3 c)]
                                             FormatPythonFormat
-                                            (String -1 0 () PointerString)
+                                            (String 1 () ExpressionLength CString)
                                             ()
                                         )
                                     )]
@@ -458,6 +472,8 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
+                                                    .false.
                                                 ),
                                             x:
                                                 (Variable
@@ -482,6 +498,8 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
+                                                    .false.
                                                 ),
                                             y:
                                                 (Variable
@@ -504,6 +522,8 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
+                                                    .false.
                                                 ),
                                             z:
                                                 (Variable
@@ -516,7 +536,9 @@
                                                     Default
                                                     (List
                                                         (List
-                                                            (String 1 -2 () PointerString)
+                                                            (Allocatable
+                                                                (String 1 () DeferredLength DescriptorString)
+                                                            )
                                                         )
                                                     )
                                                     ()
@@ -525,6 +547,8 @@
                                                     Required
                                                     .false.
                                                     .false.
+                                                    .false.
+                                                    ()
                                                     .false.
                                                 )
                                         })
@@ -633,6 +657,7 @@
                                             )
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 4 x)
@@ -720,6 +745,7 @@
                                             )
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 4 y)
@@ -771,6 +797,7 @@
                                             )
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 4 z)
@@ -778,64 +805,65 @@
                                             [(ListConstant
                                                 [(StringConstant
                                                     "bat"
-                                                    (String 1 3 () PointerString)
+                                                    (String 1 (IntegerConstant 3 (Integer 4) Decimal) ExpressionLength PointerString)
                                                 )
                                                 (StringConstant
                                                     "ball"
-                                                    (String 1 4 () PointerString)
+                                                    (String 1 (IntegerConstant 4 (Integer 4) Decimal) ExpressionLength PointerString)
                                                 )]
                                                 (List
-                                                    (String 1 3 () PointerString)
+                                                    (String 1 (IntegerConstant 3 (Integer 4) Decimal) ExpressionLength PointerString)
                                                 )
                                             )
                                             (ListConstant
                                                 [(StringConstant
                                                     "cat"
-                                                    (String 1 3 () PointerString)
+                                                    (String 1 (IntegerConstant 3 (Integer 4) Decimal) ExpressionLength PointerString)
                                                 )
                                                 (StringConstant
                                                     "dog"
-                                                    (String 1 3 () PointerString)
+                                                    (String 1 (IntegerConstant 3 (Integer 4) Decimal) ExpressionLength PointerString)
                                                 )]
                                                 (List
-                                                    (String 1 3 () PointerString)
+                                                    (String 1 (IntegerConstant 3 (Integer 4) Decimal) ExpressionLength PointerString)
                                                 )
                                             )
                                             (ListConstant
                                                 [(StringConstant
                                                     "c"
-                                                    (String 1 1 () PointerString)
+                                                    (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
                                                 )
                                                 (StringConstant
                                                     "c++"
-                                                    (String 1 3 () PointerString)
+                                                    (String 1 (IntegerConstant 3 (Integer 4) Decimal) ExpressionLength PointerString)
                                                 )
                                                 (StringConstant
                                                     "java"
-                                                    (String 1 4 () PointerString)
+                                                    (String 1 (IntegerConstant 4 (Integer 4) Decimal) ExpressionLength PointerString)
                                                 )
                                                 (StringConstant
                                                     "python"
-                                                    (String 1 6 () PointerString)
+                                                    (String 1 (IntegerConstant 6 (Integer 4) Decimal) ExpressionLength PointerString)
                                                 )]
                                                 (List
-                                                    (String 1 1 () PointerString)
+                                                    (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
                                                 )
                                             )]
                                             (List
                                                 (List
-                                                    (String 1 3 () PointerString)
+                                                    (String 1 (IntegerConstant 3 (Integer 4) Decimal) ExpressionLength PointerString)
                                                 )
                                             )
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Print
                                         (StringFormat
                                             ()
                                             [(Var 4 w)]
                                             FormatPythonFormat
-                                            (String -1 0 () PointerString)
+                                            (String 1 () ExpressionLength CString)
                                             ()
                                         )
                                     )
@@ -844,7 +872,7 @@
                                             ()
                                             [(Var 4 x)]
                                             FormatPythonFormat
-                                            (String -1 0 () PointerString)
+                                            (String 1 () ExpressionLength CString)
                                             ()
                                         )
                                     )
@@ -853,7 +881,7 @@
                                             ()
                                             [(Var 4 y)]
                                             FormatPythonFormat
-                                            (String -1 0 () PointerString)
+                                            (String 1 () ExpressionLength CString)
                                             ()
                                         )
                                     )
@@ -862,7 +890,7 @@
                                             ()
                                             [(Var 4 z)]
                                             FormatPythonFormat
-                                            (String -1 0 () PointerString)
+                                            (String 1 () ExpressionLength CString)
                                             ()
                                         )
                                     )]
@@ -898,6 +926,8 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
+                                                    .false.
                                                 ),
                                             q:
                                                 (Variable
@@ -924,6 +954,8 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
+                                                    .false.
                                                 ),
                                             r:
                                                 (Variable
@@ -937,7 +969,9 @@
                                                     (List
                                                         (List
                                                             (List
-                                                                (String 1 -2 () PointerString)
+                                                                (Allocatable
+                                                                    (String 1 () DeferredLength DescriptorString)
+                                                                )
                                                             )
                                                         )
                                                     )
@@ -947,6 +981,8 @@
                                                     Required
                                                     .false.
                                                     .false.
+                                                    .false.
+                                                    ()
                                                     .false.
                                                 )
                                         })
@@ -1127,6 +1163,7 @@
                                             )
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 6 q)
@@ -1950,6 +1987,7 @@
                                             )
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 6 r)
@@ -1958,131 +1996,131 @@
                                                 [(ListConstant
                                                     [(StringConstant
                                                         "Io"
-                                                        (String 1 2 () PointerString)
+                                                        (String 1 (IntegerConstant 2 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                     (StringConstant
                                                         "tl"
-                                                        (String 1 2 () PointerString)
+                                                        (String 1 (IntegerConstant 2 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                     (StringConstant
                                                         "bLvjV"
-                                                        (String 1 5 () PointerString)
+                                                        (String 1 (IntegerConstant 5 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                     (StringConstant
                                                         "wjFKQ"
-                                                        (String 1 5 () PointerString)
+                                                        (String 1 (IntegerConstant 5 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                     (StringConstant
                                                         "lY2"
-                                                        (String 1 3 () PointerString)
+                                                        (String 1 (IntegerConstant 3 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )]
                                                     (List
-                                                        (String 1 2 () PointerString)
+                                                        (String 1 (IntegerConstant 2 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                 )
                                                 (ListConstant
                                                     [(StringConstant
                                                         "Be2l6bqE"
-                                                        (String 1 8 () PointerString)
+                                                        (String 1 (IntegerConstant 8 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                     (StringConstant
                                                         "pQER3utIXA"
-                                                        (String 1 10 () PointerString)
+                                                        (String 1 (IntegerConstant 10 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                     (StringConstant
                                                         "llZBJj5Cdu"
-                                                        (String 1 10 () PointerString)
+                                                        (String 1 (IntegerConstant 10 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                     (StringConstant
                                                         "C8"
-                                                        (String 1 2 () PointerString)
+                                                        (String 1 (IntegerConstant 2 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                     (StringConstant
                                                         "gwTr77PdYR"
-                                                        (String 1 10 () PointerString)
+                                                        (String 1 (IntegerConstant 10 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )]
                                                     (List
-                                                        (String 1 8 () PointerString)
+                                                        (String 1 (IntegerConstant 8 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                 )
                                                 (ListConstant
                                                     [(StringConstant
                                                         "4M6L"
-                                                        (String 1 4 () PointerString)
+                                                        (String 1 (IntegerConstant 4 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                     (StringConstant
                                                         "ktPdowqERy"
-                                                        (String 1 10 () PointerString)
+                                                        (String 1 (IntegerConstant 10 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                     (StringConstant
                                                         "KSifqTkR"
-                                                        (String 1 8 () PointerString)
+                                                        (String 1 (IntegerConstant 8 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                     (StringConstant
                                                         "ZE2p1N78f1"
-                                                        (String 1 10 () PointerString)
+                                                        (String 1 (IntegerConstant 10 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                     (StringConstant
                                                         "Mi5e87Xw"
-                                                        (String 1 8 () PointerString)
+                                                        (String 1 (IntegerConstant 8 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )]
                                                     (List
-                                                        (String 1 4 () PointerString)
+                                                        (String 1 (IntegerConstant 4 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                 )
                                                 (ListConstant
                                                     [(StringConstant
                                                         "uwfzqDq9g"
-                                                        (String 1 9 () PointerString)
+                                                        (String 1 (IntegerConstant 9 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                     (StringConstant
                                                         "QaM1s"
-                                                        (String 1 5 () PointerString)
+                                                        (String 1 (IntegerConstant 5 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                     (StringConstant
                                                         ""
-                                                        (String 1 0 () PointerString)
+                                                        (String 1 (IntegerConstant 0 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                     (StringConstant
                                                         ""
-                                                        (String 1 0 () PointerString)
+                                                        (String 1 (IntegerConstant 0 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                     (StringConstant
                                                         "LB"
-                                                        (String 1 2 () PointerString)
+                                                        (String 1 (IntegerConstant 2 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )]
                                                     (List
-                                                        (String 1 9 () PointerString)
+                                                        (String 1 (IntegerConstant 9 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                 )
                                                 (ListConstant
                                                     [(StringConstant
                                                         "OJFRY6k"
-                                                        (String 1 7 () PointerString)
+                                                        (String 1 (IntegerConstant 7 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                     (StringConstant
                                                         "iz7Oie"
-                                                        (String 1 6 () PointerString)
+                                                        (String 1 (IntegerConstant 6 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                     (StringConstant
                                                         ""
-                                                        (String 1 0 () PointerString)
+                                                        (String 1 (IntegerConstant 0 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                     (StringConstant
                                                         "LUYLF"
-                                                        (String 1 5 () PointerString)
+                                                        (String 1 (IntegerConstant 5 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                     (StringConstant
                                                         "JBND5FuV7l"
-                                                        (String 1 10 () PointerString)
+                                                        (String 1 (IntegerConstant 10 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )]
                                                     (List
-                                                        (String 1 7 () PointerString)
+                                                        (String 1 (IntegerConstant 7 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                 )]
                                                 (List
                                                     (List
-                                                        (String 1 2 () PointerString)
+                                                        (String 1 (IntegerConstant 2 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                 )
                                             )
@@ -2090,131 +2128,131 @@
                                                 [(ListConstant
                                                     [(StringConstant
                                                         "m"
-                                                        (String 1 1 () PointerString)
+                                                        (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                     (StringConstant
                                                         "WIQBQfV"
-                                                        (String 1 7 () PointerString)
+                                                        (String 1 (IntegerConstant 7 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                     (StringConstant
                                                         "jxjDrqxu"
-                                                        (String 1 8 () PointerString)
+                                                        (String 1 (IntegerConstant 8 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                     (StringConstant
                                                         "kea"
-                                                        (String 1 3 () PointerString)
+                                                        (String 1 (IntegerConstant 3 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                     (StringConstant
                                                         "mu"
-                                                        (String 1 2 () PointerString)
+                                                        (String 1 (IntegerConstant 2 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )]
                                                     (List
-                                                        (String 1 1 () PointerString)
+                                                        (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                 )
                                                 (ListConstant
                                                     [(StringConstant
                                                         ""
-                                                        (String 1 0 () PointerString)
+                                                        (String 1 (IntegerConstant 0 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                     (StringConstant
                                                         "GI8aOwLMe"
-                                                        (String 1 9 () PointerString)
+                                                        (String 1 (IntegerConstant 9 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                     (StringConstant
                                                         "Y5m8"
-                                                        (String 1 4 () PointerString)
+                                                        (String 1 (IntegerConstant 4 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                     (StringConstant
                                                         "a02Rz"
-                                                        (String 1 5 () PointerString)
+                                                        (String 1 (IntegerConstant 5 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                     (StringConstant
                                                         "xNKCJ"
-                                                        (String 1 5 () PointerString)
+                                                        (String 1 (IntegerConstant 5 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )]
                                                     (List
-                                                        (String 1 0 () PointerString)
+                                                        (String 1 (IntegerConstant 0 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                 )
                                                 (ListConstant
                                                     [(StringConstant
                                                         "LzkhyiJQHP"
-                                                        (String 1 10 () PointerString)
+                                                        (String 1 (IntegerConstant 10 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                     (StringConstant
                                                         "uzc3xyoXL"
-                                                        (String 1 9 () PointerString)
+                                                        (String 1 (IntegerConstant 9 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                     (StringConstant
                                                         "sKGnYfpRy"
-                                                        (String 1 9 () PointerString)
+                                                        (String 1 (IntegerConstant 9 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                     (StringConstant
                                                         "7x"
-                                                        (String 1 2 () PointerString)
+                                                        (String 1 (IntegerConstant 2 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                     (StringConstant
                                                         "WTVKrnPO"
-                                                        (String 1 8 () PointerString)
+                                                        (String 1 (IntegerConstant 8 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )]
                                                     (List
-                                                        (String 1 10 () PointerString)
+                                                        (String 1 (IntegerConstant 10 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                 )
                                                 (ListConstant
                                                     [(StringConstant
                                                         "TZa6"
-                                                        (String 1 4 () PointerString)
+                                                        (String 1 (IntegerConstant 4 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                     (StringConstant
                                                         "GXRuyRX"
-                                                        (String 1 7 () PointerString)
+                                                        (String 1 (IntegerConstant 7 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                     (StringConstant
                                                         "R"
-                                                        (String 1 1 () PointerString)
+                                                        (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                     (StringConstant
                                                         "JQxS"
-                                                        (String 1 4 () PointerString)
+                                                        (String 1 (IntegerConstant 4 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                     (StringConstant
                                                         "OH"
-                                                        (String 1 2 () PointerString)
+                                                        (String 1 (IntegerConstant 2 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )]
                                                     (List
-                                                        (String 1 4 () PointerString)
+                                                        (String 1 (IntegerConstant 4 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                 )
                                                 (ListConstant
                                                     [(StringConstant
                                                         "bSVJZ1OQ"
-                                                        (String 1 8 () PointerString)
+                                                        (String 1 (IntegerConstant 8 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                     (StringConstant
                                                         "M"
-                                                        (String 1 1 () PointerString)
+                                                        (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                     (StringConstant
                                                         "I9omlF"
-                                                        (String 1 6 () PointerString)
+                                                        (String 1 (IntegerConstant 6 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                     (StringConstant
                                                         "x7FR"
-                                                        (String 1 4 () PointerString)
+                                                        (String 1 (IntegerConstant 4 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                     (StringConstant
                                                         "XtpL"
-                                                        (String 1 4 () PointerString)
+                                                        (String 1 (IntegerConstant 4 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )]
                                                     (List
-                                                        (String 1 8 () PointerString)
+                                                        (String 1 (IntegerConstant 8 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                 )]
                                                 (List
                                                     (List
-                                                        (String 1 1 () PointerString)
+                                                        (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                 )
                                             )
@@ -2222,131 +2260,131 @@
                                                 [(ListConstant
                                                     [(StringConstant
                                                         "DKOpK"
-                                                        (String 1 5 () PointerString)
+                                                        (String 1 (IntegerConstant 5 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                     (StringConstant
                                                         "eg8Nz"
-                                                        (String 1 5 () PointerString)
+                                                        (String 1 (IntegerConstant 5 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                     (StringConstant
                                                         "ru"
-                                                        (String 1 2 () PointerString)
+                                                        (String 1 (IntegerConstant 2 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                     (StringConstant
                                                         "Sj"
-                                                        (String 1 2 () PointerString)
+                                                        (String 1 (IntegerConstant 2 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                     (StringConstant
                                                         "YUDxyI"
-                                                        (String 1 6 () PointerString)
+                                                        (String 1 (IntegerConstant 6 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )]
                                                     (List
-                                                        (String 1 5 () PointerString)
+                                                        (String 1 (IntegerConstant 5 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                 )
                                                 (ListConstant
                                                     [(StringConstant
                                                         "Q5uyhvp"
-                                                        (String 1 7 () PointerString)
+                                                        (String 1 (IntegerConstant 7 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                     (StringConstant
                                                         "Ydx"
-                                                        (String 1 3 () PointerString)
+                                                        (String 1 (IntegerConstant 3 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                     (StringConstant
                                                         "p"
-                                                        (String 1 1 () PointerString)
+                                                        (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                     (StringConstant
                                                         "DLM5RX"
-                                                        (String 1 6 () PointerString)
+                                                        (String 1 (IntegerConstant 6 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                     (StringConstant
                                                         "pwOujxCO"
-                                                        (String 1 8 () PointerString)
+                                                        (String 1 (IntegerConstant 8 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )]
                                                     (List
-                                                        (String 1 7 () PointerString)
+                                                        (String 1 (IntegerConstant 7 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                 )
                                                 (ListConstant
                                                     [(StringConstant
                                                         "s5GOWnNJV"
-                                                        (String 1 9 () PointerString)
+                                                        (String 1 (IntegerConstant 9 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                     (StringConstant
                                                         "af"
-                                                        (String 1 2 () PointerString)
+                                                        (String 1 (IntegerConstant 2 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                     (StringConstant
                                                         "KAkD"
-                                                        (String 1 4 () PointerString)
+                                                        (String 1 (IntegerConstant 4 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                     (StringConstant
                                                         "4IIZK"
-                                                        (String 1 5 () PointerString)
+                                                        (String 1 (IntegerConstant 5 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                     (StringConstant
                                                         "JQK040x"
-                                                        (String 1 7 () PointerString)
+                                                        (String 1 (IntegerConstant 7 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )]
                                                     (List
-                                                        (String 1 9 () PointerString)
+                                                        (String 1 (IntegerConstant 9 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                 )
                                                 (ListConstant
                                                     [(StringConstant
                                                         "9vF"
-                                                        (String 1 3 () PointerString)
+                                                        (String 1 (IntegerConstant 3 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                     (StringConstant
                                                         "9pc7R8v"
-                                                        (String 1 7 () PointerString)
+                                                        (String 1 (IntegerConstant 7 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                     (StringConstant
                                                         "nDReIU7"
-                                                        (String 1 7 () PointerString)
+                                                        (String 1 (IntegerConstant 7 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                     (StringConstant
                                                         "K"
-                                                        (String 1 1 () PointerString)
+                                                        (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                     (StringConstant
                                                         "btn"
-                                                        (String 1 3 () PointerString)
+                                                        (String 1 (IntegerConstant 3 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )]
                                                     (List
-                                                        (String 1 3 () PointerString)
+                                                        (String 1 (IntegerConstant 3 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                 )
                                                 (ListConstant
                                                     [(StringConstant
                                                         ""
-                                                        (String 1 0 () PointerString)
+                                                        (String 1 (IntegerConstant 0 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                     (StringConstant
                                                         "wVeivkdi"
-                                                        (String 1 8 () PointerString)
+                                                        (String 1 (IntegerConstant 8 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                     (StringConstant
                                                         ""
-                                                        (String 1 0 () PointerString)
+                                                        (String 1 (IntegerConstant 0 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                     (StringConstant
                                                         ""
-                                                        (String 1 0 () PointerString)
+                                                        (String 1 (IntegerConstant 0 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                     (StringConstant
                                                         "C"
-                                                        (String 1 1 () PointerString)
+                                                        (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )]
                                                     (List
-                                                        (String 1 0 () PointerString)
+                                                        (String 1 (IntegerConstant 0 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                 )]
                                                 (List
                                                     (List
-                                                        (String 1 5 () PointerString)
+                                                        (String 1 (IntegerConstant 5 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                 )
                                             )
@@ -2354,131 +2392,131 @@
                                                 [(ListConstant
                                                     [(StringConstant
                                                         "vNTtcRXD"
-                                                        (String 1 8 () PointerString)
+                                                        (String 1 (IntegerConstant 8 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                     (StringConstant
                                                         "rsi"
-                                                        (String 1 3 () PointerString)
+                                                        (String 1 (IntegerConstant 3 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                     (StringConstant
                                                         "YsoF7mZD"
-                                                        (String 1 8 () PointerString)
+                                                        (String 1 (IntegerConstant 8 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                     (StringConstant
                                                         "VrPXU50rgA"
-                                                        (String 1 10 () PointerString)
+                                                        (String 1 (IntegerConstant 10 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                     (StringConstant
                                                         "mG7zqN0G"
-                                                        (String 1 8 () PointerString)
+                                                        (String 1 (IntegerConstant 8 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )]
                                                     (List
-                                                        (String 1 8 () PointerString)
+                                                        (String 1 (IntegerConstant 8 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                 )
                                                 (ListConstant
                                                     [(StringConstant
                                                         "la7cJ"
-                                                        (String 1 5 () PointerString)
+                                                        (String 1 (IntegerConstant 5 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                     (StringConstant
                                                         "M5rLJ8Go"
-                                                        (String 1 8 () PointerString)
+                                                        (String 1 (IntegerConstant 8 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                     (StringConstant
                                                         "gb"
-                                                        (String 1 2 () PointerString)
+                                                        (String 1 (IntegerConstant 2 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                     (StringConstant
                                                         "FjKwYZ7E"
-                                                        (String 1 8 () PointerString)
+                                                        (String 1 (IntegerConstant 8 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                     (StringConstant
                                                         "uSPD"
-                                                        (String 1 4 () PointerString)
+                                                        (String 1 (IntegerConstant 4 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )]
                                                     (List
-                                                        (String 1 5 () PointerString)
+                                                        (String 1 (IntegerConstant 5 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                 )
                                                 (ListConstant
                                                     [(StringConstant
                                                         ""
-                                                        (String 1 0 () PointerString)
+                                                        (String 1 (IntegerConstant 0 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                     (StringConstant
                                                         "oOa79jWcMx"
-                                                        (String 1 10 () PointerString)
+                                                        (String 1 (IntegerConstant 10 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                     (StringConstant
                                                         "yyAYZZ"
-                                                        (String 1 6 () PointerString)
+                                                        (String 1 (IntegerConstant 6 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                     (StringConstant
                                                         "wbvggXm"
-                                                        (String 1 7 () PointerString)
+                                                        (String 1 (IntegerConstant 7 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                     (StringConstant
                                                         "aE3BkCL4"
-                                                        (String 1 8 () PointerString)
+                                                        (String 1 (IntegerConstant 8 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )]
                                                     (List
-                                                        (String 1 0 () PointerString)
+                                                        (String 1 (IntegerConstant 0 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                 )
                                                 (ListConstant
                                                     [(StringConstant
                                                         "RdP"
-                                                        (String 1 3 () PointerString)
+                                                        (String 1 (IntegerConstant 3 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                     (StringConstant
                                                         "Hwc0x9RZ"
-                                                        (String 1 8 () PointerString)
+                                                        (String 1 (IntegerConstant 8 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                     (StringConstant
                                                         "sy"
-                                                        (String 1 2 () PointerString)
+                                                        (String 1 (IntegerConstant 2 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                     (StringConstant
                                                         "9"
-                                                        (String 1 1 () PointerString)
+                                                        (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                     (StringConstant
                                                         "W1d9xA2BXe"
-                                                        (String 1 10 () PointerString)
+                                                        (String 1 (IntegerConstant 10 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )]
                                                     (List
-                                                        (String 1 3 () PointerString)
+                                                        (String 1 (IntegerConstant 3 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                 )
                                                 (ListConstant
                                                     [(StringConstant
                                                         "A"
-                                                        (String 1 1 () PointerString)
+                                                        (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                     (StringConstant
                                                         ""
-                                                        (String 1 0 () PointerString)
+                                                        (String 1 (IntegerConstant 0 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                     (StringConstant
                                                         "QnK"
-                                                        (String 1 3 () PointerString)
+                                                        (String 1 (IntegerConstant 3 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                     (StringConstant
                                                         "N5tzN"
-                                                        (String 1 5 () PointerString)
+                                                        (String 1 (IntegerConstant 5 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                     (StringConstant
                                                         "ou7Lp"
-                                                        (String 1 5 () PointerString)
+                                                        (String 1 (IntegerConstant 5 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )]
                                                     (List
-                                                        (String 1 1 () PointerString)
+                                                        (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                 )]
                                                 (List
                                                     (List
-                                                        (String 1 8 () PointerString)
+                                                        (String 1 (IntegerConstant 8 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                 )
                                             )
@@ -2486,150 +2524,151 @@
                                                 [(ListConstant
                                                     [(StringConstant
                                                         "DL68rDF"
-                                                        (String 1 7 () PointerString)
+                                                        (String 1 (IntegerConstant 7 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                     (StringConstant
                                                         "v"
-                                                        (String 1 1 () PointerString)
+                                                        (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                     (StringConstant
                                                         "kQ3Mxm"
-                                                        (String 1 6 () PointerString)
+                                                        (String 1 (IntegerConstant 6 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                     (StringConstant
                                                         "g"
-                                                        (String 1 1 () PointerString)
+                                                        (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                     (StringConstant
                                                         "6KTeF4Eo"
-                                                        (String 1 8 () PointerString)
+                                                        (String 1 (IntegerConstant 8 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )]
                                                     (List
-                                                        (String 1 7 () PointerString)
+                                                        (String 1 (IntegerConstant 7 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                 )
                                                 (ListConstant
                                                     [(StringConstant
                                                         "Hx9"
-                                                        (String 1 3 () PointerString)
+                                                        (String 1 (IntegerConstant 3 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                     (StringConstant
                                                         "Y1IzQm85Z4"
-                                                        (String 1 10 () PointerString)
+                                                        (String 1 (IntegerConstant 10 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                     (StringConstant
                                                         "3D8"
-                                                        (String 1 3 () PointerString)
+                                                        (String 1 (IntegerConstant 3 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                     (StringConstant
                                                         "ZLZ5"
-                                                        (String 1 4 () PointerString)
+                                                        (String 1 (IntegerConstant 4 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                     (StringConstant
                                                         "rWn"
-                                                        (String 1 3 () PointerString)
+                                                        (String 1 (IntegerConstant 3 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )]
                                                     (List
-                                                        (String 1 3 () PointerString)
+                                                        (String 1 (IntegerConstant 3 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                 )
                                                 (ListConstant
                                                     [(StringConstant
                                                         "LtT"
-                                                        (String 1 3 () PointerString)
+                                                        (String 1 (IntegerConstant 3 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                     (StringConstant
                                                         "Dh5B"
-                                                        (String 1 4 () PointerString)
+                                                        (String 1 (IntegerConstant 4 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                     (StringConstant
                                                         "M"
-                                                        (String 1 1 () PointerString)
+                                                        (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                     (StringConstant
                                                         "F"
-                                                        (String 1 1 () PointerString)
+                                                        (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                     (StringConstant
                                                         "QTARbY"
-                                                        (String 1 6 () PointerString)
+                                                        (String 1 (IntegerConstant 6 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )]
                                                     (List
-                                                        (String 1 3 () PointerString)
+                                                        (String 1 (IntegerConstant 3 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                 )
                                                 (ListConstant
                                                     [(StringConstant
                                                         "Sh"
-                                                        (String 1 2 () PointerString)
+                                                        (String 1 (IntegerConstant 2 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                     (StringConstant
                                                         "WL"
-                                                        (String 1 2 () PointerString)
+                                                        (String 1 (IntegerConstant 2 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                     (StringConstant
                                                         "yvAfWvZSx1"
-                                                        (String 1 10 () PointerString)
+                                                        (String 1 (IntegerConstant 10 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                     (StringConstant
                                                         "90yx"
-                                                        (String 1 4 () PointerString)
+                                                        (String 1 (IntegerConstant 4 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                     (StringConstant
                                                         "v"
-                                                        (String 1 1 () PointerString)
+                                                        (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )]
                                                     (List
-                                                        (String 1 2 () PointerString)
+                                                        (String 1 (IntegerConstant 2 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                 )
                                                 (ListConstant
                                                     [(StringConstant
                                                         ""
-                                                        (String 1 0 () PointerString)
+                                                        (String 1 (IntegerConstant 0 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                     (StringConstant
                                                         "7IBW"
-                                                        (String 1 4 () PointerString)
+                                                        (String 1 (IntegerConstant 4 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                     (StringConstant
                                                         "nI"
-                                                        (String 1 2 () PointerString)
+                                                        (String 1 (IntegerConstant 2 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                     (StringConstant
                                                         ""
-                                                        (String 1 0 () PointerString)
+                                                        (String 1 (IntegerConstant 0 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                     (StringConstant
                                                         "6Cbp5c8RT"
-                                                        (String 1 9 () PointerString)
+                                                        (String 1 (IntegerConstant 9 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )]
                                                     (List
-                                                        (String 1 0 () PointerString)
+                                                        (String 1 (IntegerConstant 0 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                 )]
                                                 (List
                                                     (List
-                                                        (String 1 7 () PointerString)
+                                                        (String 1 (IntegerConstant 7 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                 )
                                             )]
                                             (List
                                                 (List
                                                     (List
-                                                        (String 1 2 () PointerString)
+                                                        (String 1 (IntegerConstant 2 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )
                                                 )
                                             )
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Print
                                         (StringFormat
                                             ()
                                             [(Var 6 p)]
                                             FormatPythonFormat
-                                            (String -1 0 () PointerString)
+                                            (String 1 () ExpressionLength CString)
                                             ()
                                         )
                                     )
@@ -2638,7 +2677,7 @@
                                             ()
                                             [(Var 6 q)]
                                             FormatPythonFormat
-                                            (String -1 0 () PointerString)
+                                            (String 1 () ExpressionLength CString)
                                             ()
                                         )
                                     )
@@ -2647,7 +2686,7 @@
                                             ()
                                             [(Var 6 r)]
                                             FormatPythonFormat
-                                            (String -1 0 () PointerString)
+                                            (String 1 () ExpressionLength CString)
                                             ()
                                         )
                                     )]
@@ -2684,6 +2723,8 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
+                                                    .false.
                                                 ),
                                             b:
                                                 (Variable
@@ -2696,7 +2737,9 @@
                                                     Default
                                                     (Tuple
                                                         [(List
-                                                            (String 1 -2 () PointerString)
+                                                            (Allocatable
+                                                                (String 1 () DeferredLength DescriptorString)
+                                                            )
                                                         )
                                                         (List
                                                             (Integer 4)
@@ -2710,6 +2753,8 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
+                                                    .false.
                                                 ),
                                             b1:
                                                 (Variable
@@ -2721,7 +2766,9 @@
                                                     ()
                                                     Default
                                                     (List
-                                                        (String 1 -2 () PointerString)
+                                                        (Allocatable
+                                                            (String 1 () DeferredLength DescriptorString)
+                                                        )
                                                     )
                                                     ()
                                                     Source
@@ -2729,6 +2776,8 @@
                                                     Required
                                                     .false.
                                                     .false.
+                                                    .false.
+                                                    ()
                                                     .false.
                                                 ),
                                             b2:
@@ -2750,6 +2799,8 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
+                                                    .false.
                                                 ),
                                             c:
                                                 (Variable
@@ -2764,7 +2815,9 @@
                                                         (List
                                                             (Tuple
                                                                 [(Integer 4)
-                                                                (String 1 -2 () PointerString)]
+                                                                (Allocatable
+                                                                    (String 1 () DeferredLength DescriptorString)
+                                                                )]
                                                             )
                                                         )
                                                     )
@@ -2774,6 +2827,8 @@
                                                     Required
                                                     .false.
                                                     .false.
+                                                    .false.
+                                                    ()
                                                     .false.
                                                 )
                                         })
@@ -2829,6 +2884,7 @@
                                             )
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 5 c)
@@ -2838,28 +2894,28 @@
                                                     [(IntegerConstant 1 (Integer 4) Decimal)
                                                     (StringConstant
                                                         "a"
-                                                        (String 1 1 () PointerString)
+                                                        (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )]
                                                     (Tuple
                                                         [(Integer 4)
-                                                        (String 1 1 () PointerString)]
+                                                        (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)]
                                                     )
                                                 )
                                                 (TupleConstant
                                                     [(IntegerConstant 2 (Integer 4) Decimal)
                                                     (StringConstant
                                                         "b"
-                                                        (String 1 1 () PointerString)
+                                                        (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )]
                                                     (Tuple
                                                         [(Integer 4)
-                                                        (String 1 1 () PointerString)]
+                                                        (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)]
                                                     )
                                                 )]
                                                 (List
                                                     (Tuple
                                                         [(Integer 4)
-                                                        (String 1 1 () PointerString)]
+                                                        (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)]
                                                     )
                                                 )
                                             )
@@ -2868,28 +2924,28 @@
                                                     [(IntegerConstant 3 (Integer 4) Decimal)
                                                     (StringConstant
                                                         "c"
-                                                        (String 1 1 () PointerString)
+                                                        (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )]
                                                     (Tuple
                                                         [(Integer 4)
-                                                        (String 1 1 () PointerString)]
+                                                        (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)]
                                                     )
                                                 )
                                                 (TupleConstant
                                                     [(IntegerConstant 4 (Integer 4) Decimal)
                                                     (StringConstant
                                                         "d"
-                                                        (String 1 1 () PointerString)
+                                                        (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     )]
                                                     (Tuple
                                                         [(Integer 4)
-                                                        (String 1 1 () PointerString)]
+                                                        (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)]
                                                     )
                                                 )]
                                                 (List
                                                     (Tuple
                                                         [(Integer 4)
-                                                        (String 1 1 () PointerString)]
+                                                        (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)]
                                                     )
                                                 )
                                             )]
@@ -2897,41 +2953,43 @@
                                                 (List
                                                     (Tuple
                                                         [(Integer 4)
-                                                        (String 1 1 () PointerString)]
+                                                        (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)]
                                                     )
                                                 )
                                             )
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 5 b1)
                                         (ListConstant
                                             [(StringConstant
                                                 "a"
-                                                (String 1 1 () PointerString)
+                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
                                             )
                                             (StringConstant
                                                 "bb"
-                                                (String 1 2 () PointerString)
+                                                (String 1 (IntegerConstant 2 (Integer 4) Decimal) ExpressionLength PointerString)
                                             )
                                             (StringConstant
                                                 "ccc"
-                                                (String 1 3 () PointerString)
+                                                (String 1 (IntegerConstant 3 (Integer 4) Decimal) ExpressionLength PointerString)
                                             )
                                             (StringConstant
                                                 "dddd"
-                                                (String 1 4 () PointerString)
+                                                (String 1 (IntegerConstant 4 (Integer 4) Decimal) ExpressionLength PointerString)
                                             )
                                             (StringConstant
                                                 "eeeee"
-                                                (String 1 5 () PointerString)
+                                                (String 1 (IntegerConstant 5 (Integer 4) Decimal) ExpressionLength PointerString)
                                             )]
                                             (List
-                                                (String 1 1 () PointerString)
+                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
                                             )
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 5 b2)
@@ -2945,6 +3003,7 @@
                                             )
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 5 b)
@@ -2957,7 +3016,9 @@
                                             )]
                                             (Tuple
                                                 [(List
-                                                    (String 1 -2 () PointerString)
+                                                    (Allocatable
+                                                        (String 1 () DeferredLength DescriptorString)
+                                                    )
                                                 )
                                                 (List
                                                     (Integer 4)
@@ -2966,6 +3027,7 @@
                                             )
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Print
                                         (StringFormat
@@ -2973,7 +3035,7 @@
                                             [(Var 5 a)
                                             (Var 5 b)]
                                             FormatPythonFormat
-                                            (String -1 0 () PointerString)
+                                            (String 1 () ExpressionLength CString)
                                             ()
                                         )
                                     )
@@ -2989,7 +3051,7 @@
                                             )
                                             (StringConstant
                                                 "okay"
-                                                (String 1 4 () PointerString)
+                                                (String 1 (IntegerConstant 4 (Integer 4) Decimal) ExpressionLength PointerString)
                                             )
                                             (LogicalConstant
                                                 .true.
@@ -2997,7 +3059,7 @@
                                             )
                                             (IntegerConstant 14483 (Integer 4) Decimal)]
                                             FormatPythonFormat
-                                            (String -1 0 () PointerString)
+                                            (String 1 () ExpressionLength CString)
                                             ()
                                         )
                                     )]

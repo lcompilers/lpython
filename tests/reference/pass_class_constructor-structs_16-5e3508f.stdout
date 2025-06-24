@@ -34,6 +34,8 @@
                                                                     .false.
                                                                     .false.
                                                                     .false.
+                                                                    ()
+                                                                    .false.
                                                                 ),
                                                             y:
                                                                 (Variable
@@ -51,6 +53,8 @@
                                                                     Required
                                                                     .false.
                                                                     .false.
+                                                                    .false.
+                                                                    ()
                                                                     .false.
                                                                 )
                                                         })
@@ -83,6 +87,8 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
+                                                    .false.
                                                 ),
                                             c:
                                                 (Variable
@@ -100,6 +106,8 @@
                                                     Required
                                                     .false.
                                                     .false.
+                                                    .false.
+                                                    ()
                                                     .false.
                                                 )
                                         })
@@ -210,6 +218,8 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
+                                                    .false.
                                                 ),
                                             bd:
                                                 (Variable
@@ -229,6 +239,8 @@
                                                     Required
                                                     .false.
                                                     .false.
+                                                    .false.
+                                                    ()
                                                     .false.
                                                 )
                                         })
@@ -260,6 +272,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (UnionInstanceMember
@@ -270,6 +283,7 @@
                                         )
                                         (IntegerConstant 1 (Integer 4) Decimal)
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (StructInstanceMember
@@ -282,6 +296,7 @@
                                         )
                                         (Var 5 bd)
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (StructInstanceMember
@@ -292,6 +307,7 @@
                                         )
                                         (IntegerConstant 2 (Integer 4) Decimal)
                                         ()
+                                        .false.
                                     )
                                     (Assert
                                         (IntegerCompare

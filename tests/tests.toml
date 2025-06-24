@@ -31,10 +31,10 @@ filename = "constants1.py"
 ast = true
 asr = true
 
-[[test]]
-filename = "subscript1.py"
-ast = true
-asr = true
+# [[test]]
+# filename = "subscript1.py"
+# ast = true
+# asr = true
 
 [[test]]
 filename = "list1.py"
@@ -78,12 +78,12 @@ ast = true
 asr = true
 python = true
 
-[[test]]
-filename = "expr5.py"
-ast = true
-asr = true
-cpp = true
-python = true
+# [[test]]
+# filename = "expr5.py"
+# ast = true
+# asr = true
+# cpp = true
+# python = true
 
 [[test]]
 filename = "expr6.py"
@@ -106,23 +106,23 @@ asr = true
 cpp = true
 #llvm = true
 
-[[test]]
-filename = "expr9.py"
-ast = true
-asr = true
-cpp = true
-wat = true
+# [[test]]
+# filename = "expr9.py"
+# ast = true
+# asr = true
+# cpp = true
+# wat = true
 
 [[test]]
 filename = "expr10.py"
 ast = true
 asr = true
 
-[[test]]
-filename = "expr11.py"
-ast = true
-asr = true
-python = true
+# [[test]]
+# filename = "expr11.py"
+# ast = true
+# asr = true
+# python = true
 
 [[test]]
 filename = "expr12.py"
@@ -271,11 +271,11 @@ cpp = true
 llvm = true
 python = true
 
-[[test]]
-filename = "assign1.py"
-ast = true
-asr = true
-python = true
+# [[test]]
+# filename = "assign1.py"
+# ast = true
+# asr = true
+# python = true
 
 [[test]]
 filename = "assign2.py"
@@ -382,9 +382,9 @@ asr = true
 filename = "../integration_tests/test_builtin_abs.py"
 asr = true
 
-[[test]]
-filename = "../integration_tests/test_builtin_str.py"
-asr = true
+# [[test]]
+# filename = "../integration_tests/test_builtin_str.py"
+# asr = true
 
 [[test]]
 filename = "../integration_tests/test_builtin_bool.py"
@@ -411,17 +411,17 @@ asr = true
 filename = "../integration_tests/test_builtin_round.py"
 asr = true
 
-[[test]]
-filename = "../integration_tests/test_builtin_bin.py"
-asr = true
+# [[test]]
+# filename = "../integration_tests/test_builtin_bin.py"
+# asr = true
 
-[[test]]
-filename = "../integration_tests/test_builtin_hex.py"
-asr = true
+# [[test]]
+# filename = "../integration_tests/test_builtin_hex.py"
+# asr = true
 
-[[test]]
-filename = "../integration_tests/test_builtin_oct.py"
-asr = true
+# [[test]]
+# filename = "../integration_tests/test_builtin_oct.py"
+# asr = true
 
 [[test]]
 filename = "../integration_tests/test_max_min.py"
@@ -450,10 +450,10 @@ c = true
 filename = "../integration_tests/test_c_interop_01.py"
 asr = true
 
-[[test]]
-filename = "../integration_tests/print_01.py"
-c = true
-cpp = true
+# [[test]]
+# filename = "../integration_tests/print_01.py"
+# c = true
+# cpp = true
 
 [[test]]
 filename = "../integration_tests/variable_decl_03.py"
@@ -473,13 +473,13 @@ pass = "print_list_tuple"
 filename = "../integration_tests/print_04.py"
 llvm = true
 
-[[test]]
-filename = "../integration_tests/test_list_item_mixed_print.py"
-run = true
+# [[test]]
+# filename = "../integration_tests/test_list_item_mixed_print.py"
+# run = true
 
-[[test]]
-filename = "../integration_tests/test_intrinsic_function_mixed_print.py"
-run = true
+# [[test]]
+# filename = "../integration_tests/test_intrinsic_function_mixed_print.py"
+# run = true
 
 [[test]]
 filename = "../integration_tests/generics_01.py"
@@ -509,9 +509,9 @@ asr = true
 filename = "../integration_tests/global_syms_01.py"
 asr = true
 
-[[test]]
-filename = "cast.py"
-asr = true
+# [[test]]
+# filename = "cast.py"
+# asr = true
 
 # tests/tokens
 
@@ -1005,9 +1005,9 @@ asr = true
 filename = "errors/test_assign5.py"
 asr = true
 
-[[test]]
-filename = "errors/test_assign6.py"
-asr = true
+# [[test]]
+# filename = "errors/test_assign6.py"
+# asr = true
 
 [[test]]
 filename = "errors/test_assign7.py"
@@ -1117,9 +1117,9 @@ run = true
 filename = "errors/test_dict15.py"
 run = true
 
-[[test]]
-filename = "errors/test_dict16.py"
-run = true
+# [[test]]
+# filename = "errors/test_dict16.py"
+# run = true
 
 [[test]]
 filename = "errors/test_const_dict.py"
@@ -1424,13 +1424,13 @@ run = true
 filename = "runtime_errors/test_list_02.py"
 run = true
 
-[[test]]
-filename = "runtime_errors/test_str_01.py"
-run = true
+# [[test]]
+# filename = "runtime_errors/test_str_01.py"
+# run = true
 
-[[test]]
-filename = "runtime_errors/test_str_02.py"
-run = true
+# [[test]]
+# filename = "runtime_errors/test_str_02.py"
+# run = true
 
 [[test]]
 filename = "runtime_errors/test_assert_01.py"

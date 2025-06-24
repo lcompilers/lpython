@@ -72,6 +72,8 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
+                                                    .false.
                                                 )
                                         })
                                     bool_to_str
@@ -98,6 +100,7 @@
                                             (Logical 4)
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Print
                                         (StringFormat
@@ -108,14 +111,14 @@
                                                     (Logical 4)
                                                 )
                                                 LogicalToString
-                                                (String 1 -2 () PointerString)
+                                                (String 1 (IntegerConstant 0 (Integer 4) Decimal) DeferredLength PointerString)
                                                 (StringConstant
                                                     "True"
-                                                    (String 1 4 () PointerString)
+                                                    (String 1 (IntegerConstant 4 (Integer 4) Decimal) DeferredLength PointerString)
                                                 )
                                             )]
                                             FormatPythonFormat
-                                            (String -1 0 () PointerString)
+                                            (String 1 () ExpressionLength CString)
                                             ()
                                         )
                                     )
@@ -124,13 +127,13 @@
                                             (Cast
                                                 (Var 5 var)
                                                 LogicalToString
-                                                (String 1 -2 () PointerString)
+                                                (String 1 (IntegerConstant 0 (Integer 4) Decimal) DeferredLength PointerString)
                                                 ()
                                             )
                                             Eq
                                             (StringConstant
                                                 "True"
-                                                (String 1 4 () PointerString)
+                                                (String 1 (IntegerConstant 4 (Integer 4) Decimal) ExpressionLength PointerString)
                                             )
                                             (Logical 4)
                                             ()
@@ -144,19 +147,20 @@
                                             (Logical 4)
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assert
                                         (StringCompare
                                             (Cast
                                                 (Var 5 var)
                                                 LogicalToString
-                                                (String 1 -2 () PointerString)
+                                                (String 1 (IntegerConstant 0 (Integer 4) Decimal) DeferredLength PointerString)
                                                 ()
                                             )
                                             Eq
                                             (StringConstant
                                                 "False"
-                                                (String 1 5 () PointerString)
+                                                (String 1 (IntegerConstant 5 (Integer 4) Decimal) ExpressionLength PointerString)
                                             )
                                             (Logical 4)
                                             ()
@@ -171,16 +175,16 @@
                                                     (Logical 4)
                                                 )
                                                 LogicalToString
-                                                (String 1 -2 () PointerString)
+                                                (String 1 (IntegerConstant 0 (Integer 4) Decimal) DeferredLength PointerString)
                                                 (StringConstant
                                                     "True"
-                                                    (String 1 4 () PointerString)
+                                                    (String 1 (IntegerConstant 4 (Integer 4) Decimal) DeferredLength PointerString)
                                                 )
                                             )
                                             Eq
                                             (StringConstant
                                                 "True"
-                                                (String 1 4 () PointerString)
+                                                (String 1 (IntegerConstant 4 (Integer 4) Decimal) ExpressionLength PointerString)
                                             )
                                             (Logical 4)
                                             (LogicalConstant
@@ -218,6 +222,8 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
+                                                    .false.
                                                 ),
                                             b:
                                                 (Variable
@@ -236,6 +242,8 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
+                                                    .false.
                                                 ),
                                             x:
                                                 (Variable
@@ -253,6 +261,8 @@
                                                     Required
                                                     .false.
                                                     .false.
+                                                    .false.
+                                                    ()
                                                     .false.
                                                 )
                                         })
@@ -277,16 +287,19 @@
                                         (Var 4 a)
                                         (IntegerConstant 5 (Integer 4) Decimal)
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 4 x)
                                         (IntegerConstant 3 (Integer 4) Decimal)
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 4 x)
                                         (IntegerConstant 5 (Integer 4) Decimal)
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 4 b)
@@ -298,6 +311,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Print
                                         (StringFormat
@@ -305,7 +319,7 @@
                                             [(Var 4 a)
                                             (Var 4 b)]
                                             FormatPythonFormat
-                                            (String -1 0 () PointerString)
+                                            (String 1 () ExpressionLength CString)
                                             ()
                                         )
                                     )
@@ -365,6 +379,8 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
+                                                    .false.
                                                 )
                                         })
                                     g
@@ -389,7 +405,7 @@
                                             ()
                                             [(Var 3 x)]
                                             FormatPythonFormat
-                                            (String -1 0 () PointerString)
+                                            (String 1 () ExpressionLength CString)
                                             ()
                                         )
                                     )]
@@ -415,6 +431,8 @@
                                     Required
                                     .false.
                                     .false.
+                                    .false.
+                                    ()
                                     .false.
                                 )
                         })

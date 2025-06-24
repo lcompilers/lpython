@@ -41,6 +41,7 @@
                                             )
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 2 i)
@@ -51,6 +52,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                     )
                                     (SubroutineCall
                                         2 test_global_symbols
@@ -80,6 +82,8 @@
                                     Required
                                     .false.
                                     .false.
+                                    .false.
+                                    ()
                                     .false.
                                 ),
                             test_global_symbols:
@@ -155,6 +159,8 @@
                                     Required
                                     .false.
                                     .false.
+                                    .false.
+                                    ()
                                     .false.
                                 )
                         })

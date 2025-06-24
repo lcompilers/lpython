@@ -2,4 +2,4 @@ semantic error: Type mismatch in assignment, the types must be compatible
  --> tests/errors/test_assign2.py:6:5
   |
 6 |     a = b
-  |     ^   ^ type mismatch ('set[i32]' and 'set[str]')
+  |     ^   ^ type mismatch ('set[i32]' and 'set[Allocatable[str]]')

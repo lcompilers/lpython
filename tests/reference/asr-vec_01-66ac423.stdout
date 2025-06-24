@@ -10,7 +10,7 @@
                             __main__global_stmts:
                                 (Function
                                     (SymbolTable
-                                        230
+                                        214
                                         {
                                             
                                         })
@@ -46,11 +46,11 @@
                             loop_vec:
                                 (Function
                                     (SymbolTable
-                                        226
+                                        210
                                         {
                                             a:
                                                 (Variable
-                                                    226
+                                                    210
                                                     a
                                                     []
                                                     Local
@@ -70,10 +70,12 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
+                                                    .false.
                                                 ),
                                             b:
                                                 (Variable
-                                                    226
+                                                    210
                                                     b
                                                     []
                                                     Local
@@ -93,10 +95,12 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
+                                                    .false.
                                                 ),
                                             i:
                                                 (Variable
-                                                    226
+                                                    210
                                                     i
                                                     []
                                                     Local
@@ -110,6 +114,8 @@
                                                     Required
                                                     .false.
                                                     .false.
+                                                    .false.
+                                                    ()
                                                     .false.
                                                 )
                                         })
@@ -131,10 +137,10 @@
                                     []
                                     []
                                     [(Assignment
-                                        (Var 226 a)
+                                        (Var 210 a)
                                         (ArrayBroadcast
                                             (ArrayItem
-                                                (Var 226 a)
+                                                (Var 210 a)
                                                 [(()
                                                 (IntegerConstant 0 (Integer 4) Decimal)
                                                 ())]
@@ -162,12 +168,13 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assignment
-                                        (Var 226 b)
+                                        (Var 210 b)
                                         (ArrayBroadcast
                                             (ArrayItem
-                                                (Var 226 b)
+                                                (Var 210 b)
                                                 [(()
                                                 (IntegerConstant 0 (Integer 4) Decimal)
                                                 ())]
@@ -195,10 +202,11 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                     )
                                     (DoLoop
                                         ()
-                                        ((Var 226 i)
+                                        ((Var 210 i)
                                         (IntegerConstant 0 (Integer 4) Decimal)
                                         (IntegerBinOp
                                             (IntegerConstant 9216 (Integer 4) Decimal)
@@ -210,9 +218,9 @@
                                         (IntegerConstant 1 (Integer 4) Decimal))
                                         [(Assignment
                                             (ArrayItem
-                                                (Var 226 b)
+                                                (Var 210 b)
                                                 [(()
-                                                (Var 226 i)
+                                                (Var 210 i)
                                                 ())]
                                                 (Real 8)
                                                 RowMajor
@@ -223,12 +231,13 @@
                                                 (Real 8)
                                             )
                                             ()
+                                            .false.
                                         )]
                                         []
                                     )
                                     (DoLoop
                                         ()
-                                        ((Var 226 i)
+                                        ((Var 210 i)
                                         (IntegerConstant 0 (Integer 4) Decimal)
                                         (IntegerBinOp
                                             (IntegerConstant 9216 (Integer 4) Decimal)
@@ -240,30 +249,31 @@
                                         (IntegerConstant 1 (Integer 4) Decimal))
                                         [(Assignment
                                             (ArrayItem
-                                                (Var 226 a)
+                                                (Var 210 a)
                                                 [(()
-                                                (Var 226 i)
+                                                (Var 210 i)
                                                 ())]
                                                 (Real 8)
                                                 RowMajor
                                                 ()
                                             )
                                             (ArrayItem
-                                                (Var 226 b)
+                                                (Var 210 b)
                                                 [(()
-                                                (Var 226 i)
+                                                (Var 210 i)
                                                 ())]
                                                 (Real 8)
                                                 RowMajor
                                                 ()
                                             )
                                             ()
+                                            .false.
                                         )]
                                         []
                                     )
                                     (DoLoop
                                         ()
-                                        ((Var 226 i)
+                                        ((Var 210 i)
                                         (IntegerConstant 0 (Integer 4) Decimal)
                                         (IntegerBinOp
                                             (IntegerConstant 9216 (Integer 4) Decimal)
@@ -276,9 +286,9 @@
                                         [(Assert
                                             (RealCompare
                                                 (ArrayItem
-                                                    (Var 226 a)
+                                                    (Var 210 a)
                                                     [(()
-                                                    (Var 226 i)
+                                                    (Var 210 i)
                                                     ())]
                                                     (Real 8)
                                                     RowMajor
@@ -313,11 +323,11 @@
             main_program:
                 (Program
                     (SymbolTable
-                        231
+                        215
                         {
                             __main__global_stmts:
                                 (ExternalSymbol
-                                    231
+                                    215
                                     __main__global_stmts
                                     2 __main__global_stmts
                                     __main__
@@ -329,7 +339,7 @@
                     main_program
                     [__main__]
                     [(SubroutineCall
-                        231 __main__global_stmts
+                        215 __main__global_stmts
                         2 __main__global_stmts
                         []
                         ()

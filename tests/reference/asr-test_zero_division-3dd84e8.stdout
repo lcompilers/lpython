@@ -65,6 +65,8 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
+                                                    .false.
                                                 )
                                         })
                                     f
@@ -88,6 +90,7 @@
                                         (Var 3 i)
                                         (IntegerConstant 4 (Integer 4) Decimal)
                                         ()
+                                        .false.
                                     )
                                     (Print
                                         (StringFormat
@@ -101,7 +104,7 @@
                                                 ()
                                             )]
                                             FormatPythonFormat
-                                            (String -1 0 () PointerString)
+                                            (String 1 () ExpressionLength CString)
                                             ()
                                         )
                                     )]

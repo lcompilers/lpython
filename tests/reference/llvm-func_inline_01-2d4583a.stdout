@@ -63,7 +63,7 @@ define void @__module___main____xx_lcompilers_changed_main_xx() {
   store i64 40, i64* %x, align 4
   %0 = call i64 @__module___main___fib(i64* %x)
   store i64 %0, i64* %ans, align 4
-  %1 = call i8* (i8*, i8*, i32, ...) @_lcompilers_string_format_fortran(i8* null, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @serialization_info, i32 0, i32 0), i32 0, i64* %ans)
+  %1 = call i8* (i8*, i8*, i32, i32, ...) @_lcompilers_string_format_fortran(i8* null, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @serialization_info, i32 0, i32 0), i32 0, i32 0, i64* %ans)
   call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([5 x i8], [5 x i8]* @1, i32 0, i32 0), i8* %1, i8* getelementptr inbounds ([2 x i8], [2 x i8]* @0, i32 0, i32 0))
   %2 = load i64, i64* %ans, align 4
   %3 = icmp eq i64 %2, 102334155
@@ -84,7 +84,7 @@ return:                                           ; preds = %ifcont
   ret void
 }
 
-declare i8* @_lcompilers_string_format_fortran(i8*, i8*, i32, ...)
+declare i8* @_lcompilers_string_format_fortran(i8*, i8*, i32, i32, ...)
 
 declare void @_lfortran_printf(i8*, ...)
 

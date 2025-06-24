@@ -149,6 +149,8 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
+                                                    .false.
                                                 ),
                                             x:
                                                 (Variable
@@ -166,6 +168,8 @@
                                                     Required
                                                     .false.
                                                     .false.
+                                                    .false.
+                                                    ()
                                                     .false.
                                                 )
                                         })
@@ -196,6 +200,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Return)]
                                     (Var 3 _lpython_return_variable)
@@ -226,6 +231,8 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
+                                                    .false.
                                                 ),
                                             x:
                                                 (Variable
@@ -243,6 +250,8 @@
                                                     Required
                                                     .false.
                                                     .false.
+                                                    .false.
+                                                    ()
                                                     .false.
                                                 )
                                         })
@@ -273,6 +282,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Return)]
                                     (Var 4 _lpython_return_variable)
@@ -303,6 +313,8 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
+                                                    .false.
                                                 ),
                                             x:
                                                 (Variable
@@ -320,6 +332,8 @@
                                                     Required
                                                     .false.
                                                     .false.
+                                                    .false.
+                                                    ()
                                                     .false.
                                                 )
                                         })
@@ -365,6 +379,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Return)]
                                     (Var 5 _lpython_return_variable)
@@ -395,6 +410,8 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
+                                                    .false.
                                                 ),
                                             arg:
                                                 (Variable
@@ -412,6 +429,8 @@
                                                     Required
                                                     .false.
                                                     .false.
+                                                    .false.
+                                                    ()
                                                     .false.
                                                 ),
                                             func:
@@ -436,6 +455,8 @@
                                                                     .false.
                                                                     .false.
                                                                     .false.
+                                                                    ()
+                                                                    .false.
                                                                 ),
                                                             func_return_var_name:
                                                                 (Variable
@@ -453,6 +474,8 @@
                                                                     Required
                                                                     .false.
                                                                     .false.
+                                                                    .false.
+                                                                    ()
                                                                     .false.
                                                                 )
                                                         })
@@ -496,6 +519,8 @@
                                                     Required
                                                     .false.
                                                     .false.
+                                                    .false.
+                                                    ()
                                                     .false.
                                                 )
                                         })
@@ -542,11 +567,13 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 6 _lpython_return_variable)
                                         (Var 6 ret)
                                         ()
+                                        .false.
                                     )
                                     (Return)]
                                     (Var 6 _lpython_return_variable)

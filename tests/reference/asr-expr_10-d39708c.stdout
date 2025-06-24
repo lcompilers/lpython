@@ -65,6 +65,8 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
+                                                    .false.
                                                 )
                                         })
                                     g
@@ -88,6 +90,7 @@
                                         (Var 3 _lpython_return_variable)
                                         (IntegerConstant 5 (Integer 4) Decimal)
                                         ()
+                                        .false.
                                     )
                                     (Return)]
                                     (Var 3 _lpython_return_variable)
@@ -118,6 +121,8 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
+                                                    .false.
                                                 )
                                         })
                                     gsubrout
@@ -142,7 +147,7 @@
                                             ()
                                             [(Var 4 x)]
                                             FormatPythonFormat
-                                            (String -1 0 () PointerString)
+                                            (String 1 () ExpressionLength CString)
                                             ()
                                         )
                                     )]
@@ -174,6 +179,8 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
+                                                    .false.
                                                 ),
                                             i:
                                                 (Variable
@@ -192,6 +199,8 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
+                                                    .false.
                                                 ),
                                             j:
                                                 (Variable
@@ -209,6 +218,8 @@
                                                     Required
                                                     .false.
                                                     .false.
+                                                    .false.
+                                                    ()
                                                     .false.
                                                 )
                                         })
@@ -241,6 +252,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 5 j)
@@ -253,6 +265,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 5 __lcompilers_dummy)
@@ -265,6 +278,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                     )
                                     (SubroutineCall
                                         2 gsubrout
