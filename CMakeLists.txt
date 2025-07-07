@@ -42,7 +42,9 @@ include(GNUInstallDirs)
 #
 # cpack
 #
-include(InstallRequiredSystemLibraries)
+if(NOT WIN32)
+    include(InstallRequiredSystemLibraries)
+endif()
 set(CPACK_GENERATOR "TBZ2")
 set(CPACK_STRIP_FILES YES)
 set(CPACK_PACKAGE_FILE_NAME lpython-${LFORTRAN_VERSION}-${CMAKE_SYSTEM_NAME})
