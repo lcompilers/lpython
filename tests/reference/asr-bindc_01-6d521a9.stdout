@@ -82,6 +82,7 @@
                                     .false.
                                     ()
                                     .false.
+                                    .false.
                                 ),
                             test_issue_1781:
                                 (Function
@@ -106,6 +107,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                     .false.
                                                 )
                                         })
@@ -189,10 +191,12 @@
                                     .false.
                                     ()
                                     .false.
+                                    .false.
                                 )
                         })
                     __main__
                     []
+                    ()
                     .false.
                     .false.
                 ),

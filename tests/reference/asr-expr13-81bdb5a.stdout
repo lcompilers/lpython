@@ -31,6 +31,7 @@
                                                     .false.
                                                     ()
                                                     .false.
+                                                    .false.
                                                 ),
                                             complex:
                                                 (ExternalSymbol
@@ -473,6 +474,7 @@
                         })
                     __main__
                     [lpython_builtin]
+                    ()
                     .false.
                     .false.
                 ),

@@ -130,6 +130,7 @@
                         })
                     __main__
                     [lpython_builtin]
+                    ()
                     .false.
                     .false.
                 ),

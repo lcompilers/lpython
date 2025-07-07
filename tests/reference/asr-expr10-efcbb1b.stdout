@@ -31,6 +31,7 @@
                                                     .false.
                                                     ()
                                                     .false.
+                                                    .false.
                                                 ),
                                             b:
                                                 (Variable
@@ -50,6 +51,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                     .false.
                                                 ),
                                             b1:
@@ -71,6 +73,7 @@
                                                     .false.
                                                     ()
                                                     .false.
+                                                    .false.
                                                 ),
                                             b2:
                                                 (Variable
@@ -90,6 +93,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                     .false.
                                                 ),
                                             b3:
@@ -111,6 +115,7 @@
                                                     .false.
                                                     ()
                                                     .false.
+                                                    .false.
                                                 ),
                                             c:
                                                 (Variable
@@ -130,6 +135,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                     .false.
                                                 ),
                                             complex:
@@ -180,6 +186,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                     .false.
                                                 )
                                         })
@@ -478,6 +485,7 @@
                         })
                     __main__
                     [lpython_builtin]
+                    ()
                     .false.
                     .false.
                 ),

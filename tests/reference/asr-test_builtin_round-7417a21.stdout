@@ -67,6 +67,7 @@
                                                     .false.
                                                     ()
                                                     .false.
+                                                    .false.
                                                 ),
                                             f:
                                                 (Variable
@@ -86,6 +87,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                     .false.
                                                 ),
                                             f2:
@@ -107,6 +109,7 @@
                                                     .false.
                                                     ()
                                                     .false.
+                                                    .false.
                                                 ),
                                             i:
                                                 (Variable
@@ -126,6 +129,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                     .false.
                                                 ),
                                             i2:
@@ -147,6 +151,7 @@
                                                     .false.
                                                     ()
                                                     .false.
+                                                    .false.
                                                 ),
                                             i3:
                                                 (Variable
@@ -167,6 +172,7 @@
                                                     .false.
                                                     ()
                                                     .false.
+                                                    .false.
                                                 ),
                                             i4:
                                                 (Variable
@@ -186,6 +192,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                     .false.
                                                 ),
                                             round:
@@ -919,6 +926,7 @@
                         })
                     __main__
                     [lpython_builtin]
+                    ()
                     .false.
                     .false.
                 ),

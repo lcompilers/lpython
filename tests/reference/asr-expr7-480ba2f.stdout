@@ -67,6 +67,7 @@
                                                     .false.
                                                     ()
                                                     .false.
+                                                    .false.
                                                 )
                                         })
                                     main0
@@ -136,6 +137,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                     .false.
                                                 ),
                                             pow:
@@ -228,6 +230,7 @@
                                                     .false.
                                                     ()
                                                     .false.
+                                                    .false.
                                                 ),
                                             a:
                                                 (Variable
@@ -248,6 +251,7 @@
                                                     .false.
                                                     ()
                                                     .false.
+                                                    .false.
                                                 ),
                                             b:
                                                 (Variable
@@ -267,6 +271,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                     .false.
                                                 ),
                                             pow:
@@ -307,6 +312,7 @@
                                                     .false.
                                                     .false.
                                                     ()
+                                                    .false.
                                                     .false.
                                                 )
                                         })
@@ -364,6 +370,7 @@
                         })
                     __main__
                     [lpython_builtin]
+                    ()
                     .false.
                     .false.
                 ),
