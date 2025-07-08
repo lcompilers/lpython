@@ -4686,6 +4686,7 @@ public:
                 alloc_arg.n_dims = 0;
                 alloc_arg.m_type = nullptr;
                 alloc_arg.m_len_expr = nullptr;
+                alloc_arg.m_sym_subclass = nullptr;
                 alloc_args.push_back(al, alloc_arg);
                 init_expr = ASRUtils::EXPR(ASR::make_Allocate_t(al, loc, alloc_args.p, 1, nullptr, nullptr, nullptr));
 
@@ -8793,6 +8794,7 @@ we will have to use something else.
                     new_arg.m_dims = dims.p;
                     new_arg.n_dims = dims.size();
                     new_arg.m_a = assign_asr_target;
+                    new_arg.m_sym_subclass = nullptr;
                     alloc_args_vec.push_back(al, new_arg);
                     tmp = ASR::make_Allocate_t(al, loc,
                                 alloc_args_vec.p, alloc_args_vec.size(),
