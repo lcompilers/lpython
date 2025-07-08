@@ -459,7 +459,7 @@ RUN(NAME exit_02b    FAIL    LABELS cpython llvm llvm_jit c wasm wasm_x86 wasm_x
 RUN(NAME exit_02c    FAIL    LABELS cpython llvm llvm_jit c)
 
 # Test all four backends
-# RUN(NAME print_01            LABELS cpython llvm llvm_jit wasm) # renable c, wasm not yet supports sep and end keywords
+RUN(NAME print_01            LABELS cpython llvm llvm_jit wasm) # renable c, wasm not yet supports sep and end keywords
 RUN(NAME print_03            LABELS x86 c wasm wasm_x86 wasm_x64) # simple test case specifically for x86, wasm_x86 and wasm_x64
 RUN(NAME print_04            LABELS cpython llvm llvm_jit c)
 RUN(NAME print_06            LABELS cpython llvm llvm_jit) # renable c
@@ -534,14 +534,14 @@ RUN(NAME test_types_02       LABELS cpython llvm llvm_jit c wasm)
 # RUN(NAME test_str_05         LABELS cpython llvm llvm_jit c)
 # RUN(NAME test_str_06         LABELS cpython llvm llvm_jit c)
 RUN(NAME test_string_01      LABELS cpython llvm llvm_jit) # renable c
-# RUN(NAME test_list_01        LABELS cpython llvm llvm_jit c)
+RUN(NAME test_list_01        LABELS cpython llvm llvm_jit c)
 # RUN(NAME test_list_02        LABELS cpython llvm llvm_jit c)
 # RUN(NAME test_list_03        LABELS cpython llvm llvm_jit c NOFAST)
 # RUN(NAME test_list_04        LABELS cpython llvm llvm_jit c NOFAST)
 # RUN(NAME test_list_05        LABELS cpython llvm llvm_jit c NOFAST)
 RUN(NAME test_list_06        LABELS cpython llvm llvm_jit c)
-# RUN(NAME test_list_07        LABELS cpython llvm llvm_jit c NOFAST)
-# RUN(NAME test_list_08        LABELS cpython llvm llvm_jit c NOFAST)
+RUN(NAME test_list_07        LABELS cpython llvm llvm_jit c NOFAST)
+RUN(NAME test_list_08        LABELS cpython llvm llvm_jit c NOFAST)
 # RUN(NAME test_list_09        LABELS cpython llvm llvm_jit c NOFAST)
 # RUN(NAME test_list_10        LABELS cpython llvm llvm_jit c NOFAST)
 # RUN(NAME test_list_11        LABELS cpython llvm llvm_jit c)
@@ -554,7 +554,7 @@ RUN(NAME test_list_06        LABELS cpython llvm llvm_jit c)
 # RUN(NAME test_list_repeat2   LABELS cpython llvm llvm_jit c NOFAST)
 # RUN(NAME test_list_reverse   LABELS cpython llvm llvm_jit) # post sync
 # RUN(NAME test_list_pop       LABELS cpython llvm llvm_jit NOFAST) # TODO: Remove NOFAST from here.
-# RUN(NAME test_list_pop2       LABELS cpython llvm llvm_jit NOFAST) # TODO: Remove NOFAST from here.
+RUN(NAME test_list_pop2       LABELS cpython llvm llvm_jit NOFAST) # TODO: Remove NOFAST from here.
 RUN(NAME test_list_pop3      LABELS cpython llvm llvm_jit)
 # RUN(NAME test_list_compare   LABELS cpython llvm llvm_jit) # post sync
 RUN(NAME test_list_compare2   LABELS cpython llvm llvm_jit)
@@ -632,7 +632,7 @@ RUN(NAME test_random_02         LABELS cpython llvm llvm_jit NOFAST)
 # RUN(NAME test_builtin        LABELS cpython llvm llvm_jit) # renable c # post sync
 RUN(NAME test_builtin_abs    LABELS cpython llvm llvm_jit c)
 # RUN(NAME test_builtin_bool   LABELS cpython llvm llvm_jit c)
-# RUN(NAME test_builtin_pow    LABELS cpython llvm llvm_jit c EXTRA_ARGS --no-warnings)
+RUN(NAME test_builtin_pow    LABELS cpython llvm llvm_jit c EXTRA_ARGS --no-warnings)
 # RUN(NAME test_builtin_int    LABELS cpython llvm llvm_jit c)
 # RUN(NAME test_builtin_len    LABELS cpython llvm llvm_jit c)
 # RUN(NAME test_builtin_str    LABELS cpython llvm llvm_jit c)
@@ -670,7 +670,7 @@ RUN(NAME test_c_interop_03   LABELS cpython llvm c
 # RUN(NAME bindpy_05           LABELS llvm_py c_py EXTRA_ARGS --enable-cpython COPY_TO_BIN bindpy_05_module.py REQ_PY_VER 3.10)
 # RUN(NAME bindpy_06           LABELS cpython llvm_py EXTRA_ARGS --enable-cpython NOFAST COPY_TO_BIN bindpy_06_module.py REQ_PY_VER 3.10)
 # RUN(NAME test_generics_01    LABELS cpython llvm llvm_jit NOFAST) # renable c # post sync
-# RUN(NAME test_cmath          LABELS cpython llvm llvm_jit c NOFAST)
+RUN(NAME test_cmath          LABELS cpython llvm llvm_jit c NOFAST)
 RUN(NAME test_complex_01        LABELS cpython llvm llvm_jit c wasm wasm_x64)
 RUN(NAME test_complex_02        LABELS cpython llvm llvm_jit c)
 RUN(NAME test_ConstantEllipsis  LABLES cpython llvm llvm_jit c)
