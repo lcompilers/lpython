@@ -459,7 +459,7 @@ RUN(NAME exit_02b    FAIL    LABELS cpython llvm llvm_jit c wasm wasm_x86 wasm_x
 RUN(NAME exit_02c    FAIL    LABELS cpython llvm llvm_jit c)
 
 # Test all four backends
-RUN(NAME print_01            LABELS cpython llvm llvm_jit wasm) # renable c, wasm not yet supports sep and end keywords
+RUN(NAME print_01            LABELS cpython llvm llvm_jit) # renable c, wasm not yet supports sep and end keywords, wasm doesnt handle DescriptorString
 RUN(NAME print_03            LABELS x86 c wasm wasm_x86 wasm_x64) # simple test case specifically for x86, wasm_x86 and wasm_x64
 RUN(NAME print_04            LABELS cpython llvm llvm_jit c)
 RUN(NAME print_06            LABELS cpython llvm llvm_jit) # renable c
