@@ -64,7 +64,7 @@ def test_hyperbolic():
 def test_polar():
     x: c64
     eps: f64
-    eps = 1e-6
+    eps = 1e-12
     x = complex(1, -2)
     assert f64(abs(f64(phase(x)) - (-1.1071487177940904))) < eps
     assert f64(abs(f64(polar(x)[0]) - (2.23606797749979))) < eps
