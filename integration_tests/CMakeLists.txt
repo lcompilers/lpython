@@ -570,15 +570,15 @@ RUN(NAME test_const_access     LABELS cpython llvm llvm_jit) # post sync
 # RUN(NAME test_tuple_nested   LABELS cpython llvm llvm_jit) # post sync
 # RUN(NAME test_const_dict     LABELS cpython llvm llvm_jit) # post sync
 # RUN(NAME test_params         LABELS cpython llvm llvm_jit NOFAST)
-# RUN(NAME test_dict_01        LABELS cpython llvm llvm_jit c) # post sync
+RUN(NAME test_dict_01        LABELS cpython llvm llvm_jit c) # post sync
 RUN(NAME test_dict_02        LABELS cpython llvm llvm_jit c NOFAST)
 # RUN(NAME test_dict_03        LABELS cpython llvm llvm_jit NOFAST) 
 # RUN(NAME test_dict_04        LABELS cpython llvm llvm_jit NOFAST)
 RUN(NAME test_dict_05        LABELS cpython llvm llvm_jit c)
-# RUN(NAME test_dict_06        LABELS cpython llvm llvm_jit c)
+RUN(NAME test_dict_06        LABELS cpython llvm llvm_jit c)
 # RUN(NAME test_dict_07        LABELS cpython llvm llvm_jit c)
-# RUN(NAME test_dict_08        LABELS cpython llvm llvm_jit c)
-# RUN(NAME test_dict_09        LABELS cpython llvm llvm_jit c)
+RUN(NAME test_dict_08        LABELS cpython llvm llvm_jit c)
+RUN(NAME test_dict_09        LABELS cpython llvm llvm_jit c)
 # RUN(NAME test_dict_10        LABELS cpython llvm llvm_jit) # renable c # post sync
 # RUN(NAME test_dict_11        LABELS cpython llvm llvm_jit c) # post sync
 # RUN(NAME test_dict_12        LABELS cpython llvm llvm_jit) # renable c # post sync
