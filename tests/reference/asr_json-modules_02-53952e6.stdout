@@ -149,7 +149,8 @@
                                                         "target_attr": false,
                                                         "contiguous_attr": false,
                                                         "bindc_name": [],
-                                                        "is_volatile": false
+                                                        "is_volatile": false,
+                                                        "is_protected": false
                                                     },
                                                     "loc": {
                                                         "first": 68,
@@ -598,6 +599,7 @@
                         "dependencies": [
                             "modules_02b"
                         ],
+                        "parent_module": [],
                         "loaded_from_mod": false,
                         "intrinsic": false
                     },
@@ -909,6 +911,7 @@
                         "dependencies": [
                             "modules_02c"
                         ],
+                        "parent_module": [],
                         "loaded_from_mod": false,
                         "intrinsic": false
                     },
@@ -1110,6 +1113,7 @@
                         },
                         "name": "modules_02c",
                         "dependencies": [],
+                        "parent_module": [],
                         "loaded_from_mod": false,
                         "intrinsic": false
                     },

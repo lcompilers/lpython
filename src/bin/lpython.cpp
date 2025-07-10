@@ -2076,7 +2076,7 @@ int main(int argc, char *argv[])
             lpython_pass_manager.use_default_passes();
             compiler_options.po.disable_main = true;
             compiler_options.emit_debug_line_column = false;
-            compiler_options.generate_object_code = false;
+            compiler_options.separate_compilation = false;
             return interactive_python_repl(lpython_pass_manager, compiler_options, arg_v);
 #else
             std::cerr << "Interactive prompt requires the LLVM backend to be enabled. Recompile with `WITH_LLVM=yes`." << std::endl;
@@ -2216,7 +2216,7 @@ int main(int argc, char *argv[])
                 }
                 compiler_options.emit_debug_info = false;
                 compiler_options.emit_debug_line_column = false;
-                compiler_options.generate_object_code = false;
+                compiler_options.separate_compilation = false;
                 return compile_python_using_llvm(arg_file, "", runtime_library_dir,
                         lpython_pass_manager, compiler_options, time_report, false, true);
 #else

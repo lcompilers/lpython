@@ -1,5 +1,0 @@
-%string_descriptor = type { i8*, i64, i64 }
-  %casted_string_ptr_to_desc = alloca %string_descriptor, align 8
-%string_descriptor*
-
-String index: -8is out of Bounds

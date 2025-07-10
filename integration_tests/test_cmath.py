@@ -1,7 +1,8 @@
-from cmath import (exp, log, sqrt, acos, asin, atan, cos, sin, tan,
-                   acosh, asinh, atanh, cosh, sinh, tanh,
-                   phase, polar, rect)
-from lpython import c64, c32, f64
+from cmath import (acos, acosh, asin, asinh, atan, atanh, cos, cosh, exp, log,
+                   phase, polar, rect, sin, sinh, sqrt, tan, tanh)
+
+from lpython import c32, c64, f64
+
 
 def test_power_logarithmic():
     x: c64
