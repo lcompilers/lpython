@@ -65,6 +65,9 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
+                                                    .false.
+                                                    .false.
                                                 ),
                                             b2:
                                                 (Variable
@@ -81,6 +84,9 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
+                                                    ()
                                                     .false.
                                                     .false.
                                                 ),
@@ -101,6 +107,9 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
+                                                    .false.
+                                                    .false.
                                                 ),
                                             i:
                                                 (Variable
@@ -117,6 +126,9 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
+                                                    ()
                                                     .false.
                                                     .false.
                                                 )
@@ -164,6 +176,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assert
                                         (IntegerCompare
@@ -201,6 +214,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assert
                                         (IntegerCompare
@@ -238,6 +252,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assert
                                         (IntegerCompare
@@ -274,6 +289,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assert
                                         (IntegerCompare
@@ -310,6 +326,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assert
                                         (IntegerCompare
@@ -347,6 +364,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assert
                                         (IntegerCompare
@@ -365,6 +383,7 @@
                                             (Logical 4)
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 b2)
@@ -373,6 +392,7 @@
                                             (Logical 4)
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 f)
@@ -394,6 +414,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assert
                                         (RealCompare
@@ -417,6 +438,7 @@
                         })
                     __main__
                     []
+                    ()
                     .false.
                     .false.
                 ),

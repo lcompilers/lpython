@@ -65,6 +65,9 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
+                                                    .false.
+                                                    .false.
                                                 ),
                                             x:
                                                 (Variable
@@ -81,6 +84,9 @@
                                                     Public
                                                     Required
                                                     .true.
+                                                    .false.
+                                                    .false.
+                                                    ()
                                                     .false.
                                                     .false.
                                                 )
@@ -131,6 +137,9 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
+                                                    .false.
+                                                    .false.
                                                 ),
                                             x:
                                                 (Variable
@@ -147,6 +156,9 @@
                                                     Public
                                                     Required
                                                     .true.
+                                                    .false.
+                                                    .false.
+                                                    ()
                                                     .false.
                                                     .false.
                                                 )
@@ -197,6 +209,9 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
+                                                    .false.
+                                                    .false.
                                                 )
                                         })
                                     test_c_callbacks
@@ -224,6 +239,7 @@
                                             (Real 8)
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assert
                                         (RealCompare
@@ -434,6 +450,7 @@
                         })
                     __main__
                     []
+                    ()
                     .false.
                     .false.
                 ),

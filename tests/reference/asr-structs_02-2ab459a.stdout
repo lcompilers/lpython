@@ -29,6 +29,9 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
+                                                    .false.
+                                                    .false.
                                                 ),
                                             y:
                                                 (Variable
@@ -45,6 +48,9 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
+                                                    ()
                                                     .false.
                                                     .false.
                                                 )
@@ -121,6 +127,9 @@
                                                     .true.
                                                     .false.
                                                     .false.
+                                                    ()
+                                                    .false.
+                                                    .false.
                                                 ),
                                             a1:
                                                 (Variable
@@ -142,6 +151,9 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
+                                                    ()
                                                     .false.
                                                     .false.
                                                 ),
@@ -169,6 +181,9 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
+                                                    .false.
+                                                    .false.
                                                 ),
                                             x:
                                                 (Variable
@@ -187,6 +202,9 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
+                                                    .false.
+                                                    .false.
                                                 ),
                                             y:
                                                 (Variable
@@ -203,6 +221,9 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
+                                                    ()
                                                     .false.
                                                     .false.
                                                 )
@@ -250,6 +271,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 4 a2)
@@ -266,6 +288,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Print
                                         (StringFormat
@@ -284,7 +307,7 @@
                                                 ()
                                             )]
                                             FormatPythonFormat
-                                            (String -1 0 () PointerString)
+                                            (String 1 () ExpressionLength CString)
                                             ()
                                         )
                                     )
@@ -297,6 +320,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 4 y)
@@ -307,6 +331,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assert
                                         (IntegerCompare
@@ -364,6 +389,9 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
+                                                    .false.
+                                                    .false.
                                                 )
                                         })
                                     g
@@ -389,6 +417,7 @@
                                             (CPtr)
                                         )
                                         ()
+                                        .false.
                                     )
                                     (SubroutineCall
                                         2 f
@@ -405,6 +434,7 @@
                         })
                     __main__
                     []
+                    ()
                     .false.
                     .false.
                 ),

@@ -25,7 +25,7 @@ define void @__module___main___main0() !dbg !7 {
   %y2 = alloca double, align 8
   call void @llvm.dbg.declare(metadata double* %y2, metadata !18, metadata !DIExpression()), !dbg !20
   store i32 25, i32* %x, align 4, !dbg !21
-  %0 = call i8* (i8*, i8*, i32, ...) @_lcompilers_string_format_fortran(i8* null, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @serialization_info, i32 0, i32 0), i32 0, i32* %x), !dbg !21
+  %0 = call i8* (i8*, i8*, i32, i32, ...) @_lcompilers_string_format_fortran(i8* null, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @serialization_info, i32 0, i32 0), i32 0, i32 0, i32* %x), !dbg !21
   call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([5 x i8], [5 x i8]* @1, i32 0, i32 0), i8* %0, i8* getelementptr inbounds ([2 x i8], [2 x i8]* @0, i32 0, i32 0)), !dbg !21
   br label %return, !dbg !21
 
@@ -36,7 +36,7 @@ return:                                           ; preds = %.entry
 ; Function Attrs: nounwind readnone speculatable willreturn
 declare void @llvm.dbg.declare(metadata, metadata, metadata) #0
 
-declare i8* @_lcompilers_string_format_fortran(i8*, i8*, i32, ...)
+declare i8* @_lcompilers_string_format_fortran(i8*, i8*, i32, i32, ...)
 
 declare void @_lfortran_printf(i8*, ...)
 

@@ -10,7 +10,7 @@
                             __main__global_stmts:
                                 (Function
                                     (SymbolTable
-                                        142
+                                        126
                                         {
                                             
                                         })
@@ -65,6 +65,9 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
+                                                    .false.
+                                                    .false.
                                                 ),
                                             a1:
                                                 (Variable
@@ -81,6 +84,9 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
+                                                    ()
                                                     .false.
                                                     .false.
                                                 ),
@@ -101,6 +107,9 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
+                                                    .false.
+                                                    .false.
                                                 ),
                                             b:
                                                 (Variable
@@ -117,6 +126,9 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
+                                                    ()
                                                     .false.
                                                     .false.
                                                 ),
@@ -137,6 +149,9 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
+                                                    .false.
+                                                    .false.
                                                 ),
                                             b2:
                                                 (Variable
@@ -155,6 +170,9 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
+                                                    .false.
+                                                    .false.
                                                 ),
                                             c1:
                                                 (Variable
@@ -171,6 +189,9 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
+                                                    ()
                                                     .false.
                                                     .false.
                                                 ),
@@ -211,6 +232,9 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
+                                                    .false.
+                                                    .false.
                                                 ),
                                             f1:
                                                 (Variable
@@ -227,6 +251,9 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
+                                                    ()
                                                     .false.
                                                     .false.
                                                 ),
@@ -247,6 +274,9 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
+                                                    .false.
+                                                    .false.
                                                 ),
                                             i:
                                                 (Variable
@@ -263,6 +293,9 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
+                                                    ()
                                                     .false.
                                                     .false.
                                                 ),
@@ -283,6 +316,9 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
+                                                    .false.
+                                                    .false.
                                                 ),
                                             i2:
                                                 (Variable
@@ -299,6 +335,9 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
+                                                    ()
                                                     .false.
                                                     .false.
                                                 ),
@@ -319,6 +358,9 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
+                                                    .false.
+                                                    .false.
                                                 ),
                                             k:
                                                 (Variable
@@ -337,6 +379,9 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
+                                                    .false.
+                                                    .false.
                                                 ),
                                             p:
                                                 (Variable
@@ -353,6 +398,9 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
+                                                    ()
                                                     .false.
                                                     .false.
                                                 ),
@@ -503,6 +551,9 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
+                                                    .false.
+                                                    .false.
                                                 ),
                                             y:
                                                 (Variable
@@ -519,6 +570,9 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
+                                                    ()
                                                     .false.
                                                     .false.
                                                 )
@@ -547,16 +601,19 @@
                                             (Real 8)
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 a)
                                         (IntegerConstant 2 (Integer 4) Decimal)
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 b)
                                         (IntegerConstant 5 (Integer 4) Decimal)
                                         ()
+                                        .false.
                                     )
                                     (Assert
                                         (IntegerCompare
@@ -585,11 +642,13 @@
                                         (Var 3 a)
                                         (IntegerConstant 6 (Integer 4) Decimal)
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 b)
                                         (IntegerConstant 3 (Integer 4) Decimal)
                                         ()
+                                        .false.
                                     )
                                     (Assert
                                         (IntegerCompare
@@ -618,11 +677,13 @@
                                         (Var 3 a)
                                         (IntegerConstant 2 (Integer 4) Decimal)
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 b)
                                         (IntegerConstant 0 (Integer 4) Decimal)
                                         ()
+                                        .false.
                                     )
                                     (Assert
                                         (IntegerCompare
@@ -651,6 +712,7 @@
                                         (Var 3 a)
                                         (IntegerConstant 2 (Integer 4) Decimal)
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 b)
@@ -660,11 +722,13 @@
                                             (IntegerConstant -1 (Integer 4) Decimal)
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 a)
                                         (IntegerConstant 6 (Integer 4) Decimal)
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 b)
@@ -674,6 +738,7 @@
                                             (IntegerConstant -4 (Integer 4) Decimal)
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 i1)
@@ -684,6 +749,7 @@
                                             (IntegerConstant 2 (Integer 8) Decimal)
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 i2)
@@ -694,6 +760,7 @@
                                             (IntegerConstant 5 (Integer 8) Decimal)
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assert
                                         (IntegerCompare
@@ -732,6 +799,7 @@
                                             (IntegerConstant 6 (Integer 8) Decimal)
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 i2)
@@ -746,6 +814,7 @@
                                             (IntegerConstant -3 (Integer 8) Decimal)
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 f1)
@@ -784,6 +853,7 @@
                                             )
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 f2)
@@ -800,6 +870,7 @@
                                             )
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 p)
@@ -813,6 +884,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 f1)
@@ -826,6 +898,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 f1)
@@ -839,6 +912,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 b1)
@@ -847,6 +921,7 @@
                                             (Logical 4)
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 b2)
@@ -855,6 +930,7 @@
                                             (Logical 4)
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assert
                                         (IntegerCompare
@@ -944,6 +1020,7 @@
                                             (Real 8)
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 a2)
@@ -952,6 +1029,7 @@
                                             (Real 8)
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assert
                                         (RealCompare
@@ -1023,6 +1101,7 @@
                                         (Var 3 x)
                                         (IntegerConstant 3 (Integer 4) Decimal)
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 y)
@@ -1031,6 +1110,7 @@
                                             (Real 8)
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assert
                                         (RealCompare
@@ -1790,6 +1870,7 @@
                                             (IntegerConstant 7 (Integer 8) Decimal)
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 j)
@@ -1800,6 +1881,7 @@
                                             (IntegerConstant 2 (Integer 8) Decimal)
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 k)
@@ -1810,6 +1892,7 @@
                                             (IntegerConstant 5 (Integer 8) Decimal)
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assert
                                         (IntegerCompare
@@ -1885,6 +1968,7 @@
                                             )
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 c1)
@@ -1898,6 +1982,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                     )]
                                     ()
                                     Public
@@ -1908,6 +1993,7 @@
                         })
                     __main__
                     [lpython_builtin]
+                    ()
                     .false.
                     .false.
                 ),
@@ -1916,11 +2002,11 @@
             main_program:
                 (Program
                     (SymbolTable
-                        143
+                        127
                         {
                             __main__global_stmts:
                                 (ExternalSymbol
-                                    143
+                                    127
                                     __main__global_stmts
                                     2 __main__global_stmts
                                     __main__
@@ -1932,7 +2018,7 @@
                     main_program
                     [__main__]
                     [(SubroutineCall
-                        143 __main__global_stmts
+                        127 __main__global_stmts
                         2 __main__global_stmts
                         []
                         ()

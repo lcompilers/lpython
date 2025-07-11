@@ -29,6 +29,9 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
+                                                    .false.
+                                                    .false.
                                                 )
                                         })
                                     Foo
@@ -75,6 +78,9 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
+                                                    .false.
+                                                    .false.
                                                 ),
                                             x:
                                                 (Variable
@@ -93,6 +99,9 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
+                                                    .false.
+                                                    .false.
                                                 ),
                                             y:
                                                 (Variable
@@ -109,6 +118,9 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
+                                                    ()
                                                     .false.
                                                     .false.
                                                 ),
@@ -131,6 +143,9 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
+                                                    ()
                                                     .false.
                                                     .false.
                                                 )
@@ -182,6 +197,7 @@
                         })
                     __main__
                     []
+                    ()
                     .false.
                     .false.
                 ),

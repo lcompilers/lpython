@@ -33,6 +33,9 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
+                                                    .false.
+                                                    .false.
                                                 ),
                                             a11:
                                                 (Variable
@@ -54,6 +57,9 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
+                                                    .false.
+                                                    .false.
                                                 ),
                                             a2:
                                                 (Variable
@@ -65,15 +71,24 @@
                                                     ()
                                                     Default
                                                     (Tuple
-                                                        [(String 1 -2 () PointerString)
-                                                        (String 1 -2 () PointerString)
-                                                        (String 1 -2 () PointerString)]
+                                                        [(Allocatable
+                                                            (String 1 () DeferredLength DescriptorString)
+                                                        )
+                                                        (Allocatable
+                                                            (String 1 () DeferredLength DescriptorString)
+                                                        )
+                                                        (Allocatable
+                                                            (String 1 () DeferredLength DescriptorString)
+                                                        )]
                                                     )
                                                     ()
                                                     Source
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
+                                                    ()
                                                     .false.
                                                     .false.
                                                 ),
@@ -90,13 +105,18 @@
                                                         [(Integer 4)
                                                         (Integer 4)
                                                         (Real 4)
-                                                        (String 1 -2 () PointerString)]
+                                                        (Allocatable
+                                                            (String 1 () DeferredLength DescriptorString)
+                                                        )]
                                                     )
                                                     ()
                                                     Source
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
+                                                    ()
                                                     .false.
                                                     .false.
                                                 ),
@@ -128,6 +148,9 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
+                                                    .false.
+                                                    .false.
                                                 ),
                                             a5:
                                                 (Variable
@@ -140,12 +163,18 @@
                                                     Default
                                                     (Tuple
                                                         [(Tuple
-                                                            [(String 1 -2 () PointerString)
-                                                            (String 1 -2 () PointerString)
+                                                            [(Allocatable
+                                                                (String 1 () DeferredLength DescriptorString)
+                                                            )
+                                                            (Allocatable
+                                                                (String 1 () DeferredLength DescriptorString)
+                                                            )
                                                             (Real 4)]
                                                         )
                                                         (Tuple
-                                                            [(String 1 -2 () PointerString)
+                                                            [(Allocatable
+                                                                (String 1 () DeferredLength DescriptorString)
+                                                            )
                                                             (Integer 4)
                                                             (Real 4)]
                                                         )]
@@ -155,6 +184,9 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
+                                                    ()
                                                     .false.
                                                     .false.
                                                 ),
@@ -175,6 +207,9 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
+                                                    .false.
+                                                    .false.
                                                 ),
                                             b1:
                                                 (Variable
@@ -191,6 +226,9 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
+                                                    ()
                                                     .false.
                                                     .false.
                                                 ),
@@ -214,6 +252,9 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
+                                                    .false.
+                                                    .false.
                                                 ),
                                             float_mem:
                                                 (Variable
@@ -230,6 +271,9 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
+                                                    ()
                                                     .false.
                                                     .false.
                                                 ),
@@ -250,6 +294,9 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
+                                                    .false.
+                                                    .false.
                                                 ),
                                             float_mem2:
                                                 (Variable
@@ -266,6 +313,9 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
+                                                    ()
                                                     .false.
                                                     .false.
                                                 )
@@ -300,6 +350,7 @@
                                             )
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 a1)
@@ -326,29 +377,31 @@
                                             )
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 a2)
                                         (TupleConstant
                                             [(StringConstant
                                                 "a"
-                                                (String 1 1 () PointerString)
+                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
                                             )
                                             (StringConstant
                                                 "b"
-                                                (String 1 1 () PointerString)
+                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
                                             )
                                             (StringConstant
                                                 "c"
-                                                (String 1 1 () PointerString)
+                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
                                             )]
                                             (Tuple
-                                                [(String 1 1 () PointerString)
-                                                (String 1 1 () PointerString)
-                                                (String 1 1 () PointerString)]
+                                                [(String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
+                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
+                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)]
                                             )
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 float_mem)
@@ -365,6 +418,7 @@
                                             )
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 a3)
@@ -382,16 +436,17 @@
                                             (Var 3 float_mem)
                                             (StringConstant
                                                 "d"
-                                                (String 1 1 () PointerString)
+                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
                                             )]
                                             (Tuple
                                                 [(Integer 4)
                                                 (Integer 4)
                                                 (Real 4)
-                                                (String 1 1 () PointerString)]
+                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)]
                                             )
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 a4)
@@ -430,6 +485,7 @@
                                             )
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 float_mem1)
@@ -446,6 +502,7 @@
                                             )
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 float_mem2)
@@ -462,6 +519,7 @@
                                             )
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 a5)
@@ -469,46 +527,47 @@
                                             [(TupleConstant
                                                 [(StringConstant
                                                     "a"
-                                                    (String 1 1 () PointerString)
+                                                    (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
                                                 )
                                                 (StringConstant
                                                     "b"
-                                                    (String 1 1 () PointerString)
+                                                    (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
                                                 )
                                                 (Var 3 float_mem1)]
                                                 (Tuple
-                                                    [(String 1 1 () PointerString)
-                                                    (String 1 1 () PointerString)
+                                                    [(String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
+                                                    (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     (Real 4)]
                                                 )
                                             )
                                             (TupleConstant
                                                 [(StringConstant
                                                     "c"
-                                                    (String 1 1 () PointerString)
+                                                    (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
                                                 )
                                                 (IntegerConstant 3 (Integer 4) Decimal)
                                                 (Var 3 float_mem2)]
                                                 (Tuple
-                                                    [(String 1 1 () PointerString)
+                                                    [(String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     (Integer 4)
                                                     (Real 4)]
                                                 )
                                             )]
                                             (Tuple
                                                 [(Tuple
-                                                    [(String 1 1 () PointerString)
-                                                    (String 1 1 () PointerString)
+                                                    [(String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
+                                                    (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     (Real 4)]
                                                 )
                                                 (Tuple
-                                                    [(String 1 1 () PointerString)
+                                                    [(String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
                                                     (Integer 4)
                                                     (Real 4)]
                                                 )]
                                             )
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 b0)
@@ -519,6 +578,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (TupleConstant
@@ -548,6 +608,7 @@
                                             )
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 a11)
@@ -560,6 +621,7 @@
                                             )
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 b11)
@@ -572,6 +634,7 @@
                                             )
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assert
                                         (TupleCompare
@@ -592,6 +655,7 @@
                         })
                     __main__
                     []
+                    ()
                     .false.
                     .false.
                 ),

@@ -10,7 +10,7 @@
                             __main__global_stmts:
                                 (Function
                                     (SymbolTable
-                                        144
+                                        128
                                         {
                                             
                                         })
@@ -105,6 +105,9 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
+                                                    .false.
+                                                    .false.
                                                 ),
                                             a1:
                                                 (Variable
@@ -125,6 +128,9 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
+                                                    .false.
+                                                    .false.
                                                 ),
                                             b:
                                                 (Variable
@@ -141,6 +147,9 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
+                                                    ()
                                                     .false.
                                                     .false.
                                                 ),
@@ -163,6 +172,9 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
+                                                    .false.
+                                                    .false.
                                                 ),
                                             c1:
                                                 (Variable
@@ -183,6 +195,9 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
+                                                    .false.
+                                                    .false.
                                                 ),
                                             eps:
                                                 (Variable
@@ -199,6 +214,9 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
+                                                    ()
                                                     .false.
                                                     .false.
                                                 ),
@@ -219,6 +237,9 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
+                                                    .false.
+                                                    .false.
                                                 ),
                                             i1:
                                                 (Variable
@@ -235,6 +256,9 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
+                                                    ()
                                                     .false.
                                                     .false.
                                                 ),
@@ -255,6 +279,9 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
+                                                    .false.
+                                                    .false.
                                                 ),
                                             i3:
                                                 (Variable
@@ -273,6 +300,9 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
+                                                    .false.
+                                                    .false.
                                                 ),
                                             i4:
                                                 (Variable
@@ -289,6 +319,9 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
+                                                    ()
                                                     .false.
                                                     .false.
                                                 )
@@ -315,6 +348,7 @@
                                         (Var 5 a)
                                         (IntegerConstant 10 (Integer 4) Decimal)
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 5 b)
@@ -324,6 +358,7 @@
                                             (IntegerConstant -5 (Integer 4) Decimal)
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 5 eps)
@@ -332,6 +367,7 @@
                                             (Real 8)
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assert
                                         (IntegerCompare
@@ -364,6 +400,7 @@
                                             (IntegerConstant 1 (Integer 8) Decimal)
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 5 i)
@@ -381,6 +418,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assert
                                         (IntegerCompare
@@ -401,11 +439,13 @@
                                         (Var 5 a)
                                         (IntegerConstant 2 (Integer 4) Decimal)
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 5 b)
                                         (IntegerConstant 5 (Integer 4) Decimal)
                                         ()
+                                        .false.
                                     )
                                     (Assert
                                         (IntegerCompare
@@ -447,11 +487,13 @@
                                         (Var 5 a)
                                         (IntegerConstant 123282374 (Integer 4) Decimal)
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 5 b)
                                         (IntegerConstant 32771 (Integer 4) Decimal)
                                         ()
+                                        .false.
                                     )
                                     (Assert
                                         (IntegerCompare
@@ -479,6 +521,7 @@
                                             (IntegerConstant -5345 (Integer 4) Decimal)
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 5 b)
@@ -488,6 +531,7 @@
                                             (IntegerConstant -534 (Integer 4) Decimal)
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assert
                                         (IntegerCompare
@@ -519,11 +563,13 @@
                                             (IntegerConstant -123282374 (Integer 4) Decimal)
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 5 b)
                                         (IntegerConstant 32771 (Integer 4) Decimal)
                                         ()
+                                        .false.
                                     )
                                     (Assert
                                         (IntegerCompare
@@ -731,11 +777,13 @@
                                         (Var 5 i1)
                                         (IntegerConstant 10 (Integer 4) Decimal)
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 5 i2)
                                         (IntegerConstant 4 (Integer 4) Decimal)
                                         ()
+                                        .false.
                                     )
                                     (Assert
                                         (IntegerCompare
@@ -845,6 +893,7 @@
                                         (Var 5 i3)
                                         (IntegerConstant 432534534 (Integer 4) Decimal)
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 5 i4)
@@ -854,6 +903,7 @@
                                             (IntegerConstant -4325 (Integer 4) Decimal)
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assert
                                         (IntegerCompare
@@ -943,6 +993,7 @@
                                         (Var 5 a)
                                         (IntegerConstant 10 (Integer 4) Decimal)
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 5 a)
@@ -954,6 +1005,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assert
                                         (IntegerCompare
@@ -975,6 +1027,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assert
                                         (IntegerCompare
@@ -990,6 +1043,7 @@
                                         (Var 5 b)
                                         (IntegerConstant 10 (Integer 4) Decimal)
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 5 a)
@@ -1003,6 +1057,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assert
                                         (IntegerCompare
@@ -1018,6 +1073,7 @@
                                         (Var 5 b)
                                         (IntegerConstant 4 (Integer 4) Decimal)
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 5 a)
@@ -1029,6 +1085,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assert
                                         (IntegerCompare
@@ -1050,6 +1107,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assert
                                         (IntegerCompare
@@ -1071,6 +1129,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assert
                                         (IntegerCompare
@@ -1092,6 +1151,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assert
                                         (IntegerCompare
@@ -1323,6 +1383,7 @@
                                             )
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 5 b1)
@@ -1340,6 +1401,7 @@
                                             )
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 5 c1)
@@ -1355,6 +1417,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assert
                                         (UnsignedIntegerCompare
@@ -1391,6 +1454,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assert
                                         (UnsignedIntegerCompare
@@ -1442,6 +1506,9 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
+                                                    .false.
+                                                    .false.
                                                 ),
                                             _mod:
                                                 (ExternalSymbol
@@ -1480,6 +1547,9 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
+                                                    .false.
+                                                    .false.
                                                 ),
                                             b:
                                                 (Variable
@@ -1496,6 +1566,9 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
+                                                    ()
                                                     .false.
                                                     .false.
                                                 )
@@ -1531,6 +1604,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Return)]
                                     (Var 4 _lpython_return_variable)
@@ -1561,6 +1635,9 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
+                                                    .false.
+                                                    .false.
                                                 ),
                                             a:
                                                 (Variable
@@ -1579,6 +1656,9 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
+                                                    .false.
+                                                    .false.
                                                 ),
                                             b:
                                                 (Variable
@@ -1595,6 +1675,9 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
+                                                    ()
                                                     .false.
                                                     .false.
                                                 )
@@ -1628,6 +1711,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Return)]
                                     (Var 3 _lpython_return_variable)
@@ -1639,6 +1723,7 @@
                         })
                     __main__
                     [lpython_builtin]
+                    ()
                     .false.
                     .false.
                 ),
@@ -1647,11 +1732,11 @@
             main_program:
                 (Program
                     (SymbolTable
-                        145
+                        129
                         {
                             __main__global_stmts:
                                 (ExternalSymbol
-                                    145
+                                    129
                                     __main__global_stmts
                                     2 __main__global_stmts
                                     __main__
@@ -1663,7 +1748,7 @@
                     main_program
                     [__main__]
                     [(SubroutineCall
-                        145 __main__global_stmts
+                        129 __main__global_stmts
                         2 __main__global_stmts
                         []
                         ()

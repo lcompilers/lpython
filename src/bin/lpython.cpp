@@ -90,7 +90,7 @@ std::string get_kokkos_dir()
 
 int emit_tokens(const std::string &infile, bool line_numbers, const CompilerOptions &compiler_options)
 {
-    std::string input = LCompilers::read_file(infile);
+    std::string input = LCompilers::read_file_ok(infile);
     // Src -> Tokens
     Allocator al(64*1024*1024);
     std::vector<int> toks;
@@ -103,7 +103,7 @@ int emit_tokens(const std::string &infile, bool line_numbers, const CompilerOpti
         LCompilers::LocationManager::FileLocations fl;
         fl.in_filename = infile;
         lm.files.push_back(fl);
-        std::string input = LCompilers::read_file(infile);
+        std::string input = LCompilers::read_file_ok(infile);
         lm.init_simple(input);
         lm.file_ends.push_back(input.size());
     }
@@ -140,7 +140,7 @@ int emit_ast(const std::string &infile,
             LCompilers::LocationManager::FileLocations fl;
             fl.in_filename = infile;
             lm.files.push_back(fl);
-            std::string input = LCompilers::read_file(infile);
+            std::string input = LCompilers::read_file_ok(infile);
             lm.init_simple(input);
             lm.file_ends.push_back(input.size());
         }
@@ -161,7 +161,7 @@ int emit_ast(const std::string &infile,
             LCompilers::LocationManager::FileLocations fl;
             fl.in_filename = infile;
             lm.files.push_back(fl);
-            std::string input = LCompilers::read_file(infile);
+            std::string input = LCompilers::read_file_ok(infile);
             lm.init_simple(input);
             lm.file_ends.push_back(input.size());
         }
@@ -172,7 +172,7 @@ int emit_ast(const std::string &infile,
             LCompilers::LocationManager::FileLocations fl;
             fl.in_filename = infile;
             lm.files.push_back(fl);
-            std::string input = LCompilers::read_file(infile);
+            std::string input = LCompilers::read_file_ok(infile);
             lm.init_simple(input);
             lm.file_ends.push_back(input.size());
         }
@@ -197,7 +197,7 @@ int emit_asr(const std::string &infile,
         LCompilers::LocationManager::FileLocations fl;
         fl.in_filename = infile;
         lm.files.push_back(fl);
-        std::string input = LCompilers::read_file(infile);
+        std::string input = LCompilers::read_file_ok(infile);
         lm.init_simple(input);
         lm.file_ends.push_back(input.size());
     }
@@ -250,7 +250,7 @@ int emit_cpp(const std::string &infile,
         LCompilers::LocationManager::FileLocations fl;
         fl.in_filename = infile;
         lm.files.push_back(fl);
-        std::string input = LCompilers::read_file(infile);
+        std::string input = LCompilers::read_file_ok(infile);
         lm.init_simple(input);
         lm.file_ends.push_back(input.size());
     }
@@ -295,7 +295,7 @@ int emit_c(const std::string &infile,
         LCompilers::LocationManager::FileLocations fl;
         fl.in_filename = infile;
         lm.files.push_back(fl);
-        std::string input = LCompilers::read_file(infile);
+        std::string input = LCompilers::read_file_ok(infile);
         lm.init_simple(input);
         lm.file_ends.push_back(input.size());
     }
@@ -347,7 +347,7 @@ int emit_c_to_file(const std::string &infile, const std::string &outfile,
         LCompilers::LocationManager::FileLocations fl;
         fl.in_filename = infile;
         lm.files.push_back(fl);
-        std::string input = LCompilers::read_file(infile);
+        std::string input = LCompilers::read_file_ok(infile);
         lm.init_simple(input);
         lm.file_ends.push_back(input.size());
     }
@@ -401,7 +401,7 @@ int emit_python(const std::string &infile,
         LCompilers::LocationManager::FileLocations fl;
         fl.in_filename = infile;
         lm.files.push_back(fl);
-        std::string input = LCompilers::read_file(infile);
+        std::string input = LCompilers::read_file_ok(infile);
         lm.init_simple(input);
         lm.file_ends.push_back(input.size());
     }
@@ -451,7 +451,7 @@ int emit_wat(const std::string &infile,
         LCompilers::LocationManager::FileLocations fl;
         fl.in_filename = infile;
         lm.files.push_back(fl);
-        std::string input = LCompilers::read_file(infile);
+        std::string input = LCompilers::read_file_ok(infile);
         lm.init_simple(input);
         lm.file_ends.push_back(input.size());
     }
@@ -495,7 +495,7 @@ int emit_wat(const std::string &infile,
 int dump_all_passes(const std::string &infile,
     const std::string &runtime_library_dir,
     CompilerOptions &compiler_options) {
-    std::string input = LCompilers::read_file(infile);
+    std::string input = LCompilers::read_file_ok(infile);
 
     Allocator al(4*1024);
     LCompilers::LocationManager lm;
@@ -543,7 +543,7 @@ int get_symbols (const std::string &infile,
             LCompilers::LocationManager::FileLocations fl;
             fl.in_filename = infile;
             lm.files.push_back(fl);
-            std::string input = LCompilers::read_file(infile);
+            std::string input = LCompilers::read_file_ok(infile);
             lm.init_simple(input);
             lm.file_ends.push_back(input.size());
         }
@@ -644,7 +644,7 @@ int get_errors (const std::string &infile,
             LCompilers::LocationManager::FileLocations fl;
             fl.in_filename = infile;
             lm.files.push_back(fl);
-            std::string input = LCompilers::read_file(infile);
+            std::string input = LCompilers::read_file_ok(infile);
             lm.init_simple(input);
             lm.file_ends.push_back(input.size());
         }
@@ -764,7 +764,7 @@ int emit_llvm(const std::string &infile,
         LCompilers::LocationManager::FileLocations fl;
         fl.in_filename = infile;
         lm.files.push_back(fl);
-        std::string input = LCompilers::read_file(infile);
+        std::string input = LCompilers::read_file_ok(infile);
         lm.init_simple(input);
         lm.file_ends.push_back(input.size());
     }
@@ -1057,7 +1057,7 @@ int compile_python_using_llvm(
         lm.files.push_back(fl);
 
         auto file_reading_start = std::chrono::high_resolution_clock::now();
-        std::string input = LCompilers::read_file(infile);
+        std::string input = LCompilers::read_file_ok(infile);
         auto file_reading_end = std::chrono::high_resolution_clock::now();
         times.push_back(std::make_pair("File reading", std::chrono::duration
             <double, std::milli>(file_reading_end - file_reading_start).count()));
@@ -1202,7 +1202,7 @@ int compile_to_binary_wasm(
         lm.files.push_back(fl);
 
         auto file_reading_start = std::chrono::high_resolution_clock::now();
-        std::string input = LCompilers::read_file(infile);
+        std::string input = LCompilers::read_file_ok(infile);
         auto file_reading_end = std::chrono::high_resolution_clock::now();
         times.push_back(std::make_pair("File reading", std::chrono::duration
             <double, std::milli>(file_reading_end - file_reading_start).count()));
@@ -1275,7 +1275,7 @@ int compile_to_binary_x86(
         lm.files.push_back(fl);
 
         auto file_reading_start = std::chrono::high_resolution_clock::now();
-        std::string input = LCompilers::read_file(infile);
+        std::string input = LCompilers::read_file_ok(infile);
         auto file_reading_end = std::chrono::high_resolution_clock::now();
         times.push_back(std::make_pair("File reading", std::chrono::duration
             <double, std::milli>(file_reading_end - file_reading_start).count()));
@@ -1349,7 +1349,7 @@ int compile_to_binary_wasm_to_x86(
         lm.files.push_back(fl);
 
         auto file_reading_start = std::chrono::high_resolution_clock::now();
-        std::string input = LCompilers::read_file(infile);
+        std::string input = LCompilers::read_file_ok(infile);
         auto file_reading_end = std::chrono::high_resolution_clock::now();
         times.push_back(std::make_pair("File reading", std::chrono::duration
             <double, std::milli>(file_reading_end - file_reading_start).count()));
@@ -1626,7 +1626,7 @@ int link_executable(const std::vector<std::string> &infiles,
 
 // int emit_c_preprocessor(const std::string &infile, CompilerOptions &compiler_options)
 // {
-//     std::string input = read_file(infile);
+//     std::string input = read_file_ok(infile);
 //
 //     LFortran::CPreprocessor cpp(compiler_options);
 //     LFortran::LocationManager lm;
@@ -2076,7 +2076,7 @@ int main(int argc, char *argv[])
             lpython_pass_manager.use_default_passes();
             compiler_options.po.disable_main = true;
             compiler_options.emit_debug_line_column = false;
-            compiler_options.generate_object_code = false;
+            compiler_options.separate_compilation = false;
             return interactive_python_repl(lpython_pass_manager, compiler_options, arg_v);
 #else
             std::cerr << "Interactive prompt requires the LLVM backend to be enabled. Recompile with `WITH_LLVM=yes`." << std::endl;
@@ -2216,7 +2216,7 @@ int main(int argc, char *argv[])
                 }
                 compiler_options.emit_debug_info = false;
                 compiler_options.emit_debug_line_column = false;
-                compiler_options.generate_object_code = false;
+                compiler_options.separate_compilation = false;
                 return compile_python_using_llvm(arg_file, "", runtime_library_dir,
                         lpython_pass_manager, compiler_options, time_report, false, true);
 #else

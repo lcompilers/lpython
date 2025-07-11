@@ -26,15 +26,18 @@
                                     .false.
                                     .false.
                                     .false.
+                                    ()
+                                    .false.
+                                    .false.
                                 ),
                             __asr_generic_f_0:
                                 (Function
                                     (SymbolTable
-                                        228
+                                        212
                                         {
                                             _lpython_return_variable:
                                                 (Variable
-                                                    228
+                                                    212
                                                     _lpython_return_variable
                                                     []
                                                     ReturnVar
@@ -49,10 +52,13 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
+                                                    .false.
+                                                    .false.
                                                 ),
                                             i:
                                                 (Variable
-                                                    228
+                                                    212
                                                     i
                                                     []
                                                     In
@@ -67,10 +73,13 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
+                                                    .false.
+                                                    .false.
                                                 ),
                                             lst:
                                                 (Variable
-                                                    228
+                                                    212
                                                     lst
                                                     []
                                                     InOut
@@ -88,6 +97,9 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
+                                                    ()
                                                     .false.
                                                     .false.
                                                 )
@@ -114,11 +126,11 @@
                                         .false.
                                     )
                                     []
-                                    [(Var 228 lst)
-                                    (Var 228 i)]
+                                    [(Var 212 lst)
+                                    (Var 212 i)]
                                     [(Assignment
                                         (ArrayItem
-                                            (Var 228 lst)
+                                            (Var 212 lst)
                                             [(()
                                             (IntegerConstant 0 (Integer 4) Decimal)
                                             ())]
@@ -126,13 +138,14 @@
                                             RowMajor
                                             ()
                                         )
-                                        (Var 228 i)
+                                        (Var 212 i)
                                         ()
+                                        .false.
                                     )
                                     (Assignment
-                                        (Var 228 _lpython_return_variable)
+                                        (Var 212 _lpython_return_variable)
                                         (ArrayItem
-                                            (Var 228 lst)
+                                            (Var 212 lst)
                                             [(()
                                             (IntegerConstant 0 (Integer 4) Decimal)
                                             ())]
@@ -141,9 +154,10 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Return)]
-                                    (Var 228 _lpython_return_variable)
+                                    (Var 212 _lpython_return_variable)
                                     Public
                                     .false.
                                     .false.
@@ -152,7 +166,7 @@
                             __main__global_stmts:
                                 (Function
                                     (SymbolTable
-                                        229
+                                        213
                                         {
                                             
                                         })
@@ -188,11 +202,11 @@
                             f:
                                 (Function
                                     (SymbolTable
-                                        226
+                                        210
                                         {
                                             _lpython_return_variable:
                                                 (Variable
-                                                    226
+                                                    210
                                                     _lpython_return_variable
                                                     []
                                                     ReturnVar
@@ -209,10 +223,13 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
+                                                    .false.
+                                                    .false.
                                                 ),
                                             i:
                                                 (Variable
-                                                    226
+                                                    210
                                                     i
                                                     []
                                                     In
@@ -229,10 +246,13 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
+                                                    .false.
+                                                    .false.
                                                 ),
                                             lst:
                                                 (Variable
-                                                    226
+                                                    210
                                                     lst
                                                     []
                                                     InOut
@@ -252,6 +272,9 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
+                                                    ()
                                                     .false.
                                                     .false.
                                                 )
@@ -284,11 +307,11 @@
                                         .false.
                                     )
                                     []
-                                    [(Var 226 lst)
-                                    (Var 226 i)]
+                                    [(Var 210 lst)
+                                    (Var 210 i)]
                                     [(Assignment
                                         (ArrayItem
-                                            (Var 226 lst)
+                                            (Var 210 lst)
                                             [(()
                                             (IntegerConstant 0 (Integer 4) Decimal)
                                             ())]
@@ -298,13 +321,14 @@
                                             RowMajor
                                             ()
                                         )
-                                        (Var 226 i)
+                                        (Var 210 i)
                                         ()
+                                        .false.
                                     )
                                     (Assignment
-                                        (Var 226 _lpython_return_variable)
+                                        (Var 210 _lpython_return_variable)
                                         (ArrayItem
-                                            (Var 226 lst)
+                                            (Var 210 lst)
                                             [(()
                                             (IntegerConstant 0 (Integer 4) Decimal)
                                             ())]
@@ -315,9 +339,10 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Return)]
-                                    (Var 226 _lpython_return_variable)
+                                    (Var 210 _lpython_return_variable)
                                     Public
                                     .false.
                                     .false.
@@ -326,11 +351,11 @@
                             use_array:
                                 (Function
                                     (SymbolTable
-                                        227
+                                        211
                                         {
                                             array:
                                                 (Variable
-                                                    227
+                                                    211
                                                     array
                                                     []
                                                     Local
@@ -350,10 +375,13 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
+                                                    .false.
+                                                    .false.
                                                 ),
                                             x:
                                                 (Variable
-                                                    227
+                                                    211
                                                     x
                                                     []
                                                     Local
@@ -366,6 +394,9 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
+                                                    ()
                                                     .false.
                                                     .false.
                                                 )
@@ -388,10 +419,10 @@
                                     [__asr_generic_f_0]
                                     []
                                     [(Assignment
-                                        (Var 227 array)
+                                        (Var 211 array)
                                         (ArrayBroadcast
                                             (ArrayItem
-                                                (Var 227 array)
+                                                (Var 211 array)
                                                 [(()
                                                 (IntegerConstant 0 (Integer 4) Decimal)
                                                 ())]
@@ -419,11 +450,13 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assignment
-                                        (Var 227 x)
+                                        (Var 211 x)
                                         (IntegerConstant 69 (Integer 4) Decimal)
                                         ()
+                                        .false.
                                     )
                                     (Print
                                         (StringFormat
@@ -432,7 +465,7 @@
                                                 2 __asr_generic_f_0
                                                 ()
                                                 [((ArrayPhysicalCast
-                                                    (Var 227 array)
+                                                    (Var 211 array)
                                                     FixedSizeArray
                                                     DescriptorArray
                                                     (Array
@@ -443,13 +476,13 @@
                                                     )
                                                     ()
                                                 ))
-                                                ((Var 227 x))]
+                                                ((Var 211 x))]
                                                 (Integer 4)
                                                 ()
                                                 ()
                                             )]
                                             FormatPythonFormat
-                                            (String -1 0 () PointerString)
+                                            (String 1 () ExpressionLength CString)
                                             ()
                                         )
                                     )]
@@ -462,6 +495,7 @@
                         })
                     __main__
                     [numpy]
+                    ()
                     .false.
                     .false.
                 ),
@@ -470,11 +504,11 @@
             main_program:
                 (Program
                     (SymbolTable
-                        230
+                        214
                         {
                             __main__global_stmts:
                                 (ExternalSymbol
-                                    230
+                                    214
                                     __main__global_stmts
                                     2 __main__global_stmts
                                     __main__
@@ -486,7 +520,7 @@
                     main_program
                     [__main__]
                     [(SubroutineCall
-                        230 __main__global_stmts
+                        214 __main__global_stmts
                         2 __main__global_stmts
                         []
                         ()

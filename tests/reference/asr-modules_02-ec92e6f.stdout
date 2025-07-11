@@ -75,6 +75,9 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
+                                                    .false.
+                                                    .false.
                                                 )
                                         })
                                     main0
@@ -110,6 +113,7 @@
                                             (IntegerConstant 25 (Integer 4) Decimal)
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assert
                                         (IntegerCompare
@@ -136,6 +140,7 @@
                         })
                     __main__
                     [modules_02b]
+                    ()
                     .false.
                     .false.
                 ),
@@ -204,10 +209,10 @@
                                             ()
                                             [(StringConstant
                                                 "f()"
-                                                (String 1 3 () PointerString)
+                                                (String 1 (IntegerConstant 3 (Integer 4) Decimal) ExpressionLength PointerString)
                                             )]
                                             FormatPythonFormat
-                                            (String -1 0 () PointerString)
+                                            (String 1 () ExpressionLength CString)
                                             ()
                                         )
                                     )]
@@ -230,6 +235,7 @@
                         })
                     modules_02b
                     [modules_02c]
+                    ()
                     .false.
                     .false.
                 ),
@@ -267,10 +273,10 @@
                                             ()
                                             [(StringConstant
                                                 "g()"
-                                                (String 1 3 () PointerString)
+                                                (String 1 (IntegerConstant 3 (Integer 4) Decimal) ExpressionLength PointerString)
                                             )]
                                             FormatPythonFormat
-                                            (String -1 0 () PointerString)
+                                            (String 1 () ExpressionLength CString)
                                             ()
                                         )
                                     )]
@@ -283,6 +289,7 @@
                         })
                     modules_02c
                     []
+                    ()
                     .false.
                     .false.
                 )

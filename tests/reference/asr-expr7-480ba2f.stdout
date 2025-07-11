@@ -10,7 +10,7 @@
                             __main__global_stmts:
                                 (Function
                                     (SymbolTable
-                                        144
+                                        128
                                         {
                                             
                                         })
@@ -65,6 +65,9 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
+                                                    .false.
+                                                    .false.
                                                 )
                                         })
                                     main0
@@ -103,6 +106,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                     )]
                                     ()
                                     Public
@@ -130,6 +134,9 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
+                                                    ()
                                                     .false.
                                                     .false.
                                                 ),
@@ -191,6 +198,7 @@
                                             (IntegerConstant 4 (Integer 4) Decimal)
                                         )
                                         ()
+                                        .false.
                                     )]
                                     ()
                                     Public
@@ -220,6 +228,9 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
+                                                    .false.
+                                                    .false.
                                                 ),
                                             a:
                                                 (Variable
@@ -238,6 +249,9 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
+                                                    .false.
+                                                    .false.
                                                 ),
                                             b:
                                                 (Variable
@@ -254,6 +268,9 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
+                                                    ()
                                                     .false.
                                                     .false.
                                                 ),
@@ -294,6 +311,9 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
+                                                    .false.
+                                                    .false.
                                                 )
                                         })
                                     test_pow_1
@@ -332,11 +352,13 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 4 _lpython_return_variable)
                                         (Var 4 res)
                                         ()
+                                        .false.
                                     )
                                     (Return)]
                                     (Var 4 _lpython_return_variable)
@@ -348,6 +370,7 @@
                         })
                     __main__
                     [lpython_builtin]
+                    ()
                     .false.
                     .false.
                 ),
@@ -356,11 +379,11 @@
             main_program:
                 (Program
                     (SymbolTable
-                        145
+                        129
                         {
                             __main__global_stmts:
                                 (ExternalSymbol
-                                    145
+                                    129
                                     __main__global_stmts
                                     2 __main__global_stmts
                                     __main__
@@ -372,7 +395,7 @@
                     main_program
                     [__main__]
                     [(SubroutineCall
-                        145 __main__global_stmts
+                        129 __main__global_stmts
                         2 __main__global_stmts
                         []
                         ()

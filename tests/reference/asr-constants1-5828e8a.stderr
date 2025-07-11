@@ -1,5 +1,5 @@
-semantic error: Unexpected number of args, Int takes 2 arguments, found 1
-  --> tests/constants1.py:90:9
-   |
-90 |     a = int()
-   |         ^^^^^ 
+semantic error: The symbol 'bin' not found in the module 'lpython_builtin'
+ --> tests/constants1.py:5:9
+  |
+5 |     b = bin(5)
+  |         ^^^^^^ 

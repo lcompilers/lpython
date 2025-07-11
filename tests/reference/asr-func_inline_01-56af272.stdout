@@ -65,6 +65,9 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
+                                                    .false.
+                                                    .false.
                                                 ),
                                             n:
                                                 (Variable
@@ -81,6 +84,9 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
+                                                    ()
                                                     .false.
                                                     .false.
                                                 )
@@ -103,6 +109,7 @@
                                     [fib]
                                     [(Var 3 n)]
                                     [(If
+                                        ()
                                         (IntegerCompare
                                             (Var 3 n)
                                             Lt
@@ -119,6 +126,7 @@
                                             (Var 3 _lpython_return_variable)
                                             (Var 3 n)
                                             ()
+                                            .false.
                                         )
                                         (Return)]
                                         []
@@ -169,6 +177,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Return)]
                                     (Var 3 _lpython_return_variable)
@@ -199,6 +208,9 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
+                                                    .false.
+                                                    .false.
                                                 ),
                                             x:
                                                 (Variable
@@ -215,6 +227,9 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
+                                                    ()
                                                     .false.
                                                     .false.
                                                 )
@@ -245,6 +260,7 @@
                                             (IntegerConstant 40 (Integer 8) Decimal)
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 4 ans)
@@ -257,13 +273,14 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Print
                                         (StringFormat
                                             ()
                                             [(Var 4 ans)]
                                             FormatPythonFormat
-                                            (String -1 0 () PointerString)
+                                            (String 1 () ExpressionLength CString)
                                             ()
                                         )
                                     )
@@ -291,6 +308,7 @@
                         })
                     __main__
                     []
+                    ()
                     .false.
                     .false.
                 ),

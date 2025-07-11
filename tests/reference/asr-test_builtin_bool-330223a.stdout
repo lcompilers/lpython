@@ -10,7 +10,7 @@
                             __main__global_stmts:
                                 (Function
                                     (SymbolTable
-                                        142
+                                        126
                                         {
                                             
                                         })
@@ -65,6 +65,9 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
+                                                    .false.
+                                                    .false.
                                                 ),
                                             a2:
                                                 (Variable
@@ -81,6 +84,9 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
+                                                    ()
                                                     .false.
                                                     .false.
                                                 ),
@@ -101,6 +107,9 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
+                                                    .false.
+                                                    .false.
                                                 ),
                                             a4:
                                                 (Variable
@@ -117,6 +126,9 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
+                                                    ()
                                                     .false.
                                                     .false.
                                                 ),
@@ -137,6 +149,9 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
+                                                    .false.
+                                                    .false.
                                                 ),
                                             c:
                                                 (Variable
@@ -155,6 +170,9 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
+                                                    .false.
+                                                    .false.
                                                 ),
                                             c1:
                                                 (Variable
@@ -171,6 +189,9 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
+                                                    ()
                                                     .false.
                                                     .false.
                                                 ),
@@ -221,6 +242,9 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
+                                                    .false.
+                                                    .false.
                                                 ),
                                             f2:
                                                 (Variable
@@ -239,6 +263,9 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
+                                                    .false.
+                                                    .false.
                                                 ),
                                             s:
                                                 (Variable
@@ -249,12 +276,17 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (String 1 -2 () PointerString)
+                                                    (Allocatable
+                                                        (String 1 () DeferredLength DescriptorString)
+                                                    )
                                                     ()
                                                     Source
                                                     Public
                                                     Required
                                                     .false.
+                                                    .false.
+                                                    .false.
+                                                    ()
                                                     .false.
                                                     .false.
                                                 )
@@ -280,6 +312,7 @@
                                         (Var 3 a)
                                         (IntegerConstant 34 (Integer 4) Decimal)
                                         ()
+                                        .false.
                                     )
                                     (Assert
                                         (Cast
@@ -294,6 +327,7 @@
                                         (Var 3 a)
                                         (IntegerConstant 0 (Integer 4) Decimal)
                                         ()
+                                        .false.
                                     )
                                     (Assert
                                         (LogicalNot
@@ -352,6 +386,7 @@
                                             (IntegerConstant 34 (Integer 8) Decimal)
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assert
                                         (Cast
@@ -371,6 +406,7 @@
                                             (IntegerConstant 34 (Integer 1) Decimal)
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assert
                                         (Cast
@@ -394,6 +430,7 @@
                                             (IntegerConstant -1 (Integer 2) Decimal)
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assert
                                         (Cast
@@ -411,6 +448,7 @@
                                             (Real 8)
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assert
                                         (LogicalNot
@@ -432,6 +470,7 @@
                                             (Real 8)
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assert
                                         (Cast
@@ -501,6 +540,7 @@
                                             )
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assert
                                         (Cast
@@ -526,6 +566,7 @@
                                             )
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assert
                                         (Cast
@@ -538,11 +579,18 @@
                                     )
                                     (Assignment
                                         (Var 3 s)
-                                        (StringConstant
-                                            ""
-                                            (String 1 0 () PointerString)
+                                        (StringPhysicalCast
+                                            (StringConstant
+                                                ""
+                                                (String 1 (IntegerConstant 0 (Integer 4) Decimal) ExpressionLength PointerString)
+                                            )
+                                            PointerString
+                                            DescriptorString
+                                            (String 1 () DeferredLength DescriptorString)
+                                            ()
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assert
                                         (LogicalNot
@@ -559,11 +607,18 @@
                                     )
                                     (Assignment
                                         (Var 3 s)
-                                        (StringConstant
-                                            "str"
-                                            (String 1 3 () PointerString)
+                                        (StringPhysicalCast
+                                            (StringConstant
+                                                "str"
+                                                (String 1 (IntegerConstant 3 (Integer 4) Decimal) ExpressionLength PointerString)
+                                            )
+                                            PointerString
+                                            DescriptorString
+                                            (String 1 () DeferredLength DescriptorString)
+                                            ()
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assert
                                         (Cast
@@ -579,7 +634,7 @@
                                             (Cast
                                                 (StringConstant
                                                     ""
-                                                    (String 1 0 () PointerString)
+                                                    (String 1 (IntegerConstant 0 (Integer 4) Decimal) ExpressionLength PointerString)
                                                 )
                                                 StringToLogical
                                                 (Logical 4)
@@ -600,7 +655,7 @@
                                         (Cast
                                             (StringConstant
                                                 "str"
-                                                (String 1 3 () PointerString)
+                                                (String 1 (IntegerConstant 3 (Integer 4) Decimal) ExpressionLength PointerString)
                                             )
                                             StringToLogical
                                             (Logical 4)
@@ -618,6 +673,7 @@
                                             (Logical 4)
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assert
                                         (Var 3 b)
@@ -630,6 +686,7 @@
                                             (Logical 4)
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assert
                                         (LogicalNot
@@ -685,6 +742,7 @@
                                             )
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assert
                                         (Cast
@@ -720,6 +778,7 @@
                                             )
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assert
                                         (LogicalNot
@@ -795,6 +854,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                     )
                                     (Assert
                                         (Cast
@@ -880,6 +940,7 @@
                         })
                     __main__
                     [lpython_builtin]
+                    ()
                     .false.
                     .false.
                 ),
@@ -888,11 +949,11 @@
             main_program:
                 (Program
                     (SymbolTable
-                        143
+                        127
                         {
                             __main__global_stmts:
                                 (ExternalSymbol
-                                    143
+                                    127
                                     __main__global_stmts
                                     2 __main__global_stmts
                                     __main__
@@ -904,7 +965,7 @@
                     main_program
                     [__main__]
                     [(SubroutineCall
-                        143 __main__global_stmts
+                        127 __main__global_stmts
                         2 __main__global_stmts
                         []
                         ()

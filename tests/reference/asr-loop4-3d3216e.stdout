@@ -65,6 +65,9 @@
                                                     .false.
                                                     .false.
                                                     .false.
+                                                    ()
+                                                    .false.
+                                                    .false.
                                                 )
                                         })
                                     test_for
@@ -97,6 +100,7 @@
                                         )
                                         (IntegerConstant 1 (Integer 4) Decimal))
                                         [(If
+                                            ()
                                             (IntegerCompare
                                                 (Var 3 i)
                                                 Eq
@@ -110,6 +114,7 @@
                                             []
                                         )
                                         (If
+                                            ()
                                             (IntegerCompare
                                                 (Var 3 i)
                                                 Gt
@@ -123,6 +128,7 @@
                                             []
                                         )
                                         (If
+                                            ()
                                             (IntegerCompare
                                                 (Var 3 i)
                                                 Eq
@@ -146,6 +152,7 @@
                         })
                     __main__
                     []
+                    ()
                     .false.
                     .false.
                 ),

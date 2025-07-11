@@ -1,4 +1,4 @@
-semantic error: Key type should be 'str' instead of 'i32'
+semantic error: Key type should be 'Allocatable[str]' instead of 'i32'
  --> tests/errors/test_dict2.py:4:7
   |
 4 |     y[1] = -3
