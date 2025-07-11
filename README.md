@@ -83,6 +83,7 @@ Follow the steps below to install and run LPython on Linux, Windows or macOS.
     ```bash
     git clone https://github.com/lcompilers/lpython.git
     cd lpython
+    git submodule update --init
     ```
     
     You may also use GitHub Desktop to do the same.
