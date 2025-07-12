@@ -1,8 +1,8 @@
 ; ModuleID = 'LFortran'
 source_filename = "LFortran"
 
-@queries = global void* null
-@x = global i16* null
+@__module___main___queries = global void* null
+@__module___main___x = global i16* null
 @0 = private unnamed_addr constant [2 x i8] c"\0A\00", align 1
 @serialization_info = private unnamed_addr constant [8 x i8] c"CPtr,I2\00", align 1
 @1 = private unnamed_addr constant [5 x i8] c"%s%s\00", align 1
@@ -11,10 +11,10 @@ source_filename = "LFortran"
 
 define void @__module___main_____main__global_stmts() {
 .entry:
-  %0 = load void*, void** @queries, align 8
+  %0 = load void*, void** @__module___main___queries, align 8
   %1 = bitcast void* %0 to i16*
-  store i16* %1, i16** @x, align 8
-  %2 = call i8* (i8*, i8*, i32, i32, ...) @_lcompilers_string_format_fortran(i8* null, i8* getelementptr inbounds ([8 x i8], [8 x i8]* @serialization_info, i32 0, i32 0), i32 0, i32 0, void** @queries, i16** @x)
+  store i16* %1, i16** @__module___main___x, align 8
+  %2 = call i8* (i8*, i8*, i32, i32, ...) @_lcompilers_string_format_fortran(i8* null, i8* getelementptr inbounds ([8 x i8], [8 x i8]* @serialization_info, i32 0, i32 0), i32 0, i32 0, void** @__module___main___queries, i16** @__module___main___x)
   call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([5 x i8], [5 x i8]* @1, i32 0, i32 0), i8* %2, i8* getelementptr inbounds ([2 x i8], [2 x i8]* @0, i32 0, i32 0))
   call void @__module___main___test_issue_1781()
   br label %return
