@@ -572,7 +572,7 @@ public:
                 } else {
                     sym = es_s;
                 }
-                return ASRUtils::TYPE(ASRUtils::make_StructType_t_util(al, loc, sym));
+                return ASRUtils::make_StructType_t_util(al, loc, sym);
             }
             default: {
                 return return_type;
@@ -841,7 +841,7 @@ public:
                 ASR::symbol_t *der_sym = ASRUtils::symbol_get_past_external(s);
                 if( der_sym ) {
                     if ( ASR::is_a<ASR::Struct_t>(*der_sym) ) {
-                        type = ASRUtils::TYPE(ASRUtils::make_StructType_t_util(al, loc, s));
+                        type = ASRUtils::make_StructType_t_util(al, loc, s);
                         type = ASRUtils::make_Array_t_util(al, loc, type, dims.p, dims.size(), abi, is_argument);
                     } else if( ASR::is_a<ASR::Enum_t>(*der_sym) ) {
                         type = ASRUtils::TYPE(ASR::make_EnumType_t(al, loc, s));
@@ -1307,7 +1307,7 @@ public:
                 if ( n_kwargs>0 ) {
                     throw SemanticError("Keyword args are not supported", loc);
                 }
-                ASR::ttype_t* der_type = ASRUtils::TYPE(ASRUtils::make_StructType_t_util(al, loc, stemp));
+                ASR::ttype_t* der_type = ASRUtils::make_StructType_t_util(al, loc, stemp);
                 return ASR::make_StructConstructor_t(al, loc, stemp, args.p,
                     args.size(), der_type, nullptr);
             }
@@ -1342,7 +1342,7 @@ public:
             for (size_t i = args.size(); i < st->n_members; i++) {
                 args.push_back(al, st->m_initializers[i]);
             }
-            ASR::ttype_t* der_type = ASRUtils::TYPE(ASRUtils::make_StructType_t_util(al, loc, stemp));
+            ASR::ttype_t* der_type = ASRUtils::make_StructType_t_util(al, loc, stemp);
             return ASR::make_StructConstructor_t(al, loc, stemp, args.p, args.size(), der_type, nullptr);
         } else if( ASR::is_a<ASR::Enum_t>(*s) ) {
             Vec<ASR::expr_t*> args_new;
@@ -1955,7 +1955,7 @@ public:
                 " str annotation", loc);
             }
             //TODO: Change the returned type from Class to StructType
-            return ASRUtils::TYPE(ASRUtils::make_StructType_t_util(al, loc, sym, false));
+            return ASRUtils::make_StructType_t_util(al, loc, sym, false);
         }
 
         throw SemanticError("Only Name, Subscript, and Call supported for now in annotation of annotated assignment.", loc);
@@ -3485,7 +3485,7 @@ public:
         std::string self_name = x.m_args.m_args[0].m_arg;
         ASR::symbol_t* sym = current_scope->get_symbol(self_name);
         ASR::Variable_t* self_var = ASR::down_cast<ASR::Variable_t>(sym);
-        self_var->m_type = ASRUtils::TYPE(ASRUtils::make_StructType_t_util(al,loc, class_sym));
+        self_var->m_type = ASRUtils::make_StructType_t_util(al,loc, class_sym);
         current_scope = parent_scope;
     }
 
@@ -5361,7 +5361,7 @@ public:
                         first_arg.loc = loc;
                         ASR::symbol_t* self_sym = current_scope->get_symbol("self");
                         first_arg.m_value = ASRUtils::EXPR(ASR::make_Var_t(al,loc,self_sym));
-                        ASR::ttype_t* target_type = ASRUtils::TYPE(ASRUtils::make_StructType_t_util(al,loc,parent_sym));
+                        ASR::ttype_t* target_type = ASRUtils::make_StructType_t_util(al,loc,parent_sym);
                         cast_helper(target_type, first_arg.m_value, x.base.base.loc, true);
                         Vec<ASR::call_arg_t> args_w_first; args_w_first.reserve(al,1);
                         args_w_first.push_back(al, first_arg);
@@ -6354,7 +6354,7 @@ public:
                                                                     s2c(al, struct_member_name), ASR::accessType::Public));
                             current_scope->add_symbol(import_name, import_struct_member);
                         }
-                        member_var_type = ASRUtils::TYPE(ASRUtils::make_StructType_t_util(al, loc, import_struct_member));
+                        member_var_type = ASRUtils::make_StructType_t_util(al, loc, import_struct_member);
                     }
                 }
             }
@@ -6458,7 +6458,7 @@ public:
                                     " found in " + std::string(der_type->m_name),
                                     loc);
             } else if ( !member_found && der_type->m_parent ) {
-                ASR::ttype_t* parent_type = ASRUtils::TYPE(ASRUtils::make_StructType_t_util(al, loc,der_type->m_parent));
+                ASR::ttype_t* parent_type = ASRUtils::make_StructType_t_util(al, loc,der_type->m_parent);
                 visit_AttributeUtil(parent_type,attr_char,t,loc);
                 return;
             }
@@ -6495,7 +6495,7 @@ public:
                                                                     s2c(al, struct_member_name), ASR::accessType::Public));
                             current_scope->add_symbol(import_name, import_struct_member);
                         }
-                        member_var_type = ASRUtils::TYPE(ASRUtils::make_StructType_t_util(al, loc, import_struct_member));
+                        member_var_type = ASRUtils::make_StructType_t_util(al, loc, import_struct_member);
                     }
                 }
             }
