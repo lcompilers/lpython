@@ -649,8 +649,8 @@ RUN(NAME test_builtin_round  LABELS cpython llvm llvm_jit c)
 # RUN(NAME test_math_03        LABELS llvm llvm_jit)               #1595: TODO: Test using CPython (3.11 recommended)
 # RUN(NAME test_pass_compare   LABELS cpython llvm llvm_jit) # renable c # post sync
 RUN(NAME test_c_interop_01   LABELS cpython llvm llvm_jit c)
-# RUN(NAME test_c_interop_02   LABELS cpython llvm c
-#         EXTRAFILES test_c_interop_02b.c)
+RUN(NAME test_c_interop_02   LABELS llvm
+        EXTRAFILES test_c_interop_02b.c) # renable c (needs physical cast), cpython (lenght assert error)
 RUN(NAME test_c_interop_03   LABELS cpython llvm c
         EXTRAFILES test_c_interop_03b.c)
 # RUN(NAME test_c_interop_04   LABELS cpython llvm llvm_jit c
