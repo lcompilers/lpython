@@ -684,11 +684,11 @@ RUN(NAME test_unary_op_01    LABELS cpython llvm llvm_jit c) # unary minus
 RUN(NAME test_unary_op_02    LABELS cpython llvm llvm_jit c) # unary plus
 RUN(NAME test_unary_op_03    LABELS cpython llvm llvm_jit c wasm) # unary bitinvert
 RUN(NAME test_unary_op_04    LABELS cpython llvm llvm_jit c) # unary bitinvert
-# RUN(NAME test_unary_op_05    LABELS cpython llvm llvm_jit c) # unsigned unary minus, plus
-# RUN(NAME test_unary_op_06    LABELS cpython llvm llvm_jit c) # unsigned unary bitnot
-# RUN(NAME test_unsigned_01    LABELS cpython llvm llvm_jit c) # unsigned bitshift left, right
-# RUN(NAME test_unsigned_02    LABELS cpython llvm llvm_jit c)
-# RUN(NAME test_unsigned_03    LABELS cpython llvm llvm_jit c)
+RUN(NAME test_unary_op_05    LABELS cpython llvm llvm_jit c) # unsigned unary minus, plus
+RUN(NAME test_unary_op_06    LABELS cpython llvm llvm_jit c) # unsigned unary bitnot
+RUN(NAME test_unsigned_01    LABELS cpython llvm llvm_jit c) # unsigned bitshift left, right
+RUN(NAME test_unsigned_02    LABELS cpython llvm llvm_jit c)
+RUN(NAME test_unsigned_03    LABELS cpython llvm llvm_jit c)
 RUN(NAME test_bool_binop     LABELS cpython llvm llvm_jit c)
 RUN(NAME test_issue_518      LABELS cpython llvm llvm_jit c NOFAST)
 RUN(NAME structs_01          LABELS cpython llvm llvm_jit c)
