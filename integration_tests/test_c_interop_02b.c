@@ -26,6 +26,6 @@ int8_t f_i8_i8(int8_t x) {
     return x+1;
 }
 
-int32_t f_str_i32(char *x) {
-    return strlen(x);
+int32_t f_str_i32(string_descriptor x) {
+    return x.size;
 }
