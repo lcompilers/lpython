@@ -1,0 +1,33 @@
+└─(10:50:28 on vector-backend ✖ ✭)──> lpython ../ISSUES/UNHANDLED-EXCEPTIONS/Issue2480.py     1 ↵ ──(Mon,Feb05)─┘
+Traceback (most recent call last):
+  File "/Users/brian/Dropbox/Mac/Documents/GitHub/lpython/src/bin/lpython.cpp", line 1872
+    err = compile_python_to_object_file(arg_file, tmp_o, runtime_library_dir,
+  File "/Users/brian/Dropbox/Mac/Documents/GitHub/lpython/src/bin/lpython.cpp", line 824
+    res = fe.get_llvm3(*asr, pass_manager, diagnostics, infile);
+  File "/Users/brian/Dropbox/Mac/Documents/GitHub/lpython/src/lpython/python_evaluator.cpp", line 71
+    run_fn, infile);
+  File "/Users/brian/Dropbox/Mac/Documents/GitHub/lpython/src/libasr/codegen/asr_to_llvm.cpp", line 9276
+    pass_manager.apply_passes(al, &asr, co.po, diagnostics);
+  File "/Users/brian/Documents/GitHub/lpython/src/libasr/pass/pass_manager.h", line 299
+    apply_passes(al, asr, _passes, pass_options, diagnostics);
+  File "/Users/brian/Documents/GitHub/lpython/src/libasr/pass/pass_manager.h", line 160
+    _passes_db[passes[i]](al, *asr, pass_options);
+  File "/Users/brian/Dropbox/Mac/Documents/GitHub/lpython/src/libasr/pass/array_op.cpp", line 1910
+    u.visit_TranslationUnit(unit);
+  File "../libasr/asr.h", line 5277
+  File "../libasr/asr.h", line 5060
+  File "../libasr/asr.h", line 4774
+  File "../libasr/pass/pass_utils.h", line 317
+  File "../libasr/asr.h", line 5290
+  File "../libasr/asr.h", line 5060
+  File "../libasr/asr.h", line 4775
+  File "../libasr/pass/pass_utils.h", line 298
+  File "../libasr/asr.h", line 5303
+  File "../libasr/asr.h", line 5077
+  File "../libasr/asr.h", line 4805
+  File "../libasr/asr.h", line 5441
+  File "../libasr/asr.h", line 5077
+  File "../libasr/asr.h", line 5077
+  Binary file "/usr/lib/system/libsystem_platform.dylib", local address: 0x18046da23
+Segfault: Signal SIGSEGV (segmentation fault) received
+(lp) ┌─(~/Documents/GitHub/lpython/integration_tests)───────────────────────────────────────(brian@MacBook-Pro:s001)─┐
