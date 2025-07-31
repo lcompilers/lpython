@@ -8710,6 +8710,34 @@ we will have to use something else.
 
                 tmp = ASR::make_Print_t(al, x.base.base.loc, string_format);
                 return;
+            } else if (call_name == "input") {
+                args.reserve(al, x.n_args);
+                visit_expr_list(x.m_args, x.n_args, args);
+                Vec<ASR::expr_t*> args_expr = ASRUtils::call_arg2expr(al, args);
+
+                if (args_expr.n > 1) {
+                    throw SemanticError("input() expected at most 1 argument, got " 
+                        + std::to_string(args.n), x.base.base.loc);
+                }
+
+                Vec<ASR::expr_t*> read_values;
+                read_values.reserve(al, 1);
+                read_values.push_back(al, assign_asr_target);
+
+                ASRUtils::ASRBuilder b(al, x.base.base.loc);
+                std::string empty_char = "";
+                ASR::ttype_t* empty_char_type = ASRUtils::TYPE(ASR::make_Character_t(
+                    al, x.base.base.loc, 1, empty_char.length(), nullptr));
+
+                tmp_vec.push_back(ASR::make_Print_t(
+                    al, x.base.base.loc, args_expr.p, args_expr.size(), nullptr,
+                    b.StringConstant(empty_char, empty_char_type)));
+                tmp_vec.push_back(ASR::make_FileRead_t(
+                    al, x.base.base.loc, 0, nullptr, nullptr, nullptr, nullptr,
+                    nullptr, nullptr, read_values.p, read_values.n, nullptr));
+
+                tmp = nullptr;
+                return;
             } else if (call_name == "quit") {
                 parse_args(x, args);
                 ASR::expr_t *code;
