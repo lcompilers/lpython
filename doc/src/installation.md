@@ -153,9 +153,9 @@ Follow the steps below to install and run LPython on Linux, Windows or macOS.
         Integration tests run slowly because Apple checks the hash of each
         executable online before running.
 
-        You can turn off that feature in the Privacy tab of the Security and Privacy item of System Preferences > Developer Tools > Terminal.app > "allow the apps below to run software locally that does not meet the system's security policy.". After making this change, restart your system to ensure the changes take effect.
+        You can turn off that feature in the Privacy tab of the Security and Privacy item of System Preferences > Developer Tools > Terminal.app > "allow the apps below to run software locally that does not meet the system's security policy.". After making this change, restart your terminal to ensure the changes take effect.
 
-        Here’s what it looks like:
+        Here is what it should look like:
         ![Developer Tools Setting](images/dev_tools.png)
 
 
