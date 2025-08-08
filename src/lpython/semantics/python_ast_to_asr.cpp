@@ -806,7 +806,7 @@ public:
             } else {
                 cast_helper(m_args[i], c_arg.m_value, true);
             }
-            if( check_type_equality && !ASRUtils::check_equal_type(left_type, right_type) ) {
+            if( check_type_equality && !ASRUtils::check_equal_type(left_type, right_type, nullptr, nullptr) ) {
                 std::string ltype = ASRUtils::type_to_str_python(left_type);
                 std::string rtype = ASRUtils::type_to_str_python(right_type);
                 diag.add(diag::Diagnostic(
@@ -1325,7 +1325,7 @@ public:
                 cast_helper(member_var->m_type, arg_new_i, arg_new_i->base.loc);
                 ASR::ttype_t* left_type = member_var->m_type;
                 ASR::ttype_t* right_type = ASRUtils::expr_type(arg_new_i);
-                if( !ASRUtils::check_equal_type(left_type, right_type) ) {
+                if( !ASRUtils::check_equal_type(left_type, right_type, nullptr, nullptr) ) {
                     std::string ltype = ASRUtils::type_to_str_python(left_type);
                     std::string rtype = ASRUtils::type_to_str_python(right_type);
                     diag.add(diag::Diagnostic(
@@ -1392,7 +1392,7 @@ public:
             ASR::TypeParameter_t *tp = ASR::down_cast<ASR::TypeParameter_t>(param_type_);
             std::string param_name = tp->m_param;
             if (subs.find(param_name) != subs.end()) {
-                if (!ASRUtils::check_equal_type(subs[param_name], arg_type)) {
+                if (!ASRUtils::check_equal_type(subs[param_name], arg_type, nullptr, nullptr)) {
                     throw SemanticError("Inconsistent type variable for the function call", loc);
                 }
             } else {
@@ -1446,7 +1446,7 @@ public:
                      * @brief if the type of the function given for the restriction does not
                      *        satisfy the type substitution from the function argument, it
                      *        results in error **/
-                    if (!ASRUtils::check_equal_type(subs[rt_type_param], rt_arg_type)) {
+                    if (!ASRUtils::check_equal_type(subs[rt_type_param], rt_arg_type, nullptr, nullptr)) {
                         throw SemanticError("Restriction mismatch with provided arguments",
                             rt_arg->base.loc);
                     }
@@ -1462,7 +1462,7 @@ public:
                 if (ASRUtils::is_type_parameter(*rt_return)) {
                     std::string rt_return_param = ASR::down_cast<ASR::TypeParameter_t>(
                         ASRUtils::get_type_parameter(rt_return))->m_param;
-                    if (!ASRUtils::check_equal_type(subs[rt_return_param], rt_arg_return)) {
+                    if (!ASRUtils::check_equal_type(subs[rt_return_param], rt_arg_return, nullptr, nullptr)) {
                         throw SemanticError("Restriction mismatch with provided arguments",
                             rt_arg->base.loc);
                     }
@@ -1535,7 +1535,7 @@ public:
                         }
                         ASR::ttype_t* subs_type = subs[subs_check_pair.first];
                         ASR::ttype_t* subs_check_type = subs_check_pair.second;
-                        if (!ASRUtils::check_equal_type(subs_type, subs_check_type)) {
+                        if (!ASRUtils::check_equal_type(subs_type, subs_check_type, nullptr, nullptr)) {
                             defined = false; break;
                         }
                     }
@@ -2052,7 +2052,7 @@ public:
             return ;
         }
         ASR::ttype_t* src_type = ASRUtils::expr_type(src_expr);
-        if( ASRUtils::check_equal_type(src_type, dest_type) ) {
+        if( ASRUtils::check_equal_type(src_type, dest_type, nullptr, nullptr) ) {
             return ;
         }
         src_expr = CastingUtil::perform_casting(src_expr, dest_type, al, loc);
@@ -2082,7 +2082,7 @@ public:
                 );
                 throw SemanticAbort();
             }
-            if(!ASRUtils::check_equal_type(left_type, right_type)){
+            if(!ASRUtils::check_equal_type(left_type, right_type, nullptr, nullptr)){
                 std::string ltype = ASRUtils::type_to_str_python(ASRUtils::expr_type(left));
                 std::string rtype = ASRUtils::type_to_str_python(ASRUtils::expr_type(right));
                 diag.add(diag::Diagnostic(
@@ -2314,7 +2314,7 @@ public:
             std::string rtype = ASRUtils::type_to_str_python(right_type);
             ASR::ttype_t *left_type2 = ASR::down_cast<ASR::List_t>(left_type)->m_type;
             ASR::ttype_t *right_type2 = ASR::down_cast<ASR::List_t>(right_type)->m_type;
-            if (!ASRUtils::check_equal_type(left_type2, right_type2)) {
+            if (!ASRUtils::check_equal_type(left_type2, right_type2, nullptr, nullptr)) {
                 diag.add(diag::Diagnostic(
                     "Both the lists should be of the same type for concatenation.",
                     diag::Level::Error, diag::Stage::Semantic, {
@@ -2392,7 +2392,7 @@ public:
 
         left_type = ASRUtils::expr_type(left);
         right_type = ASRUtils::expr_type(right);
-        if( !ASRUtils::check_equal_type(left_type, right_type) ) {
+        if( !ASRUtils::check_equal_type(left_type, right_type, nullptr, nullptr) ) {
             std::string ltype = ASRUtils::type_to_str_python(left_type);
             std::string rtype = ASRUtils::type_to_str_python(right_type);
             diag.add(diag::Diagnostic(
@@ -2927,7 +2927,7 @@ public:
         ASR::asr_t* return_var_assign_stmt = make_dummy_assignment(ASRUtils::EXPR(tmp));
         ASR::expr_t *return_var = ASR::down_cast2<ASR::Assignment_t>(return_var_assign_stmt)->m_target;
 
-        if (!ASRUtils::check_equal_type(ASRUtils::expr_type(return_var), fn_type->m_return_var_type)) {
+        if (!ASRUtils::check_equal_type(ASRUtils::expr_type(return_var), fn_type->m_return_var_type, nullptr, nullptr)) {
             std::string ltype = ASRUtils::type_to_str_python(ASRUtils::expr_type(return_var));
             std::string rtype = ASRUtils::type_to_str_python(fn_type->m_return_var_type);
             diag.add(diag::Diagnostic(
@@ -3014,7 +3014,7 @@ public:
                 ASR::expr_t* value = ASRUtils::EXPR(tmp);
                 ASR::ttype_t* underlying_type = type;
                 cast_helper(underlying_type, value, value->base.loc);
-                if (!ASRUtils::check_equal_type(underlying_type, ASRUtils::expr_type(value), true)) {
+                if (!ASRUtils::check_equal_type(underlying_type, ASRUtils::expr_type(value), nullptr, nullptr, true)) {
                     std::string ltype = ASRUtils::type_to_str_python(underlying_type);
                     std::string rtype = ASRUtils::type_to_str_python(ASRUtils::expr_type(value));
                     diag.add(diag::Diagnostic(
@@ -3253,7 +3253,7 @@ public:
                 if( common_type == nullptr ) {
                     common_type = enum_mem_var->m_type;
                 } else {
-                    if( !ASRUtils::check_equal_type(common_type, enum_mem_var->m_type) ) {
+                    if( !ASRUtils::check_equal_type(common_type, enum_mem_var->m_type, nullptr, nullptr) ) {
                         throw SemanticError("All members of enum should be of the same type.", x.base.base.loc);
                     }
                 }
@@ -3598,7 +3598,7 @@ public:
         this->visit_expr(*x.m_value);
         ASR::expr_t *value = ASRUtils::EXPR(tmp);
         ASR::ttype_t *value_type = ASRUtils::expr_type(value);
-        LCOMPILERS_ASSERT(ASRUtils::check_equal_type(target_type, value_type));
+        LCOMPILERS_ASSERT(ASRUtils::check_equal_type(target_type, value_type, nullptr, nullptr));
         tmp = ASR::make_NamedExpr_t(al, x.base.base.loc, target, value, value_type);
     }
 
@@ -3677,7 +3677,7 @@ public:
         ASR::expr_t *value = nullptr;
         ASR::ttype_t *dest_type = left_operand_type;
 
-        if (!ASRUtils::check_equal_type(left_operand_type, right_operand_type)) {
+        if (!ASRUtils::check_equal_type(left_operand_type, right_operand_type, nullptr, nullptr)) {
             throw SemanticError("Type mismatch: '" + ASRUtils::type_to_str_python(left_operand_type)
                                 + "' and '" + ASRUtils::type_to_str_python(right_operand_type)
                                 + "'. Both operands must be of the same type.", x.base.base.loc);
@@ -4097,7 +4097,7 @@ public:
         this->visit_expr(*x.m_orelse);
         ASR::expr_t *orelse = ASRUtils::EXPR(tmp);
         LCOMPILERS_ASSERT(ASRUtils::check_equal_type(ASRUtils::expr_type(body),
-                                                   ASRUtils::expr_type(orelse)));
+                                                   ASRUtils::expr_type(orelse), nullptr, nullptr));
         tmp = ASR::make_IfExp_t(al, x.base.base.loc, test, body, orelse,
                                 ASRUtils::expr_type(body), nullptr);
     }
@@ -4187,7 +4187,7 @@ public:
             if (ASR::is_a<ASR::Dict_t>(*type)) {
                 index = ASRUtils::EXPR(tmp);
                 ASR::ttype_t *key_type = ASR::down_cast<ASR::Dict_t>(type)->m_key_type;
-                if (!ASRUtils::check_equal_type(ASRUtils::expr_type(index), key_type)) {
+                if (!ASRUtils::check_equal_type(ASRUtils::expr_type(index), key_type, nullptr, nullptr)) {
                     throw SemanticError("Key type should be '" + ASRUtils::type_to_str_python(key_type) +
                                         "' instead of '" +
                                         ASRUtils::type_to_str_python(ASRUtils::expr_type(index)) + "'",
@@ -5609,7 +5609,7 @@ public:
                     // dict insert case;
                     ASR::ttype_t *key_type = ASR::down_cast<ASR::Dict_t>(type)->m_key_type;
                     ASR::ttype_t *value_type = ASR::down_cast<ASR::Dict_t>(type)->m_value_type;
-                    if (!ASRUtils::check_equal_type(ASRUtils::expr_type(key), key_type)) {
+                    if (!ASRUtils::check_equal_type(ASRUtils::expr_type(key), key_type, nullptr, nullptr)) {
                         std::string ktype = ASRUtils::type_to_str_python(ASRUtils::expr_type(key));
                         std::string totype = ASRUtils::type_to_str_python(key_type);
                         diag.add(diag::Diagnostic(
@@ -5636,7 +5636,7 @@ public:
                                             dict_ele.p, dict_ele.size(), dict_ele.p, dict_ele.size(), value_type));
                         }
                     }
-                    if (!ASRUtils::check_equal_type(ASRUtils::expr_type(tmp_value), value_type)) {
+                    if (!ASRUtils::check_equal_type(ASRUtils::expr_type(tmp_value), value_type, nullptr, nullptr)) {
                         std::string vtype = ASRUtils::type_to_str_python(ASRUtils::expr_type(tmp_value));
                         std::string totype = ASRUtils::type_to_str_python(value_type);
                         diag.add(diag::Diagnostic(
@@ -5747,7 +5747,7 @@ public:
             ASR::ttype_t *value_type = ASRUtils::expr_type(tmp_value);
             if( ASR::is_a<ASR::Pointer_t>(*target_type) &&
                 ASR::is_a<ASR::Var_t>(*target) ) {
-                if( !ASRUtils::check_equal_type(target_type, value_type) ) {
+                if( !ASRUtils::check_equal_type(target_type, value_type, nullptr, nullptr) ) {
                     throw SemanticError("Casting not supported for different pointer types. Received "
                                         "target pointer type, " + ASRUtils::type_to_str_python(target_type) +
                                         " and value pointer type, " + ASRUtils::type_to_str_python(value_type),
@@ -5766,7 +5766,7 @@ public:
             }
             cast_helper(target, tmp_value, true);
             value_type = ASRUtils::expr_type(tmp_value);
-            if (!ASRUtils::check_equal_type(target_type, value_type)) {
+            if (!ASRUtils::check_equal_type(target_type, value_type, nullptr, nullptr)) {
                 std::string ltype = ASRUtils::type_to_str_python(target_type);
                 std::string rtype = ASRUtils::type_to_str_python(value_type);
                 diag.add(diag::Diagnostic(
@@ -5834,7 +5834,7 @@ public:
             for (size_t i = 1; i < x.n_elts; i++) {
                 this->visit_expr(*x.m_elts[i]);
                 expr = ASRUtils::EXPR(tmp);
-                if (!ASRUtils::check_equal_type(ASRUtils::expr_type(expr), type)) {
+                if (!ASRUtils::check_equal_type(ASRUtils::expr_type(expr), type, nullptr, nullptr)) {
                     throw SemanticError("All List elements must be of the same type for now",
                         x.base.base.loc);
                 }
@@ -5916,7 +5916,7 @@ public:
             inc = constant_one;
         }
 
-        if( !ASRUtils::check_equal_type(ASRUtils::expr_type(loop_start), ASRUtils::expr_type(loop_end)) ) {
+        if( !ASRUtils::check_equal_type(ASRUtils::expr_type(loop_start), ASRUtils::expr_type(loop_end), nullptr, nullptr) ) {
             std::string loop_start_strtype = ASRUtils::type_to_str_python(ASRUtils::expr_type(loop_start));
             std::string loop_end_strtype = ASRUtils::type_to_str_python(ASRUtils::expr_type(loop_end));
             diag.add(diag::Diagnostic(
@@ -5930,7 +5930,7 @@ public:
             throw SemanticAbort();
         }
 
-        if( !ASRUtils::check_equal_type(ASRUtils::expr_type(loop_start), ASRUtils::expr_type(inc)) ) {
+        if( !ASRUtils::check_equal_type(ASRUtils::expr_type(loop_start), ASRUtils::expr_type(inc), nullptr, nullptr) ) {
             std::string loop_start_strtype = ASRUtils::type_to_str_python(ASRUtils::expr_type(loop_start));
             std::string inc_strtype = ASRUtils::type_to_str_python(ASRUtils::expr_type(inc));
             diag.add(diag::Diagnostic(
@@ -6271,7 +6271,7 @@ public:
 
         cast_helper(left, right, false);
 
-        if (!ASRUtils::check_equal_type(left_type, right_type)) {
+        if (!ASRUtils::check_equal_type(left_type, right_type, nullptr, nullptr)) {
             std::string ltype = ASRUtils::type_to_str_python(left_type);
             std::string rtype = ASRUtils::type_to_str_python(right_type);
             diag.add(diag::Diagnostic(
@@ -6785,7 +6785,7 @@ public:
                     throw SemanticAbort();
                 }
             } else {
-                if (!ASRUtils::check_equal_type(ASRUtils::expr_type(key), key_type)) {
+                if (!ASRUtils::check_equal_type(ASRUtils::expr_type(key), key_type, nullptr, nullptr)) {
                     throw SemanticError("All dictionary keys must be of the same type",
                                         x.base.base.loc);
                 }
@@ -6801,7 +6801,7 @@ public:
             if (value_type == nullptr) {
                 value_type = ASRUtils::expr_type(value);
             } else {
-                if (!ASRUtils::check_equal_type(ASRUtils::expr_type(value), value_type)) {
+                if (!ASRUtils::check_equal_type(ASRUtils::expr_type(value), value_type, nullptr, nullptr)) {
                     throw SemanticError("All dictionary values must be of the same type",
                                         x.base.base.loc);
                 }
@@ -6903,7 +6903,7 @@ public:
         left_type = ASRUtils::expr_type(left);
         right_type = ASRUtils::expr_type(right);
         ASR::ttype_t *dest_type = left_type;
-        if (!ASRUtils::check_equal_type(left_type, right_type)) {
+        if (!ASRUtils::check_equal_type(left_type, right_type, nullptr, nullptr)) {
             std::string ltype = ASRUtils::type_to_str_python(ASRUtils::expr_type(left));
             std::string rtype = ASRUtils::type_to_str_python(ASRUtils::expr_type(right));
             diag.add(diag::Diagnostic(
@@ -7187,7 +7187,7 @@ public:
                       al, x.base.base.loc, 4));
         if (ASR::is_a<ASR::List_t>(*right_type)) {
             ASR::ttype_t *contained_type = ASRUtils::get_contained_type(right_type);
-            if (!ASRUtils::check_equal_type(left_type, contained_type)) {
+            if (!ASRUtils::check_equal_type(left_type, contained_type, nullptr, nullptr)) {
                 std::string ltype = ASRUtils::type_to_str_python(ASRUtils::expr_type(left));
                 std::string rtype = ASRUtils::type_to_str_python(ASRUtils::expr_type(right));
                 diag.add(diag::Diagnostic(
@@ -7202,7 +7202,7 @@ public:
 
             tmp = ASR::make_ListContains_t(al, x.base.base.loc, left, right, type, value);
         } else if (ASRUtils::is_character(*right_type)) {
-            if (!ASRUtils::check_equal_type(left_type, right_type)) {
+            if (!ASRUtils::check_equal_type(left_type, right_type, nullptr, nullptr)) {
                 std::string ltype = ASRUtils::type_to_str_python(ASRUtils::expr_type(left));
                 std::string rtype = ASRUtils::type_to_str_python(ASRUtils::expr_type(right));
                 diag.add(diag::Diagnostic(
@@ -7230,7 +7230,7 @@ public:
             tmp = make_StringContains_t(al, x.base.base.loc, left, right, type, value);
         } else if (ASR::is_a<ASR::Tuple_t>(*right_type)) {
             ASR::ttype_t *contained_type = ASRUtils::get_contained_type(right_type);
-            if (!ASRUtils::check_equal_type(left_type, contained_type)) {
+            if (!ASRUtils::check_equal_type(left_type, contained_type, nullptr, nullptr)) {
                 std::string ltype = ASRUtils::type_to_str_python(ASRUtils::expr_type(left));
                 std::string rtype = ASRUtils::type_to_str_python(ASRUtils::expr_type(right));
                 diag.add(diag::Diagnostic(
@@ -7246,7 +7246,7 @@ public:
             tmp = ASR::make_TupleContains_t(al, x.base.base.loc, left, right, type, value);
         } else if (ASR::is_a<ASR::Set_t>(*right_type)) {
             ASR::ttype_t *contained_type = ASRUtils::get_contained_type(right_type);
-            if (!ASRUtils::check_equal_type(left_type, contained_type)) {
+            if (!ASRUtils::check_equal_type(left_type, contained_type, nullptr, nullptr)) {
                 std::string ltype = ASRUtils::type_to_str_python(ASRUtils::expr_type(left));
                 std::string rtype = ASRUtils::type_to_str_python(ASRUtils::expr_type(right));
                 diag.add(diag::Diagnostic(
@@ -7262,7 +7262,7 @@ public:
             tmp = ASR::make_SetContains_t(al, x.base.base.loc, left, right, type, value);
         } else if (ASR::is_a<ASR::Dict_t>(*right_type)) {
             ASR::ttype_t *contained_type = ASRUtils::get_contained_type(right_type);
-            if (!ASRUtils::check_equal_type(left_type, contained_type)) {
+            if (!ASRUtils::check_equal_type(left_type, contained_type, nullptr, nullptr)) {
                 std::string ltype = ASRUtils::type_to_str_python(ASRUtils::expr_type(left));
                 std::string rtype = ASRUtils::type_to_str_python(ASRUtils::expr_type(right));
                 diag.add(diag::Diagnostic(
@@ -7314,7 +7314,7 @@ public:
         assign_asr_target = assign_asr_target_copy;
         ASR::expr_t *value = ASRUtils::EXPR(tmp);
         ASR::ttype_t *value_type = ASRUtils::expr_type(value);
-        if (!ASRUtils::check_equal_type(target_type, value_type)) {
+        if (!ASRUtils::check_equal_type(target_type, value_type, nullptr, nullptr)) {
             std::string ltype = ASRUtils::type_to_str_python(target_type);
             std::string rtype = ASRUtils::type_to_str_python(value_type);
             throw SemanticError("Type Mismatch in return, found ('" +
@@ -7384,7 +7384,7 @@ public:
                     throw SemanticAbort();
                 }
             } else {
-                if (!ASRUtils::check_equal_type(ASRUtils::expr_type(value), type)) {
+                if (!ASRUtils::check_equal_type(ASRUtils::expr_type(value), type, nullptr, nullptr)) {
                     throw SemanticError("All Set values must be of the same type for now",
                                         x.base.base.loc);
                 }
@@ -9016,7 +9016,7 @@ we will have to use something else.
                 size_t n_args = list->n_args;
                 ASR::ttype_t* value_type = ASRUtils::get_contained_type(type);
                 ASR::ttype_t* target_type = ASRUtils::get_contained_type(ASRUtils::expr_type(assign_asr_target));
-                if (!ASRUtils::check_equal_type(target_type, value_type)){
+                if (!ASRUtils::check_equal_type(target_type, value_type, nullptr, nullptr)){
                     std::string ltype = ASRUtils::type_to_str_python(target_type);
                     std::string rtype = ASRUtils::type_to_str_python(value_type);
                     throw SemanticError("type mismatch ('" + ltype + "' and '" + rtype + "')", x.base.base.loc);

@@ -142,7 +142,7 @@ struct AttributeHandler {
         ASR::ttype_t *type = ASRUtils::expr_type(s);
         ASR::ttype_t *list_type = ASR::down_cast<ASR::List_t>(type)->m_type;
         ASR::ttype_t *ele_type = ASRUtils::expr_type(args[0]);
-        if (!ASRUtils::check_equal_type(ele_type, list_type)) {
+        if (!ASRUtils::check_equal_type(ele_type, list_type, nullptr, nullptr)) {
             std::string fnd = ASRUtils::type_to_str_python(ele_type);
             std::string org = ASRUtils::type_to_str_python(list_type);
             diag.add(diag::Diagnostic(
@@ -169,7 +169,7 @@ struct AttributeHandler {
         ASR::ttype_t *type = ASRUtils::expr_type(s);
         ASR::ttype_t *list_type = ASR::down_cast<ASR::List_t>(type)->m_type;
         ASR::ttype_t *ele_type = ASRUtils::expr_type(args[0]);
-        if (!ASRUtils::check_equal_type(ele_type, list_type)) {
+        if (!ASRUtils::check_equal_type(ele_type, list_type, nullptr, nullptr)) {
             std::string fnd = ASRUtils::type_to_str_python(ele_type);
             std::string org = ASRUtils::type_to_str_python(list_type);
             diag.add(diag::Diagnostic(
@@ -193,7 +193,7 @@ struct AttributeHandler {
         ASR::ttype_t *type = ASRUtils::expr_type(s);
         ASR::ttype_t *list_type = ASR::down_cast<ASR::List_t>(type)->m_type;
         ASR::ttype_t *ele_type = ASRUtils::expr_type(args[0]);
-        if (!ASRUtils::check_equal_type(ele_type, list_type)) {
+        if (!ASRUtils::check_equal_type(ele_type, list_type, nullptr, nullptr)) {
             std::string fnd = ASRUtils::type_to_str_python(ele_type);
             std::string org = ASRUtils::type_to_str_python(list_type);
             diag.add(diag::Diagnostic(
@@ -265,7 +265,7 @@ struct AttributeHandler {
             }
             ASR::ttype_t *pos_type = ASRUtils::expr_type(args[0]);
             ASR::ttype_t *int_type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4));
-            if (!ASRUtils::check_equal_type(pos_type, int_type)) {
+            if (!ASRUtils::check_equal_type(pos_type, int_type, nullptr, nullptr)) {
                 throw SemanticError("List index should be of integer type",
                                     args[0]->base.loc);
             }
@@ -273,7 +273,7 @@ struct AttributeHandler {
             ASR::ttype_t *ele_type = ASRUtils::expr_type(args[1]);
             ASR::ttype_t *type = ASRUtils::expr_type(s);
             ASR::ttype_t *list_type = ASR::down_cast<ASR::List_t>(type)->m_type;
-            if (!ASRUtils::check_equal_type(ele_type, list_type)) {
+            if (!ASRUtils::check_equal_type(ele_type, list_type, nullptr, nullptr)) {
                 std::string fnd = ASRUtils::type_to_str_python(ele_type);
                 std::string org = ASRUtils::type_to_str_python(list_type);
                 diag.add(diag::Diagnostic(
@@ -390,7 +390,7 @@ struct AttributeHandler {
         ASR::ttype_t *value_type = ASR::down_cast<ASR::Dict_t>(type)->m_value_type;
         if (args.size() == 2) {
             def = args[1];
-            if (!ASRUtils::check_equal_type(ASRUtils::expr_type(def), value_type)) {
+            if (!ASRUtils::check_equal_type(ASRUtils::expr_type(def), value_type, nullptr, nullptr)) {
                 std::string vtype = ASRUtils::type_to_str_python(ASRUtils::expr_type(def));
                 std::string totype = ASRUtils::type_to_str_python(value_type);
                 diag.add(diag::Diagnostic(
@@ -403,7 +403,7 @@ struct AttributeHandler {
                 throw SemanticAbort();
             }
         }
-        if (!ASRUtils::check_equal_type(ASRUtils::expr_type(args[0]), key_type)) {
+        if (!ASRUtils::check_equal_type(ASRUtils::expr_type(args[0]), key_type, nullptr, nullptr)) {
             std::string ktype = ASRUtils::type_to_str_python(ASRUtils::expr_type(args[0]));
             std::string totype = ASRUtils::type_to_str_python(key_type);
             diag.add(diag::Diagnostic(
@@ -429,7 +429,7 @@ struct AttributeHandler {
         ASR::ttype_t *type = ASRUtils::expr_type(s);
         ASR::ttype_t *key_type = ASR::down_cast<ASR::Dict_t>(type)->m_key_type;
         ASR::ttype_t *value_type = ASR::down_cast<ASR::Dict_t>(type)->m_value_type;
-        if (!ASRUtils::check_equal_type(ASRUtils::expr_type(args[0]), key_type)) {
+        if (!ASRUtils::check_equal_type(ASRUtils::expr_type(args[0]), key_type, nullptr, nullptr)) {
             std::string ktype = ASRUtils::type_to_str_python(ASRUtils::expr_type(args[0]));
             std::string totype = ASRUtils::type_to_str_python(key_type);
             diag.add(diag::Diagnostic(

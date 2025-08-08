@@ -200,7 +200,7 @@ struct PythonIntrinsicProcedures {
         }
         ASR::expr_t* arg1 = args[0], *arg2 = args[1];
         LCOMPILERS_ASSERT(ASRUtils::check_equal_type(ASRUtils::expr_type(arg1),
-                                    ASRUtils::expr_type(arg2)));
+                                    ASRUtils::expr_type(arg2), nullptr, nullptr));
         ASR::ttype_t* type = ASRUtils::expr_type(arg1);
         if (ASRUtils::is_integer(*type)) {
             int64_t a = ASR::down_cast<ASR::IntegerConstant_t>(arg1)->m_n;
