@@ -210,11 +210,11 @@
                                         (DictConstant
                                             [(StringConstant
                                                 "a"
-                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
+                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength DescriptorString)
                                             )
                                             (StringConstant
                                                 "b"
-                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
+                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength DescriptorString)
                                             )]
                                             [(IntegerUnaryMinus
                                                 (IntegerConstant 1 (Integer 4) Decimal)
@@ -227,7 +227,7 @@
                                                 (IntegerConstant -2 (Integer 4) Decimal)
                                             )]
                                             (Dict
-                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
+                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength DescriptorString)
                                                 (Integer 4)
                                             )
                                         )
@@ -240,7 +240,7 @@
                                             (Var 3 y)
                                             (StringConstant
                                                 "a"
-                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
+                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength DescriptorString)
                                             )
                                             ()
                                             (Integer 4)
@@ -255,7 +255,7 @@
                                             (Var 3 y)
                                             (StringConstant
                                                 "b"
-                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
+                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength DescriptorString)
                                             )
                                             ()
                                             (Integer 4)
@@ -372,11 +372,11 @@
                                         (DictConstant
                                             [(StringConstant
                                                 "a"
-                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
+                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength DescriptorString)
                                             )
                                             (StringConstant
                                                 "b"
-                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
+                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength DescriptorString)
                                             )]
                                             [(IntegerUnaryMinus
                                                 (IntegerConstant 1 (Integer 4) Decimal)
@@ -389,7 +389,7 @@
                                                 (IntegerConstant -2 (Integer 4) Decimal)
                                             )]
                                             (Dict
-                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
+                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength DescriptorString)
                                                 (Integer 4)
                                             )
                                         )
@@ -402,7 +402,7 @@
                                             (Var 5 y)
                                             (StringConstant
                                                 "a"
-                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
+                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength DescriptorString)
                                             )
                                             ()
                                             (Integer 4)
@@ -417,7 +417,7 @@
                                             (Var 5 y)
                                             (StringConstant
                                                 "a"
-                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
+                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength DescriptorString)
                                             )
                                             (IntegerConstant 0 (Integer 4) Decimal)
                                             (Integer 4)
@@ -501,11 +501,11 @@
                                         (DictConstant
                                             [(StringConstant
                                                 "a"
-                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
+                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength DescriptorString)
                                             )
                                             (StringConstant
                                                 "b"
-                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
+                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength DescriptorString)
                                             )]
                                             [(IntegerUnaryMinus
                                                 (IntegerConstant 1 (Integer 4) Decimal)
@@ -518,7 +518,7 @@
                                                 (IntegerConstant -2 (Integer 4) Decimal)
                                             )]
                                             (Dict
-                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
+                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength DescriptorString)
                                                 (Integer 4)
                                             )
                                         )
@@ -529,7 +529,7 @@
                                         (Var 4 y)
                                         (StringConstant
                                             "c"
-                                            (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
+                                            (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength DescriptorString)
                                         )
                                         (IntegerUnaryMinus
                                             (IntegerConstant 3 (Integer 4) Decimal)
@@ -633,16 +633,16 @@
                                         (DictConstant
                                             [(StringConstant
                                                 "a"
-                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
+                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength DescriptorString)
                                             )
                                             (StringConstant
                                                 "b"
-                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
+                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength DescriptorString)
                                             )]
                                             [(IntegerConstant 1 (Integer 4) Decimal)
                                             (IntegerConstant 2 (Integer 4) Decimal)]
                                             (Dict
-                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
+                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength DescriptorString)
                                                 (Integer 4)
                                             )
                                         )
@@ -655,7 +655,7 @@
                                             (Var 6 y)
                                             (StringConstant
                                                 "a"
-                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
+                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength DescriptorString)
                                             )
                                             (Integer 4)
                                             ()
@@ -743,8 +743,9 @@
                                 )
                         })
                     __main__
-                    []
                     ()
+                    []
+                    .false.
                     .false.
                     .false.
                 ),

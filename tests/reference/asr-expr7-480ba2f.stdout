@@ -10,7 +10,7 @@
                             __main__global_stmts:
                                 (Function
                                     (SymbolTable
-                                        128
+                                        141
                                         {
                                             
                                         })
@@ -369,8 +369,9 @@
                                 )
                         })
                     __main__
-                    [lpython_builtin]
                     ()
+                    [lpython_builtin]
+                    .false.
                     .false.
                     .false.
                 ),
@@ -379,11 +380,11 @@
             main_program:
                 (Program
                     (SymbolTable
-                        129
+                        142
                         {
                             __main__global_stmts:
                                 (ExternalSymbol
-                                    129
+                                    142
                                     __main__global_stmts
                                     2 __main__global_stmts
                                     __main__
@@ -395,7 +396,7 @@
                     main_program
                     [__main__]
                     [(SubroutineCall
-                        129 __main__global_stmts
+                        142 __main__global_stmts
                         2 __main__global_stmts
                         []
                         ()

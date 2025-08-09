@@ -404,10 +404,12 @@
                                             ()
                                             [(StringConstant
                                                 "OK"
-                                                (String 1 (IntegerConstant 2 (Integer 4) Decimal) ExpressionLength PointerString)
+                                                (String 1 (IntegerConstant 2 (Integer 4) Decimal) ExpressionLength DescriptorString)
                                             )]
                                             FormatPythonFormat
-                                            (String 1 () ExpressionLength CString)
+                                            (Allocatable
+                                                (String 1 () DeferredLength DescriptorString)
+                                            )
                                             ()
                                         )
                                     )]
@@ -643,8 +645,9 @@
                                 )
                         })
                     __main__
-                    []
                     ()
+                    []
+                    .false.
                     .false.
                     .false.
                 ),

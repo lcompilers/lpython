@@ -1,4 +1,4 @@
-semantic error: `s` must be initialized with an instance of struct S
+semantic error: `s` must be initialized with an instance of derived type
  --> tests/errors/structs_02.py:8:5
   |
 8 |     s: S

@@ -10,11 +10,11 @@
                             ArraySizes:
                                 (Enum
                                     (SymbolTable
-                                        210
+                                        223
                                         {
                                             SIZE_10:
                                                 (Variable
-                                                    210
+                                                    223
                                                     SIZE_10
                                                     []
                                                     Local
@@ -35,7 +35,7 @@
                                                 ),
                                             SIZE_3:
                                                 (Variable
-                                                    210
+                                                    223
                                                     SIZE_3
                                                     []
                                                     Local
@@ -68,7 +68,7 @@
                             __main__global_stmts:
                                 (Function
                                     (SymbolTable
-                                        217
+                                        230
                                         {
                                             
                                         })
@@ -104,11 +104,11 @@
                             accept_f32_array:
                                 (Function
                                     (SymbolTable
-                                        214
+                                        227
                                         {
                                             _lpython_return_variable:
                                                 (Variable
-                                                    214
+                                                    227
                                                     _lpython_return_variable
                                                     []
                                                     ReturnVar
@@ -129,7 +129,7 @@
                                                 ),
                                             xf32:
                                                 (Variable
-                                                    214
+                                                    227
                                                     xf32
                                                     []
                                                     InOut
@@ -175,10 +175,10 @@
                                         .false.
                                     )
                                     []
-                                    [(Var 214 xf32)]
+                                    [(Var 227 xf32)]
                                     [(Assignment
                                         (ArrayItem
-                                            (Var 214 xf32)
+                                            (Var 227 xf32)
                                             [(()
                                             (IntegerConstant 1 (Integer 4) Decimal)
                                             ())]
@@ -202,9 +202,9 @@
                                         .false.
                                     )
                                     (Assignment
-                                        (Var 214 _lpython_return_variable)
+                                        (Var 227 _lpython_return_variable)
                                         (ArrayItem
-                                            (Var 214 xf32)
+                                            (Var 227 xf32)
                                             [(()
                                             (IntegerConstant 1 (Integer 4) Decimal)
                                             ())]
@@ -216,7 +216,7 @@
                                         .false.
                                     )
                                     (Return)]
-                                    (Var 214 _lpython_return_variable)
+                                    (Var 227 _lpython_return_variable)
                                     Public
                                     .false.
                                     .false.
@@ -225,11 +225,11 @@
                             accept_f64_array:
                                 (Function
                                     (SymbolTable
-                                        215
+                                        228
                                         {
                                             _lpython_return_variable:
                                                 (Variable
-                                                    215
+                                                    228
                                                     _lpython_return_variable
                                                     []
                                                     ReturnVar
@@ -250,7 +250,7 @@
                                                 ),
                                             xf64:
                                                 (Variable
-                                                    215
+                                                    228
                                                     xf64
                                                     []
                                                     InOut
@@ -296,10 +296,10 @@
                                         .false.
                                     )
                                     []
-                                    [(Var 215 xf64)]
+                                    [(Var 228 xf64)]
                                     [(Assignment
                                         (ArrayItem
-                                            (Var 215 xf64)
+                                            (Var 228 xf64)
                                             [(()
                                             (IntegerConstant 0 (Integer 4) Decimal)
                                             ())]
@@ -315,9 +315,9 @@
                                         .false.
                                     )
                                     (Assignment
-                                        (Var 215 _lpython_return_variable)
+                                        (Var 228 _lpython_return_variable)
                                         (ArrayItem
-                                            (Var 215 xf64)
+                                            (Var 228 xf64)
                                             [(()
                                             (IntegerConstant 0 (Integer 4) Decimal)
                                             ())]
@@ -329,7 +329,7 @@
                                         .false.
                                     )
                                     (Return)]
-                                    (Var 215 _lpython_return_variable)
+                                    (Var 228 _lpython_return_variable)
                                     Public
                                     .false.
                                     .false.
@@ -338,11 +338,11 @@
                             accept_i16_array:
                                 (Function
                                     (SymbolTable
-                                        211
+                                        224
                                         {
                                             _lpython_return_variable:
                                                 (Variable
-                                                    211
+                                                    224
                                                     _lpython_return_variable
                                                     []
                                                     ReturnVar
@@ -363,7 +363,7 @@
                                                 ),
                                             xi16:
                                                 (Variable
-                                                    211
+                                                    224
                                                     xi16
                                                     []
                                                     InOut
@@ -409,10 +409,10 @@
                                         .false.
                                     )
                                     []
-                                    [(Var 211 xi16)]
+                                    [(Var 224 xi16)]
                                     [(Assignment
                                         (ArrayItem
-                                            (Var 211 xi16)
+                                            (Var 224 xi16)
                                             [(()
                                             (IntegerConstant 2 (Integer 4) Decimal)
                                             ())]
@@ -430,9 +430,9 @@
                                         .false.
                                     )
                                     (Assignment
-                                        (Var 211 _lpython_return_variable)
+                                        (Var 224 _lpython_return_variable)
                                         (ArrayItem
-                                            (Var 211 xi16)
+                                            (Var 224 xi16)
                                             [(()
                                             (IntegerConstant 2 (Integer 4) Decimal)
                                             ())]
@@ -444,7 +444,7 @@
                                         .false.
                                     )
                                     (Return)]
-                                    (Var 211 _lpython_return_variable)
+                                    (Var 224 _lpython_return_variable)
                                     Public
                                     .false.
                                     .false.
@@ -453,11 +453,11 @@
                             accept_i32_array:
                                 (Function
                                     (SymbolTable
-                                        212
+                                        225
                                         {
                                             _lpython_return_variable:
                                                 (Variable
-                                                    212
+                                                    225
                                                     _lpython_return_variable
                                                     []
                                                     ReturnVar
@@ -478,7 +478,7 @@
                                                 ),
                                             xi32:
                                                 (Variable
-                                                    212
+                                                    225
                                                     xi32
                                                     []
                                                     InOut
@@ -524,10 +524,10 @@
                                         .false.
                                     )
                                     []
-                                    [(Var 212 xi32)]
+                                    [(Var 225 xi32)]
                                     [(Assignment
                                         (ArrayItem
-                                            (Var 212 xi32)
+                                            (Var 225 xi32)
                                             [(()
                                             (IntegerConstant 1 (Integer 4) Decimal)
                                             ())]
@@ -540,9 +540,9 @@
                                         .false.
                                     )
                                     (Assignment
-                                        (Var 212 _lpython_return_variable)
+                                        (Var 225 _lpython_return_variable)
                                         (ArrayItem
-                                            (Var 212 xi32)
+                                            (Var 225 xi32)
                                             [(()
                                             (IntegerConstant 1 (Integer 4) Decimal)
                                             ())]
@@ -554,7 +554,7 @@
                                         .false.
                                     )
                                     (Return)]
-                                    (Var 212 _lpython_return_variable)
+                                    (Var 225 _lpython_return_variable)
                                     Public
                                     .false.
                                     .false.
@@ -563,11 +563,11 @@
                             accept_i64_array:
                                 (Function
                                     (SymbolTable
-                                        213
+                                        226
                                         {
                                             _lpython_return_variable:
                                                 (Variable
-                                                    213
+                                                    226
                                                     _lpython_return_variable
                                                     []
                                                     ReturnVar
@@ -588,7 +588,7 @@
                                                 ),
                                             xi64:
                                                 (Variable
-                                                    213
+                                                    226
                                                     xi64
                                                     []
                                                     InOut
@@ -634,10 +634,10 @@
                                         .false.
                                     )
                                     []
-                                    [(Var 213 xi64)]
+                                    [(Var 226 xi64)]
                                     [(Assignment
                                         (ArrayItem
-                                            (Var 213 xi64)
+                                            (Var 226 xi64)
                                             [(()
                                             (IntegerConstant 1 (Integer 4) Decimal)
                                             ())]
@@ -655,9 +655,9 @@
                                         .false.
                                     )
                                     (Assignment
-                                        (Var 213 _lpython_return_variable)
+                                        (Var 226 _lpython_return_variable)
                                         (ArrayItem
-                                            (Var 213 xi64)
+                                            (Var 226 xi64)
                                             [(()
                                             (IntegerConstant 1 (Integer 4) Decimal)
                                             ())]
@@ -669,7 +669,7 @@
                                         .false.
                                     )
                                     (Return)]
-                                    (Var 213 _lpython_return_variable)
+                                    (Var 226 _lpython_return_variable)
                                     Public
                                     .false.
                                     .false.
@@ -678,11 +678,11 @@
                             declare_arrays:
                                 (Function
                                     (SymbolTable
-                                        216
+                                        229
                                         {
                                             ac32:
                                                 (Variable
-                                                    216
+                                                    229
                                                     ac32
                                                     []
                                                     Local
@@ -708,7 +708,7 @@
                                                 ),
                                             ac64:
                                                 (Variable
-                                                    216
+                                                    229
                                                     ac64
                                                     []
                                                     Local
@@ -734,7 +734,7 @@
                                                 ),
                                             af32:
                                                 (Variable
-                                                    216
+                                                    229
                                                     af32
                                                     []
                                                     Local
@@ -760,7 +760,7 @@
                                                 ),
                                             af64:
                                                 (Variable
-                                                    216
+                                                    229
                                                     af64
                                                     []
                                                     Local
@@ -786,7 +786,7 @@
                                                 ),
                                             ai16:
                                                 (Variable
-                                                    216
+                                                    229
                                                     ai16
                                                     []
                                                     Local
@@ -812,7 +812,7 @@
                                                 ),
                                             ai32:
                                                 (Variable
-                                                    216
+                                                    229
                                                     ai32
                                                     []
                                                     Local
@@ -838,7 +838,7 @@
                                                 ),
                                             ai64:
                                                 (Variable
-                                                    216
+                                                    229
                                                     ai64
                                                     []
                                                     Local
@@ -885,10 +885,10 @@
                                     accept_f64_array]
                                     []
                                     [(Assignment
-                                        (Var 216 ai16)
+                                        (Var 229 ai16)
                                         (ArrayBroadcast
                                             (ArrayItem
-                                                (Var 216 ai16)
+                                                (Var 229 ai16)
                                                 [(()
                                                 (IntegerConstant 0 (Integer 4) Decimal)
                                                 ())]
@@ -919,10 +919,10 @@
                                         .false.
                                     )
                                     (Assignment
-                                        (Var 216 ai32)
+                                        (Var 229 ai32)
                                         (ArrayBroadcast
                                             (ArrayItem
-                                                (Var 216 ai32)
+                                                (Var 229 ai32)
                                                 [(()
                                                 (IntegerConstant 0 (Integer 4) Decimal)
                                                 ())]
@@ -953,10 +953,10 @@
                                         .false.
                                     )
                                     (Assignment
-                                        (Var 216 ai64)
+                                        (Var 229 ai64)
                                         (ArrayBroadcast
                                             (ArrayItem
-                                                (Var 216 ai64)
+                                                (Var 229 ai64)
                                                 [(()
                                                 (IntegerConstant 0 (Integer 4) Decimal)
                                                 ())]
@@ -987,10 +987,10 @@
                                         .false.
                                     )
                                     (Assignment
-                                        (Var 216 af32)
+                                        (Var 229 af32)
                                         (ArrayBroadcast
                                             (ArrayItem
-                                                (Var 216 af32)
+                                                (Var 229 af32)
                                                 [(()
                                                 (IntegerConstant 0 (Integer 4) Decimal)
                                                 ())]
@@ -1021,10 +1021,10 @@
                                         .false.
                                     )
                                     (Assignment
-                                        (Var 216 af64)
+                                        (Var 229 af64)
                                         (ArrayBroadcast
                                             (ArrayItem
-                                                (Var 216 af64)
+                                                (Var 229 af64)
                                                 [(()
                                                 (IntegerConstant 0 (Integer 4) Decimal)
                                                 ())]
@@ -1055,10 +1055,10 @@
                                         .false.
                                     )
                                     (Assignment
-                                        (Var 216 ac32)
+                                        (Var 229 ac32)
                                         (ArrayBroadcast
                                             (ArrayItem
-                                                (Var 216 ac32)
+                                                (Var 229 ac32)
                                                 [(()
                                                 (IntegerConstant 0 (Integer 4) Decimal)
                                                 ())]
@@ -1089,10 +1089,10 @@
                                         .false.
                                     )
                                     (Assignment
-                                        (Var 216 ac64)
+                                        (Var 229 ac64)
                                         (ArrayBroadcast
                                             (ArrayItem
-                                                (Var 216 ac64)
+                                                (Var 229 ac64)
                                                 [(()
                                                 (IntegerConstant 0 (Integer 4) Decimal)
                                                 ())]
@@ -1129,7 +1129,7 @@
                                                 2 accept_i16_array
                                                 ()
                                                 [((ArrayPhysicalCast
-                                                    (Var 216 ai16)
+                                                    (Var 229 ai16)
                                                     FixedSizeArray
                                                     DescriptorArray
                                                     (Array
@@ -1145,7 +1145,9 @@
                                                 ()
                                             )]
                                             FormatPythonFormat
-                                            (String 1 () ExpressionLength CString)
+                                            (Allocatable
+                                                (String 1 () DeferredLength DescriptorString)
+                                            )
                                             ()
                                         )
                                     )
@@ -1156,7 +1158,7 @@
                                                 2 accept_i32_array
                                                 ()
                                                 [((ArrayPhysicalCast
-                                                    (Var 216 ai32)
+                                                    (Var 229 ai32)
                                                     FixedSizeArray
                                                     DescriptorArray
                                                     (Array
@@ -1172,7 +1174,9 @@
                                                 ()
                                             )]
                                             FormatPythonFormat
-                                            (String 1 () ExpressionLength CString)
+                                            (Allocatable
+                                                (String 1 () DeferredLength DescriptorString)
+                                            )
                                             ()
                                         )
                                     )
@@ -1183,7 +1187,7 @@
                                                 2 accept_i64_array
                                                 ()
                                                 [((ArrayPhysicalCast
-                                                    (Var 216 ai64)
+                                                    (Var 229 ai64)
                                                     FixedSizeArray
                                                     DescriptorArray
                                                     (Array
@@ -1199,7 +1203,9 @@
                                                 ()
                                             )]
                                             FormatPythonFormat
-                                            (String 1 () ExpressionLength CString)
+                                            (Allocatable
+                                                (String 1 () DeferredLength DescriptorString)
+                                            )
                                             ()
                                         )
                                     )
@@ -1210,7 +1216,7 @@
                                                 2 accept_f32_array
                                                 ()
                                                 [((ArrayPhysicalCast
-                                                    (Var 216 af32)
+                                                    (Var 229 af32)
                                                     FixedSizeArray
                                                     DescriptorArray
                                                     (Array
@@ -1226,7 +1232,9 @@
                                                 ()
                                             )]
                                             FormatPythonFormat
-                                            (String 1 () ExpressionLength CString)
+                                            (Allocatable
+                                                (String 1 () DeferredLength DescriptorString)
+                                            )
                                             ()
                                         )
                                     )
@@ -1237,7 +1245,7 @@
                                                 2 accept_f64_array
                                                 ()
                                                 [((ArrayPhysicalCast
-                                                    (Var 216 af64)
+                                                    (Var 229 af64)
                                                     FixedSizeArray
                                                     DescriptorArray
                                                     (Array
@@ -1253,7 +1261,9 @@
                                                 ()
                                             )]
                                             FormatPythonFormat
-                                            (String 1 () ExpressionLength CString)
+                                            (Allocatable
+                                                (String 1 () DeferredLength DescriptorString)
+                                            )
                                             ()
                                         )
                                     )]
@@ -1265,8 +1275,9 @@
                                 )
                         })
                     __main__
-                    [numpy]
                     ()
+                    [numpy]
+                    .false.
                     .false.
                     .false.
                 ),
@@ -1275,11 +1286,11 @@
             main_program:
                 (Program
                     (SymbolTable
-                        218
+                        231
                         {
                             __main__global_stmts:
                                 (ExternalSymbol
-                                    218
+                                    231
                                     __main__global_stmts
                                     2 __main__global_stmts
                                     __main__
@@ -1291,7 +1302,7 @@
                     main_program
                     [__main__]
                     [(SubroutineCall
-                        218 __main__global_stmts
+                        231 __main__global_stmts
                         2 __main__global_stmts
                         []
                         ()

@@ -1,0 +1,23 @@
+Internal Compiler Error: Unhandled exception
+Traceback (most recent call last):
+[2m  File "[0m[1m[35m$DIR/lpython.cpp[39m[0m[2m", line 2135[0m
+[2m  File "[0m[1m[35m$DIR/lpython.cpp[39m[0m[2m", line 216[0m
+[2m  File "[0m[1m[35m$DIR/semantics/python_ast_to_asr.cpp[39m[0m[2m", line 9165[0m
+[2m  File "[0m[1m[35m$DIR/semantics/python_ast_to_asr.cpp[39m[0m[2m", line 9097[0m
+[2m  File "[0m[1m[35m$DIR/semantics/python_ast_to_asr.cpp[39m[0m[2m", line 5195[0m
+[2m  File "[0m[1m[35m$DIR/python_ast.h[39m[0m[2m", line 1909[0m
+[2m  File "[0m[1m[35m$DIR/python_ast.h[39m[0m[2m", line 1776[0m
+[2m  File "[0m[1m[35m$DIR/semantics/python_ast_to_asr.cpp[39m[0m[2m", line 5385[0m
+[2m  File "[0m[1m[35m$DIR/semantics/python_ast_to_asr.cpp[39m[0m[2m", line 5361[0m
+[2m  File "[0m[1m[35m$DIR/semantics/python_ast_to_asr.cpp[39m[0m[2m", line 5149[0m
+[2m  File "[0m[1m[35m$DIR/python_ast.h[39m[0m[2m", line 1909[0m
+[2m  File "[0m[1m[35m$DIR/python_ast.h[39m[0m[2m", line 1782[0m
+[2m  File "[0m[1m[35m$DIR/semantics/python_ast_to_asr.cpp[39m[0m[2m", line 5457[0m
+[2m  File "[0m[1m[35m$DIR/semantics/python_ast_to_asr.cpp[39m[0m[2m", line 2908[0m
+[2m  File "[0m[1m[35m$DIR/libasr/src/libasr/asr_utils.h[39m[0m[2m", line 4245[0m
+    return types_equal(x, y, x_expr, y_expr, check_for_dimensions);
+[2m  File "[0m[1m[35m$DIR/libasr/src/libasr/asr_utils.h[39m[0m[2m", line 3971[0m
+    ASRUtils::get_union_sym_from_union_expr(a_expr)));
+[2m  File "[0m[1m[35m$DIR/libasr/src/libasr/asr.h[39m[0m[2m", line 40[0m
+    LCOMPILERS_ASSERT(f != nullptr);
+AssertFailed: f != nullptr

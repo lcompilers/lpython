@@ -1,0 +1,12 @@
+semantic error: Type mismatch in procedure call; the types must be compatible
+  --> tests/../integration_tests/generics_list_01.py:55:12
+   |
+55 | print(mean([1,2,3], zero=empty_integer, add=add_integer, div=div_integer))
+   |            ^^^^^^^ type mismatch (passed argument type is list[i32] but required type is list[T])
+   |
+44 |    def mean(x: list[T], **kwargs) -> f64:
+   |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^...
+...
+   |
+53 |        return div(res, k)
+   | ...^^^^^^^^^^^^^^^^^^^^^^ type mismatch (passed argument type is list[i32] but required type is list[T])

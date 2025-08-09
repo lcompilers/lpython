@@ -1,5 +1,8 @@
-semantic error: Inconsistent type variable for the function call
-  --> tests/errors/generics_error_01.py:12:7
+semantic error: Type mismatch in procedure call; the types must be compatible
+  --> tests/errors/generics_error_01.py:12:9
    |
 12 | print(f(1,"a"))
-   |       ^^^^^^^^ 
+   |         ^ type mismatch (passed argument type is i32 but required type is T)
+   |
+ 9 | def f(x: T, y: T) -> T:
+   |          ^ type mismatch (passed argument type is i32 but required type is T)

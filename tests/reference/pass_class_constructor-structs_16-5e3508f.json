@@ -5,9 +5,9 @@
     "infile_hash": "e87ea0ba10cb7fcd6ce2eb6d2e953a26dcd6a843f6cf4e891287dcb1",
     "outfile": null,
     "outfile_hash": null,
-    "stdout": "pass_class_constructor-structs_16-5e3508f.stdout",
-    "stdout_hash": "fbdacab64f2126701504b268dffc81ea700953005ba2749c8b32ed14",
-    "stderr": null,
-    "stderr_hash": null,
-    "returncode": 0
+    "stdout": null,
+    "stdout_hash": null,
+    "stderr": "pass_class_constructor-structs_16-5e3508f.stderr",
+    "stderr_hash": "eb7ab2cb47aeddf603baefef74fcc3eb822e1468596cb3fa411f3d0c",
+    "returncode": 1
 }

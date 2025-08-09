@@ -1,5 +1,12 @@
-semantic error: No applicable argument to the restriction zero
-  --> tests/errors/generics_error_02.py:37:7
+semantic error: Type mismatch in procedure call; the types must be compatible
+  --> tests/errors/generics_error_02.py:37:12
    |
 37 | print(mean(["a","b","c"], add=add_string, div=div_string))
-   |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
+   |            ^^^^^^^^^^^^^ type mismatch (passed argument type is list[Allocatable[str]] but required type is list[T])
+   |
+26 |    def mean(x: list[T], **kwargs) -> f64:
+   |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^...
+...
+   |
+35 |        return div(res, k)
+   | ...^^^^^^^^^^^^^^^^^^^^^^ type mismatch (passed argument type is list[Allocatable[str]] but required type is list[T])

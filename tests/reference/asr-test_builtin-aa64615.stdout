@@ -285,11 +285,15 @@
                                             ()
                                             [(StringChr
                                                 (Var 5 p)
-                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) DeferredLength PointerString)
+                                                (Allocatable
+                                                    (String 1 () DeferredLength DescriptorString)
+                                                )
                                                 ()
                                             )]
                                             FormatPythonFormat
-                                            (String 1 () ExpressionLength CString)
+                                            (Allocatable
+                                                (String 1 () DeferredLength DescriptorString)
+                                            )
                                             ()
                                         )
                                     )
@@ -298,11 +302,15 @@
                                             ()
                                             [(StringChr
                                                 (Var 5 q)
-                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) DeferredLength PointerString)
+                                                (Allocatable
+                                                    (String 1 () DeferredLength DescriptorString)
+                                                )
                                                 ()
                                             )]
                                             FormatPythonFormat
-                                            (String 1 () ExpressionLength CString)
+                                            (Allocatable
+                                                (String 1 () DeferredLength DescriptorString)
+                                            )
                                             ()
                                         )
                                     )
@@ -311,11 +319,15 @@
                                             ()
                                             [(StringChr
                                                 (Var 5 r)
-                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) DeferredLength PointerString)
+                                                (Allocatable
+                                                    (String 1 () DeferredLength DescriptorString)
+                                                )
                                                 ()
                                             )]
                                             FormatPythonFormat
-                                            (String 1 () ExpressionLength CString)
+                                            (Allocatable
+                                                (String 1 () DeferredLength DescriptorString)
+                                            )
                                             ()
                                         )
                                     )
@@ -324,70 +336,50 @@
                                             ()
                                             [(StringChr
                                                 (Var 5 s)
-                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) DeferredLength PointerString)
+                                                (Allocatable
+                                                    (String 1 () DeferredLength DescriptorString)
+                                                )
                                                 ()
                                             )]
                                             FormatPythonFormat
-                                            (String 1 () ExpressionLength CString)
+                                            (Allocatable
+                                                (String 1 () DeferredLength DescriptorString)
+                                            )
                                             ()
                                         )
                                     )
                                     (Assignment
                                         (Var 5 a)
-                                        (StringPhysicalCast
-                                            (StringConstant
-                                                "!"
-                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
-                                            )
-                                            PointerString
-                                            DescriptorString
-                                            (String 1 () DeferredLength DescriptorString)
-                                            ()
+                                        (StringConstant
+                                            "!"
+                                            (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength DescriptorString)
                                         )
                                         ()
                                         .false.
                                     )
                                     (Assignment
                                         (Var 5 b)
-                                        (StringPhysicalCast
-                                            (StringConstant
-                                                " "
-                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
-                                            )
-                                            PointerString
-                                            DescriptorString
-                                            (String 1 () DeferredLength DescriptorString)
-                                            ()
+                                        (StringConstant
+                                            " "
+                                            (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength DescriptorString)
                                         )
                                         ()
                                         .false.
                                     )
                                     (Assignment
                                         (Var 5 c)
-                                        (StringPhysicalCast
-                                            (StringConstant
-                                                "Z"
-                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
-                                            )
-                                            PointerString
-                                            DescriptorString
-                                            (String 1 () DeferredLength DescriptorString)
-                                            ()
+                                        (StringConstant
+                                            "Z"
+                                            (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength DescriptorString)
                                         )
                                         ()
                                         .false.
                                     )
                                     (Assignment
                                         (Var 5 d)
-                                        (StringPhysicalCast
-                                            (StringConstant
-                                                "g"
-                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
-                                            )
-                                            PointerString
-                                            DescriptorString
-                                            (String 1 () DeferredLength DescriptorString)
-                                            ()
+                                        (StringConstant
+                                            "g"
+                                            (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength DescriptorString)
                                         )
                                         ()
                                         .false.
@@ -401,7 +393,9 @@
                                                 ()
                                             )]
                                             FormatPythonFormat
-                                            (String 1 () ExpressionLength CString)
+                                            (Allocatable
+                                                (String 1 () DeferredLength DescriptorString)
+                                            )
                                             ()
                                         )
                                     )
@@ -414,7 +408,9 @@
                                                 ()
                                             )]
                                             FormatPythonFormat
-                                            (String 1 () ExpressionLength CString)
+                                            (Allocatable
+                                                (String 1 () DeferredLength DescriptorString)
+                                            )
                                             ()
                                         )
                                     )
@@ -427,7 +423,9 @@
                                                 ()
                                             )]
                                             FormatPythonFormat
-                                            (String 1 () ExpressionLength CString)
+                                            (Allocatable
+                                                (String 1 () DeferredLength DescriptorString)
+                                            )
                                             ()
                                         )
                                     )
@@ -440,7 +438,9 @@
                                                 ()
                                             )]
                                             FormatPythonFormat
-                                            (String 1 () ExpressionLength CString)
+                                            (Allocatable
+                                                (String 1 () DeferredLength DescriptorString)
+                                            )
                                             ()
                                         )
                                     )]
@@ -801,15 +801,11 @@
                                     )
                                     (Assignment
                                         (Var 4 exclamation)
-                                        (StringPhysicalCast
-                                            (StringChr
-                                                (Var 4 i)
-                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) DeferredLength PointerString)
-                                                ()
+                                        (StringChr
+                                            (Var 4 i)
+                                            (Allocatable
+                                                (String 1 () DeferredLength DescriptorString)
                                             )
-                                            PointerString
-                                            DescriptorString
-                                            (String 1 () DeferredLength DescriptorString)
                                             ()
                                         )
                                         ()
@@ -819,44 +815,33 @@
                                         (StringCompare
                                             (StringChr
                                                 (IntegerConstant 33 (Integer 4) Decimal)
-                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) DeferredLength PointerString)
+                                                (Allocatable
+                                                    (String 1 () DeferredLength DescriptorString)
+                                                )
                                                 (StringConstant
                                                     "!"
-                                                    (String 1 (IntegerConstant 1 (Integer 4) Decimal) DeferredLength PointerString)
+                                                    (Allocatable
+                                                        (String 1 () DeferredLength DescriptorString)
+                                                    )
                                                 )
                                             )
                                             Eq
                                             (StringConstant
                                                 "!"
-                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
+                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength DescriptorString)
                                             )
                                             (Logical 4)
-                                            (LogicalConstant
-                                                .true.
-                                                (Logical 4)
-                                            )
+                                            ()
                                         )
                                         ()
                                     )
                                     (Assert
                                         (StringCompare
-                                            (StringPhysicalCast
-                                                (Var 4 exclamation)
-                                                DescriptorString
-                                                PointerString
-                                                (Allocatable
-                                                    (String 1 (StringLen
-                                                        (Var 4 exclamation)
-                                                        (Integer 4)
-                                                        ()
-                                                    ) ExpressionLength PointerString)
-                                                )
-                                                ()
-                                            )
+                                            (Var 4 exclamation)
                                             Eq
                                             (StringConstant
                                                 "!"
-                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
+                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength DescriptorString)
                                             )
                                             (Logical 4)
                                             ()
@@ -871,15 +856,11 @@
                                     )
                                     (Assignment
                                         (Var 4 dollar)
-                                        (StringPhysicalCast
-                                            (StringChr
-                                                (Var 4 i)
-                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) DeferredLength PointerString)
-                                                ()
+                                        (StringChr
+                                            (Var 4 i)
+                                            (Allocatable
+                                                (String 1 () DeferredLength DescriptorString)
                                             )
-                                            PointerString
-                                            DescriptorString
-                                            (String 1 () DeferredLength DescriptorString)
                                             ()
                                         )
                                         ()
@@ -889,44 +870,33 @@
                                         (StringCompare
                                             (StringChr
                                                 (IntegerConstant 36 (Integer 4) Decimal)
-                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) DeferredLength PointerString)
+                                                (Allocatable
+                                                    (String 1 () DeferredLength DescriptorString)
+                                                )
                                                 (StringConstant
                                                     "$"
-                                                    (String 1 (IntegerConstant 1 (Integer 4) Decimal) DeferredLength PointerString)
+                                                    (Allocatable
+                                                        (String 1 () DeferredLength DescriptorString)
+                                                    )
                                                 )
                                             )
                                             Eq
                                             (StringConstant
                                                 "$"
-                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
+                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength DescriptorString)
                                             )
                                             (Logical 4)
-                                            (LogicalConstant
-                                                .true.
-                                                (Logical 4)
-                                            )
+                                            ()
                                         )
                                         ()
                                     )
                                     (Assert
                                         (StringCompare
-                                            (StringPhysicalCast
-                                                (Var 4 dollar)
-                                                DescriptorString
-                                                PointerString
-                                                (Allocatable
-                                                    (String 1 (StringLen
-                                                        (Var 4 dollar)
-                                                        (Integer 4)
-                                                        ()
-                                                    ) ExpressionLength PointerString)
-                                                )
-                                                ()
-                                            )
+                                            (Var 4 dollar)
                                             Eq
                                             (StringConstant
                                                 "$"
-                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
+                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength DescriptorString)
                                             )
                                             (Logical 4)
                                             ()
@@ -941,15 +911,11 @@
                                     )
                                     (Assignment
                                         (Var 4 left_parenthesis)
-                                        (StringPhysicalCast
-                                            (StringChr
-                                                (Var 4 i)
-                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) DeferredLength PointerString)
-                                                ()
+                                        (StringChr
+                                            (Var 4 i)
+                                            (Allocatable
+                                                (String 1 () DeferredLength DescriptorString)
                                             )
-                                            PointerString
-                                            DescriptorString
-                                            (String 1 () DeferredLength DescriptorString)
                                             ()
                                         )
                                         ()
@@ -959,44 +925,33 @@
                                         (StringCompare
                                             (StringChr
                                                 (IntegerConstant 40 (Integer 4) Decimal)
-                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) DeferredLength PointerString)
+                                                (Allocatable
+                                                    (String 1 () DeferredLength DescriptorString)
+                                                )
                                                 (StringConstant
                                                     "("
-                                                    (String 1 (IntegerConstant 1 (Integer 4) Decimal) DeferredLength PointerString)
+                                                    (Allocatable
+                                                        (String 1 () DeferredLength DescriptorString)
+                                                    )
                                                 )
                                             )
                                             Eq
                                             (StringConstant
                                                 "("
-                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
+                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength DescriptorString)
                                             )
                                             (Logical 4)
-                                            (LogicalConstant
-                                                .true.
-                                                (Logical 4)
-                                            )
+                                            ()
                                         )
                                         ()
                                     )
                                     (Assert
                                         (StringCompare
-                                            (StringPhysicalCast
-                                                (Var 4 left_parenthesis)
-                                                DescriptorString
-                                                PointerString
-                                                (Allocatable
-                                                    (String 1 (StringLen
-                                                        (Var 4 left_parenthesis)
-                                                        (Integer 4)
-                                                        ()
-                                                    ) ExpressionLength PointerString)
-                                                )
-                                                ()
-                                            )
+                                            (Var 4 left_parenthesis)
                                             Eq
                                             (StringConstant
                                                 "("
-                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
+                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength DescriptorString)
                                             )
                                             (Logical 4)
                                             ()
@@ -1011,15 +966,11 @@
                                     )
                                     (Assignment
                                         (Var 4 plus)
-                                        (StringPhysicalCast
-                                            (StringChr
-                                                (Var 4 i)
-                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) DeferredLength PointerString)
-                                                ()
+                                        (StringChr
+                                            (Var 4 i)
+                                            (Allocatable
+                                                (String 1 () DeferredLength DescriptorString)
                                             )
-                                            PointerString
-                                            DescriptorString
-                                            (String 1 () DeferredLength DescriptorString)
                                             ()
                                         )
                                         ()
@@ -1029,44 +980,33 @@
                                         (StringCompare
                                             (StringChr
                                                 (IntegerConstant 43 (Integer 4) Decimal)
-                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) DeferredLength PointerString)
+                                                (Allocatable
+                                                    (String 1 () DeferredLength DescriptorString)
+                                                )
                                                 (StringConstant
                                                     "+"
-                                                    (String 1 (IntegerConstant 1 (Integer 4) Decimal) DeferredLength PointerString)
+                                                    (Allocatable
+                                                        (String 1 () DeferredLength DescriptorString)
+                                                    )
                                                 )
                                             )
                                             Eq
                                             (StringConstant
                                                 "+"
-                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
+                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength DescriptorString)
                                             )
                                             (Logical 4)
-                                            (LogicalConstant
-                                                .true.
-                                                (Logical 4)
-                                            )
+                                            ()
                                         )
                                         ()
                                     )
                                     (Assert
                                         (StringCompare
-                                            (StringPhysicalCast
-                                                (Var 4 plus)
-                                                DescriptorString
-                                                PointerString
-                                                (Allocatable
-                                                    (String 1 (StringLen
-                                                        (Var 4 plus)
-                                                        (Integer 4)
-                                                        ()
-                                                    ) ExpressionLength PointerString)
-                                                )
-                                                ()
-                                            )
+                                            (Var 4 plus)
                                             Eq
                                             (StringConstant
                                                 "+"
-                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
+                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength DescriptorString)
                                             )
                                             (Logical 4)
                                             ()
@@ -1081,15 +1021,11 @@
                                     )
                                     (Assignment
                                         (Var 4 zero)
-                                        (StringPhysicalCast
-                                            (StringChr
-                                                (Var 4 i)
-                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) DeferredLength PointerString)
-                                                ()
+                                        (StringChr
+                                            (Var 4 i)
+                                            (Allocatable
+                                                (String 1 () DeferredLength DescriptorString)
                                             )
-                                            PointerString
-                                            DescriptorString
-                                            (String 1 () DeferredLength DescriptorString)
                                             ()
                                         )
                                         ()
@@ -1099,44 +1035,33 @@
                                         (StringCompare
                                             (StringChr
                                                 (IntegerConstant 48 (Integer 4) Decimal)
-                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) DeferredLength PointerString)
+                                                (Allocatable
+                                                    (String 1 () DeferredLength DescriptorString)
+                                                )
                                                 (StringConstant
                                                     "0"
-                                                    (String 1 (IntegerConstant 1 (Integer 4) Decimal) DeferredLength PointerString)
+                                                    (Allocatable
+                                                        (String 1 () DeferredLength DescriptorString)
+                                                    )
                                                 )
                                             )
                                             Eq
                                             (StringConstant
                                                 "0"
-                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
+                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength DescriptorString)
                                             )
                                             (Logical 4)
-                                            (LogicalConstant
-                                                .true.
-                                                (Logical 4)
-                                            )
+                                            ()
                                         )
                                         ()
                                     )
                                     (Assert
                                         (StringCompare
-                                            (StringPhysicalCast
-                                                (Var 4 zero)
-                                                DescriptorString
-                                                PointerString
-                                                (Allocatable
-                                                    (String 1 (StringLen
-                                                        (Var 4 zero)
-                                                        (Integer 4)
-                                                        ()
-                                                    ) ExpressionLength PointerString)
-                                                )
-                                                ()
-                                            )
+                                            (Var 4 zero)
                                             Eq
                                             (StringConstant
                                                 "0"
-                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
+                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength DescriptorString)
                                             )
                                             (Logical 4)
                                             ()
@@ -1151,15 +1076,11 @@
                                     )
                                     (Assignment
                                         (Var 4 nine)
-                                        (StringPhysicalCast
-                                            (StringChr
-                                                (Var 4 i)
-                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) DeferredLength PointerString)
-                                                ()
+                                        (StringChr
+                                            (Var 4 i)
+                                            (Allocatable
+                                                (String 1 () DeferredLength DescriptorString)
                                             )
-                                            PointerString
-                                            DescriptorString
-                                            (String 1 () DeferredLength DescriptorString)
                                             ()
                                         )
                                         ()
@@ -1169,44 +1090,33 @@
                                         (StringCompare
                                             (StringChr
                                                 (IntegerConstant 57 (Integer 4) Decimal)
-                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) DeferredLength PointerString)
+                                                (Allocatable
+                                                    (String 1 () DeferredLength DescriptorString)
+                                                )
                                                 (StringConstant
                                                     "9"
-                                                    (String 1 (IntegerConstant 1 (Integer 4) Decimal) DeferredLength PointerString)
+                                                    (Allocatable
+                                                        (String 1 () DeferredLength DescriptorString)
+                                                    )
                                                 )
                                             )
                                             Eq
                                             (StringConstant
                                                 "9"
-                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
+                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength DescriptorString)
                                             )
                                             (Logical 4)
-                                            (LogicalConstant
-                                                .true.
-                                                (Logical 4)
-                                            )
+                                            ()
                                         )
                                         ()
                                     )
                                     (Assert
                                         (StringCompare
-                                            (StringPhysicalCast
-                                                (Var 4 nine)
-                                                DescriptorString
-                                                PointerString
-                                                (Allocatable
-                                                    (String 1 (StringLen
-                                                        (Var 4 nine)
-                                                        (Integer 4)
-                                                        ()
-                                                    ) ExpressionLength PointerString)
-                                                )
-                                                ()
-                                            )
+                                            (Var 4 nine)
                                             Eq
                                             (StringConstant
                                                 "9"
-                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
+                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength DescriptorString)
                                             )
                                             (Logical 4)
                                             ()
@@ -1221,15 +1131,11 @@
                                     )
                                     (Assignment
                                         (Var 4 semicolon)
-                                        (StringPhysicalCast
-                                            (StringChr
-                                                (Var 4 i)
-                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) DeferredLength PointerString)
-                                                ()
+                                        (StringChr
+                                            (Var 4 i)
+                                            (Allocatable
+                                                (String 1 () DeferredLength DescriptorString)
                                             )
-                                            PointerString
-                                            DescriptorString
-                                            (String 1 () DeferredLength DescriptorString)
                                             ()
                                         )
                                         ()
@@ -1239,44 +1145,33 @@
                                         (StringCompare
                                             (StringChr
                                                 (IntegerConstant 59 (Integer 4) Decimal)
-                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) DeferredLength PointerString)
+                                                (Allocatable
+                                                    (String 1 () DeferredLength DescriptorString)
+                                                )
                                                 (StringConstant
                                                     ";"
-                                                    (String 1 (IntegerConstant 1 (Integer 4) Decimal) DeferredLength PointerString)
+                                                    (Allocatable
+                                                        (String 1 () DeferredLength DescriptorString)
+                                                    )
                                                 )
                                             )
                                             Eq
                                             (StringConstant
                                                 ";"
-                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
+                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength DescriptorString)
                                             )
                                             (Logical 4)
-                                            (LogicalConstant
-                                                .true.
-                                                (Logical 4)
-                                            )
+                                            ()
                                         )
                                         ()
                                     )
                                     (Assert
                                         (StringCompare
-                                            (StringPhysicalCast
-                                                (Var 4 semicolon)
-                                                DescriptorString
-                                                PointerString
-                                                (Allocatable
-                                                    (String 1 (StringLen
-                                                        (Var 4 semicolon)
-                                                        (Integer 4)
-                                                        ()
-                                                    ) ExpressionLength PointerString)
-                                                )
-                                                ()
-                                            )
+                                            (Var 4 semicolon)
                                             Eq
                                             (StringConstant
                                                 ";"
-                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
+                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength DescriptorString)
                                             )
                                             (Logical 4)
                                             ()
@@ -1291,15 +1186,11 @@
                                     )
                                     (Assignment
                                         (Var 4 capital_a)
-                                        (StringPhysicalCast
-                                            (StringChr
-                                                (Var 4 i)
-                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) DeferredLength PointerString)
-                                                ()
+                                        (StringChr
+                                            (Var 4 i)
+                                            (Allocatable
+                                                (String 1 () DeferredLength DescriptorString)
                                             )
-                                            PointerString
-                                            DescriptorString
-                                            (String 1 () DeferredLength DescriptorString)
                                             ()
                                         )
                                         ()
@@ -1309,44 +1200,33 @@
                                         (StringCompare
                                             (StringChr
                                                 (IntegerConstant 65 (Integer 4) Decimal)
-                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) DeferredLength PointerString)
+                                                (Allocatable
+                                                    (String 1 () DeferredLength DescriptorString)
+                                                )
                                                 (StringConstant
                                                     "A"
-                                                    (String 1 (IntegerConstant 1 (Integer 4) Decimal) DeferredLength PointerString)
+                                                    (Allocatable
+                                                        (String 1 () DeferredLength DescriptorString)
+                                                    )
                                                 )
                                             )
                                             Eq
                                             (StringConstant
                                                 "A"
-                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
+                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength DescriptorString)
                                             )
                                             (Logical 4)
-                                            (LogicalConstant
-                                                .true.
-                                                (Logical 4)
-                                            )
+                                            ()
                                         )
                                         ()
                                     )
                                     (Assert
                                         (StringCompare
-                                            (StringPhysicalCast
-                                                (Var 4 capital_a)
-                                                DescriptorString
-                                                PointerString
-                                                (Allocatable
-                                                    (String 1 (StringLen
-                                                        (Var 4 capital_a)
-                                                        (Integer 4)
-                                                        ()
-                                                    ) ExpressionLength PointerString)
-                                                )
-                                                ()
-                                            )
+                                            (Var 4 capital_a)
                                             Eq
                                             (StringConstant
                                                 "A"
-                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
+                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength DescriptorString)
                                             )
                                             (Logical 4)
                                             ()
@@ -1361,15 +1241,11 @@
                                     )
                                     (Assignment
                                         (Var 4 capital_z)
-                                        (StringPhysicalCast
-                                            (StringChr
-                                                (Var 4 i)
-                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) DeferredLength PointerString)
-                                                ()
+                                        (StringChr
+                                            (Var 4 i)
+                                            (Allocatable
+                                                (String 1 () DeferredLength DescriptorString)
                                             )
-                                            PointerString
-                                            DescriptorString
-                                            (String 1 () DeferredLength DescriptorString)
                                             ()
                                         )
                                         ()
@@ -1379,44 +1255,33 @@
                                         (StringCompare
                                             (StringChr
                                                 (IntegerConstant 90 (Integer 4) Decimal)
-                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) DeferredLength PointerString)
+                                                (Allocatable
+                                                    (String 1 () DeferredLength DescriptorString)
+                                                )
                                                 (StringConstant
                                                     "Z"
-                                                    (String 1 (IntegerConstant 1 (Integer 4) Decimal) DeferredLength PointerString)
+                                                    (Allocatable
+                                                        (String 1 () DeferredLength DescriptorString)
+                                                    )
                                                 )
                                             )
                                             Eq
                                             (StringConstant
                                                 "Z"
-                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
+                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength DescriptorString)
                                             )
                                             (Logical 4)
-                                            (LogicalConstant
-                                                .true.
-                                                (Logical 4)
-                                            )
+                                            ()
                                         )
                                         ()
                                     )
                                     (Assert
                                         (StringCompare
-                                            (StringPhysicalCast
-                                                (Var 4 capital_z)
-                                                DescriptorString
-                                                PointerString
-                                                (Allocatable
-                                                    (String 1 (StringLen
-                                                        (Var 4 capital_z)
-                                                        (Integer 4)
-                                                        ()
-                                                    ) ExpressionLength PointerString)
-                                                )
-                                                ()
-                                            )
+                                            (Var 4 capital_z)
                                             Eq
                                             (StringConstant
                                                 "Z"
-                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
+                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength DescriptorString)
                                             )
                                             (Logical 4)
                                             ()
@@ -1431,15 +1296,11 @@
                                     )
                                     (Assignment
                                         (Var 4 right_bracket)
-                                        (StringPhysicalCast
-                                            (StringChr
-                                                (Var 4 i)
-                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) DeferredLength PointerString)
-                                                ()
+                                        (StringChr
+                                            (Var 4 i)
+                                            (Allocatable
+                                                (String 1 () DeferredLength DescriptorString)
                                             )
-                                            PointerString
-                                            DescriptorString
-                                            (String 1 () DeferredLength DescriptorString)
                                             ()
                                         )
                                         ()
@@ -1449,44 +1310,33 @@
                                         (StringCompare
                                             (StringChr
                                                 (IntegerConstant 93 (Integer 4) Decimal)
-                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) DeferredLength PointerString)
+                                                (Allocatable
+                                                    (String 1 () DeferredLength DescriptorString)
+                                                )
                                                 (StringConstant
                                                     "]"
-                                                    (String 1 (IntegerConstant 1 (Integer 4) Decimal) DeferredLength PointerString)
+                                                    (Allocatable
+                                                        (String 1 () DeferredLength DescriptorString)
+                                                    )
                                                 )
                                             )
                                             Eq
                                             (StringConstant
                                                 "]"
-                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
+                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength DescriptorString)
                                             )
                                             (Logical 4)
-                                            (LogicalConstant
-                                                .true.
-                                                (Logical 4)
-                                            )
+                                            ()
                                         )
                                         ()
                                     )
                                     (Assert
                                         (StringCompare
-                                            (StringPhysicalCast
-                                                (Var 4 right_bracket)
-                                                DescriptorString
-                                                PointerString
-                                                (Allocatable
-                                                    (String 1 (StringLen
-                                                        (Var 4 right_bracket)
-                                                        (Integer 4)
-                                                        ()
-                                                    ) ExpressionLength PointerString)
-                                                )
-                                                ()
-                                            )
+                                            (Var 4 right_bracket)
                                             Eq
                                             (StringConstant
                                                 "]"
-                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
+                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength DescriptorString)
                                             )
                                             (Logical 4)
                                             ()
@@ -1501,15 +1351,11 @@
                                     )
                                     (Assignment
                                         (Var 4 small_a)
-                                        (StringPhysicalCast
-                                            (StringChr
-                                                (Var 4 i)
-                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) DeferredLength PointerString)
-                                                ()
+                                        (StringChr
+                                            (Var 4 i)
+                                            (Allocatable
+                                                (String 1 () DeferredLength DescriptorString)
                                             )
-                                            PointerString
-                                            DescriptorString
-                                            (String 1 () DeferredLength DescriptorString)
                                             ()
                                         )
                                         ()
@@ -1519,44 +1365,33 @@
                                         (StringCompare
                                             (StringChr
                                                 (IntegerConstant 97 (Integer 4) Decimal)
-                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) DeferredLength PointerString)
+                                                (Allocatable
+                                                    (String 1 () DeferredLength DescriptorString)
+                                                )
                                                 (StringConstant
                                                     "a"
-                                                    (String 1 (IntegerConstant 1 (Integer 4) Decimal) DeferredLength PointerString)
+                                                    (Allocatable
+                                                        (String 1 () DeferredLength DescriptorString)
+                                                    )
                                                 )
                                             )
                                             Eq
                                             (StringConstant
                                                 "a"
-                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
+                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength DescriptorString)
                                             )
                                             (Logical 4)
-                                            (LogicalConstant
-                                                .true.
-                                                (Logical 4)
-                                            )
+                                            ()
                                         )
                                         ()
                                     )
                                     (Assert
                                         (StringCompare
-                                            (StringPhysicalCast
-                                                (Var 4 small_a)
-                                                DescriptorString
-                                                PointerString
-                                                (Allocatable
-                                                    (String 1 (StringLen
-                                                        (Var 4 small_a)
-                                                        (Integer 4)
-                                                        ()
-                                                    ) ExpressionLength PointerString)
-                                                )
-                                                ()
-                                            )
+                                            (Var 4 small_a)
                                             Eq
                                             (StringConstant
                                                 "a"
-                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
+                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength DescriptorString)
                                             )
                                             (Logical 4)
                                             ()
@@ -1571,15 +1406,11 @@
                                     )
                                     (Assignment
                                         (Var 4 small_z)
-                                        (StringPhysicalCast
-                                            (StringChr
-                                                (Var 4 i)
-                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) DeferredLength PointerString)
-                                                ()
+                                        (StringChr
+                                            (Var 4 i)
+                                            (Allocatable
+                                                (String 1 () DeferredLength DescriptorString)
                                             )
-                                            PointerString
-                                            DescriptorString
-                                            (String 1 () DeferredLength DescriptorString)
                                             ()
                                         )
                                         ()
@@ -1589,44 +1420,33 @@
                                         (StringCompare
                                             (StringChr
                                                 (IntegerConstant 122 (Integer 4) Decimal)
-                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) DeferredLength PointerString)
+                                                (Allocatable
+                                                    (String 1 () DeferredLength DescriptorString)
+                                                )
                                                 (StringConstant
                                                     "z"
-                                                    (String 1 (IntegerConstant 1 (Integer 4) Decimal) DeferredLength PointerString)
+                                                    (Allocatable
+                                                        (String 1 () DeferredLength DescriptorString)
+                                                    )
                                                 )
                                             )
                                             Eq
                                             (StringConstant
                                                 "z"
-                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
+                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength DescriptorString)
                                             )
                                             (Logical 4)
-                                            (LogicalConstant
-                                                .true.
-                                                (Logical 4)
-                                            )
+                                            ()
                                         )
                                         ()
                                     )
                                     (Assert
                                         (StringCompare
-                                            (StringPhysicalCast
-                                                (Var 4 small_z)
-                                                DescriptorString
-                                                PointerString
-                                                (Allocatable
-                                                    (String 1 (StringLen
-                                                        (Var 4 small_z)
-                                                        (Integer 4)
-                                                        ()
-                                                    ) ExpressionLength PointerString)
-                                                )
-                                                ()
-                                            )
+                                            (Var 4 small_z)
                                             Eq
                                             (StringConstant
                                                 "z"
-                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
+                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength DescriptorString)
                                             )
                                             (Logical 4)
                                             ()
@@ -1641,15 +1461,11 @@
                                     )
                                     (Assignment
                                         (Var 4 right_brace)
-                                        (StringPhysicalCast
-                                            (StringChr
-                                                (Var 4 i)
-                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) DeferredLength PointerString)
-                                                ()
+                                        (StringChr
+                                            (Var 4 i)
+                                            (Allocatable
+                                                (String 1 () DeferredLength DescriptorString)
                                             )
-                                            PointerString
-                                            DescriptorString
-                                            (String 1 () DeferredLength DescriptorString)
                                             ()
                                         )
                                         ()
@@ -1659,44 +1475,33 @@
                                         (StringCompare
                                             (StringChr
                                                 (IntegerConstant 125 (Integer 4) Decimal)
-                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) DeferredLength PointerString)
+                                                (Allocatable
+                                                    (String 1 () DeferredLength DescriptorString)
+                                                )
                                                 (StringConstant
                                                     "}"
-                                                    (String 1 (IntegerConstant 1 (Integer 4) Decimal) DeferredLength PointerString)
+                                                    (Allocatable
+                                                        (String 1 () DeferredLength DescriptorString)
+                                                    )
                                                 )
                                             )
                                             Eq
                                             (StringConstant
                                                 "}"
-                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
+                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength DescriptorString)
                                             )
                                             (Logical 4)
-                                            (LogicalConstant
-                                                .true.
-                                                (Logical 4)
-                                            )
+                                            ()
                                         )
                                         ()
                                     )
                                     (Assert
                                         (StringCompare
-                                            (StringPhysicalCast
-                                                (Var 4 right_brace)
-                                                DescriptorString
-                                                PointerString
-                                                (Allocatable
-                                                    (String 1 (StringLen
-                                                        (Var 4 right_brace)
-                                                        (Integer 4)
-                                                        ()
-                                                    ) ExpressionLength PointerString)
-                                                )
-                                                ()
-                                            )
+                                            (Var 4 right_brace)
                                             Eq
                                             (StringConstant
                                                 "}"
-                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
+                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength DescriptorString)
                                             )
                                             (Logical 4)
                                             ()
@@ -2030,15 +1835,9 @@
                                     []
                                     [(Assignment
                                         (Var 3 s)
-                                        (StringPhysicalCast
-                                            (StringConstant
-                                                "!"
-                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
-                                            )
-                                            PointerString
-                                            DescriptorString
-                                            (String 1 () DeferredLength DescriptorString)
-                                            ()
+                                        (StringConstant
+                                            "!"
+                                            (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength DescriptorString)
                                         )
                                         ()
                                         .false.
@@ -2058,7 +1857,7 @@
                                             (StringOrd
                                                 (StringConstant
                                                     "!"
-                                                    (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
+                                                    (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength DescriptorString)
                                                 )
                                                 (Integer 4)
                                                 (IntegerConstant 33 (Integer 4) Decimal)
@@ -2085,15 +1884,9 @@
                                     )
                                     (Assignment
                                         (Var 3 s)
-                                        (StringPhysicalCast
-                                            (StringConstant
-                                                "$"
-                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
-                                            )
-                                            PointerString
-                                            DescriptorString
-                                            (String 1 () DeferredLength DescriptorString)
-                                            ()
+                                        (StringConstant
+                                            "$"
+                                            (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength DescriptorString)
                                         )
                                         ()
                                         .false.
@@ -2113,7 +1906,7 @@
                                             (StringOrd
                                                 (StringConstant
                                                     "$"
-                                                    (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
+                                                    (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength DescriptorString)
                                                 )
                                                 (Integer 4)
                                                 (IntegerConstant 36 (Integer 4) Decimal)
@@ -2140,15 +1933,9 @@
                                     )
                                     (Assignment
                                         (Var 3 s)
-                                        (StringPhysicalCast
-                                            (StringConstant
-                                                "("
-                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
-                                            )
-                                            PointerString
-                                            DescriptorString
-                                            (String 1 () DeferredLength DescriptorString)
-                                            ()
+                                        (StringConstant
+                                            "("
+                                            (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength DescriptorString)
                                         )
                                         ()
                                         .false.
@@ -2168,7 +1955,7 @@
                                             (StringOrd
                                                 (StringConstant
                                                     "("
-                                                    (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
+                                                    (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength DescriptorString)
                                                 )
                                                 (Integer 4)
                                                 (IntegerConstant 40 (Integer 4) Decimal)
@@ -2195,15 +1982,9 @@
                                     )
                                     (Assignment
                                         (Var 3 s)
-                                        (StringPhysicalCast
-                                            (StringConstant
-                                                "+"
-                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
-                                            )
-                                            PointerString
-                                            DescriptorString
-                                            (String 1 () DeferredLength DescriptorString)
-                                            ()
+                                        (StringConstant
+                                            "+"
+                                            (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength DescriptorString)
                                         )
                                         ()
                                         .false.
@@ -2223,7 +2004,7 @@
                                             (StringOrd
                                                 (StringConstant
                                                     "+"
-                                                    (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
+                                                    (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength DescriptorString)
                                                 )
                                                 (Integer 4)
                                                 (IntegerConstant 43 (Integer 4) Decimal)
@@ -2250,15 +2031,9 @@
                                     )
                                     (Assignment
                                         (Var 3 s)
-                                        (StringPhysicalCast
-                                            (StringConstant
-                                                "0"
-                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
-                                            )
-                                            PointerString
-                                            DescriptorString
-                                            (String 1 () DeferredLength DescriptorString)
-                                            ()
+                                        (StringConstant
+                                            "0"
+                                            (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength DescriptorString)
                                         )
                                         ()
                                         .false.
@@ -2278,7 +2053,7 @@
                                             (StringOrd
                                                 (StringConstant
                                                     "0"
-                                                    (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
+                                                    (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength DescriptorString)
                                                 )
                                                 (Integer 4)
                                                 (IntegerConstant 48 (Integer 4) Decimal)
@@ -2305,15 +2080,9 @@
                                     )
                                     (Assignment
                                         (Var 3 s)
-                                        (StringPhysicalCast
-                                            (StringConstant
-                                                "9"
-                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
-                                            )
-                                            PointerString
-                                            DescriptorString
-                                            (String 1 () DeferredLength DescriptorString)
-                                            ()
+                                        (StringConstant
+                                            "9"
+                                            (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength DescriptorString)
                                         )
                                         ()
                                         .false.
@@ -2333,7 +2102,7 @@
                                             (StringOrd
                                                 (StringConstant
                                                     "9"
-                                                    (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
+                                                    (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength DescriptorString)
                                                 )
                                                 (Integer 4)
                                                 (IntegerConstant 57 (Integer 4) Decimal)
@@ -2360,15 +2129,9 @@
                                     )
                                     (Assignment
                                         (Var 3 s)
-                                        (StringPhysicalCast
-                                            (StringConstant
-                                                ";"
-                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
-                                            )
-                                            PointerString
-                                            DescriptorString
-                                            (String 1 () DeferredLength DescriptorString)
-                                            ()
+                                        (StringConstant
+                                            ";"
+                                            (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength DescriptorString)
                                         )
                                         ()
                                         .false.
@@ -2388,7 +2151,7 @@
                                             (StringOrd
                                                 (StringConstant
                                                     ";"
-                                                    (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
+                                                    (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength DescriptorString)
                                                 )
                                                 (Integer 4)
                                                 (IntegerConstant 59 (Integer 4) Decimal)
@@ -2415,15 +2178,9 @@
                                     )
                                     (Assignment
                                         (Var 3 s)
-                                        (StringPhysicalCast
-                                            (StringConstant
-                                                "A"
-                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
-                                            )
-                                            PointerString
-                                            DescriptorString
-                                            (String 1 () DeferredLength DescriptorString)
-                                            ()
+                                        (StringConstant
+                                            "A"
+                                            (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength DescriptorString)
                                         )
                                         ()
                                         .false.
@@ -2443,7 +2200,7 @@
                                             (StringOrd
                                                 (StringConstant
                                                     "A"
-                                                    (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
+                                                    (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength DescriptorString)
                                                 )
                                                 (Integer 4)
                                                 (IntegerConstant 65 (Integer 4) Decimal)
@@ -2470,15 +2227,9 @@
                                     )
                                     (Assignment
                                         (Var 3 s)
-                                        (StringPhysicalCast
-                                            (StringConstant
-                                                "Z"
-                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
-                                            )
-                                            PointerString
-                                            DescriptorString
-                                            (String 1 () DeferredLength DescriptorString)
-                                            ()
+                                        (StringConstant
+                                            "Z"
+                                            (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength DescriptorString)
                                         )
                                         ()
                                         .false.
@@ -2498,7 +2249,7 @@
                                             (StringOrd
                                                 (StringConstant
                                                     "Z"
-                                                    (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
+                                                    (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength DescriptorString)
                                                 )
                                                 (Integer 4)
                                                 (IntegerConstant 90 (Integer 4) Decimal)
@@ -2525,15 +2276,9 @@
                                     )
                                     (Assignment
                                         (Var 3 s)
-                                        (StringPhysicalCast
-                                            (StringConstant
-                                                "]"
-                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
-                                            )
-                                            PointerString
-                                            DescriptorString
-                                            (String 1 () DeferredLength DescriptorString)
-                                            ()
+                                        (StringConstant
+                                            "]"
+                                            (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength DescriptorString)
                                         )
                                         ()
                                         .false.
@@ -2553,7 +2298,7 @@
                                             (StringOrd
                                                 (StringConstant
                                                     "]"
-                                                    (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
+                                                    (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength DescriptorString)
                                                 )
                                                 (Integer 4)
                                                 (IntegerConstant 93 (Integer 4) Decimal)
@@ -2580,15 +2325,9 @@
                                     )
                                     (Assignment
                                         (Var 3 s)
-                                        (StringPhysicalCast
-                                            (StringConstant
-                                                "a"
-                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
-                                            )
-                                            PointerString
-                                            DescriptorString
-                                            (String 1 () DeferredLength DescriptorString)
-                                            ()
+                                        (StringConstant
+                                            "a"
+                                            (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength DescriptorString)
                                         )
                                         ()
                                         .false.
@@ -2608,7 +2347,7 @@
                                             (StringOrd
                                                 (StringConstant
                                                     "a"
-                                                    (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
+                                                    (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength DescriptorString)
                                                 )
                                                 (Integer 4)
                                                 (IntegerConstant 97 (Integer 4) Decimal)
@@ -2635,15 +2374,9 @@
                                     )
                                     (Assignment
                                         (Var 3 s)
-                                        (StringPhysicalCast
-                                            (StringConstant
-                                                "z"
-                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
-                                            )
-                                            PointerString
-                                            DescriptorString
-                                            (String 1 () DeferredLength DescriptorString)
-                                            ()
+                                        (StringConstant
+                                            "z"
+                                            (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength DescriptorString)
                                         )
                                         ()
                                         .false.
@@ -2663,7 +2396,7 @@
                                             (StringOrd
                                                 (StringConstant
                                                     "z"
-                                                    (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
+                                                    (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength DescriptorString)
                                                 )
                                                 (Integer 4)
                                                 (IntegerConstant 122 (Integer 4) Decimal)
@@ -2690,15 +2423,9 @@
                                     )
                                     (Assignment
                                         (Var 3 s)
-                                        (StringPhysicalCast
-                                            (StringConstant
-                                                "}"
-                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
-                                            )
-                                            PointerString
-                                            DescriptorString
-                                            (String 1 () DeferredLength DescriptorString)
-                                            ()
+                                        (StringConstant
+                                            "}"
+                                            (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength DescriptorString)
                                         )
                                         ()
                                         .false.
@@ -2718,7 +2445,7 @@
                                             (StringOrd
                                                 (StringConstant
                                                     "}"
-                                                    (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
+                                                    (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength DescriptorString)
                                                 )
                                                 (Integer 4)
                                                 (IntegerConstant 125 (Integer 4) Decimal)
@@ -2751,8 +2478,9 @@
                                 )
                         })
                     __main__
-                    []
                     ()
+                    []
+                    .false.
                     .false.
                     .false.
                 ),

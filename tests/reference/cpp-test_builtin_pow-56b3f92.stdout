@@ -22,10 +22,8 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
 void __main__global_stmts();
 void test_pow();
 double __lpython_overloaded_0__pow(int32_t x, int32_t y);
-int32_t __lpython_overloaded_10__pow(int32_t x, int32_t y, int32_t z);
 int64_t __lpython_overloaded_11__pow(int64_t x, int64_t y, int64_t z);
 double __lpython_overloaded_1__pow(int64_t x, int64_t y);
-int32_t __lpython_overloaded_2___mod(int32_t a, int32_t b);
 float __lpython_overloaded_2__pow(float x, float y);
 double __lpython_overloaded_3__pow(double x, double y);
 float __lpython_overloaded_4__pow(int32_t x, float y);
@@ -44,26 +42,6 @@ double __lpython_overloaded_0__pow(int32_t x, int32_t y)
 {
     double _lpython_return_variable;
     _lpython_return_variable = (double)(std::pow(x, y));
-    return _lpython_return_variable;
-}
-
-int32_t __lpython_overloaded_2___mod(int32_t a, int32_t b)
-{
-    int32_t _lpython_return_variable;
-    _lpython_return_variable = a - floordiv(a)*b;
-    return _lpython_return_variable;
-}
-
-int32_t __lpython_overloaded_10__pow(int32_t x, int32_t y, int32_t z)
-{
-    int32_t _lpython_return_variable;
-    int32_t result;
-    if (y < 0) {
-        std::cerr << "ERROR STOP" << std::endl;
-        exit(1);
-    }
-    result = __lpython_overloaded_2___mod(std::pow(x, y), z);
-    _lpython_return_variable = result;
     return _lpython_return_variable;
 }
 
@@ -237,7 +215,6 @@ void test_pow()
     j = 2;
     k = 5;
     assert (__lpython_overloaded_11__pow(i, j, k) == 4);
-    assert (__lpython_overloaded_10__pow(102, 3, 121) == 38);
     c1 = __lpython_overloaded_9__complex(4, 5);
     c1 = __lpython_overloaded_9__pow(c1, 4);
 }

@@ -112,14 +112,20 @@
                                                     (Logical 4)
                                                 )
                                                 LogicalToString
-                                                (String 1 (IntegerConstant 0 (Integer 4) Decimal) DeferredLength PointerString)
+                                                (Allocatable
+                                                    (String 1 () DeferredLength DescriptorString)
+                                                )
                                                 (StringConstant
                                                     "True"
-                                                    (String 1 (IntegerConstant 4 (Integer 4) Decimal) DeferredLength PointerString)
+                                                    (Allocatable
+                                                        (String 1 () DeferredLength DescriptorString)
+                                                    )
                                                 )
                                             )]
                                             FormatPythonFormat
-                                            (String 1 () ExpressionLength CString)
+                                            (Allocatable
+                                                (String 1 () DeferredLength DescriptorString)
+                                            )
                                             ()
                                         )
                                     )
@@ -128,13 +134,15 @@
                                             (Cast
                                                 (Var 5 var)
                                                 LogicalToString
-                                                (String 1 (IntegerConstant 0 (Integer 4) Decimal) DeferredLength PointerString)
+                                                (Allocatable
+                                                    (String 1 () DeferredLength DescriptorString)
+                                                )
                                                 ()
                                             )
                                             Eq
                                             (StringConstant
                                                 "True"
-                                                (String 1 (IntegerConstant 4 (Integer 4) Decimal) ExpressionLength PointerString)
+                                                (String 1 (IntegerConstant 4 (Integer 4) Decimal) ExpressionLength DescriptorString)
                                             )
                                             (Logical 4)
                                             ()
@@ -155,13 +163,15 @@
                                             (Cast
                                                 (Var 5 var)
                                                 LogicalToString
-                                                (String 1 (IntegerConstant 0 (Integer 4) Decimal) DeferredLength PointerString)
+                                                (Allocatable
+                                                    (String 1 () DeferredLength DescriptorString)
+                                                )
                                                 ()
                                             )
                                             Eq
                                             (StringConstant
                                                 "False"
-                                                (String 1 (IntegerConstant 5 (Integer 4) Decimal) ExpressionLength PointerString)
+                                                (String 1 (IntegerConstant 5 (Integer 4) Decimal) ExpressionLength DescriptorString)
                                             )
                                             (Logical 4)
                                             ()
@@ -176,22 +186,23 @@
                                                     (Logical 4)
                                                 )
                                                 LogicalToString
-                                                (String 1 (IntegerConstant 0 (Integer 4) Decimal) DeferredLength PointerString)
+                                                (Allocatable
+                                                    (String 1 () DeferredLength DescriptorString)
+                                                )
                                                 (StringConstant
                                                     "True"
-                                                    (String 1 (IntegerConstant 4 (Integer 4) Decimal) DeferredLength PointerString)
+                                                    (Allocatable
+                                                        (String 1 () DeferredLength DescriptorString)
+                                                    )
                                                 )
                                             )
                                             Eq
                                             (StringConstant
                                                 "True"
-                                                (String 1 (IntegerConstant 4 (Integer 4) Decimal) ExpressionLength PointerString)
+                                                (String 1 (IntegerConstant 4 (Integer 4) Decimal) ExpressionLength DescriptorString)
                                             )
                                             (Logical 4)
-                                            (LogicalConstant
-                                                .true.
-                                                (Logical 4)
-                                            )
+                                            ()
                                         )
                                         ()
                                     )]
@@ -323,7 +334,9 @@
                                             [(Var 4 a)
                                             (Var 4 b)]
                                             FormatPythonFormat
-                                            (String 1 () ExpressionLength CString)
+                                            (Allocatable
+                                                (String 1 () DeferredLength DescriptorString)
+                                            )
                                             ()
                                         )
                                     )
@@ -410,7 +423,9 @@
                                             ()
                                             [(Var 3 x)]
                                             FormatPythonFormat
-                                            (String 1 () ExpressionLength CString)
+                                            (Allocatable
+                                                (String 1 () DeferredLength DescriptorString)
+                                            )
                                             ()
                                         )
                                     )]
@@ -443,8 +458,9 @@
                                 )
                         })
                     __main__
-                    []
                     ()
+                    []
+                    .false.
                     .false.
                     .false.
                 ),

@@ -35,6 +35,12 @@
                                                 )
                                         })
                                     Foo
+                                    (StructType
+                                        [(Integer 4)]
+                                        []
+                                        .true.
+                                        .false.
+                                    )
                                     []
                                     [p]
                                     []
@@ -62,16 +68,16 @@
                                                     Default
                                                     (Array
                                                         (StructType
-                                                            []
+                                                            [(Integer 4)]
                                                             []
                                                             .true.
-                                                            2 Foo
+                                                            .false.
                                                         )
                                                         [((IntegerConstant 0 (Integer 4) Decimal)
                                                         (IntegerConstant 5 (Integer 4) Decimal))]
                                                         PointerToDataArray
                                                     )
-                                                    ()
+                                                    2 Foo
                                                     Source
                                                     Public
                                                     Required
@@ -161,10 +167,10 @@
                                         )
                                         (Array
                                             (StructType
-                                                []
+                                                [(Integer 4)]
                                                 []
                                                 .true.
-                                                2 Foo
+                                                .false.
                                             )
                                             [((IntegerConstant 0 (Integer 4) Decimal)
                                             (IntegerConstant 5 (Integer 4) Decimal))]
@@ -196,8 +202,9 @@
                                 )
                         })
                     __main__
-                    []
                     ()
+                    []
+                    .false.
                     .false.
                     .false.
                 ),

@@ -384,20 +384,20 @@
                                         (TupleConstant
                                             [(StringConstant
                                                 "a"
-                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
+                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength DescriptorString)
                                             )
                                             (StringConstant
                                                 "b"
-                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
+                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength DescriptorString)
                                             )
                                             (StringConstant
                                                 "c"
-                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
+                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength DescriptorString)
                                             )]
                                             (Tuple
-                                                [(String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
-                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
-                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)]
+                                                [(String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength DescriptorString)
+                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength DescriptorString)
+                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength DescriptorString)]
                                             )
                                         )
                                         ()
@@ -436,13 +436,13 @@
                                             (Var 3 float_mem)
                                             (StringConstant
                                                 "d"
-                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
+                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength DescriptorString)
                                             )]
                                             (Tuple
                                                 [(Integer 4)
                                                 (Integer 4)
                                                 (Real 4)
-                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)]
+                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength DescriptorString)]
                                             )
                                         )
                                         ()
@@ -527,40 +527,40 @@
                                             [(TupleConstant
                                                 [(StringConstant
                                                     "a"
-                                                    (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
+                                                    (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength DescriptorString)
                                                 )
                                                 (StringConstant
                                                     "b"
-                                                    (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
+                                                    (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength DescriptorString)
                                                 )
                                                 (Var 3 float_mem1)]
                                                 (Tuple
-                                                    [(String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
-                                                    (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
+                                                    [(String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength DescriptorString)
+                                                    (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength DescriptorString)
                                                     (Real 4)]
                                                 )
                                             )
                                             (TupleConstant
                                                 [(StringConstant
                                                     "c"
-                                                    (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
+                                                    (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength DescriptorString)
                                                 )
                                                 (IntegerConstant 3 (Integer 4) Decimal)
                                                 (Var 3 float_mem2)]
                                                 (Tuple
-                                                    [(String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
+                                                    [(String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength DescriptorString)
                                                     (Integer 4)
                                                     (Real 4)]
                                                 )
                                             )]
                                             (Tuple
                                                 [(Tuple
-                                                    [(String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
-                                                    (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
+                                                    [(String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength DescriptorString)
+                                                    (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength DescriptorString)
                                                     (Real 4)]
                                                 )
                                                 (Tuple
-                                                    [(String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
+                                                    [(String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength DescriptorString)
                                                     (Integer 4)
                                                     (Real 4)]
                                                 )]
@@ -654,8 +654,9 @@
                                 )
                         })
                     __main__
-                    []
                     ()
+                    []
+                    .false.
                     .false.
                     .false.
                 ),

@@ -827,8 +827,9 @@
                                 )
                         })
                     __main__
-                    [lpython_builtin]
                     ()
+                    [lpython_builtin]
+                    .false.
                     .false.
                     .false.
                 ),
@@ -837,7 +838,7 @@
             main_program:
                 (Program
                     (SymbolTable
-                        127
+                        140
                         {
                             
                         })

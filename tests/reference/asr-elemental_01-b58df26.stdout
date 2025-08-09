@@ -10,7 +10,7 @@
                             __main__global_stmts:
                                 (Function
                                     (SymbolTable
-                                        243
+                                        256
                                         {
                                             
                                         })
@@ -84,11 +84,11 @@
                             elemental_cos:
                                 (Function
                                     (SymbolTable
-                                        218
+                                        231
                                         {
                                             array2d:
                                                 (Variable
-                                                    218
+                                                    231
                                                     array2d
                                                     []
                                                     Local
@@ -116,7 +116,7 @@
                                                 ),
                                             cos2d:
                                                 (Variable
-                                                    218
+                                                    231
                                                     cos2d
                                                     []
                                                     Local
@@ -144,7 +144,7 @@
                                                 ),
                                             cos@__lpython_overloaded_0__cos:
                                                 (ExternalSymbol
-                                                    218
+                                                    231
                                                     cos@__lpython_overloaded_0__cos
                                                     3 __lpython_overloaded_0__cos
                                                     numpy
@@ -154,7 +154,7 @@
                                                 ),
                                             i:
                                                 (Variable
-                                                    218
+                                                    231
                                                     i
                                                     []
                                                     Local
@@ -175,7 +175,7 @@
                                                 ),
                                             j:
                                                 (Variable
-                                                    218
+                                                    231
                                                     j
                                                     []
                                                     Local
@@ -213,10 +213,10 @@
                                     [verify2d]
                                     []
                                     [(Assignment
-                                        (Var 218 array2d)
+                                        (Var 231 array2d)
                                         (ArrayBroadcast
                                             (ArrayItem
-                                                (Var 218 array2d)
+                                                (Var 231 array2d)
                                                 [(()
                                                 (IntegerConstant 0 (Integer 4) Decimal)
                                                 ())
@@ -252,10 +252,10 @@
                                         .false.
                                     )
                                     (Assignment
-                                        (Var 218 cos2d)
+                                        (Var 231 cos2d)
                                         (ArrayBroadcast
                                             (ArrayItem
-                                                (Var 218 cos2d)
+                                                (Var 231 cos2d)
                                                 [(()
                                                 (IntegerConstant 0 (Integer 4) Decimal)
                                                 ())
@@ -292,7 +292,7 @@
                                     )
                                     (DoLoop
                                         ()
-                                        ((Var 218 i)
+                                        ((Var 231 i)
                                         (IntegerConstant 0 (Integer 4) Decimal)
                                         (IntegerBinOp
                                             (IntegerConstant 256 (Integer 4) Decimal)
@@ -304,7 +304,7 @@
                                         (IntegerConstant 1 (Integer 4) Decimal))
                                         [(DoLoop
                                             ()
-                                            ((Var 218 j)
+                                            ((Var 231 j)
                                             (IntegerConstant 0 (Integer 4) Decimal)
                                             (IntegerBinOp
                                                 (IntegerConstant 64 (Integer 4) Decimal)
@@ -316,12 +316,12 @@
                                             (IntegerConstant 1 (Integer 4) Decimal))
                                             [(Assignment
                                                 (ArrayItem
-                                                    (Var 218 array2d)
+                                                    (Var 231 array2d)
                                                     [(()
-                                                    (Var 218 i)
+                                                    (Var 231 i)
                                                     ())
                                                     (()
-                                                    (Var 218 j)
+                                                    (Var 231 j)
                                                     ())]
                                                     (Real 8)
                                                     RowMajor
@@ -329,9 +329,9 @@
                                                 )
                                                 (Cast
                                                     (IntegerBinOp
-                                                        (Var 218 i)
+                                                        (Var 231 i)
                                                         Add
-                                                        (Var 218 j)
+                                                        (Var 231 j)
                                                         (Integer 4)
                                                         ()
                                                     )
@@ -347,12 +347,12 @@
                                         []
                                     )
                                     (Assignment
-                                        (Var 218 cos2d)
+                                        (Var 231 cos2d)
                                         (RealBinOp
                                             (FunctionCall
-                                                218 cos@__lpython_overloaded_0__cos
+                                                231 cos@__lpython_overloaded_0__cos
                                                 2 cos
-                                                [((Var 218 array2d))]
+                                                [((Var 231 array2d))]
                                                 (Array
                                                     (Real 8)
                                                     [((IntegerConstant 0 (Integer 4) Decimal)
@@ -386,7 +386,7 @@
                                         2 verify2d
                                         ()
                                         [((ArrayPhysicalCast
-                                            (Var 218 array2d)
+                                            (Var 231 array2d)
                                             FixedSizeArray
                                             DescriptorArray
                                             (Array
@@ -400,7 +400,7 @@
                                             ()
                                         ))
                                         ((ArrayPhysicalCast
-                                            (Var 218 cos2d)
+                                            (Var 231 cos2d)
                                             FixedSizeArray
                                             DescriptorArray
                                             (Array
@@ -426,11 +426,11 @@
                             elemental_mul:
                                 (Function
                                     (SymbolTable
-                                        216
+                                        229
                                         {
                                             array_a:
                                                 (Variable
-                                                    216
+                                                    229
                                                     array_a
                                                     []
                                                     Local
@@ -456,7 +456,7 @@
                                                 ),
                                             array_b:
                                                 (Variable
-                                                    216
+                                                    229
                                                     array_b
                                                     []
                                                     Local
@@ -482,7 +482,7 @@
                                                 ),
                                             array_c:
                                                 (Variable
-                                                    216
+                                                    229
                                                     array_c
                                                     []
                                                     Local
@@ -508,7 +508,7 @@
                                                 ),
                                             i:
                                                 (Variable
-                                                    216
+                                                    229
                                                     i
                                                     []
                                                     Local
@@ -529,7 +529,7 @@
                                                 ),
                                             j:
                                                 (Variable
-                                                    216
+                                                    229
                                                     j
                                                     []
                                                     Local
@@ -550,7 +550,7 @@
                                                 ),
                                             k:
                                                 (Variable
-                                                    216
+                                                    229
                                                     k
                                                     []
                                                     Local
@@ -588,10 +588,10 @@
                                     [verify1d_mul]
                                     []
                                     [(Assignment
-                                        (Var 216 array_a)
+                                        (Var 229 array_a)
                                         (ArrayBroadcast
                                             (ArrayItem
-                                                (Var 216 array_a)
+                                                (Var 229 array_a)
                                                 [(()
                                                 (IntegerConstant 0 (Integer 4) Decimal)
                                                 ())]
@@ -622,10 +622,10 @@
                                         .false.
                                     )
                                     (Assignment
-                                        (Var 216 array_b)
+                                        (Var 229 array_b)
                                         (ArrayBroadcast
                                             (ArrayItem
-                                                (Var 216 array_b)
+                                                (Var 229 array_b)
                                                 [(()
                                                 (IntegerConstant 0 (Integer 4) Decimal)
                                                 ())]
@@ -656,10 +656,10 @@
                                         .false.
                                     )
                                     (Assignment
-                                        (Var 216 array_c)
+                                        (Var 229 array_c)
                                         (ArrayBroadcast
                                             (ArrayItem
-                                                (Var 216 array_c)
+                                                (Var 229 array_c)
                                                 [(()
                                                 (IntegerConstant 0 (Integer 4) Decimal)
                                                 ())]
@@ -691,7 +691,7 @@
                                     )
                                     (DoLoop
                                         ()
-                                        ((Var 216 i)
+                                        ((Var 229 i)
                                         (IntegerConstant 0 (Integer 4) Decimal)
                                         (IntegerBinOp
                                             (IntegerConstant 100 (Integer 4) Decimal)
@@ -703,16 +703,16 @@
                                         (IntegerConstant 1 (Integer 4) Decimal))
                                         [(Assignment
                                             (ArrayItem
-                                                (Var 216 array_a)
+                                                (Var 229 array_a)
                                                 [(()
-                                                (Var 216 i)
+                                                (Var 229 i)
                                                 ())]
                                                 (Real 8)
                                                 RowMajor
                                                 ()
                                             )
                                             (Cast
-                                                (Var 216 i)
+                                                (Var 229 i)
                                                 IntegerToReal
                                                 (Real 8)
                                                 ()
@@ -724,7 +724,7 @@
                                     )
                                     (DoLoop
                                         ()
-                                        ((Var 216 j)
+                                        ((Var 229 j)
                                         (IntegerConstant 0 (Integer 4) Decimal)
                                         (IntegerBinOp
                                             (IntegerConstant 100 (Integer 4) Decimal)
@@ -736,9 +736,9 @@
                                         (IntegerConstant 1 (Integer 4) Decimal))
                                         [(Assignment
                                             (ArrayItem
-                                                (Var 216 array_b)
+                                                (Var 229 array_b)
                                                 [(()
-                                                (Var 216 j)
+                                                (Var 229 j)
                                                 ())]
                                                 (Real 8)
                                                 RowMajor
@@ -746,7 +746,7 @@
                                             )
                                             (Cast
                                                 (IntegerBinOp
-                                                    (Var 216 j)
+                                                    (Var 229 j)
                                                     Add
                                                     (IntegerConstant 5 (Integer 4) Decimal)
                                                     (Integer 4)
@@ -762,11 +762,11 @@
                                         []
                                     )
                                     (Assignment
-                                        (Var 216 array_c)
+                                        (Var 229 array_c)
                                         (RealBinOp
                                             (RealBinOp
                                                 (RealBinOp
-                                                    (Var 216 array_a)
+                                                    (Var 229 array_a)
                                                     Pow
                                                     (RealConstant
                                                         2.000000
@@ -795,7 +795,7 @@
                                             )
                                             Mul
                                             (RealBinOp
-                                                (Var 216 array_b)
+                                                (Var 229 array_b)
                                                 Pow
                                                 (RealConstant
                                                     3.000000
@@ -824,7 +824,7 @@
                                         2 verify1d_mul
                                         ()
                                         [((ArrayPhysicalCast
-                                            (Var 216 array_a)
+                                            (Var 229 array_a)
                                             FixedSizeArray
                                             DescriptorArray
                                             (Array
@@ -836,7 +836,7 @@
                                             ()
                                         ))
                                         ((ArrayPhysicalCast
-                                            (Var 216 array_b)
+                                            (Var 229 array_b)
                                             FixedSizeArray
                                             DescriptorArray
                                             (Array
@@ -848,7 +848,7 @@
                                             ()
                                         ))
                                         ((ArrayPhysicalCast
-                                            (Var 216 array_c)
+                                            (Var 229 array_c)
                                             FixedSizeArray
                                             DescriptorArray
                                             (Array
@@ -871,11 +871,11 @@
                             elemental_sin:
                                 (Function
                                     (SymbolTable
-                                        217
+                                        230
                                         {
                                             array1d:
                                                 (Variable
-                                                    217
+                                                    230
                                                     array1d
                                                     []
                                                     Local
@@ -901,7 +901,7 @@
                                                 ),
                                             arraynd:
                                                 (Variable
-                                                    217
+                                                    230
                                                     arraynd
                                                     []
                                                     Local
@@ -931,7 +931,7 @@
                                                 ),
                                             i:
                                                 (Variable
-                                                    217
+                                                    230
                                                     i
                                                     []
                                                     Local
@@ -952,7 +952,7 @@
                                                 ),
                                             j:
                                                 (Variable
-                                                    217
+                                                    230
                                                     j
                                                     []
                                                     Local
@@ -973,7 +973,7 @@
                                                 ),
                                             k:
                                                 (Variable
-                                                    217
+                                                    230
                                                     k
                                                     []
                                                     Local
@@ -994,7 +994,7 @@
                                                 ),
                                             sin1d:
                                                 (Variable
-                                                    217
+                                                    230
                                                     sin1d
                                                     []
                                                     Local
@@ -1020,7 +1020,7 @@
                                                 ),
                                             sin@__lpython_overloaded_0__sin:
                                                 (ExternalSymbol
-                                                    217
+                                                    230
                                                     sin@__lpython_overloaded_0__sin
                                                     3 __lpython_overloaded_0__sin
                                                     numpy
@@ -1030,7 +1030,7 @@
                                                 ),
                                             sin@__lpython_overloaded_1__sin:
                                                 (ExternalSymbol
-                                                    217
+                                                    230
                                                     sin@__lpython_overloaded_1__sin
                                                     3 __lpython_overloaded_1__sin
                                                     numpy
@@ -1040,7 +1040,7 @@
                                                 ),
                                             sinnd:
                                                 (Variable
-                                                    217
+                                                    230
                                                     sinnd
                                                     []
                                                     Local
@@ -1088,10 +1088,10 @@
                                     verifynd]
                                     []
                                     [(Assignment
-                                        (Var 217 array1d)
+                                        (Var 230 array1d)
                                         (ArrayBroadcast
                                             (ArrayItem
-                                                (Var 217 array1d)
+                                                (Var 230 array1d)
                                                 [(()
                                                 (IntegerConstant 0 (Integer 4) Decimal)
                                                 ())]
@@ -1122,10 +1122,10 @@
                                         .false.
                                     )
                                     (Assignment
-                                        (Var 217 sin1d)
+                                        (Var 230 sin1d)
                                         (ArrayBroadcast
                                             (ArrayItem
-                                                (Var 217 sin1d)
+                                                (Var 230 sin1d)
                                                 [(()
                                                 (IntegerConstant 0 (Integer 4) Decimal)
                                                 ())]
@@ -1157,7 +1157,7 @@
                                     )
                                     (DoLoop
                                         ()
-                                        ((Var 217 i)
+                                        ((Var 230 i)
                                         (IntegerConstant 0 (Integer 4) Decimal)
                                         (IntegerBinOp
                                             (IntegerConstant 256 (Integer 4) Decimal)
@@ -1169,16 +1169,16 @@
                                         (IntegerConstant 1 (Integer 4) Decimal))
                                         [(Assignment
                                             (ArrayItem
-                                                (Var 217 array1d)
+                                                (Var 230 array1d)
                                                 [(()
-                                                (Var 217 i)
+                                                (Var 230 i)
                                                 ())]
                                                 (Real 4)
                                                 RowMajor
                                                 ()
                                             )
                                             (Cast
-                                                (Var 217 i)
+                                                (Var 230 i)
                                                 IntegerToReal
                                                 (Real 4)
                                                 ()
@@ -1189,14 +1189,14 @@
                                         []
                                     )
                                     (Assignment
-                                        (Var 217 sin1d)
+                                        (Var 230 sin1d)
                                         (FunctionCall
-                                            217 sin@__lpython_overloaded_1__sin
+                                            230 sin@__lpython_overloaded_1__sin
                                             2 sin
                                             [((FunctionCall
-                                                217 sin@__lpython_overloaded_1__sin
+                                                230 sin@__lpython_overloaded_1__sin
                                                 2 sin
-                                                [((Var 217 array1d))]
+                                                [((Var 230 array1d))]
                                                 (Array
                                                     (Real 4)
                                                     [((IntegerConstant 0 (Integer 4) Decimal)
@@ -1222,7 +1222,7 @@
                                         2 verify1d
                                         ()
                                         [((ArrayPhysicalCast
-                                            (Var 217 array1d)
+                                            (Var 230 array1d)
                                             FixedSizeArray
                                             DescriptorArray
                                             (Array
@@ -1234,7 +1234,7 @@
                                             ()
                                         ))
                                         ((ArrayPhysicalCast
-                                            (Var 217 sin1d)
+                                            (Var 230 sin1d)
                                             FixedSizeArray
                                             DescriptorArray
                                             (Array
@@ -1249,10 +1249,10 @@
                                         ()
                                     )
                                     (Assignment
-                                        (Var 217 arraynd)
+                                        (Var 230 arraynd)
                                         (ArrayBroadcast
                                             (ArrayItem
-                                                (Var 217 arraynd)
+                                                (Var 230 arraynd)
                                                 [(()
                                                 (IntegerConstant 0 (Integer 4) Decimal)
                                                 ())
@@ -1293,10 +1293,10 @@
                                         .false.
                                     )
                                     (Assignment
-                                        (Var 217 sinnd)
+                                        (Var 230 sinnd)
                                         (ArrayBroadcast
                                             (ArrayItem
-                                                (Var 217 sinnd)
+                                                (Var 230 sinnd)
                                                 [(()
                                                 (IntegerConstant 0 (Integer 4) Decimal)
                                                 ())
@@ -1338,7 +1338,7 @@
                                     )
                                     (DoLoop
                                         ()
-                                        ((Var 217 i)
+                                        ((Var 230 i)
                                         (IntegerConstant 0 (Integer 4) Decimal)
                                         (IntegerBinOp
                                             (IntegerConstant 200 (Integer 4) Decimal)
@@ -1350,7 +1350,7 @@
                                         (IntegerConstant 1 (Integer 4) Decimal))
                                         [(DoLoop
                                             ()
-                                            ((Var 217 j)
+                                            ((Var 230 j)
                                             (IntegerConstant 0 (Integer 4) Decimal)
                                             (IntegerBinOp
                                                 (IntegerConstant 64 (Integer 4) Decimal)
@@ -1362,7 +1362,7 @@
                                             (IntegerConstant 1 (Integer 4) Decimal))
                                             [(DoLoop
                                                 ()
-                                                ((Var 217 k)
+                                                ((Var 230 k)
                                                 (IntegerConstant 0 (Integer 4) Decimal)
                                                 (IntegerBinOp
                                                     (IntegerConstant 16 (Integer 4) Decimal)
@@ -1374,15 +1374,15 @@
                                                 (IntegerConstant 1 (Integer 4) Decimal))
                                                 [(Assignment
                                                     (ArrayItem
-                                                        (Var 217 arraynd)
+                                                        (Var 230 arraynd)
                                                         [(()
-                                                        (Var 217 i)
+                                                        (Var 230 i)
                                                         ())
                                                         (()
-                                                        (Var 217 j)
+                                                        (Var 230 j)
                                                         ())
                                                         (()
-                                                        (Var 217 k)
+                                                        (Var 230 k)
                                                         ())]
                                                         (Real 8)
                                                         RowMajor
@@ -1391,14 +1391,14 @@
                                                     (Cast
                                                         (IntegerBinOp
                                                             (IntegerBinOp
-                                                                (Var 217 i)
+                                                                (Var 230 i)
                                                                 Add
-                                                                (Var 217 j)
+                                                                (Var 230 j)
                                                                 (Integer 4)
                                                                 ()
                                                             )
                                                             Add
-                                                            (Var 217 k)
+                                                            (Var 230 k)
                                                             (Integer 4)
                                                             ()
                                                         )
@@ -1416,12 +1416,12 @@
                                         []
                                     )
                                     (Assignment
-                                        (Var 217 sinnd)
+                                        (Var 230 sinnd)
                                         (RealBinOp
                                             (FunctionCall
-                                                217 sin@__lpython_overloaded_0__sin
+                                                230 sin@__lpython_overloaded_0__sin
                                                 2 sin
-                                                [((Var 217 arraynd))]
+                                                [((Var 230 arraynd))]
                                                 (Array
                                                     (Real 8)
                                                     [((IntegerConstant 0 (Integer 4) Decimal)
@@ -1459,7 +1459,7 @@
                                         2 verifynd
                                         ()
                                         [((ArrayPhysicalCast
-                                            (Var 217 arraynd)
+                                            (Var 230 arraynd)
                                             FixedSizeArray
                                             DescriptorArray
                                             (Array
@@ -1475,7 +1475,7 @@
                                             ()
                                         ))
                                         ((ArrayPhysicalCast
-                                            (Var 217 sinnd)
+                                            (Var 230 sinnd)
                                             FixedSizeArray
                                             DescriptorArray
                                             (Array
@@ -1504,11 +1504,11 @@
                             elemental_sum:
                                 (Function
                                     (SymbolTable
-                                        215
+                                        228
                                         {
                                             array_a:
                                                 (Variable
-                                                    215
+                                                    228
                                                     array_a
                                                     []
                                                     Local
@@ -1534,7 +1534,7 @@
                                                 ),
                                             array_b:
                                                 (Variable
-                                                    215
+                                                    228
                                                     array_b
                                                     []
                                                     Local
@@ -1560,7 +1560,7 @@
                                                 ),
                                             array_c:
                                                 (Variable
-                                                    215
+                                                    228
                                                     array_c
                                                     []
                                                     Local
@@ -1586,7 +1586,7 @@
                                                 ),
                                             i:
                                                 (Variable
-                                                    215
+                                                    228
                                                     i
                                                     []
                                                     Local
@@ -1607,7 +1607,7 @@
                                                 ),
                                             j:
                                                 (Variable
-                                                    215
+                                                    228
                                                     j
                                                     []
                                                     Local
@@ -1628,7 +1628,7 @@
                                                 ),
                                             k:
                                                 (Variable
-                                                    215
+                                                    228
                                                     k
                                                     []
                                                     Local
@@ -1666,10 +1666,10 @@
                                     [verify1d_sum]
                                     []
                                     [(Assignment
-                                        (Var 215 array_a)
+                                        (Var 228 array_a)
                                         (ArrayBroadcast
                                             (ArrayItem
-                                                (Var 215 array_a)
+                                                (Var 228 array_a)
                                                 [(()
                                                 (IntegerConstant 0 (Integer 4) Decimal)
                                                 ())]
@@ -1700,10 +1700,10 @@
                                         .false.
                                     )
                                     (Assignment
-                                        (Var 215 array_b)
+                                        (Var 228 array_b)
                                         (ArrayBroadcast
                                             (ArrayItem
-                                                (Var 215 array_b)
+                                                (Var 228 array_b)
                                                 [(()
                                                 (IntegerConstant 0 (Integer 4) Decimal)
                                                 ())]
@@ -1734,10 +1734,10 @@
                                         .false.
                                     )
                                     (Assignment
-                                        (Var 215 array_c)
+                                        (Var 228 array_c)
                                         (ArrayBroadcast
                                             (ArrayItem
-                                                (Var 215 array_c)
+                                                (Var 228 array_c)
                                                 [(()
                                                 (IntegerConstant 0 (Integer 4) Decimal)
                                                 ())]
@@ -1769,7 +1769,7 @@
                                     )
                                     (DoLoop
                                         ()
-                                        ((Var 215 i)
+                                        ((Var 228 i)
                                         (IntegerConstant 0 (Integer 4) Decimal)
                                         (IntegerBinOp
                                             (IntegerConstant 100 (Integer 4) Decimal)
@@ -1781,16 +1781,16 @@
                                         (IntegerConstant 1 (Integer 4) Decimal))
                                         [(Assignment
                                             (ArrayItem
-                                                (Var 215 array_a)
+                                                (Var 228 array_a)
                                                 [(()
-                                                (Var 215 i)
+                                                (Var 228 i)
                                                 ())]
                                                 (Real 8)
                                                 RowMajor
                                                 ()
                                             )
                                             (Cast
-                                                (Var 215 i)
+                                                (Var 228 i)
                                                 IntegerToReal
                                                 (Real 8)
                                                 ()
@@ -1802,7 +1802,7 @@
                                     )
                                     (DoLoop
                                         ()
-                                        ((Var 215 j)
+                                        ((Var 228 j)
                                         (IntegerConstant 0 (Integer 4) Decimal)
                                         (IntegerBinOp
                                             (IntegerConstant 100 (Integer 4) Decimal)
@@ -1814,9 +1814,9 @@
                                         (IntegerConstant 1 (Integer 4) Decimal))
                                         [(Assignment
                                             (ArrayItem
-                                                (Var 215 array_b)
+                                                (Var 228 array_b)
                                                 [(()
-                                                (Var 215 j)
+                                                (Var 228 j)
                                                 ())]
                                                 (Real 8)
                                                 RowMajor
@@ -1824,7 +1824,7 @@
                                             )
                                             (Cast
                                                 (IntegerBinOp
-                                                    (Var 215 j)
+                                                    (Var 228 j)
                                                     Add
                                                     (IntegerConstant 5 (Integer 4) Decimal)
                                                     (Integer 4)
@@ -1840,10 +1840,10 @@
                                         []
                                     )
                                     (Assignment
-                                        (Var 215 array_c)
+                                        (Var 228 array_c)
                                         (RealBinOp
                                             (RealBinOp
-                                                (Var 215 array_a)
+                                                (Var 228 array_a)
                                                 Pow
                                                 (RealConstant
                                                     2.000000
@@ -1865,7 +1865,7 @@
                                                 )
                                                 Mul
                                                 (RealBinOp
-                                                    (Var 215 array_b)
+                                                    (Var 228 array_b)
                                                     Pow
                                                     (RealConstant
                                                         3.000000
@@ -1902,7 +1902,7 @@
                                         2 verify1d_sum
                                         ()
                                         [((ArrayPhysicalCast
-                                            (Var 215 array_a)
+                                            (Var 228 array_a)
                                             FixedSizeArray
                                             DescriptorArray
                                             (Array
@@ -1914,7 +1914,7 @@
                                             ()
                                         ))
                                         ((ArrayPhysicalCast
-                                            (Var 215 array_b)
+                                            (Var 228 array_b)
                                             FixedSizeArray
                                             DescriptorArray
                                             (Array
@@ -1926,7 +1926,7 @@
                                             ()
                                         ))
                                         ((ArrayPhysicalCast
-                                            (Var 215 array_c)
+                                            (Var 228 array_c)
                                             FixedSizeArray
                                             DescriptorArray
                                             (Array
@@ -1949,11 +1949,11 @@
                             elemental_trig_identity:
                                 (Function
                                     (SymbolTable
-                                        219
+                                        232
                                         {
                                             arraynd:
                                                 (Variable
-                                                    219
+                                                    232
                                                     arraynd
                                                     []
                                                     Local
@@ -1985,7 +1985,7 @@
                                                 ),
                                             cos@__lpython_overloaded_1__cos:
                                                 (ExternalSymbol
-                                                    219
+                                                    232
                                                     cos@__lpython_overloaded_1__cos
                                                     3 __lpython_overloaded_1__cos
                                                     numpy
@@ -1995,7 +1995,7 @@
                                                 ),
                                             eps:
                                                 (Variable
-                                                    219
+                                                    232
                                                     eps
                                                     []
                                                     Local
@@ -2016,7 +2016,7 @@
                                                 ),
                                             i:
                                                 (Variable
-                                                    219
+                                                    232
                                                     i
                                                     []
                                                     Local
@@ -2037,7 +2037,7 @@
                                                 ),
                                             j:
                                                 (Variable
-                                                    219
+                                                    232
                                                     j
                                                     []
                                                     Local
@@ -2058,7 +2058,7 @@
                                                 ),
                                             k:
                                                 (Variable
-                                                    219
+                                                    232
                                                     k
                                                     []
                                                     Local
@@ -2079,7 +2079,7 @@
                                                 ),
                                             l:
                                                 (Variable
-                                                    219
+                                                    232
                                                     l
                                                     []
                                                     Local
@@ -2100,7 +2100,7 @@
                                                 ),
                                             newshape:
                                                 (Variable
-                                                    219
+                                                    232
                                                     newshape
                                                     []
                                                     Local
@@ -2126,7 +2126,7 @@
                                                 ),
                                             observed:
                                                 (Variable
-                                                    219
+                                                    232
                                                     observed
                                                     []
                                                     Local
@@ -2158,7 +2158,7 @@
                                                 ),
                                             observed1d:
                                                 (Variable
-                                                    219
+                                                    232
                                                     observed1d
                                                     []
                                                     Local
@@ -2184,7 +2184,7 @@
                                                 ),
                                             sin@__lpython_overloaded_1__sin:
                                                 (ExternalSymbol
-                                                    219
+                                                    232
                                                     sin@__lpython_overloaded_1__sin
                                                     3 __lpython_overloaded_1__sin
                                                     numpy
@@ -2211,7 +2211,7 @@
                                     []
                                     []
                                     [(Assignment
-                                        (Var 219 eps)
+                                        (Var 232 eps)
                                         (Cast
                                             (RealConstant
                                                 0.000001
@@ -2228,10 +2228,10 @@
                                         .false.
                                     )
                                     (Assignment
-                                        (Var 219 arraynd)
+                                        (Var 232 arraynd)
                                         (ArrayBroadcast
                                             (ArrayItem
-                                                (Var 219 arraynd)
+                                                (Var 232 arraynd)
                                                 [(()
                                                 (IntegerConstant 0 (Integer 4) Decimal)
                                                 ())
@@ -2277,10 +2277,10 @@
                                         .false.
                                     )
                                     (Assignment
-                                        (Var 219 observed)
+                                        (Var 232 observed)
                                         (ArrayBroadcast
                                             (ArrayItem
-                                                (Var 219 observed)
+                                                (Var 232 observed)
                                                 [(()
                                                 (IntegerConstant 0 (Integer 4) Decimal)
                                                 ())
@@ -2326,10 +2326,10 @@
                                         .false.
                                     )
                                     (Assignment
-                                        (Var 219 observed1d)
+                                        (Var 232 observed1d)
                                         (ArrayBroadcast
                                             (ArrayItem
-                                                (Var 219 observed1d)
+                                                (Var 232 observed1d)
                                                 [(()
                                                 (IntegerConstant 0 (Integer 4) Decimal)
                                                 ())]
@@ -2361,7 +2361,7 @@
                                     )
                                     (DoLoop
                                         ()
-                                        ((Var 219 i)
+                                        ((Var 232 i)
                                         (IntegerConstant 0 (Integer 4) Decimal)
                                         (IntegerBinOp
                                             (IntegerConstant 64 (Integer 4) Decimal)
@@ -2373,7 +2373,7 @@
                                         (IntegerConstant 1 (Integer 4) Decimal))
                                         [(DoLoop
                                             ()
-                                            ((Var 219 j)
+                                            ((Var 232 j)
                                             (IntegerConstant 0 (Integer 4) Decimal)
                                             (IntegerBinOp
                                                 (IntegerConstant 32 (Integer 4) Decimal)
@@ -2385,7 +2385,7 @@
                                             (IntegerConstant 1 (Integer 4) Decimal))
                                             [(DoLoop
                                                 ()
-                                                ((Var 219 k)
+                                                ((Var 232 k)
                                                 (IntegerConstant 0 (Integer 4) Decimal)
                                                 (IntegerBinOp
                                                     (IntegerConstant 8 (Integer 4) Decimal)
@@ -2397,7 +2397,7 @@
                                                 (IntegerConstant 1 (Integer 4) Decimal))
                                                 [(DoLoop
                                                     ()
-                                                    ((Var 219 l)
+                                                    ((Var 232 l)
                                                     (IntegerConstant 0 (Integer 4) Decimal)
                                                     (IntegerBinOp
                                                         (IntegerConstant 4 (Integer 4) Decimal)
@@ -2409,18 +2409,18 @@
                                                     (IntegerConstant 1 (Integer 4) Decimal))
                                                     [(Assignment
                                                         (ArrayItem
-                                                            (Var 219 arraynd)
+                                                            (Var 232 arraynd)
                                                             [(()
-                                                            (Var 219 i)
+                                                            (Var 232 i)
                                                             ())
                                                             (()
-                                                            (Var 219 j)
+                                                            (Var 232 j)
                                                             ())
                                                             (()
-                                                            (Var 219 k)
+                                                            (Var 232 k)
                                                             ())
                                                             (()
-                                                            (Var 219 l)
+                                                            (Var 232 l)
                                                             ())]
                                                             (Real 4)
                                                             RowMajor
@@ -2430,19 +2430,19 @@
                                                             (IntegerBinOp
                                                                 (IntegerBinOp
                                                                     (IntegerBinOp
-                                                                        (Var 219 i)
+                                                                        (Var 232 i)
                                                                         Add
-                                                                        (Var 219 j)
+                                                                        (Var 232 j)
                                                                         (Integer 4)
                                                                         ()
                                                                     )
                                                                     Add
-                                                                    (Var 219 k)
+                                                                    (Var 232 k)
                                                                     (Integer 4)
                                                                     ()
                                                                 )
                                                                 Add
-                                                                (Var 219 l)
+                                                                (Var 232 l)
                                                                 (Integer 4)
                                                                 ()
                                                             )
@@ -2462,13 +2462,13 @@
                                         []
                                     )
                                     (Assignment
-                                        (Var 219 observed)
+                                        (Var 232 observed)
                                         (RealBinOp
                                             (RealBinOp
                                                 (FunctionCall
-                                                    219 sin@__lpython_overloaded_1__sin
+                                                    232 sin@__lpython_overloaded_1__sin
                                                     2 sin
-                                                    [((Var 219 arraynd))]
+                                                    [((Var 232 arraynd))]
                                                     (Array
                                                         (Real 4)
                                                         [((IntegerConstant 0 (Integer 4) Decimal)
@@ -2511,9 +2511,9 @@
                                             Add
                                             (RealBinOp
                                                 (FunctionCall
-                                                    219 cos@__lpython_overloaded_1__cos
+                                                    232 cos@__lpython_overloaded_1__cos
                                                     2 cos
-                                                    [((Var 219 arraynd))]
+                                                    [((Var 232 arraynd))]
                                                     (Array
                                                         (Real 4)
                                                         [((IntegerConstant 0 (Integer 4) Decimal)
@@ -2571,10 +2571,10 @@
                                         .false.
                                     )
                                     (Assignment
-                                        (Var 219 newshape)
+                                        (Var 232 newshape)
                                         (ArrayBroadcast
                                             (ArrayItem
-                                                (Var 219 newshape)
+                                                (Var 232 newshape)
                                                 [(()
                                                 (IntegerConstant 0 (Integer 4) Decimal)
                                                 ())]
@@ -2606,7 +2606,7 @@
                                     )
                                     (Assignment
                                         (ArrayItem
-                                            (Var 219 newshape)
+                                            (Var 232 newshape)
                                             [(()
                                             (IntegerConstant 0 (Integer 4) Decimal)
                                             ())]
@@ -2619,11 +2619,11 @@
                                         .false.
                                     )
                                     (Assignment
-                                        (Var 219 observed1d)
+                                        (Var 232 observed1d)
                                         (ArrayReshape
-                                            (Var 219 observed)
+                                            (Var 232 observed)
                                             (ArrayPhysicalCast
-                                                (Var 219 newshape)
+                                                (Var 232 newshape)
                                                 FixedSizeArray
                                                 DescriptorArray
                                                 (Array
@@ -2647,7 +2647,7 @@
                                     )
                                     (DoLoop
                                         ()
-                                        ((Var 219 i)
+                                        ((Var 232 i)
                                         (IntegerConstant 0 (Integer 4) Decimal)
                                         (IntegerBinOp
                                             (IntegerConstant 65536 (Integer 4) Decimal)
@@ -2663,9 +2663,9 @@
                                                     Abs
                                                     [(RealBinOp
                                                         (ArrayItem
-                                                            (Var 219 observed1d)
+                                                            (Var 232 observed1d)
                                                             [(()
-                                                            (Var 219 i)
+                                                            (Var 232 i)
                                                             ())]
                                                             (Real 4)
                                                             RowMajor
@@ -2692,7 +2692,7 @@
                                                     ()
                                                 )
                                                 LtE
-                                                (Var 219 eps)
+                                                (Var 232 eps)
                                                 (Logical 4)
                                                 ()
                                             )
@@ -2719,11 +2719,11 @@
                             verify1d:
                                 (Function
                                     (SymbolTable
-                                        210
+                                        223
                                         {
                                             array:
                                                 (Variable
-                                                    210
+                                                    223
                                                     array
                                                     []
                                                     InOut
@@ -2750,11 +2750,11 @@
                                             block:
                                                 (Block
                                                     (SymbolTable
-                                                        220
+                                                        233
                                                         {
                                                             sin@__lpython_overloaded_1__sin:
                                                                 (ExternalSymbol
-                                                                    220
+                                                                    233
                                                                     sin@__lpython_overloaded_1__sin
                                                                     3 __lpython_overloaded_1__sin
                                                                     numpy
@@ -2770,15 +2770,15 @@
                                                                 Abs
                                                                 [(RealBinOp
                                                                     (FunctionCall
-                                                                        220 sin@__lpython_overloaded_1__sin
+                                                                        233 sin@__lpython_overloaded_1__sin
                                                                         2 sin
                                                                         [((FunctionCall
-                                                                            220 sin@__lpython_overloaded_1__sin
+                                                                            233 sin@__lpython_overloaded_1__sin
                                                                             2 sin
                                                                             [((ArrayItem
-                                                                                (Var 210 array)
+                                                                                (Var 223 array)
                                                                                 [(()
-                                                                                (Var 210 i)
+                                                                                (Var 223 i)
                                                                                 ())]
                                                                                 (Real 4)
                                                                                 RowMajor
@@ -2794,9 +2794,9 @@
                                                                     )
                                                                     Sub
                                                                     (ArrayItem
-                                                                        (Var 210 result)
+                                                                        (Var 223 result)
                                                                         [(()
-                                                                        (Var 210 i)
+                                                                        (Var 223 i)
                                                                         ())]
                                                                         (Real 4)
                                                                         RowMajor
@@ -2810,7 +2810,7 @@
                                                                 ()
                                                             )
                                                             LtE
-                                                            (Var 210 eps)
+                                                            (Var 223 eps)
                                                             (Logical 4)
                                                             ()
                                                         )
@@ -2819,7 +2819,7 @@
                                                 ),
                                             eps:
                                                 (Variable
-                                                    210
+                                                    223
                                                     eps
                                                     []
                                                     Local
@@ -2840,7 +2840,7 @@
                                                 ),
                                             i:
                                                 (Variable
-                                                    210
+                                                    223
                                                     i
                                                     []
                                                     Local
@@ -2861,7 +2861,7 @@
                                                 ),
                                             result:
                                                 (Variable
-                                                    210
+                                                    223
                                                     result
                                                     []
                                                     InOut
@@ -2887,7 +2887,7 @@
                                                 ),
                                             size:
                                                 (Variable
-                                                    210
+                                                    223
                                                     size
                                                     []
                                                     In
@@ -2935,11 +2935,11 @@
                                         .false.
                                     )
                                     []
-                                    [(Var 210 array)
-                                    (Var 210 result)
-                                    (Var 210 size)]
+                                    [(Var 223 array)
+                                    (Var 223 result)
+                                    (Var 223 size)]
                                     [(Assignment
-                                        (Var 210 eps)
+                                        (Var 223 eps)
                                         (Cast
                                             (RealConstant
                                                 0.000001
@@ -2957,10 +2957,10 @@
                                     )
                                     (DoLoop
                                         ()
-                                        ((Var 210 i)
+                                        ((Var 223 i)
                                         (IntegerConstant 0 (Integer 4) Decimal)
                                         (IntegerBinOp
-                                            (Var 210 size)
+                                            (Var 223 size)
                                             Sub
                                             (IntegerConstant 1 (Integer 4) Decimal)
                                             (Integer 4)
@@ -2969,7 +2969,7 @@
                                         (IntegerConstant 1 (Integer 4) Decimal))
                                         [(BlockCall
                                             -1
-                                            210 block
+                                            223 block
                                         )]
                                         []
                                     )]
@@ -2982,11 +2982,11 @@
                             verify1d_mul:
                                 (Function
                                     (SymbolTable
-                                        214
+                                        227
                                         {
                                             array_a:
                                                 (Variable
-                                                    214
+                                                    227
                                                     array_a
                                                     []
                                                     InOut
@@ -3012,7 +3012,7 @@
                                                 ),
                                             array_b:
                                                 (Variable
-                                                    214
+                                                    227
                                                     array_b
                                                     []
                                                     InOut
@@ -3038,7 +3038,7 @@
                                                 ),
                                             eps:
                                                 (Variable
-                                                    214
+                                                    227
                                                     eps
                                                     []
                                                     Local
@@ -3059,7 +3059,7 @@
                                                 ),
                                             i:
                                                 (Variable
-                                                    214
+                                                    227
                                                     i
                                                     []
                                                     Local
@@ -3080,7 +3080,7 @@
                                                 ),
                                             result:
                                                 (Variable
-                                                    214
+                                                    227
                                                     result
                                                     []
                                                     InOut
@@ -3106,7 +3106,7 @@
                                                 ),
                                             size:
                                                 (Variable
-                                                    214
+                                                    227
                                                     size
                                                     []
                                                     In
@@ -3160,12 +3160,12 @@
                                         .false.
                                     )
                                     []
-                                    [(Var 214 array_a)
-                                    (Var 214 array_b)
-                                    (Var 214 result)
-                                    (Var 214 size)]
+                                    [(Var 227 array_a)
+                                    (Var 227 array_b)
+                                    (Var 227 result)
+                                    (Var 227 size)]
                                     [(Assignment
-                                        (Var 214 eps)
+                                        (Var 227 eps)
                                         (RealConstant
                                             0.000010
                                             (Real 8)
@@ -3175,10 +3175,10 @@
                                     )
                                     (DoLoop
                                         ()
-                                        ((Var 214 i)
+                                        ((Var 227 i)
                                         (IntegerConstant 0 (Integer 4) Decimal)
                                         (IntegerBinOp
-                                            (Var 214 size)
+                                            (Var 227 size)
                                             Sub
                                             (IntegerConstant 1 (Integer 4) Decimal)
                                             (Integer 4)
@@ -3194,9 +3194,9 @@
                                                             (RealBinOp
                                                                 (RealBinOp
                                                                     (ArrayItem
-                                                                        (Var 214 array_a)
+                                                                        (Var 227 array_a)
                                                                         [(()
-                                                                        (Var 214 i)
+                                                                        (Var 227 i)
                                                                         ())]
                                                                         (Real 8)
                                                                         RowMajor
@@ -3221,9 +3221,9 @@
                                                             Mul
                                                             (RealBinOp
                                                                 (ArrayItem
-                                                                    (Var 214 array_b)
+                                                                    (Var 227 array_b)
                                                                     [(()
-                                                                    (Var 214 i)
+                                                                    (Var 227 i)
                                                                     ())]
                                                                     (Real 8)
                                                                     RowMajor
@@ -3242,9 +3242,9 @@
                                                         )
                                                         Sub
                                                         (ArrayItem
-                                                            (Var 214 result)
+                                                            (Var 227 result)
                                                             [(()
-                                                            (Var 214 i)
+                                                            (Var 227 i)
                                                             ())]
                                                             (Real 8)
                                                             RowMajor
@@ -3258,7 +3258,7 @@
                                                     ()
                                                 )
                                                 LtE
-                                                (Var 214 eps)
+                                                (Var 227 eps)
                                                 (Logical 4)
                                                 ()
                                             )
@@ -3275,11 +3275,11 @@
                             verify1d_sum:
                                 (Function
                                     (SymbolTable
-                                        213
+                                        226
                                         {
                                             array_a:
                                                 (Variable
-                                                    213
+                                                    226
                                                     array_a
                                                     []
                                                     InOut
@@ -3305,7 +3305,7 @@
                                                 ),
                                             array_b:
                                                 (Variable
-                                                    213
+                                                    226
                                                     array_b
                                                     []
                                                     InOut
@@ -3331,7 +3331,7 @@
                                                 ),
                                             eps:
                                                 (Variable
-                                                    213
+                                                    226
                                                     eps
                                                     []
                                                     Local
@@ -3352,7 +3352,7 @@
                                                 ),
                                             i:
                                                 (Variable
-                                                    213
+                                                    226
                                                     i
                                                     []
                                                     Local
@@ -3373,7 +3373,7 @@
                                                 ),
                                             result:
                                                 (Variable
-                                                    213
+                                                    226
                                                     result
                                                     []
                                                     InOut
@@ -3399,7 +3399,7 @@
                                                 ),
                                             size:
                                                 (Variable
-                                                    213
+                                                    226
                                                     size
                                                     []
                                                     In
@@ -3453,12 +3453,12 @@
                                         .false.
                                     )
                                     []
-                                    [(Var 213 array_a)
-                                    (Var 213 array_b)
-                                    (Var 213 result)
-                                    (Var 213 size)]
+                                    [(Var 226 array_a)
+                                    (Var 226 array_b)
+                                    (Var 226 result)
+                                    (Var 226 size)]
                                     [(Assignment
-                                        (Var 213 eps)
+                                        (Var 226 eps)
                                         (RealConstant
                                             0.000000
                                             (Real 8)
@@ -3468,10 +3468,10 @@
                                     )
                                     (DoLoop
                                         ()
-                                        ((Var 213 i)
+                                        ((Var 226 i)
                                         (IntegerConstant 0 (Integer 4) Decimal)
                                         (IntegerBinOp
-                                            (Var 213 size)
+                                            (Var 226 size)
                                             Sub
                                             (IntegerConstant 1 (Integer 4) Decimal)
                                             (Integer 4)
@@ -3486,9 +3486,9 @@
                                                         (RealBinOp
                                                             (RealBinOp
                                                                 (ArrayItem
-                                                                    (Var 213 array_a)
+                                                                    (Var 226 array_a)
                                                                     [(()
-                                                                    (Var 213 i)
+                                                                    (Var 226 i)
                                                                     ())]
                                                                     (Real 8)
                                                                     RowMajor
@@ -3511,9 +3511,9 @@
                                                                 Mul
                                                                 (RealBinOp
                                                                     (ArrayItem
-                                                                        (Var 213 array_b)
+                                                                        (Var 226 array_b)
                                                                         [(()
-                                                                        (Var 213 i)
+                                                                        (Var 226 i)
                                                                         ())]
                                                                         (Real 8)
                                                                         RowMajor
@@ -3535,9 +3535,9 @@
                                                         )
                                                         Sub
                                                         (ArrayItem
-                                                            (Var 213 result)
+                                                            (Var 226 result)
                                                             [(()
-                                                            (Var 213 i)
+                                                            (Var 226 i)
                                                             ())]
                                                             (Real 8)
                                                             RowMajor
@@ -3551,7 +3551,7 @@
                                                     ()
                                                 )
                                                 LtE
-                                                (Var 213 eps)
+                                                (Var 226 eps)
                                                 (Logical 4)
                                                 ()
                                             )
@@ -3568,11 +3568,11 @@
                             verify2d:
                                 (Function
                                     (SymbolTable
-                                        212
+                                        225
                                         {
                                             array:
                                                 (Variable
-                                                    212
+                                                    225
                                                     array
                                                     []
                                                     InOut
@@ -3601,16 +3601,16 @@
                                             block:
                                                 (Block
                                                     (SymbolTable
-                                                        224
+                                                        237
                                                         {
                                                             block:
                                                                 (Block
                                                                     (SymbolTable
-                                                                        225
+                                                                        238
                                                                         {
                                                                             cos@__lpython_overloaded_0__cos:
                                                                                 (ExternalSymbol
-                                                                                    225
+                                                                                    238
                                                                                     cos@__lpython_overloaded_0__cos
                                                                                     3 __lpython_overloaded_0__cos
                                                                                     numpy
@@ -3627,15 +3627,15 @@
                                                                                 [(RealBinOp
                                                                                     (RealBinOp
                                                                                         (FunctionCall
-                                                                                            225 cos@__lpython_overloaded_0__cos
+                                                                                            238 cos@__lpython_overloaded_0__cos
                                                                                             2 cos
                                                                                             [((ArrayItem
-                                                                                                (Var 212 array)
+                                                                                                (Var 225 array)
                                                                                                 [(()
-                                                                                                (Var 212 i)
+                                                                                                (Var 225 i)
                                                                                                 ())
                                                                                                 (()
-                                                                                                (Var 212 j)
+                                                                                                (Var 225 j)
                                                                                                 ())]
                                                                                                 (Real 8)
                                                                                                 RowMajor
@@ -3655,12 +3655,12 @@
                                                                                     )
                                                                                     Sub
                                                                                     (ArrayItem
-                                                                                        (Var 212 result)
+                                                                                        (Var 225 result)
                                                                                         [(()
-                                                                                        (Var 212 i)
+                                                                                        (Var 225 i)
                                                                                         ())
                                                                                         (()
-                                                                                        (Var 212 j)
+                                                                                        (Var 225 j)
                                                                                         ())]
                                                                                         (Real 8)
                                                                                         RowMajor
@@ -3674,7 +3674,7 @@
                                                                                 ()
                                                                             )
                                                                             LtE
-                                                                            (Var 212 eps)
+                                                                            (Var 225 eps)
                                                                             (Logical 4)
                                                                             ()
                                                                         )
@@ -3685,10 +3685,10 @@
                                                     block
                                                     [(DoLoop
                                                         ()
-                                                        ((Var 212 j)
+                                                        ((Var 225 j)
                                                         (IntegerConstant 0 (Integer 4) Decimal)
                                                         (IntegerBinOp
-                                                            (Var 212 size2)
+                                                            (Var 225 size2)
                                                             Sub
                                                             (IntegerConstant 1 (Integer 4) Decimal)
                                                             (Integer 4)
@@ -3697,14 +3697,14 @@
                                                         (IntegerConstant 1 (Integer 4) Decimal))
                                                         [(BlockCall
                                                             -1
-                                                            224 block
+                                                            237 block
                                                         )]
                                                         []
                                                     )]
                                                 ),
                                             eps:
                                                 (Variable
-                                                    212
+                                                    225
                                                     eps
                                                     []
                                                     Local
@@ -3725,7 +3725,7 @@
                                                 ),
                                             i:
                                                 (Variable
-                                                    212
+                                                    225
                                                     i
                                                     []
                                                     Local
@@ -3746,7 +3746,7 @@
                                                 ),
                                             j:
                                                 (Variable
-                                                    212
+                                                    225
                                                     j
                                                     []
                                                     Local
@@ -3767,7 +3767,7 @@
                                                 ),
                                             result:
                                                 (Variable
-                                                    212
+                                                    225
                                                     result
                                                     []
                                                     InOut
@@ -3795,7 +3795,7 @@
                                                 ),
                                             size1:
                                                 (Variable
-                                                    212
+                                                    225
                                                     size1
                                                     []
                                                     In
@@ -3816,7 +3816,7 @@
                                                 ),
                                             size2:
                                                 (Variable
-                                                    212
+                                                    225
                                                     size2
                                                     []
                                                     In
@@ -3869,12 +3869,12 @@
                                         .false.
                                     )
                                     []
-                                    [(Var 212 array)
-                                    (Var 212 result)
-                                    (Var 212 size1)
-                                    (Var 212 size2)]
+                                    [(Var 225 array)
+                                    (Var 225 result)
+                                    (Var 225 size1)
+                                    (Var 225 size2)]
                                     [(Assignment
-                                        (Var 212 eps)
+                                        (Var 225 eps)
                                         (RealConstant
                                             0.000000
                                             (Real 8)
@@ -3884,10 +3884,10 @@
                                     )
                                     (DoLoop
                                         ()
-                                        ((Var 212 i)
+                                        ((Var 225 i)
                                         (IntegerConstant 0 (Integer 4) Decimal)
                                         (IntegerBinOp
-                                            (Var 212 size1)
+                                            (Var 225 size1)
                                             Sub
                                             (IntegerConstant 1 (Integer 4) Decimal)
                                             (Integer 4)
@@ -3896,7 +3896,7 @@
                                         (IntegerConstant 1 (Integer 4) Decimal))
                                         [(BlockCall
                                             -1
-                                            212 block
+                                            225 block
                                         )]
                                         []
                                     )]
@@ -3909,11 +3909,11 @@
                             verifynd:
                                 (Function
                                     (SymbolTable
-                                        211
+                                        224
                                         {
                                             array:
                                                 (Variable
-                                                    211
+                                                    224
                                                     array
                                                     []
                                                     InOut
@@ -3944,21 +3944,21 @@
                                             block:
                                                 (Block
                                                     (SymbolTable
-                                                        221
+                                                        234
                                                         {
                                                             block:
                                                                 (Block
                                                                     (SymbolTable
-                                                                        222
+                                                                        235
                                                                         {
                                                                             block:
                                                                                 (Block
                                                                                     (SymbolTable
-                                                                                        223
+                                                                                        236
                                                                                         {
                                                                                             sin@__lpython_overloaded_0__sin:
                                                                                                 (ExternalSymbol
-                                                                                                    223
+                                                                                                    236
                                                                                                     sin@__lpython_overloaded_0__sin
                                                                                                     3 __lpython_overloaded_0__sin
                                                                                                     numpy
@@ -3975,18 +3975,18 @@
                                                                                                 [(RealBinOp
                                                                                                     (RealBinOp
                                                                                                         (FunctionCall
-                                                                                                            223 sin@__lpython_overloaded_0__sin
+                                                                                                            236 sin@__lpython_overloaded_0__sin
                                                                                                             2 sin
                                                                                                             [((ArrayItem
-                                                                                                                (Var 211 array)
+                                                                                                                (Var 224 array)
                                                                                                                 [(()
-                                                                                                                (Var 211 i)
+                                                                                                                (Var 224 i)
                                                                                                                 ())
                                                                                                                 (()
-                                                                                                                (Var 211 j)
+                                                                                                                (Var 224 j)
                                                                                                                 ())
                                                                                                                 (()
-                                                                                                                (Var 211 k)
+                                                                                                                (Var 224 k)
                                                                                                                 ())]
                                                                                                                 (Real 8)
                                                                                                                 RowMajor
@@ -4006,15 +4006,15 @@
                                                                                                     )
                                                                                                     Sub
                                                                                                     (ArrayItem
-                                                                                                        (Var 211 result)
+                                                                                                        (Var 224 result)
                                                                                                         [(()
-                                                                                                        (Var 211 i)
+                                                                                                        (Var 224 i)
                                                                                                         ())
                                                                                                         (()
-                                                                                                        (Var 211 j)
+                                                                                                        (Var 224 j)
                                                                                                         ())
                                                                                                         (()
-                                                                                                        (Var 211 k)
+                                                                                                        (Var 224 k)
                                                                                                         ())]
                                                                                                         (Real 8)
                                                                                                         RowMajor
@@ -4028,7 +4028,7 @@
                                                                                                 ()
                                                                                             )
                                                                                             LtE
-                                                                                            (Var 211 eps)
+                                                                                            (Var 224 eps)
                                                                                             (Logical 4)
                                                                                             ()
                                                                                         )
@@ -4039,10 +4039,10 @@
                                                                     block
                                                                     [(DoLoop
                                                                         ()
-                                                                        ((Var 211 k)
+                                                                        ((Var 224 k)
                                                                         (IntegerConstant 0 (Integer 4) Decimal)
                                                                         (IntegerBinOp
-                                                                            (Var 211 size3)
+                                                                            (Var 224 size3)
                                                                             Sub
                                                                             (IntegerConstant 1 (Integer 4) Decimal)
                                                                             (Integer 4)
@@ -4051,7 +4051,7 @@
                                                                         (IntegerConstant 1 (Integer 4) Decimal))
                                                                         [(BlockCall
                                                                             -1
-                                                                            222 block
+                                                                            235 block
                                                                         )]
                                                                         []
                                                                     )]
@@ -4060,10 +4060,10 @@
                                                     block
                                                     [(DoLoop
                                                         ()
-                                                        ((Var 211 j)
+                                                        ((Var 224 j)
                                                         (IntegerConstant 0 (Integer 4) Decimal)
                                                         (IntegerBinOp
-                                                            (Var 211 size2)
+                                                            (Var 224 size2)
                                                             Sub
                                                             (IntegerConstant 1 (Integer 4) Decimal)
                                                             (Integer 4)
@@ -4072,14 +4072,14 @@
                                                         (IntegerConstant 1 (Integer 4) Decimal))
                                                         [(BlockCall
                                                             -1
-                                                            221 block
+                                                            234 block
                                                         )]
                                                         []
                                                     )]
                                                 ),
                                             eps:
                                                 (Variable
-                                                    211
+                                                    224
                                                     eps
                                                     []
                                                     Local
@@ -4100,7 +4100,7 @@
                                                 ),
                                             i:
                                                 (Variable
-                                                    211
+                                                    224
                                                     i
                                                     []
                                                     Local
@@ -4121,7 +4121,7 @@
                                                 ),
                                             j:
                                                 (Variable
-                                                    211
+                                                    224
                                                     j
                                                     []
                                                     Local
@@ -4142,7 +4142,7 @@
                                                 ),
                                             k:
                                                 (Variable
-                                                    211
+                                                    224
                                                     k
                                                     []
                                                     Local
@@ -4163,7 +4163,7 @@
                                                 ),
                                             result:
                                                 (Variable
-                                                    211
+                                                    224
                                                     result
                                                     []
                                                     InOut
@@ -4193,7 +4193,7 @@
                                                 ),
                                             size1:
                                                 (Variable
-                                                    211
+                                                    224
                                                     size1
                                                     []
                                                     In
@@ -4214,7 +4214,7 @@
                                                 ),
                                             size2:
                                                 (Variable
-                                                    211
+                                                    224
                                                     size2
                                                     []
                                                     In
@@ -4235,7 +4235,7 @@
                                                 ),
                                             size3:
                                                 (Variable
-                                                    211
+                                                    224
                                                     size3
                                                     []
                                                     In
@@ -4293,13 +4293,13 @@
                                         .false.
                                     )
                                     []
-                                    [(Var 211 array)
-                                    (Var 211 result)
-                                    (Var 211 size1)
-                                    (Var 211 size2)
-                                    (Var 211 size3)]
+                                    [(Var 224 array)
+                                    (Var 224 result)
+                                    (Var 224 size1)
+                                    (Var 224 size2)
+                                    (Var 224 size3)]
                                     [(Assignment
-                                        (Var 211 eps)
+                                        (Var 224 eps)
                                         (RealConstant
                                             0.000000
                                             (Real 8)
@@ -4309,10 +4309,10 @@
                                     )
                                     (DoLoop
                                         ()
-                                        ((Var 211 i)
+                                        ((Var 224 i)
                                         (IntegerConstant 0 (Integer 4) Decimal)
                                         (IntegerBinOp
-                                            (Var 211 size1)
+                                            (Var 224 size1)
                                             Sub
                                             (IntegerConstant 1 (Integer 4) Decimal)
                                             (Integer 4)
@@ -4321,7 +4321,7 @@
                                         (IntegerConstant 1 (Integer 4) Decimal))
                                         [(BlockCall
                                             -1
-                                            211 block
+                                            224 block
                                         )]
                                         []
                                     )]
@@ -4333,8 +4333,9 @@
                                 )
                         })
                     __main__
-                    [numpy]
                     ()
+                    [numpy]
+                    .false.
                     .false.
                     .false.
                 ),
@@ -4343,11 +4344,11 @@
             main_program:
                 (Program
                     (SymbolTable
-                        244
+                        257
                         {
                             __main__global_stmts:
                                 (ExternalSymbol
-                                    244
+                                    257
                                     __main__global_stmts
                                     2 __main__global_stmts
                                     __main__
@@ -4359,7 +4360,7 @@
                     main_program
                     [__main__]
                     [(SubroutineCall
-                        244 __main__global_stmts
+                        257 __main__global_stmts
                         2 __main__global_stmts
                         []
                         ()

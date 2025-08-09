@@ -1,5 +1,5 @@
-semantic error: Indexing CPtr typed expressions is not supported yet
- --> tests/errors/cptr_01.py:5:11
+semantic error: Function 'empty_c_void_p' is not declared and not intrinsic
+ --> tests/errors/cptr_01.py:4:15
   |
-5 |     print(x[0])
-  |           ^^^^ 
+4 |     x: CPtr = empty_c_void_p()
+  |               ^^^^^^^^^^^^^^^^ 

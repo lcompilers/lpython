@@ -10,7 +10,7 @@
                             __main__global_stmts:
                                 (Function
                                     (SymbolTable
-                                        126
+                                        139
                                         {
                                             
                                         })
@@ -422,16 +422,6 @@
                                                     lpython_builtin
                                                     []
                                                     __lpython_overloaded_0__pow
-                                                    Public
-                                                ),
-                                            pow@__lpython_overloaded_10__pow:
-                                                (ExternalSymbol
-                                                    3
-                                                    pow@__lpython_overloaded_10__pow
-                                                    4 __lpython_overloaded_10__pow
-                                                    lpython_builtin
-                                                    []
-                                                    __lpython_overloaded_10__pow
                                                     Public
                                                 ),
                                             pow@__lpython_overloaded_11__pow:
@@ -1918,31 +1908,6 @@
                                         )
                                         ()
                                     )
-                                    (Assert
-                                        (IntegerCompare
-                                            (FunctionCall
-                                                3 pow@__lpython_overloaded_10__pow
-                                                3 pow
-                                                [((IntegerConstant 102 (Integer 4) Decimal))
-                                                ((IntegerConstant 3 (Integer 4) Decimal))
-                                                ((IntegerConstant 121 (Integer 4) Decimal))]
-                                                (Integer 4)
-                                                (RealConstant
-                                                    38.000000
-                                                    (Real 8)
-                                                )
-                                                ()
-                                            )
-                                            Eq
-                                            (IntegerConstant 38 (Integer 4) Decimal)
-                                            (Logical 4)
-                                            (LogicalConstant
-                                                .true.
-                                                (Logical 4)
-                                            )
-                                        )
-                                        ()
-                                    )
                                     (Assignment
                                         (Var 3 c1)
                                         (Cast
@@ -1992,8 +1957,9 @@
                                 )
                         })
                     __main__
-                    [lpython_builtin]
                     ()
+                    [lpython_builtin]
+                    .false.
                     .false.
                     .false.
                 ),
@@ -2002,11 +1968,11 @@
             main_program:
                 (Program
                     (SymbolTable
-                        127
+                        140
                         {
                             __main__global_stmts:
                                 (ExternalSymbol
-                                    127
+                                    140
                                     __main__global_stmts
                                     2 __main__global_stmts
                                     __main__
@@ -2018,7 +1984,7 @@
                     main_program
                     [__main__]
                     [(SubroutineCall
-                        127 __main__global_stmts
+                        140 __main__global_stmts
                         2 __main__global_stmts
                         []
                         ()
