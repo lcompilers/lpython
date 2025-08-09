@@ -162,10 +162,10 @@ struct PythonIntrinsicProcedures {
     static ASR::expr_t *eval_str(Allocator &al, const Location &loc, Vec<ASR::expr_t*> &args) {
         LCOMPILERS_ASSERT(ASRUtils::all_args_evaluated(args));
         if (args.size() == 0) { // create an empty string
-            ASR::expr_t* a_len = ASRUtils::EXPR(ASR::make_IntegerConstant_t(al,
-                                    loc, 0, ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4))));
-            ASR::ttype_t* str_type = ASRUtils::TYPE(ASR::make_String_t(al, loc, 1, a_len, ASR::string_length_kindType::DeferredLength,
-                                            ASR::string_physical_typeType::PointerString));
+            ASR::ttype_t* str_type = ASRUtils::TYPE(ASR::make_Allocatable_t(al, loc, 
+                                            ASRUtils::TYPE(ASR::make_String_t(al, loc, 1, nullptr, 
+                                                ASR::string_length_kindType::DeferredLength,
+                                                ASR::string_physical_typeType::DescriptorString))));
             return ASR::down_cast<ASR::expr_t>(ASR::make_StringConstant_t(al, loc, s2c(al, ""), str_type));
         }
         std::string s = "";
@@ -187,9 +187,11 @@ struct PythonIntrinsicProcedures {
             throw SemanticError("str() argument must be real, integer, logical, or a string, not '" +
                 ASRUtils::type_to_str_python(arg_type) + "'", loc);
         }
-        ASR::expr_t* a_len = ASRUtils::EXPR(ASR::make_IntegerConstant_t(al,
-                                loc, s.size(), ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4))));
-        ASR::ttype_t* str_type = ASRUtils::TYPE(ASR::make_String_t(al, loc, 1, a_len, ASR::string_length_kindType::DeferredLength, ASR::string_physical_typeType::PointerString));
+        ASR::ttype_t* str_type = ASRUtils::TYPE(ASR::make_Allocatable_t(al, loc, 
+                                        ASRUtils::TYPE(ASR::make_String_t(al, loc, 1, nullptr, 
+                                            ASR::string_length_kindType::DeferredLength,
+                                            ASR::string_physical_typeType::DescriptorString))));
+
         return ASR::down_cast<ASR::expr_t>(ASR::make_StringConstant_t(al, loc, s2c(al, s), str_type));
     }
 
@@ -329,10 +331,10 @@ struct PythonIntrinsicProcedures {
             str += std::bitset<64>(std::abs(n)).to_string();
             str.erase(0, str.find_first_not_of('0'));
             str.insert(0, prefix);
-            ASR::expr_t* a_len = ASRUtils::EXPR(ASR::make_IntegerConstant_t(al,
-                                        loc, str.size(), ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4))));
-            ASR::ttype_t* str_type = ASRUtils::TYPE(ASR::make_String_t(al, loc, 1, a_len, ASR::string_length_kindType::DeferredLength,
-                                                ASR::string_physical_typeType::PointerString));
+            ASR::ttype_t* str_type = ASRUtils::TYPE(ASR::make_Allocatable_t(al, loc, 
+                                            ASRUtils::TYPE(ASR::make_String_t(al, loc, 1, nullptr, 
+                                                ASR::string_length_kindType::DeferredLength,
+                                                ASR::string_physical_typeType::DescriptorString))));
             return ASR::down_cast<ASR::expr_t>(make_StringConstant_t(al, loc, s2c(al, str), str_type));
         } else {
             throw SemanticError("bin() argument must be an integer, not '" +
@@ -356,10 +358,10 @@ struct PythonIntrinsicProcedures {
             ss << std::hex << std::abs(n);
             str += ss.str();
             str.insert(0, prefix);
-            ASR::expr_t* a_len = ASRUtils::EXPR(ASR::make_IntegerConstant_t(al,
-                                        loc, str.size(), ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4))));
-            ASR::ttype_t* str_type = ASRUtils::TYPE(ASR::make_String_t(al, loc, 1, a_len, ASR::string_length_kindType::DeferredLength,
-                                                ASR::string_physical_typeType::PointerString));
+            ASR::ttype_t* str_type = ASRUtils::TYPE(ASR::make_Allocatable_t(al, loc, 
+                                            ASRUtils::TYPE(ASR::make_String_t(al, loc, 1, nullptr, 
+                                                ASR::string_length_kindType::DeferredLength,
+                                                ASR::string_physical_typeType::DescriptorString))));
             return ASR::down_cast<ASR::expr_t>(make_StringConstant_t(al, loc, s2c(al, str), str_type));
         } else {
             throw SemanticError("hex() argument must be an integer, not '" +
@@ -383,10 +385,10 @@ struct PythonIntrinsicProcedures {
             ss << std::oct << std::abs(n);
             str += ss.str();
             str.insert(0, prefix);
-            ASR::expr_t* a_len = ASRUtils::EXPR(ASR::make_IntegerConstant_t(al,
-                                        loc, str.size(), ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4))));
-            ASR::ttype_t* str_type = ASRUtils::TYPE(ASR::make_String_t(al, loc, 1, a_len, ASR::string_length_kindType::DeferredLength,
-                                                ASR::string_physical_typeType::PointerString));
+            ASR::ttype_t* str_type = ASRUtils::TYPE(ASR::make_Allocatable_t(al, loc, 
+                                            ASRUtils::TYPE(ASR::make_String_t(al, loc, 1, nullptr, 
+                                                ASR::string_length_kindType::DeferredLength,
+                                                ASR::string_physical_typeType::DescriptorString))));
             return ASR::down_cast<ASR::expr_t>(make_StringConstant_t(al, loc, s2c(al, str), str_type));
         } else {
             throw SemanticError("oct() argument must be an integer, not '" +
@@ -403,10 +405,11 @@ struct PythonIntrinsicProcedures {
         LCOMPILERS_ASSERT(args.size()==1);
         ASR::expr_t *arg = args[0];
         ASR::ttype_t *type = ASRUtils::expr_type(arg);
-        ASR::expr_t* a_len = ASRUtils::EXPR(ASR::make_IntegerConstant_t(al,
-                                    loc, 1, ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4))));
-        ASR::ttype_t* str_type = ASRUtils::TYPE(ASR::make_String_t(al, loc, 1, a_len, ASR::string_length_kindType::DeferredLength,
-                                            ASR::string_physical_typeType::PointerString));
+        ASR::ttype_t* str_type = ASRUtils::TYPE(ASR::make_Allocatable_t(al, loc, 
+                                        ASRUtils::TYPE(ASR::make_String_t(al, loc, 1, nullptr, 
+                                            ASR::string_length_kindType::DeferredLength,
+                                            ASR::string_physical_typeType::DescriptorString))));
+
         if (ASRUtils::is_integer(*type) || ASRUtils::is_real(*type)
                 || ASRUtils::is_complex(*type) || ASRUtils::is_logical(*type)) {
             throw SemanticError("Integer, Real, Complex and Boolean are not iterable "

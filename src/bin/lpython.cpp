@@ -1912,7 +1912,7 @@ int main(int argc, char *argv[])
         app.add_flag("--no-warnings", compiler_options.no_warnings, "Turn off all warnings");
         app.add_flag("--no-error-banner", compiler_options.no_error_banner, "Turn off error banner");
         app.add_option("--backend", arg_backend, "Select a backend (llvm, cpp, x86, wasm, wasm_x86, wasm_x64)")->capture_default_str();
-        app.add_flag("--enable-bounds-checking", compiler_options.enable_bounds_checking, "Turn on index bounds checking");
+        app.add_flag("--enable-bounds-checking", compiler_options.bounds_checking, "Turn on index bounds checking");
         app.add_flag("--openmp", compiler_options.openmp, "Enable openmp");
         app.add_flag("--fast", compiler_options.po.fast, "Best performance (disable strict standard compliance)");
         app.add_option("--target", compiler_options.target, "Generate code for the given target")->capture_default_str();
@@ -1971,7 +1971,7 @@ int main(int argc, char *argv[])
         lcompilers_unique_ID = separate_compilation ? LCompilers::get_unique_ID(): "";
 
 
-        if( compiler_options.po.fast && compiler_options.enable_bounds_checking ) {
+        if( compiler_options.po.fast && compiler_options.bounds_checking ) {
         // ReleaseSafe Mode
         } else if ( compiler_options.po.fast ) {
         // Release Mode
@@ -1981,7 +1981,7 @@ int main(int argc, char *argv[])
         // which is now removed
         } else {
         // Debug Mode
-            compiler_options.enable_bounds_checking = true;
+            compiler_options.bounds_checking = true;
         }
 
         if (compiler_options.link_numpy) {
