@@ -1891,10 +1891,12 @@ public:
                 ASR::ttype_t* type = get_type_from_var_annotation(var_annotation,
                     annotation.base.loc, dims, type_decl, m_args, n_args, raise_error, abi, is_argument);
 
+                ASR::expr_t* zero = ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, loc, 0, ASRUtils::TYPE(
+                                                ASR::make_Integer_t(al, loc, 4))));
                 if (AST::is_a<AST::Slice_t>(*dim_info)) {
                     ASR::dimension_t dim;
                     dim.loc = loc;
-                    dim.m_start = nullptr;
+                    dim.m_start = zero;
                     dim.m_length = nullptr;
                     dims.push_back(al, dim);
                 } else if( is_runtime_array(dim_info) ) {
@@ -1903,7 +1905,7 @@ public:
                         if( AST::is_a<AST::Slice_t>(*tuple_multidim->m_elts[i]) ) {
                             ASR::dimension_t dim;
                             dim.loc = loc;
-                            dim.m_start = nullptr;
+                            dim.m_start = zero;
                             dim.m_length = nullptr;
                             dims.push_back(al, dim);
                         }

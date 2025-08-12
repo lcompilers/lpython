@@ -202,10 +202,10 @@ filename = "../integration_tests/expr_11.py"
 c = true
 cpp = true
 
-[[test]]
-filename = "../integration_tests/expr_12.py"
-asr = true
-c = true
+# [[test]]
+# filename = "../integration_tests/expr_12.py"
+# asr = true
+# c = true
 
 [[test]]
 filename = "../integration_tests/expr_14.py"

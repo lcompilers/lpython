@@ -80,7 +80,7 @@
                                                     Default
                                                     (Array
                                                         (Real 4)
-                                                        [(()
+                                                        [((IntegerConstant 0 (Integer 4) Decimal)
                                                         ())]
                                                         DescriptorArray
                                                     )
@@ -100,7 +100,7 @@
                                     (FunctionType
                                         [(Array
                                             (Real 4)
-                                            [(()
+                                            [((IntegerConstant 0 (Integer 4) Decimal)
                                             ())]
                                             DescriptorArray
                                         )]
@@ -176,9 +176,9 @@
                                                     Default
                                                     (Array
                                                         (Real 8)
-                                                        [(()
+                                                        [((IntegerConstant 0 (Integer 4) Decimal)
                                                         ())
-                                                        (()
+                                                        ((IntegerConstant 0 (Integer 4) Decimal)
                                                         ())]
                                                         DescriptorArray
                                                     )
@@ -198,9 +198,9 @@
                                     (FunctionType
                                         [(Array
                                             (Real 8)
-                                            [(()
+                                            [((IntegerConstant 0 (Integer 4) Decimal)
                                             ())
-                                            (()
+                                            ((IntegerConstant 0 (Integer 4) Decimal)
                                             ())]
                                             DescriptorArray
                                         )]
@@ -279,9 +279,9 @@
                                                     Default
                                                     (Array
                                                         (Integer 4)
-                                                        [(()
+                                                        [((IntegerConstant 0 (Integer 4) Decimal)
                                                         ())
-                                                        (()
+                                                        ((IntegerConstant 0 (Integer 4) Decimal)
                                                         ())]
                                                         DescriptorArray
                                                     )
@@ -301,9 +301,9 @@
                                     (FunctionType
                                         [(Array
                                             (Integer 4)
-                                            [(()
+                                            [((IntegerConstant 0 (Integer 4) Decimal)
                                             ())
-                                            (()
+                                            ((IntegerConstant 0 (Integer 4) Decimal)
                                             ())]
                                             DescriptorArray
                                         )]
@@ -382,11 +382,11 @@
                                                     Default
                                                     (Array
                                                         (Integer 8)
-                                                        [(()
+                                                        [((IntegerConstant 0 (Integer 4) Decimal)
                                                         ())
-                                                        (()
+                                                        ((IntegerConstant 0 (Integer 4) Decimal)
                                                         ())
-                                                        (()
+                                                        ((IntegerConstant 0 (Integer 4) Decimal)
                                                         ())]
                                                         DescriptorArray
                                                     )
@@ -406,11 +406,11 @@
                                     (FunctionType
                                         [(Array
                                             (Integer 8)
-                                            [(()
+                                            [((IntegerConstant 0 (Integer 4) Decimal)
                                             ())
-                                            (()
+                                            ((IntegerConstant 0 (Integer 4) Decimal)
                                             ())
-                                            (()
+                                            ((IntegerConstant 0 (Integer 4) Decimal)
                                             ())]
                                             DescriptorArray
                                         )]

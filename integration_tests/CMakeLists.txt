@@ -417,8 +417,8 @@ endmacro(COMPILE)
 
 
 # Test zero and non-zero exit code and assert statements
-# RUN(NAME array_01_decl            LABELS cpython llvm llvm_jit c)
-# RUN(NAME array_02_decl            LABELS cpython llvm llvm_jit c)
+RUN(NAME array_01_decl            LABELS cpython llvm llvm_jit c)
+RUN(NAME array_02_decl            LABELS cpython llvm llvm_jit c)
 RUN(NAME array_03_decl            LABELS cpython llvm llvm_jit) # renable c
 RUN(NAME variable_decl_01         LABELS cpython llvm llvm_jit c)
 RUN(NAME variable_decl_02         LABELS cpython llvm llvm_jit c)
