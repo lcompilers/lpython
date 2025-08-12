@@ -6534,9 +6534,9 @@ public:
             } else if( attr_name == "name" ) {
 
                 ASR::expr_t* a_len = ASRUtils::EXPR(ASR::make_IntegerConstant_t(al,
-                                    loc, -2, ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4))));
+                                    loc, std::string(enum_type->m_name).size(), ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4))));
                 ASR::ttype_t* char_type = ASRUtils::TYPE(ASR::make_String_t(
-                    al, loc, 1, a_len, ASR::string_length_kindType::DeferredLength, ASR::string_physical_typeType::DescriptorString));
+                    al, loc, 1, a_len, ASR::string_length_kindType::ExpressionLength, ASR::string_physical_typeType::DescriptorString));
                 tmp = ASR::make_EnumName_t(al, loc, t_mem, type, char_type, nullptr);
             }
         } else if (ASR::is_a<ASR::UnionType_t>(*type)) {
@@ -6677,7 +6677,7 @@ public:
                         ASR::expr_t* a_len = ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, x.base.base.loc, 
                                                 std::string(s).size(), ASRUtils::TYPE(ASR::make_Integer_t(al, x.base.base.loc, 8))));
                         enum_ref_type = ASRUtils::TYPE(ASR::make_String_t(
-                            al, x.base.base.loc, 1, a_len, ASR::string_length_kindType::DeferredLength,
+                            al, x.base.base.loc, 1, a_len, ASR::string_length_kindType::ExpressionLength,
                             ASR::string_physical_typeType::DescriptorString));
                         enum_ref_value = ASRUtils::EXPR(ASR::make_StringConstant_t(al, x.base.base.loc,
                                             s, enum_ref_type));

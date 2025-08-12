@@ -758,8 +758,8 @@ RUN(NAME structs_35          LABELS cpython llvm llvm_jit)
 #         EXTRAFILES sizeof_01b.c)
 # RUN(NAME sizeof_02           LABELS cpython llvm llvm_jit c)
 # RUN(NAME enum_01             LABELS cpython llvm llvm_jit c NOFAST)
-# RUN(NAME enum_02             LABELS cpython llvm llvm_jit NOFAST) # post sync
-# RUN(NAME enum_03             LABELS cpython llvm llvm_jit c NOFAST) # post sync
+RUN(NAME enum_02             LABELS cpython llvm llvm_jit NOFAST)
+RUN(NAME enum_03             LABELS cpython llvm llvm_jit c NOFAST)
 # RUN(NAME enum_04             LABELS cpython llvm llvm_jit c NOFAST)
 RUN(NAME enum_05             LABELS llvm c
         EXTRAFILES enum_05b.c NOFAST)
