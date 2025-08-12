@@ -719,7 +719,7 @@ def frexp(x:f64) -> tuple[f64,i16]:
     '''
     exponent: i16 = i16(0)
     x_: f64 = x
-    while f64(fabs(x)) > f64(1.0):
+    while f64(fabs(x_)) > f64(1.0):
         exponent += i16(1)
         x_ /= 2.0
     return x_, exponent
@@ -733,17 +733,17 @@ def frexp(x:f32) -> tuple[f32,i8]:
     '''
     exponent: i8 = i8(0)
     x_: f32 = x
-    while f32(fabs(x)) > f32(1.0):
+    while f32(fabs(x_)) > f32(1.0):
         exponent += i8(1)
         x_ /= f32(2.0)
     return x_, exponent
 
 
-# @overload
-# def isclose(a:f64, b:f64, rel_tol:f64 = 1e-09, abs_tol:f64 = 0.0) -> bool:
-#     '''
-#     Return True if the values a and b are close to each other and False otherwise.
-#     '''
-#     difference:f64 = fabs(a-b)
-#     greater:f64 = max(fabs(a),fabs(b))
-#     return difference <= max(rel_tol*greater, abs_tol)
+@overload
+def isclose(a:f64, b:f64, rel_tol:f64 = 1e-09, abs_tol:f64 = 0.0) -> bool:
+    '''
+    Return True if the values a and b are close to each other and False otherwise.
+    '''
+    difference:f64 = fabs(a-b)
+    greater:f64 = max(fabs(a),fabs(b))
+    return difference <= max(rel_tol*greater, abs_tol)

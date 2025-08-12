@@ -838,7 +838,7 @@
             main_program:
                 (Program
                     (SymbolTable
-                        140
+                        142
                         {
                             
                         })

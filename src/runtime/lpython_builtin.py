@@ -608,24 +608,24 @@ def pow(x: i64, y: i64, z: i64) -> i64:
     result = _mod(x**y, z)
     return result
 
-# @overload
-# def _lpython_str_capitalize(x: str) -> str:
-#    if len(x) == 0:
-#        return x
-#    i:str
-#    res:str = ""
-#    for i in x:
-#        if ord(i) >= 65 and ord(i) <= 90:  # Check if uppercase
-#            res += chr(ord(i) + 32)  # Convert to lowercase using ASCII values
-#        else:
-#            res += i
-# 
-#    val: i32
-#    val = ord(res[0])
-#    if val >= ord('a') and val <= ord('z'):
-#        val -= 32
-#    res = chr(val) + res[1:]
-#    return res
+@overload
+def _lpython_str_capitalize(x: str) -> str:
+    if len(x) == 0:
+        return x
+    i:str
+    res:str = ""
+    for i in x:
+        if ord(i) >= 65 and ord(i) <= 90:  # Check if uppercase
+            res += chr(ord(i) + 32)  # Convert to lowercase using ASCII values
+        else:
+            res += i
+
+    val: i32
+    val = ord(res[0])
+    if val >= ord('a') and val <= ord('z'):
+        val -= 32
+    res = chr(val) + res[1:]
+    return res
 
 
 @overload

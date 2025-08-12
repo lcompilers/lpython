@@ -558,7 +558,7 @@ RUN(NAME test_list_pop2       LABELS cpython llvm llvm_jit NOFAST) # TODO: Remov
 RUN(NAME test_list_pop3      LABELS cpython llvm llvm_jit)
 # RUN(NAME test_list_compare   LABELS cpython llvm llvm_jit) # post sync
 RUN(NAME test_list_compare2   LABELS cpython llvm llvm_jit)
-# RUN(NAME test_list_concat    LABELS cpython llvm llvm_jit c NOFAST)
+RUN(NAME test_list_concat    LABELS cpython llvm llvm_jit c NOFAST)
 # RUN(NAME test_list_reserve   LABELS cpython llvm llvm_jit) # post sync
 # RUN(NAME test_const_list     LABELS cpython llvm llvm_jit) # post sync
 # RUN(NAME test_const_access     LABELS cpython llvm llvm_jit) # post sync
@@ -607,7 +607,7 @@ RUN(NAME test_import_05      LABELS cpython llvm llvm_jit c wasm wasm_x86 wasm_x
 RUN(NAME test_import_06      LABELS cpython llvm llvm_jit) 
 RUN(NAME test_import_07      LABELS cpython llvm llvm_jit c)
 RUN(NAME test_import_08      LABELS cpython llvm)
-# RUN(NAME test_math           LABELS cpython llvm llvm_jit NOFAST)
+RUN(NAME test_math           LABELS cpython llvm llvm_jit NOFAST)
 # RUN(NAME test_membership_01  LABELS cpython llvm)
 RUN(NAME test_numpy_01       LABELS cpython llvm llvm_jit c)
 RUN(NAME test_numpy_02       LABELS cpython llvm llvm_jit c)
@@ -805,7 +805,7 @@ RUN(NAME test_statistics_02  LABELS cpython llvm llvm_jit NOFAST REQ_PY_VER 3.10
 # RUN(NAME test_attributes     LABELS cpython llvm llvm_jit)
 # RUN(NAME test_str_attributes LABELS cpython llvm llvm_jit c)
 RUN(NAME kwargs_01           LABELS cpython llvm llvm_jit NOFAST) # renable c # post sync
-# RUN(NAME def_func_01         LABELS cpython llvm llvm_jit) # renable c # post sync
+RUN(NAME def_func_01         LABELS cpython llvm llvm_jit) # renable c # post sync
 
 RUN(NAME func_inline_01 LABELS llvm llvm_jit c wasm)
 RUN(NAME func_inline_02 LABELS cpython llvm llvm_jit c)

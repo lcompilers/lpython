@@ -4626,18 +4626,18 @@ public:
                 size_t default_arg_index = i - default_arg_index_start;
                 this->visit_expr(*(x.m_args.m_defaults[default_arg_index]));
                 init_expr = ASRUtils::EXPR(tmp);
-
-                Vec<ASR::alloc_arg_t> alloc_args; alloc_args.reserve(al, 1);
-                ASR::alloc_arg_t alloc_arg;
-                alloc_arg.loc = loc;
-                alloc_arg.m_a = init_expr;
-                alloc_arg.m_dims = nullptr;
-                alloc_arg.n_dims = 0;
-                alloc_arg.m_type = nullptr;
-                alloc_arg.m_len_expr = nullptr;
-                alloc_arg.m_sym_subclass = nullptr;
-                alloc_args.push_back(al, alloc_arg);
-                init_expr = ASRUtils::EXPR(ASR::make_Allocate_t(al, loc, alloc_args.p, 1, nullptr, nullptr, nullptr));
+                /**/
+                /*Vec<ASR::alloc_arg_t> alloc_args; alloc_args.reserve(al, 1);*/
+                /*ASR::alloc_arg_t alloc_arg;*/
+                /*alloc_arg.loc = loc;*/
+                /*alloc_arg.m_a = init_expr;*/
+                /*alloc_arg.m_dims = nullptr;*/
+                /*alloc_arg.n_dims = 0;*/
+                /*alloc_arg.m_type = nullptr;*/
+                /*alloc_arg.m_len_expr = nullptr;*/
+                /*alloc_arg.m_sym_subclass = nullptr;*/
+                /*alloc_args.push_back(al, alloc_arg);*/
+                /*init_expr = ASRUtils::STMT(ASR::make_Allocate_t(al, loc, alloc_args.p, 1, nullptr, nullptr, nullptr));*/
 
             }
             if (s_intent == ASRUtils::intent_unspecified) {
