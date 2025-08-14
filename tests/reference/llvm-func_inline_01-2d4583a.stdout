@@ -75,10 +75,13 @@ define void @__module___main____xx_lcompilers_changed_main_xx() {
   store i64 %2, i64* %5, align 4
   %6 = getelementptr %string_descriptor, %string_descriptor* %stringFormat_desc, i32 0, i32 0
   %7 = load i8*, i8** %6, align 8
-  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([5 x i8], [5 x i8]* @1, i32 0, i32 0), i8* %7, i8* getelementptr inbounds ([2 x i8], [2 x i8]* @0, i32 0, i32 0))
-  %8 = load i64, i64* %ans, align 4
-  %9 = icmp eq i64 %8, 102334155
-  br i1 %9, label %then, label %else
+  %8 = getelementptr %string_descriptor, %string_descriptor* %stringFormat_desc, i32 0, i32 1
+  %9 = load i64, i64* %8, align 4
+  %10 = trunc i64 %9 to i32
+  call void @_lfortran_printf(i8* getelementptr inbounds ([5 x i8], [5 x i8]* @1, i32 0, i32 0), i8* %7, i32 %10, i8* getelementptr inbounds ([2 x i8], [2 x i8]* @0, i32 0, i32 0), i32 1)
+  %11 = load i64, i64* %ans, align 4
+  %12 = icmp eq i64 %11, 102334155
+  br i1 %12, label %then, label %else
 
 then:                                             ; preds = %.entry
   br label %ifcont
@@ -101,7 +104,7 @@ declare i64 @_lfortran_str_len(i8*)
 
 declare i8* @_lfortran_malloc(i64)
 
-declare void @_lfortran_printf(i8*, ...)
+declare void @_lfortran_printf(i8*, i8*, i32, i8*, i32)
 
 declare void @_lcompilers_print_error(i8*, ...)
 
