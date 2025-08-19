@@ -6768,6 +6768,19 @@ public:
             values.push_back(al, value);
         }
         raise_error_when_dict_key_is_float_or_complex(key_type, x.base.base.loc);
+
+        if (ASRUtils::is_character(*key_type) && !ASRUtils::is_allocatable(key_type))
+            key_type = ASRUtils::TYPE(ASR::make_Allocatable_t(al, x.base.base.loc, 
+                        ASRUtils::TYPE(ASR::make_String_t(al, x.base.base.loc, 1, nullptr, 
+                                    ASR::string_length_kindType::DeferredLength, 
+                                    ASR::string_physical_typeType::DescriptorString))));
+
+        if (ASRUtils::is_character(*value_type) && !ASRUtils::is_allocatable(value_type))
+            value_type = ASRUtils::TYPE(ASR::make_Allocatable_t(al, x.base.base.loc, 
+                        ASRUtils::TYPE(ASR::make_String_t(al, x.base.base.loc, 1, nullptr, 
+                                    ASR::string_length_kindType::DeferredLength, 
+                                    ASR::string_physical_typeType::DescriptorString))));
+
         ASR::ttype_t* type = ASRUtils::TYPE(ASR::make_Dict_t(al, x.base.base.loc,
                                              key_type, value_type));
         tmp = ASR::make_DictConstant_t(al, x.base.base.loc, keys.p, keys.size(),
