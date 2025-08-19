@@ -227,7 +227,9 @@
                                                 (IntegerConstant -2 (Integer 4) Decimal)
                                             )]
                                             (Dict
-                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength DescriptorString)
+                                                (Allocatable
+                                                    (String 1 () DeferredLength DescriptorString)
+                                                )
                                                 (Integer 4)
                                             )
                                         )
@@ -389,7 +391,9 @@
                                                 (IntegerConstant -2 (Integer 4) Decimal)
                                             )]
                                             (Dict
-                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength DescriptorString)
+                                                (Allocatable
+                                                    (String 1 () DeferredLength DescriptorString)
+                                                )
                                                 (Integer 4)
                                             )
                                         )
@@ -518,7 +522,9 @@
                                                 (IntegerConstant -2 (Integer 4) Decimal)
                                             )]
                                             (Dict
-                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength DescriptorString)
+                                                (Allocatable
+                                                    (String 1 () DeferredLength DescriptorString)
+                                                )
                                                 (Integer 4)
                                             )
                                         )
@@ -642,7 +648,9 @@
                                             [(IntegerConstant 1 (Integer 4) Decimal)
                                             (IntegerConstant 2 (Integer 4) Decimal)]
                                             (Dict
-                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength DescriptorString)
+                                                (Allocatable
+                                                    (String 1 () DeferredLength DescriptorString)
+                                                )
                                                 (Integer 4)
                                             )
                                         )

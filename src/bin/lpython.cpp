@@ -659,7 +659,7 @@ int get_errors (const std::string &infile,
         std::vector<LCompilers::error_highlight> diag_lists;
         LCompilers::error_highlight h;
         for (auto &d : diagnostics.diagnostics) {
-            if (compiler_options.no_warnings && d.level != LCompilers::diag::Level::Error) {
+            if (!compiler_options.show_warnings && d.level != LCompilers::diag::Level::Error) {
                 continue;
             }
             h.message = d.message;

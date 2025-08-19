@@ -2900,7 +2900,7 @@ public:
                 if (ASR::is_a<ASR::StructType_t>(*type)) {
                     //`s` must be initialized with an instance of S
                     throw  SemanticError("`" + var_name + "` must be initialized with an instance of " +
-                            ASRUtils::type_to_str_python_expr(type, nullptr), x.base.base.loc);
+                            ASRUtils::type_to_str_python_expr(type, assign_asr_target), x.base.base.loc);
                 }
             }
             if (tmp && ASR::is_a<ASR::expr_t>(*tmp)) {
@@ -5511,7 +5511,7 @@ public:
             if (v->m_intent == ASR::intentType::In) {
                 std::string msg = "Hint: create a new local variable with a different name";
                 if (ASRUtils::is_aggregate_type(v->m_type)) {
-                    msg = "Use InOut[" + ASRUtils::type_to_str_python_expr(v->m_type, nullptr) + "] to allow assignment";
+                    msg = "Use InOut[" + ASRUtils::type_to_str_python_symbol(v->m_type, v->m_type_declaration) + "] to allow assignment";
                 }
                 diag.add(diag::Diagnostic(
                     "Assignment to an input function parameter `"

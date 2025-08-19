@@ -1,4 +1,4 @@
-semantic error: Unary operator '-' not supported for type derived type
+semantic error: Unary operator '-' not supported for type A
  --> tests/errors/test_operator_01.py:9:11
   |
 9 |     print(-a)
