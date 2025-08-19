@@ -49,7 +49,7 @@
     #include <rapidjson/writer.h>
 #endif
 
-extern std::string lcompilers_unique_ID;
+extern std::string lcompilers_unique_ID_separate_compilation;
 
 namespace {
 
@@ -1843,6 +1843,7 @@ int main(int argc, char *argv[])
         bool print_rtl_dir = false;
         bool separate_compilation = false;
         bool to_jit = false;
+        bool disable_warnings = false;
 
         std::string arg_fmt_file;
         // int arg_fmt_indent = 4;
@@ -1909,7 +1910,7 @@ int main(int argc, char *argv[])
         app.add_flag("--symtab-only", compiler_options.symtab_only, "Only create symbol tables in ASR (skip executable stmt)");
         app.add_flag("--time-report", time_report, "Show compilation time report");
         app.add_flag("--static", static_link, "Create a static executable");
-        app.add_flag("--no-warnings", compiler_options.no_warnings, "Turn off all warnings");
+        app.add_flag("--no-warnings", disable_warnings, "Turn off all warnings");
         app.add_flag("--no-error-banner", compiler_options.no_error_banner, "Turn off error banner");
         app.add_option("--backend", arg_backend, "Select a backend (llvm, cpp, x86, wasm, wasm_x86, wasm_x64)")->capture_default_str();
         app.add_flag("--enable-bounds-checking", compiler_options.bounds_checking, "Turn on index bounds checking");
@@ -1968,7 +1969,7 @@ int main(int argc, char *argv[])
         app.require_subcommand(0, 1);
         CLI11_PARSE(app, argc, argv);
 
-        lcompilers_unique_ID = separate_compilation ? LCompilers::get_unique_ID(): "";
+        lcompilers_unique_ID_separate_compilation = separate_compilation ? LCompilers::get_unique_ID(): "";
 
 
         if( compiler_options.po.fast && compiler_options.bounds_checking ) {
@@ -1986,6 +1987,10 @@ int main(int argc, char *argv[])
 
         if (compiler_options.link_numpy) {
             compiler_options.po.enable_cpython = true;
+        }
+
+        if (disable_warnings) {
+            compiler_options.show_warnings = false;
         }
 
         if (arg_version) {

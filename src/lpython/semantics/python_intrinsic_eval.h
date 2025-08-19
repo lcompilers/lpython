@@ -71,7 +71,7 @@ struct IntrinsicNodeHandler {
                             throw SemanticError("int() base must be >= 2 and <= 36, or 0", loc);
                         }
                     } else {
-                        throw SemanticError("'" + ASRUtils::type_to_str_python(type) + "' object cannot be interpreted as an integer",
+                        throw SemanticError("'" + ASRUtils::type_to_str_python_expr(type, arg) + "' object cannot be interpreted as an integer",
                                 arg->base.loc);
                     }
                 }
@@ -173,7 +173,7 @@ struct IntrinsicNodeHandler {
             }
             return (ASR::asr_t *)arg;
         } else {
-            std::string stype = ASRUtils::type_to_str_python(type);
+            std::string stype = ASRUtils::type_to_str_python_expr(type, nullptr);
             throw SemanticError(
                 "Conversion of '" + stype + "' to integer is not Implemented",
                 loc);
@@ -228,7 +228,7 @@ struct IntrinsicNodeHandler {
             }
             return (ASR::asr_t *)arg;
         } else {
-            std::string stype = ASRUtils::type_to_str_python(type);
+            std::string stype = ASRUtils::type_to_str_python_expr(type, nullptr);
             throw SemanticError(
                 "Conversion of '" + stype + "' to float is not Implemented",
                 loc);
@@ -301,7 +301,7 @@ struct IntrinsicNodeHandler {
         /*            al, loc, ASRUtils::TYPE(ASR::make_CPtr_t(al, loc))));*/
         /*    return ASR::make_CPtrCompare_t(al, loc, arg, ASR::cmpopType::NotEq, c_null_ptr, to_type, nullptr);*/
         } else {
-            std::string stype = ASRUtils::type_to_str_python(type);
+            std::string stype = ASRUtils::type_to_str_python_expr(type, nullptr);
             throw SemanticError(
                 "Conversion of '" + stype + "' to logical is not Implemented",
                 loc);
@@ -386,7 +386,7 @@ struct IntrinsicNodeHandler {
         } else if (ASRUtils::is_character(*arg_type)) {
             return (ASR::asr_t *)arg;
         } else {
-            std::string stype = ASRUtils::type_to_str_python(arg_type);
+            std::string stype = ASRUtils::type_to_str_python_expr(arg_type, nullptr);
             throw SemanticError("Conversion of '" + stype + "' to string is not Implemented", loc);
         }
     }
@@ -454,7 +454,7 @@ struct IntrinsicNodeHandler {
         if( !ASRUtils::is_array(ASRUtils::expr_type(newshape)) ) {
             throw SemanticError("reshape only accept arrays for shape "
                                 "arguments, found " +
-                                ASRUtils::type_to_str_python(ASRUtils::expr_type(newshape)) +
+                                ASRUtils::type_to_str_python_expr(ASRUtils::expr_type(newshape), newshape) +
                                 " instead.",
                                 loc);
         }
@@ -498,7 +498,7 @@ struct IntrinsicNodeHandler {
             }
             return ASR::make_StringOrd_t(al, loc, arg, to_type, value);
         } else {
-            throw SemanticError("ord() expected string of length 1, but " + ASRUtils::type_to_str_python(type) + " found",
+            throw SemanticError("ord() expected string of length 1, but " + ASRUtils::type_to_str_python_expr(type, arg) + " found",
                 arg->base.loc);
         }
     }
@@ -535,7 +535,7 @@ struct IntrinsicNodeHandler {
             }
             return ASR::make_StringChr_t(al, loc, arg, str_type, value);
         } else {
-            throw SemanticError("'" + ASRUtils::type_to_str_python(type) + "' object cannot be interpreted as an integer",
+            throw SemanticError("'" + ASRUtils::type_to_str_python_expr(type, arg) + "' object cannot be interpreted as an integer",
                 arg->base.loc);
         }
     }

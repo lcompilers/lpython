@@ -185,7 +185,7 @@ struct PythonIntrinsicProcedures {
             s = std::string(c);
         } else {
             throw SemanticError("str() argument must be real, integer, logical, or a string, not '" +
-                ASRUtils::type_to_str_python(arg_type) + "'", loc);
+                ASRUtils::type_to_str_python_expr(arg_type, arg) + "'", loc);
         }
         ASR::ttype_t* str_type = ASRUtils::TYPE(ASR::make_Allocatable_t(al, loc, 
                                         ASRUtils::TYPE(ASR::make_String_t(al, loc, 1, nullptr, 
@@ -242,7 +242,7 @@ struct PythonIntrinsicProcedures {
             ASR::ttype_t* arg3_type = ASRUtils::expr_type(arg3);
             if (!ASRUtils::is_integer(*arg3_type) ) { // Zero Division
                 throw SemanticError("Third argument must be an integer. Found: " + \
-                        ASRUtils::type_to_str_python(arg3_type), loc);
+                        ASRUtils::type_to_str_python_expr(arg3_type, arg3), loc);
             }
             mod_by = ASR::down_cast<ASR::IntegerConstant_t>(arg3)->m_n;
         }
@@ -338,7 +338,7 @@ struct PythonIntrinsicProcedures {
             return ASR::down_cast<ASR::expr_t>(make_StringConstant_t(al, loc, s2c(al, str), str_type));
         } else {
             throw SemanticError("bin() argument must be an integer, not '" +
-                ASRUtils::type_to_str_python(type) + "'", loc);
+                ASRUtils::type_to_str_python_expr(type, expr) + "'", loc);
         }
     }
 
@@ -365,7 +365,7 @@ struct PythonIntrinsicProcedures {
             return ASR::down_cast<ASR::expr_t>(make_StringConstant_t(al, loc, s2c(al, str), str_type));
         } else {
             throw SemanticError("hex() argument must be an integer, not '" +
-                ASRUtils::type_to_str_python(type) + "'", loc);
+                ASRUtils::type_to_str_python_expr(type, expr) + "'", loc);
         }
     }
 
@@ -392,7 +392,7 @@ struct PythonIntrinsicProcedures {
             return ASR::down_cast<ASR::expr_t>(make_StringConstant_t(al, loc, s2c(al, str), str_type));
         } else {
             throw SemanticError("oct() argument must be an integer, not '" +
-                ASRUtils::type_to_str_python(type) + "'", loc);
+                ASRUtils::type_to_str_python_expr(type, expr) + "'", loc);
         }
     }
 
@@ -433,7 +433,7 @@ struct PythonIntrinsicProcedures {
             return ASR::down_cast<ASR::expr_t>(ASR::make_ListConstant_t(al, loc, list.p,
                 list.size(), list_type));
         } else {
-            throw SemanticError("'" + ASRUtils::type_to_str_python(type) +
+            throw SemanticError("'" + ASRUtils::type_to_str_python_expr(type, arg) +
                 "' object conversion to List is not implemented ",
                 arg->base.loc);
         }
@@ -461,7 +461,7 @@ struct PythonIntrinsicProcedures {
             return ASR::down_cast<ASR::expr_t>(make_IntegerConstant_t(al, loc, rv, type));
         } else {
             throw SemanticError("round() argument must be float, integer, or logical for now, not '" +
-                ASRUtils::type_to_str_python(t) + "'", loc);
+                ASRUtils::type_to_str_python_expr(t, expr) + "'", loc);
         }
     }
 
@@ -604,7 +604,7 @@ struct PythonIntrinsicProcedures {
             }
         } else {
             throw SemanticError("Both arguments of divmod() must be integers for now, not '" +
-                ASRUtils::type_to_str_python(arg1_type) + "' and '" + ASRUtils::type_to_str_python(arg2_type) + "'", loc);
+                ASRUtils::type_to_str_python_expr(arg1_type, arg1) + "' and '" + ASRUtils::type_to_str_python_expr(arg2_type, arg2) + "'", loc);
         }
     }
 
