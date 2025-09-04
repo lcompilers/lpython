@@ -10,7 +10,7 @@
                             __main__global_stmts:
                                 (Function
                                     (SymbolTable
-                                        126
+                                        141
                                         {
                                             
                                         })
@@ -102,7 +102,9 @@
                                                 ()
                                             )]
                                             FormatPythonFormat
-                                            (String 1 () ExpressionLength CString)
+                                            (Allocatable
+                                                (String 1 () DeferredLength DescriptorString)
+                                            )
                                             ()
                                         )
                                     )
@@ -117,7 +119,9 @@
                                                 (IntegerConstant 4 (Integer 4) Decimal)
                                             )]
                                             FormatPythonFormat
-                                            (String 1 () ExpressionLength CString)
+                                            (Allocatable
+                                                (String 1 () DeferredLength DescriptorString)
+                                            )
                                             ()
                                         )
                                     )]
@@ -129,8 +133,9 @@
                                 )
                         })
                     __main__
-                    [lpython_builtin]
                     ()
+                    [lpython_builtin]
+                    .false.
                     .false.
                     .false.
                 ),
@@ -139,11 +144,11 @@
             main_program:
                 (Program
                     (SymbolTable
-                        127
+                        142
                         {
                             __main__global_stmts:
                                 (ExternalSymbol
-                                    127
+                                    142
                                     __main__global_stmts
                                     2 __main__global_stmts
                                     __main__
@@ -155,7 +160,7 @@
                     main_program
                     [__main__]
                     [(SubroutineCall
-                        127 __main__global_stmts
+                        142 __main__global_stmts
                         2 __main__global_stmts
                         []
                         ()

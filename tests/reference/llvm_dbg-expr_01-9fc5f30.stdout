@@ -1,6 +1,8 @@
 ; ModuleID = 'LFortran'
 source_filename = "LFortran"
 
+%string_descriptor = type <{ i8*, i64 }>
+
 @0 = private unnamed_addr constant [2 x i8] c"\0A\00", align 1
 @serialization_info = private unnamed_addr constant [3 x i8] c"I4\00", align 1
 @1 = private unnamed_addr constant [5 x i8] c"%s%s\00", align 1
@@ -25,8 +27,20 @@ define void @__module___main___main0() !dbg !7 {
   %y2 = alloca double, align 8
   call void @llvm.dbg.declare(metadata double* %y2, metadata !18, metadata !DIExpression()), !dbg !20
   store i32 25, i32* %x, align 4, !dbg !21
-  %0 = call i8* (i8*, i8*, i32, i32, ...) @_lcompilers_string_format_fortran(i8* null, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @serialization_info, i32 0, i32 0), i32 0, i32 0, i32* %x), !dbg !21
-  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([5 x i8], [5 x i8]* @1, i32 0, i32 0), i8* %0, i8* getelementptr inbounds ([2 x i8], [2 x i8]* @0, i32 0, i32 0)), !dbg !21
+  %0 = call i8* (i8*, i64, i8*, i32, i32, ...) @_lcompilers_string_format_fortran(i8* null, i64 0, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @serialization_info, i32 0, i32 0), i32 0, i32 0, i32* %x), !dbg !21
+  %1 = call i64 @_lfortran_str_len(i8* %0), !dbg !21
+  %2 = call i8* @_lfortran_malloc(i64 16), !dbg !21
+  %stringFormat_desc = bitcast i8* %2 to %string_descriptor*, !dbg !21
+  %3 = getelementptr %string_descriptor, %string_descriptor* %stringFormat_desc, i32 0, i32 0, !dbg !21
+  store i8* %0, i8** %3, align 8, !dbg !21
+  %4 = getelementptr %string_descriptor, %string_descriptor* %stringFormat_desc, i32 0, i32 1, !dbg !21
+  store i64 %1, i64* %4, align 4, !dbg !21
+  %5 = getelementptr %string_descriptor, %string_descriptor* %stringFormat_desc, i32 0, i32 0, !dbg !21
+  %6 = load i8*, i8** %5, align 8, !dbg !21
+  %7 = getelementptr %string_descriptor, %string_descriptor* %stringFormat_desc, i32 0, i32 1, !dbg !21
+  %8 = load i64, i64* %7, align 4, !dbg !21
+  %9 = trunc i64 %8 to i32, !dbg !21
+  call void @_lfortran_printf(i8* getelementptr inbounds ([5 x i8], [5 x i8]* @1, i32 0, i32 0), i8* %6, i32 %9, i8* getelementptr inbounds ([2 x i8], [2 x i8]* @0, i32 0, i32 0), i32 1), !dbg !21
   br label %return, !dbg !21
 
 return:                                           ; preds = %.entry
@@ -36,9 +50,13 @@ return:                                           ; preds = %.entry
 ; Function Attrs: nounwind readnone speculatable willreturn
 declare void @llvm.dbg.declare(metadata, metadata, metadata) #0
 
-declare i8* @_lcompilers_string_format_fortran(i8*, i8*, i32, i32, ...)
+declare i8* @_lcompilers_string_format_fortran(i8*, i64, i8*, i32, i32, ...)
 
-declare void @_lfortran_printf(i8*, ...)
+declare i64 @_lfortran_str_len(i8*)
+
+declare i8* @_lfortran_malloc(i64)
+
+declare void @_lfortran_printf(i8*, i8*, i32, i8*, i32)
 
 define i32 @main(i32 %0, i8** %1) !dbg !22 {
 .entry:

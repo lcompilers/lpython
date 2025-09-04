@@ -2,4 +2,4 @@ semantic error: Assignment to an input function parameter `this` is not allowed
   --> tests/errors/func_07.py:12:5
    |
 12 |     this._len = len(this._buf)
-   |     ^^^^ Use InOut[struct StringIO] to allow assignment
+   |     ^^^^ Use InOut[StringIO] to allow assignment

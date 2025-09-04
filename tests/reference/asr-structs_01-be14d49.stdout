@@ -56,6 +56,13 @@
                                                 )
                                         })
                                     A
+                                    (StructType
+                                        [(Integer 4)
+                                        (Real 4)]
+                                        []
+                                        .true.
+                                        .false.
+                                    )
                                     []
                                     [y
                                     x]
@@ -120,12 +127,13 @@
                                                     ()
                                                     Default
                                                     (StructType
-                                                        []
+                                                        [(Integer 4)
+                                                        (Real 4)]
                                                         []
                                                         .true.
-                                                        2 A
+                                                        .false.
                                                     )
-                                                    ()
+                                                    2 A
                                                     Source
                                                     Public
                                                     Required
@@ -140,10 +148,11 @@
                                     change_struct
                                     (FunctionType
                                         [(StructType
-                                            []
+                                            [(Integer 4)
+                                            (Real 4)]
                                             []
                                             .true.
-                                            2 A
+                                            .false.
                                         )]
                                         ()
                                         Source
@@ -232,12 +241,13 @@
                                                     ()
                                                     Default
                                                     (StructType
-                                                        []
+                                                        [(Integer 4)
+                                                        (Real 4)]
                                                         []
                                                         .true.
-                                                        2 A
+                                                        .false.
                                                     )
-                                                    ()
+                                                    2 A
                                                     Source
                                                     Public
                                                     Required
@@ -252,10 +262,11 @@
                                     f
                                     (FunctionType
                                         [(StructType
-                                            []
+                                            [(Integer 4)
+                                            (Real 4)]
                                             []
                                             .true.
-                                            2 A
+                                            .false.
                                         )]
                                         ()
                                         Source
@@ -281,7 +292,9 @@
                                                 ()
                                             )]
                                             FormatPythonFormat
-                                            (String 1 () ExpressionLength CString)
+                                            (Allocatable
+                                                (String 1 () DeferredLength DescriptorString)
+                                            )
                                             ()
                                         )
                                     )
@@ -295,7 +308,9 @@
                                                 ()
                                             )]
                                             FormatPythonFormat
-                                            (String 1 () ExpressionLength CString)
+                                            (Allocatable
+                                                (String 1 () DeferredLength DescriptorString)
+                                            )
                                             ()
                                         )
                                     )]
@@ -320,12 +335,13 @@
                                                     ()
                                                     Default
                                                     (StructType
-                                                        []
+                                                        [(Integer 4)
+                                                        (Real 4)]
                                                         []
                                                         .true.
-                                                        2 A
+                                                        .false.
                                                     )
-                                                    ()
+                                                    2 A
                                                     Source
                                                     Public
                                                     Required
@@ -373,10 +389,11 @@
                                             ))
                                             ((IntegerConstant 3 (Integer 4) Decimal))]
                                             (StructType
-                                                []
+                                                [(Integer 4)
+                                                (Real 4)]
                                                 []
                                                 .true.
-                                                2 A
+                                                .false.
                                             )
                                             ()
                                         )
@@ -556,8 +573,9 @@
                                 )
                         })
                     __main__
-                    []
                     ()
+                    []
+                    .false.
                     .false.
                     .false.
                 ),

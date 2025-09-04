@@ -596,12 +596,13 @@
                             }
                         },
                         "name": "__main__",
+                        "parent_module": [],
                         "dependencies": [
                             "modules_02b"
                         ],
-                        "parent_module": [],
                         "loaded_from_mod": false,
-                        "intrinsic": false
+                        "intrinsic": false,
+                        "has_submodules": false
                     },
                     "loc": {
                         "first": 0,
@@ -794,7 +795,7 @@
                                                                                     }
                                                                                 },
                                                                                 "len_kind": "ExpressionLength",
-                                                                                "physical_type": "PointerString"
+                                                                                "physical_type": "DescriptorString"
                                                                             },
                                                                             "loc": {
                                                                                 "first": 181,
@@ -822,12 +823,27 @@
                                                             ],
                                                             "kind": "FormatPythonFormat",
                                                             "type": {
-                                                                "node": "String",
+                                                                "node": "Allocatable",
                                                                 "fields": {
-                                                                    "kind": 1,
-                                                                    "len": [],
-                                                                    "len_kind": "ExpressionLength",
-                                                                    "physical_type": "CString"
+                                                                    "type": {
+                                                                        "node": "String",
+                                                                        "fields": {
+                                                                            "kind": 1,
+                                                                            "len": [],
+                                                                            "len_kind": "DeferredLength",
+                                                                            "physical_type": "DescriptorString"
+                                                                        },
+                                                                        "loc": {
+                                                                            "first": 175,
+                                                                            "last": 186,
+                                                                            "first_filename": "tests/../integration_tests/modules_02b.py",
+                                                                            "first_line": 5,
+                                                                            "first_column": 5,
+                                                                            "last_filename": "tests/../integration_tests/modules_02b.py",
+                                                                            "last_line": 5,
+                                                                            "last_column": 16
+                                                                        }
+                                                                    }
                                                                 },
                                                                 "loc": {
                                                                     "first": 175,
@@ -908,12 +924,13 @@
                             }
                         },
                         "name": "modules_02b",
+                        "parent_module": [],
                         "dependencies": [
                             "modules_02c"
                         ],
-                        "parent_module": [],
                         "loaded_from_mod": false,
-                        "intrinsic": false
+                        "intrinsic": false,
+                        "has_submodules": false
                     },
                     "loc": {
                         "first": 127,
@@ -1020,7 +1037,7 @@
                                                                                     }
                                                                                 },
                                                                                 "len_kind": "ExpressionLength",
-                                                                                "physical_type": "PointerString"
+                                                                                "physical_type": "DescriptorString"
                                                                             },
                                                                             "loc": {
                                                                                 "first": 207,
@@ -1048,12 +1065,27 @@
                                                             ],
                                                             "kind": "FormatPythonFormat",
                                                             "type": {
-                                                                "node": "String",
+                                                                "node": "Allocatable",
                                                                 "fields": {
-                                                                    "kind": 1,
-                                                                    "len": [],
-                                                                    "len_kind": "ExpressionLength",
-                                                                    "physical_type": "CString"
+                                                                    "type": {
+                                                                        "node": "String",
+                                                                        "fields": {
+                                                                            "kind": 1,
+                                                                            "len": [],
+                                                                            "len_kind": "DeferredLength",
+                                                                            "physical_type": "DescriptorString"
+                                                                        },
+                                                                        "loc": {
+                                                                            "first": 201,
+                                                                            "last": 212,
+                                                                            "first_filename": "tests/../integration_tests/modules_02c.py",
+                                                                            "first_line": 2,
+                                                                            "first_column": 5,
+                                                                            "last_filename": "tests/../integration_tests/modules_02c.py",
+                                                                            "last_line": 2,
+                                                                            "last_column": 16
+                                                                        }
+                                                                    }
                                                                 },
                                                                 "loc": {
                                                                     "first": 201,
@@ -1112,10 +1144,11 @@
                             }
                         },
                         "name": "modules_02c",
-                        "dependencies": [],
                         "parent_module": [],
+                        "dependencies": [],
                         "loaded_from_mod": false,
-                        "intrinsic": false
+                        "intrinsic": false,
+                        "has_submodules": false
                     },
                     "loc": {
                         "first": 188,

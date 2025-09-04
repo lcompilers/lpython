@@ -239,18 +239,15 @@
                                         (StringCompare
                                             (StringConstant
                                                 "abc"
-                                                (String 1 (IntegerConstant 3 (Integer 4) Decimal) ExpressionLength PointerString)
+                                                (String 1 (IntegerConstant 3 (Integer 4) Decimal) ExpressionLength DescriptorString)
                                             )
                                             Gt
                                             (StringConstant
                                                 "abd"
-                                                (String 1 (IntegerConstant 3 (Integer 4) Decimal) ExpressionLength PointerString)
+                                                (String 1 (IntegerConstant 3 (Integer 4) Decimal) ExpressionLength DescriptorString)
                                             )
                                             (Logical 4)
-                                            (LogicalConstant
-                                                .false.
-                                                (Logical 4)
-                                            )
+                                            ()
                                         )
                                         ()
                                         .false.
@@ -260,18 +257,15 @@
                                         (StringCompare
                                             (StringConstant
                                                 ""
-                                                (String 1 (IntegerConstant 0 (Integer 4) Decimal) ExpressionLength PointerString)
+                                                (String 1 (IntegerConstant 0 (Integer 4) Decimal) ExpressionLength DescriptorString)
                                             )
                                             Lt
                                             (StringConstant
                                                 "s"
-                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
+                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength DescriptorString)
                                             )
                                             (Logical 4)
-                                            (LogicalConstant
-                                                .true.
-                                                (Logical 4)
-                                            )
+                                            ()
                                         )
                                         ()
                                         .false.
@@ -281,18 +275,15 @@
                                         (StringCompare
                                             (StringConstant
                                                 "-abs"
-                                                (String 1 (IntegerConstant 4 (Integer 4) Decimal) ExpressionLength PointerString)
+                                                (String 1 (IntegerConstant 4 (Integer 4) Decimal) ExpressionLength DescriptorString)
                                             )
                                             GtE
                                             (StringConstant
                                                 "abs"
-                                                (String 1 (IntegerConstant 3 (Integer 4) Decimal) ExpressionLength PointerString)
+                                                (String 1 (IntegerConstant 3 (Integer 4) Decimal) ExpressionLength DescriptorString)
                                             )
                                             (Logical 4)
-                                            (LogicalConstant
-                                                .false.
-                                                (Logical 4)
-                                            )
+                                            ()
                                         )
                                         ()
                                         .false.
@@ -302,18 +293,15 @@
                                         (StringCompare
                                             (StringConstant
                                                 "abcd"
-                                                (String 1 (IntegerConstant 4 (Integer 4) Decimal) ExpressionLength PointerString)
+                                                (String 1 (IntegerConstant 4 (Integer 4) Decimal) ExpressionLength DescriptorString)
                                             )
                                             LtE
                                             (StringConstant
                                                 "abcde"
-                                                (String 1 (IntegerConstant 5 (Integer 4) Decimal) ExpressionLength PointerString)
+                                                (String 1 (IntegerConstant 5 (Integer 4) Decimal) ExpressionLength DescriptorString)
                                             )
                                             (Logical 4)
-                                            (LogicalConstant
-                                                .true.
-                                                (Logical 4)
-                                            )
+                                            ()
                                         )
                                         ()
                                         .false.
@@ -323,18 +311,15 @@
                                         (StringCompare
                                             (StringConstant
                                                 "abc"
-                                                (String 1 (IntegerConstant 3 (Integer 4) Decimal) ExpressionLength PointerString)
+                                                (String 1 (IntegerConstant 3 (Integer 4) Decimal) ExpressionLength DescriptorString)
                                             )
                                             Eq
                                             (StringConstant
                                                 "abc"
-                                                (String 1 (IntegerConstant 3 (Integer 4) Decimal) ExpressionLength PointerString)
+                                                (String 1 (IntegerConstant 3 (Integer 4) Decimal) ExpressionLength DescriptorString)
                                             )
                                             (Logical 4)
-                                            (LogicalConstant
-                                                .true.
-                                                (Logical 4)
-                                            )
+                                            ()
                                         )
                                         ()
                                         .false.
@@ -344,18 +329,15 @@
                                         (StringCompare
                                             (StringConstant
                                                 "abc"
-                                                (String 1 (IntegerConstant 3 (Integer 4) Decimal) ExpressionLength PointerString)
+                                                (String 1 (IntegerConstant 3 (Integer 4) Decimal) ExpressionLength DescriptorString)
                                             )
                                             NotEq
                                             (StringConstant
                                                 "abd"
-                                                (String 1 (IntegerConstant 3 (Integer 4) Decimal) ExpressionLength PointerString)
+                                                (String 1 (IntegerConstant 3 (Integer 4) Decimal) ExpressionLength DescriptorString)
                                             )
                                             (Logical 4)
-                                            (LogicalConstant
-                                                .true.
-                                                (Logical 4)
-                                            )
+                                            ()
                                         )
                                         ()
                                         .false.
@@ -365,18 +347,15 @@
                                         (StringCompare
                                             (StringConstant
                                                 ""
-                                                (String 1 (IntegerConstant 0 (Integer 4) Decimal) ExpressionLength PointerString)
+                                                (String 1 (IntegerConstant 0 (Integer 4) Decimal) ExpressionLength DescriptorString)
                                             )
                                             Eq
                                             (StringConstant
                                                 "+"
-                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
+                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength DescriptorString)
                                             )
                                             (Logical 4)
-                                            (LogicalConstant
-                                                .false.
-                                                (Logical 4)
-                                            )
+                                            ()
                                         )
                                         ()
                                         .false.
@@ -473,8 +452,9 @@
                                 )
                         })
                     __main__
-                    [lpython_builtin]
                     ()
+                    [lpython_builtin]
+                    .false.
                     .false.
                     .false.
                 ),
@@ -483,7 +463,7 @@
             main_program:
                 (Program
                     (SymbolTable
-                        126
+                        141
                         {
                             
                         })

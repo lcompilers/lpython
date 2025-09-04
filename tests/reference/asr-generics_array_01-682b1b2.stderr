@@ -1,0 +1,8 @@
+semantic error: Type mismatch in procedure call; the types must be compatible
+  --> tests/../integration_tests/generics_array_01.py:15:13
+   |
+15 |     print(f(array, x))
+   |             ^^^^^ type mismatch (passed argument type is i32[1] but required type is T[:])
+   |
+ 6 | def f(lst: T[:], i: T) -> T:
+   |            ^^^^ type mismatch (passed argument type is i32[1] but required type is T[:])

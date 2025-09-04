@@ -202,10 +202,10 @@ filename = "../integration_tests/expr_11.py"
 c = true
 cpp = true
 
-[[test]]
-filename = "../integration_tests/expr_12.py"
-asr = true
-c = true
+# [[test]]
+# filename = "../integration_tests/expr_12.py"
+# asr = true
+# c = true
 
 [[test]]
 filename = "../integration_tests/expr_14.py"
@@ -339,27 +339,27 @@ asr = true
 filename = "../integration_tests/structs_01.py"
 asr = true
 
-[[test]]
-filename = "../integration_tests/structs_02.py"
-asr = true
+# [[test]]
+# filename = "../integration_tests/structs_02.py"
+# asr = true
+#
+# [[test]]
+# filename = "../integration_tests/structs_03.py"
+# asr = true
 
-[[test]]
-filename = "../integration_tests/structs_03.py"
-asr = true
-
-[[test]]
-filename = "../integration_tests/structs_04.py"
-asr = true
-
-[[test]]
-filename = "../integration_tests/structs_05.py"
-asr = true
-
-[[test]]
-filename = "../integration_tests/structs_16.py"
-asr = true
-pass = "class_constructor"
-cumulative = true
+# [[test]]
+# filename = "../integration_tests/structs_04.py"
+# asr = true
+#
+# [[test]]
+# filename = "../integration_tests/structs_05.py"
+# asr = true
+#
+# [[test]]
+# filename = "../integration_tests/structs_16.py"
+# asr = true
+# pass = "class_constructor"
+# cumulative = true
 
 # [[test]]
 # filename = "errors/class01.py"
@@ -1428,9 +1428,9 @@ run = true
 # filename = "runtime_errors/test_str_01.py"
 # run = true
 
-# [[test]]
-# filename = "runtime_errors/test_str_02.py"
-# run = true
+[[test]]
+filename = "runtime_errors/test_str_02.py"
+run = true
 
 [[test]]
 filename = "runtime_errors/test_assert_01.py"

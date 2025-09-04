@@ -49,7 +49,7 @@
     #include <rapidjson/writer.h>
 #endif
 
-extern std::string lcompilers_unique_ID;
+extern std::string lcompilers_unique_ID_separate_compilation;
 
 namespace {
 
@@ -659,7 +659,7 @@ int get_errors (const std::string &infile,
         std::vector<LCompilers::error_highlight> diag_lists;
         LCompilers::error_highlight h;
         for (auto &d : diagnostics.diagnostics) {
-            if (compiler_options.no_warnings && d.level != LCompilers::diag::Level::Error) {
+            if (!compiler_options.show_warnings && d.level != LCompilers::diag::Level::Error) {
                 continue;
             }
             h.message = d.message;
@@ -1843,6 +1843,7 @@ int main(int argc, char *argv[])
         bool print_rtl_dir = false;
         bool separate_compilation = false;
         bool to_jit = false;
+        bool disable_warnings = false;
 
         std::string arg_fmt_file;
         // int arg_fmt_indent = 4;
@@ -1909,10 +1910,10 @@ int main(int argc, char *argv[])
         app.add_flag("--symtab-only", compiler_options.symtab_only, "Only create symbol tables in ASR (skip executable stmt)");
         app.add_flag("--time-report", time_report, "Show compilation time report");
         app.add_flag("--static", static_link, "Create a static executable");
-        app.add_flag("--no-warnings", compiler_options.no_warnings, "Turn off all warnings");
+        app.add_flag("--no-warnings", disable_warnings, "Turn off all warnings");
         app.add_flag("--no-error-banner", compiler_options.no_error_banner, "Turn off error banner");
         app.add_option("--backend", arg_backend, "Select a backend (llvm, cpp, x86, wasm, wasm_x86, wasm_x64)")->capture_default_str();
-        app.add_flag("--enable-bounds-checking", compiler_options.enable_bounds_checking, "Turn on index bounds checking");
+        app.add_flag("--enable-bounds-checking", compiler_options.bounds_checking, "Turn on index bounds checking");
         app.add_flag("--openmp", compiler_options.openmp, "Enable openmp");
         app.add_flag("--fast", compiler_options.po.fast, "Best performance (disable strict standard compliance)");
         app.add_option("--target", compiler_options.target, "Generate code for the given target")->capture_default_str();
@@ -1968,10 +1969,10 @@ int main(int argc, char *argv[])
         app.require_subcommand(0, 1);
         CLI11_PARSE(app, argc, argv);
 
-        lcompilers_unique_ID = separate_compilation ? LCompilers::get_unique_ID(): "";
+        lcompilers_unique_ID_separate_compilation = separate_compilation ? LCompilers::get_unique_ID(): "";
 
 
-        if( compiler_options.po.fast && compiler_options.enable_bounds_checking ) {
+        if( compiler_options.po.fast && compiler_options.bounds_checking ) {
         // ReleaseSafe Mode
         } else if ( compiler_options.po.fast ) {
         // Release Mode
@@ -1981,11 +1982,15 @@ int main(int argc, char *argv[])
         // which is now removed
         } else {
         // Debug Mode
-            compiler_options.enable_bounds_checking = true;
+            compiler_options.bounds_checking = true;
         }
 
         if (compiler_options.link_numpy) {
             compiler_options.po.enable_cpython = true;
+        }
+
+        if (disable_warnings) {
+            compiler_options.show_warnings = false;
         }
 
         if (arg_version) {

@@ -240,18 +240,20 @@
                                         (ListConstant
                                             [(StringConstant
                                                 "a"
-                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
+                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength DescriptorString)
                                             )
                                             (StringConstant
                                                 "b"
-                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
+                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength DescriptorString)
                                             )
                                             (StringConstant
                                                 "c"
-                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
+                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength DescriptorString)
                                             )]
                                             (List
-                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
+                                                (Allocatable
+                                                    (String 1 () DeferredLength DescriptorString)
+                                                )
                                             )
                                         )
                                         ()
@@ -302,36 +304,42 @@
                                             [(ListConstant
                                                 [(StringConstant
                                                     "a"
-                                                    (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
+                                                    (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength DescriptorString)
                                                 )
                                                 (StringConstant
                                                     "b"
-                                                    (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
+                                                    (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength DescriptorString)
                                                 )
                                                 (StringConstant
                                                     "c"
-                                                    (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
+                                                    (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength DescriptorString)
                                                 )]
                                                 (List
-                                                    (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
+                                                    (Allocatable
+                                                        (String 1 () DeferredLength DescriptorString)
+                                                    )
                                                 )
                                             )
                                             (ListConstant
                                                 [(StringConstant
                                                     "d"
-                                                    (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
+                                                    (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength DescriptorString)
                                                 )
                                                 (StringConstant
                                                     "e"
-                                                    (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
+                                                    (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength DescriptorString)
                                                 )]
                                                 (List
-                                                    (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
+                                                    (Allocatable
+                                                        (String 1 () DeferredLength DescriptorString)
+                                                    )
                                                 )
                                             )]
                                             (List
                                                 (List
-                                                    (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
+                                                    (Allocatable
+                                                        (String 1 () DeferredLength DescriptorString)
+                                                    )
                                                 )
                                             )
                                         )
@@ -471,8 +479,9 @@
                                 )
                         })
                     __main__
-                    []
                     ()
+                    []
+                    .false.
                     .false.
                     .false.
                 ),

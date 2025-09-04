@@ -7,7 +7,6 @@ def main0():
     b = a or True
     a = a or b
 
-main0()
-# Not implemented yet in LPython:
-#if __name__ == "__main__":
-#    main()
+
+if __name__ == "__main__":
+    main0()

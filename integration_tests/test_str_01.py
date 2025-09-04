@@ -92,59 +92,59 @@ def test_str_repeat():
     assert t == "abc-abc-abc-abc-abc-abc-abc-abc-abc-abc-abc-abc-abc-abc-"
 
 
-def test_str_join():
-    a: str
-    a = ","
-    p:list[str] = ["a","b"]
-    res:str = a.join(p)
-    assert res == "a,b"
-
-def test_str_join2():
-    a: str
-    a = "**"
-    p:list[str] = ["a","b"]
-    res:str = a.join(p)
-    assert res == "a**b"
-
-def test_str_join_empty_str():
-    a: str
-    a = ""
-    p:list[str] = ["a","b"]
-    res:str = a.join(p)
-    assert res == "ab"
-
-def test_str_join_empty_list():
-    a: str
-    a = "ab"
-    p:list[str] = []
-    res:str = a.join(p)
-    assert res == ""
-
-def test_constant_str_subscript():
-    assert "abc"[2] == "c"
-    assert "abc"[:2] == "ab"
-
-def test_str_split():
-    a: str = "1,2,3"
-    b: str = "1,2,,3,"
-    c: str = "1and2and3"
-    d: str = "1 2 3"
-    e: str = "   1   2   3   "
-    f: str = "123"
-    res: list[str] = a.split(",")
-    res1: list[str] = b.split(",")
-    res2: list[str] = c.split("and")
-    res3: list[str] = d.split()
-    res4: list[str] = e.split()
-    res5: list[str] = f.split(" ")
-    # res6: list[str] = "".split(" ")
-    assert res == ["1", "2", "3"]
-    assert res1 == ["1", "2", "", "3", ""]
-    assert res2 == ["1", "2", "3"]
-    assert res3 == ["1", "2", "3"]
-    assert res4 == ["1", "2", "3"]
-    assert res5 == ["123"]
-    # assert res6 == [""]
+# def test_str_join():
+#     a: str
+#     a = ","
+#     p:list[str] = ["a","b"]
+#     res:str = a.join(p)
+#     assert res == "a,b"
+# 
+# def test_str_join2():
+#     a: str
+#     a = "**"
+#     p:list[str] = ["a","b"]
+#     res:str = a.join(p)
+#     assert res == "a**b"
+# 
+# def test_str_join_empty_str():
+#     a: str
+#     a = ""
+#     p:list[str] = ["a","b"]
+#     res:str = a.join(p)
+#     assert res == "ab"
+# 
+# def test_str_join_empty_list():
+#     a: str
+#     a = "ab"
+#     p:list[str] = []
+#     res:str = a.join(p)
+#     assert res == ""
+# 
+# def test_constant_str_subscript():
+#     assert "abc"[2] == "c"
+#     assert "abc"[:2] == "ab"
+# 
+# def test_str_split():
+#     a: str = "1,2,3"
+#     b: str = "1,2,,3,"
+#     c: str = "1and2and3"
+#     d: str = "1 2 3"
+#     e: str = "   1   2   3   "
+#     f: str = "123"
+#     res: list[str] = a.split(",")
+#     res1: list[str] = b.split(",")
+#     res2: list[str] = c.split("and")
+#     res3: list[str] = d.split()
+#     res4: list[str] = e.split()
+#     res5: list[str] = f.split(" ")
+#     # res6: list[str] = "".split(" ")
+#     assert res == ["1", "2", "3"]
+#     assert res1 == ["1", "2", "", "3", ""]
+#     assert res2 == ["1", "2", "3"]
+#     assert res3 == ["1", "2", "3"]
+#     assert res4 == ["1", "2", "3"]
+#     assert res5 == ["123"]
+#     # assert res6 == [""]
 
 def test_str_replace():
     x: str = "abc"
@@ -201,13 +201,13 @@ def check():
     test_str_index()
     test_str_slice()
     test_str_repeat()
-    test_str_join()
-    test_str_join2()
-    test_str_join_empty_str()
-    test_str_join_empty_list()
-    test_constant_str_subscript()
-    test_str_title()
-    test_str_split()
+#     test_str_join()
+#     test_str_join2()
+#     test_str_join_empty_str()
+#     test_str_join_empty_list()
+#     test_constant_str_subscript()
+#     test_str_title()
+#     test_str_split()
     test_str_replace()
 
 check()

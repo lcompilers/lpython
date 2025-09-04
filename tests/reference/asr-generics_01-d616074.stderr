@@ -1,0 +1,8 @@
+semantic error: Type mismatch in procedure call; the types must be compatible
+  --> tests/../integration_tests/generics_01.py:18:9
+   |
+18 | print(f(1, 2, add=add_integer))
+   |         ^ type mismatch (passed argument type is i32 but required type is T)
+   |
+15 | def f(x: T, y: T, **kwargs) -> T:
+   |          ^ type mismatch (passed argument type is i32 but required type is T)

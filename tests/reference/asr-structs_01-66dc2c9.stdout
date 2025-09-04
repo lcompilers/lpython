@@ -56,6 +56,13 @@
                                                 )
                                         })
                                     S
+                                    (StructType
+                                        [(Integer 4)
+                                        (Integer 4)]
+                                        []
+                                        .true.
+                                        .false.
+                                    )
                                     []
                                     [x
                                     y]
@@ -120,12 +127,13 @@
                                                     ()
                                                     Default
                                                     (StructType
-                                                        []
+                                                        [(Integer 4)
+                                                        (Integer 4)]
                                                         []
                                                         .true.
-                                                        2 S
+                                                        .false.
                                                     )
-                                                    ()
+                                                    2 S
                                                     Source
                                                     Public
                                                     Required
@@ -161,10 +169,11 @@
                                             [((IntegerConstant 2 (Integer 4) Decimal))
                                             (())]
                                             (StructType
-                                                []
+                                                [(Integer 4)
+                                                (Integer 4)]
                                                 []
                                                 .true.
-                                                2 S
+                                                .false.
                                             )
                                             ()
                                         )
@@ -179,8 +188,9 @@
                                 )
                         })
                     __main__
-                    []
                     ()
+                    []
+                    .false.
                     .false.
                     .false.
                 ),

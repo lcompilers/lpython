@@ -235,7 +235,7 @@
                                     (Print
                                         (StringConstant
                                             "("
-                                            (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
+                                            (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength DescriptorString)
                                         )
                                     )
                                     (Print
@@ -257,14 +257,16 @@
                                                 ()
                                             )]
                                             FormatFortran
-                                            (String 1 () ExpressionLength CString)
+                                            (Allocatable
+                                                (String 1 () DeferredLength DescriptorString)
+                                            )
                                             ()
                                         )
                                     )
                                     (Print
                                         (StringConstant
                                             ", "
-                                            (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
+                                            (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength DescriptorString)
                                         )
                                     )
                                     (Print
@@ -286,20 +288,22 @@
                                                 ()
                                             )]
                                             FormatFortran
-                                            (String 1 () ExpressionLength CString)
+                                            (Allocatable
+                                                (String 1 () DeferredLength DescriptorString)
+                                            )
                                             ()
                                         )
                                     )
                                     (Print
                                         (StringConstant
                                             ")"
-                                            (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
+                                            (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength DescriptorString)
                                         )
                                     )
                                     (Print
                                         (StringConstant
                                             "("
-                                            (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
+                                            (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength DescriptorString)
                                         )
                                     )
                                     (Print
@@ -321,14 +325,16 @@
                                                 ()
                                             )]
                                             FormatFortran
-                                            (String 1 () ExpressionLength CString)
+                                            (Allocatable
+                                                (String 1 () DeferredLength DescriptorString)
+                                            )
                                             ()
                                         )
                                     )
                                     (Print
                                         (StringConstant
                                             ", "
-                                            (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
+                                            (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength DescriptorString)
                                         )
                                     )
                                     (Print
@@ -350,20 +356,22 @@
                                                 ()
                                             )]
                                             FormatFortran
-                                            (String 1 () ExpressionLength CString)
+                                            (Allocatable
+                                                (String 1 () DeferredLength DescriptorString)
+                                            )
                                             ()
                                         )
                                     )
                                     (Print
                                         (StringConstant
                                             ")"
-                                            (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
+                                            (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength DescriptorString)
                                         )
                                     )
                                     (Print
                                         (StringConstant
                                             "["
-                                            (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
+                                            (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength DescriptorString)
                                         )
                                     )
                                     (DoLoop
@@ -408,7 +416,9 @@
                                                     ()
                                                 )]
                                                 FormatFortran
-                                                (String 1 () ExpressionLength CString)
+                                                (Allocatable
+                                                    (String 1 () DeferredLength DescriptorString)
+                                                )
                                                 ()
                                             )
                                         )
@@ -442,7 +452,7 @@
                                             [(Print
                                                 (StringConstant
                                                     ", "
-                                                    (String 1 (IntegerConstant 2 (Integer 4) Decimal) ExpressionLength PointerString)
+                                                    (String 1 (IntegerConstant 2 (Integer 4) Decimal) ExpressionLength DescriptorString)
                                                 )
                                             )]
                                             []
@@ -452,7 +462,7 @@
                                     (Print
                                         (StringConstant
                                             "]"
-                                            (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength PointerString)
+                                            (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength DescriptorString)
                                         )
                                     )]
                                     ()
@@ -463,8 +473,9 @@
                                 )
                         })
                     __main__
-                    []
                     ()
+                    []
+                    .false.
                     .false.
                     .false.
                 ),

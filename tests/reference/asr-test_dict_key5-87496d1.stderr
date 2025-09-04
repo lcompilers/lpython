@@ -1,5 +1,5 @@
-semantic error: Unhashable type: 'dict[i32, str]'
+semantic error: Unhashable type: 'dict[i32, Allocatable[str]]'
  --> tests/errors/test_dict_key5.py:2:12
   |
 2 |     print({{1: "a", 2: "b"}: "first", {3: "c", 4: "d"}: "second"})
-  |            ^^^^^^^^^^^^^^^^ Mutable type 'dict[i32, str]' cannot become a key in dict. Hint: Use an immutable type for key.
+  |            ^^^^^^^^^^^^^^^^ Mutable type 'dict[i32, Allocatable[str]]' cannot become a key in dict. Hint: Use an immutable type for key.

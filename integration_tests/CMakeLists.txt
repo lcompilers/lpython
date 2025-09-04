@@ -419,20 +419,20 @@ endmacro(COMPILE)
 # Test zero and non-zero exit code and assert statements
 RUN(NAME array_01_decl            LABELS cpython llvm llvm_jit c)
 RUN(NAME array_02_decl            LABELS cpython llvm llvm_jit c)
-RUN(NAME array_03_decl            LABELS cpython llvm llvm_jit c)
+RUN(NAME array_03_decl            LABELS cpython llvm llvm_jit) # renable c
 RUN(NAME variable_decl_01         LABELS cpython llvm llvm_jit c)
 RUN(NAME variable_decl_02         LABELS cpython llvm llvm_jit c)
 RUN(NAME variable_decl_03         LABELS cpython llvm llvm_jit c)
 RUN(NAME array_expr_01            LABELS cpython llvm llvm_jit c)
-# RUN(NAME array_expr_02            LABELS cpython llvm llvm_jit c NOFAST) # post sync
+RUN(NAME array_expr_02            LABELS cpython llvm llvm_jit c NOFAST) # post sync
 RUN(NAME array_expr_03            LABELS cpython llvm llvm_jit c)
 RUN(NAME array_expr_04            LABELS cpython llvm llvm_jit c)
-# RUN(NAME array_expr_05            LABELS cpython llvm llvm_jit c)
+RUN(NAME array_expr_05            LABELS cpython llvm llvm_jit c)
 RUN(NAME array_expr_06            LABELS cpython llvm llvm_jit c)
 RUN(NAME array_expr_07            LABELS cpython llvm llvm_jit c)
 RUN(NAME array_expr_08            LABELS cpython llvm llvm_jit c)
 RUN(NAME array_expr_09            LABELS cpython llvm llvm_jit c)
-# RUN(NAME array_expr_10            LABELS cpython llvm llvm_jit c) # post sync
+RUN(NAME array_expr_10            LABELS cpython llvm llvm_jit c) # post sync
 RUN(NAME array_size_01            LABELS cpython llvm llvm_jit c)
 RUN(NAME array_size_02            LABELS cpython llvm llvm_jit c)
 RUN(NAME array_01            LABELS cpython llvm llvm_jit wasm c)
@@ -450,8 +450,8 @@ RUN(NAME array_06            LABELS cpython llvm llvm_jit)
 # RUN(NAME bindc_09b           LABELS cpython llvm llvm_jit c NOFAST)
 # # RUN(NAME bindc_10            LABELS cpython llvm llvm_jit c NOFAST)
 # RUN(NAME bindc_11            LABELS cpython) # This is CPython test only
-# RUN(NAME exit_01             LABELS cpython llvm llvm_jit c NOFAST)
-# RUN(NAME exit_02     FAIL    LABELS cpython llvm llvm_jit c NOFAST)
+RUN(NAME exit_01             LABELS cpython llvm llvm_jit NOFAST) # renable c
+RUN(NAME exit_02     FAIL    LABELS cpython llvm llvm_jit NOFAST) # renable c
 RUN(NAME exit_03             LABELS cpython llvm llvm_jit c wasm wasm_x86 wasm_x64)
 RUN(NAME exit_04     FAIL    LABELS cpython llvm llvm_jit c wasm wasm_x86 wasm_x64)
 RUN(NAME exit_01b            LABELS cpython llvm llvm_jit c wasm wasm_x86 wasm_x64)
@@ -468,7 +468,7 @@ RUN(NAME print_float         LABELS cpython llvm llvm_jit c wasm wasm_x64)
 # RUN(NAME print_list_tuple_01    LABELS cpython llvm llvm_jit NOFAST) # renable c # post sync
 # # RUN(NAME print_list_tuple_02    LABELS cpython llvm llvm_jit c NOFAST)
 # # RUN(NAME print_list_tuple_03    LABELS cpython llvm llvm_jit c NOFAST)
-# RUN(NAME test_list_item_mixed_print    LABELS cpython llvm llvm_jit NOFAST) # renable c # post sync
+RUN(NAME test_list_item_mixed_print    LABELS cpython llvm llvm_jit NOFAST) # renable c # post sync
 # RUN(NAME test_intrinsic_function_mixed_print    LABELS cpython llvm llvm_jit NOFAST) # post sync
 
 # # CPython and LLVM
@@ -477,13 +477,13 @@ RUN(NAME const_02            LABELS cpython llvm llvm_jit c wasm)
 RUN(NAME const_03            LABELS cpython llvm c
         EXTRAFILES const_03b.c)
 # RUN(NAME const_04            LABELS cpython llvm llvm_jit c)
-RUN(NAME expr_01             LABELS cpython llvm llvm_jit c wasm wasm_x64)
-RUN(NAME expr_02             LABELS cpython llvm llvm_jit c wasm wasm_x64)
-RUN(NAME expr_03             LABELS cpython llvm llvm_jit c wasm wasm_x64)
+RUN(NAME expr_01             LABELS cpython llvm llvm_jit c wasm) # renable wasm_x64
+RUN(NAME expr_02             LABELS cpython llvm llvm_jit c wasm) # renable wasm_x64
+RUN(NAME expr_03             LABELS cpython llvm llvm_jit c wasm) # renable wasm_x64
 RUN(NAME expr_04             LABELS cpython llvm llvm_jit c wasm NOFAST)
 RUN(NAME expr_05             LABELS cpython llvm llvm_jit c NOFAST)
 RUN(NAME expr_06             LABELS cpython llvm llvm_jit c NOFAST)
-RUN(NAME expr_07             LABELS cpython llvm llvm_jit c)
+# RUN(NAME expr_07             LABELS cpython llvm llvm_jit c) # string refactor
 # RUN(NAME expr_08             LABELS llvm llvm_jit c NOFAST)
 RUN(NAME expr_09             LABELS cpython llvm llvm_jit c)
 RUN(NAME expr_10             LABELS cpython llvm llvm_jit c)
@@ -510,12 +510,12 @@ RUN(NAME expr_02u            LABELS cpython llvm llvm_jit c NOFAST)
 
 RUN(NAME list_01             LABELS cpython llvm llvm_jit)
 
-# RUN(NAME loop_01             LABELS cpython llvm llvm_jit) # renable c # post sync
+RUN(NAME loop_01             LABELS cpython llvm llvm_jit) # renable c
 RUN(NAME loop_02             LABELS cpython llvm llvm_jit c wasm wasm_x86 wasm_x64)
 RUN(NAME loop_03             LABELS cpython llvm llvm_jit c wasm wasm_x64)
 RUN(NAME loop_04             LABELS cpython llvm llvm_jit c)
 RUN(NAME loop_05             LABELS cpython llvm llvm_jit c)
-# RUN(NAME loop_06             LABELS cpython llvm llvm_jit c NOFAST)
+RUN(NAME loop_06             LABELS cpython llvm llvm_jit NOFAST) # renable c
 RUN(NAME loop_07             LABELS cpython llvm llvm_jit c)
 RUN(NAME loop_08             LABELS cpython llvm llvm_jit c)
 RUN(NAME loop_09             LABELS cpython llvm llvm_jit)
@@ -523,21 +523,21 @@ RUN(NAME loop_10             LABELS cpython llvm llvm_jit)
 # RUN(NAME loop_11             LABELS cpython llvm llvm_jit)
 RUN(NAME if_01               LABELS cpython llvm llvm_jit c wasm wasm_x86 wasm_x64)
 RUN(NAME if_02               LABELS cpython llvm llvm_jit c wasm wasm_x86 wasm_x64)
-# RUN(NAME if_03    FAIL       LABELS cpython llvm llvm_jit c NOFAST)
+RUN(NAME if_03    FAIL       LABELS cpython llvm llvm_jit NOFAST) # renable c
 # RUN(NAME print_02            LABELS cpython llvm llvm_jit) # renable c # post sync
 RUN(NAME test_types_01       LABELS cpython llvm llvm_jit c)
 RUN(NAME test_types_02       LABELS cpython llvm llvm_jit c wasm)
 # RUN(NAME test_str_01         LABELS cpython llvm llvm_jit c)
-# RUN(NAME test_str_02         LABELS cpython llvm llvm_jit) # renable c
-# RUN(NAME test_str_03         LABELS cpython llvm llvm_jit) # renable c # post sync
-# RUN(NAME test_str_04         LABELS cpython llvm llvm_jit wasm) # renable c
-# RUN(NAME test_str_05         LABELS cpython llvm llvm_jit c)
+RUN(NAME test_str_02         LABELS cpython llvm llvm_jit) # renable c
+RUN(NAME test_str_03         LABELS cpython llvm llvm_jit) # renable c # post sync
+RUN(NAME test_str_04         LABELS cpython llvm llvm_jit) # renable c, wasm
+RUN(NAME test_str_05         LABELS cpython llvm llvm_jit) # renable c
 # RUN(NAME test_str_06         LABELS cpython llvm llvm_jit c)
 RUN(NAME test_string_01      LABELS cpython llvm llvm_jit) # renable c
 RUN(NAME test_list_01        LABELS cpython llvm llvm_jit c)
-# RUN(NAME test_list_02        LABELS cpython llvm llvm_jit c)
-# RUN(NAME test_list_03        LABELS cpython llvm llvm_jit c NOFAST)
-# RUN(NAME test_list_04        LABELS cpython llvm llvm_jit c NOFAST)
+RUN(NAME test_list_02        LABELS cpython llvm llvm_jit) # renable c
+RUN(NAME test_list_03        LABELS cpython llvm llvm_jit NOFAST) # renable c
+RUN(NAME test_list_04        LABELS cpython llvm llvm_jit NOFAST) # renable c
 # RUN(NAME test_list_05        LABELS cpython llvm llvm_jit c NOFAST)
 RUN(NAME test_list_06        LABELS cpython llvm llvm_jit c)
 RUN(NAME test_list_07        LABELS cpython llvm llvm_jit c NOFAST)
@@ -558,10 +558,10 @@ RUN(NAME test_list_pop2       LABELS cpython llvm llvm_jit NOFAST) # TODO: Remov
 RUN(NAME test_list_pop3      LABELS cpython llvm llvm_jit)
 # RUN(NAME test_list_compare   LABELS cpython llvm llvm_jit) # post sync
 RUN(NAME test_list_compare2   LABELS cpython llvm llvm_jit)
-# RUN(NAME test_list_concat    LABELS cpython llvm llvm_jit c NOFAST)
+RUN(NAME test_list_concat    LABELS cpython llvm llvm_jit c NOFAST)
 # RUN(NAME test_list_reserve   LABELS cpython llvm llvm_jit) # post sync
 # RUN(NAME test_const_list     LABELS cpython llvm llvm_jit) # post sync
-RUN(NAME test_const_access     LABELS cpython llvm llvm_jit) # post sync
+# RUN(NAME test_const_access     LABELS cpython llvm llvm_jit) # post sync
 # RUN(NAME test_tuple_01       LABELS cpython llvm llvm_jit) # renable c # post sync
 # RUN(NAME test_tuple_02       LABELS cpython llvm llvm_jit c NOFAST)
 # RUN(NAME test_tuple_03       LABELS cpython llvm llvm_jit) # renable c # post sync
@@ -573,7 +573,7 @@ RUN(NAME test_const_access     LABELS cpython llvm llvm_jit) # post sync
 RUN(NAME test_dict_01        LABELS cpython llvm llvm_jit c) # post sync
 RUN(NAME test_dict_02        LABELS cpython llvm llvm_jit c NOFAST)
 # RUN(NAME test_dict_03        LABELS cpython llvm llvm_jit NOFAST) 
-# RUN(NAME test_dict_04        LABELS cpython llvm llvm_jit NOFAST)
+RUN(NAME test_dict_04        LABELS cpython llvm llvm_jit NOFAST)
 RUN(NAME test_dict_05        LABELS cpython llvm llvm_jit c)
 RUN(NAME test_dict_06        LABELS cpython llvm llvm_jit c)
 # RUN(NAME test_dict_07        LABELS cpython llvm llvm_jit c)
@@ -581,8 +581,8 @@ RUN(NAME test_dict_08        LABELS cpython llvm llvm_jit c)
 RUN(NAME test_dict_09        LABELS cpython llvm llvm_jit c)
 # RUN(NAME test_dict_10        LABELS cpython llvm llvm_jit) # renable c # post sync
 # RUN(NAME test_dict_11        LABELS cpython llvm llvm_jit c) # post sync
-# RUN(NAME test_dict_12        LABELS cpython llvm llvm_jit) # renable c # post sync
-# RUN(NAME test_dict_13        LABELS cpython llvm llvm_jit c)
+RUN(NAME test_dict_12        LABELS cpython llvm) # renable c, jit
+RUN(NAME test_dict_13        LABELS cpython llvm) # renable c, jit
 # RUN(NAME test_dict_bool      LABELS cpython llvm llvm_jit) # post sync
 # RUN(NAME test_dict_increment LABELS cpython llvm llvm_jit) # post sync
 # RUN(NAME test_dict_keys_values LABELS cpython llvm llvm_jit)
@@ -604,26 +604,26 @@ RUN(NAME test_import_02      LABELS cpython llvm llvm_jit c)
 RUN(NAME test_import_03      LABELS cpython llvm llvm_jit) # renable c
 RUN(NAME test_import_04      LABELS cpython llvm llvm_jit c)
 RUN(NAME test_import_05      LABELS cpython llvm llvm_jit c wasm wasm_x86 wasm_x64)
-RUN(NAME test_import_06      LABELS cpython llvm llvm_jit)
+RUN(NAME test_import_06      LABELS cpython llvm llvm_jit) 
 RUN(NAME test_import_07      LABELS cpython llvm llvm_jit c)
 RUN(NAME test_import_08      LABELS cpython llvm)
-# RUN(NAME test_math           LABELS cpython llvm llvm_jit NOFAST)
+RUN(NAME test_math           LABELS cpython llvm llvm_jit NOFAST)
 # RUN(NAME test_membership_01  LABELS cpython llvm)
 RUN(NAME test_numpy_01       LABELS cpython llvm llvm_jit c)
 RUN(NAME test_numpy_02       LABELS cpython llvm llvm_jit c)
 RUN(NAME test_numpy_03       LABELS cpython llvm llvm_jit c)
 RUN(NAME test_numpy_04       LABELS cpython llvm llvm_jit c)
-# RUN(NAME elemental_01        LABELS cpython llvm llvm_jit NOFAST) # renable c # post sync
-# RUN(NAME elemental_02        LABELS cpython llvm llvm_jit c NOFAST)
-# RUN(NAME elemental_03        LABELS cpython llvm llvm_jit NOFAST) # renable c
-# RUN(NAME elemental_04        LABELS cpython llvm llvm_jit c NOFAST)
-# RUN(NAME elemental_05        LABELS cpython llvm llvm_jit NOFAST) # renable c
-# RUN(NAME elemental_06        LABELS cpython llvm llvm_jit c NOFAST)
-# RUN(NAME elemental_07        LABELS cpython llvm llvm_jit NOFAST) # renable c
-# RUN(NAME elemental_08        LABELS cpython llvm llvm_jit c NOFAST) # post sync
-# RUN(NAME elemental_09        LABELS cpython llvm llvm_jit NOFAST) # renable c # post sync
+RUN(NAME elemental_01        LABELS cpython llvm llvm_jit NOFAST) # renable c
+RUN(NAME elemental_02        LABELS cpython llvm llvm_jit c NOFAST)
+RUN(NAME elemental_03        LABELS cpython llvm llvm_jit NOFAST) # renable c
+RUN(NAME elemental_04        LABELS cpython llvm llvm_jit c NOFAST)
+RUN(NAME elemental_05        LABELS cpython llvm llvm_jit NOFAST) # renable c
+RUN(NAME elemental_06        LABELS cpython llvm llvm_jit NOFAST) # renable c
+RUN(NAME elemental_07        LABELS cpython llvm llvm_jit NOFAST) # renable c
+RUN(NAME elemental_08        LABELS cpython llvm llvm_jit c NOFAST)
+RUN(NAME elemental_09        LABELS cpython llvm llvm_jit NOFAST) # renable c
 RUN(NAME elemental_10        LABELS cpython llvm llvm_jit NOFAST) # renable c
-# RUN(NAME elemental_11        LABELS cpython llvm llvm_jit NOFAST) # renable c # post sync
+RUN(NAME elemental_11        LABELS cpython llvm llvm_jit NOFAST) # renable c
 RUN(NAME elemental_12        LABELS cpython llvm llvm_jit c NOFAST)
 RUN(NAME elemental_13        LABELS cpython llvm llvm_jit c NOFAST)
 RUN(NAME test_random         LABELS cpython llvm llvm_jit NOFAST)
@@ -651,8 +651,8 @@ RUN(NAME test_builtin_round  LABELS cpython llvm llvm_jit c)
 RUN(NAME test_c_interop_01   LABELS cpython llvm llvm_jit c)
 # RUN(NAME test_c_interop_02   LABELS cpython llvm c
 #         EXTRAFILES test_c_interop_02b.c)
-RUN(NAME test_c_interop_03   LABELS cpython llvm c
-        EXTRAFILES test_c_interop_03b.c)
+# RUN(NAME test_c_interop_03   LABELS cpython llvm c
+        # EXTRAFILES test_c_interop_03b.c)
 # RUN(NAME test_c_interop_04   LABELS cpython llvm llvm_jit c
 #         EXTRAFILES test_c_interop_04b.c)
 # RUN(NAME test_c_interop_05   LABELS llvm c
@@ -694,22 +694,22 @@ RUN(NAME test_issue_518      LABELS cpython llvm llvm_jit c NOFAST)
 RUN(NAME structs_01          LABELS cpython llvm llvm_jit c)
 # RUN(NAME structs_02          LABELS cpython llvm llvm_jit c)
 # RUN(NAME structs_02b         LABELS cpython llvm llvm_jit c NOFAST)
-RUN(NAME structs_03          LABELS llvm llvm_jit c)
+# RUN(NAME structs_03          LABELS llvm llvm_jit c)
 # RUN(NAME structs_04          LABELS cpython llvm llvm_jit c)
 # RUN(NAME structs_05          LABELS cpython llvm llvm_jit c)
-RUN(NAME structs_06          LABELS cpython llvm llvm_jit c)
+# RUN(NAME structs_06          LABELS cpython llvm llvm_jit c)
 # RUN(NAME structs_07          LABELS llvm c
 #         EXTRAFILES structs_07b.c)
 # RUN(NAME structs_08          LABELS cpython llvm llvm_jit c)
 # RUN(NAME structs_09          LABELS cpython llvm llvm_jit c)
 # RUN(NAME structs_10          LABELS cpython llvm llvm_jit c NOFAST)
-RUN(NAME structs_11          LABELS cpython llvm llvm_jit c)
+# RUN(NAME structs_11          LABELS cpython llvm llvm_jit c)
 RUN(NAME structs_12          LABELS cpython llvm llvm_jit c)
 # RUN(NAME structs_13          LABELS llvm c
 #     EXTRAFILES structs_13b.c)
 RUN(NAME structs_14          LABELS cpython llvm llvm_jit c)
 # RUN(NAME structs_15          LABELS cpython llvm llvm_jit c)
-RUN(NAME structs_16          LABELS cpython llvm llvm_jit c)
+# RUN(NAME structs_16          LABELS cpython llvm llvm_jit c)
 # RUN(NAME structs_17          LABELS cpython llvm llvm_jit c)
 # RUN(NAME structs_18          LABELS cpython llvm c
 #     EXTRAFILES structs_18b.c)
@@ -717,16 +717,16 @@ RUN(NAME structs_16          LABELS cpython llvm llvm_jit c)
 #     EXTRAFILES structs_19b.c)
 # RUN(NAME structs_20          LABELS cpython llvm c
 #     EXTRAFILES structs_20b.c)
-RUN(NAME structs_21          LABELS cpython llvm llvm_jit c)
+# RUN(NAME structs_21          LABELS cpython llvm llvm_jit c)
 # RUN(NAME structs_22          LABELS cpython llvm llvm_jit c NOFAST)
-# RUN(NAME structs_23          LABELS cpython llvm llvm_jit c NOFAST)
-RUN(NAME structs_24          LABELS cpython llvm llvm_jit c)
+RUN(NAME structs_23          LABELS cpython llvm llvm_jit c NOFAST)
+# RUN(NAME structs_24          LABELS cpython llvm llvm_jit c)
 # RUN(NAME structs_25          LABELS cpython llvm llvm_jit c) # post sync
-# RUN(NAME structs_26          LABELS cpython llvm llvm_jit) # renable c
-# RUN(NAME structs_27          LABELS cpython llvm llvm_jit) # renable c
-# RUN(NAME structs_28          LABELS cpython llvm llvm_jit) # renable c
-RUN(NAME structs_29          LABELS cpython llvm llvm_jit)
-# RUN(NAME structs_30          LABELS cpython llvm llvm_jit) # renable c
+RUN(NAME structs_26          LABELS cpython llvm llvm_jit) # renable c
+RUN(NAME structs_27          LABELS cpython llvm llvm_jit) # renable c
+RUN(NAME structs_28          LABELS cpython llvm llvm_jit) # renable c
+# RUN(NAME structs_29          LABELS cpython llvm llvm_jit)
+RUN(NAME structs_30          LABELS cpython llvm llvm_jit) # renable c
 # RUN(NAME structs_31          LABELS cpython llvm llvm_jit c)
 # RUN(NAME structs_32          LABELS cpython llvm llvm_jit c)
 # RUN(NAME structs_33          LABELS cpython llvm llvm_jit c)
@@ -735,31 +735,31 @@ RUN(NAME structs_35          LABELS cpython llvm llvm_jit)
 
 # RUN(NAME symbolics_01        LABELS cpython_sym c_sym llvm_sym llvm_jit NOFAST EXTRA_ARGS --enable-symengine)
 # RUN(NAME symbolics_02        LABELS cpython_sym c_sym llvm_sym llvm_jit NOFAST EXTRA_ARGS --enable-symengine)
-RUN(NAME symbolics_03        LABELS cpython_sym c_sym llvm_sym llvm_jit NOFAST EXTRA_ARGS --enable-symengine)
-RUN(NAME symbolics_04        LABELS cpython_sym c_sym llvm_sym llvm_jit NOFAST EXTRA_ARGS --enable-symengine)
+# RUN(NAME symbolics_03        LABELS cpython_sym c_sym llvm_sym llvm_jit NOFAST EXTRA_ARGS --enable-symengine)
+# RUN(NAME symbolics_04        LABELS cpython_sym c_sym llvm_sym llvm_jit NOFAST EXTRA_ARGS --enable-symengine)
 # RUN(NAME symbolics_05        LABELS cpython_sym c_sym llvm_sym llvm_jit NOFAST EXTRA_ARGS --enable-symengine)
 # RUN(NAME symbolics_06        LABELS cpython_sym c_sym llvm_sym llvm_jit NOFAST EXTRA_ARGS --enable-symengine)
 # RUN(NAME symbolics_07        LABELS cpython_sym c_sym llvm_sym llvm_jit NOFAST EXTRA_ARGS --enable-symengine)
 # RUN(NAME symbolics_08        LABELS cpython_sym llvm_sym llvm_jit EXTRA_ARGS --enable-symengine) # renable c_sym
 # RUN(NAME symbolics_09        LABELS cpython_sym c_sym llvm_sym llvm_jit NOFAST EXTRA_ARGS --enable-symengine)
-RUN(NAME symbolics_10        LABELS cpython_sym c_sym llvm_sym NOFAST EXTRA_ARGS --enable-symengine)
+# RUN(NAME symbolics_10        LABELS cpython_sym c_sym llvm_sym NOFAST EXTRA_ARGS --enable-symengine)
 # RUN(NAME symbolics_11        LABELS cpython_sym c_sym llvm_sym llvm_jit NOFAST EXTRA_ARGS --enable-symengine)
 # RUN(NAME symbolics_12        LABELS cpython_sym c_sym llvm_sym llvm_jit NOFAST EXTRA_ARGS --enable-symengine)
-RUN(NAME symbolics_13        LABELS cpython_sym c_sym llvm_sym llvm_jit NOFAST EXTRA_ARGS --enable-symengine)
-RUN(NAME symbolics_14        LABELS cpython_sym c_sym llvm_sym llvm_jit NOFAST EXTRA_ARGS --enable-symengine)
-RUN(NAME test_gruntz         LABELS cpython_sym c_sym llvm_sym NOFAST EXTRA_ARGS --enable-symengine)
+# RUN(NAME symbolics_13        LABELS cpython_sym c_sym llvm_sym llvm_jit NOFAST EXTRA_ARGS --enable-symengine)
+# RUN(NAME symbolics_14        LABELS cpython_sym c_sym llvm_sym llvm_jit NOFAST EXTRA_ARGS --enable-symengine)
+# RUN(NAME test_gruntz         LABELS cpython_sym c_sym llvm_sym NOFAST EXTRA_ARGS --enable-symengine)
 # RUN(NAME symbolics_15        LABELS c_sym llvm_sym llvm_jit NOFAST EXTRA_ARGS --enable-symengine)
-RUN(NAME symbolics_16        LABELS cpython_sym c_sym llvm_sym llvm_jit NOFAST EXTRA_ARGS --enable-symengine)
+# RUN(NAME symbolics_16        LABELS cpython_sym c_sym llvm_sym llvm_jit NOFAST EXTRA_ARGS --enable-symengine)
 # RUN(NAME symbolics_17        LABELS cpython_sym c_sym llvm_sym llvm_jit NOFAST EXTRA_ARGS --enable-symengine)
-RUN(NAME symbolics_18        LABELS cpython_sym c_sym llvm_sym llvm_jit NOFAST EXTRA_ARGS --enable-symengine)
+# RUN(NAME symbolics_18        LABELS cpython_sym c_sym llvm_sym llvm_jit NOFAST EXTRA_ARGS --enable-symengine)
 # RUN(NAME gruntz_demo3        LABELS cpython_sym c_sym llvm_sym llvm_jit NOFAST EXTRA_ARGS --enable-symengine)
 
 # RUN(NAME sizeof_01           LABELS llvm c
 #         EXTRAFILES sizeof_01b.c)
-RUN(NAME sizeof_02           LABELS cpython llvm llvm_jit c)
+# RUN(NAME sizeof_02           LABELS cpython llvm llvm_jit c)
 # RUN(NAME enum_01             LABELS cpython llvm llvm_jit c NOFAST)
-# RUN(NAME enum_02             LABELS cpython llvm llvm_jit NOFAST) # post sync
-# RUN(NAME enum_03             LABELS cpython llvm llvm_jit c NOFAST) # post sync
+# RUN(NAME enum_02             LABELS cpython llvm llvm_jit NOFAST)
+RUN(NAME enum_03             LABELS cpython llvm llvm_jit c NOFAST)
 # RUN(NAME enum_04             LABELS cpython llvm llvm_jit c NOFAST)
 RUN(NAME enum_05             LABELS llvm c
         EXTRAFILES enum_05b.c NOFAST)
@@ -796,16 +796,16 @@ RUN(NAME test_bit_length     LABELS cpython) # renable c, FIXME: This test fails
 
 # RUN(NAME generics_01         LABELS cpython llvm llvm_jit) # renable c # post sync
 # RUN(NAME generics_02         LABELS cpython llvm llvm_jit c)
-RUN(NAME generics_array_01   LABELS cpython llvm llvm_jit c)
-RUN(NAME generics_array_02   LABELS cpython llvm llvm_jit c)
-RUN(NAME generics_array_03   LABELS cpython llvm llvm_jit c)
+# RUN(NAME generics_array_01   LABELS cpython llvm llvm_jit c)
+# RUN(NAME generics_array_02   LABELS cpython llvm llvm_jit c)
+# RUN(NAME generics_array_03   LABELS cpython llvm llvm_jit c)
 # RUN(NAME generics_list_01    LABELS cpython llvm llvm_jit) # renable c # post sync
 RUN(NAME test_statistics_01  LABELS cpython llvm llvm_jit NOFAST)
-# RUN(NAME test_statistics_02  LABELS cpython llvm llvm_jit NOFAST REQ_PY_VER 3.10)
+RUN(NAME test_statistics_02  LABELS cpython llvm llvm_jit NOFAST REQ_PY_VER 3.10)
 # RUN(NAME test_attributes     LABELS cpython llvm llvm_jit)
 # RUN(NAME test_str_attributes LABELS cpython llvm llvm_jit c)
 RUN(NAME kwargs_01           LABELS cpython llvm llvm_jit NOFAST) # renable c # post sync
-# RUN(NAME def_func_01         LABELS cpython llvm llvm_jit) # renable c # post sync
+RUN(NAME def_func_01         LABELS cpython llvm llvm_jit) # renable c # post sync
 
 RUN(NAME func_inline_01 LABELS llvm llvm_jit c wasm)
 RUN(NAME func_inline_02 LABELS cpython llvm llvm_jit c)

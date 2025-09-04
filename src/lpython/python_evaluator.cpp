@@ -541,23 +541,23 @@ std::string PythonCompiler::aggregate_type_to_string(const struct EvalResult &r)
         print_type(tuple_type->m_type[tuple_type->n_type - 1], ((char*)data)+offsets[tuple_type->n_type - 1], result);
         result += ")";
 
-    } else if (asr_type->type == ASR::ttypeType::StructType) {
-        ASR::StructType_t *class_type = ASR::down_cast<ASR::StructType_t>(asr_type);
-        ASR::Struct_t *struct_info = ASR::down_cast<ASR::Struct_t>(class_type->m_derived_type);
-        LCOMPILERS_ASSERT(class_type->n_data_member_types == struct_info->n_members)
-        result += struct_info->m_name;
-        result += "(";
-        for (size_t i = 0; i < struct_info->n_members - 1; i++) {
-            result += struct_info->m_members[i];
-            result += "=";
-            print_type(class_type->m_data_member_types[i], ((char*)data)+offsets[i], result);
-            result += ", ";
-        }
-        result += struct_info->m_members[struct_info->n_members - 1];
-        result += "=";
-        print_type(class_type->m_data_member_types[struct_info->n_members - 1], ((char*)data)+offsets[struct_info->n_members - 1], result);
-        result += ")";
-
+    /*} else if (asr_type->type == ASR::ttypeType::StructType) {*/
+    /*    ASR::StructType_t *class_type = ASR::down_cast<ASR::StructType_t>(asr_type);*/
+    /*    ASR::Struct_t *struct_info = ASR::down_cast<ASR::Struct_t>(class_type->m_derived_type);*/
+    /*    LCOMPILERS_ASSERT(class_type->n_data_member_types == struct_info->n_members)*/
+    /*    result += struct_info->m_name;*/
+    /*    result += "(";*/
+    /*    for (size_t i = 0; i < struct_info->n_members - 1; i++) {*/
+    /*        result += struct_info->m_members[i];*/
+    /*        result += "=";*/
+    /*        print_type(class_type->m_data_member_types[i], ((char*)data)+offsets[i], result);*/
+    /*        result += ", ";*/
+    /*    }*/
+    /*    result += struct_info->m_members[struct_info->n_members - 1];*/
+    /*    result += "=";*/
+    /*    print_type(class_type->m_data_member_types[struct_info->n_members - 1], ((char*)data)+offsets[struct_info->n_members - 1], result);*/
+    /*    result += ")";*/
+    /**/
     } else {
         throw LCompilersException("PythonCompiler::evaluate(): Return type not supported");
     }

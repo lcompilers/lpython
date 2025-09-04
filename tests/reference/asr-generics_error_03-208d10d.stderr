@@ -1,9 +1,12 @@
-semantic error: Restriction mismatch with provided arguments
-  --> tests/errors/generics_error_03.py:20:1 - 21:16
+semantic error: Type mismatch in procedure call; the types must be compatible
+  --> tests/errors/generics_error_03.py:37:12
    |
-20 |    def add_string(x: i32, y: i32) -> i32:
+37 | print(mean(["a","b","c"], zero=empty_string, add=add_string, div=div_string))
+   |            ^^^^^^^^^^^^^ type mismatch (passed argument type is list[Allocatable[str]] but required type is list[T])
+   |
+26 |    def mean(x: list[T], **kwargs) -> f64:
    |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^...
 ...
    |
-21 |        return x + y
-   | ...^^^^^^^^^^^^^^^^ 
+35 |        return div(res, k)
+   | ...^^^^^^^^^^^^^^^^^^^^^^ type mismatch (passed argument type is list[Allocatable[str]] but required type is list[T])

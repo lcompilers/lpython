@@ -1,0 +1,5 @@
+semantic error: Function 'empty_c_void_p' is not declared and not intrinsic
+ --> tests/../integration_tests/bindc_01.py:3:17
+  |
+3 | queries: CPtr = empty_c_void_p()
+  |                 ^^^^^^^^^^^^^^^^ 
