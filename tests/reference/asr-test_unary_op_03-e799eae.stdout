@@ -113,6 +113,7 @@
                                         (IntegerConstant 5 (Integer 4) Decimal)
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 res)
@@ -122,6 +123,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                         .false.
                                     )
                                     (Assert
@@ -146,6 +148,7 @@
                                             (IntegerConstant -235346 (Integer 4) Decimal)
                                         )
                                         ()
+                                        .false.
                                         .false.
                                     )
                                     (Assert

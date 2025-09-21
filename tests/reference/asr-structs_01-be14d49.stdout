@@ -189,6 +189,7 @@
                                         )
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (Assignment
                                         (StructInstanceMember
@@ -218,6 +219,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                         .false.
                                     )]
                                     ()
@@ -399,6 +401,7 @@
                                         )
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (SubroutineCall
                                         2 f
@@ -454,6 +457,7 @@
                                         (IntegerConstant 5 (Integer 4) Decimal)
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (Assignment
                                         (StructInstanceMember
@@ -475,6 +479,7 @@
                                             )
                                         )
                                         ()
+                                        .false.
                                         .false.
                                     )
                                     (SubroutineCall

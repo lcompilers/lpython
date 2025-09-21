@@ -261,11 +261,13 @@
                                         (IntegerConstant 97 (Integer 4) Decimal)
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 5 q)
                                         (IntegerConstant 112 (Integer 4) Decimal)
                                         ()
+                                        .false.
                                         .false.
                                     )
                                     (Assignment
@@ -273,11 +275,13 @@
                                         (IntegerConstant 10 (Integer 4) Decimal)
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 5 s)
                                         (IntegerConstant 65 (Integer 4) Decimal)
                                         ()
+                                        .false.
                                         .false.
                                     )
                                     (Print
@@ -356,6 +360,7 @@
                                         )
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 5 b)
@@ -364,6 +369,7 @@
                                             (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength DescriptorString)
                                         )
                                         ()
+                                        .false.
                                         .false.
                                     )
                                     (Assignment
@@ -374,6 +380,7 @@
                                         )
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 5 d)
@@ -382,6 +389,7 @@
                                             (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength DescriptorString)
                                         )
                                         ()
+                                        .false.
                                         .false.
                                     )
                                     (Print
@@ -798,6 +806,7 @@
                                         (IntegerConstant 33 (Integer 4) Decimal)
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 4 exclamation)
@@ -809,6 +818,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                         .false.
                                     )
                                     (Assert
@@ -853,6 +863,7 @@
                                         (IntegerConstant 36 (Integer 4) Decimal)
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 4 dollar)
@@ -864,6 +875,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                         .false.
                                     )
                                     (Assert
@@ -908,6 +920,7 @@
                                         (IntegerConstant 40 (Integer 4) Decimal)
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 4 left_parenthesis)
@@ -919,6 +932,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                         .false.
                                     )
                                     (Assert
@@ -963,6 +977,7 @@
                                         (IntegerConstant 43 (Integer 4) Decimal)
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 4 plus)
@@ -974,6 +989,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                         .false.
                                     )
                                     (Assert
@@ -1018,6 +1034,7 @@
                                         (IntegerConstant 48 (Integer 4) Decimal)
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 4 zero)
@@ -1029,6 +1046,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                         .false.
                                     )
                                     (Assert
@@ -1073,6 +1091,7 @@
                                         (IntegerConstant 57 (Integer 4) Decimal)
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 4 nine)
@@ -1084,6 +1103,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                         .false.
                                     )
                                     (Assert
@@ -1128,6 +1148,7 @@
                                         (IntegerConstant 59 (Integer 4) Decimal)
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 4 semicolon)
@@ -1139,6 +1160,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                         .false.
                                     )
                                     (Assert
@@ -1183,6 +1205,7 @@
                                         (IntegerConstant 65 (Integer 4) Decimal)
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 4 capital_a)
@@ -1194,6 +1217,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                         .false.
                                     )
                                     (Assert
@@ -1238,6 +1262,7 @@
                                         (IntegerConstant 90 (Integer 4) Decimal)
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 4 capital_z)
@@ -1249,6 +1274,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                         .false.
                                     )
                                     (Assert
@@ -1293,6 +1319,7 @@
                                         (IntegerConstant 93 (Integer 4) Decimal)
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 4 right_bracket)
@@ -1304,6 +1331,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                         .false.
                                     )
                                     (Assert
@@ -1348,6 +1376,7 @@
                                         (IntegerConstant 97 (Integer 4) Decimal)
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 4 small_a)
@@ -1359,6 +1388,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                         .false.
                                     )
                                     (Assert
@@ -1403,6 +1433,7 @@
                                         (IntegerConstant 122 (Integer 4) Decimal)
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 4 small_z)
@@ -1414,6 +1445,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                         .false.
                                     )
                                     (Assert
@@ -1458,6 +1490,7 @@
                                         (IntegerConstant 125 (Integer 4) Decimal)
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 4 right_brace)
@@ -1469,6 +1502,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                         .false.
                                     )
                                     (Assert
@@ -1841,6 +1875,7 @@
                                         )
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 exclamation_unicode)
@@ -1850,6 +1885,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                         .false.
                                     )
                                     (Assert
@@ -1890,6 +1926,7 @@
                                         )
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 dollar_unicode)
@@ -1899,6 +1936,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                         .false.
                                     )
                                     (Assert
@@ -1939,6 +1977,7 @@
                                         )
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 left_parenthesis_unicode)
@@ -1948,6 +1987,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                         .false.
                                     )
                                     (Assert
@@ -1988,6 +2028,7 @@
                                         )
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 plus_unicode)
@@ -1997,6 +2038,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                         .false.
                                     )
                                     (Assert
@@ -2037,6 +2079,7 @@
                                         )
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 zero_unicode)
@@ -2046,6 +2089,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                         .false.
                                     )
                                     (Assert
@@ -2086,6 +2130,7 @@
                                         )
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 nine_unicode)
@@ -2095,6 +2140,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                         .false.
                                     )
                                     (Assert
@@ -2135,6 +2181,7 @@
                                         )
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 semicolon_unicode)
@@ -2144,6 +2191,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                         .false.
                                     )
                                     (Assert
@@ -2184,6 +2232,7 @@
                                         )
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 capital_a_unicode)
@@ -2193,6 +2242,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                         .false.
                                     )
                                     (Assert
@@ -2233,6 +2283,7 @@
                                         )
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 capital_z_unicode)
@@ -2242,6 +2293,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                         .false.
                                     )
                                     (Assert
@@ -2282,6 +2334,7 @@
                                         )
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 right_bracket_unicode)
@@ -2291,6 +2344,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                         .false.
                                     )
                                     (Assert
@@ -2331,6 +2385,7 @@
                                         )
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 small_a_unicode)
@@ -2340,6 +2395,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                         .false.
                                     )
                                     (Assert
@@ -2380,6 +2436,7 @@
                                         )
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 small_z_unicode)
@@ -2389,6 +2446,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                         .false.
                                     )
                                     (Assert
@@ -2429,6 +2487,7 @@
                                         )
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 right_brace_unicode)
@@ -2438,6 +2497,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                         .false.
                                     )
                                     (Assert

@@ -107,6 +107,7 @@
                                         )
                                         ()
                                         .false.
+                                        .false.
                                     )]
                                     ()
                                     Public
@@ -198,6 +199,7 @@
                                             (IntegerConstant 4 (Integer 4) Decimal)
                                         )
                                         ()
+                                        .false.
                                         .false.
                                     )]
                                     ()
@@ -353,11 +355,13 @@
                                         )
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 4 _lpython_return_variable)
                                         (Var 4 res)
                                         ()
+                                        .false.
                                         .false.
                                     )
                                     (Return)]

@@ -592,17 +592,20 @@
                                         )
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 a)
                                         (IntegerConstant 2 (Integer 4) Decimal)
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 b)
                                         (IntegerConstant 5 (Integer 4) Decimal)
                                         ()
+                                        .false.
                                         .false.
                                     )
                                     (Assert
@@ -633,11 +636,13 @@
                                         (IntegerConstant 6 (Integer 4) Decimal)
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 b)
                                         (IntegerConstant 3 (Integer 4) Decimal)
                                         ()
+                                        .false.
                                         .false.
                                     )
                                     (Assert
@@ -668,11 +673,13 @@
                                         (IntegerConstant 2 (Integer 4) Decimal)
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 b)
                                         (IntegerConstant 0 (Integer 4) Decimal)
                                         ()
+                                        .false.
                                         .false.
                                     )
                                     (Assert
@@ -703,6 +710,7 @@
                                         (IntegerConstant 2 (Integer 4) Decimal)
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 b)
@@ -713,11 +721,13 @@
                                         )
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 a)
                                         (IntegerConstant 6 (Integer 4) Decimal)
                                         ()
+                                        .false.
                                         .false.
                                     )
                                     (Assignment
@@ -728,6 +738,7 @@
                                             (IntegerConstant -4 (Integer 4) Decimal)
                                         )
                                         ()
+                                        .false.
                                         .false.
                                     )
                                     (Assignment
@@ -740,6 +751,7 @@
                                         )
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 i2)
@@ -750,6 +762,7 @@
                                             (IntegerConstant 5 (Integer 8) Decimal)
                                         )
                                         ()
+                                        .false.
                                         .false.
                                     )
                                     (Assert
@@ -790,6 +803,7 @@
                                         )
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 i2)
@@ -804,6 +818,7 @@
                                             (IntegerConstant -3 (Integer 8) Decimal)
                                         )
                                         ()
+                                        .false.
                                         .false.
                                     )
                                     (Assignment
@@ -844,6 +859,7 @@
                                         )
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 f2)
@@ -861,6 +877,7 @@
                                         )
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 p)
@@ -874,6 +891,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                         .false.
                                     )
                                     (Assignment
@@ -889,6 +907,7 @@
                                         )
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 f1)
@@ -903,6 +922,7 @@
                                         )
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 b1)
@@ -912,6 +932,7 @@
                                         )
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 b2)
@@ -920,6 +941,7 @@
                                             (Logical 4)
                                         )
                                         ()
+                                        .false.
                                         .false.
                                     )
                                     (Assert
@@ -1011,6 +1033,7 @@
                                         )
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 a2)
@@ -1019,6 +1042,7 @@
                                             (Real 8)
                                         )
                                         ()
+                                        .false.
                                         .false.
                                     )
                                     (Assert
@@ -1092,6 +1116,7 @@
                                         (IntegerConstant 3 (Integer 4) Decimal)
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 y)
@@ -1100,6 +1125,7 @@
                                             (Real 8)
                                         )
                                         ()
+                                        .false.
                                         .false.
                                     )
                                     (Assert
@@ -1861,6 +1887,7 @@
                                         )
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 j)
@@ -1872,6 +1899,7 @@
                                         )
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 k)
@@ -1882,6 +1910,7 @@
                                             (IntegerConstant 5 (Integer 8) Decimal)
                                         )
                                         ()
+                                        .false.
                                         .false.
                                     )
                                     (Assert
@@ -1934,6 +1963,7 @@
                                         )
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 c1)
@@ -1947,6 +1977,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                         .false.
                                     )]
                                     ()

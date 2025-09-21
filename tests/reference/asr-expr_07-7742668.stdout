@@ -102,6 +102,7 @@
                                         )
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (Print
                                         (StringFormat
@@ -156,6 +157,7 @@
                                             (Logical 4)
                                         )
                                         ()
+                                        .false.
                                         .false.
                                     )
                                     (Assert
@@ -303,17 +305,20 @@
                                         (IntegerConstant 5 (Integer 4) Decimal)
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 4 x)
                                         (IntegerConstant 3 (Integer 4) Decimal)
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 4 x)
                                         (IntegerConstant 5 (Integer 4) Decimal)
                                         ()
+                                        .false.
                                         .false.
                                     )
                                     (Assignment
@@ -326,6 +331,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                         .false.
                                     )
                                     (Print

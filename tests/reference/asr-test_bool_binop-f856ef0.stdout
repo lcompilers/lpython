@@ -177,6 +177,7 @@
                                         )
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (Assert
                                         (IntegerCompare
@@ -214,6 +215,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                         .false.
                                     )
                                     (Assert
@@ -253,6 +255,7 @@
                                         )
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (Assert
                                         (IntegerCompare
@@ -290,6 +293,7 @@
                                         )
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (Assert
                                         (IntegerCompare
@@ -326,6 +330,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                         .false.
                                     )
                                     (Assert
@@ -365,6 +370,7 @@
                                         )
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (Assert
                                         (IntegerCompare
@@ -384,6 +390,7 @@
                                         )
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 b2)
@@ -392,6 +399,7 @@
                                             (Logical 4)
                                         )
                                         ()
+                                        .false.
                                         .false.
                                     )
                                     (Assignment
@@ -414,6 +422,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                         .false.
                                     )
                                     (Assert

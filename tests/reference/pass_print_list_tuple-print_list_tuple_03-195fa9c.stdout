@@ -155,6 +155,7 @@
                                         )
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 x)
@@ -187,6 +188,7 @@
                                         )
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 y)
@@ -201,6 +203,7 @@
                                             )
                                         )
                                         ()
+                                        .false.
                                         .false.
                                     )
                                     (Assignment
@@ -230,6 +233,7 @@
                                             )
                                         )
                                         ()
+                                        .false.
                                         .false.
                                     )
                                     (Print

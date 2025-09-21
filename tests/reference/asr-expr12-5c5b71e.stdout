@@ -121,11 +121,13 @@
                                         )
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 4 _lpython_return_variable)
                                         (Var 4 a)
                                         ()
+                                        .false.
                                         .false.
                                     )
                                     (Return)]
@@ -190,6 +192,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                         .false.
                                     )]
                                     ()
@@ -296,6 +299,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                         .false.
                                     )
                                     (Return)]

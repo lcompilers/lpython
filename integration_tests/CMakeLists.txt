@@ -542,7 +542,7 @@ RUN(NAME test_list_04        LABELS cpython llvm llvm_jit NOFAST) # renable c
 RUN(NAME test_list_06        LABELS cpython llvm llvm_jit c)
 RUN(NAME test_list_07        LABELS cpython llvm llvm_jit c NOFAST)
 RUN(NAME test_list_08        LABELS cpython llvm llvm_jit c NOFAST)
-RUN(NAME test_list_09        LABELS cpython llvm llvm_jit c NOFAST)
+RUN(NAME test_list_09        LABELS cpython llvm llvm_jit NOFAST) # renable c
 # RUN(NAME test_list_10        LABELS cpython llvm llvm_jit c NOFAST)
 # RUN(NAME test_list_11        LABELS cpython llvm llvm_jit c)
 # RUN(NAME test_list_section   LABELS cpython llvm llvm_jit c NOFAST)

@@ -92,6 +92,7 @@
                                         (IntegerConstant 5 (Integer 4) Decimal)
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (Return)]
                                     (Var 3 _lpython_return_variable)
@@ -260,6 +261,7 @@
                                         )
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 5 j)
@@ -273,6 +275,7 @@
                                         )
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 5 __lcompilers_dummy)
@@ -285,6 +288,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                         .false.
                                     )
                                     (SubroutineCall
