@@ -1844,6 +1844,7 @@ int main(int argc, char *argv[])
         bool separate_compilation = false;
         bool to_jit = false;
         bool disable_warnings = false;
+        bool hide_error_banner = false;
 
         std::string arg_fmt_file;
         // int arg_fmt_indent = 4;
@@ -1911,7 +1912,7 @@ int main(int argc, char *argv[])
         app.add_flag("--time-report", time_report, "Show compilation time report");
         app.add_flag("--static", static_link, "Create a static executable");
         app.add_flag("--no-warnings", disable_warnings, "Turn off all warnings");
-        app.add_flag("--no-error-banner", compiler_options.no_error_banner, "Turn off error banner");
+        app.add_flag("--no-error-banner", hide_error_banner, "Turn off error banner");
         app.add_option("--backend", arg_backend, "Select a backend (llvm, cpp, x86, wasm, wasm_x86, wasm_x64)")->capture_default_str();
         app.add_flag("--enable-bounds-checking", compiler_options.bounds_checking, "Turn on index bounds checking");
         app.add_flag("--openmp", compiler_options.openmp, "Enable openmp");
@@ -1991,6 +1992,10 @@ int main(int argc, char *argv[])
 
         if (disable_warnings) {
             compiler_options.show_warnings = false;
+        }
+
+        if (hide_error_banner) {
+            compiler_options.show_error_banner = false;
         }
 
         if (arg_version) {
