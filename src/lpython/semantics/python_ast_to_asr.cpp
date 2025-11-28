@@ -5653,7 +5653,14 @@ public:
             assign_value = ASRUtils::EXPR(tmp);
         }
         for (size_t i=0; i<x.n_targets; i++) {
-            if (AST::is_a<AST::Constant_t>(*x.m_targets[i]) ||
+            if (AST::is_a<AST::ConstantStr_t>(*x.m_targets[i]) ||
+                AST::is_a<AST::ConstantInt_t>(*x.m_targets[i]) ||
+                AST::is_a<AST::ConstantBool_t>(*x.m_targets[i]) ||
+                AST::is_a<AST::ConstantFloat_t>(*x.m_targets[i]) ||
+                AST::is_a<AST::ConstantComplex_t>(*x.m_targets[i]) ||
+                AST::is_a<AST::ConstantEllipsis_t>(*x.m_targets[i]) ||
+                AST::is_a<AST::ConstantNone_t>(*x.m_targets[i]) ||
+                AST::is_a<AST::ConstantBytes_t>(*x.m_targets[i]) ||
                 AST::is_a<AST::Set_t>(*x.m_targets[i]) ||
                 AST::is_a<AST::Dict_t>(*x.m_targets[i])) {
                 throw SemanticError("SyntaxError: cannot assign to literal", x.m_targets[i]->base.loc);
