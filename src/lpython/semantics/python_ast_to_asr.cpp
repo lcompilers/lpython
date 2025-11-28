@@ -5654,6 +5654,11 @@ public:
             assign_value = ASRUtils::EXPR(tmp);
         }
         for (size_t i=0; i<x.n_targets; i++) {
+            if (AST::is_a<AST::Constant_t>(*x.m_targets[i]) ||
+                AST::is_a<AST::Set_t>(*x.m_targets[i]) ||
+                AST::is_a<AST::Dict_t>(*x.m_targets[i])) {
+                throw SemanticError("SyntaxError: cannot assign to literal", x.m_targets[i]->base.loc);
+            }
             tmp_value = assign_value;
             check_is_assign_to_input_param(x.m_targets[i]);
             if (AST::is_a<AST::Subscript_t>(*x.m_targets[i])) {
