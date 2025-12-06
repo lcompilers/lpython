@@ -4872,8 +4872,7 @@ public:
         }
     }
 
-    // --- RESTORED visit_ImportFrom ---
-    // --- 1. The Missing Function (RESTORE THIS) ---
+    // --- 1. RESTORED & FIXED: visit_ImportFrom ---
     void visit_ImportFrom(const AST::ImportFrom_t &x) {
         if (!x.m_module) {
             throw SemanticError("Not implemented: The import statement must currently specify the module name", x.base.base.loc);
@@ -4890,7 +4889,9 @@ public:
         paths.push_back(rl_path);
         paths.push_back(parent_dir);
 
-        bool lpython, enum_py, copy, sympy;
+        // FIX: Initialize bools to false to avoid undefined behavior
+        bool lpython = false, enum_py = false, copy = false, sympy = false;
+        
         set_module_symbol(msym, paths);
         t = (ASR::symbol_t*)(load_module(al, global_scope,
             msym, x.base.base.loc, diag, lm, false, paths, lpython, enum_py, copy, sympy,
@@ -4928,26 +4929,29 @@ public:
             if (x.m_names[j].m_asname) {
                 new_sym_name = ASRUtils::get_mangled_name(m, x.m_names[j].m_asname);
             }
-            ASR::symbol_t *t = import_from_module(al, m, current_scope, msym,
+            
+            // FIX: Renamed 't' to 'imported_sym' to avoid shadowing the outer module pointer 't'
+            ASR::symbol_t *imported_sym = import_from_module(al, m, current_scope, msym,
                                         remote_sym, new_sym_name, x.m_names[i].loc, true);
+                                        
             if (current_scope->get_scope().find(new_sym_name) != current_scope->get_scope().end()) {
                 ASR::symbol_t *old_sym = current_scope->get_scope().find(new_sym_name)->second;
                 diag.add(diag::Diagnostic(
                     "The symbol '" + new_sym_name + "' imported from " + std::string(m->m_name) +" will shadow the existing symbol '" + new_sym_name + "'",
                     diag::Level::Warning, diag::Stage::Semantic, {
                         diag::Label("old symbol", {old_sym->base.loc}),
-                        diag::Label("new symbol", {t->base.loc}),
+                        diag::Label("new symbol", {imported_sym->base.loc}),
                     })
                 );
-                current_scope->overwrite_symbol(new_sym_name, t);
+                current_scope->overwrite_symbol(new_sym_name, imported_sym);
             } else {
-                current_scope->add_symbol(new_sym_name, t);
+                current_scope->add_symbol(new_sym_name, imported_sym);
             }
         }
         tmp = nullptr;
     }
 
-    // --- 2. Your Fixed Function (CORRECT VERSION WITHOUT 'ELSE') ---
+    // --- 2. FIXED: visit_Import (Safe Bools + No Else) ---
     void visit_Import(const AST::Import_t &x) {
         ASR::symbol_t *t = nullptr;
         std::string rl_path = get_runtime_library_dir();
@@ -4962,7 +4966,9 @@ public:
             std::string mod_sym = x.m_names[i].m_name;
             char* alias = x.m_names[i].m_asname; 
 
-            bool lpython, enum_py, copy, sympy;
+            // FIX: Initialize bools
+            bool lpython = false, enum_py = false, copy = false, sympy = false;
+            
             set_module_symbol(mod_sym, paths);
             
             t = (ASR::symbol_t*)(load_module(al, global_scope,
@@ -4990,18 +4996,27 @@ public:
                 current_module_dependencies.push_back(al, s2c(al, mod_sym));
             }
 
-            // ALIAS LOGIC (No else block!)
+            // ALIAS LOGIC
             if (alias) {
                 std::string alias_str = std::string(alias);
                 if (current_scope->get_symbol(alias_str) == nullptr) {
+                    // Note: Using the signature that matches your local libasr version
                     ASR::asr_t *ext_sym = ASR::make_ExternalSymbol_t(
-                        al, x.base.base.loc, current_scope,
-                        s2c(al, alias_str), t, s2c(al, mod_sym),
-                        nullptr, 0, s2c(al, mod_sym), ASR::accessType::Public
+                        al, 
+                        x.base.base.loc, 
+                        current_scope,
+                        s2c(al, alias_str), 
+                        t, 
+                        s2c(al, mod_sym),
+                        nullptr, 
+                        0, 
+                        s2c(al, mod_sym), 
+                        ASR::accessType::Public
                     );
                     current_scope->add_symbol(alias_str, ASR::down_cast<ASR::symbol_t>(ext_sym));
                 }
             }
+            // NO ELSE BLOCK: Standard imports are handled by load_module logic implicitly.
         }
     }
 
