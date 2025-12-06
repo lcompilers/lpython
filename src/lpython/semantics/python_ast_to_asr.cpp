@@ -4873,6 +4873,7 @@ public:
     }
 
     // --- RESTORED visit_ImportFrom ---
+    // --- 1. The Missing Function (RESTORE THIS) ---
     void visit_ImportFrom(const AST::ImportFrom_t &x) {
         if (!x.m_module) {
             throw SemanticError("Not implemented: The import statement must currently specify the module name", x.base.base.loc);
@@ -4945,7 +4946,8 @@ public:
         }
         tmp = nullptr;
     }
-    // --- YOUR FIXED visit_Import ---
+
+    // --- 2. Your Fixed Function (CORRECT VERSION WITHOUT 'ELSE') ---
     void visit_Import(const AST::Import_t &x) {
         ASR::symbol_t *t = nullptr;
         std::string rl_path = get_runtime_library_dir();
@@ -4988,6 +4990,7 @@ public:
                 current_module_dependencies.push_back(al, s2c(al, mod_sym));
             }
 
+            // ALIAS LOGIC (No else block!)
             if (alias) {
                 std::string alias_str = std::string(alias);
                 if (current_scope->get_symbol(alias_str) == nullptr) {
