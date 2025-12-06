@@ -4872,6 +4872,7 @@ public:
         }
     }
 
+    // --- RESTORED visit_ImportFrom ---
     void visit_ImportFrom(const AST::ImportFrom_t &x) {
         if (!x.m_module) {
             throw SemanticError("Not implemented: The import statement must currently specify the module name", x.base.base.loc);
@@ -4879,43 +4880,39 @@ public:
         std::string msym = x.m_module; // Module name
 
         // Get the module, for now assuming it is not loaded, so we load it:
-        ASR::symbol_t *t = nullptr; // current_scope->parent->resolve_symbol(msym);
-        if (!t) {
-            std::string rl_path = get_runtime_library_dir();
-            std::vector<std::string> paths;
-            for (auto &path:import_paths) {
-                paths.push_back(path);
-            }
-            paths.push_back(rl_path);
-            paths.push_back(parent_dir);
+        ASR::symbol_t *t = nullptr; 
+        std::string rl_path = get_runtime_library_dir();
+        std::vector<std::string> paths;
+        for (auto &path:import_paths) {
+            paths.push_back(path);
+        }
+        paths.push_back(rl_path);
+        paths.push_back(parent_dir);
 
-            bool lpython, enum_py, copy, sympy;
-            set_module_symbol(msym, paths);
-            t = (ASR::symbol_t*)(load_module(al, global_scope,
-                msym, x.base.base.loc, diag, lm, false, paths, lpython, enum_py, copy, sympy,
-                [&](const std::string &msg, const Location &loc) { throw SemanticError(msg, loc); },
-                allow_implicit_casting));
-            if (lpython || enum_py || copy || sympy) {
-                // TODO: For now we skip lpython import completely. Later on we should note what symbols
-                // got imported from it, and give an error message if an annotation is used without
-                // importing it.
-                tmp = nullptr;
-                return;
-            }
-            if (!t) {
-                throw SemanticError("The module '" + msym + "' cannot be loaded",
-                        x.base.base.loc);
-            }
-            if( msym == "__init__" ) {
-                for( auto item: ASRUtils::symbol_symtab(t)->get_scope() ) {
-                    if( ASR::is_a<ASR::ExternalSymbol_t>(*item.second) ) {
-                        current_module_dependencies.push_back(al,
-                            ASR::down_cast<ASR::ExternalSymbol_t>(item.second)->m_module_name);
-                    }
+        bool lpython, enum_py, copy, sympy;
+        set_module_symbol(msym, paths);
+        t = (ASR::symbol_t*)(load_module(al, global_scope,
+            msym, x.base.base.loc, diag, lm, false, paths, lpython, enum_py, copy, sympy,
+            [&](const std::string &msg, const Location &loc) { throw SemanticError(msg, loc); },
+            allow_implicit_casting));
+
+        if (lpython || enum_py || copy || sympy) {
+            tmp = nullptr;
+            return;
+        }
+        if (!t) {
+            throw SemanticError("The module '" + msym + "' cannot be loaded",
+                    x.base.base.loc);
+        }
+        if( msym == "__init__" ) {
+            for( auto item: ASRUtils::symbol_symtab(t)->get_scope() ) {
+                if( ASR::is_a<ASR::ExternalSymbol_t>(*item.second) ) {
+                    current_module_dependencies.push_back(al,
+                        ASR::down_cast<ASR::ExternalSymbol_t>(item.second)->m_module_name);
                 }
-            } else {
-                current_module_dependencies.push_back(al, s2c(al, msym));
             }
+        } else {
+            current_module_dependencies.push_back(al, s2c(al, msym));
         }
 
         ASR::Module_t *m = ASR::down_cast<ASR::Module_t>(t);
@@ -4931,7 +4928,7 @@ public:
                 new_sym_name = ASRUtils::get_mangled_name(m, x.m_names[j].m_asname);
             }
             ASR::symbol_t *t = import_from_module(al, m, current_scope, msym,
-                                remote_sym, new_sym_name, x.m_names[i].loc, true);
+                                        remote_sym, new_sym_name, x.m_names[i].loc, true);
             if (current_scope->get_scope().find(new_sym_name) != current_scope->get_scope().end()) {
                 ASR::symbol_t *old_sym = current_scope->get_scope().find(new_sym_name)->second;
                 diag.add(diag::Diagnostic(
@@ -4946,10 +4943,9 @@ public:
                 current_scope->add_symbol(new_sym_name, t);
             }
         }
-
         tmp = nullptr;
     }
-
+    // --- YOUR FIXED visit_Import ---
     void visit_Import(const AST::Import_t &x) {
         ASR::symbol_t *t = nullptr;
         std::string rl_path = get_runtime_library_dir();
@@ -4992,115 +4988,15 @@ public:
                 current_module_dependencies.push_back(al, s2c(al, mod_sym));
             }
 
-            // --- ALIAS LOGIC (FIXED) ---
             if (alias) {
                 std::string alias_str = std::string(alias);
-                
                 if (current_scope->get_symbol(alias_str) == nullptr) {
-                    
-                    // The Corrected Constructor Call
                     ASR::asr_t *ext_sym = ASR::make_ExternalSymbol_t(
-                        al, 
-                        x.base.base.loc,
-                        current_scope,               // Parent Symbol Table
-                        s2c(al, alias_str),          // Name: "np"
-                        t,                           // Symbol: Pointer to numpy module
-                        s2c(al, mod_sym),            // Module Name: "numpy"
-                        nullptr,                     // scope_names (dependencies)
-                        0,                           // n_scope_names (MUST BE 0, NOT nullptr)
-                        s2c(al, mod_sym),            // original_name: "numpy"
-                        ASR::accessType::Public      // Access
+                        al, x.base.base.loc, current_scope,
+                        s2c(al, alias_str), t, s2c(al, mod_sym),
+                        nullptr, 0, s2c(al, mod_sym), ASR::accessType::Public
                     );
-                    
                     current_scope->add_symbol(alias_str, ASR::down_cast<ASR::symbol_t>(ext_sym));
-                }
-            } else {
-                if (current_scope->get_symbol(mod_sym) == nullptr) {
-                    current_scope->add_symbol(mod_sym, t);
-                }
-            }
-        }
-    }
-
-    void visit_AugAssign(const AST::AugAssign_t &/*x*/) {
-        // We skip this in the SymbolTable visitor, but visit it in the BodyVisitor
-    }
-
-    void visit_AnnAssign(const AST::AnnAssign_t &/*x*/) {
-        // We skip this in the SymbolTable visitor, but visit it in the BodyVisitor
-    }
-
-    void visit_Assign(const AST::Assign_t &x) {
-        /**
-         *  Type variables have to be put in the symbol table before checking function definitions.
-         *  This describes a different treatment for Assign in the form of `T = TypeVar('T', ...)`
-         */
-        if (x.n_targets == 1 && AST::is_a<AST::Call_t>(*x.m_value)) {
-            AST::Call_t *rh = AST::down_cast<AST::Call_t>(x.m_value);
-            if (AST::is_a<AST::Name_t>(*rh->m_func)) {
-                AST::Name_t *tv = AST::down_cast<AST::Name_t>(rh->m_func);
-                std::string f_name = tv->m_id;
-                if (strcmp(s2c(al, f_name), "TypeVar") == 0 &&
-                        rh->n_args > 0 && AST::is_a<AST::ConstantStr_t>(*rh->m_args[0])) {
-                    if (AST::is_a<AST::Name_t>(*x.m_targets[0])) {
-                        std::string tvar_name = AST::down_cast<AST::Name_t>(x.m_targets[0])->m_id;
-                        // Check if the type variable name is a reserved type keyword
-                        const char* type_list[15]
-                            = { "list", "set", "dict", "tuple",
-                                "i8", "i16", "i32", "i64", "f32",
-                                "f64", "c32", "c64", "str", "bool", "i1"};
-                        for (int i = 0; i < 15; i++) {
-                            if (strcmp(s2c(al, tvar_name), type_list[i]) == 0) {
-                                throw SemanticError(tvar_name + " is a reserved type, consider a different type variable name",
-                                    x.base.base.loc);
-                            }
-                        }
-                        // Check if the type variable is already defined
-                        if (current_scope->get_scope().find(tvar_name) !=
-                                current_scope->get_scope().end()) {
-                            ASR::symbol_t *orig_decl = current_scope->get_symbol(tvar_name);
-                            throw SemanticError(diag::Diagnostic(
-                                "Variable " + tvar_name + " is already declared in the same scope",
-                                diag::Level::Error, diag::Stage::Semantic, {
-                                    diag::Label("original declaration", {orig_decl->base.loc}, false),
-                                    diag::Label("redeclaration", {x.base.base.loc}),
-                            }));
-                        }
-
-                        // Build ttype
-                        Vec<ASR::dimension_t> dims;
-                        dims.reserve(al, 4);
-
-                        ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_TypeParameter_t(al, x.base.base.loc,
-                            s2c(al, tvar_name)));
-                        type = ASRUtils::make_Array_t_util(al, x.base.base.loc, type, dims.p, dims.size());
-
-                        ASR::expr_t *value = nullptr;
-                        ASR::expr_t *init_expr = nullptr;
-                        ASR::intentType s_intent = ASRUtils::intent_local;
-                        ASR::storage_typeType storage_type = ASR::storage_typeType::Default;
-                        ASR::abiType current_procedure_abi_type = ASR::abiType::Source;
-                        ASR::accessType s_access = ASR::accessType::Public;
-                        ASR::presenceType s_presence = ASR::presenceType::Required;
-                        bool value_attr = false;
-
-                        SetChar variable_dependencies_vec;
-                        variable_dependencies_vec.reserve(al, 1);
-                        ASRUtils::collect_variable_dependencies(al, variable_dependencies_vec, type, init_expr, value);
-                        // Build the variable and add it to the scope
-                        ASR::asr_t *v = ASR::make_Variable_t(al, x.base.base.loc, current_scope,
-                            s2c(al, tvar_name), variable_dependencies_vec.p, variable_dependencies_vec.size(),
-                            s_intent, init_expr, value, storage_type, type, nullptr, current_procedure_abi_type,
-                            s_access, s_presence, value_attr, false, false, nullptr, false, false);
-                        current_scope->add_symbol(tvar_name, ASR::down_cast<ASR::symbol_t>(v));
-
-                        tmp = nullptr;
-
-                        return;
-                    } else {
-                        // This error might need to be further elaborated
-                        throw SemanticError("Type variable must be a variable", x.base.base.loc);
-                    }
                 }
             }
         }
