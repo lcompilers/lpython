@@ -4959,21 +4959,20 @@ public:
         }
         paths.push_back(rl_path);
         paths.push_back(parent_dir);
-        std::vector<std::string> mods;
+
         for (size_t i=0; i<x.n_names; i++) {
-            mods.push_back(x.m_names[i].m_name);
-        }
-        for (auto &mod_sym : mods) {
+            std::string mod_sym = x.m_names[i].m_name;
+            char* alias = x.m_names[i].m_asname; 
+
             bool lpython, enum_py, copy, sympy;
             set_module_symbol(mod_sym, paths);
+            
             t = (ASR::symbol_t*)(load_module(al, global_scope,
                 mod_sym, x.base.base.loc, diag, lm, false, paths, lpython, enum_py, copy, sympy,
                 [&](const std::string &msg, const Location &loc) { throw SemanticError(msg, loc); },
                 allow_implicit_casting));
+
             if (lpython || enum_py || copy || sympy) {
-                // TODO: For now we skip lpython import completely. Later on we should note what symbols
-                // got imported from it, and give an error message if an annotation is used without
-                // importing it.
                 tmp = nullptr;
                 continue;
             }
@@ -4981,6 +4980,7 @@ public:
                 throw SemanticError("The module '" + mod_sym + "' cannot be loaded",
                         x.base.base.loc);
             }
+
             if( mod_sym == "__init__" ) {
                 for( auto item: ASRUtils::symbol_symtab(t)->get_scope() ) {
                     if( ASR::is_a<ASR::ExternalSymbol_t>(*item.second) ) {
@@ -4990,6 +4990,34 @@ public:
                 }
             } else {
                 current_module_dependencies.push_back(al, s2c(al, mod_sym));
+            }
+
+            // --- ALIAS LOGIC (FIXED) ---
+            if (alias) {
+                std::string alias_str = std::string(alias);
+                
+                if (current_scope->get_symbol(alias_str) == nullptr) {
+                    
+                    // The Corrected Constructor Call
+                    ASR::asr_t *ext_sym = ASR::make_ExternalSymbol_t(
+                        al, 
+                        x.base.base.loc,
+                        current_scope,               // Parent Symbol Table
+                        s2c(al, alias_str),          // Name: "np"
+                        t,                           // Symbol: Pointer to numpy module
+                        s2c(al, mod_sym),            // Module Name: "numpy"
+                        nullptr,                     // scope_names (dependencies)
+                        0,                           // n_scope_names (MUST BE 0, NOT nullptr)
+                        s2c(al, mod_sym),            // original_name: "numpy"
+                        ASR::accessType::Public      // Access
+                    );
+                    
+                    current_scope->add_symbol(alias_str, ASR::down_cast<ASR::symbol_t>(ext_sym));
+                }
+            } else {
+                if (current_scope->get_symbol(mod_sym) == nullptr) {
+                    current_scope->add_symbol(mod_sym, t);
+                }
             }
         }
     }
