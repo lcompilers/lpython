@@ -36,6 +36,7 @@
                                         ()
                                         []
                                         ()
+                                        .false.
                                     )]
                                     ()
                                     Public
@@ -2201,6 +2202,7 @@
                                             ()
                                         ))]
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 227 d)
@@ -2396,6 +2398,7 @@
                                             ()
                                         ))]
                                         ()
+                                        .false.
                                     )]
                                     ()
                                     Public
@@ -2436,6 +2439,7 @@
                         2 __main__global_stmts
                         []
                         ()
+                        .false.
                     )]
                 ),
             numpy:

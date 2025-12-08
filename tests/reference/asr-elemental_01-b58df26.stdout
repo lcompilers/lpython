@@ -40,30 +40,35 @@
                                         ()
                                         []
                                         ()
+                                        .false.
                                     )
                                     (SubroutineCall
                                         2 elemental_cos
                                         ()
                                         []
                                         ()
+                                        .false.
                                     )
                                     (SubroutineCall
                                         2 elemental_trig_identity
                                         ()
                                         []
                                         ()
+                                        .false.
                                     )
                                     (SubroutineCall
                                         2 elemental_sum
                                         ()
                                         []
                                         ()
+                                        .false.
                                     )
                                     (SubroutineCall
                                         2 elemental_mul
                                         ()
                                         []
                                         ()
+                                        .false.
                                     )]
                                     ()
                                     Public
@@ -420,6 +425,7 @@
                                         ((IntegerConstant 256 (Integer 4) Decimal))
                                         ((IntegerConstant 64 (Integer 4) Decimal))]
                                         ()
+                                        .false.
                                     )]
                                     ()
                                     Public
@@ -871,6 +877,7 @@
                                         ))
                                         ((IntegerConstant 100 (Integer 4) Decimal))]
                                         ()
+                                        .false.
                                     )]
                                     ()
                                     Public
@@ -1261,6 +1268,7 @@
                                         ))
                                         ((IntegerConstant 256 (Integer 4) Decimal))]
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 232 arraynd)
@@ -1512,6 +1520,7 @@
                                         ((IntegerConstant 64 (Integer 4) Decimal))
                                         ((IntegerConstant 16 (Integer 4) Decimal))]
                                         ()
+                                        .false.
                                     )]
                                     ()
                                     Public
@@ -1963,6 +1972,7 @@
                                         ))
                                         ((IntegerConstant 100 (Integer 4) Decimal))]
                                         ()
+                                        .false.
                                     )]
                                     ()
                                     Public
@@ -4402,6 +4412,7 @@
                         2 __main__global_stmts
                         []
                         ()
+                        .false.
                     )]
                 ),
             numpy:

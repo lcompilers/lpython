@@ -14,6 +14,9 @@ define void @__module___main_____main__global_stmts() {
   br label %return
 
 return:                                           ; preds = %.entry
+  br label %FINALIZE_SYMTABLE___main__global_stmts
+
+FINALIZE_SYMTABLE___main__global_stmts:           ; preds = %return
   ret void
 }
 
@@ -54,6 +57,9 @@ unreachable_after_return2:                        ; No predecessors!
   br label %return
 
 return:                                           ; preds = %unreachable_after_return2, %ifcont, %then
+  br label %FINALIZE_SYMTABLE_fib
+
+FINALIZE_SYMTABLE_fib:                            ; preds = %return
   %10 = load i64, i64* %_lpython_return_variable, align 4
   ret i64 %10
 }
@@ -79,6 +85,7 @@ define void @__module___main____xx_lcompilers_changed_main_xx() {
   %9 = load i64, i64* %8, align 4
   %10 = trunc i64 %9 to i32
   call void @_lfortran_printf(i8* getelementptr inbounds ([5 x i8], [5 x i8]* @1, i32 0, i32 0), i8* %7, i32 %10, i8* getelementptr inbounds ([2 x i8], [2 x i8]* @0, i32 0, i32 0), i32 1)
+  call void @_lfortran_free(i8* %2)
   %11 = load i64, i64* %ans, align 4
   %12 = icmp eq i64 %11, 102334155
   br i1 %12, label %then, label %else
@@ -95,12 +102,17 @@ ifcont:                                           ; preds = %else, %then
   br label %return
 
 return:                                           ; preds = %ifcont
+  br label %FINALIZE_SYMTABLE_main
+
+FINALIZE_SYMTABLE_main:                           ; preds = %return
   ret void
 }
 
 declare i8* @_lcompilers_string_format_fortran(i8*, i64, i8*, i64*, i32, i32, ...)
 
 declare void @_lfortran_printf(i8*, i8*, i32, i8*, i32)
+
+declare void @_lfortran_free(i8*)
 
 declare void @_lcompilers_print_error(i8*, ...)
 
@@ -114,6 +126,9 @@ define i32 @main(i32 %0, i8** %1) {
   br label %return
 
 return:                                           ; preds = %.entry
+  br label %FINALIZE_SYMTABLE_main_program
+
+FINALIZE_SYMTABLE_main_program:                   ; preds = %return
   ret i32 0
 }
 

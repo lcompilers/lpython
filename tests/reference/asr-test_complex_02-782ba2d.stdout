@@ -36,6 +36,7 @@
                                         ()
                                         []
                                         ()
+                                        .false.
                                     )]
                                     ()
                                     Public
@@ -74,18 +75,21 @@
                                         ()
                                         []
                                         ()
+                                        .false.
                                     )
                                     (SubroutineCall
                                         2 test_complex_binop_32
                                         ()
                                         []
                                         ()
+                                        .false.
                                     )
                                     (SubroutineCall
                                         2 test_complex_binop_64
                                         ()
                                         []
                                         ()
+                                        .false.
                                     )]
                                     ()
                                     Public
@@ -788,6 +792,7 @@
                         2 __main__global_stmts
                         []
                         ()
+                        .false.
                     )]
                 )
         })

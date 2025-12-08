@@ -111,7 +111,7 @@ Result<PythonCompiler::EvalResult> PythonCompiler::evaluate(
     run_fn = module_name + "global_stmts_" + std::to_string(eval_count) + "__";
 
     Result<std::unique_ptr<LLVMModule>> res3 = get_llvm3(*asr,
-        pass_manager, diagnostics, lm.files.back().in_filename);
+        pass_manager, diagnostics, lm, lm.files.back().in_filename);
     std::unique_ptr<LCompilers::LLVMModule> m;
     if (res3.ok) {
         m = std::move(res3.result);
@@ -419,7 +419,7 @@ Result<std::unique_ptr<LLVMModule>> PythonCompiler::get_llvm2(
         return asr.error;
     }
     Result<std::unique_ptr<LLVMModule>> res = get_llvm3(*asr.result, pass_manager,
-        diagnostics, lm.files.back().in_filename);
+        diagnostics, lm, lm.files.back().in_filename);
     if (res.ok) {
 #ifdef HAVE_LFORTRAN_LLVM
         std::unique_ptr<LLVMModule> m = std::move(res.result);
@@ -437,10 +437,10 @@ Result<std::unique_ptr<LLVMModule>> PythonCompiler::get_llvm2(
 Result<std::unique_ptr<LLVMModule>> PythonCompiler::get_llvm3(
 #ifdef HAVE_LFORTRAN_LLVM
     ASR::TranslationUnit_t &asr, LCompilers::PassManager& lpm,
-    diag::Diagnostics &diagnostics, const std::string &infile
+    diag::Diagnostics &diagnostics, LCompilers::LocationManager &lm, const std::string &infile
 #else
     ASR::TranslationUnit_t &/*asr*/, LCompilers::PassManager&/*lpm*/,
-    diag::Diagnostics &/*diagnostics*/,const std::string &/*infile*/
+    diag::Diagnostics &/*diagnostics*/, LCompilers::LocationManager & /*lm*/, const std::string &/*infile*/
 #endif
     )
 {
@@ -463,7 +463,7 @@ Result<std::unique_ptr<LLVMModule>> PythonCompiler::get_llvm3(
     Result<std::unique_ptr<LCompilers::LLVMModule>> res
         = asr_to_llvm(asr, diagnostics,
             e->get_context(), al, lpm, compiler_options,
-            run_fn, global_underscore_name, infile);
+            run_fn, global_underscore_name, infile, lm);
     if (res.ok) {
         m = std::move(res.result);
     } else {

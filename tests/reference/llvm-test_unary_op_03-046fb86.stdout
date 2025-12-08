@@ -10,6 +10,9 @@ define void @__module___main_____main__global_stmts() {
   br label %return
 
 return:                                           ; preds = %.entry
+  br label %FINALIZE_SYMTABLE___main__global_stmts
+
+FINALIZE_SYMTABLE___main__global_stmts:           ; preds = %return
   ret void
 }
 
@@ -52,6 +55,9 @@ ifcont3:                                          ; preds = %else2, %then1
   br label %return
 
 return:                                           ; preds = %ifcont3
+  br label %FINALIZE_SYMTABLE_f
+
+FINALIZE_SYMTABLE_f:                              ; preds = %return
   ret void
 }
 
@@ -67,6 +73,9 @@ define i32 @main(i32 %0, i8** %1) {
   br label %return
 
 return:                                           ; preds = %.entry
+  br label %FINALIZE_SYMTABLE_main_program
+
+FINALIZE_SYMTABLE_main_program:                   ; preds = %return
   ret i32 0
 }
 

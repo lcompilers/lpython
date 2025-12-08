@@ -36,6 +36,7 @@
                                         ()
                                         []
                                         ()
+                                        .false.
                                     )]
                                     ()
                                     Public
@@ -296,6 +297,7 @@
                                         ()
                                         [((Var 5 i))]
                                         ()
+                                        .false.
                                     )]
                                     ()
                                     Public
@@ -334,6 +336,7 @@
                         2 __main__global_stmts
                         []
                         ()
+                        .false.
                     )]
                 )
         })

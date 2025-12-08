@@ -105,6 +105,7 @@
                                         ()
                                         []
                                         ()
+                                        .false.
                                     )]
                                     ()
                                     Public
@@ -408,6 +409,7 @@
                                         ()
                                         [((Var 6 x))]
                                         ()
+                                        .false.
                                     )
                                     (Assert
                                         (IntegerCompare
@@ -487,6 +489,7 @@
                                         ()
                                         [((Var 6 x))]
                                         ()
+                                        .false.
                                     )
                                     (Assert
                                         (IntegerCompare
@@ -531,6 +534,7 @@
                                         ()
                                         [((Var 6 x))]
                                         ()
+                                        .false.
                                     )
                                     (Assert
                                         (IntegerCompare
@@ -607,6 +611,7 @@
                         2 __main__global_stmts
                         []
                         ()
+                        .false.
                     )]
                 )
         })

@@ -37,12 +37,14 @@
                                         ()
                                         []
                                         ()
+                                        .false.
                                     )
                                     (SubroutineCall
                                         2 bool_to_str
                                         ()
                                         []
                                         ()
+                                        .false.
                                     )]
                                     ()
                                     Public
@@ -373,6 +375,7 @@
                                             ()
                                         ))]
                                         ()
+                                        .false.
                                     )]
                                     ()
                                     Public
@@ -493,6 +496,7 @@
                         2 __main__global_stmts
                         []
                         ()
+                        .false.
                     )]
                 )
         })

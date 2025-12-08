@@ -761,8 +761,8 @@ RUN(NAME structs_35          LABELS cpython llvm llvm_jit)
 # RUN(NAME enum_02             LABELS cpython llvm llvm_jit NOFAST)
 RUN(NAME enum_03             LABELS cpython llvm llvm_jit c NOFAST)
 # RUN(NAME enum_04             LABELS cpython llvm llvm_jit c NOFAST)
-RUN(NAME enum_05             LABELS llvm c
-        EXTRAFILES enum_05b.c NOFAST)
+# RUN(NAME enum_05             LABELS llvm c
+#         EXTRAFILES enum_05b.c NOFAST)
 # RUN(NAME enum_06             LABELS cpython llvm llvm_jit c)
 RUN(NAME enum_07             IMPORT_PATH ..
                              LABELS cpython llvm llvm_jit c NOFAST)

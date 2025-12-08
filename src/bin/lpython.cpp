@@ -791,7 +791,7 @@ int emit_llvm(const std::string &infile,
     // ASR -> LLVM
     LCompilers::PythonCompiler fe(compiler_options);
     LCompilers::Result<std::unique_ptr<LCompilers::LLVMModule>>
-        res = fe.get_llvm3(*asr, pass_manager, diagnostics, infile);
+        res = fe.get_llvm3(*asr, pass_manager, diagnostics, lm, infile);
     std::cerr << diagnostics.render(lm, compiler_options);
     if (!res.ok) {
         LCOMPILERS_ASSERT(diagnostics.has_error())
@@ -1118,7 +1118,7 @@ int compile_python_using_llvm(
     LCompilers::LLVMEvaluator e(compiler_options.target);
     auto asr_to_llvm_start = std::chrono::high_resolution_clock::now();
     LCompilers::Result<std::unique_ptr<LCompilers::LLVMModule>>
-        res = fe.get_llvm3(*asr, pass_manager, diagnostics, infile);
+        res = fe.get_llvm3(*asr, pass_manager, diagnostics, lm, infile);
     auto asr_to_llvm_end = std::chrono::high_resolution_clock::now();
     times.push_back(std::make_pair("ASR to LLVM", std::chrono::duration<double, std::milli>(asr_to_llvm_end - asr_to_llvm_start).count()));
 

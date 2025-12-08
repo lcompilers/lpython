@@ -5324,7 +5324,7 @@ public:
                         ASR::symbol_t* call_sym = get_struct_member(parent_sym,call_name,loc);
                         super_call_stmt = ASRUtils::STMT(
                             ASR::make_SubroutineCall_t(al, loc, call_sym, call_sym, args_w_first.p,
-                                                        args_w_first.size(), nullptr));
+                                                        args_w_first.size(), nullptr, true));
                 }
             } else {
                 body.push_back(al, x.m_body[i]);

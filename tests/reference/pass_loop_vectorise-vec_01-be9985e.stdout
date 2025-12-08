@@ -36,6 +36,7 @@
                                         ()
                                         []
                                         ()
+                                        .false.
                                     )]
                                     ()
                                     Public
@@ -547,6 +548,7 @@
                                             ((IntegerConstant 1 (Integer 4) Decimal))
                                             ((IntegerConstant 8 (Integer 4) Decimal))]
                                             ()
+                                            .false.
                                         )]
                                         []
                                     )
@@ -624,6 +626,7 @@
                         2 __main__global_stmts
                         []
                         ()
+                        .false.
                     )]
                 ),
             numpy:
