@@ -42,6 +42,7 @@
                                         )
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 2 i)
@@ -53,12 +54,14 @@
                                         )
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (SubroutineCall
                                         2 test_global_symbols
                                         ()
                                         []
                                         ()
+                                        .false.
                                     )]
                                     ()
                                     Public
@@ -196,6 +199,7 @@
                         2 __main__global_stmts
                         []
                         ()
+                        .false.
                     )]
                 )
         })

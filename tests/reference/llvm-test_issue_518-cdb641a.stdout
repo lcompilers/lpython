@@ -11,6 +11,9 @@ define void @__module___main_____main__global_stmts() {
   br label %return
 
 return:                                           ; preds = %.entry
+  br label %FINALIZE_SYMTABLE___main__global_stmts
+
+FINALIZE_SYMTABLE___main__global_stmts:           ; preds = %return
   ret void
 }
 
@@ -51,6 +54,9 @@ ifcont:                                           ; preds = %unreachable_after_r
   br label %return
 
 return:                                           ; preds = %ifcont, %else, %then
+  br label %FINALIZE_SYMTABLE_fib
+
+FINALIZE_SYMTABLE_fib:                            ; preds = %return
   %10 = load i64, i64* %_lpython_return_variable, align 4
   ret i64 %10
 }
@@ -78,6 +84,9 @@ ifcont:                                           ; preds = %else, %then
   br label %return
 
 return:                                           ; preds = %ifcont
+  br label %FINALIZE_SYMTABLE_main
+
+FINALIZE_SYMTABLE_main:                           ; preds = %return
   ret void
 }
 
@@ -104,6 +113,9 @@ ifcont:                                           ; preds = %else, %then
   br label %return
 
 return:                                           ; preds = %ifcont
+  br label %FINALIZE_SYMTABLE_main0
+
+FINALIZE_SYMTABLE_main0:                          ; preds = %return
   ret void
 }
 
@@ -119,6 +131,9 @@ define i32 @main(i32 %0, i8** %1) {
   br label %return
 
 return:                                           ; preds = %.entry
+  br label %FINALIZE_SYMTABLE_main_program
+
+FINALIZE_SYMTABLE_main_program:                   ; preds = %return
   ret i32 0
 }
 

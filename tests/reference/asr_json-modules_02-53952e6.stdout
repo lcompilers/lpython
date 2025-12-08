@@ -56,7 +56,8 @@
                                                     "name": "main0 (SymbolTable2)",
                                                     "original_name": [],
                                                     "args": [],
-                                                    "dt": []
+                                                    "dt": [],
+                                                    "strict_bounds_checking": false
                                                 },
                                                 "loc": {
                                                     "first": 119,
@@ -445,7 +446,8 @@
                                                         }
                                                     },
                                                     "overloaded": [],
-                                                    "realloc_lhs": false
+                                                    "realloc_lhs": false,
+                                                    "move_allocation": false
                                                 },
                                                 "loc": {
                                                     "first": 79,
@@ -562,7 +564,8 @@
                                                     "name": "f (SymbolTable2)",
                                                     "original_name": [],
                                                     "args": [],
-                                                    "dt": []
+                                                    "dt": [],
+                                                    "strict_bounds_checking": false
                                                 },
                                                 "loc": {
                                                     "first": 114,
@@ -656,7 +659,8 @@
                                     "name": "__main__global_stmts (SymbolTable9)",
                                     "original_name": "__main__global_stmts (SymbolTable2)",
                                     "args": [],
-                                    "dt": []
+                                    "dt": [],
+                                    "strict_bounds_checking": false
                                 },
                                 "loc": {
                                     "first": 0,
@@ -732,7 +736,8 @@
                                                     "name": "g (SymbolTable3)",
                                                     "original_name": [],
                                                     "args": [],
-                                                    "dt": []
+                                                    "dt": [],
+                                                    "strict_bounds_checking": false
                                                 },
                                                 "loc": {
                                                     "first": 167,

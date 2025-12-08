@@ -36,6 +36,7 @@
                                         ()
                                         []
                                         ()
+                                        .false.
                                     )]
                                     ()
                                     Public
@@ -301,6 +302,7 @@
                                         )
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (Assert
                                         (IntegerCompare
@@ -334,6 +336,7 @@
                                         )
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (Assert
                                         (IntegerCompare
@@ -364,6 +367,7 @@
                                         )
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (Assert
                                         (IntegerCompare
@@ -389,6 +393,7 @@
                                             (Real 8)
                                         )
                                         ()
+                                        .false.
                                         .false.
                                     )
                                     (Assert
@@ -423,6 +428,7 @@
                                         )
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (Assert
                                         (IntegerCompare
@@ -452,6 +458,7 @@
                                             (Real 8)
                                         )
                                         ()
+                                        .false.
                                         .false.
                                     )
                                     (Assert
@@ -666,6 +673,7 @@
                                         )
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (Assert
                                         (IntegerCompare
@@ -692,6 +700,7 @@
                                             (IntegerConstant -5 (Integer 4) Decimal)
                                         )
                                         ()
+                                        .false.
                                         .false.
                                     )
                                     (Assert
@@ -745,6 +754,7 @@
                                         )
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (Assert
                                         (IntegerCompare
@@ -781,6 +791,7 @@
                                             (IntegerConstant -8 (Integer 2) Decimal)
                                         )
                                         ()
+                                        .false.
                                         .false.
                                     )
                                     (Assert
@@ -819,6 +830,7 @@
                                         )
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (Assert
                                         (IntegerCompare
@@ -850,6 +862,7 @@
                                         )
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (Assert
                                         (IntegerCompare
@@ -875,6 +888,7 @@
                                             (Logical 4)
                                         )
                                         ()
+                                        .false.
                                         .false.
                                     )
                                     (Assert
@@ -956,6 +970,7 @@
                         2 __main__global_stmts
                         []
                         ()
+                        .false.
                     )]
                 )
         })

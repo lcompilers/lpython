@@ -36,6 +36,7 @@
                                         ()
                                         []
                                         ()
+                                        .false.
                                     )]
                                     ()
                                     Public
@@ -306,6 +307,7 @@
                                         )
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (Assert
                                         (IntegerCompare
@@ -328,6 +330,7 @@
                                             (String 1 (IntegerConstant 0 (Integer 4) Decimal) ExpressionLength DescriptorString)
                                         )
                                         ()
+                                        .false.
                                         .false.
                                     )
                                     (Assert
@@ -397,6 +400,7 @@
                                         )
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (Assert
                                         (IntegerCompare
@@ -441,6 +445,7 @@
                                         )
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (Assert
                                         (IntegerCompare
@@ -465,6 +470,7 @@
                                             )
                                         )
                                         ()
+                                        .false.
                                         .false.
                                     )
                                     (Assert
@@ -534,6 +540,7 @@
                                         )
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (Assert
                                         (IntegerCompare
@@ -561,6 +568,7 @@
                                             )
                                         )
                                         ()
+                                        .false.
                                         .false.
                                     )
                                     (Assert
@@ -610,6 +618,7 @@
                                         )
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (Assert
                                         (IntegerCompare
@@ -650,6 +659,7 @@
                                         )
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (Assert
                                         (IntegerCompare
@@ -669,6 +679,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                         .false.
                                     )
                                     (DoLoop
@@ -754,6 +765,7 @@
                         2 __main__global_stmts
                         []
                         ()
+                        .false.
                     )]
                 )
         })

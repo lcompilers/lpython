@@ -13,6 +13,9 @@ define void @__module___main_____main__global_stmts() {
   br label %return
 
 return:                                           ; preds = %.entry
+  br label %FINALIZE_SYMTABLE___main__global_stmts
+
+FINALIZE_SYMTABLE___main__global_stmts:           ; preds = %return
   ret void
 }
 
@@ -23,33 +26,35 @@ define void @__module___main___main0() {
   %y = alloca float, align 4
   %y2 = alloca double, align 8
   store i32 25, i32* %x, align 4
-  %0 = call i8* (i8*, i64, i8*, i32, i32, ...) @_lcompilers_string_format_fortran(i8* null, i64 0, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @serialization_info, i32 0, i32 0), i32 0, i32 0, i32* %x)
-  %1 = call i64 @_lfortran_str_len(i8* %0)
-  %2 = call i8* @_lfortran_malloc(i64 16)
-  %stringFormat_desc = bitcast i8* %2 to %string_descriptor*
+  %0 = alloca i64, align 8
+  %1 = call i8* (i8*, i64, i8*, i64*, i32, i32, ...) @_lcompilers_string_format_fortran(i8* null, i64 0, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @serialization_info, i32 0, i32 0), i64* %0, i32 0, i32 0, i32* %x)
+  %2 = load i64, i64* %0, align 4
+  %stringFormat_desc = alloca %string_descriptor, align 8
   %3 = getelementptr %string_descriptor, %string_descriptor* %stringFormat_desc, i32 0, i32 0
-  store i8* %0, i8** %3, align 8
+  store i8* %1, i8** %3, align 8
   %4 = getelementptr %string_descriptor, %string_descriptor* %stringFormat_desc, i32 0, i32 1
-  store i64 %1, i64* %4, align 4
+  store i64 %2, i64* %4, align 4
   %5 = getelementptr %string_descriptor, %string_descriptor* %stringFormat_desc, i32 0, i32 0
   %6 = load i8*, i8** %5, align 8
   %7 = getelementptr %string_descriptor, %string_descriptor* %stringFormat_desc, i32 0, i32 1
   %8 = load i64, i64* %7, align 4
   %9 = trunc i64 %8 to i32
   call void @_lfortran_printf(i8* getelementptr inbounds ([5 x i8], [5 x i8]* @1, i32 0, i32 0), i8* %6, i32 %9, i8* getelementptr inbounds ([2 x i8], [2 x i8]* @0, i32 0, i32 0), i32 1)
+  call void @_lfortran_free(i8* %1)
   br label %return
 
 return:                                           ; preds = %.entry
+  br label %FINALIZE_SYMTABLE_main0
+
+FINALIZE_SYMTABLE_main0:                          ; preds = %return
   ret void
 }
 
-declare i8* @_lcompilers_string_format_fortran(i8*, i64, i8*, i32, i32, ...)
-
-declare i64 @_lfortran_str_len(i8*)
-
-declare i8* @_lfortran_malloc(i64)
+declare i8* @_lcompilers_string_format_fortran(i8*, i64, i8*, i64*, i32, i32, ...)
 
 declare void @_lfortran_printf(i8*, i8*, i32, i8*, i32)
+
+declare void @_lfortran_free(i8*)
 
 define i32 @main(i32 %0, i8** %1) {
 .entry:
@@ -59,6 +64,9 @@ define i32 @main(i32 %0, i8** %1) {
   br label %return
 
 return:                                           ; preds = %.entry
+  br label %FINALIZE_SYMTABLE_main_program
+
+FINALIZE_SYMTABLE_main_program:                   ; preds = %return
   ret i32 0
 }
 

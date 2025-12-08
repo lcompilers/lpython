@@ -36,6 +36,7 @@
                                         ()
                                         []
                                         ()
+                                        .false.
                                     )]
                                     ()
                                     Public
@@ -94,6 +95,7 @@
                                             (Real 8)
                                         )
                                         ()
+                                        .false.
                                         .false.
                                     )
                                     (Print
@@ -154,6 +156,7 @@
                         2 __main__global_stmts
                         []
                         ()
+                        .false.
                     )]
                 )
         })

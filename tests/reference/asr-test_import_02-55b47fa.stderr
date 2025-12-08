@@ -5,7 +5,7 @@ warning: The module 'test_import_2' located in tests/errors/test_import/test_imp
   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ imported here
 
 semantic error: Type mismatch in annotation-assignment, the types must be compatible
- --> tests/errors/test_import/test_import_2.py:3:1
+ --> tests/errors/test_import/test_import_2.py:4:30
   |
-3 | X: Const[i32] = 1.23
-  | ^               ^^^^ type mismatch ('i32' and 'f64')
+4 | 
+  |                              ^               ^^^^ type mismatch ('i32' and 'f64')

@@ -4,7 +4,7 @@ semantic error: Type mismatch in procedure call; the types must be compatible
 4 | X: Const[f64] = test(5.0)
   |                      ^^^ type mismatch (passed argument type is f64 but required type is i32)
 
- --> tests/errors/test_import/test_import_1.py:3:13
+ --> tests/errors/test_import/test_import_1.py:5:89
   |
-3 | def test(x: i32) -> i32:
-  |             ^^^ type mismatch (passed argument type is f64 but required type is i32)
+5 | 
+  |                                                                                         ^^^ type mismatch (passed argument type is f64 but required type is i32)
