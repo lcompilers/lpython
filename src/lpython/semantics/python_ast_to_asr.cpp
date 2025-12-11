@@ -8489,6 +8489,32 @@ we will have to use something else.
     void visit_Call(const AST::Call_t &x) {
         std::string call_name = "";
         Vec<ASR::call_arg_t> args;
+        for (size_t i = 0; i < x.n_args; i++) {
+            AST::expr_t *arg_expr = x.m_args[i];
+
+            if (arg_expr->type == AST::exprType::Call) {
+                AST::Call_t *call_node = (AST::Call_t*)arg_expr;
+
+                if (call_node->m_func->type == AST::exprType::Name) {
+                    AST::Name_t *func_name = (AST::Name_t*)call_node->m_func;
+                    std::string name = std::string(func_name->m_id);
+
+                    // Resolve symbol
+                    ASR::symbol_t *sym = current_scope->resolve_symbol(name);
+
+                    if (sym) {
+                        sym = ASRUtils::symbol_get_past_external(sym);
+
+                        // FIX: Only check for Struct (Python classes are Structs in ASR)
+                        if (sym->type == ASR::symbolType::Struct) {
+                             throw SemanticError("Inline class instantiation (e.g. print(Foo(10))) is not yet supported. "
+                                                "Please assign it to a variable first.", 
+                                                arg_expr->base.loc);
+                        }
+                    }
+                }
+            }
+        }
         if (AST::is_a<AST::Name_t>(*x.m_func)) {
             AST::Name_t *n = AST::down_cast<AST::Name_t>(x.m_func);
             call_name = n->m_id;
