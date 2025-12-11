@@ -442,13 +442,13 @@ RUN(NAME array_04            LABELS cpython llvm llvm_jit c)
 RUN(NAME array_05            LABELS cpython llvm llvm_jit c)
 RUN(NAME array_06            LABELS cpython llvm llvm_jit)
 # RUN(NAME bindc_01            LABELS cpython llvm llvm_jit c)
-# # RUN(NAME bindc_02            LABELS cpython llvm llvm_jit c)
+# RUN(NAME bindc_02            LABELS cpython llvm llvm_jit c)
 # RUN(NAME bindc_04            LABELS llvm llvm_jit c NOFAST)
-# # RUN(NAME bindc_07            LABELS cpython llvm llvm_jit c NOFAST)
+# RUN(NAME bindc_07            LABELS cpython llvm llvm_jit c NOFAST)
 # RUN(NAME bindc_08            LABELS cpython llvm llvm_jit c)
 # RUN(NAME bindc_09            LABELS cpython llvm llvm_jit c NOFAST)
 # RUN(NAME bindc_09b           LABELS cpython llvm llvm_jit c NOFAST)
-# # RUN(NAME bindc_10            LABELS cpython llvm llvm_jit c NOFAST)
+# RUN(NAME bindc_10            LABELS cpython llvm llvm_jit c NOFAST)
 # RUN(NAME bindc_11            LABELS cpython) # This is CPython test only
 RUN(NAME exit_01             LABELS cpython llvm llvm_jit NOFAST) # renable c
 RUN(NAME exit_02     FAIL    LABELS cpython llvm llvm_jit NOFAST) # renable c
@@ -466,12 +466,12 @@ RUN(NAME print_06            LABELS cpython llvm llvm_jit) # renable c
 RUN(NAME print_05            LABELS cpython llvm llvm_jit c wasm wasm_x64)
 RUN(NAME print_float         LABELS cpython llvm llvm_jit c wasm wasm_x64)
 # RUN(NAME print_list_tuple_01    LABELS cpython llvm llvm_jit NOFAST) # renable c # post sync
-# # RUN(NAME print_list_tuple_02    LABELS cpython llvm llvm_jit c NOFAST)
-# # RUN(NAME print_list_tuple_03    LABELS cpython llvm llvm_jit c NOFAST)
+# RUN(NAME print_list_tuple_02    LABELS cpython llvm llvm_jit c NOFAST)
+# RUN(NAME print_list_tuple_03    LABELS cpython llvm llvm_jit c NOFAST)
 RUN(NAME test_list_item_mixed_print    LABELS cpython llvm llvm_jit NOFAST) # renable c # post sync
 # RUN(NAME test_intrinsic_function_mixed_print    LABELS cpython llvm llvm_jit NOFAST) # post sync
 
-# # CPython and LLVM
+# CPython and LLVM
 RUN(NAME const_01            LABELS cpython llvm llvm_jit c wasm)
 RUN(NAME const_02            LABELS cpython llvm llvm_jit c wasm)
 RUN(NAME const_03            LABELS cpython llvm c
@@ -489,11 +489,11 @@ RUN(NAME expr_09             LABELS cpython llvm llvm_jit c)
 RUN(NAME expr_10             LABELS cpython llvm llvm_jit c)
 RUN(NAME expr_11             LABELS cpython llvm llvm_jit c wasm)
 # RUN(NAME expr_12             LABELS llvm llvm_jit c)
-# # RUN(NAME expr_13             LABELS llvm c
-# #         EXTRAFILES expr_13b.c NOFAST)
+# RUN(NAME expr_13             LABELS llvm c
+#         EXTRAFILES expr_13b.c NOFAST)
 RUN(NAME expr_14             LABELS cpython llvm llvm_jit c)
 RUN(NAME expr_15             LABELS cpython llvm llvm_jit c)
-# # RUN(NAME expr_16             LABELS cpython llvm llvm_jit c)
+# RUN(NAME expr_16             LABELS cpython llvm llvm_jit c)
 RUN(NAME expr_17             LABELS cpython llvm llvm_jit c)
 RUN(NAME expr_18    FAIL     LABELS cpython llvm llvm_jit c)
 RUN(NAME expr_19             LABELS cpython llvm llvm_jit c)
