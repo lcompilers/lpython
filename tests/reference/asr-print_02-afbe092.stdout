@@ -36,6 +36,7 @@
                                         ()
                                         []
                                         ()
+                                        .false.
                                     )]
                                     ()
                                     Public
@@ -75,24 +76,28 @@
                                         ()
                                         []
                                         ()
+                                        .false.
                                     )
                                     (SubroutineCall
                                         2 test_nested_lists
                                         ()
                                         []
                                         ()
+                                        .false.
                                     )
                                     (SubroutineCall
                                         2 test_nested_lists2
                                         ()
                                         []
                                         ()
+                                        .false.
                                     )
                                     (SubroutineCall
                                         2 test_print_list_tuple
                                         ()
                                         []
                                         ()
+                                        .false.
                                     )]
                                     ()
                                     Public
@@ -240,6 +245,7 @@
                                         )
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 b)
@@ -253,6 +259,7 @@
                                             )
                                         )
                                         ()
+                                        .false.
                                         .false.
                                     )
                                     (Assignment
@@ -284,6 +291,7 @@
                                         )
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 d)
@@ -294,6 +302,7 @@
                                             )
                                         )
                                         ()
+                                        .false.
                                         .false.
                                     )
                                     (Print
@@ -688,6 +697,7 @@
                                         )
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 4 x)
@@ -776,6 +786,7 @@
                                         )
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 4 y)
@@ -827,6 +838,7 @@
                                             )
                                         )
                                         ()
+                                        .false.
                                         .false.
                                     )
                                     (Assignment
@@ -894,6 +906,7 @@
                                             )
                                         )
                                         ()
+                                        .false.
                                         .false.
                                     )
                                     (Print
@@ -1212,6 +1225,7 @@
                                             )
                                         )
                                         ()
+                                        .false.
                                         .false.
                                     )
                                     (Assignment
@@ -2037,6 +2051,7 @@
                                         )
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 6 r)
@@ -2773,6 +2788,7 @@
                                         )
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (Print
                                         (StringFormat
@@ -3007,6 +3023,7 @@
                                         )
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 5 c)
@@ -3082,6 +3099,7 @@
                                         )
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 5 b1)
@@ -3114,6 +3132,7 @@
                                         )
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 5 b2)
@@ -3127,6 +3146,7 @@
                                             )
                                         )
                                         ()
+                                        .false.
                                         .false.
                                     )
                                     (Assignment
@@ -3151,6 +3171,7 @@
                                             )
                                         )
                                         ()
+                                        .false.
                                         .false.
                                     )
                                     (Print
@@ -3228,6 +3249,7 @@
                         2 __main__global_stmts
                         []
                         ()
+                        .false.
                     )]
                 )
         })

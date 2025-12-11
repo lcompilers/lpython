@@ -36,6 +36,7 @@
                                         ()
                                         []
                                         ()
+                                        .false.
                                     )]
                                     ()
                                     Public
@@ -172,6 +173,7 @@
                                         )
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 225 b)
@@ -206,6 +208,7 @@
                                         )
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (DoLoop
                                         ()
@@ -234,6 +237,7 @@
                                                 (Real 8)
                                             )
                                             ()
+                                            .false.
                                             .false.
                                         )]
                                         []
@@ -270,6 +274,7 @@
                                                 ()
                                             )
                                             ()
+                                            .false.
                                             .false.
                                         )]
                                         []
@@ -348,6 +353,7 @@
                         2 __main__global_stmts
                         []
                         ()
+                        .false.
                     )]
                 ),
             numpy:

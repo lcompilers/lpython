@@ -116,7 +116,7 @@ public:
             diag::Diagnostics &diagnostics);
 
     Result<std::unique_ptr<LLVMModule>> get_llvm3(ASR::TranslationUnit_t &asr,
-        LCompilers::PassManager& lpm, diag::Diagnostics &diagnostics,
+        LCompilers::PassManager& lpm, diag::Diagnostics &diagnostics, LCompilers::LocationManager& lm,
         const std::string &infile);
 
     Result<std::string> get_asm(const std::string &code,

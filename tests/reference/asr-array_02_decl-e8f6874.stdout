@@ -36,6 +36,7 @@
                                         ()
                                         []
                                         ()
+                                        .false.
                                     )]
                                     ()
                                     Public
@@ -130,6 +131,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                         .false.
                                     )
                                     (Return)]
@@ -234,6 +236,7 @@
                                         )
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (Return)]
                                     (Var 228 _lpython_return_variable)
@@ -336,6 +339,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                         .false.
                                     )
                                     (Return)]
@@ -446,6 +450,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                         .false.
                                     )
                                     (Return)]
@@ -693,6 +698,7 @@
                                         )
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 229 ai64)
@@ -737,6 +743,7 @@
                                         )
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 229 af32)
@@ -770,6 +777,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                         .false.
                                     )
                                     (Assignment
@@ -809,6 +817,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                         .false.
                                     )
                                     (Assignment
@@ -853,6 +862,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                         .false.
                                     )
                                     (Assignment
@@ -902,6 +912,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                         .false.
                                     )
                                     (Print
@@ -1067,6 +1078,7 @@
                         2 __main__global_stmts
                         []
                         ()
+                        .false.
                     )]
                 ),
             numpy:

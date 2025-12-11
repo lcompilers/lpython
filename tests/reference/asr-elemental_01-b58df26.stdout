@@ -40,30 +40,35 @@
                                         ()
                                         []
                                         ()
+                                        .false.
                                     )
                                     (SubroutineCall
                                         2 elemental_cos
                                         ()
                                         []
                                         ()
+                                        .false.
                                     )
                                     (SubroutineCall
                                         2 elemental_trig_identity
                                         ()
                                         []
                                         ()
+                                        .false.
                                     )
                                     (SubroutineCall
                                         2 elemental_sum
                                         ()
                                         []
                                         ()
+                                        .false.
                                     )
                                     (SubroutineCall
                                         2 elemental_mul
                                         ()
                                         []
                                         ()
+                                        .false.
                                     )]
                                     ()
                                     Public
@@ -250,6 +255,7 @@
                                         )
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 233 cos2d)
@@ -288,6 +294,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                         .false.
                                     )
                                     (DoLoop
@@ -341,6 +348,7 @@
                                                 )
                                                 ()
                                                 .false.
+                                                .false.
                                             )]
                                             []
                                         )]
@@ -381,6 +389,7 @@
                                         )
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (SubroutineCall
                                         2 verify2d
@@ -416,6 +425,7 @@
                                         ((IntegerConstant 256 (Integer 4) Decimal))
                                         ((IntegerConstant 64 (Integer 4) Decimal))]
                                         ()
+                                        .false.
                                     )]
                                     ()
                                     Public
@@ -620,6 +630,7 @@
                                         )
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 231 array_b)
@@ -653,6 +664,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                         .false.
                                     )
                                     (Assignment
@@ -688,6 +700,7 @@
                                         )
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (DoLoop
                                         ()
@@ -718,6 +731,7 @@
                                                 ()
                                             )
                                             ()
+                                            .false.
                                             .false.
                                         )]
                                         []
@@ -757,6 +771,7 @@
                                                 ()
                                             )
                                             ()
+                                            .false.
                                             .false.
                                         )]
                                         []
@@ -819,6 +834,7 @@
                                         )
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (SubroutineCall
                                         2 verify1d_mul
@@ -861,6 +877,7 @@
                                         ))
                                         ((IntegerConstant 100 (Integer 4) Decimal))]
                                         ()
+                                        .false.
                                     )]
                                     ()
                                     Public
@@ -1120,6 +1137,7 @@
                                         )
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 232 sin1d)
@@ -1154,6 +1172,7 @@
                                         )
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (DoLoop
                                         ()
@@ -1184,6 +1203,7 @@
                                                 ()
                                             )
                                             ()
+                                            .false.
                                             .false.
                                         )]
                                         []
@@ -1217,6 +1237,7 @@
                                         )
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (SubroutineCall
                                         2 verify1d
@@ -1247,6 +1268,7 @@
                                         ))
                                         ((IntegerConstant 256 (Integer 4) Decimal))]
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 232 arraynd)
@@ -1291,6 +1313,7 @@
                                         )
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 232 sinnd)
@@ -1334,6 +1357,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                         .false.
                                     )
                                     (DoLoop
@@ -1408,6 +1432,7 @@
                                                     )
                                                     ()
                                                     .false.
+                                                    .false.
                                                 )]
                                                 []
                                             )]
@@ -1454,6 +1479,7 @@
                                         )
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (SubroutineCall
                                         2 verifynd
@@ -1494,6 +1520,7 @@
                                         ((IntegerConstant 64 (Integer 4) Decimal))
                                         ((IntegerConstant 16 (Integer 4) Decimal))]
                                         ()
+                                        .false.
                                     )]
                                     ()
                                     Public
@@ -1698,6 +1725,7 @@
                                         )
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 230 array_b)
@@ -1731,6 +1759,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                         .false.
                                     )
                                     (Assignment
@@ -1766,6 +1795,7 @@
                                         )
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (DoLoop
                                         ()
@@ -1796,6 +1826,7 @@
                                                 ()
                                             )
                                             ()
+                                            .false.
                                             .false.
                                         )]
                                         []
@@ -1835,6 +1866,7 @@
                                                 ()
                                             )
                                             ()
+                                            .false.
                                             .false.
                                         )]
                                         []
@@ -1897,6 +1929,7 @@
                                         )
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (SubroutineCall
                                         2 verify1d_sum
@@ -1939,6 +1972,7 @@
                                         ))
                                         ((IntegerConstant 100 (Integer 4) Decimal))]
                                         ()
+                                        .false.
                                     )]
                                     ()
                                     Public
@@ -2226,6 +2260,7 @@
                                         )
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 234 arraynd)
@@ -2274,6 +2309,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                         .false.
                                     )
                                     (Assignment
@@ -2324,6 +2360,7 @@
                                         )
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 234 observed1d)
@@ -2357,6 +2394,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                         .false.
                                     )
                                     (DoLoop
@@ -2451,6 +2489,7 @@
                                                             ()
                                                         )
                                                         ()
+                                                        .false.
                                                         .false.
                                                     )]
                                                     []
@@ -2569,6 +2608,7 @@
                                         )
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 234 newshape)
@@ -2603,6 +2643,7 @@
                                         )
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (Assignment
                                         (ArrayItem
@@ -2616,6 +2657,7 @@
                                         )
                                         (IntegerConstant 65536 (Integer 4) Decimal)
                                         ()
+                                        .false.
                                         .false.
                                     )
                                     (Assignment
@@ -2643,6 +2685,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                         .false.
                                     )
                                     (DoLoop
@@ -2954,6 +2997,7 @@
                                         )
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (DoLoop
                                         ()
@@ -3171,6 +3215,7 @@
                                             (Real 8)
                                         )
                                         ()
+                                        .false.
                                         .false.
                                     )
                                     (DoLoop
@@ -3464,6 +3509,7 @@
                                             (Real 8)
                                         )
                                         ()
+                                        .false.
                                         .false.
                                     )
                                     (DoLoop
@@ -3880,6 +3926,7 @@
                                             (Real 8)
                                         )
                                         ()
+                                        .false.
                                         .false.
                                     )
                                     (DoLoop
@@ -4306,6 +4353,7 @@
                                         )
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (DoLoop
                                         ()
@@ -4364,6 +4412,7 @@
                         2 __main__global_stmts
                         []
                         ()
+                        .false.
                     )]
                 ),
             numpy:
