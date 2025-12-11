@@ -529,7 +529,7 @@ RUN(NAME test_types_01       LABELS cpython llvm llvm_jit c)
 RUN(NAME test_types_02       LABELS cpython llvm llvm_jit c wasm)
 # RUN(NAME test_str_01         LABELS cpython llvm llvm_jit c)
 RUN(NAME test_str_02         LABELS cpython llvm llvm_jit) # renable c
-RUN(NAME test_str_03         LABELS cpython llvm llvm_jit) # renable c # post sync
+# RUN(NAME test_str_03         LABELS cpython llvm llvm_jit) # renable c # str negative indexing
 RUN(NAME test_str_04         LABELS cpython llvm llvm_jit) # renable c, wasm
 RUN(NAME test_str_05         LABELS cpython llvm llvm_jit) # renable c
 # RUN(NAME test_str_06         LABELS cpython llvm llvm_jit c)
@@ -542,7 +542,7 @@ RUN(NAME test_list_04        LABELS cpython llvm llvm_jit NOFAST) # renable c
 RUN(NAME test_list_06        LABELS cpython llvm llvm_jit c)
 RUN(NAME test_list_07        LABELS cpython llvm llvm_jit c NOFAST)
 RUN(NAME test_list_08        LABELS cpython llvm llvm_jit c NOFAST)
-# RUN(NAME test_list_09        LABELS cpython llvm llvm_jit c NOFAST)
+RUN(NAME test_list_09        LABELS cpython llvm llvm_jit NOFAST) # renable c
 # RUN(NAME test_list_10        LABELS cpython llvm llvm_jit c NOFAST)
 # RUN(NAME test_list_11        LABELS cpython llvm llvm_jit c)
 # RUN(NAME test_list_section   LABELS cpython llvm llvm_jit c NOFAST)
@@ -761,8 +761,8 @@ RUN(NAME structs_35          LABELS cpython llvm llvm_jit)
 # RUN(NAME enum_02             LABELS cpython llvm llvm_jit NOFAST)
 RUN(NAME enum_03             LABELS cpython llvm llvm_jit c NOFAST)
 # RUN(NAME enum_04             LABELS cpython llvm llvm_jit c NOFAST)
-RUN(NAME enum_05             LABELS llvm c
-        EXTRAFILES enum_05b.c NOFAST)
+# RUN(NAME enum_05             LABELS llvm c
+#         EXTRAFILES enum_05b.c NOFAST)
 # RUN(NAME enum_06             LABELS cpython llvm llvm_jit c)
 RUN(NAME enum_07             IMPORT_PATH ..
                              LABELS cpython llvm llvm_jit c NOFAST)

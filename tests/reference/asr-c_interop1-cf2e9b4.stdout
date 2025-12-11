@@ -278,6 +278,7 @@
                                         )
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (Return)]
                                     (Var 5 _lpython_return_variable)
@@ -558,6 +559,7 @@
                                         )
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 7 i)
@@ -570,6 +572,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                         .false.
                                     )
                                     (Assignment
@@ -588,6 +591,7 @@
                                         )
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 7 z)
@@ -599,11 +603,13 @@
                                         )
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 7 zz)
                                         (IntegerConstant 2 (Integer 4) Decimal)
                                         ()
+                                        .false.
                                         .false.
                                     )
                                     (SubroutineCall
@@ -614,6 +620,7 @@
                                         ((Var 7 z))
                                         ((Var 7 zz))]
                                         ()
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 7 i)
@@ -627,6 +634,7 @@
                                         )
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (SubroutineCall
                                         2 l
@@ -636,6 +644,7 @@
                                         ((Var 7 z))
                                         ((Var 7 zz))]
                                         ()
+                                        .false.
                                     )]
                                     ()
                                     Public

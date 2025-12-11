@@ -36,6 +36,7 @@
                                         (IntegerConstant 5 (Integer 4) Decimal)
                                         ()
                                         .false.
+                                        .false.
                                     )]
                                     ()
                                     Public
@@ -95,6 +96,7 @@
                         2 __main__global_stmts
                         []
                         ()
+                        .false.
                     )]
                 )
         })

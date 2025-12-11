@@ -98,6 +98,7 @@
                                         (IntegerConstant 2 (Integer 4) Decimal)
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 b)
@@ -115,6 +116,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                         .false.
                                     )
                                     (Assignment
@@ -139,6 +141,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                         .false.
                                     )]
                                     ()

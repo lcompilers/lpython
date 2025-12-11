@@ -1084,7 +1084,7 @@ public:
         ASR::symbol_t* variable_sym = ASR::down_cast<ASR::symbol_t>(variable_asr);
         current_scope->add_symbol(dummy_ret_name, variable_sym);
         ASR::expr_t* variable_var = ASRUtils::EXPR(ASR::make_Var_t(al, expr->base.loc, variable_sym));
-        return ASR::make_Assignment_t(al, expr->base.loc, variable_var, expr, nullptr, false);
+        return ASRUtils::make_Assignment_t_util(al, expr->base.loc, variable_var, expr, nullptr, false, false);
     }
 
     // Function to create appropriate call based on symbol type. If it is external
@@ -2609,8 +2609,8 @@ public:
                 is_runtime_expression) && !is_variable_const) {
             ASR::expr_t* v_expr = ASRUtils::EXPR(ASR::make_Var_t(al, loc, v_sym));
             cast_helper(v_expr, init_expr, true);
-            ASR::asr_t* assign = ASR::make_Assignment_t(al, loc, v_expr,
-                                                        init_expr, nullptr, false);
+            ASR::asr_t* assign = ASRUtils::make_Assignment_t_util(al, loc, v_expr,
+                                                        init_expr, nullptr, false, false);
             if (current_body) {
                 current_body->push_back(al, ASRUtils::STMT(assign));
             } else if (ASR::is_a<ASR::List_t>(*type) || is_runtime_expression) {
@@ -2705,7 +2705,7 @@ public:
         dims.push_back(al, dim);
         ASR::ttype_t* type = ASRUtils::make_Array_t_util(al, loc,
             ASRUtils::expr_type(lbs[0]), dims.p, dims.size(), ASR::abiType::Source,
-            false, ASR::array_physical_typeType::PointerToDataArray, true);
+            false, ASR::array_physical_typeType::PointerArray, true);
         return ASRUtils::EXPR(ASRUtils::make_ArrayConstructor_t_util(al,
             loc, lbs.p, lbs.size(), type,
             ASR::arraystorageType::RowMajor));
@@ -5324,7 +5324,7 @@ public:
                         ASR::symbol_t* call_sym = get_struct_member(parent_sym,call_name,loc);
                         super_call_stmt = ASRUtils::STMT(
                             ASR::make_SubroutineCall_t(al, loc, call_sym, call_sym, args_w_first.p,
-                                                        args_w_first.size(), nullptr));
+                                                        args_w_first.size(), nullptr, true));
                 }
             } else {
                 body.push_back(al, x.m_body[i]);
@@ -5706,8 +5706,8 @@ public:
                                         x.base.base.loc);
                 }
                 tmp = nullptr;
-                tmp_vec.push_back(ASR::make_Assignment_t(al, x.base.base.loc, target,
-                                    tmp_value, nullptr, false));
+                tmp_vec.push_back(ASRUtils::make_Assignment_t_util(al, x.base.base.loc, target,
+                                    tmp_value, nullptr, false, false));
                 continue;
             }
             if( ASRUtils::is_const(target) ) {
@@ -5748,8 +5748,8 @@ public:
                     throw SemanticError("Only Class constructor is allowed in the object assignment for now", target->base.loc);
                 }
             }
-            tmp_vec.push_back(ASR::make_Assignment_t(al, x.base.base.loc, target, tmp_value,
-                                    overloaded, false));
+            tmp_vec.push_back(ASRUtils::make_Assignment_t_util(al, x.base.base.loc, target, tmp_value,
+                                    overloaded, false, false));
             if ( target->type == ASR::exprType::Var &&
                     tmp_value->type == ASR::exprType::StructConstructor ) {
                 AST::Call_t* call = AST::down_cast<AST::Call_t>(x.m_value);
@@ -6042,9 +6042,9 @@ public:
                     current_scope->add_symbol(tmp_assign_name, tmp_assign_variable_sym);
 
                     // Assign the Subscript expr to temporary variable
-                    ASR::asr_t* assign = ASR::make_Assignment_t(al, x.base.base.loc,
+                    ASR::asr_t* assign = ASRUtils::make_Assignment_t_util(al, x.base.base.loc,
                                     ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, tmp_assign_variable_sym)),
-                                    target, nullptr, false);
+                                    target, nullptr, false, false);
                     if (current_body != nullptr) {
                         current_body->push_back(al, ASRUtils::STMT(assign));
                     } else {
@@ -6080,9 +6080,9 @@ public:
             current_scope->add_symbol(tmp_assign_name, tmp_assign_variable_sym);
 
             // Assign the List expr to temporary variable
-            ASR::asr_t* assign = ASR::make_Assignment_t(al, x.base.base.loc,
+            ASR::asr_t* assign = ASRUtils::make_Assignment_t_util(al, x.base.base.loc,
                             ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, tmp_assign_variable_sym)),
-                            target, nullptr, false);
+                            target, nullptr, false, false);
             if (current_body != nullptr) {
                 current_body->push_back(al, ASRUtils::STMT(assign));
             } else {
@@ -6135,7 +6135,8 @@ public:
                             al, x.base.base.loc, loop_src_var,
                             ASRUtils::EXPR(explicit_iter_var), ASRUtils::get_contained_type(loop_src_var_ttype), nullptr);
             }
-            auto loop_target_assignment = ASR::make_Assignment_t(al, x.base.base.loc, target, ASRUtils::EXPR(loop_src_var_element), nullptr, false);
+            auto loop_target_assignment = ASRUtils::make_Assignment_t_util(al, x.base.base.loc, target, 
+                                                            ASRUtils::EXPR(loop_src_var_element), nullptr, false, false);
             body.push_back(al, ASRUtils::STMT(loop_target_assignment));
 
             head.m_v = ASRUtils::EXPR(explicit_iter_var);
@@ -6260,7 +6261,7 @@ public:
 
         ASR::stmt_t* a_overloaded = nullptr;
         ASR::expr_t *tmp2 = ASR::down_cast<ASR::expr_t>(tmp);
-        tmp = ASR::make_Assignment_t(al, x.base.base.loc, left, tmp2, a_overloaded, false);
+        tmp = ASRUtils::make_Assignment_t_util(al, x.base.base.loc, left, tmp2, a_overloaded, false, false);
 
     }
 
@@ -7244,8 +7245,8 @@ public:
         }
         cast_helper(target, value, true);
         ASR::stmt_t *overloaded=nullptr;
-        tmp = ASR::make_Assignment_t(al, x.base.base.loc, target, value,
-                                overloaded, false);
+        tmp = ASRUtils::make_Assignment_t_util(al, x.base.base.loc, target, value,
+                                overloaded, false, false);
         // if( ASR::is_a<ASR::Const_t>(*ASRUtils::symbol_type(return_var)) ) {
         //     ASR::Variable_t* return_variable = ASR::down_cast<ASR::Variable_t>(return_var);
         //     return_variable->m_symbolic_value = value;
@@ -7346,8 +7347,8 @@ public:
         ASR::expr_t* cptr = ASRUtils::EXPR(tmp);
         ASR::asr_t* pp = ASR::make_PointerToCPtr_t(al, x.base.base.loc, pptr,
                                          ASRUtils::expr_type(cptr), nullptr);
-        return ASR::make_Assignment_t(al, x.base.base.loc,
-            cptr, ASR::down_cast<ASR::expr_t>(pp), nullptr, false);
+        return ASRUtils::make_Assignment_t_util(al, x.base.base.loc,
+            cptr, ASR::down_cast<ASR::expr_t>(pp), nullptr, false, false);
     }
 
     void handle_string_attributes(ASR::expr_t *s_var,
@@ -8922,7 +8923,7 @@ we will have to use something else.
                         make_Integer_t, 0, 4, dim.loc);
                     dims.push_back(al, dim);
                     type = ASRUtils::make_Array_t_util(al, x.base.base.loc, type, dims.p, dims.size(),
-                        ASR::abiType::Source, false, ASR::array_physical_typeType::PointerToDataArray, true);
+                        ASR::abiType::Source, false, ASR::array_physical_typeType::PointerArray, true);
                     for( size_t i = 0; i < n_args; i++ ) {
                         m_args[i] = CastingUtil::perform_casting(m_args[i], ASRUtils::type_get_past_array(type),
                             al, x.base.base.loc);

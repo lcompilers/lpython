@@ -212,6 +212,7 @@
                                         (IntegerConstant 4 (Integer 4) Decimal)
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 a)
@@ -222,6 +223,7 @@
                                         )
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 a)
@@ -231,6 +233,7 @@
                                             (IntegerConstant -6 (Integer 4) Decimal)
                                         )
                                         ()
+                                        .false.
                                         .false.
                                     )
                                     (Assignment
@@ -252,6 +255,7 @@
                                             )
                                         )
                                         ()
+                                        .false.
                                         .false.
                                     )
                                     (Assignment
@@ -278,6 +282,7 @@
                                         )
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 b)
@@ -299,6 +304,7 @@
                                         )
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 f)
@@ -307,6 +313,7 @@
                                             (Real 4)
                                         )
                                         ()
+                                        .false.
                                         .false.
                                     )
                                     (Assignment
@@ -332,6 +339,7 @@
                                         )
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 b1)
@@ -340,6 +348,7 @@
                                             (Logical 4)
                                         )
                                         ()
+                                        .false.
                                         .false.
                                     )
                                     (Assignment
@@ -357,6 +366,7 @@
                                         )
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 b3)
@@ -367,11 +377,13 @@
                                         )
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 a)
                                         (IntegerConstant 1 (Integer 4) Decimal)
                                         ()
+                                        .false.
                                         .false.
                                     )
                                     (Assignment
@@ -391,6 +403,7 @@
                                         )
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 a)
@@ -409,6 +422,7 @@
                                         )
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 c)
@@ -418,6 +432,7 @@
                                             (Complex 4)
                                         )
                                         ()
+                                        .false.
                                         .false.
                                     )
                                     (Assignment
@@ -457,6 +472,7 @@
                                         )
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 b1)
@@ -466,6 +482,7 @@
                                         )
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 b2)
@@ -474,6 +491,7 @@
                                             (Logical 4)
                                         )
                                         ()
+                                        .false.
                                         .false.
                                     )]
                                     ()

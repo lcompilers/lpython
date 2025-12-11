@@ -77,11 +77,13 @@
                                         (IntegerConstant 4 (Integer 4) Decimal)
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 b)
                                         (IntegerConstant 20 (Integer 4) Decimal)
                                         ()
+                                        .false.
                                         .false.
                                     )
                                     (ExplicitDeallocate

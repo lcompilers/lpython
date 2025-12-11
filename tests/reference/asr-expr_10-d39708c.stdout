@@ -36,6 +36,7 @@
                                         ()
                                         []
                                         ()
+                                        .false.
                                     )]
                                     ()
                                     Public
@@ -91,6 +92,7 @@
                                         (Var 3 _lpython_return_variable)
                                         (IntegerConstant 5 (Integer 4) Decimal)
                                         ()
+                                        .false.
                                         .false.
                                     )
                                     (Return)]
@@ -260,6 +262,7 @@
                                         )
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 5 j)
@@ -272,6 +275,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                         .false.
                                     )
                                     (Assignment
@@ -286,12 +290,14 @@
                                         )
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (SubroutineCall
                                         2 gsubrout
                                         ()
                                         [((Var 5 i))]
                                         ()
+                                        .false.
                                     )]
                                     ()
                                     Public
@@ -330,6 +336,7 @@
                         2 __main__global_stmts
                         []
                         ()
+                        .false.
                     )]
                 )
         })

@@ -36,6 +36,7 @@
                                         ()
                                         []
                                         ()
+                                        .false.
                                     )]
                                     ()
                                     Public
@@ -449,11 +450,13 @@
                                         (IntegerConstant 1 (Integer 4) Decimal)
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 a2)
                                         (IntegerConstant 9 (Integer 4) Decimal)
                                         ()
+                                        .false.
                                         .false.
                                     )
                                     (Assignment
@@ -476,6 +479,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                         .false.
                                     )
                                     (Assert
@@ -516,6 +520,7 @@
                                         )
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 b2)
@@ -526,6 +531,7 @@
                                             (IntegerConstant 10 (Integer 8) Decimal)
                                         )
                                         ()
+                                        .false.
                                         .false.
                                     )
                                     (Assignment
@@ -548,6 +554,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                         .false.
                                     )
                                     (Assert
@@ -594,6 +601,7 @@
                                         )
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 c2)
@@ -611,6 +619,7 @@
                                         )
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 c3)
@@ -622,6 +631,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                         .false.
                                     )
                                     (Assert
@@ -676,6 +686,7 @@
                                         )
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 d2)
@@ -684,6 +695,7 @@
                                             (Real 8)
                                         )
                                         ()
+                                        .false.
                                         .false.
                                     )
                                     (Assignment
@@ -696,6 +708,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                         .false.
                                     )
                                     (Assert
@@ -763,6 +776,7 @@
                                         )
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 e2)
@@ -801,6 +815,7 @@
                                         )
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 e3)
@@ -812,6 +827,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                         .false.
                                     )
                                     (Assert
@@ -906,6 +922,7 @@
                                         )
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 f2)
@@ -935,6 +952,7 @@
                                         )
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 3 f3)
@@ -946,6 +964,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                         .false.
                                     )
                                     (Assert
@@ -1032,6 +1051,7 @@
                         2 __main__global_stmts
                         []
                         ()
+                        .false.
                     )]
                 )
         })

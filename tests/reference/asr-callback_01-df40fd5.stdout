@@ -36,6 +36,7 @@
                                         ()
                                         []
                                         ()
+                                        .false.
                                     )]
                                     ()
                                     Public
@@ -203,6 +204,7 @@
                                         )
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (Return)]
                                     (Var 3 _lpython_return_variable)
@@ -286,6 +288,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                         .false.
                                     )
                                     (Return)]
@@ -385,6 +388,7 @@
                                             ()
                                         )
                                         ()
+                                        .false.
                                         .false.
                                     )
                                     (Return)]
@@ -579,11 +583,13 @@
                                         )
                                         ()
                                         .false.
+                                        .false.
                                     )
                                     (Assignment
                                         (Var 6 _lpython_return_variable)
                                         (Var 6 ret)
                                         ()
+                                        .false.
                                         .false.
                                     )
                                     (Return)]
@@ -624,6 +630,7 @@
                         2 __main__global_stmts
                         []
                         ()
+                        .false.
                     )]
                 )
         })
