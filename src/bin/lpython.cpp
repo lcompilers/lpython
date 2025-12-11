@@ -735,6 +735,151 @@ int get_errors (const std::string &infile,
     return 0;
 }
 
+bool input_in_scope_identifier(int input_location,
+                               std::pair<int, int> token_location) {
+  return token_location.first <= input_location &&
+         input_location <= token_location.second;
+}
+
+bool find_tok_in_scopes(const std::string &infile,
+                        const std::string &runtime_library_dir,
+                        CompilerOptions &compiler_options,
+                        const std::string tok_name) {
+  Allocator al(4 * 1024);
+  LFortran::diag::Diagnostics diagnostics;
+  LFortran::LocationManager lm;
+  lm.in_filename = infile;
+  std::string input = LFortran::read_file(infile);
+  lm.init_simple(input);
+  LFortran::Result<LFortran::LPython::AST::ast_t *> r1 =
+      LFortran::parse_python_file(al, runtime_library_dir, infile, diagnostics,
+                                  compiler_options.new_parser);
+  if (r1.ok) {
+    LFortran::LPython::AST::ast_t *ast = r1.result;
+    LFortran::Result<LFortran::ASR::TranslationUnit_t *> x =
+        LFortran::LPython::python_ast_to_asr(
+            al, *ast, diagnostics, true, compiler_options.disable_main,
+            compiler_options.symtab_only, infile);
+    if (!x.ok) {
+      std::cout << "{}\n";
+      return false;
+    }
+    std::vector<LFortran::LPython::document_symbols> symbol_lists;
+    LFortran::LPython::document_symbols loc;
+    for (auto &a : x.result->m_global_scope->get_scope()) {
+      std::string symbol_name = a.first;
+      uint32_t first_line;
+      uint32_t last_line;
+      uint32_t first_column;
+      uint32_t last_column;
+      lm.pos_to_linecol(a.second->base.loc.first, first_line, first_column);
+      lm.pos_to_linecol(a.second->base.loc.last, last_line, last_column);
+      loc.first_column = first_column;
+      loc.last_column = last_column;
+      loc.first_line = first_line - 1;
+      loc.last_line = last_line - 1;
+      loc.symbol_name = symbol_name;
+      if (loc.symbol_name == tok_name) {
+        rapidjson::Document test_output(rapidjson::kArrayType);
+        rapidjson::Document range_object(rapidjson::kObjectType);
+        rapidjson::Document start_detail(rapidjson::kObjectType);
+        rapidjson::Document end_detail(rapidjson::kObjectType);
+        rapidjson::Document location_object(rapidjson::kObjectType);
+        rapidjson::Document test_capture(rapidjson::kObjectType);
+
+        test_output.SetArray();
+
+        uint32_t start_character = loc.first_column;
+        uint32_t start_line = loc.first_line;
+        uint32_t end_character = loc.last_column;
+        uint32_t end_line = loc.last_line;
+        std::string name = loc.symbol_name;
+
+        range_object.SetObject();
+        rapidjson::Document::AllocatorType &allocator =
+            range_object.GetAllocator();
+
+        start_detail.SetObject();
+        start_detail.AddMember(
+            "character", rapidjson::Value().SetInt(start_character), allocator);
+        start_detail.AddMember("line", rapidjson::Value().SetInt(start_line),
+                               allocator);
+        range_object.AddMember("start", start_detail, allocator);
+
+        end_detail.SetObject();
+        end_detail.AddMember("character",
+                             rapidjson::Value().SetInt(end_character), allocator);
+        end_detail.AddMember("line", rapidjson::Value().SetInt(end_line),
+                             allocator);
+        range_object.AddMember("end", end_detail, allocator);
+
+        location_object.SetObject();
+        location_object.AddMember("range", range_object, allocator);
+        location_object.AddMember(
+            "uri", rapidjson::Value().SetString("uri", allocator), allocator);
+
+        test_capture.SetObject();
+        test_capture.AddMember("kind", rapidjson::Value().SetInt(1), allocator);
+        test_capture.AddMember("location", location_object, allocator);
+        test_capture.AddMember(
+            "name", rapidjson::Value().SetString(name.c_str(), allocator),
+            allocator);
+        test_output.PushBack(test_capture, test_output.GetAllocator());
+        rapidjson::StringBuffer buffer;
+        buffer.Clear();
+        rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+        test_output.Accept(writer);
+        std::string resp_str(buffer.GetString());
+
+        std::cout << resp_str;
+        return true;
+      }
+    }
+    std::cout << "{}\n";
+    return false;
+  }
+  std::cout << "{}\n";
+  return false;
+}
+
+std::pair<std::pair<int, int>, std::pair<int, int>>
+return_goto_def(const std::string &infile,
+                const std::string &runtime_library_dir,
+                CompilerOptions compiler_options, int index) {
+  std::string input = LFortran::read_file(infile);
+  // Src -> Tokens
+  Allocator al(64 * 1024 * 1024);
+  std::vector<int> toks;
+  std::vector<LFortran::YYSTYPE> stypes;
+  std::vector<LFortran::Location> locations;
+  LFortran::diag::Diagnostics diagnostics;
+  auto res = LFortran::tokens(al, input, diagnostics, &stypes, &locations);
+  LFortran::LocationManager lm;
+  lm.in_filename = infile;
+  lm.init_simple(input);
+  // std::cerr << diagnostics.render(input, lm, compiler_options);
+  if (res.ok) {
+    toks = res.result;
+  } else {
+    std::cout << "{}\n";
+    return {};
+  }
+
+  for (size_t i = 0; i < toks.size(); ++i) {
+    if (input_in_scope_identifier(
+            index,
+            std::make_pair<int, int>(locations[i].first, locations[i].last))) {
+      auto token_name = LFortran::get_token_name(toks[i], stypes[i]);
+      if (find_tok_in_scopes(infile, runtime_library_dir, compiler_options,
+                         token_name)) {
+        return {};
+      }
+    }
+  }
+  std::cout << "{}\n";
+  return {};
+}
+
 #endif
 
 void print_time_report(std::vector<std::pair<std::string, double>> &times, bool time_report) {
@@ -1825,6 +1970,7 @@ int main(int argc, char *argv[])
         bool show_c = false;
         bool show_python = false;
         bool show_document_symbols = false;
+        int goto_def_index = -1;
         bool show_errors = false;
         bool with_intrinsic_modules = false;
         std::string arg_pass;
@@ -1937,6 +2083,7 @@ int main(int argc, char *argv[])
         // LSP specific options
         app.add_flag("--show-errors", show_errors, "Show errors when LSP is running in the background");
         app.add_flag("--show-document-symbols", show_document_symbols, "Show symbols in lpython file");
+        app.add_option("--goto-def", goto_def_index, "Pass index for GoTo Definition");
 
         /*
         * Subcommands:
@@ -2167,7 +2314,17 @@ int main(int argc, char *argv[])
             return 1;
 #endif
        }
-
+        if (goto_def_index != -1) {
+#ifdef HAVE_LFORTRAN_RAPIDJSON
+          return_goto_def(arg_file, runtime_library_dir, compiler_options, goto_def_index);
+          return 1;
+#else
+          std::cerr << "Compiler was not built with LSP support (-DWITH_LSP), "
+                     "please build it again."
+                  << std::endl;
+          return 1;
+#endif
+        }
         if (show_errors) {
 #ifdef HAVE_LFORTRAN_RAPIDJSON
             return get_errors(arg_file, runtime_library_dir, compiler_options);
