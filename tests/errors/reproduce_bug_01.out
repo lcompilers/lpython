@@ -1,0 +1,9 @@
+[0;31;1msemantic error[0;0m[0;1m: SyntaxError: cannot assign to literal[0;0m
+ [0;34;1m-->[0;0m tests/errors/reproduce_bug_01.py:2:1
+  [0;34;1m|[0;0m
+[0;34;1m2 |[0;0m 'a' = 1
+  [0;34;1m|[0;0m [0;31;1m^^^ [0;0m
+
+
+[0;1mNote[0;0m: Please report unclear, confusing or incorrect messages as bugs at
+https://github.com/lfortran/lfortran/issues.
