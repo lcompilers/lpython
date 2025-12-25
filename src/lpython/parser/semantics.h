@@ -804,9 +804,52 @@ static inline ast_t* concat_string(Allocator &al, Location &l,
 #define STRING2(x, y, l) concat_string(p.m_a, l, EXPR(x), str_unescape_c(p.m_a, y), nullptr)
 #define STRING3(prefix, x, l) PREFIX_STRING(p.m_a, l, prefix.c_str(p.m_a), x.c_str(p.m_a))
 #define STRING4(x, s, l) concat_string(p.m_a, l, EXPR(x), "", EXPR(s))
+#define FSTRING(s, m, e, l) fstring(p.m_a, l, s.c_str(p.m_a), EXPR(m), e.c_str(p.m_a))
+#define FSTRING_MIDDLE(s, m, e, l) fstring_middle(p.m_a, l, EXPR(s), m.c_str(p.m_a), EXPR(e))
+#define FSTRING_MIDDLE1(x, l) fstring_middle1(p.m_a, l, EXPR(x))
 #define FLOAT(x, l) make_ConstantFloat_t(p.m_a, l, x, nullptr)
 #define COMPLEX(x, l) make_ConstantComplex_t(p.m_a, l, 0, x, nullptr)
 #define BOOL(x, l) make_ConstantBool_t(p.m_a, l, x, nullptr)
+
+static inline ast_t *fstring_middle1(Allocator &al, Location &l, expr_t *start){
+    return make_FormattedValue_t(al, l, start, -1, nullptr);
+}
+
+static inline ast_t *fstring_middle(Allocator &al, Location &l, expr_t *start,
+        char *middle, expr_t *end) {
+    Vec<expr_t *> exprs;
+    exprs.reserve(al, 3);
+    exprs.push_back(al, start);
+    ast_t *tmp = make_ConstantStr_t(al, l, middle, nullptr);
+    exprs.push_back(al, EXPR(tmp));
+    tmp = make_FormattedValue_t(al, l, end, -1, nullptr);
+    exprs.push_back(al, EXPR(tmp));
+    tmp = make_JoinedStr_t(al, l, exprs.p, exprs.size());
+    return tmp;
+}
+
+static inline ast_t *fstring(Allocator &al, Location &l, char *start, 
+        expr_t *middle, char *end) {
+    size_t p = 0, q = 0;
+    while(isalpha(start[p]) && p < strlen(start)) p++;
+    q = p;
+    while(start[q] == start[p] && q < strlen(start)) q++;
+    //discard the start prefix & quote & end brace characters, prefix can be 'r'|'f'
+    std::string str = std::string(start).substr(q, strlen(start)-q-1);
+    start = LCompilers::s2c(al, str);
+    str = std::string(end).substr(1, strlen(end)-(q-p)-1);
+    end = LCompilers::s2c(al, str);
+
+    Vec<expr_t *> exprs;
+    exprs.reserve(al, 3);
+    ast_t* tmp = make_ConstantStr_t(al, l, start, nullptr);
+    exprs.push_back(al, EXPR(tmp));
+    exprs.push_back(al, middle);
+    tmp = make_ConstantStr_t(al, l, end, nullptr);
+    exprs.push_back(al, EXPR(tmp));
+    tmp = make_JoinedStr_t(al, l, exprs.p, exprs.size());
+    return tmp;
+}
 
 static inline ast_t *PREFIX_STRING(Allocator &al, Location &l, char *prefix, char *s){
     Vec<expr_t *> exprs;
@@ -820,49 +863,8 @@ static inline ast_t *PREFIX_STRING(Allocator &al, Location &l, char *prefix, cha
     }
     if (strcmp(prefix, "f") == 0 || strcmp(prefix, "fr") == 0
             || strcmp(prefix, "rf") == 0) {
-        std::string str = std::string(s);
-        std::string s1 = "\"";
-        std::string id;
-        std::vector<std::string> strs;
-        bool open_paren = false;
-        for (size_t i = 0; i < str.length(); i++) {
-            if(str[i] == '{') {
-                if(s1 != "\"") {
-                    s1.push_back('"');
-                    strs.push_back(s1);
-                    s1 = "\"";
-                }
-                open_paren = true;
-            } else if (str[i] != '}' && open_paren) {
-                id.push_back(s[i]);
-            } else if (str[i] == '}') {
-                if(id != "") {
-                    strs.push_back(id);
-                    id = "";
-                }
-                open_paren = false;
-            } else if (!open_paren) {
-                s1.push_back(s[i]);
-            }
-            if(i == str.length()-1 && s1 != "\"") {
-                s1.push_back('"');
-                strs.push_back(s1);
-            }
-        }
-
-        for (size_t i = 0; i < strs.size(); i++) {
-            if (strs[i][0] == '"') {
-                strs[i] = strs[i].substr(1, strs[i].length() - 2);
-                tmp = make_ConstantStr_t(al, l, LCompilers::s2c(al, strs[i]), nullptr);
-                exprs.push_back(al, down_cast<expr_t>(tmp));
-            } else {
-                tmp = make_Name_t(al, l,
-                        LCompilers::s2c(al, strs[i]), expr_contextType::Load);
-                tmp = make_FormattedValue_t(al, l, EXPR(tmp), -1, nullptr);
-                exprs.push_back(al, down_cast<expr_t>(tmp));
-            }
-        }
-        tmp = make_JoinedStr_t(al, l, exprs.p, exprs.size());
+        // ignore 'f', assuming it is handled by fstring
+        tmp = make_ConstantStr_t(al, l,  s, nullptr);
     } else if (strcmp(prefix, "b") == 0) {
         LCompilers::Str s_;
         s_.from_str(al, std::string(s));
