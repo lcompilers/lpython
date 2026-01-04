@@ -1,5 +1,5 @@
 from lpython import S
-from sympy import Symbol, log, E, Pow, exp
+from sympy import Symbol, log, E, Pow, exp, oo
 
 def mmrv(e: S, x: S) -> list[S]:
     empty_list : list[S] = []
@@ -36,10 +36,38 @@ def mmrv(e: S, x: S) -> list[S]:
             if exponent.func == log:
                 list4: list[S] = mmrv(exponent.args[0], x)
                 return list4
-            # TODO
+            li: S = limitinf(exponent, x)
+            if is_infinite(li):
+                # TODO
+                pass
+            else:
+                list5: list[S] = mmrv(exponent, x)
+                return list5
             pass
     else:
         raise
+
+def is_infinite(e: S) -> bool:
+    if e == oo:
+        return True
+    if e == S(-1) * oo:
+        return True
+    return False
+
+def limitinf(e: S, x: S) -> S:
+    if e == x:
+        return oo
+    elif e == S(-1) * x:
+        return S(-1) * oo
+    elif e.func == Pow:
+        exponent: S = e.args[1]
+        # assuming all exponents are integers to start with
+        if exponent > S(0):
+            return oo
+        else:
+            return S(0)
+    else:
+        raise Exception("Not implemented yet.")
 
 def test_mrv():
     # Case 1
