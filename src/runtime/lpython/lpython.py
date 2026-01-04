@@ -604,14 +604,9 @@ def c_p_pointer(cptr, targettype, targetshape=None):
         newa = ctypes.cast(cptr, targettype_ptr)
         return newa
     else:
-        if py_is_dataclass(targettype):
-            if cptr.value is None:
-                return None
-            return ctypes.cast(cptr, ctypes.py_object).value
-
         targettype_ptr = ctypes.POINTER(targettype_ptr)
         newa = ctypes.cast(cptr, targettype_ptr)
-        if is_ctypes_Structure(targettype):
+        if is_dataclass(targettype):
             # return after wrapping newa inside PointerToStruct
             return PointerToStruct(newa)
         return newa
