@@ -397,9 +397,15 @@
                                                 (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength DescriptorString)
                                             )]
                                             (Tuple
-                                                [(String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength DescriptorString)
-                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength DescriptorString)
-                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength DescriptorString)]
+                                                [(Allocatable
+                                                    (String 1 () DeferredLength DescriptorString)
+                                                )
+                                                (Allocatable
+                                                    (String 1 () DeferredLength DescriptorString)
+                                                )
+                                                (Allocatable
+                                                    (String 1 () DeferredLength DescriptorString)
+                                                )]
                                             )
                                         )
                                         ()
@@ -446,7 +452,9 @@
                                                 [(Integer 4)
                                                 (Integer 4)
                                                 (Real 4)
-                                                (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength DescriptorString)]
+                                                (Allocatable
+                                                    (String 1 () DeferredLength DescriptorString)
+                                                )]
                                             )
                                         )
                                         ()
@@ -543,8 +551,12 @@
                                                 )
                                                 (Var 3 float_mem1)]
                                                 (Tuple
-                                                    [(String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength DescriptorString)
-                                                    (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength DescriptorString)
+                                                    [(Allocatable
+                                                        (String 1 () DeferredLength DescriptorString)
+                                                    )
+                                                    (Allocatable
+                                                        (String 1 () DeferredLength DescriptorString)
+                                                    )
                                                     (Real 4)]
                                                 )
                                             )
@@ -556,19 +568,27 @@
                                                 (IntegerConstant 3 (Integer 4) Decimal)
                                                 (Var 3 float_mem2)]
                                                 (Tuple
-                                                    [(String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength DescriptorString)
+                                                    [(Allocatable
+                                                        (String 1 () DeferredLength DescriptorString)
+                                                    )
                                                     (Integer 4)
                                                     (Real 4)]
                                                 )
                                             )]
                                             (Tuple
                                                 [(Tuple
-                                                    [(String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength DescriptorString)
-                                                    (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength DescriptorString)
+                                                    [(Allocatable
+                                                        (String 1 () DeferredLength DescriptorString)
+                                                    )
+                                                    (Allocatable
+                                                        (String 1 () DeferredLength DescriptorString)
+                                                    )
                                                     (Real 4)]
                                                 )
                                                 (Tuple
-                                                    [(String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength DescriptorString)
+                                                    [(Allocatable
+                                                        (String 1 () DeferredLength DescriptorString)
+                                                    )
                                                     (Integer 4)
                                                     (Real 4)]
                                                 )]

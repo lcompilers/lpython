@@ -3518,7 +3518,14 @@ public:
             this->visit_expr(*x.m_elts[i]);
             ASR::expr_t *expr = ASRUtils::EXPR(tmp);
             elements.push_back(al, expr);
-            tuple_type_vec.push_back(al, ASRUtils::expr_type(expr));
+            ASR::ttype_t *type = ASRUtils::expr_type(expr);
+
+            if (ASRUtils::is_character(*type) && !ASRUtils::is_allocatable(type))
+                type = ASRUtils::TYPE(ASR::make_Allocatable_t(al, x.base.base.loc, 
+                            ASRUtils::TYPE(ASR::make_String_t(al, x.base.base.loc, 1, nullptr, 
+                                        ASR::string_length_kindType::DeferredLength, 
+                                        ASR::string_physical_typeType::DescriptorString))));
+            tuple_type_vec.push_back(al, type);
         }
         ASR::ttype_t *tuple_type = ASRUtils::TYPE(ASR::make_Tuple_t(al, x.base.base.loc,
                                     tuple_type_vec.p, tuple_type_vec.n));

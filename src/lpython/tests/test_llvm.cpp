@@ -612,7 +612,6 @@ define float @f()
 TEST_CASE("PythonCompiler 1") {
     CompilerOptions cu;
     cu.po.disable_main = true;
-    cu.emit_debug_line_column = false;
     cu.separate_compilation = false;
     cu.interactive = true;
     cu.po.runtime_library_dir = LCompilers::LPython::get_runtime_library_dir();
@@ -627,7 +626,6 @@ TEST_CASE("PythonCompiler 1") {
 // TEST_CASE("PythonCompiler 2") {
 //     CompilerOptions cu;
 //     cu.po.disable_main = true;
-//     cu.emit_debug_line_column = false;
 //     cu.separate_compilation = false;
 //     cu.interactive = true;
 //     cu.po.runtime_library_dir = LCompilers::LPython::get_runtime_library_dir();
@@ -646,7 +644,6 @@ TEST_CASE("PythonCompiler 1") {
 TEST_CASE("PythonCompiler i32 expressions") {
     CompilerOptions cu;
     cu.po.disable_main = true;
-    cu.emit_debug_line_column = false;
     cu.separate_compilation = false;
     cu.interactive = true;
     cu.po.runtime_library_dir = LCompilers::LPython::get_runtime_library_dir();
@@ -692,7 +689,6 @@ TEST_CASE("PythonCompiler i32 expressions") {
 // TEST_CASE("PythonCompiler i32 declaration") {
 //     CompilerOptions cu;
 //     cu.po.disable_main = true;
-//     cu.emit_debug_line_column = false;
 //     cu.separate_compilation = false;
 //     cu.interactive = true;
 //     cu.po.runtime_library_dir = LCompilers::LPython::get_runtime_library_dir();
@@ -727,7 +723,6 @@ TEST_CASE("PythonCompiler i32 expressions") {
 TEST_CASE("PythonCompiler i64 expressions") {
     CompilerOptions cu;
     cu.po.disable_main = true;
-    cu.emit_debug_line_column = false;
     cu.separate_compilation = false;
     cu.interactive = true;
     cu.po.runtime_library_dir = LCompilers::LPython::get_runtime_library_dir();
@@ -773,7 +768,6 @@ TEST_CASE("PythonCompiler i64 expressions") {
 // TEST_CASE("PythonCompiler i64 declaration") {
 //     CompilerOptions cu;
 //     cu.po.disable_main = true;
-//     cu.emit_debug_line_column = false;
 //     cu.separate_compilation = false;
 //     cu.interactive = true;
 //     cu.po.runtime_library_dir = LCompilers::LPython::get_runtime_library_dir();
@@ -808,7 +802,6 @@ TEST_CASE("PythonCompiler i64 expressions") {
 // TEST_CASE("PythonCompiler u32 expressions") {
 //     CompilerOptions cu;
 //     cu.po.disable_main = true;
-//     cu.emit_debug_line_column = false;
 //     cu.separate_compilation = false;
 //     cu.interactive = true;
 //     cu.po.runtime_library_dir = LCompilers::LPython::get_runtime_library_dir();
@@ -854,7 +847,6 @@ TEST_CASE("PythonCompiler i64 expressions") {
 // TEST_CASE("PythonCompiler u32 declaration") {
 //     CompilerOptions cu;
 //     cu.po.disable_main = true;
-//     cu.emit_debug_line_column = false;
 //     cu.separate_compilation = false;
 //     cu.interactive = true;
 //     cu.po.runtime_library_dir = LCompilers::LPython::get_runtime_library_dir();
@@ -890,7 +882,6 @@ TEST_CASE("PythonCompiler i64 expressions") {
 // TEST_CASE("PythonCompiler u64 expressions") {
 //     CompilerOptions cu;
 //     cu.po.disable_main = true;
-//     cu.emit_debug_line_column = false;
 //     cu.separate_compilation = false;
 //     cu.interactive = true;
 //     cu.po.runtime_library_dir = LCompilers::LPython::get_runtime_library_dir();
@@ -936,7 +927,6 @@ TEST_CASE("PythonCompiler i64 expressions") {
 // TEST_CASE("PythonCompiler u64 declaration") {
 //     CompilerOptions cu;
 //     cu.po.disable_main = true;
-//     cu.emit_debug_line_column = false;
 //     cu.separate_compilation = false;
 //     cu.interactive = true;
 //     cu.po.runtime_library_dir = LCompilers::LPython::get_runtime_library_dir();
@@ -971,7 +961,6 @@ TEST_CASE("PythonCompiler i64 expressions") {
 // TEST_CASE("PythonCompiler i8 expressions") {
 //     CompilerOptions cu;
 //     cu.po.disable_main = true;
-//     cu.emit_debug_line_column = false;
 //     cu.separate_compilation = false;
 //     cu.interactive = true;
 //     cu.po.runtime_library_dir = LCompilers::LPython::get_runtime_library_dir();
@@ -1017,7 +1006,6 @@ TEST_CASE("PythonCompiler i64 expressions") {
 // TEST_CASE("PythonCompiler i8 declaration") {
 //     CompilerOptions cu;
 //     cu.po.disable_main = true;
-//     cu.emit_debug_line_column = false;
 //     cu.separate_compilation = false;
 //     cu.interactive = true;
 //     cu.po.runtime_library_dir = LCompilers::LPython::get_runtime_library_dir();
@@ -1052,7 +1040,6 @@ TEST_CASE("PythonCompiler i64 expressions") {
 // TEST_CASE("PythonCompiler u8 expressions") {
 //     CompilerOptions cu;
 //     cu.po.disable_main = true;
-//     cu.emit_debug_line_column = false;
 //     cu.separate_compilation = false;
 //     cu.interactive = true;
 //     cu.po.runtime_library_dir = LCompilers::LPython::get_runtime_library_dir();
@@ -1098,7 +1085,6 @@ TEST_CASE("PythonCompiler i64 expressions") {
 // TEST_CASE("PythonCompiler u8 declaration") {
 //     CompilerOptions cu;
 //     cu.po.disable_main = true;
-//     cu.emit_debug_line_column = false;
 //     cu.separate_compilation = false;
 //     cu.interactive = true;
 //     cu.po.runtime_library_dir = LCompilers::LPython::get_runtime_library_dir();
@@ -1133,7 +1119,6 @@ TEST_CASE("PythonCompiler i64 expressions") {
 // TEST_CASE("PythonCompiler i16 expressions") {
 //     CompilerOptions cu;
 //     cu.po.disable_main = true;
-//     cu.emit_debug_line_column = false;
 //     cu.separate_compilation = false;
 //     cu.interactive = true;
 //     cu.po.runtime_library_dir = LCompilers::LPython::get_runtime_library_dir();
@@ -1179,7 +1164,6 @@ TEST_CASE("PythonCompiler i64 expressions") {
 // TEST_CASE("PythonCompiler i16 declaration") {
 //     CompilerOptions cu;
 //     cu.po.disable_main = true;
-//     cu.emit_debug_line_column = false;
 //     cu.separate_compilation = false;
 //     cu.interactive = true;
 //     cu.po.runtime_library_dir = LCompilers::LPython::get_runtime_library_dir();
@@ -1214,7 +1198,6 @@ TEST_CASE("PythonCompiler i64 expressions") {
 // TEST_CASE("PythonCompiler u16 expressions") {
 //     CompilerOptions cu;
 //     cu.po.disable_main = true;
-//     cu.emit_debug_line_column = false;
 //     cu.separate_compilation = false;
 //     cu.interactive = true;
 //     cu.po.runtime_library_dir = LCompilers::LPython::get_runtime_library_dir();
@@ -1260,7 +1243,6 @@ TEST_CASE("PythonCompiler i64 expressions") {
 // TEST_CASE("PythonCompiler u16 declaration") {
 //     CompilerOptions cu;
 //     cu.po.disable_main = true;
-//     cu.emit_debug_line_column = false;
 //     cu.separate_compilation = false;
 //     cu.interactive = true;
 //     cu.po.runtime_library_dir = LCompilers::LPython::get_runtime_library_dir();
@@ -1295,7 +1277,6 @@ TEST_CASE("PythonCompiler i64 expressions") {
 // TEST_CASE("PythonCompiler boolean expressions") {
 //     CompilerOptions cu;
 //     cu.po.disable_main = true;
-//     cu.emit_debug_line_column = false;
 //     cu.separate_compilation = false;
 //     cu.interactive = true;
 //     cu.po.runtime_library_dir = LCompilers::LPython::get_runtime_library_dir();
@@ -1326,7 +1307,6 @@ TEST_CASE("PythonCompiler i64 expressions") {
 // TEST_CASE("PythonCompiler boolean declaration") {
 //     CompilerOptions cu;
 //     cu.po.disable_main = true;
-//     cu.emit_debug_line_column = false;
 //     cu.separate_compilation = false;
 //     cu.interactive = true;
 //     cu.po.runtime_library_dir = LCompilers::LPython::get_runtime_library_dir();
@@ -1366,7 +1346,6 @@ TEST_CASE("PythonCompiler i64 expressions") {
 // TEST_CASE("PythonCompiler string 1") {
 //     CompilerOptions cu;
 //     cu.po.disable_main = true;
-//     cu.emit_debug_line_column = false;
 //     cu.separate_compilation = false;
 //     cu.interactive = true;
 //     cu.po.runtime_library_dir = LCompilers::LPython::get_runtime_library_dir();
@@ -1387,7 +1366,6 @@ TEST_CASE("PythonCompiler i64 expressions") {
 // TEST_CASE("PythonCompiler string 2") {
 //     CompilerOptions cu;
 //     cu.po.disable_main = true;
-//     cu.emit_debug_line_column = false;
 //     cu.separate_compilation = false;
 //     cu.interactive = true;
 //     cu.po.runtime_library_dir = LCompilers::LPython::get_runtime_library_dir();
@@ -1421,7 +1399,6 @@ TEST_CASE("PythonCompiler i64 expressions") {
 // TEST_CASE("PythonCompiler string 3") {
 //     CompilerOptions cu;
 //     cu.po.disable_main = true;
-//     cu.emit_debug_line_column = false;
 //     cu.separate_compilation = false;
 //     cu.interactive = true;
 //     cu.po.runtime_library_dir = LCompilers::LPython::get_runtime_library_dir();
@@ -1453,7 +1430,6 @@ TEST_CASE("PythonCompiler i64 expressions") {
 // TEST_CASE("PythonCompiler Array 1") {
 //     CompilerOptions cu;
 //     cu.po.disable_main = true;
-//     cu.emit_debug_line_column = false;
 //     cu.separate_compilation = false;
 //     cu.interactive = true;
 //     cu.po.runtime_library_dir = LCompilers::LPython::get_runtime_library_dir();
@@ -1470,7 +1446,6 @@ TEST_CASE("PythonCompiler i64 expressions") {
 // TEST_CASE("PythonCompiler lists") {
 //     CompilerOptions cu;
 //     cu.po.disable_main = true;
-//     cu.emit_debug_line_column = false;
 //     cu.separate_compilation = false;
 //     cu.interactive = true;
 //     cu.po.runtime_library_dir = LCompilers::LPython::get_runtime_library_dir();
@@ -1509,7 +1484,6 @@ TEST_CASE("PythonCompiler i64 expressions") {
 // TEST_CASE("PythonCompiler tuples") {
 //     CompilerOptions cu;
 //     cu.po.disable_main = true;
-//     cu.emit_debug_line_column = false;
 //     cu.separate_compilation = false;
 //     cu.interactive = true;
 //     cu.po.runtime_library_dir = LCompilers::LPython::get_runtime_library_dir();
@@ -1556,7 +1530,6 @@ TEST_CASE("PythonCompiler i64 expressions") {
 // TEST_CASE("PythonCompiler classes") {
 //     CompilerOptions cu;
 //     cu.po.disable_main = true;
-//     cu.emit_debug_line_column = false;
 //     cu.separate_compilation = false;
 //     cu.interactive = true;
 //     cu.po.runtime_library_dir = LCompilers::LPython::get_runtime_library_dir();
@@ -1663,7 +1636,6 @@ TEST_CASE("PythonCompiler i64 expressions") {
 // TEST_CASE("PythonCompiler underscore 1") {
 //     CompilerOptions cu;
 //     cu.po.disable_main = true;
-//     cu.emit_debug_line_column = false;
 //     cu.separate_compilation = false;
 //     cu.interactive = true;
 //     cu.po.runtime_library_dir = LCompilers::LPython::get_runtime_library_dir();
@@ -1694,7 +1666,6 @@ TEST_CASE("PythonCompiler i64 expressions") {
 // TEST_CASE("PythonCompiler underscore 2") {
 //     CompilerOptions cu;
 //     cu.po.disable_main = true;
-//     cu.emit_debug_line_column = false;
 //     cu.separate_compilation = false;
 //     cu.interactive = true;
 //     cu.po.runtime_library_dir = LCompilers::LPython::get_runtime_library_dir();
@@ -1743,7 +1714,6 @@ TEST_CASE("PythonCompiler i64 expressions") {
 // TEST_CASE("PythonCompiler underscore 3") {
 //     CompilerOptions cu;
 //     cu.po.disable_main = true;
-//     cu.emit_debug_line_column = false;
 //     cu.separate_compilation = false;
 //     cu.interactive = true;
 //     cu.po.runtime_library_dir = LCompilers::LPython::get_runtime_library_dir();
@@ -1776,7 +1746,6 @@ TEST_CASE("PythonCompiler i64 expressions") {
 // TEST_CASE("PythonCompiler underscore 4") {
 //     CompilerOptions cu;
 //     cu.po.disable_main = true;
-//     cu.emit_debug_line_column = false;
 //     cu.separate_compilation = false;
 //     cu.interactive = true;
 //     cu.po.runtime_library_dir = LCompilers::LPython::get_runtime_library_dir();
@@ -1809,7 +1778,6 @@ TEST_CASE("PythonCompiler i64 expressions") {
 // TEST_CASE("PythonCompiler asr verify 1") {
 //     CompilerOptions cu;
 //     cu.po.disable_main = true;
-//     cu.emit_debug_line_column = false;
 //     cu.separate_compilation = false;
 //     cu.interactive = true;
 //     cu.po.runtime_library_dir = LCompilers::LPython::get_runtime_library_dir();
@@ -1828,7 +1796,6 @@ TEST_CASE("PythonCompiler i64 expressions") {
 // TEST_CASE("PythonCompiler asr verify 2") {
 //     CompilerOptions cu;
 //     cu.po.disable_main = true;
-//     cu.emit_debug_line_column = false;
 //     cu.separate_compilation = false;
 //     cu.interactive = true;
 //     cu.po.runtime_library_dir = LCompilers::LPython::get_runtime_library_dir();
@@ -1855,7 +1822,6 @@ TEST_CASE("PythonCompiler i64 expressions") {
 TEST_CASE("PythonCompiler asr verify 3") {
     CompilerOptions cu;
     cu.po.disable_main = true;
-    cu.emit_debug_line_column = false;
     cu.separate_compilation = false;
     cu.interactive = true;
     cu.po.runtime_library_dir = LCompilers::LPython::get_runtime_library_dir();
@@ -1887,7 +1853,6 @@ def subi(x: i32, y: i32) -> i32:
 TEST_CASE("PythonCompiler asr verify 4") {
     CompilerOptions cu;
     cu.po.disable_main = true;
-    cu.emit_debug_line_column = false;
     cu.separate_compilation = false;
     cu.interactive = true;
     cu.po.runtime_library_dir = LCompilers::LPython::get_runtime_library_dir();

@@ -1880,8 +1880,6 @@ int main(int argc, char *argv[])
         // app.add_option("-J", arg_J, "Where to save mod files");
         app.add_flag("--jit", to_jit, "Execute the program using just-in-time (JIT) compiler");
         app.add_flag("-g", compiler_options.emit_debug_info, "Compile with debugging information");
-        app.add_flag("--debug-with-line-column", compiler_options.emit_debug_line_column,
-            "Convert the linear location info into line + column in the debugging information");
         // app.add_option("-D", compiler_options.c_preprocessor_defines, "Define <macro>=<value> (or 1 if <value> omitted)")->allow_extra_args(false);
         app.add_flag("--version", arg_version, "Display compiler version information");
 
@@ -2085,7 +2083,6 @@ int main(int argc, char *argv[])
             lpython_pass_manager.parse_pass_arg(arg_pass, skip_pass);
             lpython_pass_manager.use_default_passes();
             compiler_options.po.disable_main = true;
-            compiler_options.emit_debug_line_column = false;
             compiler_options.separate_compilation = false;
             return interactive_python_repl(lpython_pass_manager, compiler_options, arg_v);
 #else
@@ -2225,7 +2222,6 @@ int main(int argc, char *argv[])
                     return 1;
                 }
                 compiler_options.emit_debug_info = false;
-                compiler_options.emit_debug_line_column = false;
                 compiler_options.separate_compilation = false;
                 return compile_python_using_llvm(arg_file, "", runtime_library_dir,
                         lpython_pass_manager, compiler_options, time_report, false, true);

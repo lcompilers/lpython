@@ -22,7 +22,6 @@ FINALIZE_SYMTABLE___main__global_stmts:           ; preds = %return
 
 define i64 @__module___main___fib(i64* %n) {
 .entry:
-  %call_arg_value1 = alloca i64, align 8
   %call_arg_value = alloca i64, align 8
   %_lpython_return_variable = alloca i64, align 8
   %0 = load i64, i64* %n, align 4
@@ -47,16 +46,16 @@ ifcont:                                           ; preds = %else, %unreachable_
   %5 = call i64 @__module___main___fib(i64* %call_arg_value)
   %6 = load i64, i64* %n, align 4
   %7 = sub i64 %6, 2
-  store i64 %7, i64* %call_arg_value1, align 4
-  %8 = call i64 @__module___main___fib(i64* %call_arg_value1)
+  store i64 %7, i64* %call_arg_value, align 4
+  %8 = call i64 @__module___main___fib(i64* %call_arg_value)
   %9 = add i64 %5, %8
   store i64 %9, i64* %_lpython_return_variable, align 4
   br label %return
 
-unreachable_after_return2:                        ; No predecessors!
+unreachable_after_return1:                        ; No predecessors!
   br label %return
 
-return:                                           ; preds = %unreachable_after_return2, %ifcont, %then
+return:                                           ; preds = %unreachable_after_return1, %ifcont, %then
   br label %FINALIZE_SYMTABLE_fib
 
 FINALIZE_SYMTABLE_fib:                            ; preds = %return
@@ -85,15 +84,22 @@ define void @__module___main____xx_lcompilers_changed_main_xx() {
   %9 = load i64, i64* %8, align 4
   %10 = trunc i64 %9 to i32
   call void @_lfortran_printf(i8* getelementptr inbounds ([5 x i8], [5 x i8]* @1, i32 0, i32 0), i8* %7, i32 %10, i8* getelementptr inbounds ([2 x i8], [2 x i8]* @0, i32 0, i32 0), i32 1)
-  call void @_lfortran_free(i8* %2)
-  %11 = load i64, i64* %ans, align 4
-  %12 = icmp eq i64 %11, 102334155
-  br i1 %12, label %then, label %else
+  %11 = icmp eq i8* %2, null
+  br i1 %11, label %free_done, label %free_nonnull
 
-then:                                             ; preds = %.entry
+free_nonnull:                                     ; preds = %.entry
+  call void @_lfortran_free(i8* %2)
+  br label %free_done
+
+free_done:                                        ; preds = %free_nonnull, %.entry
+  %12 = load i64, i64* %ans, align 4
+  %13 = icmp eq i64 %12, 102334155
+  br i1 %13, label %then, label %else
+
+then:                                             ; preds = %free_done
   br label %ifcont
 
-else:                                             ; preds = %.entry
+else:                                             ; preds = %free_done
   call void (i8*, ...) @_lcompilers_print_error(i8* getelementptr inbounds ([16 x i8], [16 x i8]* @2, i32 0, i32 0))
   call void @exit(i32 1)
   br label %ifcont

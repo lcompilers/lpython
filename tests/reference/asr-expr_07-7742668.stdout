@@ -109,21 +109,9 @@
                                     (Print
                                         (StringFormat
                                             ()
-                                            [(Cast
-                                                (LogicalConstant
-                                                    .true.
-                                                    (Logical 4)
-                                                )
-                                                LogicalToString
-                                                (Allocatable
-                                                    (String 1 () DeferredLength DescriptorString)
-                                                )
-                                                (StringConstant
-                                                    "True"
-                                                    (Allocatable
-                                                        (String 1 () DeferredLength DescriptorString)
-                                                    )
-                                                )
+                                            [(StringConstant
+                                                "True"
+                                                (String 1 (IntegerConstant 4 (Integer 4) Decimal) ExpressionLength DescriptorString)
                                             )]
                                             FormatPythonFormat
                                             (Allocatable
@@ -184,21 +172,9 @@
                                     )
                                     (Assert
                                         (StringCompare
-                                            (Cast
-                                                (LogicalConstant
-                                                    .true.
-                                                    (Logical 4)
-                                                )
-                                                LogicalToString
-                                                (Allocatable
-                                                    (String 1 () DeferredLength DescriptorString)
-                                                )
-                                                (StringConstant
-                                                    "True"
-                                                    (Allocatable
-                                                        (String 1 () DeferredLength DescriptorString)
-                                                    )
-                                                )
+                                            (StringConstant
+                                                "True"
+                                                (String 1 (IntegerConstant 4 (Integer 4) Decimal) ExpressionLength DescriptorString)
                                             )
                                             Eq
                                             (StringConstant

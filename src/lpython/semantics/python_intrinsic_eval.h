@@ -318,7 +318,6 @@ struct IntrinsicNodeHandler {
                     loc);
         }
         ASR::expr_t *arg = nullptr;
-        ASR::expr_t *res_value = nullptr;
         ASR::ttype_t *arg_type = nullptr;
         if (args.size() > 0) {
             arg = args[0].m_value;
@@ -345,43 +344,43 @@ struct IntrinsicNodeHandler {
                 sm << ival;
                 std::string value_str = sm.str();
                 sm.clear();
-                ASR::ttype_t* res_type = ASRUtils::TYPE(ASR::make_Allocatable_t(al, loc, 
-                                            ASRUtils::TYPE(ASR::make_String_t(al, loc, 1, nullptr, 
-                                                ASR::string_length_kindType::DeferredLength,
-                                                ASR::string_physical_typeType::DescriptorString))));
-                res_value =  ASR::down_cast<ASR::expr_t>(ASR::make_StringConstant_t(al,
-                                loc, s2c(al, value_str), res_type));
+                ASR::ttype_t* res_type = ASRUtils::TYPE(ASR::make_String_t(al, loc, 1, 
+                                               ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, loc,
+                                                    value_str.size(), ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4)))), 
+                                                ASR::string_length_kindType::ExpressionLength,
+                                                ASR::string_physical_typeType::DescriptorString));
+                return ASR::make_StringConstant_t(al, loc, s2c(al, value_str), res_type);
             }
             return ASR::make_Cast_t(al, loc, arg, ASR::cast_kindType::RealToString,
-                str_type, res_value);
+                str_type, nullptr);
         } else if (ASRUtils::is_integer(*arg_type)) {
             if (ASRUtils::expr_value(arg) != nullptr) {
                 int64_t number = ASR::down_cast<ASR::IntegerConstant_t>(
                                         ASRUtils::expr_value(arg))->m_n;
                 std::string value_str = std::to_string(number);
-                ASR::ttype_t* res_type = ASRUtils::TYPE(ASR::make_Allocatable_t(al, loc, 
-                                            ASRUtils::TYPE(ASR::make_String_t(al, loc, 1, nullptr, 
-                                                ASR::string_length_kindType::DeferredLength,
-                                                ASR::string_physical_typeType::DescriptorString))));
-                res_value = ASR::down_cast<ASR::expr_t>(ASR::make_StringConstant_t(al,
-                                loc, s2c(al, value_str), res_type));
+                ASR::ttype_t* res_type = ASRUtils::TYPE(ASR::make_String_t(al, loc, 1, 
+                                               ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, loc,
+                                                    value_str.size(), ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4)))), 
+                                                ASR::string_length_kindType::ExpressionLength,
+                                                ASR::string_physical_typeType::DescriptorString));
+                return ASR::make_StringConstant_t(al, loc, s2c(al, value_str), res_type);
             }
             return ASR::make_Cast_t(al, loc, arg, ASR::cast_kindType::IntegerToString,
-                str_type, res_value);
+                str_type, nullptr);
         } else if (ASRUtils::is_logical(*arg_type)) {
             if(ASRUtils::expr_value(arg) != nullptr) {
                 bool bool_number = ASR::down_cast<ASR::LogicalConstant_t>(
                                         ASRUtils::expr_value(arg))->m_value;
                 std::string value_str = (bool_number)? "True" : "False";
-                ASR::ttype_t* res_type = ASRUtils::TYPE(ASR::make_Allocatable_t(al, loc, 
-                                            ASRUtils::TYPE(ASR::make_String_t(al, loc, 1, nullptr, 
-                                                ASR::string_length_kindType::DeferredLength,
-                                                ASR::string_physical_typeType::DescriptorString))));
-                res_value = ASR::down_cast<ASR::expr_t>(ASR::make_StringConstant_t(al,
-                                loc, s2c(al, value_str), res_type));
+                ASR::ttype_t* res_type = ASRUtils::TYPE(ASR::make_String_t(al, loc, 1, 
+                                               ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, loc,
+                                                    value_str.size(), ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4)))), 
+                                                ASR::string_length_kindType::ExpressionLength,
+                                                ASR::string_physical_typeType::DescriptorString));
+                return ASR::make_StringConstant_t(al, loc, s2c(al, value_str), res_type);
             }
             return ASR::make_Cast_t(al, loc, arg, ASR::cast_kindType::LogicalToString,
-                str_type, res_value);
+                str_type, nullptr);
 
         } else if (ASRUtils::is_character(*arg_type)) {
             return (ASR::asr_t *)arg;

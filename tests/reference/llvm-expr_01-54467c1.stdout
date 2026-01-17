@@ -40,10 +40,17 @@ define void @__module___main___main0() {
   %8 = load i64, i64* %7, align 4
   %9 = trunc i64 %8 to i32
   call void @_lfortran_printf(i8* getelementptr inbounds ([5 x i8], [5 x i8]* @1, i32 0, i32 0), i8* %6, i32 %9, i8* getelementptr inbounds ([2 x i8], [2 x i8]* @0, i32 0, i32 0), i32 1)
+  %10 = icmp eq i8* %1, null
+  br i1 %10, label %free_done, label %free_nonnull
+
+free_nonnull:                                     ; preds = %.entry
   call void @_lfortran_free(i8* %1)
+  br label %free_done
+
+free_done:                                        ; preds = %free_nonnull, %.entry
   br label %return
 
-return:                                           ; preds = %.entry
+return:                                           ; preds = %free_done
   br label %FINALIZE_SYMTABLE_main0
 
 FINALIZE_SYMTABLE_main0:                          ; preds = %return

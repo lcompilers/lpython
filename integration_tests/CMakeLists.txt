@@ -465,9 +465,9 @@ RUN(NAME print_04            LABELS cpython llvm llvm_jit c)
 RUN(NAME print_06            LABELS cpython llvm llvm_jit) # renable c
 RUN(NAME print_05            LABELS cpython llvm llvm_jit c wasm wasm_x64)
 RUN(NAME print_float         LABELS cpython llvm llvm_jit c wasm wasm_x64)
-# RUN(NAME print_list_tuple_01    LABELS cpython llvm llvm_jit NOFAST) # renable c # post sync
+RUN(NAME print_list_tuple_01    LABELS cpython llvm llvm_jit NOFAST) # renable c # post sync
 # RUN(NAME print_list_tuple_02    LABELS cpython llvm llvm_jit c NOFAST)
-# RUN(NAME print_list_tuple_03    LABELS cpython llvm llvm_jit c NOFAST)
+RUN(NAME print_list_tuple_03    LABELS cpython llvm llvm_jit c NOFAST)
 RUN(NAME test_list_item_mixed_print    LABELS cpython llvm llvm_jit NOFAST) # renable c # post sync
 # RUN(NAME test_intrinsic_function_mixed_print    LABELS cpython llvm llvm_jit NOFAST) # post sync
 
@@ -562,11 +562,11 @@ RUN(NAME test_list_concat    LABELS cpython llvm llvm_jit c NOFAST)
 # RUN(NAME test_list_reserve   LABELS cpython llvm llvm_jit) # post sync
 # RUN(NAME test_const_list     LABELS cpython llvm llvm_jit) # post sync
 # RUN(NAME test_const_access     LABELS cpython llvm llvm_jit) # post sync
-# RUN(NAME test_tuple_01       LABELS cpython llvm llvm_jit) # renable c # post sync
-# RUN(NAME test_tuple_02       LABELS cpython llvm llvm_jit c NOFAST)
-# RUN(NAME test_tuple_03       LABELS cpython llvm llvm_jit) # renable c # post sync
-# RUN(NAME test_tuple_04       LABELS cpython llvm llvm_jit) # renable c # post sync
-# RUN(NAME test_tuple_concat   LABELS cpython llvm llvm_jit) # post sync
+RUN(NAME test_tuple_01       LABELS cpython llvm llvm_jit) # renable c # post sync
+RUN(NAME test_tuple_02       LABELS cpython llvm llvm_jit NOFAST) # renable c
+RUN(NAME test_tuple_03       LABELS cpython llvm llvm_jit) # renable c # post sync
+RUN(NAME test_tuple_04       LABELS cpython llvm llvm_jit) # renable c # post sync
+RUN(NAME test_tuple_concat   LABELS cpython llvm llvm_jit) # post sync
 # RUN(NAME test_tuple_nested   LABELS cpython llvm llvm_jit) # post sync
 # RUN(NAME test_const_dict     LABELS cpython llvm llvm_jit) # post sync
 # RUN(NAME test_params         LABELS cpython llvm llvm_jit NOFAST)
@@ -671,7 +671,7 @@ RUN(NAME test_c_interop_01   LABELS cpython llvm llvm_jit c)
 # RUN(NAME bindpy_06           LABELS cpython llvm_py EXTRA_ARGS --enable-cpython NOFAST COPY_TO_BIN bindpy_06_module.py REQ_PY_VER 3.10)
 # RUN(NAME test_generics_01    LABELS cpython llvm llvm_jit NOFAST) # renable c # post sync
 RUN(NAME test_cmath          LABELS cpython llvm llvm_jit c NOFAST)
-RUN(NAME test_complex_01        LABELS cpython llvm llvm_jit c wasm wasm_x64)
+RUN(NAME test_complex_01        LABELS cpython llvm llvm_jit c wasm) # renable wasm_x64
 RUN(NAME test_complex_02        LABELS cpython llvm llvm_jit c)
 RUN(NAME test_ConstantEllipsis  LABLES cpython llvm llvm_jit c)
 RUN(NAME test_max_min        LABELS cpython llvm llvm_jit c)

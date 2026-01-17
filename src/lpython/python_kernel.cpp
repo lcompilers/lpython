@@ -79,7 +79,6 @@ namespace LCompilers::LPython {
         custom_interpreter() : e{CompilerOptions()} {
             e.compiler_options.interactive = true;
             e.compiler_options.po.disable_main = true;
-            e.compiler_options.emit_debug_line_column = false;
             e.compiler_options.separate_compilation = false;
         }
         virtual ~custom_interpreter() = default;

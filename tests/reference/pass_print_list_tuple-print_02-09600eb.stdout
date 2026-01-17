@@ -7220,7 +7220,9 @@
                                                     )]
                                                     (Tuple
                                                         [(Integer 4)
-                                                        (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength DescriptorString)]
+                                                        (Allocatable
+                                                            (String 1 () DeferredLength DescriptorString)
+                                                        )]
                                                     )
                                                 )
                                                 (TupleConstant
@@ -7231,13 +7233,17 @@
                                                     )]
                                                     (Tuple
                                                         [(Integer 4)
-                                                        (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength DescriptorString)]
+                                                        (Allocatable
+                                                            (String 1 () DeferredLength DescriptorString)
+                                                        )]
                                                     )
                                                 )]
                                                 (List
                                                     (Tuple
                                                         [(Integer 4)
-                                                        (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength DescriptorString)]
+                                                        (Allocatable
+                                                            (String 1 () DeferredLength DescriptorString)
+                                                        )]
                                                     )
                                                 )
                                             )
@@ -7250,7 +7256,9 @@
                                                     )]
                                                     (Tuple
                                                         [(Integer 4)
-                                                        (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength DescriptorString)]
+                                                        (Allocatable
+                                                            (String 1 () DeferredLength DescriptorString)
+                                                        )]
                                                     )
                                                 )
                                                 (TupleConstant
@@ -7261,13 +7269,17 @@
                                                     )]
                                                     (Tuple
                                                         [(Integer 4)
-                                                        (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength DescriptorString)]
+                                                        (Allocatable
+                                                            (String 1 () DeferredLength DescriptorString)
+                                                        )]
                                                     )
                                                 )]
                                                 (List
                                                     (Tuple
                                                         [(Integer 4)
-                                                        (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength DescriptorString)]
+                                                        (Allocatable
+                                                            (String 1 () DeferredLength DescriptorString)
+                                                        )]
                                                     )
                                                 )
                                             )]
@@ -7275,7 +7287,9 @@
                                                 (List
                                                     (Tuple
                                                         [(Integer 4)
-                                                        (String 1 (IntegerConstant 1 (Integer 4) Decimal) ExpressionLength DescriptorString)]
+                                                        (Allocatable
+                                                            (String 1 () DeferredLength DescriptorString)
+                                                        )]
                                                     )
                                                 )
                                             )
