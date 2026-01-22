@@ -1,0 +1,55 @@
+└─(10:46:54 on vector-backend ✖ ✭)──> lpython ../ISSUES/UNHANDLED-EXCEPTIONS/Issue2479.py     1 ↵ ──(Mon,Feb05)─┘
+Internal Compiler Error: Unhandled exception
+Traceback (most recent call last):
+  File "/Users/brian/Dropbox/Mac/Documents/GitHub/lpython/src/bin/lpython.cpp", line 1872
+    err = compile_python_to_object_file(arg_file, tmp_o, runtime_library_dir,
+  File "/Users/brian/Dropbox/Mac/Documents/GitHub/lpython/src/bin/lpython.cpp", line 824
+    res = fe.get_llvm3(*asr, pass_manager, diagnostics, infile);
+  File "/Users/brian/Dropbox/Mac/Documents/GitHub/lpython/src/lpython/python_evaluator.cpp", line 71
+    run_fn, infile);
+  File "/Users/brian/Dropbox/Mac/Documents/GitHub/lpython/src/libasr/codegen/asr_to_llvm.cpp", line 9282
+    v.visit_asr((ASR::asr_t&)asr);
+  File "../libasr/asr.h", line 5057
+  File "../libasr/asr.h", line 5033
+  File "../libasr/asr.h", line 5058
+  File "../libasr/asr.h", line 4766
+  File "/Users/brian/Dropbox/Mac/Documents/GitHub/lpython/src/libasr/codegen/asr_to_llvm.cpp", line 932
+    ASR::symbol_t *mod = x.m_symtab->get_symbol(item);
+  File "../libasr/asr.h", line 5060
+  File "../libasr/asr.h", line 4774
+  File "/Users/brian/Dropbox/Mac/Documents/GitHub/lpython/src/libasr/codegen/asr_to_llvm.cpp", line 2976
+    finish_module_init_function_prototype(x);
+  File "/Users/brian/Dropbox/Mac/Documents/GitHub/lpython/src/libasr/codegen/asr_to_llvm.cpp", line 3927
+    ASR::Function_t *s = ASR::down_cast<ASR::Function_t>(item.second);
+  File "/Users/brian/Dropbox/Mac/Documents/GitHub/lpython/src/libasr/codegen/asr_to_llvm.cpp", line 3683
+    visit_procedures(x);
+  File "/Users/brian/Dropbox/Mac/Documents/GitHub/lpython/src/libasr/codegen/asr_to_llvm.cpp", line 3880
+    this->visit_stmt(*x.m_body[i]);
+  File "../libasr/asr.h", line 5077
+  File "../libasr/asr.h", line 4827
+  File "/Users/brian/Dropbox/Mac/Documents/GitHub/lpython/src/libasr/codegen/asr_to_llvm.cpp", line 5603
+    create_loop(x.m_name, [=]() {
+  File "/Users/brian/Dropbox/Mac/Documents/GitHub/lpython/src/libasr/codegen/asr_to_llvm.cpp", line 321
+    start_new_block(loopbody); {
+  File "/Users/brian/Dropbox/Mac/Documents/GitHub/lpython/src/libasr/codegen/asr_to_llvm.cpp", line 5609
+    this->visit_stmt(*x.m_body[i]);
+  File "../libasr/asr.h", line 5077
+  File "../libasr/asr.h", line 4834
+  File "/Users/brian/Dropbox/Mac/Documents/GitHub/lpython/src/libasr/codegen/asr_to_llvm.cpp", line 5063
+    this->visit_stmt(*(block->m_body[i]));
+  File "../libasr/asr.h", line 5077
+  File "../libasr/asr.h", line 4827
+  File "/Users/brian/Dropbox/Mac/Documents/GitHub/lpython/src/libasr/codegen/asr_to_llvm.cpp", line 5603
+    create_loop(x.m_name, [=]() {
+  File "/Users/brian/Dropbox/Mac/Documents/GitHub/lpython/src/libasr/codegen/asr_to_llvm.cpp", line 321
+    start_new_block(loopbody); {
+  File "/Users/brian/Dropbox/Mac/Documents/GitHub/lpython/src/libasr/codegen/asr_to_llvm.cpp", line 5609
+    this->visit_stmt(*x.m_body[i]);
+  File "../libasr/asr.h", line 5077
+  File "../libasr/asr.h", line 4800
+  File "/Users/brian/Dropbox/Mac/Documents/GitHub/lpython/src/libasr/codegen/asr_to_llvm.cpp", line 4283
+    handle_array_section_association_to_pointer(x);
+  File "/Users/brian/Dropbox/Mac/Documents/GitHub/lpython/src/libasr/codegen/asr_to_llvm.cpp", line 4247
+    LCOMPILERS_ASSERT(target_rank > 0);
+AssertFailed: target_rank > 0
+(lp) ┌─(~/Documents/GitHub/lpython/integration_tests)───────────────────────────────────────(brian@MacBook-Pro:s001)─┐
