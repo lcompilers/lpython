@@ -8,7 +8,7 @@ are encouraged to use them independently for other applications and build tools
 on top:
 
 * Abstract Syntax Tree (AST), module `lfortran.ast`: Represents any Fortran
-  source code, strictly based on syntax, no semantic is included. The AST
+  source code, strictly based on syntax, no semantics are included. The AST
   module can convert itself to Fortran source code.
 
 * Abstract Semantic Representation (ASR), module `lfortran.asr`: Represents a valid

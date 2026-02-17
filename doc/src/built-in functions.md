@@ -49,7 +49,7 @@ Returns the tuple (x // y, x % y).
 
 ### exp(x)
 
-- ****Parameter****
+- **Parameter**
     - x : floating point number (f32, f64)
 - **Returns** : floating point number (f32, f64) between [0.0, inf]
 
@@ -108,7 +108,7 @@ Returns the remainder of x / y, or x when x is smaller than y. Both x and y shou
 
 - **Parameters**
     - x : integer (i32, i64), floating point number (f32, f64), complex number (c32) or bool
-    - y: integer (i32, i64), floating point number (f32, f64) or bool
+    - y : integer (i32, i64), floating point number (f32, f64) or bool
 - **Returns** : integer (i32), floating point number (f32, f64) or a complex number
 
 Returns x<sup>y</sup>. When x is of type bool, y must also be of the same type. If x is 32-bit complex number (c32), y can only be a 32-bit integer (i32).

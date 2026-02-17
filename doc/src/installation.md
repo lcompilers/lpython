@@ -40,7 +40,7 @@ Follow the steps below to install and run LPython on Linux, Windows or macOS.
     - Windows with WSL
         - Install Miniforge Prompt and add it to path:
             ```bash
-            wget  https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-x86_64.sh -O miniconda.sh
+            wget https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-x86_64.sh -O miniconda.sh
             bash miniconda.sh -b -p $HOME/conda_root
             export PATH="$HOME/conda_root/bin:$PATH"
             conda init bash # (shell name)
@@ -76,7 +76,7 @@ Follow the steps below to install and run LPython on Linux, Windows or macOS.
     - Generate the prerequisite files and build in Debug Mode:
 
         ```bash
-        # if you are developing on top of a forked repository; please run following command first
+        # if you are developing on top of a forked repository; please run the following command first
         # ./generate_default_tag.sh
 
 
@@ -108,7 +108,7 @@ Follow the steps below to install and run LPython on Linux, Windows or macOS.
     - Run the following commands to build the project:
         ```bash
         ./build0.sh
-        cmake -DCMAKE_BUILD_TYPE=Debug -DWITH_LLVM=yes -DCMAKE_INSTALL_PREFIX=`pwd`/inst .\
+        cmake -DCMAKE_BUILD_TYPE=Debug -DWITH_LLVM=yes -DCMAKE_INSTALL_PREFIX=`pwd`/inst .
         make -j8
         ```
 
@@ -134,7 +134,7 @@ Follow the steps below to install and run LPython on Linux, Windows or macOS.
         cd integration_tests
         ./run_tests.py
         ```
-    - In case you have recently updated macOS, you may get a warning like below in some test cases:
+    - In case you have recently updated macOS, you may get a warning like the one below in some test cases:
         ```bash
         ld: warning: object file (test_list_index2.out.tmp.o) was built for newer macOS version (14.0) than being linked (13.3)
         ```

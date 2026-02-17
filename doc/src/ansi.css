@@ -117,7 +117,7 @@
 .ansi-underline {
   text-decoration: underline;
 }
-/* The following styles are deprecated an will be removed in a future version */
+/* The following styles are deprecated and will be removed in a future version */
 .ansibold {
   font-weight: bold;
 }

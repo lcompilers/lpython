@@ -7,7 +7,7 @@ your contribution so that it can be merged.
 
 ## Basic Setup
 
-To contribute, make sure your set up:
+To contribute, make sure you set up:
 
 * Your username + email
 * Your `~/.gitconfig`
@@ -84,7 +84,7 @@ We also tell LFortran how to print the new token in *parser.cpp*.
 
 :fontawesome-solid-code: *src/lfortran/parser/parser.cpp*
 ```
-std:string token2text(const int token)
+std::string token2text(const int token)
 {
     switch (token) {
         T(TK_CARET, "^")
@@ -241,7 +241,7 @@ Interactive Fortran. Experimental prototype, not ready for end users.
 ```
 ## Reach Out 
 
-If you have any questions or need help, please ask as at our
+If you have any questions or need help, please ask us at our
 [mailinglist](https://groups.io/g/lfortran) or a
 [chat](https://lfortran.zulipchat.com/).
 

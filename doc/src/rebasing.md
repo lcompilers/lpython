@@ -100,7 +100,7 @@ pick 663edf45b refactor
 # However, if you remove everything, the rebase will be aborted.
 #
 ```
-We want to squash commits named `refactor`(squash: meld commit with previous one), and we want to rename(`reword`) commit named `Added add4.py`, so will change `pick` option on our commits and type `squash or s`, `reword or r`
+We want to squash commits named `refactor`(squash: meld the commit with the previous one), and we want to rename(`reword`) commit named `Added add4.py`, so will change `pick` option on our commits and type `squash or s`, `reword or r`
 ```bash
 pick 132b89e0c Added add.py
 pick 75556f15c Added add2.py
@@ -143,7 +143,7 @@ Refactor
 # Untracked files:
 ...
 ```
-- second window: rename(reword) `Added add4.py`, you can edit the message as you want, I will rename it: `Added add4.py and edit it ` . 
+- second window: rename(reword) `Added add4.py`, you can edit the message as you want, I will rename it to: `Added add4.py and edit it ` . 
 ```
 Added add4.py
 
@@ -226,7 +226,7 @@ Date:   Sat Jul 30 23:36:27 2022 +0200
 and if you  want to push to the remote branch you must push with `--force` option.
 
 
-This [video](https://drive.google.com/file/d/1506h86_RLgwtjLi_uKWbdVNDsSVusIbr/view?usp=sharing) by *Naman Gera* he was rebasing a branch.
+In this [video](https://drive.google.com/file/d/1506h86_RLgwtjLi_uKWbdVNDsSVusIbr/view?usp=sharing), by *Naman Gera* he shows how to rebase a branch.
 
 ---
 # Merging
