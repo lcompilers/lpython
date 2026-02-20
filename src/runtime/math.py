@@ -498,9 +498,9 @@ def lcm(a: i32, b: i32) -> i32:
         a_ = -a_
     if b_ < 0:
         b_ = -b_
-    if a_*b_ == 0:
+    if a_ == 0 or b_ == 0:
         return 0
-    return i32((a_*b_)//gcd(a_, b_))
+    return i32((a_ // gcd(a_, b_)) * b_)
 
 
 def copysign(x: f64, y: f64) -> f64:
@@ -517,7 +517,11 @@ def hypot(x: i32, y: i32) -> f64:
     """
     Returns the hypotenuse of the right triangle with sides `x` and `y`.
     """
-    return sqrt(f64(1.0)*f64(x**2 + y**2))
+    xf: f64
+    yf: f64
+    xf = f64(x)
+    yf = f64(y)
+    return sqrt(xf**2.0 + yf**2.0)
 
 @overload
 def trunc(x: f64) -> i64:
