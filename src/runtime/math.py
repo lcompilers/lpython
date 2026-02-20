@@ -225,11 +225,27 @@ def comb(n: i32, k: i32) -> i32:
     Computes the result of `nCk`, i.e, the number of ways to choose `k`
     items from `n` items without repetition and without order.
     """
-
-    if n < k or n < 0:
+    if k < 0 or k > n:
         return 0
-    return i32(factorial(n)//(factorial(k)*factorial(n-k)))
+    if k == 0 or k == n:
+        return 1
 
+    # Creating a local variable because assignment to input function parameter 'k' is not allowed
+    k_final: i32 = k
+
+    # Optimization: nCk is the same as nC(n-k), (done so that the number of iterations in loop can be reduced).
+    if k_final > n // 2:
+        k_final = n - k_final
+
+    result: i32 = 1
+    i: i32
+
+    for i in range(k_final):
+        # Calculate: result * (n - i) / (i + 1)
+        result = result * (n - i)
+        result = result // (i + 1)
+
+    return result
 
 def perm(n: i32, k: i32) -> i32:
     """
@@ -239,7 +255,13 @@ def perm(n: i32, k: i32) -> i32:
 
     if n < k or n < 0:
         return 0
-    return i32(factorial(n)//factorial(n-k))
+    if k == 0:
+        return 1
+    result: i32 = 1
+    i: i32
+    for i in range(n, n-k, -1):
+        result = result * i
+    return result
 
 
 def isqrt(n: i32) -> i32:
